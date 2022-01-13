@@ -30,7 +30,7 @@ class SbbolCredentials {
         return result
     }
 
-    async refreshClientSecret ({ clientId, clientSecret }) {
+    async refreshClientSecret ({ clientId, currentClientSecret, newClientSecret }) {
         const { accessToken, tokenSet } = this.getAccessToken()
         const requestApi = new SbbolRequestApi({
             accessToken,
@@ -48,11 +48,12 @@ class SbbolCredentials {
             },
             body: {
                 client_id: clientId,
-                client_secret: clientSecret || tokenSet.clientSecret,
+                client_secret: currentClientSecret || tokenSet.clientSecret,
+                new_client_secret: newClientSecret,
             },
         })
         if (statusCode !== 200) {
-            throw new Error('Something went wrong')
+            throw new Error('Something went wrong, SBBOL sent not successful response.')
         } else {
             if (data) {
                 let jsonData
