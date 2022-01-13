@@ -2,8 +2,8 @@
  * Manages credentials through SBBOL API
  *
  * Example:
- *      yarn workspace @app/condo sbbol:credentials refresh-all-tokens
- *      yarn workspace @app/condo sbbol:credentials refresh-client-secret 1234 a1b2c3d4
+ *      yarn node apps/condo/bin/sbbol/credentials.js refresh-all-tokens
+ *      yarn node apps/condo/bin/sbbol/credentials.js refresh-client-secret 1234 a1b2c3d4
  */
 const { values } = require('lodash')
 const { SbbolCredentials } = require('@condo/domains/organization/integrations/sbbol/SbbolCredentials')
