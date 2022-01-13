@@ -433,7 +433,7 @@ class MapEdit extends MapView {
         if (sectionIndex !== -1) {
             this.map.sections[sectionIndex].name = section.name
         }
-        this.editMode = 'addSection'
+        this.editMode = null
         this.notifyUpdater()
     }
 
