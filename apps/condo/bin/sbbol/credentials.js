@@ -1,9 +1,11 @@
 /**
  * Manages credentials through SBBOL API
  *
- * Example:
- *      yarn node apps/condo/bin/sbbol/credentials.js refresh-all-tokens
- *      yarn node apps/condo/bin/sbbol/credentials.js refresh-client-secret 1234 a1b2c3d4
+ * @example Loop through all organizations and refresh tokens:
+ * yarn node apps/condo/bin/sbbol/credentials.js refresh-all-tokens
+ *
+ * @example Refresh client secret for specified clientId `1234` with passing old Client Secret `a1b2c3d4`
+ * yarn node apps/condo/bin/sbbol/credentials.js refresh-client-secret 1234 a1b2c3d4
  */
 const { values } = require('lodash')
 const { SbbolCredentials } = require('@condo/domains/organization/integrations/sbbol/SbbolCredentials')
