@@ -10,12 +10,14 @@ function getModelForms (key) {
 }
 
 function genGetAllGQL (key, fields) {
-    const [MODEL, MODELS] = getModelForms(key)
-    return gql`
-        query getAll${MODELS}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELS}By!]) {
-            objs: all${MODELS}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${fields}
-        }
-    `
+    return (customFields) => {
+        const [MODEL, MODELS] = getModelForms(key)
+        return gql`
+            query getAll${MODELS}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELS}By!]) {
+                objs: all${MODELS}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${ customFields || fields }
+            }
+        `
+    }
 }
 
 function genGetCountGQL (key) {
@@ -28,40 +30,48 @@ function genGetCountGQL (key) {
 }
 
 function genGetAllWithCountGQL (key, fields) {
-    const [MODEL, MODELS] = getModelForms(key)
-    return gql`
-        query getAll${MODELS}($where: ${MODEL}WhereInput, $first: Int = ${DEFAULT_PAGE_SIZE}, $skip: Int, $sortBy: [Sort${MODELS}By!]) {
-            objs: all${MODELS}(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${fields}
-            meta: _all${MODELS}Meta(where: $where) { count }
-        }
-    `
+    return (customFields) => {
+        const [MODEL, MODELS] = getModelForms(key)
+        return gql`
+            query getAll${ MODELS }($where: ${ MODEL }WhereInput, $first: Int = ${ DEFAULT_PAGE_SIZE }, $skip: Int, $sortBy: [Sort${ MODELS }By!]) {
+                objs: all${ MODELS }(where: $where, first: $first, skip: $skip, sortBy: $sortBy) ${ customFields || fields }
+                meta: _all${ MODELS }Meta(where: $where) { count }
+            }
+        `
+    }
 }
 
 function genCreateGQL (key, fields) {
-    const [MODEL] = getModelForms(key)
-    return gql`
-        mutation create${MODEL}($data: ${MODEL}CreateInput) {
-            obj: create${MODEL}(data: $data) ${fields}
-        }
-    `
+    return (customFields) => {
+        const [MODEL] = getModelForms(key)
+        return gql`
+            mutation create${ MODEL }($data: ${ MODEL }CreateInput) {
+                obj: create${ MODEL }(data: $data) ${ customFields || fields }
+            }
+        `
+    }
 }
 
 function genUpdateGQL (key, fields) {
-    const [MODEL] = getModelForms(key)
-    return gql`
-        mutation update${MODEL}($id: ID!, $data: ${MODEL}UpdateInput) {
-            obj: update${MODEL}(id: $id, data: $data) ${fields}
-        }
-    `
+    return (customFields) => {
+        const [MODEL] = getModelForms(key)
+        return gql`
+            mutation update${ MODEL }($id: ID!, $data: ${ MODEL }UpdateInput) {
+                obj: update${ MODEL }(id: $id, data: $data) ${ customFields || fields }
+            }
+        `
+    }
 }
 
 function genDeleteGQL (key, fields) {
-    const [MODEL] = getModelForms(key)
-    return gql`
-        mutation delete${MODEL}($id: ID!) {
-            obj: delete${MODEL}(id: $id) ${fields}
-        }
-    `
+    return (customFields) => {
+        const [MODEL] = getModelForms(key)
+        return gql`
+            mutation delete${ MODEL }($id: ID!) {
+                obj: delete${ MODEL }(id: $id) ${ customFields || fields }
+            }
+        `
+    }
 }
 
 function generateGqlQueries (key, fields) {

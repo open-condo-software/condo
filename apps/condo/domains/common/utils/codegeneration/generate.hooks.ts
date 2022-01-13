@@ -47,7 +47,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
         const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
 
-        const result = useQuery<{ objs?: GQL[], meta?: { count?: number } }, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
+        const result = useQuery<{ objs?: GQL[], meta?: { count?: number } }, Q>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY(), {
             variables,
             notifyOnNetworkStatusChange: true,
             ...options,
@@ -80,7 +80,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
      */
     function useCreate (attrs: UIForm | Record<string, unknown> = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
-        const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
+        const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION())
         async function _action (state: UIForm) {
             const { data, errors } = await rowAction({
                 variables: { data: convertToGQLInput({ ...state, ...attrs }) },
@@ -102,7 +102,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
 
     function useUpdate (attrs = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useUpdate(): invalid attrs argument')
-        const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
+        const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION())
 
         async function _action (state, obj) {
             if (!obj || !obj.id) throw new Error('No obj.id argument')
@@ -129,7 +129,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
 
     function useDelete (attrs = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useDelete(): invalid attrs argument')
-        const [rowAction] = useMutation(gql.DELETE_OBJ_MUTATION)
+        const [rowAction] = useMutation(gql.DELETE_OBJ_MUTATION())
 
         async function _action (obj) {
             if (!obj || !obj.id) throw new Error('No obj.id argument')
@@ -155,7 +155,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
 
     function useSoftDelete (attrs = {}, onComplete) {
         if (typeof attrs !== 'object' || !attrs) throw new Error('useSoftDelete(): invalid attrs argument')
-        const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
+        const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION())
 
         async function _action (state, obj) {
             if (!obj.id) throw new Error('No obj.id argument')

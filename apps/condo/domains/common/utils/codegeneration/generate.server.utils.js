@@ -1,8 +1,6 @@
 const { pickBy, get } = require('lodash')
 
 const conf = require('@core/config')
-const { getById } = require('@core/keystone/schema')
-
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const isNotUndefined = (x) => typeof x !== 'undefined'
@@ -40,11 +38,11 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
 }
 
 function generateServerUtils (gql) {
-    async function getAll (context, where, { sortBy, first, skip } = {}) {
+    async function getAll (context, where, { sortBy, first, skip, fields } = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
         return await execGqlWithoutAccess(context, {
-            query: gql.GET_ALL_OBJS_QUERY,
+            query: gql.GET_ALL_OBJS_QUERY(fields),
             variables: {
                 where, sortBy, first, skip,
             },
@@ -70,34 +68,34 @@ function generateServerUtils (gql) {
         })
     }
 
-    async function create (context, data) {
+    async function create (context, data, { fields } = {}) {
         if (!context) throw new Error('no context')
         if (!data) throw new Error('no data')
         return await execGqlWithoutAccess(context, {
-            query: gql.CREATE_OBJ_MUTATION,
+            query: gql.CREATE_OBJ_MUTATION(fields),
             variables: { data },
             errorMessage: `[error] Create ${gql.SINGULAR_FORM} internal error`,
             dataPath: 'obj',
         })
     }
 
-    async function update (context, id, data) {
+    async function update (context, id, data, { fields } = {}) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
         if (!data) throw new Error('no data')
         return await execGqlWithoutAccess(context, {
-            query: gql.UPDATE_OBJ_MUTATION,
+            query: gql.UPDATE_OBJ_MUTATION(fields),
             variables: { id, data },
             errorMessage: `[error] Update ${gql.SINGULAR_FORM} internal error`,
             dataPath: 'obj',
         })
     }
 
-    async function delete_ (context, id) {
+    async function delete_ (context, id, { fields } = {}) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
         return await execGqlWithoutAccess(context, {
-            query: gql.DELETE_OBJ_MUTATION,
+            query: gql.DELETE_OBJ_MUTATION(fields),
             variables: { id },
             errorMessage: `[error] Delete ${gql.SINGULAR_FORM} internal error`,
             dataPath: 'obj',
