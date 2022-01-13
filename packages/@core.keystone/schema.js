@@ -182,6 +182,13 @@ async function getByCondition (schemaName, condition) {
     else return null
 }
 
+/**
+ * ATTENTION!!! Requests data through keystone, does not resolve connections, returns related IDs as is in flat way.
+ * Should be used mainly in access/mutations, where you don't need related data other than IDs
+ * @param schemaName
+ * @param id
+ * @returns {Promise<*|null|undefined>}
+ */
 async function getById (schemaName, id) {
     return await getByCondition(schemaName, { id })
 }

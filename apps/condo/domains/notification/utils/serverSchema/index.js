@@ -5,15 +5,21 @@
  */
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { MESSAGE_TYPES } = require('../../constants')
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
-const { Message: MessageGQL } = require('@condo/domains/notification/gql')
+const {
+    Message: MessageGQL,
+    SEND_MESSAGE, RESEND_MESSAGE,
+    PushToken: PushTokenGQL,
+} = require('@condo/domains/notification/gql')
+
+const { MESSAGE_TYPES } = require('@condo/domains/notification/constants')
+
+const { REGISTER_PUSH_NOTIFICATION_TOKEN_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const { SEND_MESSAGE, RESEND_MESSAGE } = require('../../gql')
-
 const Message = generateServerUtils(MessageGQL)
+const PushToken = generateServerUtils(PushTokenGQL)
 
 async function sendMessage (context, data) {
     if (!context) throw new Error('no context')
@@ -46,9 +52,26 @@ async function resendMessage (context, data) {
     })
 }
 
+async function registerPushNotificationToken (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write registerPushNotificationToken serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_PUSH_NOTIFICATION_TOKEN_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerPushNotificationToken',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    Message, sendMessage, resendMessage,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    Message,
+    sendMessage, resendMessage,
+    PushToken,
+    registerPushNotificationToken,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

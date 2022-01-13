@@ -23,10 +23,27 @@ const RESEND_MESSAGE = gql`
         result: resendMessage(data: $data) { status id }
     }
 `
+
+const getPushTokenFields = (extra = 'id') => `{ deviceId token serviceType ${extra} }`
+
+const PUSH_TOKEN_FIELDS = getPushTokenFields('id user')
+const PUSH_TOKEN_FIELDS_WITH_COMMON = getPushTokenFields(`user { id } ${COMMON_FIELDS}`)
+const PushToken = generateGqlQueries('PushToken', PUSH_TOKEN_FIELDS_WITH_COMMON)
+
+const REGISTER_PUSH_NOTIFICATION_TOKEN_MUTATION = gql`
+    mutation registerPushNotificationTokenService ($data: RegisterPushNotificationTokenInput!) {
+        result: registerPushToken(data: $data) ${PUSH_TOKEN_FIELDS}
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Message,
-    SEND_MESSAGE, RESEND_MESSAGE,
+    SEND_MESSAGE,
+    RESEND_MESSAGE,
+    PushToken,
+    REGISTER_PUSH_NOTIFICATION_TOKEN_MUTATION,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

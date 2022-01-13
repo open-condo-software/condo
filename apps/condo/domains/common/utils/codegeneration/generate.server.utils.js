@@ -1,6 +1,7 @@
 const { pickBy, get } = require('lodash')
 
 const conf = require('@core/config')
+const { getById } = require('@core/keystone/schema')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
@@ -52,6 +53,10 @@ function generateServerUtils (gql) {
         })
     }
 
+    async function getFirst (context, where, params = {}) {
+        return await getAll(context, where, { first: 1, ...params })
+    }
+
     async function count (context, where, { sortBy, first, skip } = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
@@ -99,11 +104,38 @@ function generateServerUtils (gql) {
         })
     }
 
+    /**
+     * Returns result with flat related IDs, relations would not be resolved because of getById
+     * @param context
+     * @param attrs
+     * @param existingItem
+     * @returns {Promise<*|null|undefined>}
+     */
+    async function createOrUpdateExistingItem (context, attrs, existingItem) {
+        let id = get(existingItem, 'id', null)
+
+        if (existingItem) {
+            await update(context, id, attrs)
+        } else {
+            const createdItem = await create(context, attrs)
+
+            id = createdItem.id
+        }
+
+        // NOTE: result will have flat related IDs, relations not resolved because of getById
+        return await getById(gql.SINGULAR_FORM, id)
+    }
+
+
     return {
         gql,
-        getAll, count,
-        create, update,
+        getAll,
+        getFirst,
+        count,
+        create,
+        update,
         delete: delete_,
+        createOrUpdateExistingItem,
     }
 }
 

@@ -4,17 +4,23 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+
 const { getRandomString } = require('@core/keystone/test.utils')
-const { SEND_MESSAGE, RESEND_MESSAGE } = require('../../gql')
-const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('../../constants')
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
-const { Message: MessageGQL } = require('@condo/domains/notification/gql')
+const {
+    Message: MessageGQL,
+    SEND_MESSAGE, RESEND_MESSAGE,
+    PushToken: PushTokenGQL,
+} = require('@condo/domains/notification/gql')
+const { REGISTER_PUSH_NOTIFICATION_TOKEN_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const Message = generateGQLTestUtils(MessageGQL)
+const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, DEVICE_SERVICE_TYPES_KEYS } = require('@condo/domains/notification/constants')
 
+const Message = generateGQLTestUtils(MessageGQL)
+const PushToken = generateGQLTestUtils(PushTokenGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestMessage (client, extraAttrs = {}) {
@@ -87,9 +93,67 @@ async function resendMessageByTestClient (client, message, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
+function getRandomElement (arr) {
+    const idx = Math.floor(Math.random() * arr.length)
+
+    return arr[idx]
+}
+
+async function createTestPushToken (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const deviceId = faker.random.uuid()
+    const token = faker.random.uuid()
+    const serviceType = getRandomElement(DEVICE_SERVICE_TYPES_KEYS)
+
+    console.log('createTestPushToken:', {DEVICE_SERVICE_TYPES_KEYS, serviceType})
+
+    const attrs = {
+        dv: 1,
+        sender,
+        deviceId, token, serviceType,
+        ...extraAttrs,
+    }
+    const obj = await PushToken.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPushToken (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestPushToken logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PushToken.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function registerPushNotificationTokenByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_PUSH_NOTIFICATION_TOKEN_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Message, createTestMessage, updateTestMessage, sendMessageByTestClient, resendMessageByTestClient,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    Message,
+    createTestMessage, updateTestMessage, sendMessageByTestClient, resendMessageByTestClient,
+    PushToken,
+    createTestPushToken, updateTestPushToken,
+registerPushNotificationTokenByTestClient
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

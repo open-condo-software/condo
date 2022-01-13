@@ -4,4 +4,5 @@
  */
 
 export * as Message from './Message'
+export * as PushToken from './PushToken'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

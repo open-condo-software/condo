@@ -90,6 +90,14 @@ const MESSAGE_STATUSES = [
     MESSAGE_DELIVERED_STATUS, MESSAGE_CANCELED_STATUS,
 ]
 
+const DEVICE_SERVICE_TYPES = {
+    Firebase: 'Android device with Google Apps',
+    Huawei: 'Android device without Google Apps (Huawei)',
+    Apple: 'Apple device',
+}
+
+const DEVICE_SERVICE_TYPES_KEYS = Object.keys(DEVICE_SERVICE_TYPES)
+
 module.exports = {
     JSON_NO_REQUIRED_ATTR_ERROR,
     JSON_SUSPICIOUS_ATTR_NAME_ERROR,
@@ -116,4 +124,6 @@ module.exports = {
     MESSAGE_STATUSES,
     SHARE_TICKET_MESSAGE_TYPE,
     CUSTOMER_IMPORTANT_NOTE_TYPE,
+    DEVICE_SERVICE_TYPES,
+    DEVICE_SERVICE_TYPES_KEYS,
 }

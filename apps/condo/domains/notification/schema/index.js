@@ -5,10 +5,14 @@
 
 const { Message } = require('./Message')
 const { SendMessageService } = require('./SendMessageService')
+const { PushToken } = require('./PushToken')
+const { RegisterPushNotificationTokenService } = require('./RegisterPushNotificationTokenService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Message,
     SendMessageService,
+    PushToken,
+    RegisterPushNotificationTokenService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
