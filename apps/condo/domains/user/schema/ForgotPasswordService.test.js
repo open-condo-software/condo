@@ -226,8 +226,8 @@ describe('ForgotPasswordAction Service', () => {
             const { data } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
             expect(data.result).toEqual({ status: 'ok',  phone:  userAttrs.phone })
 
-            const { errors2 } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(errors2[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
         })
         it('cannot change when action token expired', async () => {
             const admin = await makeLoggedInAdminClient()
