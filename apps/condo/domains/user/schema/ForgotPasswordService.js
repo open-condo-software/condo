@@ -162,10 +162,11 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                         throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
                     }
                     phone = action.phone
-                    userId = await User.getAll(context, {
+                    const [user] = await User.getAll(context, {
                         type: STAFF,
                         phone,
-                    }).then(([u]) => u && u.id)
+                    })
+                    userId = user && user.id
 
                     if (!userId) {
                         throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
