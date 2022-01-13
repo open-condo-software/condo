@@ -205,7 +205,7 @@ describe('ForgotPasswordAction Service', () => {
             const password = `new_${userAttrs.password}`
             const { data, errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
             expect(errors).toHaveLength(1)
-            expect(data).toBeNull()
+            expect(data.result).toBeNull()
         })
 
         it('cannot change when action token already completed', async () => {
