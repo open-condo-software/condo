@@ -42,6 +42,7 @@ const { syncTokens } = require('./syncTokens')
 
 /**
  * Token information from OAuth
+ * This is NOT a `TokenSet` record from our schema
  *
  * @typedef TokenSet
  * @property {String} access_token

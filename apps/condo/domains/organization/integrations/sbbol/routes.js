@@ -53,6 +53,7 @@ class SbbolRoutes {
                 return res.status(400).send('ERROR: Invalid nonce and state')
             }
 
+            // This is NOT a `TokenSet` record from our schema
             const tokenSet = await this.helper.completeAuth(req, req.session[SBBOL_SESSION_KEY])
             const { keystone } = await getSchemaCtx('User')
             const { access_token } = tokenSet
