@@ -171,7 +171,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(result.errors[0].message).toEqual(`${PASSWORD_TOO_SHORT}] Password is too short`)
         })
         
-        it('changing password with ConfirmPhoneAction', async () => {
+        it('can change password with ConfirmPhoneAction', async () => {
             const admin = await makeLoggedInAdminClient()
             const [user, userAttrs] = await createTestUser(admin)
             const client = await makeClient()
@@ -191,6 +191,71 @@ describe('ForgotPasswordAction Service', () => {
 
             const newClient = await makeLoggedInClient({ phone: userAttrs.phone, password })
             expect(newClient.user.id).toEqual(user.id)
+        })
+
+        it('cannot change password when action is not confirmed', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [user, userAttrs] = await createTestUser(admin)
+            const client = await makeClient()
+
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {
+                phone: userAttrs.phone,
+            })
+
+            const password = `new_${userAttrs.password}`
+            const { data, errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(errors).toHaveLength(1)
+            expect(data).toBeNull()
+        })
+
+        it('cannot change when action token already completed', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [, userAttrs] = await createTestUser(admin)
+            const client = await makeClient()
+
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {
+                phone: userAttrs.phone,
+            })
+
+            const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
+
+            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: { token, smsCode: actionBefore.smsCode, captcha: captcha() } })
+            expect(status).toBe('ok')
+            
+            const password = `new_${userAttrs.password}`
+            const { data } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(data.result).toEqual({ status: 'ok',  phone:  userAttrs.phone })
+
+            const { errors2 } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(errors2[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+        })
+        it('cannot change when action token expired', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [, userAttrs] = await createTestUser(admin)
+            const client = await makeClient()
+
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {
+                phone: userAttrs.phone,
+            })
+
+            const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
+
+            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { 
+                data: {
+                    token, 
+                    smsCode: actionBefore.smsCode, 
+                    captcha: captcha(), 
+                }, 
+            })
+            expect(status).toBe('ok')
+            
+            await ConfirmPhoneAction.update(admin, actionBefore.id, {
+                expiresAt: new Date(Date.now()).toISOString(),
+            })
+            
+            const password = `new_${userAttrs.password}`
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
         })
     })
 })
