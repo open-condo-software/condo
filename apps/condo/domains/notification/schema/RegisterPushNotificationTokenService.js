@@ -3,7 +3,7 @@
  */
 
 const get = require('lodash/get')
-
+const { getById } = require('@core/keystone/schema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 
 const { PushToken: PushTokenAPI } = require('@condo/domains/notification/utils/serverSchema')
@@ -37,10 +37,11 @@ const RegisterPushNotificationTokenService = new GQLCustomSchema('RegisterPushNo
                     user: userId ? { disconnectAll: true, connect: { id: userId } } : null,
                 }
                 const [existingToken] = await PushTokenAPI.getFirst(context, { deviceId, serviceType })
-                const tokenData = await PushTokenAPI.createOrUpdateExistingItem(context, attrs, existingToken)
-                // NOTE: this hack is required because createOrUpdateExistingItem uses optimized getById, which is not resolving relations.
-                // const result = { ...tokenData, user: { id: tokenData.user } || null }
+                let { id } = existingToken
+                    ? await PushTokenAPI.update(context, existingToken.id, attrs, { fields: '{ id }' })
+                    : await PushTokenAPI.create(context, attrs, { fields: '{ id }' })
 
+                const tokenData = getById('PushToken', id)
                 return tokenData
             },
         },
