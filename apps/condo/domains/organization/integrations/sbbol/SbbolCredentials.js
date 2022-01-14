@@ -47,6 +47,7 @@ class SbbolCredentials {
                 'Content-Type': 'application/json',
             },
             body: {
+                access_token: accessToken,
                 client_id: clientId,
                 client_secret: currentClientSecret || tokenSet.clientSecret,
                 new_client_secret: newClientSecret,
