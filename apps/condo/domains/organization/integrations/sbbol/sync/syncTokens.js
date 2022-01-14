@@ -43,6 +43,7 @@ const syncTokens = async ({ context, tokenInfoFromOAuth, organization, user }) =
         where: {
             ...owner,
         },
+        sortBy: ['createdAt_DESC'],
         returnFields: 'id',
     })
     const item = {
