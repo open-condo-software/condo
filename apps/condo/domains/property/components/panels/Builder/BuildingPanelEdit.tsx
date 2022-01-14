@@ -820,12 +820,6 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
         }
     }, [builder, copyId])
 
-    const resetForm = useCallback(() => {
-        setMinFloor(null)
-        setMaxFloor(null)
-        setUnitsOnFloor(null)
-    }, [])
-
     const handleFinish = useCallback(() => {
         builder.removePreviewSection()
         builder.addSection({ id: '', name: sectionName, minFloor, maxFloor, unitsOnFloor })
@@ -1264,7 +1258,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     )
 }
 
-const RemoveParkingForm: React.FC<IRemoveSectionFormProps> = ({ builder, refresh }) => {
+const RemoveParkingForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
 
