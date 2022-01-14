@@ -1198,6 +1198,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
         if (minFloor > 0) return floorCount + minFloor - 1
         return floorCount + minFloor
     }, [floorCount, minFloor])
+    const setParkingNameValue = useCallback((value) => setParkingName(value ? value.toString() : ''), [])
 
     const resetForm = useCallback(() => {
         setMinFloor(1)
@@ -1258,6 +1259,18 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
                         </Select.Option>
                     ))}
                 </Select>
+            </Col>
+            <Col span={24} hidden={isCreateColumnsHidden}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{ParkingNameLabel}</Typography.Text>
+                    <InputNumber
+                        value={parkingName}
+                        min={1}
+                        onChange={setParkingNameValue}
+                        style={INPUT_STYLE}
+                        type={'number'}
+                    />
+                </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8}>
@@ -1361,6 +1374,15 @@ const EditParkingForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
                 </Space>
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
+                <Col span={24}>
+                    <Button
+                        secondary
+                        onClick={updateParkingSection}
+                        type={'sberDefaultGradient'}
+                    >
+                        {SaveLabel}
+                    </Button>
+                </Col>
                 <Col span={24}>
                     <Button
                         secondary
