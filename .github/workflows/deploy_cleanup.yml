@@ -1,5 +1,8 @@
 name: Cleanup container registry
 on:
+  workflow_dispatch:
+    branches:
+      - '*'
   schedule:
     - cron:  '0 2 * * *'
   repository_dispatch:
