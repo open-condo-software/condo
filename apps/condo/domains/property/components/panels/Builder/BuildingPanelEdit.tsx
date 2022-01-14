@@ -423,7 +423,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             addParking: <AddParkingForm builder={mapEdit} refresh={refresh} />,
                             addParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
                             editParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
-                            removeParking: <RemoveParkingForm builder={mapEdit} refresh={refresh} />,
+                            editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
                         }[mode] || null), [mode, mapEdit, refresh])
                     }
                 </BuildingPanelTopModal>
@@ -828,7 +828,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
         resetForm()
     }, [refresh, resetForm, builder, sectionName, minFloor, maxFloor, unitsOnFloor])
 
-    const setSectionNameValue = useCallback((value) => setSectionName(value.toString()), [])
+    const setSectionNameValue = useCallback((value) => setSectionName(value ? value.toString() : ''), [])
 
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
@@ -1069,7 +1069,7 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
         setName(section ? section.name : '')
     }, [section])
 
-    const setNameValue = useCallback((value) => setName(value.toString()), [])
+    const setNameValue = useCallback((value) => setName(value ? value.toString() : ''), [])
 
     const updateSection = useCallback(() => {
         builder.updateSection({ ...section, name })
@@ -1125,6 +1125,7 @@ const TEXT_BUTTON_STYLE: React.CSSProperties = { cursor: 'pointer' }
 
 const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
+    const ParkingNameLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.numberOfParkingSection' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
     const FloorCountLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.floorCount' })
     const ParkingOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.parkingOnFloor' })
@@ -1140,6 +1141,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     const [maxMinError, setMaxMinError] = useState(false)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const [copyId, setCopyId] = useState<string | null>(null)
+    const [parkingName, setParkingName] = useState<string>(builder.nextParkingName)
 
     const toggleMinFloorVisible = useCallback(() => {
         setMinFloor(1)
@@ -1147,21 +1149,22 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     }, [minFloorHidden])
     const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
     const setMaxFloorValue = useCallback((value) => { setMaxFloor(value) }, [])
+    const setParkingNameValue = useCallback((value) => setParkingName(value ? value.toString() : ''), [])
 
-    const resetForm = () => {
+    const resetForm = useCallback(() => {
         setMinFloor(1)
         setMaxFloor(null)
         setUnitsOnFloor(null)
-    }
+    }, [])
 
     useEffect(() => {
         if (minFloor && maxFloor) {
             setMaxMinError((maxFloor < minFloor))
         }
-        if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
+        if (minFloor && maxFloor && unitsOnFloor && !maxMinError && parkingName) {
             builder.addPreviewParking({
                 id: '',
-                name: builder.nextParkingName,
+                name: parkingName,
                 minFloor,
                 maxFloor,
                 unitsOnFloor,
@@ -1171,7 +1174,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
             builder.removePreviewParking()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [minFloor, maxFloor, unitsOnFloor])
+    }, [minFloor, maxFloor, unitsOnFloor, parkingName])
 
     useEffect(() => {
         if (copyId !== null) {
@@ -1183,12 +1186,14 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
         }
     }, [builder, copyId])
 
-    const handleFinish = () => {
+    const handleFinish = useCallback(() => {
         builder.removePreviewParking()
-        builder.addParking({ id: '', name: builder.nextParkingName, minFloor, maxFloor, unitsOnFloor })
+        builder.addParking({ id: '', name: parkingName, minFloor, maxFloor, unitsOnFloor })
+        setParkingName(builder.nextParkingName)
         refresh()
         resetForm()
-    }
+    }, [refresh, resetForm, builder, minFloor, maxFloor, unitsOnFloor, parkingName])
+
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
     const iconRotation = minFloorHidden ? 0 : 180
@@ -1207,6 +1212,18 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
                         </Select.Option>
                     ))}
                 </Select>
+            </Col>
+            <Col span={24} hidden={isCreateColumnsHidden}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{ParkingNameLabel}</Typography.Text>
+                    <InputNumber
+                        value={parkingName}
+                        min={1}
+                        onChange={setParkingNameValue}
+                        style={INPUT_STYLE}
+                        type={'number'}
+                    />
+                </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
@@ -1258,20 +1275,55 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     )
 }
 
-const RemoveParkingForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) => {
+const EditParkingForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
+    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.numberOfParkingSection' })
+    const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
 
-    const deleteParking = useCallback(() => {
-        const section = builder.getSelectedParking()
+    const [parkingName, setParkingName] = useState<string>('')
 
-        builder.removeParking(section.id)
+    const parkingSection = builder.getSelectedParking()
+
+    const deleteParking = useCallback(() => {
+        builder.removeParking(parkingSection.id)
         refresh()
-    }, [builder, refresh])
+    }, [builder, refresh, parkingSection])
+
+    const updateParkingSection = useCallback(() => {
+        builder.updateParking({ ...parkingSection, name: parkingName })
+        refresh()
+    }, [builder, refresh, parkingName, parkingSection])
+
+    const setParkingNameValue = useCallback((value) => setParkingName(value ? value.toString() : ''), [])
+
+    useEffect(() => {
+        setParkingName(parkingSection ? parkingSection.name : '')
+    }, [parkingSection])
 
     return (
         <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss}>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
+                    <InputNumber
+                        value={parkingName}
+                        min={1}
+                        onChange={setParkingNameValue}
+                        style={INPUT_STYLE}
+                    />
+                </Space>
+            </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
+                <Col span={24}>
+                    <Button
+                        secondary
+                        onClick={updateParkingSection}
+                        type={'sberDefaultGradient'}
+                    >
+                        {SaveLabel}
+                    </Button>
+                </Col>
                 <Col span={24}>
                     <Button
                         secondary
@@ -1279,7 +1331,9 @@ const RemoveParkingForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }
                         type='sberDangerGhost'
                         icon={<DeleteFilled />}
                         style={FULL_SIZE_UNIT_STYLE}
-                    >{DeleteLabel}</Button>
+                    >
+                        {DeleteLabel}
+                    </Button>
                 </Col>
             </Row>
         </Row>
