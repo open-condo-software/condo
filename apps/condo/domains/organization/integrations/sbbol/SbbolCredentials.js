@@ -41,7 +41,7 @@ class SbbolCredentials {
         })
 
         const { data, statusCode } = await requestApi.request({
-            method: 'GET',
+            method: 'POST',
             path: '/ic/sso/api/v1/change-client-secret',
             headers: {
                 'Content-Type': 'application/json',
