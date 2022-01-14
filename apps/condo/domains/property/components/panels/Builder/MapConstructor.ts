@@ -489,8 +489,10 @@ class MapEdit extends MapView {
         if (this.isEmptyParking) return '1'
         if (!this.isEmptyParking && this.parking.filter(section => !section.preview).length === 0) return '1'
 
-        const lastSectionNumber = Number(last(this.parking.filter(section => !section.preview)).name)
-        return String(lastSectionNumber + 1)
+        const maxParkingName = Math.max(...this.parking
+            .filter(parkingSection => !parkingSection.preview)
+            .map(parkingSection => Number(parkingSection.name)))
+        return String(maxParkingName + 1)
     }
 
     get editMode (): string | null {
@@ -517,7 +519,7 @@ class MapEdit extends MapView {
                 this.selectedUnit = null
                 this.selectedSection = null
                 break
-            case 'removeParking':
+            case 'editParking':
                 this.removePreviewParkingUnit()
                 this.removePreviewParking()
                 this.selectedParkingUnit = null
@@ -575,7 +577,7 @@ class MapEdit extends MapView {
             this.editMode = 'addParking'
         } else {
             this.selectedParking = parkingSection
-            this.editMode = 'removeParking'
+            this.editMode = 'editParking'
         }
     }
 
@@ -686,6 +688,15 @@ class MapEdit extends MapView {
         this.updateSectionNumbers(sectionIndex)
 
         this.editMode = 'addSection'
+        this.notifyUpdater()
+    }
+
+    public updateParking (parking: BuildingSection): void {
+        const parkingIndex = this.map.parking.findIndex(parkingSection => parkingSection.id === parking.id)
+        if (parkingIndex !== -1) {
+            this.map.parking[parkingIndex].name = parking.name
+        }
+        this.editMode = null
         this.notifyUpdater()
     }
 
