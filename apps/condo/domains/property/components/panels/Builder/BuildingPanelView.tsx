@@ -166,7 +166,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                     secondary
                                                     style={UNIT_BUTTON_SECTION_STYLE}
                                                     disabled
-                                                >{section.name}</UnitButton>
+                                                >{SectionNamePrefixTitle} {section.name}</UnitButton>
                                             </MapSectionContainer>
                                         ))
                                         : builder.parking.map(parkingSection => (
