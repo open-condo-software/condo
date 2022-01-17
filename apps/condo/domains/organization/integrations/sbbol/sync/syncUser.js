@@ -66,15 +66,16 @@ const syncUser = async ({ context, userInfo }) => {
             returnFields,
             ...context,
         })
-        
+
+        // SBBOL works only in Russia, another languages does not need t
         const lang = COUNTRIES[RUSSIA_COUNTRY].locale
-        await sendMessage(context, {
+        await sendMessage(context.context, {
             lang,
             to: {
                 user: {
                     id: user.id,
                 },
-                to: { phone: userInfo.phone },
+                phone: userInfo.phone,
             },
             type: REGISTER_NEW_USER_MESSAGE_TYPE,
             meta: {
