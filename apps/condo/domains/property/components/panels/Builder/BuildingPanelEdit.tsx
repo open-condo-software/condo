@@ -600,7 +600,7 @@ interface IPropertyMapSectionProps {
     scrollToForm: () => void
 }
 const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
-const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 3 }
+const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 2 }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, builder, refresh, scrollToForm }) => {
     const intl = useIntl()
@@ -732,7 +732,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
         resetForm()
     }, [refresh, resetForm, builder, sectionName, minFloor, maxFloor, unitsOnFloor])
 
-    const setSectionNameValue = useCallback((value) => setSectionName(value.toString()), [])
+    const setSectionNameValue = useCallback((value) => setSectionName(value ? value.toString() : ''), [])
 
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
@@ -958,7 +958,7 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
         setName(section ? section.name : '')
     }, [section])
 
-    const setNameValue = useCallback((value) => setName(value.toString()), [])
+    const setNameValue = useCallback((value) => setName(value ? value.toString() : ''), [])
 
     const updateSection = useCallback(() => {
         builder.updateSection({ ...section, name })
@@ -990,6 +990,7 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
                         secondary
                         onClick={updateSection}
                         type='sberDefaultGradient'
+                        disabled={isEmpty(name)}
                     >{SaveLabel}</Button>
                 </Col>
                 <Col span={24}>
