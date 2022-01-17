@@ -11,11 +11,9 @@ import groupBy from 'lodash/groupBy'
 import pickBy from 'lodash/pickBy'
 import Link from 'next/link'
 import qs, { IStringifyOptions } from 'qs'
-import React, { useEffect, useMemo } from 'react'
-import { Ticket as TicketGQL } from '../../../ticket/gql'
+import React, { useMemo } from 'react'
 import { useLayoutContext } from '../LayoutContext'
 import { TicketOverview } from './TicketOverview'
-import { useApolloClient } from '@core/next/apollo'
 
 interface IContainerProps {
     isSmall: boolean
