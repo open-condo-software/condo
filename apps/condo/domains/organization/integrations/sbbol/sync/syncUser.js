@@ -1,6 +1,9 @@
 const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
 const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
+const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { dvSenderFields } = require('../constants')
 
 const createOnboarding = async ({ keystone, user }) => {
@@ -63,6 +66,25 @@ const syncUser = async ({ context, userInfo }) => {
             returnFields,
             ...context,
         })
+        
+        const lang = COUNTRIES[RUSSIA_COUNTRY].locale
+        await sendMessage(context, {
+            lang,
+            to: {
+                user: {
+                    id: user.id,
+                },
+                to: { phone: userInfo.phone },
+            },
+            type: REGISTER_NEW_USER_MESSAGE_TYPE,
+            meta: {
+                userPassword: userInfo.password,
+                userPhone: userInfo.phone,
+                dv: 1,
+            },
+            sender: dvSenderFields.sender,
+        })
+
         await createOnboarding({ keystone: context.keystone, user, dvSenderFields })
         return user
     }
