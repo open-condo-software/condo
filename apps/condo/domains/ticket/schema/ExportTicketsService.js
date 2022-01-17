@@ -65,7 +65,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         operator: ticket.operator || ticket.createdBy || '',
                         executor: ticket.executor || '',
                         assignee: ticket.assignee || '',
-                        comments: comments.map(comment => comment.split(':').pop()).join('\n'),
+                        comments: comments.map(comment => comment.split(':').pop()).join('\n' + '—'.repeat(20) + '\n'),
                         source: ticket.source || '',
                     }
                 })
