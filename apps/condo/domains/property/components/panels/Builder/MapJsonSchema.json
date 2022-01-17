@@ -62,7 +62,10 @@
                                             "unitType": {
                                                 "enum": [
                                                     "flat",
-                                                    "parking"
+                                                    "parking",
+                                                    "apartment",
+                                                    "commercial",
+                                                    "warehouse"
                                                 ],
                                                 "title": "unitType",
                                                 "type": "string"

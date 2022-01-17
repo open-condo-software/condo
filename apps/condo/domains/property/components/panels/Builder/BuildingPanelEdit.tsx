@@ -776,13 +776,14 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
     const isUnitSelected = unit.unitType === BuildingUnitType.Flat
         ? builder.isUnitSelected(unit.id)
         : builder.isParkingUnitSelected(unit.id)
-
+    console.log(unit.unitType)
     return (
         <UnitButton
             onClick={selectUnit}
             disabled={unit.preview}
             preview={unit.preview}
             selected={isUnitSelected}
+            unitType={unit.unitType}
         >{unit.label}</UnitButton>
     )
 }
@@ -964,10 +965,12 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.unit.Name' })
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
     const [section, setSection] = useState('')
+    const [unitType, setUnitType] = useState<BuildingUnitType>(BuildingUnitType.Flat)
 
     const [sections, setSections] = useState([])
     const [floors, setFloors] = useState([])
@@ -1000,14 +1003,14 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     }, [builder])
 
     useEffect(() => {
-        if (label && floor && section && mode === 'addUnit') {
-            builder.addPreviewUnit({ id: '', label, floor, section })
+        if (label && floor && section && unitType && mode === 'addUnit') {
+            builder.addPreviewUnit({ id: '', label, floor, section, unitType })
             refresh()
         } else {
             builder.removePreviewUnit()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [label, floor, section, mode])
+    }, [label, floor, section, mode, unitType])
 
     const resetForm = useCallback(() => {
         setLabel('')
@@ -1018,14 +1021,14 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     const applyChanges = useCallback(() => {
         const mapUnit = builder.getSelectedUnit()
         if (mapUnit) {
-            builder.updateUnit({ ...mapUnit, label, floor, section })
+            builder.updateUnit({ ...mapUnit, label, floor, section, unitType })
         } else {
             builder.removePreviewUnit()
-            builder.addUnit({ id: '', label, floor, section })
+            builder.addUnit({ id: '', label, floor, section, unitType })
             resetForm()
         }
         refresh()
-    }, [builder, refresh, resetForm, label, floor, section])
+    }, [builder, refresh, resetForm, label, floor, section, unitType])
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedUnit()
@@ -1034,8 +1037,26 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
         resetForm()
     }, [resetForm, refresh, builder])
 
+    const updateUnitType = useCallback((value) => {
+        setUnitType(value)
+    }, [])
+
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text>{UnitTypeLabel}</Typography.Text>
+                    <Select
+                        value={intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                        onSelect={updateUnitType}
+                        style={INPUT_STYLE}
+                    >
+                        {Object.values(BuildingUnitType).map((unitType, unitTypeIndex) => (
+                            <Option key={unitTypeIndex} value={unitType}>{intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}</Option>
+                        ))}
+                    </Select>
+                </Space>
+            </Col>
             <Col span={24}>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>

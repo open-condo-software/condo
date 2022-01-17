@@ -737,7 +737,7 @@ class MapEdit extends MapView {
 
     public addPreviewUnit (unit: Partial<BuildingUnitArg>): void {
         this.removePreviewUnit()
-        const { id, section, floor, label } = unit
+        const { id, section, floor, label, unitType } = unit
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === section)
         if (sectionIndex === -1) {
             return
@@ -750,7 +750,7 @@ class MapEdit extends MapView {
             id,
             label,
             type: null,
-            unitType: BuildingUnitType.Flat,
+            unitType,
             preview: true,
         }
         newUnit.type = BuildingMapEntityType.Unit
@@ -814,7 +814,7 @@ class MapEdit extends MapView {
     }
 
     public addUnit (unit: Partial<BuildingUnitArg>): void {
-        const { id, section, floor, label } = unit
+        const { id, section, floor, label, unitType } = unit
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === section)
         if (sectionIndex === -1) {
             return
@@ -903,6 +903,7 @@ class MapEdit extends MapView {
         if (unitIndex.unit === -1) {
             return
         }
+        console.log(unit)
         const oldSection = this.map.sections[unitIndex.section].id
         const oldFloor = this.map.sections[unitIndex.section].floors[unitIndex.floor].id
 
@@ -910,6 +911,7 @@ class MapEdit extends MapView {
             this.removeUnit(unit.id)
             this.addUnit(unit)
         } else {
+            this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].unitType = unit.unitType
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].name = unit.label
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
             this.updateUnitNumbers(unit)

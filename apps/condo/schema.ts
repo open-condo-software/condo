@@ -6139,7 +6139,10 @@ export type BuildingUnit = {
 
 export enum BuildingUnitType {
   Parking = 'parking',
-  Flat = 'flat'
+  Flat = 'flat',
+  Apartment = 'apartment',
+  Commercial = 'commercial',
+  Warehouse = 'warehouse'
 }
 
 export enum CacheControlScope {
