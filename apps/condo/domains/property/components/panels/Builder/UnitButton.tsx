@@ -1,8 +1,9 @@
 /** @jsx jsx */
-import React from 'react'
+import { BuildingUnitType } from '@app/condo/schema'
+import { colors, gradients } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/core'
 import { Button, ButtonProps, Tooltip } from 'antd'
-import { colors, gradients } from '@condo/domains/common/constants/style'
+import React from 'react'
 
 const buttonCss = css`
     display: inline-block;
@@ -123,16 +124,34 @@ const noninteractiveCss = css`
     }
 `
 
+const unitTypeCss = (unitType: BuildingUnitType) => {
+    const UNIT_TYPE_COLOR_MAP = {
+        flat: colors.white,
+        parking: colors.white,
+        apartment: '#CBE2F6',
+        warehouse: '#F086334D',
+        commercial: '#EB34684D',
+    }
+    if (unitType === BuildingUnitType.Apartment) {
+        console.log(unitType)
+        console.log(UNIT_TYPE_COLOR_MAP[unitType])
+    }
+    return css`
+      background-color: ${UNIT_TYPE_COLOR_MAP[unitType]};
+    `
+}
+
 interface CustomButtonProps extends ButtonProps {
     secondary?: boolean
     selected?: boolean
     noninteractive?: boolean
     preview?: boolean
     ellipsis?: boolean
+    unitType?: BuildingUnitType
 }
 
 export const UnitButton: React.FC<CustomButtonProps> = (props) => {
-    const { secondary, selected, preview, noninteractive, ellipsis = true, children, ...restProps } = props
+    const { secondary, selected, preview, noninteractive, ellipsis = true, unitType, children, ...restProps } = props
     const OriginalLabel = children ? children.toString() : ''
     if (!secondary && OriginalLabel.length > 4 && ellipsis) {
         let ButtonLabel = OriginalLabel
@@ -148,6 +167,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
                     ${selected ? selectedCss : ''};
                     ${noninteractive ? noninteractiveCss : ''};                    
                     ${preview ? previewCss : ''};
+                    ${unitType ? unitTypeCss(unitType) : ''};
                 `} {...restProps}>{ButtonLabel}</Button>
             </Tooltip>
         )
@@ -158,6 +178,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
                 ${selected ? selectedCss : ''};
                 ${noninteractive ? noninteractiveCss : ''};
                 ${preview ? previewCss : ''};
+                ${unitType ? unitTypeCss(unitType) : ''};
             `} {...restProps}>{children || ' ' }</Button>
         )
     }
