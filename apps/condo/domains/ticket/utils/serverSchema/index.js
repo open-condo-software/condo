@@ -64,7 +64,7 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
         ],
         multipleRelations: [
             [
-                (idx, knex) => knex.raw(`ARRAY_AGG(mr${idx}.content ORDER BY mr${idx}."createdAt" ASC) as "TicketComment"`),
+                (idx, knex) => knex.raw(`ARRAY_AGG(mr${idx}.id || ':' || mr${idx}.content ORDER BY mr${idx}."createdAt" ASC) as "TicketComment"`),
                 idx => [`TicketComment as mr${idx}`, `mr${idx}.ticket`, 'mainModel.id'],
             ],
             [

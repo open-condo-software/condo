@@ -39,6 +39,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
                 }
                 const excelRows = allTickets.map(ticket => {
+                    const comments = [...new Set(ticket.TicketComment || [])]
                     return {
                         number: ticket.number,
                         organization: ticket.organization,
@@ -64,7 +65,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         operator: ticket.operator || ticket.createdBy || '',
                         executor: ticket.executor || '',
                         assignee: ticket.assignee || '',
-                        comments: ticket.TicketComment.join('\n'),
+                        comments: comments.map(comment => comment.split(':').pop()).join('\n'),
                         source: ticket.source || '',
                     }
                 })
