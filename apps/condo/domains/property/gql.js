@@ -26,6 +26,9 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
     enum BuildingUnitType {
         parking
         flat
+        apartment
+        commercial
+        warehouse
     }
 
     type BuildingUnit {
