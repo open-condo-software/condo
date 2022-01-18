@@ -89,6 +89,7 @@ const PdfView = () => {
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const NotesMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.Notes' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
+    const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
@@ -127,12 +128,14 @@ const PdfView = () => {
         + (ticket.sectionName && ticket.floorName ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}` : '')
         + (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
     const isEmergency = get(ticket, 'isEmergency')
+    const isWarranty = get(ticket, 'isWarranty')
+    const isPaid = get(ticket, 'isPaid')
     // TODO(zuch): display 3-level classifier here
     return (
         <Row gutter={[12, 40]} style={{ filter: 'grayscale(1)', maxWidth: '800px', padding: '40px' }} ref={containerRef}>
             <Col span={24}>
                 <Row align={'top'}>
-                    <Col span={18}>
+                    <Col span={16}>
                         <Typography.Title level={1} style={{ margin: '0 0 16px', whiteSpace: 'pre-line' }} >
                             {`${TicketTitleMessage}
                                 ${String(getTicketLabel(intl, ticket)).toLowerCase()}`}
@@ -142,9 +145,10 @@ const PdfView = () => {
                             <Typography.Text ellipsis>{get(ticket, ['createdBy', 'name'])}</Typography.Text>
                         </Typography.Text>
                     </Col>
-                    <Col span={6}>
+                    <Col span={8}>
                         {isEmergency && (<Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>)}
-                        {ticket.isPaid && (<Typography.Title style={{ marginTop: '0' }} level={2}>{PaidMessage.toLowerCase()}</Typography.Title>)}
+                        {isWarranty && (<Typography.Title style={{ marginTop: '0' }} level={2}>{WarrantyMessage.toLowerCase()}</Typography.Title>)}
+                        {isPaid && (<Typography.Title style={{ marginTop: '0' }} level={2}>{PaidMessage.toLowerCase()}</Typography.Title>)}
                     </Col>
                 </Row>
             </Col>
