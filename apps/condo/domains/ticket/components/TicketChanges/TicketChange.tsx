@@ -67,6 +67,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
+    const IsWarrantyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
 
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
@@ -76,6 +77,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['clientName', ClientNameMessage],
         ['isPaid', IsPaidMessage],
         ['isEmergency', IsEmergencyMessage],
+        ['isWarranty', IsWarrantyMessage],
         ['statusDisplayName', StatusDisplayNameMessage, { change: 'pages.condo.ticket.TicketChanges.status.change' }],
         ['propertyDisplayName', AddressMessage],
         ['assigneeDisplayName', AssigneeMessage],
@@ -92,6 +94,10 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         isEmergency: {
             'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.true' }),
             'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.false' }),
+        },
+        isWarranty: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isWarranty.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isWarranty.false' }),
         },
     }
 
@@ -248,7 +254,7 @@ const Diff = styled.p`
             color: black;
         }
     }
-    &.details, &.isEmergency, &.isPaid, &.classifierDisplayName {
+    &.details, &.isEmergency, &.isPaid, &.isWarranty, &.classifierDisplayName {
         del, ins {
             color: black;
             span {

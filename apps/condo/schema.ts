@@ -23389,6 +23389,7 @@ export type ResidentTicketOutput = {
   details: Scalars['String'];
   related?: Maybe<Ticket>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   status: TicketStatus;
   isPaid?: Maybe<Scalars['Boolean']>;
   source: TicketSource;
@@ -23462,6 +23463,8 @@ export type ResidentTicketWhereInput = {
   categoryClassifier_is_null?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
+  isWarranty_not?: Maybe<Scalars['Boolean']>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isPaid_not?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
@@ -27193,6 +27196,8 @@ export enum SortResidentTicketsBy {
   CategoryClassifierDesc = 'categoryClassifier_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
+  IsWarrantyAsc = 'isWarranty_ASC',
+  IsWarrantyDesc = 'isWarranty_DESC',
   IsPaidAsc = 'isPaid_ASC',
   IsPaidDesc = 'isPaid_DESC',
   DetailsAsc = 'details_ASC',
@@ -27511,6 +27516,10 @@ export enum SortTicketChangesBy {
   IsEmergencyFromDesc = 'isEmergencyFrom_DESC',
   IsEmergencyToAsc = 'isEmergencyTo_ASC',
   IsEmergencyToDesc = 'isEmergencyTo_DESC',
+  IsWarrantyFromAsc = 'isWarrantyFrom_ASC',
+  IsWarrantyFromDesc = 'isWarrantyFrom_DESC',
+  IsWarrantyToAsc = 'isWarrantyTo_ASC',
+  IsWarrantyToDesc = 'isWarrantyTo_DESC',
   SectionNameFromAsc = 'sectionNameFrom_ASC',
   SectionNameFromDesc = 'sectionNameFrom_DESC',
   SectionNameToAsc = 'sectionNameTo_ASC',
@@ -28372,6 +28381,8 @@ export type Ticket = {
   isPaid?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is emergency  */
   isEmergency?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is warranty  */
+  isWarranty?: Maybe<Scalars['Boolean']>;
   /**  Extra analytics not related to remote system  */
   meta?: Maybe<Scalars['JSON']>;
   /**  Property related to the Ticket  */
@@ -28853,6 +28864,10 @@ export type TicketChange = {
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is emergency  */
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is warranty  */
+  isWarrantyFrom?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is warranty  */
+  isWarrantyTo?: Maybe<Scalars['Boolean']>;
   /**  Extra analytics not related to remote system  */
   metaFrom?: Maybe<Scalars['JSON']>;
   /**  Extra analytics not related to remote system  */
@@ -33896,6 +33911,8 @@ export type TicketWhereInput = {
   isPaid_not?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
+  isWarranty_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;

@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Checkbox, Col, Input, Row, Typography } from 'antd'
@@ -37,6 +37,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { FILTER_TABLE_KEYS, FiltersStorage } from '../../domains/common/utils/FiltersStorage'
+import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -63,6 +64,7 @@ export const TicketsPageContent = ({
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
+    const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
 
     const { isSmall } = useLayoutContext()
@@ -102,6 +104,7 @@ export const TicketsPageContent = ({
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
+    const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(loading)
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
     const isNoTicketsData = !tickets.length && isEmpty(filters) && !loading
 
@@ -127,9 +130,9 @@ export const TicketsPageContent = ({
                                     <Col span={23}>
                                         <FocusContainer padding={'16px'}>
                                             <Row justify={'space-between'} gutter={TAP_BAR_ROW_GUTTER}>
-                                                <Col xs={24} lg={15}>
+                                                <Col xs={24} lg={14}>
                                                     <Row gutter={TOP_BAR_FIRST_COLUMN_GUTTER} align={'middle'}>
-                                                        <Col xs={24} lg={11}>
+                                                        <Col xs={24} lg={9}>
                                                             <Input
                                                                 placeholder={SearchPlaceholder}
                                                                 onChange={(e) => {
@@ -154,6 +157,15 @@ export const TicketsPageContent = ({
                                                                 style={CHECKBOX_STYLE}
                                                             >
                                                                 {PaidLabel}
+                                                            </Checkbox>
+                                                        </Col>
+                                                        <Col xs={24} lg={5}>
+                                                            <Checkbox
+                                                                onChange={handleWarrantyChange}
+                                                                checked={warranty}
+                                                                style={CHECKBOX_STYLE}
+                                                            >
+                                                                {WarrantiesLabel}
                                                             </Checkbox>
                                                         </Col>
                                                     </Row>

@@ -2,7 +2,7 @@ import get from 'lodash/get'
 import groupBy from 'lodash/groupBy'
 import dayjs, { Dayjs } from 'dayjs'
 import { ParsedUrlQuery } from 'querystring'
-import { FilterValue, SortOrder } from 'antd/es/table/interface'
+import { SortOrder } from 'antd/es/table/interface'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
 import { EChartsOption, EChartsReactProps } from 'echarts-for-react'
@@ -447,6 +447,7 @@ export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, ma
     if (ticketType !== 'all') {
         AND.push(...[
             { isEmergency: ticketType === 'emergency' },
+            { isWarranty: ticketType === 'warranty' },
             { isPaid: ticketType === 'paid' },
         ])
     }
