@@ -12,6 +12,8 @@ const timezone = require('dayjs/plugin/timezone')
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
+
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
 const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
     types: [
@@ -65,7 +67,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         operator: ticket.operator || ticket.createdBy || '',
                         executor: ticket.executor || '',
                         assignee: ticket.assignee || '',
-                        comments: comments.map(comment => comment.split(':').pop()).join('\n' + '—'.repeat(20) + '\n'),
+                        comments: comments.map(comment => comment.split(':').pop()).join(TICKET_COMMENTS_SEPARATOR),
                         source: ticket.source || '',
                     }
                 })
