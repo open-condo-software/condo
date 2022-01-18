@@ -46,6 +46,14 @@ const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[
     magenta[7], yellow[5], lime[7], blue[8], cyan[5], yellow[6],
     purple[7], lime[8], red[6]]
 
+const UNIT_TYPE_COLOR_SET = {
+    flat: white,
+    parking: white,
+    apartment: '#CBE2F6',
+    warehouse: '#F086334D',
+    commercial: '#EB34684D',
+}
+
 const colors = {
     sberDefault: generateCustomColorPalette(sberBlue, sberSecondaryBlue),
     sberPrimary: generateCustomColorPalette(sberGreen, sberSecondaryGreen),
@@ -189,6 +197,7 @@ module.exports = {
     shadows,
     transitions,
     CHART_COLOR_SET,
+    UNIT_TYPE_COLOR_SET,
     DEFAULT_BORDER_WIDTH,
     DEFAULT_STRONG_TEXT_FONT_WEIGHT,
     DEFAULT_BORDER_RADIUS,

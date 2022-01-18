@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { BuildingUnitType } from '@app/condo/schema'
-import { colors, gradients } from '@condo/domains/common/constants/style'
+import { colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/core'
 import { Button, ButtonProps, Tooltip } from 'antd'
 import React from 'react'
@@ -108,8 +108,9 @@ const selectedCss = css`
         border: 1px solid transparent;
     }
 `
-const previewCss = css`
-    opacity: 0.5;
+const previewCss = (unitType: BuildingUnitType) => css`
+  opacity: 0.5;
+  background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
 `
 const noninteractiveCss = css`
     cursor: default;
@@ -123,22 +124,13 @@ const noninteractiveCss = css`
     }
 `
 
-const unitTypeCss = (unitType: BuildingUnitType) => {
-    const UNIT_TYPE_COLOR_MAP = {
-        flat: colors.white,
-        parking: colors.white,
-        apartment: '#CBE2F6',
-        warehouse: '#F086334D',
-        commercial: '#EB34684D',
-    }
-    if (unitType === BuildingUnitType.Apartment) {
-        console.log(unitType)
-        console.log(UNIT_TYPE_COLOR_MAP[unitType])
-    }
-    return css`
-      background-color: ${UNIT_TYPE_COLOR_MAP[unitType]};
-    `
-}
+const unitTypeCss = (unitType: BuildingUnitType) => css`
+  background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
+  &:hover {
+    opacity: .3;
+    background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
+  }
+`
 
 interface CustomButtonProps extends ButtonProps {
     secondary?: boolean
@@ -175,7 +167,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
                     ${buttonCss};
                     ${selected ? selectedCss : ''};
                     ${noninteractive ? noninteractiveCss : ''};                    
-                    ${preview ? previewCss : ''};
+                    ${preview ? previewCss(unitType) : ''};
                     ${unitType ? unitTypeCss(unitType) : ''};
                 `} {...restProps}>{ButtonLabel}</Button>
             </Tooltip>
@@ -186,7 +178,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
                 ${secondary ? buttonSecondaryCss : buttonCss};
                 ${selected ? selectedCss : ''};
                 ${noninteractive ? noninteractiveCss : ''};
-                ${preview ? previewCss : ''};
+                ${preview ? previewCss(unitType) : ''};
                 ${unitType ? unitTypeCss(unitType) : ''};
             `} {...restProps}>{children || ' ' }</Button>
         )
