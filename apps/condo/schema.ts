@@ -27861,6 +27861,8 @@ export enum SortTicketHistoryRecordsBy {
   IsPaidDesc = 'isPaid_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
+  IsWarrantyAsc = 'isWarranty_ASC',
+  IsWarrantyDesc = 'isWarranty_DESC',
   SectionNameAsc = 'sectionName_ASC',
   SectionNameDesc = 'sectionName_DESC',
   FloorNameAsc = 'floorName_ASC',
@@ -28120,6 +28122,8 @@ export enum SortTicketsBy {
   IsPaidDesc = 'isPaid_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
+  IsWarrantyAsc = 'isWarranty_ASC',
+  IsWarrantyDesc = 'isWarranty_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
   SectionNameAsc = 'sectionName_ASC',
@@ -29040,6 +29044,8 @@ export type TicketChangeCreateInput = {
   isPaidTo?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
+  isWarrantyFrom?: Maybe<Scalars['Boolean']>;
+  isWarrantyTo?: Maybe<Scalars['Boolean']>;
   metaFrom?: Maybe<Scalars['JSON']>;
   metaTo?: Maybe<Scalars['JSON']>;
   sectionNameFrom?: Maybe<Scalars['String']>;
@@ -29141,6 +29147,8 @@ export type TicketChangeUpdateInput = {
   isPaidTo?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
+  isWarrantyFrom?: Maybe<Scalars['Boolean']>;
+  isWarrantyTo?: Maybe<Scalars['Boolean']>;
   metaFrom?: Maybe<Scalars['JSON']>;
   metaTo?: Maybe<Scalars['JSON']>;
   sectionNameFrom?: Maybe<Scalars['String']>;
@@ -29471,6 +29479,10 @@ export type TicketChangeWhereInput = {
   isEmergencyFrom_not?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
   isEmergencyTo_not?: Maybe<Scalars['Boolean']>;
+  isWarrantyFrom?: Maybe<Scalars['Boolean']>;
+  isWarrantyFrom_not?: Maybe<Scalars['Boolean']>;
+  isWarrantyTo?: Maybe<Scalars['Boolean']>;
+  isWarrantyTo_not?: Maybe<Scalars['Boolean']>;
   metaFrom?: Maybe<Scalars['JSON']>;
   metaFrom_not?: Maybe<Scalars['JSON']>;
   metaFrom_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -31352,6 +31364,7 @@ export type TicketCreateInput = {
   related?: Maybe<TicketRelateToOneInput>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<PropertyRelateToOneInput>;
   sectionName?: Maybe<Scalars['String']>;
@@ -31736,6 +31749,7 @@ export type TicketHistoryRecord = {
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   sectionName?: Maybe<Scalars['String']>;
@@ -31783,6 +31797,7 @@ export type TicketHistoryRecordCreateInput = {
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   sectionName?: Maybe<Scalars['String']>;
@@ -31835,6 +31850,7 @@ export type TicketHistoryRecordUpdateInput = {
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   sectionName?: Maybe<Scalars['String']>;
@@ -32043,6 +32059,8 @@ export type TicketHistoryRecordWhereInput = {
   isPaid_not?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
+  isWarranty_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -33722,6 +33740,7 @@ export type TicketUpdateInput = {
   related?: Maybe<TicketRelateToOneInput>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<PropertyRelateToOneInput>;
   sectionName?: Maybe<Scalars['String']>;
