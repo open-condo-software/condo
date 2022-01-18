@@ -43,6 +43,7 @@ describe('TicketChange', () => {
                 unitName: faker.lorem.word(),
                 isEmergency: true,
                 isPaid: true,
+                isWarranty: true,
                 status: { connect: { id: openedStatus.id } },
                 client: { connect: { id: client.user.id } },
                 contact: { connect: { id: contact.id } },
