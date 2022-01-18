@@ -378,6 +378,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const formRef = useRef(null)
 
     const { objs: filtersTemplates, loading, refetch } = filtersSchemaGql.useObjects({
+        sortBy: 'createdAt_ASC',
         where: {
             employee: { id: link.id },
             deletedAt: null,
@@ -528,8 +529,10 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false),
         [setIsMultipleFiltersModalVisible])
-    const handleFormValuesChange = useCallback(() => setIsSaveFiltersTemplateButtonDisabled(false),
-        [setIsSaveFiltersTemplateButtonDisabled])
+    const handleFormValuesChange = useCallback(() => {
+        setIsSaveFiltersTemplateButtonDisabled(false)
+    },
+    [setIsSaveFiltersTemplateButtonDisabled])
     const tabsActiveKey = get(selectedFiltersTemplate, 'id')
     const templatesTabs = useMemo(() => filtersTemplates.map((filterTemplate, index) => (
         <TabPane
@@ -550,38 +553,42 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             centered
             {...MODAL_PROPS}
         >
-            <FormWithAction
-                validateTrigger={MODAL_FORM_VALIDATE_TRIGGER}
-                handleSubmit={handleSubmit}
-                onChange={handleFormValuesChange}
-            >
-                {
-                    ({ handleSave, form }) => {
-                        formRef.current = form
-                        handleSaveRef.current = handleSave
+            {
+                !loading ? (
+                    <FormWithAction
+                        validateTrigger={MODAL_FORM_VALIDATE_TRIGGER}
+                        handleSubmit={handleSubmit}
+                        onChange={handleFormValuesChange}
+                    >
+                        {
+                            ({ handleSave, form }) => {
+                                formRef.current = form
+                                handleSaveRef.current = handleSave
 
-                        return !loading || !selectedFiltersTemplate ? (
-                            <Row gutter={MAIN_ROW_GUTTER}>
-                                <Col span={24}>
-                                    {
-                                        filtersTemplates.length > 0 ? (
-                                            <Tabs onChange={handleTabChange} activeKey={tabsActiveKey}>
-                                                {templatesTabs}
-                                                <TabPane tab={NewFilterMessage}>
+                                return !loading || !selectedFiltersTemplate ? (
+                                    <Row gutter={MAIN_ROW_GUTTER}>
+                                        <Col span={24}>
+                                            {
+                                                filtersTemplates.length > 0 ? (
+                                                    <Tabs onChange={handleTabChange} activeKey={tabsActiveKey}>
+                                                        {templatesTabs}
+                                                        <TabPane tab={NewFilterMessage}>
+                                                            <NewFiltersTemplateNameInput />
+                                                        </TabPane>
+                                                    </Tabs>
+                                                ) : (
                                                     <NewFiltersTemplateNameInput />
-                                                </TabPane>
-                                            </Tabs>
-                                        ) : (
-                                            <NewFiltersTemplateNameInput />
-                                        )
-                                    }
-                                </Col>
-                                <ModalFormItems />
-                            </Row>
-                        ) : <Loader />
-                    }
-                }
-            </FormWithAction>
+                                                )
+                                            }
+                                        </Col>
+                                        <ModalFormItems />
+                                    </Row>
+                                ) : <Loader />
+                            }
+                        }
+                    </FormWithAction>)
+                    : <Loader />
+            }
         </DefaultModal>
     )
 }
