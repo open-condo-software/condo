@@ -7,10 +7,11 @@ import { useRouter } from 'next/router'
 import { jsx, css } from '@emotion/core'
 import styled from '@emotion/styled'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { fontSizes, colors, gradients } from '@condo/domains/common/constants/style'
+import { fontSizes, colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
+import { BuildingUnitType } from '@app/condo/schema'
 import { MapEdit, MapView, MapViewMode } from './MapConstructor'
 import { FullscreenFooter } from './Fullscreen'
 
@@ -287,3 +288,18 @@ export const BuildingViewModeSelect: React.FC<RadioProps> = (props) => {
         </Radio.Group>
     )
 }
+
+export const UnitTypeLegendItem = styled.div<{ unitType: BuildingUnitType }>`
+  display: flex;
+  height: 38px;
+  align-items: center;
+  
+  &:before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    background-color: ${({ unitType }) => UNIT_TYPE_COLOR_SET[unitType]};
+  }
+`

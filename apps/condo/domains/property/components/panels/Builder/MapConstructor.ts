@@ -1,15 +1,15 @@
+import { BuildingMap, BuildingMapEntityType, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
+import Ajv from 'ajv'
+import cloneDeep from 'lodash/cloneDeep'
+import compact from 'lodash/compact'
 import get from 'lodash/get'
 import has from 'lodash/has'
-import cloneDeep from 'lodash/cloneDeep'
-import uniq from 'lodash/uniq'
-import compact from 'lodash/compact'
 import isObjectEmpty from 'lodash/isEmpty'
-import last from 'lodash/last'
 import isNil from 'lodash/isNil'
+import last from 'lodash/last'
+import uniq from 'lodash/uniq'
 import MapSchemaJSON from './MapJsonSchema.json'
-import Ajv from 'ajv'
-import { BuildingMap, BuildingMapEntityType, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
 
 const ajv = new Ajv()
 const validator = ajv.compile(MapSchemaJSON)
@@ -29,6 +29,7 @@ export type BuildingUnitArg = BuildingUnit & {
     section?: string
     parking?: string
     sectionIndex?: number
+    unitType?: BuildingUnitType
 }
 
 type BuildingSelectOption = {
@@ -334,7 +335,7 @@ class MapView extends Map {
     }
 
     public getUnitInfo (id: string): BuildingUnitArg {
-        const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: BuildingMapEntityType.Unit }
+        const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: BuildingMapEntityType.Unit, unitType: BuildingUnitType.Flat }
         if (!id) {
             return newUnit
         }
@@ -342,7 +343,7 @@ class MapView extends Map {
         if (unitIndex.unit === -1) {
             return newUnit
         }
-        const { label, type } = this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit]
+        const { label, type, unitType } = this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit]
         return {
             id,
             label,
@@ -350,6 +351,7 @@ class MapView extends Map {
             section: this.map.sections[unitIndex.section].id,
             sectionIndex: this.map.sections[unitIndex.section].index,
             floor: this.map.sections[unitIndex.section].floors[unitIndex.floor].id,
+            unitType,
         }
     }
 
@@ -404,6 +406,13 @@ class MapView extends Map {
             return []
         }
         return foundSection.floors.map(floor => ({ id: floor.id, label: floor.name }))
+    }
+
+    public getUnitTypeOptions (): BuildingUnitType[] {
+        return [
+            ...new Set(this.sections
+                .map(section => section.floors.map(floor => floor.units.map(unit => unit.unitType))).flat(2)),
+        ].sort((a, b) => a.localeCompare(b))
     }
 
     protected getUnitIndex (unitId: string): IndexLocation {
