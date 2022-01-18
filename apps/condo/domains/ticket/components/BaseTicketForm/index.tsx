@@ -93,6 +93,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
+    const WarrantyLabel = intl.formatMessage({ id: 'Warranty' })
     const PaidLabel = intl.formatMessage({ id: 'Paid' })
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
 
@@ -111,14 +112,19 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                     <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
                     <Col span={24}>
                         <Row>
-                            <Col span={12} lg={6}>
+                            <Col span={24} lg={6}>
                                 <Form.Item name={'isEmergency'} valuePropName='checked'>
                                     <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
                                 </Form.Item>
                             </Col>
-                            <Col span={12} lg={6}>
+                            <Col span={24} lg={6}>
                                 <Form.Item name={'isPaid'} valuePropName='checked'>
                                     <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                                </Form.Item>
+                            </Col>
+                            <Col span={24} lg={6}>
+                                <Form.Item name={'isWarranty'} valuePropName='checked'>
+                                    <Checkbox disabled={disableUserInteraction}>{WarrantyLabel}</Checkbox>
                                 </Form.Item>
                             </Col>
                         </Row>

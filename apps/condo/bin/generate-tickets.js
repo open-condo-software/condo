@@ -91,6 +91,7 @@ class TicketGenerator {
             assignee: { connect: { id: this.user.id } },
             executor: { connect: { id: this.user.id } },
             isEmergency: faker.datatype.boolean(),
+            isWarranty: faker.datatype.boolean(),
             isPaid: faker.datatype.boolean(),
             organization: { connect: { id: this.organization.id } },
             property:  { connect: { id: this.property.id } },

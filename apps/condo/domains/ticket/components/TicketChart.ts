@@ -1,7 +1,7 @@
 import { TableColumnsType, TableProps } from 'antd'
 import BaseChart, { IGetBaseChartConfig, IGetBaseTableConfig } from '@condo/domains/common/components/BaseChart'
 import { TicketGroupedCounter } from '@app/condo/schema'
-export type TicketSelectTypes = 'all' | 'default' | 'paid' | 'emergency'
+export type TicketSelectTypes = 'all' | 'default' | 'paid' | 'emergency' | 'warranty'
 export type ViewModeTypes = 'bar' | 'line' | 'pie'
 
 export type AnalyticsDataType = Record<string, Record<string, number>>

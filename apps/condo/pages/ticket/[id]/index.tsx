@@ -229,6 +229,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' })
+    const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
@@ -281,6 +282,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
 
     const isEmergency = get(ticket, 'isEmergency')
     const isPaid = get(ticket, 'isPaid')
+    const isWarranty = get(ticket, 'isWarranty')
 
     const handleTicketStatusChanged = () => {
         refetchTicket()
@@ -342,6 +344,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     <Space direction={'horizontal'} style={{ marginTop: '1.6em ' }}>
                                         {isEmergency && <TicketTag color={'red'}>{EmergencyMessage.toLowerCase()}</TicketTag>}
                                         {isPaid && <TicketTag color={'orange'}>{PaidMessage.toLowerCase()}</TicketTag>}
+                                        {isWarranty && <TicketTag color={'purple'}>{WarrantyMessage.toLowerCase()}</TicketTag>}
                                     </Space>
                                 </Col>
                                 <TicketContent ticket={ticket}/>
