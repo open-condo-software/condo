@@ -3,7 +3,7 @@ const { Json } = require('@core/keystone/fields')
 
 const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
 
-const TICKET_FILTERS_TYPE_NAME = 'TicketFilters'
+const TICKET_FILTERS_TYPE_NAME = 'TicketFilter'
 
 const TicketFiltersFields = {
     number: 'Int',
