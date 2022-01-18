@@ -465,6 +465,7 @@ describe('AllResidentBillingReceipts', () => {
             const UNIT_NAME = '22'
 
             const admin = await makeLoggedInAdminClient()
+            const sortReceiptsByToPay = (a, b) => Number(a.toPay) - Number(b.toPay)
 
             // Prepare billing integration and receipts
             const { organizationClient, integrationClient } = await makeClientWithPropertyAndBilling({ billingAccountAttrs: { unitName: UNIT_NAME } })
@@ -519,8 +520,16 @@ describe('AllResidentBillingReceipts', () => {
             })
 
             // Mobile app gets the list of all resident receipts
-            const beforePaymentResult = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] } )
+            const beforePaymentResult = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } },
+                {
+                    sortBy: ['toPay_ASC'],
+                },
+            )
+            beforePaymentResult.sort(sortReceiptsByToPay)
+            // TODO(zuch): DOMA-2004 = Find out why graphql sorting by custom decimal type gives unpredictable results
             expect(beforePaymentResult).toHaveLength(2)
+            expect(Number(beforePaymentResult[0].toPay)).toEqual(2000)
+            expect(Number(beforePaymentResult[1].toPay)).toEqual(25000)
             const [
                 singlePaymentReceiptBeforePayment,
                 noPaymentReceiptBeforePayment,
@@ -530,8 +539,15 @@ describe('AllResidentBillingReceipts', () => {
             await completeTestPayment(residentClient, admin, serviceConsumer.id, singlePaymentReceiptBeforePayment.id)
 
             // Resident gets own receipts and sees that first one is fully paid!
-            const afterPaymentResult = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } }, { sortBy: ['toPay_ASC'] })
+            const afterPaymentResult = await ResidentBillingReceipt.getAll(residentClient, { serviceConsumer: { resident: { id: resident.id } } },
+                {
+                    sortBy: ['toPay_ASC'],
+                },
+            )
+            afterPaymentResult.sort(sortReceiptsByToPay)
             expect(afterPaymentResult).toHaveLength(2)
+            expect(Number(afterPaymentResult[0].toPay)).toEqual(2000)
+            expect(Number(afterPaymentResult[1].toPay)).toEqual(25000)
             const [
                 singlePaymentReceiptAfterPayment,
                 noPaymentReceiptAfterPayments,
