@@ -539,12 +539,37 @@ describe('Helpers', () => {
                             { createdAt_gte: selectedRange[0].toISOString() },
                             { createdAt_lte: selectedRange[1].toISOString() },
                             { isEmergency: true },
+                            { isWarranty: false },
                             { isPaid: false },
                         ],
                         groupBy: ['status', 'day'],
                     }
                     expect(filterToQuery({
                         filter, viewMode: 'line', ticketType: 'emergency', mainGroup: 'status' })
+                    ).toStrictEqual(expectedResult)
+                })
+
+                it('filter with warranty ticket type',  () => {
+                    const filter: ticketAnalyticsPageFilters = {
+                        range: selectedRange,
+                        specification: 'day',
+                        addressList: [],
+                        responsibleList: [],
+                        executorList: [],
+                        classifierList: [],
+                    }
+                    const expectedResult = {
+                        AND: [
+                            { createdAt_gte: selectedRange[0].toISOString() },
+                            { createdAt_lte: selectedRange[1].toISOString() },
+                            { isEmergency: false },
+                            { isWarranty: true },
+                            { isPaid: false },
+                        ],
+                        groupBy: ['status', 'day'],
+                    }
+                    expect(filterToQuery({
+                        filter, viewMode: 'line', ticketType: 'warranty', mainGroup: 'status' })
                     ).toStrictEqual(expectedResult)
                 })
 
