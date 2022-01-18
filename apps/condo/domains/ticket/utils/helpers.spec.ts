@@ -562,13 +562,15 @@ describe('Helpers', () => {
                             { createdAt_gte: selectedRange[0].toISOString() },
                             { createdAt_lte: selectedRange[1].toISOString() },
                             { isEmergency: false },
+                            { isWarranty: false },
                             { isPaid: true },
                         ],
                         groupBy: ['status', 'day'],
                     }
-                    expect(filterToQuery({
-                        filter, viewMode: 'line', ticketType: 'paid', mainGroup: 'status' })
-                    ).toStrictEqual(expectedResult)
+                    const dataToCheck = filterToQuery({
+                        filter, viewMode: 'line', ticketType: 'paid', mainGroup: 'status',
+                    })
+                    expect(dataToCheck).toStrictEqual(expectedResult)
                 })
             })
         })
