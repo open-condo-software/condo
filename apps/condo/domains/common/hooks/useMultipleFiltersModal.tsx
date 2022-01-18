@@ -386,9 +386,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     })
 
     useEffect(() => {
-        if (!isEmpty(filtersTemplates)) {
-            setSelectedFiltersTemplate(filtersTemplates[0])
-        } else setSelectedFiltersTemplate(null)
+        setSelectedFiltersTemplate(get(filtersTemplates, '0', null))
     }, [loading])
 
     const createFiltersTemplateAction = filtersSchemaGql.useCreate({
@@ -397,7 +395,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const updateFiltersTemplateAction = filtersSchemaGql.useUpdate({
         employee: link.id,
-    }, () => refetch())
+    }, refetch)
 
     const handleResetFilters = useCallback(async () => {
         const keys = Object.keys(formRef.current.getFieldsValue())
@@ -449,9 +447,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleTabChange = useCallback(async (filtersTemplateId) => {
         if (filtersTemplateId) {
             const filtersTemplate = filtersTemplates.find(filterTemplate => filterTemplate.id === filtersTemplateId)
+
             setSelectedFiltersTemplate(filtersTemplate)
         }
         setIsSaveFiltersTemplateButtonDisabled(true)
+
         await handleResetFilters()
     }, [filtersTemplates, handleResetFilters])
 
@@ -565,11 +565,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                                 formRef.current = form
                                 handleSaveRef.current = handleSave
 
-                                return !loading || !selectedFiltersTemplate ? (
+                                return selectedFiltersTemplate && (
                                     <Row gutter={MAIN_ROW_GUTTER}>
                                         <Col span={24}>
                                             {
-                                                filtersTemplates.length > 0 ? (
+                                                !isEmpty(filtersTemplates) ? (
                                                     <Tabs onChange={handleTabChange} activeKey={tabsActiveKey}>
                                                         {templatesTabs}
                                                         <TabPane tab={NewFilterMessage}>
@@ -583,7 +583,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                                         </Col>
                                         <ModalFormItems />
                                     </Row>
-                                ) : <Loader />
+                                )
                             }
                         }
                     </FormWithAction>)
