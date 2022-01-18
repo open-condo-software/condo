@@ -50,6 +50,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         clientPhone: ticket.clientPhone,
                         details: ticket.details,
                         isEmergency: ticket.isEmergency ? 'X' : '',
+                        isWarranty: ticket.isWarranty ? 'X' : '',
                         isPaid: ticket.isPaid ? 'X' : '',
                         classifier: ticket.classifier || '',
                         place: ticket.placeClassifier || '',
