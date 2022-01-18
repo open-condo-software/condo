@@ -106,7 +106,7 @@
   "filters.NewFilter": "Новый фильтр",
   "filters.Template": "Шаблон",
   "filters.NewTemplateLabel": "Название шаблона (только если хотите сохранить в шаблон, а не просто применить фильтр)",
-  "filters.NewTemplatePlaceholder": "Например, платные заявки в ЖК Московском",
+  "filters.NewTemplatePlaceholder": "Например, \"Платные заявки в ЖК Московском\"",
   "filters.DeleteTitle": "Удалить шаблон фильтра?",
   "filters.DeleteMessage": "Восстановить будет невозможно, только создать заново и сохранить",
   "filters.SaveTemplate": "Сохранить шаблон и применить",

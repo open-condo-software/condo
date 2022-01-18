@@ -4,6 +4,7 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { getByCondition, getById } = require('@core/keystone/schema')
+const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadTicketFilterTemplates ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -11,7 +12,7 @@ async function canReadTicketFilterTemplates ({ authentication: { item: user } })
     if (user.isAdmin) return {}
 
     return {
-        employee: { user: { id: user.id } },
+        ...queryOrganizationEmployeeFor(user.id),
     }
 }
 
@@ -28,7 +29,7 @@ async function canManageTicketFilterTemplates ({ authentication: { item: user },
             isBlocked: false,
         })
 
-        if (!employeeForUser || employeeForUser.isBlocked) {
+        if (!employeeForUser) {
             return false
         }
 
@@ -44,7 +45,7 @@ async function canManageTicketFilterTemplates ({ authentication: { item: user },
             isBlocked: false,
         })
 
-        if (!employeeForUser || employeeForUser.isBlocked) {
+        if (!employeeForUser) {
             return false
         }
 
