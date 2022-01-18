@@ -189,6 +189,12 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
+        isWarranty: {
+            schemaDoc: 'Indicates the ticket is warranty',
+            type: Checkbox,
+            defaultValue: false,
+            isRequired: true,
+        },
         meta: {
             schemaDoc: 'Extra analytics not related to remote system',
             type: Json,
