@@ -32,7 +32,7 @@ export const FullscreenHeader = styled.div<{
     ${({ edit }) => `padding: ${edit ? '0 24px 0 24px' : '24px'};`}
 
     div.fullscreen & {
-        background: ${colors.backgroundLightGrey};
+        background: transparent;
         position: fixed;
         left: 0;
         right: 0;

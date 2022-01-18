@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
-import { Col, Row } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import { useRouter } from 'next/router'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
@@ -9,11 +9,11 @@ import {
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
-    MapSectionContainer, BuildingViewModeSelect,
+    MapSectionContainer, BuildingViewModeSelect, UnitTypeLegendItem,
 } from './BuildingPanelCommon'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapView, MapViewMode } from './MapConstructor'
-import { BuildingMap } from '@app/condo/schema'
+import { BuildingMap, BuildingUnitType } from '@app/condo/schema'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
@@ -59,6 +59,9 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
 }
 const UNIT_BUTTON_SECTION_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px' }
 const FLOOR_CONTAINER_STYLE: React.CSSProperties = { display: 'block' }
+const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { paddingLeft: '8px' }
+const FULLSCREEN_HEADER_STYLE: React.CSSProperties = { marginBottom: '28px' }
+const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh }) => {
     const intl = useIntl()
@@ -84,7 +87,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
     return (
         <FullscreenWrapper mode={'view'} className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
-                <Row justify='end' >
+                <Row justify='end' style={FULLSCREEN_HEADER_STYLE} hidden={!isFullscreen || !showViewModeSelect}>
                     {
                         isFullscreen && (
                             <Col flex={1}>
@@ -103,6 +106,21 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                             </Col>
                         )
                     }
+                </Row>
+                <Row
+                    gutter={UNIT_TYPE_ROW_GUTTER}
+                    style={UNIT_TYPE_ROW_STYLE}
+                    hidden={builder.viewMode === MapViewMode.parking}
+                >
+                    {builder.getUnitTypeOptions()
+                        .filter(unitType => unitType !== BuildingUnitType.Flat)
+                        .map((unitType, unitTypeKey) => (
+                            <Col key={unitTypeKey} flex={0}>
+                                <UnitTypeLegendItem unitType={unitType}>
+                                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                                </UnitTypeLegendItem>
+                            </Col>
+                        ))}
                 </Row>
             </FullscreenHeader>
             <Row align='middle' style={CHESS_ROW_STYLE}>
@@ -149,6 +167,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                                                 <UnitButton
                                                                                     key={unit.id}
                                                                                     noninteractive
+                                                                                    unitType={unit.unitType}
                                                                                 >{unit.label}</UnitButton>
                                                                             )
                                                                         })

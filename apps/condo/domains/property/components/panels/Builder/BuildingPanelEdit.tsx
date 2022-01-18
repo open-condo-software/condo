@@ -1,49 +1,58 @@
 /** @jsx jsx */
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
-import { useIntl } from '@core/next/intl'
-import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification } from 'antd'
-import { css, jsx } from '@emotion/core'
-import styled from '@emotion/styled'
-import { fontSizes, colors, shadows } from '@condo/domains/common/constants/style'
-import { DeleteFilled, DownOutlined, CloseOutlined } from '@ant-design/icons'
-import cloneDeep from 'lodash/cloneDeep'
-import isNull from 'lodash/isNull'
-import get from 'lodash/get'
-import debounce from 'lodash/debounce'
-import isFunction from 'lodash/isFunction'
-import last from 'lodash/last'
-import { useHotkeys } from 'react-hotkeys-hook'
-import {
-    EmptyBuildingBlock,
-    EmptyFloor,
-    BuildingAxisY,
-    BuildingChooseSections,
-    MapSectionContainer, BuildingViewModeSelect,
-} from './BuildingPanelCommon'
+import { CloseOutlined, DeleteFilled, DownOutlined } from '@ant-design/icons'
+import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
-import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import { MapEdit, MapViewMode } from './MapConstructor'
 import {
-    BuildingMap,
-    BuildingUnit,
-    BuildingSection, BuildingUnitType,
-} from '@app/condo/schema'
-import { Property } from '@condo/domains/property/utils/clientSchema'
-import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
-
-import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
-import ScrollContainer from 'react-indiana-drag-scroll'
-import {
-    InterFloorIcon,
     FlatIcon,
     FloorIcon,
-    ParkingIcon,
-    SectionIcon,
+    InterFloorIcon,
     ParkingFloorIcon,
+    ParkingIcon,
     ParkingPlaceIcon,
+    SectionIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
+import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
+import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
+import { useIntl } from '@core/next/intl'
+import { css, jsx } from '@emotion/core'
+import styled from '@emotion/styled'
+import {
+    Col,
+    Dropdown,
+    DropDownProps,
+    Input,
+    InputNumber,
+    Menu,
+    notification,
+    Row,
+    RowProps,
+    Select,
+    Space,
+    Typography,
+} from 'antd'
+import cloneDeep from 'lodash/cloneDeep'
+import debounce from 'lodash/debounce'
+import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
+import isNull from 'lodash/isNull'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
+import ScrollContainer from 'react-indiana-drag-scroll'
+import {
+    BuildingAxisY,
+    BuildingChooseSections,
+    BuildingViewModeSelect,
+    EmptyBuildingBlock,
+    EmptyFloor,
+    MapSectionContainer, UnitTypeLegendItem,
+} from './BuildingPanelCommon'
+
+import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
+import { MapEdit, MapViewMode } from './MapConstructor'
 
 const { Option } = Select
 
@@ -195,6 +204,10 @@ const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible,
         </Row>
     </TopModal>
 )
+
+const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { marginTop: '28px', paddingLeft: '8px' }
+const UNIT_TYPE_COL_STYLE: React.CSSProperties = { backgroundColor: colors.backgroundLightGrey, opacity: 0.9 }
+const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const intl = useIntl()
@@ -404,6 +417,25 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                 <Button type='sberBlack'>{AddElementTitle}<span>...</span></Button>
                             </Dropdown>
                         </Space>
+                    </Col>
+                </Row>
+                <Row
+                    style={UNIT_TYPE_ROW_STYLE}
+
+                    hidden={mapEdit.viewMode === MapViewMode.parking}
+                >
+                    <Col flex={0} style={UNIT_TYPE_COL_STYLE}>
+                        <Row gutter={UNIT_TYPE_ROW_GUTTER}>
+                            {mapEdit.getUnitTypeOptions()
+                                .filter(unitType => unitType !== BuildingUnitType.Flat)
+                                .map((unitType, unitTypeKey) => (
+                                    <Col key={unitTypeKey} flex={0}>
+                                        <UnitTypeLegendItem unitType={unitType}>
+                                            {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                                        </UnitTypeLegendItem>
+                                    </Col>
+                                ))}
+                        </Row>
                     </Col>
                 </Row>
                 <BuildingPanelTopModal
@@ -717,7 +749,7 @@ interface IPropertyMapUnitProps {
 
 const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit, scrollToForm }) => {
     const selectUnit = useCallback(() => {
-        if (unit.unitType === BuildingUnitType.Flat) {
+        if (unit.unitType !== BuildingUnitType.Parking) {
             builder.setSelectedUnit(unit)
             if (builder.getSelectedUnit()) {
                 scrollToForm()
@@ -734,7 +766,7 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
     const isUnitSelected = unit.unitType === BuildingUnitType.Flat
         ? builder.isUnitSelected(unit.id)
         : builder.isParkingUnitSelected(unit.id)
-    console.log(unit.unitType)
+
     return (
         <UnitButton
             onClick={selectUnit}
@@ -955,6 +987,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
             setLabel(mapUnit.label)
             setSection(mapUnit.section)
             setFloor(mapUnit.floor)
+            setUnitType(mapUnit.unitType)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [builder])
@@ -1008,9 +1041,11 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
                         onSelect={updateUnitType}
                         style={INPUT_STYLE}
                     >
-                        {Object.values(BuildingUnitType).map((unitType, unitTypeIndex) => (
-                            <Option key={unitTypeIndex} value={unitType}>{intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}</Option>
-                        ))}
+                        {Object.values(BuildingUnitType)
+                            .filter(unitType => unitType !== BuildingUnitType.Parking)
+                            .map((unitType, unitTypeIndex) => (
+                                <Option key={unitTypeIndex} value={unitType}>{intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}</Option>
+                            ))}
                     </Select>
                 </Space>
             </Col>
