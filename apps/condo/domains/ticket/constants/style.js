@@ -33,12 +33,17 @@ const STATUS_SELECT_COLORS = {
     },
 }
 
-const EMERGENCY_TAG_COLOR = {
-    background: '#FFCCC7',
-    text: '#F5222D',
+/**
+ * This is colors of ant's tags
+ * @link https://ant.design/components/tag/
+ */
+const TICKET_TYPE_TAG_COLORS = {
+    emergency: 'red',
+    paid: 'orange',
+    warranty: 'purple',
 }
 
 module.exports = {
-    EMERGENCY_TAG_COLOR,
+    TICKET_TYPE_TAG_COLORS,
     STATUS_SELECT_COLORS,
 }

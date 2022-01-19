@@ -1,41 +1,39 @@
-import { Col, Row, Space, Typography, Tag, Affix, Breadcrumb } from 'antd'
-import UploadList from 'antd/lib/upload/UploadList/index'
-import { get, isEmpty, compact } from 'lodash'
-import React, { useEffect, useMemo } from 'react'
 import { EditFilled, FilePdfFilled } from '@ant-design/icons'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { useIntl } from '@core/next/intl'
-import styled from '@emotion/styled'
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core'
+import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
+import { User } from '@app/condo/schema'
+import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
+import { Comments } from '@condo/domains/common/components/Comments'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Ticket, TicketChange, TicketFile, TicketComment } from '@condo/domains/ticket/utils/clientSchema'
-import Link from 'next/link'
-import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import {
-    getTicketCreateMessage,
-    getTicketTitleMessage,
-} from '@condo/domains/ticket/utils/helpers'
-import { UserNameField } from '@condo/domains/user/components/UserNameField'
-import { UploadFileStatus } from 'antd/lib/upload/interface'
-import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { Comments } from '@condo/domains/common/components/Comments'
-import { useAuth } from '@core/next/auth'
-import { useOrganization } from '@core/next/organization'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { formatPhone } from '@condo/domains/common/utils/helpers'
-import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
-import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { User } from '@app/condo/schema'
+import { formatPhone } from '@condo/domains/common/utils/helpers'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
+import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
+import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
+import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { Ticket, TicketChange, TicketComment, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+import { getTicketCreateMessage, getTicketTitleMessage } from '@condo/domains/ticket/utils/helpers'
+import { UserNameField } from '@condo/domains/user/components/UserNameField'
+import { useAuth } from '@core/next/auth'
+import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core'
+import styled from '@emotion/styled'
+import { Affix, Breadcrumb, Col, Row, Space, Tag, Typography } from 'antd'
+import { UploadFileStatus } from 'antd/lib/upload/interface'
+import UploadList from 'antd/lib/upload/UploadList/index'
+import { compact, get, isEmpty } from 'lodash'
+import Head from 'next/head'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import React, { useEffect, useMemo } from 'react'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -342,9 +340,9 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                         </Col>
                                     </Row>
                                     <Space direction={'horizontal'} style={{ marginTop: '1.6em ' }}>
-                                        {isEmergency && <TicketTag color={'red'}>{EmergencyMessage.toLowerCase()}</TicketTag>}
-                                        {isPaid && <TicketTag color={'orange'}>{PaidMessage.toLowerCase()}</TicketTag>}
-                                        {isWarranty && <TicketTag color={'purple'}>{WarrantyMessage.toLowerCase()}</TicketTag>}
+                                        {isEmergency && <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
+                                        {isPaid && <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
+                                        {isWarranty && <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
                                     </Space>
                                 </Col>
                                 <TicketContent ticket={ticket}/>
