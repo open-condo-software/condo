@@ -19,7 +19,7 @@ const ICON_STYLE = {
 function SignInAsUser () {
     const location = useLocation()
     const [signinAs] = useMutation(SIGNIN_AS_USER_MUTATION, {
-        onCompleted: () => window.location = '/',
+        onCompleted: () => window.location.href = '/',
     })
     const onClick = useCallback(() => {
         const sender = getClientSideSenderInfo()
