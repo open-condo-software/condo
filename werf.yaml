@@ -3,7 +3,6 @@ configVersion: 1
 ---
 image: base
 from: ubuntu:20.04
-
 shell:
   beforeInstall:
   - "export DEBIAN_FRONTEND=noninteractive"
@@ -28,7 +27,7 @@ docker:
 ---
 image: condo
 fromImage: base
-
+fromCacheVersion: "1"
 git:
 - add: /
   to: /app
@@ -74,7 +73,7 @@ docker:
 ---
 image: callcenter
 fromImage: base
-
+fromCacheVersion: "1"
 git:
   - add: /
     to: /app
@@ -120,7 +119,7 @@ docker:
 ---
 image: eps
 fromImage: base
-
+fromCacheVersion: "1"
 git:
   - add: /
     to: /app
@@ -166,7 +165,7 @@ docker:
 ---
 image: rb
 fromImage: base
-
+fromCacheVersion: "1"
 git:
   - add: /
     to: /app
