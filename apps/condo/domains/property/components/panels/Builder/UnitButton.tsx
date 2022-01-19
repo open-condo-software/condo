@@ -127,7 +127,7 @@ const noninteractiveCss = css`
 const unitTypeCss = (unitType: BuildingUnitType) => css`
   background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
   &:hover {
-    opacity: .3;
+    opacity: ${['flat', 'parking'].includes(unitType) ? 1 : .6};
     background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
   }
 `
