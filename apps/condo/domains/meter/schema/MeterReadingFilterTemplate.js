@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReadingFilterTemplate')
-const { METER_READING_FILTERS_FIELD } = require('./fields/MeterReadingFilters')
+const { METER_READING_FILTER_FIELD } = require('./fields/MeterReadingFilters')
 
 
 const MeterReadingFilterTemplate = new GQLListSchema('MeterReadingFilterTemplate', {
@@ -31,7 +31,7 @@ const MeterReadingFilterTemplate = new GQLListSchema('MeterReadingFilterTemplate
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
-        filters: METER_READING_FILTERS_FIELD,
+        fields: METER_READING_FILTER_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

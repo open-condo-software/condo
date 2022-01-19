@@ -5,6 +5,7 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { getByCondition, getById } = require('@core/keystone/schema')
+const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadMeterReadingFilterTemplates ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -12,7 +13,8 @@ async function canReadMeterReadingFilterTemplates ({ authentication: { item: use
     if (user.isAdmin) return {}
 
     return {
-        employee: { user: { id: user.id } },
+        employee: { organization: { ...queryOrganizationEmployeeFor(user.id) } },
+        createdBy: { id: user.id },
     }
 }
 

@@ -29,7 +29,7 @@ const EXPORT_METER_READINGS = gql`
 `
 
 const METER_READING_FILTERS_FIELDS = '{ address accountNumber place number unitName resource clientName createdAt date verificationDate installationDate commissioningDate sealingDate controlReadingDate }'
-const METER_READING_FILTER_TEMPLATE_FIELDS = `{ name employee { id } filters ${METER_READING_FILTERS_FIELDS} ${COMMON_FIELDS} }`
+const METER_READING_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${METER_READING_FILTERS_FIELDS} ${COMMON_FIELDS} }`
 const MeterReadingFilterTemplate = generateGqlQueries('MeterReadingFilterTemplate', METER_READING_FILTER_TEMPLATE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
