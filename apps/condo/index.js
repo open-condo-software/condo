@@ -142,6 +142,7 @@ module.exports = {
             adminPath: '/admin',
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
             authStrategy,
+            hooks: require.resolve('@app/condo/admin-ui'),
         }),
         conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
     ].filter(identity),
