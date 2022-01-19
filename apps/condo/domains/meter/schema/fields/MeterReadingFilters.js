@@ -3,9 +3,9 @@ const { Json } = require('@core/keystone/fields')
 
 const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
 
-const METER_READING_FILTERS_TYPE_NAME = 'MeterReadingFilters'
+const METER_READING_FILTER_TYPE_NAME = 'MeterReadingFilters'
 
-const MeterReadingFiltersFields = {
+const MeterReadingFilterFields = {
     address: '[String]',
     accountNumber: 'String',
     place: 'String',
@@ -22,38 +22,38 @@ const MeterReadingFiltersFields = {
     controlReadingDate: '[String]',
 }
 
-const METER_READING_FILTERS_TYPE = `
-    type ${METER_READING_FILTERS_TYPE_NAME} {
-        ${render(MeterReadingFiltersFields)}
+const METER_READING_FILTER_TYPE = `
+    type ${METER_READING_FILTER_TYPE_NAME} {
+        ${render(MeterReadingFilterFields)}
     }
 `
 
-const getMeterReadingFiltersSchemaValueType = value => value.startsWith('[') ? { type: 'array', items: { type: 'string' } } : { type: 'string' }
+const getMeterReadingFilterSchemaValueType = value => value.startsWith('[') ? { type: 'array', items: { type: 'string' } } : { type: 'string' }
 
-const MeterReadingFiltersSchema = {
+const MeterReadingFilterSchema = {
     type: 'object',
     properties: Object.assign({},
-        ...Object.keys(MeterReadingFiltersFields).map((field) => ({ [field]: { ...getMeterReadingFiltersSchemaValueType(MeterReadingFiltersFields[field]) } })),
+        ...Object.keys(MeterReadingFilterFields).map((field) => ({ [field]: { ...getMeterReadingFilterSchemaValueType(MeterReadingFilterFields[field]) } })),
     ),
     additionalProperties: false,
 }
 
 const ajv = new Ajv()
-const MeterReadingFiltersValidator = ajv.compile(MeterReadingFiltersSchema)
+const MeterReadingFilterValidator = ajv.compile(MeterReadingFilterSchema)
 
-const validateMeterReadingFilters = getValidator(MeterReadingFiltersValidator)
+const validateMeterReadingFilter = getValidator(MeterReadingFilterValidator)
 
-const METER_READING_FILTERS_FIELD = {
-    schemaDoc: 'Filters that match the given template',
+const METER_READING_FILTER_FIELD = {
+    schemaDoc: 'Filter that match the given template',
     type: Json,
-    extendGraphQLTypes: [METER_READING_FILTERS_TYPE],
-    graphQLReturnType: METER_READING_FILTERS_TYPE_NAME,
+    extendGraphQLTypes: [METER_READING_FILTER_TYPE],
+    graphQLReturnType: METER_READING_FILTER_TYPE_NAME,
     isRequired: true,
     hooks: {
-        validateInput: validateMeterReadingFilters,
+        validateInput: validateMeterReadingFilter,
     },
 }
 
 module.exports = {
-    METER_READING_FILTERS_FIELD,
+    METER_READING_FILTER_FIELD,
 }

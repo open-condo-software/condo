@@ -58,7 +58,7 @@ describe('MeterReadingFilterTemplate', () => {
 
             await expectToThrowValidationFailureError(
                 async () => await createTestMeterReadingFilterTemplate(user, employee, {
-                    filters: wrongFilters,
+                    fields: wrongFilters,
                 })
             )
         })
@@ -76,7 +76,7 @@ describe('MeterReadingFilterTemplate', () => {
 
             await expectToThrowValidationFailureError(
                 async () => await createTestMeterReadingFilterTemplate(user, employee, {
-                    filters: wrongFilters,
+                    fields: wrongFilters,
                 })
             )
         })
