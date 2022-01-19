@@ -137,7 +137,7 @@ const Property = new GQLListSchema('Property', {
                         return get(map, 'sections', [])
                             .map((section) => get(section, 'floors', [])
                                 .map(floor => get(floor, 'units', [])))
-                            .flat(2).filter(unit => unit.unitType === 'flat').length
+                            .flat(2).filter(unit => get(unit, 'unitType', 'flat') === 'flat').length
                     }
 
                     let unitsCount = 0
@@ -186,7 +186,7 @@ const Property = new GQLListSchema('Property', {
                         const sectionUnitsCount = get(map, 'sections', [])
                             .map((section) => get(section, 'floors', [])
                                 .map(floor => get(floor, 'units', [])))
-                            .flat(2).filter(unit => unit.unitType !== 'flat').length
+                            .flat(2).filter(unit => get(unit, 'unitType', 'flat') !== 'flat').length
 
                         return parkingUnitsCount + sectionUnitsCount
                     }
