@@ -13,6 +13,7 @@ async function canReadTicketFilterTemplates ({ authentication: { item: user } })
 
     return {
         employee: { organization: { ...queryOrganizationEmployeeFor(user.id) } },
+        createdBy: { id: user.id },
     }
 }
 

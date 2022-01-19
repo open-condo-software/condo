@@ -3,9 +3,9 @@ const { Json } = require('@core/keystone/fields')
 
 const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
 
-const TICKET_FILTERS_TYPE_NAME = 'TicketFilter'
+const TICKET_FILTER_TYPE_NAME = 'TicketFilter'
 
-const TicketFiltersFields = {
+const TicketFilterFields = {
     number: 'Int',
     createdAt: '[String]',
     status: '[String]',
@@ -29,38 +29,38 @@ const TicketFiltersFields = {
     author: '[String]',
 }
 
-const TICKET_FILTERS_TYPE = `
-    type ${TICKET_FILTERS_TYPE_NAME} {
-        ${render(TicketFiltersFields)}
+const TICKET_FILTER_TYPE = `
+    type ${TICKET_FILTER_TYPE_NAME} {
+        ${render(TicketFilterFields)}
     }
 `
 
-const getTicketFiltersSchemaValueType = value => value.startsWith('[') ? { type: 'array', items: { type: 'string' } } : { type: 'string' }
+const getTicketFilterSchemaValueType = value => value.startsWith('[') ? { type: 'array', items: { type: 'string' } } : { type: 'string' }
 
-const TicketFiltersSchema = {
+const TicketFilterSchema = {
     type: 'object',
     properties: Object.assign({},
-        ...Object.keys(TicketFiltersFields).map((field) => ({ [field]: { ...getTicketFiltersSchemaValueType(TicketFiltersFields[field]) } })),
+        ...Object.keys(TicketFilterFields).map((field) => ({ [field]: { ...getTicketFilterSchemaValueType(TicketFilterFields[field]) } })),
     ),
     additionalProperties: false,
 }
 
 const ajv = new Ajv()
-const TicketFiltersValidator = ajv.compile(TicketFiltersSchema)
+const TicketFilterValidator = ajv.compile(TicketFilterSchema)
 
-const validateTicketFilters = getValidator(TicketFiltersValidator)
+const validateTicketFilter = getValidator(TicketFilterValidator)
 
-const TICKET_FILTERS_FIELD = {
-    schemaDoc: 'Filters that match the given template',
+const TICKET_FILTER_FIELD = {
+    schemaDoc: 'Filter that match the given template',
     type: Json,
-    extendGraphQLTypes: [TICKET_FILTERS_TYPE],
-    graphQLReturnType: TICKET_FILTERS_TYPE_NAME,
+    extendGraphQLTypes: [TICKET_FILTER_TYPE],
+    graphQLReturnType: TICKET_FILTER_TYPE_NAME,
     isRequired: true,
     hooks: {
-        validateInput: validateTicketFilters,
+        validateInput: validateTicketFilter,
     },
 }
 
 module.exports = {
-    TICKET_FILTERS_FIELD,
+    TICKET_FILTER_FIELD,
 }

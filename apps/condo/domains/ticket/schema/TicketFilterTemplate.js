@@ -9,7 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketFilterTemplate')
 
-const { TICKET_FILTERS_FIELD } = require('./fields/TicketFilters')
+const { TICKET_FILTER_FIELD } = require('./fields/TicketFilters')
 
 
 const TicketFilterTemplate = new GQLListSchema('TicketFilterTemplate', {
@@ -33,7 +33,7 @@ const TicketFilterTemplate = new GQLListSchema('TicketFilterTemplate', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
-        filters: TICKET_FILTERS_FIELD,
+        fields: TICKET_FILTER_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

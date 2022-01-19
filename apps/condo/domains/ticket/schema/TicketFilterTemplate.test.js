@@ -59,7 +59,7 @@ describe('TicketFilterTemplate', () => {
 
             await expectToThrowValidationFailureError(
                 async () => await createTestTicketFilterTemplate(user, employee, {
-                    filters: wrongFilters,
+                    fields: wrongFilters,
                 })
             )
         })
@@ -77,10 +77,10 @@ describe('TicketFilterTemplate', () => {
 
             await expectToThrowMutationError(
                 async () => await createTestTicketFilterTemplate(user, employee, {
-                    filters: wrongFilters,
+                    fields: wrongFilters,
                 }),
                 'Int cannot represent non-integer value',
-                ['obj', 'filters', 'number']
+                ['obj', 'fields', 'number']
             )
         })
 

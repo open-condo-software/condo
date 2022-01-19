@@ -383,14 +383,14 @@ async function createTestTicketFilterTemplate (client, employee, extraAttrs = {}
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.random.alphaNumeric(5)
     const ticketUnitFilter = [faker.random.alphaNumeric(5)]
-    const filters = { unitName: ticketUnitFilter }
+    const fields = { unitName: ticketUnitFilter }
 
     const attrs = {
         dv: 1,
         sender,
         employee: { connect: { id: employee.id } },
         name,
-        filters,
+        fields,
         ...extraAttrs,
     }
     const obj = await TicketFilterTemplate.create(client, attrs)
