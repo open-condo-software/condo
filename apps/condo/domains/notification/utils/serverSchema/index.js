@@ -52,16 +52,16 @@ async function resendMessage (context, data) {
     })
 }
 
-async function registerPushNotificationToken (context, data) {
+async function registerPushToken (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write registerPushNotificationToken serverSchema guards
+    // TODO(codegen): write registerPushToken serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: REGISTER_PUSH_TOKEN_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to registerPushNotificationToken',
+        errorMessage: '[error] Unable to registerPushToken',
         dataPath: 'obj',
     })
 }
@@ -72,6 +72,6 @@ module.exports = {
     Message,
     sendMessage, resendMessage,
     PushToken,
-    registerPushNotificationToken,
+    registerPushToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

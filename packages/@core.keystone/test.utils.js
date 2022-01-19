@@ -368,6 +368,11 @@ const isMongo = () => {
     return conf.DATABASE_URL.startsWith('mongo')
 }
 
+const getRandomBetween = (min, max) => min + Math.floor(Math.random() * (max - min))
+
+const getRandomItem = list => list[getRandomBetween(0, list.length - 1)]
+
+
 module.exports = {
     isPostgres, isMongo,
     EmptyApp,
@@ -381,6 +386,8 @@ module.exports = {
     createSchemaObject,
     deleteSchemaObject,
     getSchemaObject,
+    getRandomBetween,
+    getRandomItem,
     gql,
     DEFAULT_TEST_USER_IDENTITY,
     DEFAULT_TEST_USER_SECRET,

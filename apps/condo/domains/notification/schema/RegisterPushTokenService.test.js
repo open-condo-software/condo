@@ -12,7 +12,7 @@ const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToO
 
 const { registerPushTokenByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { DEVICE_SERVICE_TYPES_KEYS } = require('@condo/domains/notification/constants')
-const { getRandomItem } = require('@condo/domains/common/utils/arrays')
+const { getRandomItem } = require('@core/keystone/test.utils')
 
 const getRandomServiceType = () => getRandomItem(DEVICE_SERVICE_TYPES_KEYS)
 const getRandomTokenData = () => ({

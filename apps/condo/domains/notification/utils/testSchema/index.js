@@ -5,7 +5,7 @@
  */
 const faker = require('faker')
 
-const { getRandomString } = require('@core/keystone/test.utils')
+const { getRandomString, getRandomItem } = require('@core/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
@@ -93,20 +93,12 @@ async function resendMessageByTestClient (client, message, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
-function getRandomElement (arr) {
-    const idx = Math.floor(Math.random() * arr.length)
-
-    return arr[idx]
-}
-
 async function createTestPushToken (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const deviceId = faker.random.uuid()
     const token = faker.random.uuid()
-    const serviceType = getRandomElement(DEVICE_SERVICE_TYPES_KEYS)
-
-    console.log('createTestPushToken:', { DEVICE_SERVICE_TYPES_KEYS, serviceType })
+    const serviceType = getRandomItem(DEVICE_SERVICE_TYPES_KEYS)
 
     const attrs = {
         dv: 1,
@@ -115,8 +107,6 @@ async function createTestPushToken (client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await PushToken.create(client, attrs)
-
-    console.log('createTestPushToken:', { obj, attrs })
 
     return [obj, attrs]
 }
