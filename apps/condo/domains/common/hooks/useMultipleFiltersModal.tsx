@@ -255,7 +255,6 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
 }
 
 function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance): React.ReactElement[] {
-    console.log('form ', form)
     if (!form) return
 
     return filterMetas.map(filterMeta => {
@@ -548,8 +547,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const modalComponents = useMemo(() => getModalComponents(pickBy(initialFormValues), filterMetas, form), [filterMetas, form, initialFormValues])
 
     const ModalFormItems = useCallback(() => {
-        console.log('initialFormValues', initialFormValues)
-        console.log(modalComponents)
         return (
             <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
                 {modalComponents}
