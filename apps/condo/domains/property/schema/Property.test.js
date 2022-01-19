@@ -159,6 +159,21 @@ describe('Property', () => {
         expect(obj.uninhabitedUnitsCount).toEqual(8)
     })
 
+    test('user: update Property.map unitsCount should consider unit types', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const [emptyProperty, attrs] = await createTestProperty(client, client.organization)
+        const buildingMap = { ...buildingMapJson }
+        buildingMap['sections'][0]['floors'][0]['units'][0].unitType = 'commercial'
+        buildingMap['sections'][0]['floors'][1]['units'][0].unitType = 'warehouse'
+        buildingMap['sections'][0]['floors'][2]['units'][0].unitType = 'apartment'
+
+        const property = await Property
+            .update(client, emptyProperty.id, { dv: 1, sender: attrs.sender, map: buildingMap })
+
+        expect(property.unitsCount).toEqual(25)
+        expect(property.uninhabitedUnitsCount).toEqual(11)
+    })
+
     test('user: can not create Property when same address exist in user organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const [_, attrs] = await createTestProperty(client, client.organization)
