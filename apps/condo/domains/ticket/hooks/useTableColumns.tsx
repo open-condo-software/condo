@@ -19,14 +19,12 @@ import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-
-import { EMERGENCY_TAG_COLOR } from '@condo/domains/ticket/constants/style'
-
 import { TicketStatus } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { IFilters } from '../utils/helpers'
 import { getTicketDetailsRender } from '../utils/clientSchema/Renders'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -100,7 +98,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 }
                 {
                     record.isEmergency && (
-                        <Tag color={EMERGENCY_TAG_COLOR.background}>
+                        <Tag color={TICKET_TYPE_TAG_COLORS.emergency}>
                             <Typography.Text type="danger">
                                 {EmergencyMessage.toLowerCase()}
                             </Typography.Text>
@@ -109,14 +107,14 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 }
                 {
                     record.isPaid && (
-                        <Tag color='orange'>
+                        <Tag color={TICKET_TYPE_TAG_COLORS.paid}>
                             {PaidMessage.toLowerCase()}
                         </Tag>
                     )
                 }
                 {
                     record.isWarranty && (
-                        <Tag color='purple'>
+                        <Tag color={TICKET_TYPE_TAG_COLORS.warranty}>
                             {WarrantyMessage.toLowerCase()}
                         </Tag>
                     )
