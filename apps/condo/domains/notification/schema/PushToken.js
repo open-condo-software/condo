@@ -14,36 +14,36 @@ const { DEVICE_SERVICE_TYPES_KEYS } = require('../constants')
 
 
 const PushToken = new GQLListSchema('PushToken', {
-    schemaDoc: 'Push token',
+    schemaDoc: 'Push token is received from mobile/web device and used to send push notifications via corresponding transport, depending on serviceType of the device.',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        user: {
-            schemaDoc: 'to User',
+        owner: {
+            schemaDoc: 'Owner user of a device and a push token. User, which is logged in on the device. Push token can be created by anonymous user and connected to authorized user later on.',
             type: Relationship,
             ref: 'User',
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
-            knexOptions: { isNotNullable: false }, // token can be crated with anonymous and User could be connected later.
+            knexOptions: { isNotNullable: false }, // token can be crated by anonymous and User could be connected later.
         },
 
         deviceId: {
-            schemaDoc: 'Device ID',
+            schemaDoc: 'Mobile/web device ID, which is used to identify device. One user can have many devices, and one device can be used by many users, one at a time.',
             type: Text,
             isRequired: true,
         },
 
         token: {
-            schemaDoc: 'Token',
+            schemaDoc: 'Token - used by transport services (FireBase, Apple, Huawei, etc.) to transfer push notifications to devices.',
             type: Text,
             isRequired: true,
         },
 
         serviceType: {
-            schemaDoc: 'Device service type',
+            schemaDoc: 'Device service type, needed to choose correct transport service to transfer push notifications. For ex. Huawei devices can not receive notifications through FireBase.',
             type: Select,
-            options: DEVICE_SERVICE_TYPES_KEYS.join(','),
+            options: DEVICE_SERVICE_TYPES_KEYS,
             isRequired: true,
         },
 

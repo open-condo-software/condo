@@ -12409,7 +12409,7 @@ export type Mutation = {
   updateResidentTicket?: Maybe<ResidentTicketOutput>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
-  registerPushToken?: Maybe<RegisterPushNotificationTokenOutput>;
+  registerPushToken?: Maybe<RegisterPushTokenOutput>;
   registerResident?: Maybe<Resident>;
   registerServiceConsumer?: Maybe<ServiceConsumer>;
   createOnBoardingByType?: Maybe<OnBoarding>;
@@ -15501,7 +15501,7 @@ export type MutationResendMessageArgs = {
 
 
 export type MutationRegisterPushTokenArgs = {
-  data: RegisterPushNotificationTokenInput;
+  data: RegisterPushTokenInput;
 };
 
 
@@ -19753,7 +19753,7 @@ export type PropertyWhereUniqueInput = {
   id: Scalars['ID'];
 };
 
-/**  Push token  */
+/**  Push token is received from mobile/web device and used to send push notifications via corresponding transport, depending on serviceType of the device.  */
 export type PushToken = {
   __typename?: 'PushToken';
   /**
@@ -19768,13 +19768,13 @@ export type PushToken = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  to User  */
-  user?: Maybe<User>;
-  /**  Device ID  */
+  /**  Owner user of a device and a push token. User, which is logged in on the device. Push token can be created by anonymous user and connected to authorized user later on.  */
+  owner?: Maybe<User>;
+  /**  Mobile/web device ID, which is used to identify device. One user can have many devices, and one device can be used by many users, one at a time.  */
   deviceId?: Maybe<Scalars['String']>;
-  /**  Token  */
+  /**  Token - used by transport services (FireBase, Apple, Huawei, etc.) to transfer push notifications to devices.  */
   token?: Maybe<Scalars['String']>;
-  /**  Device service type  */
+  /**  Device service type, needed to choose correct transport service to transfer push notifications. For ex. Huawei devices can not receive notifications through FireBase.  */
   serviceType?: Maybe<PushTokenServiceTypeType>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -19789,7 +19789,7 @@ export type PushToken = {
 export type PushTokenCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  user?: Maybe<UserRelateToOneInput>;
+  owner?: Maybe<UserRelateToOneInput>;
   deviceId?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   serviceType?: Maybe<PushTokenServiceTypeType>;
@@ -19815,7 +19815,7 @@ export type PushTokenHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  user?: Maybe<Scalars['String']>;
+  owner?: Maybe<Scalars['String']>;
   deviceId?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   serviceType?: Maybe<Scalars['String']>;
@@ -19835,7 +19835,7 @@ export type PushTokenHistoryRecord = {
 export type PushTokenHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  user?: Maybe<Scalars['String']>;
+  owner?: Maybe<Scalars['String']>;
   deviceId?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   serviceType?: Maybe<Scalars['String']>;
@@ -19860,7 +19860,7 @@ export enum PushTokenHistoryRecordHistoryActionType {
 export type PushTokenHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  user?: Maybe<Scalars['String']>;
+  owner?: Maybe<Scalars['String']>;
   deviceId?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   serviceType?: Maybe<Scalars['String']>;
@@ -19891,10 +19891,10 @@ export type PushTokenHistoryRecordWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  user?: Maybe<Scalars['String']>;
-  user_not?: Maybe<Scalars['String']>;
-  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  owner?: Maybe<Scalars['String']>;
+  owner_not?: Maybe<Scalars['String']>;
+  owner_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  owner_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   deviceId?: Maybe<Scalars['String']>;
   deviceId_not?: Maybe<Scalars['String']>;
   deviceId_contains?: Maybe<Scalars['String']>;
@@ -20037,7 +20037,7 @@ export enum PushTokenServiceTypeType {
 export type PushTokenUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  user?: Maybe<UserRelateToOneInput>;
+  owner?: Maybe<UserRelateToOneInput>;
   deviceId?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   serviceType?: Maybe<PushTokenServiceTypeType>;
@@ -20065,8 +20065,8 @@ export type PushTokenWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  user?: Maybe<UserWhereInput>;
-  user_is_null?: Maybe<Scalars['Boolean']>;
+  owner?: Maybe<UserWhereInput>;
+  owner_is_null?: Maybe<Scalars['Boolean']>;
   deviceId?: Maybe<Scalars['String']>;
   deviceId_not?: Maybe<Scalars['String']>;
   deviceId_contains?: Maybe<Scalars['String']>;
@@ -23472,7 +23472,7 @@ export type RegisterNewUserInput = {
   meta?: Maybe<Scalars['JSON']>;
 };
 
-export type RegisterPushNotificationTokenInput = {
+export type RegisterPushTokenInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   deviceId: Scalars['String'];
@@ -23480,13 +23480,13 @@ export type RegisterPushNotificationTokenInput = {
   serviceType: Scalars['String'];
 };
 
-export type RegisterPushNotificationTokenOutput = {
-  __typename?: 'RegisterPushNotificationTokenOutput';
+export type RegisterPushTokenOutput = {
+  __typename?: 'RegisterPushTokenOutput';
   id: Scalars['String'];
   deviceId: Scalars['String'];
   token: Scalars['String'];
   serviceType: Scalars['String'];
-  user?: Maybe<User>;
+  owner?: Maybe<User>;
 };
 
 export type RegisterResidentInput = {
@@ -27748,8 +27748,8 @@ export enum SortPushTokenHistoryRecordsBy {
 export enum SortPushTokensBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
-  UserAsc = 'user_ASC',
-  UserDesc = 'user_DESC',
+  OwnerAsc = 'owner_ASC',
+  OwnerDesc = 'owner_DESC',
   DeviceIdAsc = 'deviceId_ASC',
   DeviceIdDesc = 'deviceId_DESC',
   TokenAsc = 'token_ASC',

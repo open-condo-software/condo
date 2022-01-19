@@ -104,29 +104,6 @@ function generateServerUtils (gql) {
         })
     }
 
-    /**
-     * Returns result with flat related IDs, relations would not be resolved because of getById
-     * @param context
-     * @param attrs
-     * @param existingItem
-     * @returns {Promise<*|null|undefined>}
-     */
-    async function createOrUpdateExistingItem (context, attrs, existingItem) {
-        let id = get(existingItem, 'id', null)
-
-        if (existingItem) {
-            await update(context, id, attrs)
-        } else {
-            const createdItem = await create(context, attrs)
-
-            id = createdItem.id
-        }
-
-        // NOTE: result will have flat related IDs, relations not resolved because of getById
-        return await getById(gql.SINGULAR_FORM, id)
-    }
-
-
     return {
         gql,
         getAll,
@@ -135,7 +112,6 @@ function generateServerUtils (gql) {
         create,
         update,
         delete: delete_,
-        createOrUpdateExistingItem,
     }
 }
 

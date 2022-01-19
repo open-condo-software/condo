@@ -14,7 +14,7 @@ const {
     SEND_MESSAGE, RESEND_MESSAGE,
     PushToken: PushTokenGQL,
 } = require('@condo/domains/notification/gql')
-const { REGISTER_PUSH_NOTIFICATION_TOKEN_MUTATION } = require('@condo/domains/notification/gql')
+const { REGISTER_PUSH_TOKEN_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, DEVICE_SERVICE_TYPES_KEYS } = require('@condo/domains/notification/constants')
@@ -106,7 +106,7 @@ async function createTestPushToken (client, extraAttrs = {}) {
     const token = faker.random.uuid()
     const serviceType = getRandomElement(DEVICE_SERVICE_TYPES_KEYS)
 
-    console.log('createTestPushToken:', {DEVICE_SERVICE_TYPES_KEYS, serviceType})
+    console.log('createTestPushToken:', { DEVICE_SERVICE_TYPES_KEYS, serviceType })
 
     const attrs = {
         dv: 1,
@@ -115,6 +115,9 @@ async function createTestPushToken (client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await PushToken.create(client, attrs)
+
+    console.log('createTestPushToken:', { obj, attrs })
+
     return [obj, attrs]
 }
 
@@ -134,17 +137,21 @@ async function updateTestPushToken (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerPushNotificationTokenByTestClient(client, extraAttrs = {}) {
+async function registerPushTokenByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
         dv: 1,
         sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(REGISTER_PUSH_NOTIFICATION_TOKEN_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(REGISTER_PUSH_TOKEN_MUTATION, { data: attrs })
+
+    console.log('registerPushTokenByTestClient:', { attrs, data, errors })
+
     throwIfError(data, errors)
+
     return [data.result, attrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */
@@ -154,6 +161,6 @@ module.exports = {
     createTestMessage, updateTestMessage, sendMessageByTestClient, resendMessageByTestClient,
     PushToken,
     createTestPushToken, updateTestPushToken,
-registerPushNotificationTokenByTestClient
+    registerPushTokenByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

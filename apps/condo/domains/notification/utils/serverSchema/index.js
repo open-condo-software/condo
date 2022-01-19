@@ -15,7 +15,7 @@ const {
 
 const { MESSAGE_TYPES } = require('@condo/domains/notification/constants')
 
-const { REGISTER_PUSH_NOTIFICATION_TOKEN_MUTATION } = require('@condo/domains/notification/gql')
+const { REGISTER_PUSH_TOKEN_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
@@ -59,7 +59,7 @@ async function registerPushNotificationToken (context, data) {
     // TODO(codegen): write registerPushNotificationToken serverSchema guards
 
     return await execGqlWithoutAccess(context, {
-        query: REGISTER_PUSH_NOTIFICATION_TOKEN_MUTATION,
+        query: REGISTER_PUSH_TOKEN_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerPushNotificationToken',
         dataPath: 'obj',
