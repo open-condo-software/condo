@@ -135,11 +135,8 @@ const Property = new GQLListSchema('Property', {
                     const getTotalUnitsCount = (map) => {
                         return get(map, 'sections', [])
                             .map((section) => get(section, 'floors', [])
-                                .map(floor => get(floor, 'units', []).length)
-                            )
-                            .flat()
-                            .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
-
+                                .map(floor => get(floor, 'units', [])))
+                            .flat(2).filter(unit => unit.unitType === 'flat').length
                     }
 
                     let unitsCount = 0
@@ -178,13 +175,19 @@ const Property = new GQLListSchema('Property', {
                 resolveInput: async ({ operation, existingItem, resolvedData }) => {
                     let uninhabitedUnitsCount = 0
                     const getUninhabitedUnitsCount = (map) => {
-                        return get(map, 'parking', [])
+                        const parkingUnitsCount = get(map, 'parking', [])
                             .map((section) => get(section, 'floors', [])
                                 .map(floor => get(floor, 'units', []).length)
                             )
                             .flat()
                             .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
 
+                        const sectionUnitsCount = get(map, 'sections', [])
+                            .map((section) => get(section, 'floors', [])
+                                .map(floor => get(floor, 'units', [])))
+                            .flat(2).filter(unit => unit.unitType !== 'flat').length
+
+                        return parkingUnitsCount + sectionUnitsCount
                     }
 
                     if (operation === 'create') {
