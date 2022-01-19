@@ -36,13 +36,9 @@ const RegisterPushTokenService = new GQLCustomSchema('RegisterPushTokenService',
                     serviceType,
                     owner: userId ? { disconnectAll: true, connect: { id: userId } } : null,
                 }
-                const [existingToken] = await PushTokenAPI.getFirst(context, { deviceId, serviceType })
+                const existingToken = await PushTokenAPI.getOne(context, { deviceId, serviceType })
 
-                const tokenData = existingToken
-                    ? await PushTokenAPI.update(context, existingToken.id, attrs)
-                    : await PushTokenAPI.create(context, attrs)
-
-                return tokenData
+                return PushTokenAPI.createOrUpdate(context, attrs, existingToken)
             },
         },
     ],

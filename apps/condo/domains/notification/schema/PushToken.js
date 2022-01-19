@@ -12,7 +12,6 @@ const access = require('@condo/domains/notification/access/PushToken')
 
 const { DEVICE_SERVICE_TYPES_KEYS } = require('../constants')
 
-
 const PushToken = new GQLListSchema('PushToken', {
     schemaDoc: 'Push token is received from mobile/web device and used to send push notifications via corresponding transport, depending on serviceType of the device.',
     fields: {

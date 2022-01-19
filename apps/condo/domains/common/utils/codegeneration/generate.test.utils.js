@@ -25,6 +25,12 @@ function generateGQLTestUtils (gql) {
         return data.objs
     }
 
+    async function getOne (context, where, params = {}) {
+        const objs = await getAll(context, where, { first: 2, ...params })
+        if (objs.length > 1) throw new Error('getOne() got more than one result, check filters/logic please')
+        return objs[0] // will return undefined by default, if objs is empty :)
+    }
+
     async function count (client, where, { raw = false } = {}) {
         checkClient(client)
         const { data, errors } = await client.query(gql.GET_COUNT_OBJS_QUERY, { where: where })
@@ -61,7 +67,7 @@ function generateGQLTestUtils (gql) {
         return data.obj
     }
 
-    async function delete_ (client, id, { raw = false } = {}) {
+    async function _delete (client, id, { raw = false } = {}) {
         checkClient(client)
         const { data, errors } = await client.mutate(gql.DELETE_OBJ_MUTATION, { id })
         if (raw) return { data, errors }
@@ -88,11 +94,14 @@ function generateGQLTestUtils (gql) {
 
     return {
         gql,
-        getAll, count,
+        getAll,
+        count,
         getAllWithMeta,
-        create, update,
-        delete: delete_,
+        create,
+        update,
+        delete: _delete,
         softDelete,
+        getOne,
     }
 }
 

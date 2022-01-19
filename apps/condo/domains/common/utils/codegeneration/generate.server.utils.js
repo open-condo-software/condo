@@ -1,10 +1,10 @@
-const { pickBy, get } = require('lodash')
+const get = require('lodash/get')
+const pickBy = require('lodash/pickBy')
 
 const conf = require('@core/config')
-const { getById } = require('@core/keystone/schema')
+const { PushToken: PushTokenAPI } = require('@condo/domains/notification/utils/serverSchema')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
-
 const isNotUndefined = (x) => typeof x !== 'undefined'
 
 async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
@@ -13,6 +13,7 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
     if (!context.createContext) throw new Error('wrong context argument: no createContext')
     if (!query) throw new Error('wrong query argument')
     if (!variables) throw new Error('wrong variables argument')
+
     const { errors, data } = await context.executeGraphQL({
         context: {
             req: context.req,
@@ -27,8 +28,11 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
             if (IS_DEBUG) console.warn(errors.map((err) => (err.originalError && err.originalError.data)))
         }
         if (IS_DEBUG) console.error(errors)
+
         const error = new Error(errorMessage)
+
         error.errors = errors
+
         throw error
     }
 
@@ -43,28 +47,30 @@ function generateServerUtils (gql) {
     async function getAll (context, where, { sortBy, first, skip } = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
+
         return await execGqlWithoutAccess(context, {
             query: gql.GET_ALL_OBJS_QUERY,
-            variables: {
-                where, sortBy, first, skip,
-            },
+            variables: { where, sortBy, first, skip },
             errorMessage: `[error] Unable to query ${gql.PLURAL_FORM}`,
             dataPath: 'objs',
         })
     }
 
-    async function getFirst (context, where, params = {}) {
-        return await getAll(context, where, { first: 1, ...params })
+    async function getOne (context, where, params = {}) {
+        const objs = await getAll(context, where, { first: 2, ...params })
+
+        if (objs.length > 1) throw new Error('getOne() got more than one result, check filters/logic please')
+
+        return objs[0] // will return undefined by default, if objs is empty :)
     }
 
     async function count (context, where, { sortBy, first, skip } = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
+
         return await execGqlWithoutAccess(context, {
             query: gql.GET_COUNT_OBJS_QUERY,
-            variables: {
-                where, sortBy, first, skip,
-            },
+            variables: { where, sortBy, first, skip },
             errorMessage: `[error] Unable to query ${gql.PLURAL_FORM}`,
             dataPath: 'meta.count',
         })
@@ -73,6 +79,7 @@ function generateServerUtils (gql) {
     async function create (context, data) {
         if (!context) throw new Error('no context')
         if (!data) throw new Error('no data')
+
         return await execGqlWithoutAccess(context, {
             query: gql.CREATE_OBJ_MUTATION,
             variables: { data },
@@ -85,6 +92,7 @@ function generateServerUtils (gql) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
         if (!data) throw new Error('no data')
+
         return await execGqlWithoutAccess(context, {
             query: gql.UPDATE_OBJ_MUTATION,
             variables: { id, data },
@@ -93,9 +101,10 @@ function generateServerUtils (gql) {
         })
     }
 
-    async function delete_ (context, id) {
+    async function _delete (context, id) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
+
         return await execGqlWithoutAccess(context, {
             query: gql.DELETE_OBJ_MUTATION,
             variables: { id },
@@ -104,14 +113,32 @@ function generateServerUtils (gql) {
         })
     }
 
+    // getOrCreate
+
+    /**
+     * Updates and returns either existing item or creates new one and returns it
+     * @param context
+     * @param attrs
+     * @param existingItem
+     * @returns {Promise<*|null|undefined>}
+     */
+    async function createOrUpdate (context, attrs, existingItem) {
+        const shouldUpdate = Boolean(existingItem && existingItem.id)
+
+        return shouldUpdate
+            ? await update(context, existingItem.id, attrs)
+            : await create(context, attrs)
+    }
+
     return {
         gql,
         getAll,
-        getFirst,
+        getOne,
         count,
         create,
         update,
-        delete: delete_,
+        delete: _delete,
+        createOrUpdate,
     }
 }
 

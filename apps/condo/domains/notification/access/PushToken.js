@@ -13,23 +13,35 @@ async function canReadPushTokens ({ authentication: { item: owner } }) {
     return {
         context: {
             OR: [
-                { owner: { id: owner.id } },
+                {
+                    owner: { id: owner.id },
+                },
+                // may be extended in future
             ],
         },
     }
 }
 
-async function canManagePushTokens ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (user && user.deletedAt) return false
-    if (user && user.isAdmin) return true
+async function canManagePushTokens ({ authentication: { item: owner }, originalInput, operation }) {
+    if (owner && owner.deletedAt) return false
+    if (owner && owner.isAdmin) return true
     if (operation === 'create') {
-        // TODO(codegen): write canManagePushTokens create logic!
+        // NOTE: everyone can create push tokens, including anonymous users
         return true
     } else if (operation === 'update') {
-        if (!user) return throwAuthenticationError()
-        // TODO(codegen): write canManagePushTokens update logic!
-        return true
+        // NOTE: everyone can update every push token if they know deviceId (almost impossible to guess)
+        return {
+            context: {
+                OR: [
+                    {
+                        deviceId: { id: originalInput.deviceId },
+                    },
+                    // may be extended in future
+                ],
+            },
+        }
     }
+
     return false
 }
 
