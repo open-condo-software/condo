@@ -5,16 +5,16 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canReadPushTokens ({ authentication: { item: owner } }) {
-    if (!owner) return throwAuthenticationError()
-    if (owner.deletedAt) return false
-    if (owner.isAdmin) return {}
+async function canReadPushTokens ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return {}
 
     return {
         context: {
             OR: [
                 {
-                    owner: { id: owner.id },
+                    owner: { id: user.id },
                 },
                 // may be extended in future
             ],
