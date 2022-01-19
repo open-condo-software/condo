@@ -414,14 +414,14 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         if (newTemplateName) {
             await createFiltersTemplateAction({
                 name: newTemplateName,
-                filters: filtersValue,
+                fields: filtersValue,
             })
         }
 
         if (existedTemplateName) {
             await updateFiltersTemplateAction({
                 name: existedTemplateName,
-                filters: filtersValue,
+                fields: filtersValue,
             }, selectedFiltersTemplate)
         }
 
@@ -484,7 +484,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         <Button
             key={'saveFilters'}
             onClick={handleSaveFiltersTemplate}
-            disabled={selectedFiltersTemplate && isSaveFiltersTemplateButtonDisabled}
+            disabled={isSaveFiltersTemplateButtonDisabled}
             type={'sberGrey'}
             secondary
         >
@@ -525,7 +525,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const handleFormValuesChange = useCallback(() => {
         const { newTemplateName, existedTemplateName } = form.getFieldsValue(['newTemplateName', 'existedTemplateName'])
-        const isTemplateValueNameExist = newTemplateName || existedTemplateName
+        const isTemplateValueNameExist = Boolean(newTemplateName || existedTemplateName)
 
         setIsSaveFiltersTemplateButtonDisabled(!isTemplateValueNameExist)
     },
@@ -543,7 +543,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         </TabPane>
     )), [ExistingFiltersTemplateNameInput, TemplateMessage, filtersTemplates])
 
-    const initialFormValues = useMemo(() => get(selectedFiltersTemplate, 'filters', filters), [filters, selectedFiltersTemplate])
+    const initialFormValues = useMemo(() => get(selectedFiltersTemplate, 'fields', filters), [filters, selectedFiltersTemplate])
     const modalComponents = useMemo(() => getModalComponents(pickBy(initialFormValues), filterMetas, form), [filterMetas, form, initialFormValues])
 
     const ModalFormItems = useCallback(() => {
