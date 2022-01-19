@@ -130,9 +130,9 @@ export const TicketsPageContent = ({
                                     <Col span={23}>
                                         <FocusContainer padding={'16px'}>
                                             <Row justify={'space-between'} gutter={TAP_BAR_ROW_GUTTER}>
-                                                <Col xs={24} lg={14}>
+                                                <Col xs={24} lg={12}>
                                                     <Row gutter={TOP_BAR_FIRST_COLUMN_GUTTER} align={'middle'}>
-                                                        <Col xs={24} lg={9}>
+                                                        <Col xs={24} sm={24} lg={24} xxl={9}>
                                                             <Input
                                                                 placeholder={SearchPlaceholder}
                                                                 onChange={(e) => {
@@ -141,7 +141,7 @@ export const TicketsPageContent = ({
                                                                 value={search}
                                                             />
                                                         </Col>
-                                                        <Col xs={24} lg={5}>
+                                                        <Col xs={24} sm={8} md={6} lg={8} xxl={5}>
                                                             <Checkbox
                                                                 onChange={handleEmergencyChange}
                                                                 checked={emergency}
@@ -150,7 +150,7 @@ export const TicketsPageContent = ({
                                                                 {EmergenciesLabel}
                                                             </Checkbox>
                                                         </Col>
-                                                        <Col xs={24} lg={5}>
+                                                        <Col xs={24} sm={8} md={6} lg={8} xxl={5}>
                                                             <Checkbox
                                                                 onChange={handlePaidChange}
                                                                 checked={paid}
@@ -159,7 +159,7 @@ export const TicketsPageContent = ({
                                                                 {PaidLabel}
                                                             </Checkbox>
                                                         </Col>
-                                                        <Col xs={24} lg={5}>
+                                                        <Col xs={24} sm={8} md={6} lg={8} xxl={5}>
                                                             <Checkbox
                                                                 onChange={handleWarrantyChange}
                                                                 checked={warranty}
@@ -170,8 +170,8 @@ export const TicketsPageContent = ({
                                                         </Col>
                                                     </Row>
                                                 </Col>
-                                                <Col>
-                                                    <Row>
+                                                <Col xs={24} lg={12}>
+                                                    <Row justify={'end'}>
                                                         {
                                                             appliedFiltersCount > 0 ? (
                                                                 <Col>
