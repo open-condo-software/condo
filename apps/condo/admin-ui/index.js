@@ -29,7 +29,7 @@ function SignInAsUser () {
         signinAs({ variables: { data } }).catch(error => {
             console.log('Failed to signin', error)
         })
-    }, [location])
+    }, [location, signinAs])
 
     return (
         location.pathname.indexOf('users/') !== -1 && <UserSwitchOutlined style={ICON_STYLE} onClick={onClick} />
