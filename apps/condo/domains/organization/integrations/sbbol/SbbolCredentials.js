@@ -1,4 +1,5 @@
 const path = require('path')
+const querystring = require('querystring')
 const conf = require('@core/config')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { getOrganizationAccessToken } = require('./accessToken')
@@ -40,17 +41,22 @@ class SbbolCredentials {
             passphrase: SBBOL_PFX.passphrase,
         })
 
+        const body = {
+            access_token: accessToken,
+            client_id: clientId,
+            client_secret: currentClientSecret || tokenSet.clientSecret,
+            new_client_secret: newClientSecret,
+        }
+
+        // SBBOL does not accepts parameters from body of the POST-request, as it usually should be implemented.
+        // It accepts parameters from URL query string
+        const queryParams = querystring.stringify(body)
+
         const { data, statusCode } = await requestApi.request({
             method: 'POST',
-            path: '/ic/sso/api/v1/change-client-secret',
+            path: `/ic/sso/api/v1/change-client-secret?${queryParams}`,
             headers: {
                 'Content-Type': 'application/json',
-            },
-            body: {
-                access_token: accessToken,
-                client_id: clientId,
-                client_secret: currentClientSecret || tokenSet.clientSecret,
-                new_client_secret: newClientSecret,
             },
         })
         if (statusCode !== 200) {
