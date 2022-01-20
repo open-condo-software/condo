@@ -54,7 +54,11 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
     types: [
         {
             access: true,
-            type: 'input RegisterMultiPaymentServiceConsumerInput { consumerId: String!, receiptsIds: [String!]! }',
+            type: 'input RegisterMultiPaymentReceiptInfoInput { id: String! }',
+        },
+        {
+            access: true,
+            type: 'input RegisterMultiPaymentServiceConsumerInput { consumerId: String!, receipts: [RegisterMultiPaymentReceiptInfoInput!]! }',
         },
         {
             access: true,
@@ -90,7 +94,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (!get(groupedReceipts, 'length')) {
                     throw new Error(REGISTER_MP_EMPTY_INPUT)
                 }
-                if (groupedReceipts.some(group => !get(group, ['receiptsIds', 'length']))) {
+                if (groupedReceipts.some(group => !get(group, ['receipts', 'length']))) {
                     throw new Error(REGISTER_MP_EMPTY_RECEIPTS)
                 }
 
@@ -100,7 +104,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (consumersIds.length !== uniqueConsumerIds.size) {
                     throw new Error(REGISTER_MP_CONSUMERS_DUPLICATE)
                 }
-                const receiptsIds = groupedReceipts.flatMap(group => group.receiptsIds)
+                const receiptsIds = groupedReceipts
+                    .flatMap(group => group.receipts)
+                    .map(receiptInfo => receiptInfo.id)
                 const uniqueReceiptsIds = new Set(receiptsIds)
                 if (receiptsIds.length !== uniqueReceiptsIds.size) {
                     throw new Error(REGISTER_MP_RECEIPTS_DUPLICATE)
@@ -192,12 +198,12 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 const receiptsByIds = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
                 groupedReceipts.forEach(group => {
-                    group.receiptsIds.forEach(receiptId => {
-                        const receipt = receiptsByIds[receiptId]
+                    group.receipts.forEach(receiptInfo => {
+                        const receipt = receiptsByIds[receiptInfo.id]
                         const billingAccount = receipt.account
                         const consumer = consumersByIds[group.consumerId]
                         if (billingAccount !== consumer.billingAccount) {
-                            throw new Error(`${REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH} (ReceiptId: ${receiptId}, ConsumerId: ${group.consumerId})`)
+                            throw new Error(`${REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH} (ReceiptId: ${receiptInfo.id}, ConsumerId: ${group.consumerId})`)
                         }
                     })
                 })
@@ -244,8 +250,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 for (const group of groupedReceipts) {
                     const serviceConsumer = consumersByIds[group.consumerId]
                     const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
-                    for (const receiptId of group.receiptsIds) {
-                        const receipt = receiptsByIds[receiptId]
+                    for (const receiptInfo of group.receipts) {
+                        const receipt = receiptsByIds[receiptInfo.id]
                         const frozenReceipt = await freezeBillingReceipt(receipt)
                         const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
                         const payment = await Payment.create(context, {
@@ -255,10 +261,12 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             currencyCode,
                             accountNumber: billingAccountNumber,
                             period: receipt.period,
-                            receipt: { connect: { id: receiptId } },
+                            receipt: { connect: { id: receiptInfo.id } },
                             frozenReceipt,
                             context: { connect: { id: acquiringContext.id } },
                             organization: { connect: { id: acquiringContext.organization } },
+                            recipientBic: receipt.recipient.bic,
+                            recipientBankAccount: receipt.recipient.bankAccount,
                         })
                         payments.push(payment)
                     }

@@ -1,5 +1,8 @@
 name: Cleanup container registry
 on:
+  workflow_dispatch:
+    branches:
+      - '*'
   schedule:
     - cron:  '0 2 * * *'
   repository_dispatch:
@@ -13,6 +16,7 @@ jobs:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
       PULL_USER: ${{ secrets.PULL_USER }}
       PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
+      WERF_PARALLEL: 0
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -21,8 +25,16 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
       - name: Fetch all history for all tags and branches
-        run: git fetch --prune --unshallow
+        run: |
+          if $(git rev-parse --is-shallow-repository)
+          then
+            git fetch --prune --unshallow
+          else
+            git fetch --prune
+          fi
       - name: Cleanup
         uses: werf/actions/cleanup@v1.2
         with:
           kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
+        env:
+          WERF_REPO_GITHUB_TOKEN: ${{ secrets.WERF_CLEANUP_PAM }}

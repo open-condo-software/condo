@@ -2,7 +2,7 @@ import React from 'react'
 import { ColumnsType } from 'antd/es/table/interface'
 import { Table as DefaultTable, TableProps } from 'antd'
 import get from 'lodash/get'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
 import {
     getPageIndexFromOffset,
@@ -10,8 +10,8 @@ import {
     FULL_TO_SHORT_ORDERS_MAP,
     FiltersFromQueryType,
 } from '@condo/domains/common/utils/tables.utils'
-import qs from 'qs'
-import { isEqual } from 'lodash'
+import isEqual from 'lodash/isEqual'
+import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 
 export type TableRecord = any
 
@@ -100,8 +100,9 @@ export const Table: React.FC<ITableProps> = ({
             return applyQuery(queryParams)
         }
         else {
-            const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-            return router.push(router.route + newQuery)
+            // The `queryParams` contains only filters, sort and offset, so we can use `updateQuery`.
+            // In case of additional parameters, we have to use custom code or modify `updateQuery` signature.
+            return updateQuery(router, newFilters, newSorters, newOffset)
         }
     }, 400)
 

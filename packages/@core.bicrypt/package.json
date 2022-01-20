@@ -1,0 +1,23 @@
+{
+  "name": "@core/bicrypt",
+  "version": "1.1.6",
+  "main": "lib/binding.js",
+  "dependencies": {
+    "node-addon-api": "^1.1.0",
+    "xml-c14n": "^0.0.6",
+    "xmldom": "^0.6.0"
+  },
+  "scripts": {
+    "test": "node ./test/test_binding.js"
+  },
+  "gypfile": true,
+  "description": "Sign requests with Bicrypt library",
+  "keywords": [
+    "bicrypt",
+    "gost2012",
+    "signinig",
+    "eds",
+    "condo"
+  ],
+  "author": "dkovyazin@doma.ai"
+}

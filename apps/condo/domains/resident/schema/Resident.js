@@ -69,7 +69,7 @@ const Resident = new GQLListSchema('Resident', {
                     if (!propertyId) return
                     const [property] = await Property.getAll(context, { id: propertyId })
                     const residentAddress = getAddressUpToBuildingFrom(resolvedData.addressMeta)
-                    if (property.address !== residentAddress) {
+                    if (property.address.toLowerCase() !== residentAddress.toLowerCase()) {
                         return addFieldValidationError('Cannot connect property, because its address differs from address of resident')
                     }
                 },
@@ -195,6 +195,8 @@ const Resident = new GQLListSchema('Resident', {
                     unitName_i: unitName,
                     user: { id: userId },
                     deletedAt: null,
+                }, {
+                    first: 1,
                 })
                 if (resident) {
                     return addValidationError('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')

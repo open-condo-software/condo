@@ -1,20 +1,22 @@
 import { useMemo } from 'react'
+import { MeterReadingWhereInput } from '@app/condo/schema'
+import get from 'lodash/get'
+import { useOrganization } from '@core/next/organization'
+import { useIntl } from '@core/next/intl'
+
 import {
     ComponentType,
     convertToOptions,
     FilterComponentSize,
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
-import { MeterReadingWhereInput } from '@app/condo/schema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { get } from 'lodash'
 import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
+
 import { MeterReadingSource, MeterResource } from '../utils/clientSchema'
-import { useOrganization } from '@core/next/organization'
-import { useIntl } from '@core/next/intl'
 import { IMeterReadingSourceUIState } from '../utils/clientSchema/MeterReadingSource'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
 
@@ -27,7 +29,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const FullNameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
     const ChooseServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.ChooseService' })
-    const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Service' })
+    const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
@@ -42,6 +44,8 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const CommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
     const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
     const ControlReadingsDate = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
+    const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
+    const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -51,6 +55,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const accountNumberFilter = getStringContainsFilter(['meter', 'accountNumber'])
     const placeFilter = getStringContainsFilter(['meter', 'place'])
     const numberFilter = getStringContainsFilter(['meter', 'number'])
+    const unitNameFilter = getStringContainsFilter(['meter', 'unitName'])
     const resourceStringContainsFilter = getStringContainsFilter(['meter', 'resource', 'name'])
     const clientNameFilter = getStringContainsFilter('clientName')
     const readingDateRangeFilter = getDayRangeFilter('date')
@@ -88,6 +93,21 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     },
                     columnFilterComponentWrapper: {
                         width: '400px',
+                    },
+                },
+            },
+            {
+                keyword: 'unitName',
+                filters: [unitNameFilter],
+                component: {
+                    type: ComponentType.TagsSelect,
+                    props: {
+                        tokenSeparators: [' '],
+                        placeholder: EnterUnitNameLabel,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: UnitMessage,
+                        size: FilterComponentSize.Medium,
                     },
                 },
             },
@@ -274,6 +294,8 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     placeFilter,
                     numberFilter,
                     clientNameFilter,
+                    unitNameFilter,
+                    accountNumberFilter,
                 ],
                 combineType: 'OR',
             },

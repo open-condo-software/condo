@@ -13,6 +13,7 @@ import isNull from 'lodash/isNull'
 import get from 'lodash/get'
 import debounce from 'lodash/debounce'
 import isFunction from 'lodash/isFunction'
+import last from 'lodash/last'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { transitions } from '@condo/domains/common/constants/style'
 import {
@@ -135,7 +136,7 @@ interface ITopModalProps {
 const TopModal = styled.div<ITopModalProps>`
   position: absolute;
   top: 10px;
-  right: 24px;
+  right: 22px;
   display: ${({ visible }) => visible ? 'flex' : 'none'};
   flex-direction: column;
   align-items: flex-start;
@@ -382,7 +383,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         useMemo(() => ({
                             addSection: <AddSectionForm builder={mapEdit} refresh={refresh}/>,
                             addUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
-                            removeSection: <RemoveSectionForm builder={mapEdit} refresh={refresh}/>,
+                            editSection: <EditSectionForm builder={mapEdit} refresh={refresh}/>,
                             editUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
                         }[mode] || null), [mode, mapEdit, refresh])
                     }
@@ -454,7 +455,7 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
     width: '100%',
     overflowY: 'hidden',
 }
-const SCROLL_CONTAINER_EDIT_PADDING = '330px'
+const SCROLL_CONTAINER_EDIT_PADDING = '315px'
 const MENU_COVER_MAP_WIDTH = 800
 
 const ChessBoard: React.FC<IChessBoardProps> = (props) => {
@@ -471,12 +472,21 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
             // Always if modal for new section was opened we need to move container to the left
             if (builder.editMode === 'addSection') {
                 container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-            } else if (builder.editMode === 'removeSection') {
+            } else if (builder.editMode === 'editSection') {
                 // When user select last section we actually need to move container to the left side of screen
                 const shouldAddPadding = get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
 
                 if (shouldAddPadding) container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
-            } else if (builder.editMode === 'addUnit' || builder.editMode === 'editUnit') {
+            } else if (builder.editMode === 'addUnit') {
+                const lastSectionUnitIds = last(builder.sections).floors
+                    .flatMap(floor => floor.units.map(unit => unit.id))
+
+                if (lastSectionUnitIds.includes(String(builder.previewUnitId))) {
+                    container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
+                } else {
+                    container.current.style.paddingRight = '0px'
+                }
+            } else if (builder.editMode === 'editUnit') {
                 // Last case when user want to add or edit unit only at the last section
                 const shouldAddPadding = get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
 
@@ -590,9 +600,12 @@ interface IPropertyMapSectionProps {
     scrollToForm: () => void
 }
 const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
-const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 3 }
+const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 2 }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, children, builder, refresh, scrollToForm }) => {
+    const intl = useIntl()
+    const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+
     const chooseSection = useCallback((section) => {
         builder.setSelectedSection(section)
         if (builder.getSelectedSection()) {
@@ -611,7 +624,7 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = ({ section, child
                 preview={section.preview}
                 onClick={() => chooseSection(section)}
                 selected={builder.isSectionSelected(section.id)}
-            >{section.name}</UnitButton>
+            >{SectionNamePrefixTitle} {section.name}</UnitButton>
         </MapSectionContainer>
     )
 }
@@ -660,6 +673,7 @@ const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '12px' }
 
 const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
+    const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.numberOfSection' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
     const MaxFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.maxFloor' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
@@ -672,24 +686,16 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
     const [copyId, setCopyId] = useState<string | null>(null)
     const [maxMinError, setMaxMinError] = useState(false)
-
-    const name = useRef<string>('0')
-
-    const resetForm = () => {
-        setMinFloor(null)
-        setMaxFloor(null)
-        setUnitsOnFloor(null)
-    }
+    const [sectionName, setSectionName] = useState<string>(builder.nextSectionName)
 
     useEffect(() => {
         if (minFloor && maxFloor) {
             setMaxMinError((maxFloor < minFloor))
         }
-        if (minFloor && maxFloor && unitsOnFloor && !maxMinError) {
-            name.current = String(builder.sections.filter(section => !section.preview).length + 1)
+        if (minFloor && maxFloor && unitsOnFloor && !maxMinError && sectionName) {
             builder.addPreviewSection({
                 id: '',
-                name: name.current,
+                name: sectionName,
                 minFloor,
                 maxFloor,
                 unitsOnFloor,
@@ -699,7 +705,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
             builder.removePreviewSection()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [minFloor, maxFloor, unitsOnFloor])
+    }, [minFloor, maxFloor, unitsOnFloor, sectionName])
 
     useEffect(() => {
         if (copyId !== null) {
@@ -708,15 +714,26 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
             setMinFloor(Math.min(...floorIndexes))
             setMaxFloor(Math.max(...floorIndexes))
             setUnitsOnFloor(get(sectionToCopy, 'floors.0.units.length', 0))
+            setSectionName(builder.nextSectionName)
         }
     }, [builder, copyId])
 
-    const handleFinish = () => {
+    const resetForm = useCallback(() => {
+        setMinFloor(null)
+        setMaxFloor(null)
+        setUnitsOnFloor(null)
+    }, [])
+
+    const handleFinish = useCallback(() => {
         builder.removePreviewSection()
-        builder.addSection({ id: '', name: name.current, minFloor, maxFloor, unitsOnFloor })
+        builder.addSection({ id: '', name: sectionName, minFloor, maxFloor, unitsOnFloor })
+        setSectionName(builder.nextSectionName)
         refresh()
         resetForm()
-    }
+    }, [refresh, resetForm, builder, sectionName, minFloor, maxFloor, unitsOnFloor])
+
+    const setSectionNameValue = useCallback((value) => setSectionName(value ? value.toString() : ''), [])
+
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
 
@@ -734,6 +751,18 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
                         </Select.Option>
                     ))}
                 </Select>
+            </Col>
+            <Col span={24} hidden={isCreateColumnsHidden}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{SectionNameLabel}</Typography.Text>
+                    <InputNumber
+                        value={sectionName}
+                        min={1}
+                        onChange={setSectionNameValue}
+                        style={INPUT_STYLE}
+                        type={'number'}
+                    />
+                </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
@@ -771,6 +800,7 @@ interface IUnitFormProps {
     builder: MapEdit
     refresh(): void
 }
+const IS_NUMERIC_REGEXP = /^\d+$/
 
 const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
@@ -845,7 +875,7 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedUnit()
-        builder.removeUnit(mapUnit.id)
+        builder.removeUnit(mapUnit.id, IS_NUMERIC_REGEXP.test(mapUnit.label))
         refresh()
         resetForm()
     }, [resetForm, refresh, builder])
@@ -906,27 +936,63 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     )
 }
 
-interface IRemoveSectionFormProps {
+interface IEditSectionFormProps {
     builder: MapEdit
     refresh(): void
 }
 const MODAL_FORM_EDIT_GUTTER: RowProps['gutter'] = [0, 32]
 const MODAL_FORM_BUTTON_GUTTER: RowProps['gutter'] = [0, 16]
 
-const RemoveSectionForm: React.FC<IRemoveSectionFormProps> = ({ builder, refresh }) => {
+const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
+    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
+    const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
+    const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
+
+    const [name, setName] = useState<string>('')
 
     const section = builder.getSelectedSection()
 
-    const deleteSection = () => {
+    useEffect(() => {
+        setName(section ? section.name : '')
+    }, [section])
+
+    const setNameValue = useCallback((value) => setName(value ? value.toString() : ''), [])
+
+    const updateSection = useCallback(() => {
+        builder.updateSection({ ...section, name })
+        refresh()
+    }, [builder, refresh, name, section])
+
+    const deleteSection = useCallback(() => {
         builder.removeSection(section.id)
         refresh()
-    }
+    }, [builder, refresh, section])
 
     return (
         <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss}>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
+                    <InputNumber
+                        value={name}
+                        min={1}
+                        placeholder={NamePlaceholderLabel}
+                        onChange={setNameValue}
+                        style={INPUT_STYLE}
+                    />
+                </Space>
+            </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
+                <Col span={24}>
+                    <Button
+                        secondary
+                        onClick={updateSection}
+                        type='sberDefaultGradient'
+                        disabled={isEmpty(name)}
+                    >{SaveLabel}</Button>
+                </Col>
                 <Col span={24}>
                     <Button
                         secondary

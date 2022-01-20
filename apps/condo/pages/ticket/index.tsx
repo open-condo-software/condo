@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Checkbox, Col, Input, Row, Typography } from 'antd'
@@ -37,6 +37,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { FILTER_TABLE_KEYS, FiltersStorage } from '../../domains/common/utils/FiltersStorage'
+import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -63,10 +64,10 @@ export const TicketsPageContent = ({
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
+    const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
 
     const { isSmall } = useLayoutContext()
-    const { organization } = useOrganization()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -74,13 +75,7 @@ export const TicketsPageContent = ({
     const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
-    const [isInitialFiltersApplied, setIsInitialFiltersApplied] = useState(false)
     const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
-    useEffect(() => {
-        FiltersStorage
-            .loadFilters(organization.id, FILTER_TABLE_KEYS.TICKET, router)
-            .then(() => setIsInitialFiltersApplied(true))
-    }, [organization.id])
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
@@ -97,7 +92,7 @@ export const TicketsPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    const loading = isTicketsFetching || !isInitialFiltersApplied
+    const loading = isTicketsFetching
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -109,6 +104,7 @@ export const TicketsPageContent = ({
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
+    const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(loading)
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
     const isNoTicketsData = !tickets.length && isEmpty(filters) && !loading
 
@@ -134,9 +130,9 @@ export const TicketsPageContent = ({
                                     <Col span={23}>
                                         <FocusContainer padding={'16px'}>
                                             <Row justify={'space-between'} gutter={TAP_BAR_ROW_GUTTER}>
-                                                <Col xs={24} lg={15}>
+                                                <Col xs={24} lg={12}>
                                                     <Row gutter={TOP_BAR_FIRST_COLUMN_GUTTER} align={'middle'}>
-                                                        <Col xs={24} lg={11}>
+                                                        <Col xs={24} sm={24} lg={24} xxl={9}>
                                                             <Input
                                                                 placeholder={SearchPlaceholder}
                                                                 onChange={(e) => {
@@ -145,7 +141,7 @@ export const TicketsPageContent = ({
                                                                 value={search}
                                                             />
                                                         </Col>
-                                                        <Col xs={24} lg={5}>
+                                                        <Col xs={24} sm={8} md={6} lg={8} xxl={5}>
                                                             <Checkbox
                                                                 onChange={handleEmergencyChange}
                                                                 checked={emergency}
@@ -154,7 +150,7 @@ export const TicketsPageContent = ({
                                                                 {EmergenciesLabel}
                                                             </Checkbox>
                                                         </Col>
-                                                        <Col xs={24} lg={5}>
+                                                        <Col xs={24} sm={8} md={6} lg={8} xxl={5}>
                                                             <Checkbox
                                                                 onChange={handlePaidChange}
                                                                 checked={paid}
@@ -163,10 +159,19 @@ export const TicketsPageContent = ({
                                                                 {PaidLabel}
                                                             </Checkbox>
                                                         </Col>
+                                                        <Col xs={24} sm={8} md={6} lg={8} xxl={5}>
+                                                            <Checkbox
+                                                                onChange={handleWarrantyChange}
+                                                                checked={warranty}
+                                                                style={CHECKBOX_STYLE}
+                                                            >
+                                                                {WarrantiesLabel}
+                                                            </Checkbox>
+                                                        </Col>
                                                     </Row>
                                                 </Col>
-                                                <Col>
-                                                    <Row>
+                                                <Col xs={24} lg={12}>
+                                                    <Row justify={'end'}>
                                                         {
                                                             appliedFiltersCount > 0 ? (
                                                                 <Col>
@@ -230,7 +235,17 @@ const TicketsPage: ITicketIndexPage = () => {
     const { filters, sorters } = parseQuery(router.query)
     const tableColumns = useTableColumns(filterMetas)
     const searchTicketsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
-    
+
+    useEffect(() => {
+        FiltersStorage.loadFilters(userOrganizationId, FILTER_TABLE_KEYS.TICKET, router)
+    }, [userOrganizationId])
+
+    const memoizedFilters = useMemo(() => filters, [router.query])
+
+    useEffect(() => {
+        FiltersStorage.saveFilters(userOrganizationId, FILTER_TABLE_KEYS.TICKET, filters)
+    }, [memoizedFilters, userOrganizationId])
+
     return (
         <TicketsPageContent
             tableColumns={tableColumns}

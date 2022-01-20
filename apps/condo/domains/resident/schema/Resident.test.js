@@ -134,23 +134,55 @@ describe('Resident', () => {
             expect(obj.id).toMatch(UUID_RE)
         })
 
-        it('throws error, when trying to connect new resident to property with another address', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
+        describe('comparsion of resident and property address', () => {
+            it('throws error, when trying to connect new resident to property with another address', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
 
-            const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
+                const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
 
-            const attrs = {
-                address: userClient.property.address,
-                addressMeta: userClient.property.addressMeta,
-            }
+                const attrs = {
+                    address: userClient.property.address,
+                    addressMeta: userClient.property.addressMeta,
+                }
 
-            await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, propertyWithAnotherAddress, attrs)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
-                expect(data).toEqual({ 'obj': null })
+                await catchErrorFrom(async () => {
+                    await createTestResident(adminClient, userClient.user, userClient.organization, propertyWithAnotherAddress, attrs)
+                }, ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
+                    expect(data).toEqual({ 'obj': null })
+                })
+            })
+
+            it('allows to connect new resident to property having the same address in different character case', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const { address, addressMeta } = userClient.property
+
+                const extraAttrs = {
+                    address: address.toUpperCase(),
+                    addressMeta: {
+                        ...addressMeta,
+                        value: addressMeta.value.toUpperCase(),
+                    },
+                }
+
+                const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, extraAttrs)
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(1)
+                expect(obj.newId).toEqual(null)
+                expect(obj.deletedAt).toEqual(null)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+                expect(obj.createdAt).toMatch(DATETIME_RE)
+                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expect(obj.user.id).toEqual(userClient.user.id)
+                expect(obj.organization.id).toEqual(userClient.organization.id)
+                expect(obj.property.id).toEqual(userClient.property.id)
             })
         })
     })

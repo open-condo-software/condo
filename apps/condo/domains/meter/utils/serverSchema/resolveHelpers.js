@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+const { find } = require('@core/keystone/schema')
 
 async function addClientInfoToResidentMeterReading (context, resolvedData) {
     const user = get(context, ['req', 'user'])
@@ -13,7 +14,7 @@ async function addClientInfoToResidentMeterReading (context, resolvedData) {
     const residentName = user.name
     const residentPhone = user.phone
     const residentEmail = user.email
-    const [contact] = await Contact.getAll(context, {
+    const [contact] = await find('Contact', {
         phone: residentPhone, organization: { id: organizationId }, property: { id: propertyId },
     })
 

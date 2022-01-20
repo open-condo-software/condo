@@ -37,7 +37,7 @@ const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
-const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid'])
+const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty'])
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
 const filterFloor = getFilter('floorName', 'array', 'string', 'in')
@@ -50,6 +50,7 @@ const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in
 export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
+    const WarrantyMessage = intl.formatMessage({ id: 'Warranty' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -83,7 +84,11 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const { objs: sources } = TicketSource.useObjects({})
     const sourceOptions = convertToOptions<ITicketSourceUIState>(sources, 'name', 'id')
 
-    const attributeOptions = [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }]
+    const attributeOptions = [
+        { label: PaidMessage, value: 'isPaid' },
+        { label: EmergencyMessage, value: 'isEmergency' },
+        { label: WarrantyMessage, value: 'isWarranty' },
+    ]
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')
 
@@ -287,6 +292,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                     getComponentFilterDropdown: getSelectFilterDropdown({
                         options: categoryClassifiersOptions,
+                        placeholder: CategoryClassifierLabel,
                         mode: 'multiple',
                     }),
                 },

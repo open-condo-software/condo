@@ -189,6 +189,12 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
+        isWarranty: {
+            schemaDoc: 'Indicates the ticket is warranty',
+            type: Checkbox,
+            defaultValue: false,
+            isRequired: true,
+        },
         meta: {
             schemaDoc: 'Extra analytics not related to remote system',
             type: Json,
@@ -255,6 +261,7 @@ const Ticket = new GQLListSchema('Ticket', {
     hooks: {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
+            // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
             const statusId = get(resolvedData, 'status')
 
@@ -262,7 +269,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 addOrderToTicket(resolvedData, statusId)
             }
 
-            if (operation === 'create' && user.type === RESIDENT) {
+            if (operation === 'create' && user && user.type === RESIDENT) {
                 await addClientInfoToResidentTicket(context, resolvedData)
             }
 

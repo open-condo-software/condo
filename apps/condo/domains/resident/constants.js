@@ -121,6 +121,27 @@ const PAYMENT_CATEGORIES_META = [
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
+    {
+        id: '12',
+        name: 'Техническое обслуживание',
+        active: false,
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        id: '13',
+        name: 'Прочие услуги',
+        active: false,
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
+    {
+        id: '14',
+        name: 'Квартплата пеня',
+        active: false,
+        canGetBillingFromOrganization: false,
+        canGetAcquiringFromOrganization: false,
+    },
 ]
 
 module.exports = {

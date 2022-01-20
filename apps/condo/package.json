@@ -16,18 +16,8 @@
     "maketypes": "mkdirp dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.yaml",
     "createservice": "node ./../../bin/createservice",
     "createschema": "node ./../../bin/createschema",
-    "generate-tickets": "node ./../../bin/generate-tickets.js",
-    "generate-receipts": "node ./../../bin/generate-receipts.js",
-    "generate-billings": "node ./../../bin/generate-billings.js",
-    "generate-excel-template": "node ./../../bin/create-xlsx-template.js",
     "lint-schema": "NODE_ENV=test node ./../../bin/lint-schema.js",
-    "lint-i18n-translations": "node ./../../bin/lint-i18n-translations.js",
-    "refresh-sbbol-tokens": "node ./../../bin/sbbol.js",
-    "create-integration": "node ./../../bin/create-integration.js",
-    "sbbol:crypto:get": "node ./../../bin/sbbol/crypto.js",
-    "fix:ticket:contacts": "node ./../../bin/fix-tickets-contacts.js",
-    "fix:meterReadings:contacts": "node ./../../bin/fix-meter-readings-contacts.js",
-    "subscription:prolong": "node ../../bin/prolong-subscription.js"
+    "lint-i18n-translations": "node ./../../bin/lint-i18n-translations.js"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",
@@ -80,7 +70,7 @@
     "get-contrast": "^2.0.0",
     "graphql-voyager": "^1.0.0-rc.31",
     "html2canvas": "^1.0.0-rc.7",
-    "immer": "^8.0.1",
+    "immer": "^9.0.6",
     "jspdf": "^2.3.1",
     "jwt-decode": "3.1.2",
     "less": "^3.12.2",

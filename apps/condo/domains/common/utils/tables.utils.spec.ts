@@ -284,7 +284,8 @@ describe('Table utils', () => {
     describe('getTicketAttributesFilter', () => {
         const isEmergencyAttribute = 'isEmergency'
         const isPaidAttribute = 'isPaid'
-        const filterAttribute = getTicketAttributesFilter([isEmergencyAttribute, isPaidAttribute])
+        const isWarrantyAttribute = 'isWarranty'
+        const filterAttribute = getTicketAttributesFilter([isEmergencyAttribute, isPaidAttribute, isWarrantyAttribute])
 
         it('should return filter query with one search argument', () => {
             const result = filterAttribute(isEmergencyAttribute)
@@ -298,6 +299,13 @@ describe('Table utils', () => {
 
             expect(result).toBeDefined()
             expect(result).toStrictEqual({ OR: [ { [isEmergencyAttribute]: true }, { [isPaidAttribute]: true } ] })
+        })
+
+        it('should return filter query with three search argument', () => {
+            const result = filterAttribute([isEmergencyAttribute, isPaidAttribute, isWarrantyAttribute])
+
+            expect(result).toBeDefined()
+            expect(result).toStrictEqual({ OR: [ { [isEmergencyAttribute]: true }, { [isPaidAttribute]: true }, { [isWarrantyAttribute]: true } ] })
         })
 
         it('should return undefined with wrong search argument', () => {

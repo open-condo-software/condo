@@ -22,7 +22,7 @@ export const CreatePropertyForm: React.FC = () => {
     const action = Property.useCreate({
         organization: organization.id,
         type: DEFAULT_PROPERTY_TYPE,
-    }, () => { router.push('/property/') })
+    }, (property) => { router.push(`/property/${property.id}`) })
 
     const initialValues = {
         name: '',

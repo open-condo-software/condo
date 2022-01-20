@@ -5926,6 +5926,9 @@ export type BillingReceiptsCreateInput = {
 export type BillingReceiptsRecipientField = {
   __typename?: 'BillingReceiptsRecipientField';
   name?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
   tin: Scalars['String'];
   iec: Scalars['String'];
   bic: Scalars['String'];
@@ -5934,6 +5937,9 @@ export type BillingReceiptsRecipientField = {
 
 export type BillingReceiptsRecipientFieldInput = {
   name?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
   tin: Scalars['String'];
   iec: Scalars['String'];
   bic: Scalars['String'];
@@ -9515,7 +9521,8 @@ export type MeterReadingSourceRelateToOneInput = {
 
 export enum MeterReadingSourceTypeType {
   Call = 'call',
-  MobileApp = 'mobile_app'
+  MobileApp = 'mobile_app',
+  ImportCondo = 'import_condo'
 }
 
 export type MeterReadingSourceUpdateInput = {
@@ -18405,6 +18412,10 @@ export type Payment = {
   organization?: Maybe<Organization>;
   /**  Status of payment. Can be: "CREATED", "PROCESSING", "DONE", "ERROR"  */
   status?: Maybe<Scalars['String']>;
+  /**  Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address  */
+  recipientBic?: Maybe<Scalars['String']>;
+  /**  Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address  */
+  recipientBankAccount?: Maybe<Scalars['String']>;
   /**  Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs  */
   importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -18442,6 +18453,8 @@ export type PaymentCreateInput = {
   context?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   status?: Maybe<Scalars['String']>;
+  recipientBic?: Maybe<Scalars['String']>;
+  recipientBankAccount?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18479,6 +18492,8 @@ export type PaymentHistoryRecord = {
   context?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+  recipientBic?: Maybe<Scalars['String']>;
+  recipientBankAccount?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -18510,6 +18525,8 @@ export type PaymentHistoryRecordCreateInput = {
   context?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+  recipientBic?: Maybe<Scalars['String']>;
+  recipientBankAccount?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18546,6 +18563,8 @@ export type PaymentHistoryRecordUpdateInput = {
   context?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+  recipientBic?: Maybe<Scalars['String']>;
+  recipientBankAccount?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18706,6 +18725,42 @@ export type PaymentHistoryRecordWhereInput = {
   status_not_ends_with_i?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipientBic?: Maybe<Scalars['String']>;
+  recipientBic_not?: Maybe<Scalars['String']>;
+  recipientBic_contains?: Maybe<Scalars['String']>;
+  recipientBic_not_contains?: Maybe<Scalars['String']>;
+  recipientBic_starts_with?: Maybe<Scalars['String']>;
+  recipientBic_not_starts_with?: Maybe<Scalars['String']>;
+  recipientBic_ends_with?: Maybe<Scalars['String']>;
+  recipientBic_not_ends_with?: Maybe<Scalars['String']>;
+  recipientBic_i?: Maybe<Scalars['String']>;
+  recipientBic_not_i?: Maybe<Scalars['String']>;
+  recipientBic_contains_i?: Maybe<Scalars['String']>;
+  recipientBic_not_contains_i?: Maybe<Scalars['String']>;
+  recipientBic_starts_with_i?: Maybe<Scalars['String']>;
+  recipientBic_not_starts_with_i?: Maybe<Scalars['String']>;
+  recipientBic_ends_with_i?: Maybe<Scalars['String']>;
+  recipientBic_not_ends_with_i?: Maybe<Scalars['String']>;
+  recipientBic_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipientBic_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipientBankAccount?: Maybe<Scalars['String']>;
+  recipientBankAccount_not?: Maybe<Scalars['String']>;
+  recipientBankAccount_contains?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_contains?: Maybe<Scalars['String']>;
+  recipientBankAccount_starts_with?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_starts_with?: Maybe<Scalars['String']>;
+  recipientBankAccount_ends_with?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_ends_with?: Maybe<Scalars['String']>;
+  recipientBankAccount_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_contains_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_contains_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_starts_with_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_starts_with_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_ends_with_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_ends_with_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipientBankAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId?: Maybe<Scalars['String']>;
   importId_not?: Maybe<Scalars['String']>;
   importId_contains?: Maybe<Scalars['String']>;
@@ -18827,6 +18882,8 @@ export type PaymentUpdateInput = {
   context?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   status?: Maybe<Scalars['String']>;
+  recipientBic?: Maybe<Scalars['String']>;
+  recipientBankAccount?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18948,6 +19005,42 @@ export type PaymentWhereInput = {
   status_not?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipientBic?: Maybe<Scalars['String']>;
+  recipientBic_not?: Maybe<Scalars['String']>;
+  recipientBic_contains?: Maybe<Scalars['String']>;
+  recipientBic_not_contains?: Maybe<Scalars['String']>;
+  recipientBic_starts_with?: Maybe<Scalars['String']>;
+  recipientBic_not_starts_with?: Maybe<Scalars['String']>;
+  recipientBic_ends_with?: Maybe<Scalars['String']>;
+  recipientBic_not_ends_with?: Maybe<Scalars['String']>;
+  recipientBic_i?: Maybe<Scalars['String']>;
+  recipientBic_not_i?: Maybe<Scalars['String']>;
+  recipientBic_contains_i?: Maybe<Scalars['String']>;
+  recipientBic_not_contains_i?: Maybe<Scalars['String']>;
+  recipientBic_starts_with_i?: Maybe<Scalars['String']>;
+  recipientBic_not_starts_with_i?: Maybe<Scalars['String']>;
+  recipientBic_ends_with_i?: Maybe<Scalars['String']>;
+  recipientBic_not_ends_with_i?: Maybe<Scalars['String']>;
+  recipientBic_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipientBic_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipientBankAccount?: Maybe<Scalars['String']>;
+  recipientBankAccount_not?: Maybe<Scalars['String']>;
+  recipientBankAccount_contains?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_contains?: Maybe<Scalars['String']>;
+  recipientBankAccount_starts_with?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_starts_with?: Maybe<Scalars['String']>;
+  recipientBankAccount_ends_with?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_ends_with?: Maybe<Scalars['String']>;
+  recipientBankAccount_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_contains_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_contains_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_starts_with_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_starts_with_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_ends_with_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_not_ends_with_i?: Maybe<Scalars['String']>;
+  recipientBankAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipientBankAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId?: Maybe<Scalars['String']>;
   importId_not?: Maybe<Scalars['String']>;
   importId_contains?: Maybe<Scalars['String']>;
@@ -22778,9 +22871,13 @@ export type RegisterMultiPaymentOutput = {
   feeCalculationUrl: Scalars['String'];
 };
 
+export type RegisterMultiPaymentReceiptInfoInput = {
+  id: Scalars['String'];
+};
+
 export type RegisterMultiPaymentServiceConsumerInput = {
   consumerId: Scalars['String'];
-  receiptsIds: Array<Scalars['String']>;
+  receipts: Array<RegisterMultiPaymentReceiptInfoInput>;
 };
 
 export type RegisterNewOrganizationInput = {
@@ -22818,6 +22915,11 @@ export type RegisterServiceConsumerInput = {
   residentId: Scalars['ID'];
   accountNumber: Scalars['String'];
   organizationId: Scalars['ID'];
+  extra?: Maybe<RegisterServiceConsumerInputExtra>;
+};
+
+export type RegisterServiceConsumerInputExtra = {
+  paymentCategory?: Maybe<Scalars['String']>;
 };
 
 export type ResendConfirmPhoneActionSmsInput = {
@@ -22891,7 +22993,7 @@ export type Resident = {
 export type ResidentAcquiringIntegrationContext = {
   __typename?: 'ResidentAcquiringIntegrationContext';
   id: Scalars['ID'];
-  integration?: Maybe<Scalars['ID']>;
+  integration?: Maybe<AcquiringIntegration>;
 };
 
 export type ResidentBillingAccount = {
@@ -22906,10 +23008,12 @@ export type ResidentBillingReceiptOutput = {
   id: Scalars['ID'];
   period: Scalars['String'];
   toPay: Scalars['String'];
+  paid: Scalars['String'];
   printableNumber?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   services?: Maybe<Array<BillingReceiptServiceField>>;
   serviceConsumer: ServiceConsumer;
+  currencyCode: Scalars['String'];
 };
 
 export type ResidentBillingReceiptWhereInput = {
@@ -23285,6 +23389,7 @@ export type ResidentTicketOutput = {
   details: Scalars['String'];
   related?: Maybe<Ticket>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   status: TicketStatus;
   isPaid?: Maybe<Scalars['Boolean']>;
   source: TicketSource;
@@ -23358,6 +23463,8 @@ export type ResidentTicketWhereInput = {
   categoryClassifier_is_null?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
+  isWarranty_not?: Maybe<Scalars['Boolean']>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isPaid_not?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
@@ -26891,6 +26998,10 @@ export enum SortPaymentHistoryRecordsBy {
   PurposeDesc = 'purpose_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  RecipientBicAsc = 'recipientBic_ASC',
+  RecipientBicDesc = 'recipientBic_DESC',
+  RecipientBankAccountAsc = 'recipientBankAccount_ASC',
+  RecipientBankAccountDesc = 'recipientBankAccount_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
@@ -26938,6 +27049,10 @@ export enum SortPaymentsBy {
   OrganizationDesc = 'organization_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  RecipientBicAsc = 'recipientBic_ASC',
+  RecipientBicDesc = 'recipientBic_DESC',
+  RecipientBankAccountAsc = 'recipientBankAccount_ASC',
+  RecipientBankAccountDesc = 'recipientBankAccount_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
@@ -27081,6 +27196,8 @@ export enum SortResidentTicketsBy {
   CategoryClassifierDesc = 'categoryClassifier_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
+  IsWarrantyAsc = 'isWarranty_ASC',
+  IsWarrantyDesc = 'isWarranty_DESC',
   IsPaidAsc = 'isPaid_ASC',
   IsPaidDesc = 'isPaid_DESC',
   DetailsAsc = 'details_ASC',
@@ -27399,6 +27516,10 @@ export enum SortTicketChangesBy {
   IsEmergencyFromDesc = 'isEmergencyFrom_DESC',
   IsEmergencyToAsc = 'isEmergencyTo_ASC',
   IsEmergencyToDesc = 'isEmergencyTo_DESC',
+  IsWarrantyFromAsc = 'isWarrantyFrom_ASC',
+  IsWarrantyFromDesc = 'isWarrantyFrom_DESC',
+  IsWarrantyToAsc = 'isWarrantyTo_ASC',
+  IsWarrantyToDesc = 'isWarrantyTo_DESC',
   SectionNameFromAsc = 'sectionNameFrom_ASC',
   SectionNameFromDesc = 'sectionNameFrom_DESC',
   SectionNameToAsc = 'sectionNameTo_ASC',
@@ -27740,6 +27861,8 @@ export enum SortTicketHistoryRecordsBy {
   IsPaidDesc = 'isPaid_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
+  IsWarrantyAsc = 'isWarranty_ASC',
+  IsWarrantyDesc = 'isWarranty_DESC',
   SectionNameAsc = 'sectionName_ASC',
   SectionNameDesc = 'sectionName_DESC',
   FloorNameAsc = 'floorName_ASC',
@@ -27999,6 +28122,8 @@ export enum SortTicketsBy {
   IsPaidDesc = 'isPaid_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
+  IsWarrantyAsc = 'isWarranty_ASC',
+  IsWarrantyDesc = 'isWarranty_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
   SectionNameAsc = 'sectionName_ASC',
@@ -28260,6 +28385,8 @@ export type Ticket = {
   isPaid?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is emergency  */
   isEmergency?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is warranty  */
+  isWarranty?: Maybe<Scalars['Boolean']>;
   /**  Extra analytics not related to remote system  */
   meta?: Maybe<Scalars['JSON']>;
   /**  Property related to the Ticket  */
@@ -28741,6 +28868,10 @@ export type TicketChange = {
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is emergency  */
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is warranty  */
+  isWarrantyFrom?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is warranty  */
+  isWarrantyTo?: Maybe<Scalars['Boolean']>;
   /**  Extra analytics not related to remote system  */
   metaFrom?: Maybe<Scalars['JSON']>;
   /**  Extra analytics not related to remote system  */
@@ -28913,6 +29044,8 @@ export type TicketChangeCreateInput = {
   isPaidTo?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
+  isWarrantyFrom?: Maybe<Scalars['Boolean']>;
+  isWarrantyTo?: Maybe<Scalars['Boolean']>;
   metaFrom?: Maybe<Scalars['JSON']>;
   metaTo?: Maybe<Scalars['JSON']>;
   sectionNameFrom?: Maybe<Scalars['String']>;
@@ -29014,6 +29147,8 @@ export type TicketChangeUpdateInput = {
   isPaidTo?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
+  isWarrantyFrom?: Maybe<Scalars['Boolean']>;
+  isWarrantyTo?: Maybe<Scalars['Boolean']>;
   metaFrom?: Maybe<Scalars['JSON']>;
   metaTo?: Maybe<Scalars['JSON']>;
   sectionNameFrom?: Maybe<Scalars['String']>;
@@ -29344,6 +29479,10 @@ export type TicketChangeWhereInput = {
   isEmergencyFrom_not?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
   isEmergencyTo_not?: Maybe<Scalars['Boolean']>;
+  isWarrantyFrom?: Maybe<Scalars['Boolean']>;
+  isWarrantyFrom_not?: Maybe<Scalars['Boolean']>;
+  isWarrantyTo?: Maybe<Scalars['Boolean']>;
+  isWarrantyTo_not?: Maybe<Scalars['Boolean']>;
   metaFrom?: Maybe<Scalars['JSON']>;
   metaFrom_not?: Maybe<Scalars['JSON']>;
   metaFrom_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -31225,6 +31364,7 @@ export type TicketCreateInput = {
   related?: Maybe<TicketRelateToOneInput>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<PropertyRelateToOneInput>;
   sectionName?: Maybe<Scalars['String']>;
@@ -31609,6 +31749,7 @@ export type TicketHistoryRecord = {
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   sectionName?: Maybe<Scalars['String']>;
@@ -31656,6 +31797,7 @@ export type TicketHistoryRecordCreateInput = {
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   sectionName?: Maybe<Scalars['String']>;
@@ -31708,6 +31850,7 @@ export type TicketHistoryRecordUpdateInput = {
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   sectionName?: Maybe<Scalars['String']>;
@@ -31916,6 +32059,8 @@ export type TicketHistoryRecordWhereInput = {
   isPaid_not?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
+  isWarranty_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -32772,7 +32917,7 @@ export type TicketReportData = {
 };
 
 export enum TicketReportPeriodType {
-  Week = 'week',
+  CalendarWeek = 'calendarWeek',
   Month = 'month',
   Quarter = 'quarter',
   Year = 'year'
@@ -33595,6 +33740,7 @@ export type TicketUpdateInput = {
   related?: Maybe<TicketRelateToOneInput>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<PropertyRelateToOneInput>;
   sectionName?: Maybe<Scalars['String']>;
@@ -33784,6 +33930,8 @@ export type TicketWhereInput = {
   isPaid_not?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
+  isWarranty?: Maybe<Scalars['Boolean']>;
+  isWarranty_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;

@@ -88,8 +88,14 @@ export const OrganizationSelect: React.FC = () => {
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({})
 
     const options = React.useMemo(() => {
-        return userOrganizations.filter(link => link.isAccepted).map((organization) => {
-            const { value, label } = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
+        return userOrganizations.filter(link => link.isAccepted).map((employee) => {
+            const organizationOption = OrganizationEmployee.convertGQLItemToFormSelectState(employee)
+
+            if (!organizationOption)
+                return false
+
+            const { value, label } = organizationOption
+
             return (<Select.Option style={optionStyle} key={value} value={value} title={label}>{label}</Select.Option>)
         })
     }, [userOrganizations])

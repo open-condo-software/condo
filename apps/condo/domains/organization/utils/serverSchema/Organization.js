@@ -1,14 +1,19 @@
 const axios = require('axios').default
 const pino = require('pino')
 const falsey = require('falsey')
+const { get, attempt, isError } = require('lodash')
 const config = require('@core/config')
 const { Organization, OrganizationEmployee } = require('../../gql')
 const { OrganizationEmployeeRole } = require('./index')
 const { execGqlWithoutAccess } = require('./utils')
 const { getById } = require('@core/keystone/schema')
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common')
+const { SBBOL_FINGERPRINT_NAME } = require('@condo/domains/organization/integrations/sbbol/common')
 
-const SALES_CRM_WEBHOOK_URL = typeof config.SALES_CRM_WEBHOOK_URL === 'string' && config.SALES_CRM_WEBHOOK_URL
+let SALES_CRM_WEBHOOKS_URL = attempt(() => JSON.parse(config.SALES_CRM_WEBHOOKS_URL))
+if (isError(SALES_CRM_WEBHOOKS_URL) || !SALES_CRM_WEBHOOKS_URL.subscriptions || !SALES_CRM_WEBHOOKS_URL.organizations) {
+    SALES_CRM_WEBHOOKS_URL = null
+}
 
 async function createOrganization (context, data) {
     return await execGqlWithoutAccess(context, {
@@ -93,25 +98,45 @@ async function findOrganizationEmployee (context, query) {
 
 const salesCRMRequestLogger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOGGING) })
 
-async function pushToSalesCRM (organization) {
-    if (!SALES_CRM_WEBHOOK_URL) {
-        return salesCRMRequestLogger.warn('SALES_CRM_WEBHOOK_URL not specified correctly in config')
+async function pushOrganizationToSalesCRM (organization) {
+    if (!SALES_CRM_WEBHOOKS_URL) {
+        return
     }
     const { tin, name: orgName, createdBy } = organization
+    const fingerprint = get(organization, ['sender', 'fingerprint'])
     const { phone: userPhone, name: userName, email } = await getById('User', createdBy.id)
     try {
-        await axios.post(SALES_CRM_WEBHOOK_URL, {
+        await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, {
             orgName,
             userName,
             userPhone,
             tin,
             email,
+            fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
         })
     }
-    catch (e) {
-        salesCRMRequestLogger.warn('Request to sales crm failed', e)
+    catch (error) {
+        salesCRMRequestLogger.warn({ message: 'Request to sales crm failed', error })
     }
 }
+
+async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt, isTrial) {
+    if (!SALES_CRM_WEBHOOKS_URL) {
+        return
+    }
+    try {
+        await axios.post(SALES_CRM_WEBHOOKS_URL.subscriptions, {
+            payerInn,
+            startAt,
+            finishAt,
+            isTrial,
+        })
+    }
+    catch (error) {
+        salesCRMRequestLogger.warn({ message: 'Request to sales crm failed', error })
+    }
+}
+
 module.exports = {
     createOrganization,
     createOrganizationEmployee,
@@ -119,5 +144,6 @@ module.exports = {
     createDefaultRoles,
     createConfirmedEmployee,
     findOrganizationEmployee,
-    pushToSalesCRM,
+    pushOrganizationToSalesCRM,
+    pushSubscriptionActivationToSalesCRM,
 }

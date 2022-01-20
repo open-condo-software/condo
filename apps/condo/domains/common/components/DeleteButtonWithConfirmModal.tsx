@@ -1,4 +1,4 @@
-import { Typography } from 'antd'
+import { ModalProps, Typography } from 'antd'
 import { Button, CustomButtonProps } from './Button'
 import Modal from 'antd/lib/modal/Modal'
 import React, { useState } from 'react'
@@ -13,6 +13,7 @@ export interface IDeleteActionButtonWithConfirmModal {
     buttonCustomProps?: CustomButtonProps
     buttonContent?: React.ReactNode
     action: () => Promise<any>
+    showCancelButton?: boolean
 }
 
 /**
@@ -26,13 +27,15 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
     buttonCustomProps,
     buttonContent,
     action,
+    showCancelButton,
 }) => {
     const intl = useIntl()
+    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
+
     const [isConfirmVisible, setIsConfirmVisible] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
 
     const showConfirm = () => setIsConfirmVisible(true)
-
     const handleCancel = () => setIsConfirmVisible(false)
 
     const handleDeleteButtonClick = () => {
@@ -70,6 +73,11 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                 visible={isConfirmVisible}
                 onCancel={handleCancel}
                 footer={[
+                    showCancelButton && (
+                        <Button key="cancel" type="sberPrimary" secondary onClick={handleCancel}>
+                            {CancelMessage}
+                        </Button>
+                    ),
                     <Button
                         key={'submit'}
                         type={'sberDanger'}

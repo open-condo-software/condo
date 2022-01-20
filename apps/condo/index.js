@@ -82,6 +82,7 @@ if (!IS_BUILD_PHASE) {
     registerTasks([
         require('@condo/domains/notification/tasks'),
         require('@condo/domains/organization/tasks'),
+        require('@condo/domains/resident/tasks'),
     ])
 
     registerTriggers([
@@ -106,7 +107,7 @@ class SberBuisnessOnlineMiddleware {
         const app = express()
         // TODO(zuch): find a way to remove bind
         app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
-        app.get('/api/sbbol/auth/callback',  Auth.completeAuth.bind(Auth))
+        app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
         return app
     }
 }
@@ -141,9 +142,11 @@ module.exports = {
             adminPath: '/admin',
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
             authStrategy,
+            hooks: require.resolve('@app/condo/admin-ui'),
         }),
         conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
     ].filter(identity),
+
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
         const requestIdHeaderName = 'X-Request-Id'
@@ -152,7 +155,7 @@ module.exports = {
             res.setHeader(requestIdHeaderName, req['id'])
             next()
         })
-        
+
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })

@@ -3,15 +3,16 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const get = require('lodash/get')
+const compact = require('lodash/compact')
 
-const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
-const get = require('lodash/get')
+const { find } = require('@core/keystone/schema')
+const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -22,23 +23,28 @@ const MeterReading = generateServerUtils(MeterReadingGQL)
 
 const getAvailableResidentMeters = async (context, userId) => {
     const propertyUnitAccountNumberObjects = []
-    const residents = await Resident.getAll(context, {
+
+    const residents = await find('Resident', {
         user: { id: userId, deletedAt: null },
         property: { deletedAt: null },
         organization: { deletedAt: null },
         deletedAt: null,
     })
 
-    for (const resident of residents) {
-        const residentPropertyId = get(resident, ['property', 'id'])
-        const residentUnitName = get(resident, 'unitName')
+    const residentsId = residents.map(resident => resident.id)
 
-        const serviceConsumers = await ServiceConsumer.getAll(context, {
-            resident: { id: resident.id, deletedAt: null },
-            organization: { deletedAt: null },
-            deletedAt: null,
-        })
-        propertyUnitAccountNumberObjects.push(...serviceConsumers.map(serviceConsumer => ({
+    const serviceConsumers = await find('ServiceConsumer', {
+        resident: { id_in: residentsId, deletedAt: null },
+        organization: { deletedAt: null },
+        deletedAt: null,
+    })
+
+    for (const resident of residents) {
+        const residentPropertyId = get(resident, ['property'])
+        const residentUnitName = get(resident, 'unitName')
+        const residentServiceConsumers = serviceConsumers.filter(serviceConsumer => serviceConsumer.resident === resident.id)
+
+        propertyUnitAccountNumberObjects.push(...residentServiceConsumers.map(serviceConsumer => ({
             property: { id: residentPropertyId },
             unitName: residentUnitName,
             accountNumber: serviceConsumer.accountNumber,
@@ -59,11 +65,44 @@ const getAvailableResidentMeters = async (context, userId) => {
     return availableMeters.map(meter => ({ id: meter.id }))
 }
 
+const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const metersLoader = new GqlWithKnexLoadList({
+        listKey: 'Meter',
+        fields: 'id unitName accountNumber number place',
+        singleRelations: [
+            ['Property', 'property', 'address'],
+            ['MeterResource', 'resource', 'id'],
+        ],
+        sortBy,
+        where,
+    })
+
+    return await metersLoader.load()
+}
+
+
+const loadMeterReadingsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const meterReadingsLoader = new GqlWithKnexLoadList({
+        listKey: 'MeterReading',
+        fields: 'id date value1 value2 value3 value4 clientName',
+        singleRelations: [
+            ['Meter', 'meter', 'id'],
+            ['MeterReadingSource', 'source', 'id'],
+        ],
+        sortBy,
+        where,
+    })
+
+    return await meterReadingsLoader.load()
+}
+
 module.exports = {
     MeterResource,
     MeterReadingSource,
     Meter,
     MeterReading,
     getAvailableResidentMeters,
+    loadMetersForExcelExport,
+    loadMeterReadingsForExcelExport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

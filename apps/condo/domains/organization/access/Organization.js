@@ -3,11 +3,11 @@
  */
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('../utils/accessSchema')
-const { Resident: ResidentServerUtils, ServiceConsumer: ServiceConsumerServerUtils } = require('@condo/domains/resident/utils/serverSchema')
+const { Resident: ResidentServerUtils } = require('@condo/domains/resident/utils/serverSchema')
 const { AcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/serverSchema')
 const { get, uniq, compact } = require('lodash')
 const access = require('@core/keystone/access')
+const { find } = require('@core/keystone/schema')
 
 async function canReadOrganizations ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -15,14 +15,14 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
     if (user.type === RESIDENT) {
-        const residents = await ResidentServerUtils.getAll(context, { user: { id: userId } })
+        const residents = await find('Resident', { user: { id: userId } })
         if (residents.length === 0) {
             return false
         }
-        const residentOrganizations = compact(residents.map(resident => get(resident, ['organization', 'id'])))
+        const residentOrganizations = compact(residents.map(resident => get(resident, 'organization')))
 
-        const residentsServiceConsumers = await ServiceConsumerServerUtils.getAll(context, { resident: { id_in: residents.map(resident => resident.id), deletedAt: null } })
-        const serviceConsumerOrganizations = residentsServiceConsumers.map(serviceConsumer => serviceConsumer.organization.id)
+        const residentsServiceConsumers = await find('ServiceConsumer', { resident: { id_in: residents.map(resident => resident.id), deletedAt: null } })
+        const serviceConsumerOrganizations = residentsServiceConsumers.map(serviceConsumer => serviceConsumer.organization)
 
         const organizations = [...residentOrganizations, ...serviceConsumerOrganizations]
 
@@ -46,8 +46,8 @@ async function canReadOrganizations ({ authentication: { item: user }, context }
 
     return {
         OR: [
-            queryOrganizationEmployeeFor(userId),
-            queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+            { employees_some: { user: { id: userId } } },
+            { relatedOrganizations_some: { from: { employees_some: { user: { id: userId } } } } },
         ],
     }
 }

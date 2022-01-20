@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react'
+import { DocumentNode } from 'graphql'
 import { Form, notification } from 'antd'
 import { DatabaseFilled } from '@ant-design/icons'
 
@@ -12,7 +13,7 @@ interface IExportToExcelActionBarProps {
     hidden?: boolean
     sortBy: string
     searchObjectsQuery: string
-    exportToExcelQuery: string
+    exportToExcelQuery: DocumentNode
 }
 
 export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (props) => {

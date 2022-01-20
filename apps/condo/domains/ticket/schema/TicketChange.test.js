@@ -43,6 +43,7 @@ describe('TicketChange', () => {
                 unitName: faker.lorem.word(),
                 isEmergency: true,
                 isPaid: true,
+                isWarranty: true,
                 status: { connect: { id: openedStatus.id } },
                 client: { connect: { id: client.user.id } },
                 contact: { connect: { id: contact.id } },
@@ -68,6 +69,7 @@ describe('TicketChange', () => {
                 floorName: faker.lorem.word(),
                 unitName: faker.lorem.word(),
                 isEmergency: false,
+                isWarranty: false,
                 isPaid: false,
                 property: { connect: { id: client2.property.id } },
                 status: { connect: { id: inProgressStatus.id } },
@@ -110,6 +112,8 @@ describe('TicketChange', () => {
             expect(objs[0].clientPhoneTo).toEqual(payload.clientPhone)
             expect(objs[0].isEmergencyFrom).toEqual(ticket.isEmergency)
             expect(objs[0].isEmergencyTo).toEqual(payload.isEmergency)
+            expect(objs[0].isWarrantyFrom).toEqual(ticket.isWarranty)
+            expect(objs[0].isWarrantyTo).toEqual(payload.isWarranty)
             expect(objs[0].isPaidFrom).toEqual(ticket.isPaid)
             expect(objs[0].isPaidTo).toEqual(payload.isPaid)
             expect(objs[0].sectionNameFrom).toEqual(ticket.sectionName)

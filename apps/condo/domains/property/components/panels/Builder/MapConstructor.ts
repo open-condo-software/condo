@@ -1,5 +1,5 @@
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
-import { cloneDeep, compact, get, has, uniq } from 'lodash'
+import { cloneDeep, compact, get, has, uniq, last } from 'lodash'
 import MapSchemaJSON from './MapJsonSchema.json'
 import Ajv from 'ajv'
 import {
@@ -311,6 +311,16 @@ class MapEdit extends MapView {
         return result
     }
 
+    get nextSectionName (): string {
+        if (this.isEmpty) return '1'
+        if (!this.isEmpty && this.sections.filter(section => !section.preview).length === 0) return '1'
+
+        const maxSectionNumber = Math.max(...this.sections
+            .filter(section => !section.preview)
+            .map(section => Number(section.name)))
+        return String(maxSectionNumber + 1)
+    }
+
     get editMode (): string | null {
         return this.mode
     }
@@ -322,7 +332,7 @@ class MapEdit extends MapView {
                 this.selectedUnit = null
                 this.selectedSection = null
                 break
-            case 'removeSection':
+            case 'editSection':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnit = null
@@ -355,7 +365,7 @@ class MapEdit extends MapView {
             this.editMode = 'addSection'
         } else {
             this.selectedSection = section
-            this.editMode = 'removeSection'
+            this.editMode = 'editSection'
         }
     }
 
@@ -423,13 +433,15 @@ class MapEdit extends MapView {
         if (sectionIndex !== -1) {
             this.map.sections[sectionIndex].name = section.name
         }
-        this.editMode = 'addSection'
+        this.editMode = null
         this.notifyUpdater()
     }
 
     public removeSection (id: string): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
         this.map.sections.splice(sectionIndex, 1)
+        this.updateSectionNumbers(sectionIndex)
+
         this.editMode = 'addSection'
         this.notifyUpdater()
     }
@@ -604,13 +616,15 @@ class MapEdit extends MapView {
     }
 
     private removeFloor (sectionIdx: number, floorIndex: number): void {
-        if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)){
+        if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)) {
             return
         }
+
         const floorToRemove = this.map.sections[sectionIdx].floors[floorIndex]
         this.map.sections[sectionIdx].floors.splice(floorIndex, 1)
+
         this.map.sections[sectionIdx].floors.map(floor => {
-            if (floorToRemove.index < floor.index){
+            if (floorToRemove.index > 0 && floorToRemove.index < floor.index) {
                 floor.index--
                 floor.name = floor.index.toString()
             }
@@ -621,6 +635,38 @@ class MapEdit extends MapView {
     private notifyUpdater () {
         if (this.updateMap) {
             this.updateMap(this.map)
+        }
+    }
+
+    private updateSectionNumbers (removedIndex: number): void {
+        if (removedIndex === this.map.sections.length) {
+            return
+        }
+        let sectionNameNumber = parseInt(get(this.map.sections, '0.name', '1'))
+        this.map.sections.forEach((section, index) => {
+            section.name = String(sectionNameNumber)
+            section.index = index
+            sectionNameNumber++
+        })
+
+        if (typeof this.map.sections[removedIndex] !== 'undefined') {
+            if (removedIndex === 0) {
+                // Rename from first unit
+                const firstSectionUnit = get(
+                    last(this.map.sections[removedIndex].floors.filter(floor => floor.index > 0)), 'units.0'
+                )
+                if (firstSectionUnit) {
+                    firstSectionUnit.label = '1'
+                    firstSectionUnit.index = 1
+                    this.updateUnitNumbers(firstSectionUnit)
+                }
+            } else if (typeof this.map.sections[removedIndex - 1] !== 'undefined') {
+                // Rename from last unit at section - 1 of sectionIndex
+                const lastFloorUnits = get(this.map.sections[removedIndex - 1], 'floors.0.units')
+                if (lastFloorUnits) {
+                    this.updateUnitNumbers(last(lastFloorUnits))
+                }
+            }
         }
     }
 

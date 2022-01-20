@@ -13,10 +13,11 @@ const testSection = {
 const sectionName = () => {
     return Math.random().toString()
 }
-const createBuildingMap = (sections: number): MapEdit => {
+const createBuildingMap = (sections: number, sectionTemplate = testSection): MapEdit => {
     const PropertyMap = new MapEdit(null, () => null )
     for (let i = 0; i < sections; i++){
-        PropertyMap.addSection({ ...testSection, name: sectionName(), type: BuildingMapEntityType.Section })
+        const name = (i + 1).toString()
+        PropertyMap.addSection({ ...sectionTemplate, name, type: BuildingMapEntityType.Section })
     }
     return PropertyMap
 }
@@ -191,6 +192,20 @@ describe('Map constructor', () => {
                 const newJsonMap = Building.getMap()
                 expect(newJsonMap.sections[1].floors).toHaveLength(floorsBefore - 1)
             })
+            it('should not add zero floor when last unit was deleted from negative floor', () => {
+                const sectionTemplate = {
+                    id: '',
+                    minFloor: -2,
+                    maxFloor: 2,
+                    unitsOnFloor: 1,
+                }
+                const Building = createBuildingMap(2, sectionTemplate)
+                const jsonMap = Building.getMap()
+                Building.removeUnit(jsonMap.sections[0].floors[2].units[0].id)
+                expect(jsonMap.sections[0].floors).toHaveLength(3)
+                expect(jsonMap.sections[0].floors.map(floor => floor.index)).toStrictEqual([2, 1, -2])
+                expect(jsonMap.sections[1].floors.map(floor => floor.index)).toEqual(expect.not.arrayContaining([0]))
+            })
         })
     })
 
@@ -226,6 +241,18 @@ describe('Map constructor', () => {
                 Building.validate()
                 expect(Building.isMapValid).toBe(true)
                 expect(Building.sections).toHaveLength(9)
+            })
+            it('should rename section names in order', () => {
+                const Building = createBuildingMap(10)
+                const jsonMap = Building.getMap()
+                const removeSection = jsonMap.sections[1]
+                Building.removeSection(removeSection.id)
+                Building.validate()
+
+                const sectionNames = Array
+                    .from({ length: Building.map.sections.length }, (_, index) => String(++index))
+                expect(Building.isMapValid).toBeTruthy()
+                expect(Building.map.sections.map(section => section.name)).toEqual(sectionNames)
             })
         })
     })

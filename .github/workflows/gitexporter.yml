@@ -1,0 +1,38 @@
+name: gitexporter
+on:
+  schedule:
+    - cron:  '10 */12 * * *'
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  gitexporter:
+    name: Gitexporter
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          repository: 'open-condo-software/condo'
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          path: ignore.gitexporter.source
+          ref: 'master'
+      - name: Checkout target code
+        uses: actions/checkout@v2
+        with:
+          repository: 'open-condo-software/open-condo-platform'
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          path: ignore.gitexporter.target
+          ref: 'master'
+      - name: gitexporter.sh
+        run: |
+          bash .github/workflows/gitexporter.sh ignore.gitexporter.source ignore.gitexporter.target

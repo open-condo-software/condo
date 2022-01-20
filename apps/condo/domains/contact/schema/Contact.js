@@ -96,12 +96,13 @@ const Contact = new GQLListSchema('Contact', {
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
-            const { property, unitName, name, phone } = resolvedData
+            const { property, unitName, name, phone, deletedAt } = resolvedData
             const [contact] = await ContactAPI.getAll(context, {
                 property: { id: property },
                 unitName,
                 name,
                 phone,
+                deletedAt,
             })
             if (operation === 'create') {
                 if (contact) {

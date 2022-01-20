@@ -10,19 +10,27 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
     if (!user) return throwAuthenticationError()
     if (user.isAdmin || user.isSupport) return {}
     const userId = user.id
+
     return {
-        organization: {
-            OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            ],
-        },
+        OR: [
+            {
+                organization: {
+                    OR: [
+                        queryOrganizationEmployeeFor(userId),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+                    ],
+                },
+            },
+            {
+                user: { id: userId },
+            },
+        ],
     }
 }
 
 async function canManageOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
     if (operation === 'create') {
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             organization: { id: originalInput.organization.connect.id },

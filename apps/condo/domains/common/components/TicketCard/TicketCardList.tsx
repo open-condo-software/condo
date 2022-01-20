@@ -1,19 +1,19 @@
-import React, { useMemo } from 'react'
-import { useIntl } from '@core/next/intl'
-import Link from 'next/link'
-import qs, { IStringifyOptions } from 'qs'
-import { Row, Col, Typography, RowProps, Space } from 'antd'
-import get from 'lodash/get'
-import pickBy from 'lodash/pickBy'
-import groupBy from 'lodash/groupBy'
-import styled from '@emotion/styled'
-import { colors } from '@condo/domains/common/constants/style'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { green } from '@ant-design/colors'
 import { SortTicketsBy, Ticket as TicketSchema } from '@app/condo/schema'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { TicketOverview } from './TicketOverview'
-import { green } from '@ant-design/colors'
+import { colors } from '@condo/domains/common/constants/style'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { useIntl } from '@core/next/intl'
+import styled from '@emotion/styled'
+import { Col, Row, RowProps, Space, Typography } from 'antd'
+import get from 'lodash/get'
+import groupBy from 'lodash/groupBy'
+import pickBy from 'lodash/pickBy'
+import Link from 'next/link'
+import qs, { IStringifyOptions } from 'qs'
+import React, { useMemo } from 'react'
 import { useLayoutContext } from '../LayoutContext'
+import { TicketOverview } from './TicketOverview'
 
 interface IContainerProps {
     isSmall: boolean
@@ -129,6 +129,14 @@ const TicketCard: React.FC<ITicketCardProps> = ({ address, tickets, contactName 
     )
 }
 
+export const generateQueryVariables = (organizationId: string, contactPhone: string) => ({
+    sortBy: TICKET_SORT_BY,
+    where: {
+        organization: { id: organizationId },
+        contact: { phone: contactPhone },
+    },
+})
+
 const TicketCardList: React.FC<ITicketCardListProps> = ({ organizationId, contactPhone, contactName }) => {
     const intl = useIntl()
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
@@ -136,13 +144,7 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ organizationId, contac
     const {
         loading,
         objs: tickets,
-    } = Ticket.useObjects({
-        sortBy: TICKET_SORT_BY,
-        where: {
-            organization: { id: organizationId },
-            contact: { phone: contactPhone },
-        },
-    }, {
+    } = Ticket.useObjects(generateQueryVariables(organizationId, contactPhone), {
         fetchPolicy: 'cache-first',
     })
     const addresses = useMemo(() => {
