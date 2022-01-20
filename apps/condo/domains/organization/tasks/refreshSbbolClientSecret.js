@@ -15,7 +15,9 @@ const logger = baseLogger.child({ module: 'refreshSbbolClientSecret' })
  */
 const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 9 * * *', async () => {
     const credentialsManager = new SbbolCredentials()
-    await credentialsManager.connect()
+    await credentialsManager.connect({
+        condoEntryPoint: './index.js',
+    })
 
     // Assume, that we have once logged in using SBBOl and got a `TokenSet` record for our organization
     const { tokenSet } = await credentialsManager.getAccessToken()

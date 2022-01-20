@@ -24,7 +24,9 @@ const workerJob = async () => {
     }
 
     const credentialsManager = new SbbolCredentials()
-    await credentialsManager.connect()
+    await credentialsManager.connect({
+        condoEntryPoint: 'apps/condo/index.js',
+    })
 
     if (command === COMMAND.REFRESH_ALL_TOKENS) {
         await credentialsManager.refreshAllTokens()
