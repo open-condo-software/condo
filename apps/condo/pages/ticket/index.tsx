@@ -36,8 +36,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { FILTER_TABLE_KEYS, FiltersStorage } from '../../domains/common/utils/FiltersStorage'
-import { Division } from '../../domains/division/utils/clientSchema'
+import { FILTER_TABLE_KEYS, FiltersStorage } from '@condo/domains/common/utils/FiltersStorage'
 import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 
