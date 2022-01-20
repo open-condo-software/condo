@@ -73,7 +73,7 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
     }
 `
 
-const TOKEN_SET_FIELDS = `{ user { id } organization { id } importRemoteSystem accessToken accessTokenExpiresAt refreshToken refreshTokenExpiresAt ${COMMON_FIELDS} }`
+const TOKEN_SET_FIELDS = `{ user { id } organization { id } importRemoteSystem accessToken accessTokenExpiresAt refreshToken refreshTokenExpiresAt clientSecret clientSecretExpiresAt ${COMMON_FIELDS} }`
 const TokenSet = generateGqlQueries('TokenSet', TOKEN_SET_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
