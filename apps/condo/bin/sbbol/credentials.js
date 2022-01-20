@@ -42,7 +42,7 @@ const workerJob = async () => {
             throw new Error('New clientSecret should be specified as a third argument of the command')
         }
 
-        await credentialsManager.refreshClientSecret({ clientId, currentClientSecret, newClientSecret })
+        await credentialsManager.changeClientSecret({ clientId, currentClientSecret, newClientSecret })
     }
 }
 

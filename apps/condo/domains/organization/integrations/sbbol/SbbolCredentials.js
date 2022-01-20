@@ -32,7 +32,7 @@ class SbbolCredentials {
         return result
     }
 
-    async refreshClientSecret ({ clientId, currentClientSecret, newClientSecret }) {
+    async changeClientSecret ({ clientId, currentClientSecret, newClientSecret }) {
         const { accessToken, tokenSet } = await this.getAccessToken()
         const requestApi = new SbbolRequestApi({
             accessToken,
