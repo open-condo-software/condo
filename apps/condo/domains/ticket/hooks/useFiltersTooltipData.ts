@@ -1,12 +1,13 @@
 import { useOrganization } from '@core/next/organization'
-import { Division } from '@condo/domains/division/utils/clientSchema'
 import isEqual from 'lodash/isEqual'
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
-import { Ticket } from '../../../schema'
+import { Ticket } from '@app/condo/schema'
+
+import { Division } from '@condo/domains/division/utils/clientSchema'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersTooltipDataObject } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 
 export function useFiltersTooltipData (): FiltersTooltipDataObject<Ticket>[] {
