@@ -46,6 +46,7 @@ git:
   - .helm
   - werf.yaml
   - werf-giterminism.yaml
+  - apps/callcenter/node_modules/
   owner: app
   group: app
 
