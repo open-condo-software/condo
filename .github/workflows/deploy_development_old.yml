@@ -14,6 +14,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v2
@@ -33,6 +34,7 @@ jobs:
           bash ./bin/warm-docker-cache
           docker-compose build
       - name: Upload builded image
+        timeout-minutes: 20
         run: |
           ssh root@dev.doma.ai "docker rmi apps:condo" || echo "no image"
           ssh root@dev.doma.ai "docker images -f "reference=dokku/condo" -q | xargs docker rmi" || echo "no useless images"
