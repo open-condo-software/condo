@@ -31112,6 +31112,10 @@ export enum SortTokenSetHistoryRecordsBy {
   RefreshTokenDesc = 'refreshToken_DESC',
   RefreshTokenExpiresAtAsc = 'refreshTokenExpiresAt_ASC',
   RefreshTokenExpiresAtDesc = 'refreshTokenExpiresAt_DESC',
+  ClientSecretAsc = 'clientSecret_ASC',
+  ClientSecretDesc = 'clientSecret_DESC',
+  ClientSecretExpiresAtAsc = 'clientSecretExpiresAt_ASC',
+  ClientSecretExpiresAtDesc = 'clientSecretExpiresAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -31145,6 +31149,10 @@ export enum SortTokenSetsBy {
   RefreshTokenDesc = 'refreshToken_DESC',
   RefreshTokenExpiresAtAsc = 'refreshTokenExpiresAt_ASC',
   RefreshTokenExpiresAtDesc = 'refreshTokenExpiresAt_DESC',
+  ClientSecretAsc = 'clientSecret_ASC',
+  ClientSecretDesc = 'clientSecret_DESC',
+  ClientSecretExpiresAtAsc = 'clientSecretExpiresAt_ASC',
+  ClientSecretExpiresAtDesc = 'clientSecretExpiresAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -37653,6 +37661,10 @@ export type TokenSet = {
   refreshToken?: Maybe<Scalars['String']>;
   /**  Time when we will completly lost control over organization  */
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  /**  Should be known only to application and authorization SBBOL server. It will be presented only in record for our Organization, that an will be an author of requests to SBBOL API in server-server integration. "Our" organization is a record of Organization, created from data, received from SBBOL after successful authorization in application using SBBOL with credentials of SBBOL-account, that represents our company as a partner of SBBOL. So, logically, this field will be initialized only for one record.  */
+  clientSecret?: Maybe<Scalars['String']>;
+  /**  After specified datetime a client secret will be invalid and should be changed. There is a scheduled job for that  */
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -37673,6 +37685,8 @@ export type TokenSetCreateInput = {
   accessTokenExpiresAt?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37702,6 +37716,8 @@ export type TokenSetHistoryRecord = {
   accessTokenExpiresAt?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -37725,6 +37741,8 @@ export type TokenSetHistoryRecordCreateInput = {
   accessTokenExpiresAt?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37753,6 +37771,8 @@ export type TokenSetHistoryRecordUpdateInput = {
   accessTokenExpiresAt?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37858,6 +37878,32 @@ export type TokenSetHistoryRecordWhereInput = {
   refreshTokenExpiresAt_gte?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   refreshTokenExpiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecret_not?: Maybe<Scalars['String']>;
+  clientSecret_contains?: Maybe<Scalars['String']>;
+  clientSecret_not_contains?: Maybe<Scalars['String']>;
+  clientSecret_starts_with?: Maybe<Scalars['String']>;
+  clientSecret_not_starts_with?: Maybe<Scalars['String']>;
+  clientSecret_ends_with?: Maybe<Scalars['String']>;
+  clientSecret_not_ends_with?: Maybe<Scalars['String']>;
+  clientSecret_i?: Maybe<Scalars['String']>;
+  clientSecret_not_i?: Maybe<Scalars['String']>;
+  clientSecret_contains_i?: Maybe<Scalars['String']>;
+  clientSecret_not_contains_i?: Maybe<Scalars['String']>;
+  clientSecret_starts_with_i?: Maybe<Scalars['String']>;
+  clientSecret_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientSecret_ends_with_i?: Maybe<Scalars['String']>;
+  clientSecret_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientSecret_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecret_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_not?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_lt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_lte?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_gt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_gte?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecretExpiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -37947,6 +37993,8 @@ export type TokenSetUpdateInput = {
   accessTokenExpiresAt?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38045,6 +38093,32 @@ export type TokenSetWhereInput = {
   refreshTokenExpiresAt_gte?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   refreshTokenExpiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecret_not?: Maybe<Scalars['String']>;
+  clientSecret_contains?: Maybe<Scalars['String']>;
+  clientSecret_not_contains?: Maybe<Scalars['String']>;
+  clientSecret_starts_with?: Maybe<Scalars['String']>;
+  clientSecret_not_starts_with?: Maybe<Scalars['String']>;
+  clientSecret_ends_with?: Maybe<Scalars['String']>;
+  clientSecret_not_ends_with?: Maybe<Scalars['String']>;
+  clientSecret_i?: Maybe<Scalars['String']>;
+  clientSecret_not_i?: Maybe<Scalars['String']>;
+  clientSecret_contains_i?: Maybe<Scalars['String']>;
+  clientSecret_not_contains_i?: Maybe<Scalars['String']>;
+  clientSecret_starts_with_i?: Maybe<Scalars['String']>;
+  clientSecret_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientSecret_ends_with_i?: Maybe<Scalars['String']>;
+  clientSecret_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientSecret_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecret_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_not?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_lt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_lte?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_gt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_gte?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecretExpiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
