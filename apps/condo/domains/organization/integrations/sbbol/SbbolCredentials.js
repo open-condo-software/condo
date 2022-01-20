@@ -6,6 +6,7 @@ const { getOrganizationAccessToken } = require('./accessToken')
 const { SbbolRequestApi } = require('./SbbolRequestApi')
 const { Organization, TokenSet } = require('@condo/domains/organization/utils/serverSchema')
 const { SBBOL_IMPORT_NAME } = require('./common')
+const dayjs = require('dayjs')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
@@ -63,19 +64,15 @@ class SbbolCredentials {
             throw new Error('Something went wrong, SBBOL sent not successful response.')
         } else {
             if (data) {
-                let jsonData
-                try {
-                    jsonData = JSON.parse(data)
-                    const { new_client_secret } = jsonData
-                    if (!new_client_secret) {
-                        throw new Error('New client secret is not obtained from SBBOL')
-                    }
-                    await TokenSet.update(this.context, tokenSet.id, {
-                        clientSecret: new_client_secret,
-                    })
-                } catch (e) {
-                    throw new Error('Unable to parse response as JSON')
+                const jsonData = JSON.parse(data)
+                const { clientSecretExpiration } = jsonData
+                if (!clientSecretExpiration) {
+                    throw new Error('clientSecretExpiration is missing in response, so, It\'s unknown, when new client secret will be expired')
                 }
+                await TokenSet.update(this.context, tokenSet.id, {
+                    clientSecret: newClientSecret,
+                    clientSecretExpiresAt: dayjs().add(clientSecretExpiration, 'days').toISOString(),
+                })
             }
         }
     }
