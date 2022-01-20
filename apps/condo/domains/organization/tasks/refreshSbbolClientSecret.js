@@ -13,7 +13,7 @@ const logger = baseLogger.child({ module: 'refreshSbbolClientSecret' })
 /**
  * Syncs new and cancelled subscriptions
  */
-const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '* * * * *', async () => {
+const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 9 * * *', async () => {
     const credentialsManager = new SbbolCredentials()
     await credentialsManager.connect()
 
