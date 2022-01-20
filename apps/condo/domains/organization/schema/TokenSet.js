@@ -69,6 +69,12 @@ const TokenSet = new GQLListSchema('TokenSet', {
             isRequired: false,
         },
 
+        clientSecretExpiresAt: {
+            schemaDoc: 'After specified datetime a client secret will be invalid and should be changed. There is a scheduled job for that',
+            type: DateTimeUtc,
+            isRequired: false,
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
