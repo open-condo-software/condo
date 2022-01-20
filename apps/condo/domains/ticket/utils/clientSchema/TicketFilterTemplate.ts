@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { TicketFilterTemplate as TicketFilterTemplateGQL } from '@condo/domains/ticket/gql'
 import { TicketFilterTemplate, TicketFilterTemplateUpdateInput, QueryAllTicketFilterTemplatesArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'employee', 'filters']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'employee', 'fields']
 const RELATIONS = ['employee']
 
 export interface ITicketFilterTemplateUIState extends TicketFilterTemplate {
