@@ -9,7 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketFilterTemplate')
 
-const { TICKET_FILTER_FIELD } = require('./fields/TicketFilters')
+const { TICKET_FILTER_FIELD } = require('./fields/TicketFilter')
 
 
 const TicketFilterTemplate = new GQLListSchema('TicketFilterTemplate', {
