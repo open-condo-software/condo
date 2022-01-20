@@ -15,8 +15,13 @@ class SbbolCredentials {
 
     context = null
 
-    async connect () {
-        const resolved = path.resolve('apps/condo/index.js')
+    /**
+     *
+     * @param condoEntryPoint path to entrypoint file relative to current directory
+     * @return {Promise<void>}
+     */
+    async connect ({ condoEntryPoint }) {
+        const resolved = path.resolve(condoEntryPoint)
         const { distDir, keystone, apps } = require(resolved)
         const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
         // we need only apollo
