@@ -44,9 +44,9 @@ const COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN = {
 const COLUMNS_WIDTH_SMALLER_XXL_SCREEN = {
     number: '6%',
     createdAt: '7%',
-    status: '8%',
+    status: '9%',
     address: '10%',
-    unitName: '10%',
+    unitName: '9%',
     details: '10%',
     categoryClassifier: '12%',
     clientName: '8%',
