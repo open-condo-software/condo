@@ -56,7 +56,8 @@ async function registerPushToken (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write registerPushToken serverSchema guards
+    if (!data.deviceId) throw new Error('no data.deviceId')
+    if (!data.serviceType) throw new Error('no data.serviceType')
 
     return await execGqlWithoutAccess(context, {
         query: REGISTER_PUSH_TOKEN_MUTATION,

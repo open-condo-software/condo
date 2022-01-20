@@ -98,6 +98,12 @@ const DEVICE_SERVICE_TYPES = {
 
 const DEVICE_SERVICE_TYPES_KEYS = Object.keys(DEVICE_SERVICE_TYPES)
 
+const PUSH_TOKEN_OPERATIONS = {
+    register: 'register',
+    connect: 'connect',
+    disconnect: 'disconnect',
+}
+
 module.exports = {
     JSON_NO_REQUIRED_ATTR_ERROR,
     JSON_SUSPICIOUS_ATTR_NAME_ERROR,
@@ -126,4 +132,5 @@ module.exports = {
     CUSTOMER_IMPORTANT_NOTE_TYPE,
     DEVICE_SERVICE_TYPES,
     DEVICE_SERVICE_TYPES_KEYS,
+    PUSH_TOKEN_OPERATIONS,
 }

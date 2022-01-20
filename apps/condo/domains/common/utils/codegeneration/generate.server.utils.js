@@ -113,16 +113,16 @@ function generateServerUtils (gql) {
         })
     }
 
-    // getOrCreate
-
     /**
-     * Updates and returns either existing item or creates new one and returns it
+     * Tries to receive existing item, and updates it on success or creates new one. Updated/created value is returned.
+     * Attention! Be careful with where. Because of getOne, this helper will throw exception, if it gets 1+ items.
      * @param context
+     * @param where
      * @param attrs
-     * @param existingItem
      * @returns {Promise<*|null|undefined>}
      */
-    async function createOrUpdate (context, attrs, existingItem) {
+    async function updateOrCreate (context, where, attrs) {
+        const existingItem = await getOne(context, where)
         const shouldUpdate = Boolean(existingItem && existingItem.id)
 
         return shouldUpdate
@@ -138,7 +138,7 @@ function generateServerUtils (gql) {
         create,
         update,
         delete: _delete,
-        createOrUpdate,
+        updateOrCreate,
     }
 }
 

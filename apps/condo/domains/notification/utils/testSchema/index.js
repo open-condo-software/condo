@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const isEmpty = require('lodash/isEmpty')
 
 const { getRandomString, getRandomItem } = require('@core/keystone/test.utils')
 
@@ -95,15 +96,16 @@ async function resendMessageByTestClient (client, message, extraAttrs = {}) {
 
 async function createTestPushToken (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const deviceId = faker.random.uuid()
-    const token = faker.random.uuid()
-    const serviceType = getRandomItem(DEVICE_SERVICE_TYPES_KEYS)
 
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const deviceId = faker.datatype.uuid()
+    const token = faker.datatype.uuid()
+    const serviceType = getRandomItem(DEVICE_SERVICE_TYPES_KEYS)
     const attrs = {
         dv: 1,
         sender,
         deviceId, token, serviceType,
+        owner: !isEmpty(client.user) ? { connect: { id: client.user.id } } : null,
         ...extraAttrs,
     }
     const obj = await PushToken.create(client, attrs)
@@ -114,16 +116,16 @@ async function createTestPushToken (client, extraAttrs = {}) {
 async function updateTestPushToken (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
+    if (!extraAttrs.deviceId) throw new Error('no extraAttrs.deviceId')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestPushToken logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
         ...extraAttrs,
     }
     const obj = await PushToken.update(client, id, attrs)
+
     return [obj, attrs]
 }
 
@@ -137,8 +139,6 @@ async function registerPushTokenByTestClient(client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_PUSH_TOKEN_MUTATION, { data: attrs })
-
-    console.log('registerPushTokenByTestClient:', { attrs, data, errors })
 
     throwIfError(data, errors)
 

@@ -183,12 +183,12 @@ async function getByCondition (schemaName, condition) {
 }
 
 /**
- * This function returns raw data from a database table. This may be necessary to optimize queries or to write custom mutations to reuse existing Apollo resolvers because they work only with the raw database data.
+ * Returns raw data from a database table. This may be necessary to optimize queries or to write custom mutations to reuse existing Apollo resolvers because they work only with the raw database data.
  * ATTENTION!!! Requests data through keystone, does not resolve connections, returns related IDs as is in flat way.
  * Should be used mainly in access/mutations, where you don't need related data other than IDs
  * @param schemaName
  * @param id
- * @returns {Promise<*|null|undefined>}
+ * @returns {Promise<*|null|undefined>} json representation of a record in a corresponding table without resolved connections
  */
 async function getById (schemaName, id) {
     return await getByCondition(schemaName, { id })

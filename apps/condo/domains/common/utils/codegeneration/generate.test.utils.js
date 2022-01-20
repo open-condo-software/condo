@@ -27,7 +27,9 @@ function generateGQLTestUtils (gql) {
 
     async function getOne (context, where, params = {}) {
         const objs = await getAll(context, where, { first: 2, ...params })
+
         if (objs.length > 1) throw new Error('getOne() got more than one result, check filters/logic please')
+
         return objs[0] // will return undefined by default, if objs is empty :)
     }
 

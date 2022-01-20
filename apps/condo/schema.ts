@@ -19753,7 +19753,7 @@ export type PropertyWhereUniqueInput = {
   id: Scalars['ID'];
 };
 
-/**  Push token is received from mobile/web device and used to send push notifications via corresponding transport, depending on serviceType of the device.  */
+/**  Used to send push notifications via corresponding transport, depending on serviceType. Push token is received from mobile or web device.   */
 export type PushToken = {
   __typename?: 'PushToken';
   /**
@@ -19772,10 +19772,12 @@ export type PushToken = {
   owner?: Maybe<User>;
   /**  Mobile/web device ID, which is used to identify device. One user can have many devices, and one device can be used by many users, one at a time.  */
   deviceId?: Maybe<Scalars['String']>;
-  /**  Token - used by transport services (FireBase, Apple, Huawei, etc.) to transfer push notifications to devices.  */
+  /**  Used by transport services (FireBase, Apple, Huawei, etc.) to transfer push notifications to devices.  */
   token?: Maybe<Scalars['String']>;
-  /**  Device service type, needed to choose correct transport service to transfer push notifications. For ex. Huawei devices can not receive notifications through FireBase.  */
+  /**  Transport service, that delivers push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase.  */
   serviceType?: Maybe<PushTokenServiceTypeType>;
+  /**  Device metadata. OS type, OS version, etc.  */
+  meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -19793,6 +19795,7 @@ export type PushTokenCreateInput = {
   deviceId?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   serviceType?: Maybe<PushTokenServiceTypeType>;
+  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -19819,6 +19822,7 @@ export type PushTokenHistoryRecord = {
   deviceId?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   serviceType?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -19839,6 +19843,7 @@ export type PushTokenHistoryRecordCreateInput = {
   deviceId?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   serviceType?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -19864,6 +19869,7 @@ export type PushTokenHistoryRecordUpdateInput = {
   deviceId?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   serviceType?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -19949,6 +19955,10 @@ export type PushTokenHistoryRecordWhereInput = {
   serviceType_not_ends_with_i?: Maybe<Scalars['String']>;
   serviceType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   serviceType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -20041,6 +20051,7 @@ export type PushTokenUpdateInput = {
   deviceId?: Maybe<Scalars['String']>;
   token?: Maybe<Scalars['String']>;
   serviceType?: Maybe<PushTokenServiceTypeType>;
+  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20107,6 +20118,10 @@ export type PushTokenWhereInput = {
   serviceType_not?: Maybe<PushTokenServiceTypeType>;
   serviceType_in?: Maybe<Array<Maybe<PushTokenServiceTypeType>>>;
   serviceType_not_in?: Maybe<Array<Maybe<PushTokenServiceTypeType>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -23476,13 +23491,15 @@ export type RegisterPushTokenInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   deviceId: Scalars['String'];
-  token: Scalars['String'];
+  token?: Maybe<Scalars['String']>;
   serviceType: Scalars['String'];
+  operation: Scalars['String'];
+  meta?: Maybe<Scalars['JSON']>;
 };
 
 export type RegisterPushTokenOutput = {
   __typename?: 'RegisterPushTokenOutput';
-  id: Scalars['String'];
+  id: Scalars['ID'];
   deviceId: Scalars['String'];
   token: Scalars['String'];
   serviceType: Scalars['String'];

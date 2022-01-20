@@ -5,9 +5,12 @@ const { CookieJar } = require('tough-cookie')
 const { print } = require('graphql/language/printer')
 const crypto = require('crypto')
 const express = require('express')
-const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
 const util = require('util')
+const random = require('lodash/random')
+
+const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
 const conf = require('@core/config')
+
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
@@ -368,9 +371,7 @@ const isMongo = () => {
     return conf.DATABASE_URL.startsWith('mongo')
 }
 
-const getRandomBetween = (min, max) => min + Math.floor(Math.random() * (max - min))
-
-const getRandomItem = list => list[getRandomBetween(0, list.length - 1)]
+const getRandomItem = list => list[random(0, list.length - 1)]
 
 
 module.exports = {
@@ -386,7 +387,6 @@ module.exports = {
     createSchemaObject,
     deleteSchemaObject,
     getSchemaObject,
-    getRandomBetween,
     getRandomItem,
     gql,
     DEFAULT_TEST_USER_IDENTITY,

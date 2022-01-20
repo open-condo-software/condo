@@ -9,15 +9,42 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const { PushToken: PushTokenAPI } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/notification/access/RegisterPushTokenService')
 
+const { PUSH_TOKEN_OPERATIONS } = require('../constants')
+
+const resolver = async (parent, args, context) => {
+    const { data: { dv, sender, deviceId, token, serviceType, operation } } = args
+    const userId = get(context, 'authedItem.id', null)
+    let owner
+
+    switch (operation) {
+        case PUSH_TOKEN_OPERATIONS.register:
+            owner = userId ? { disconnectAll: true, connect: { id: userId } } : null
+            break
+
+        case PUSH_TOKEN_OPERATIONS.connect:
+            owner = { disconnectAll: true, connect: { id: userId } }
+            break
+
+        case PUSH_TOKEN_OPERATIONS.disconnect:
+            owner = { disconnectAll: true }
+            break
+    }
+
+    const attrs = { dv, sender, deviceId, token, serviceType, owner }
+    const where = { deviceId, serviceType }
+
+    return PushTokenAPI.updateOrCreate(context, where, attrs)
+}
+
 const RegisterPushTokenService = new GQLCustomSchema('RegisterPushTokenService', {
     types: [
         {
             access: true,
-            type: 'input RegisterPushTokenInput { dv: Int!, sender: SenderFieldInput!, deviceId: String!, token: String!, serviceType: String! }',
+            type: 'input RegisterPushTokenInput { dv: Int!, sender: SenderFieldInput!, deviceId: String!, token: String, serviceType: String!, operation: String!, meta: JSON }',
         },
         {
             access: true,
-            type: 'type RegisterPushTokenOutput { id: String!, deviceId: String!, token: String!, serviceType: String!, owner: User }',
+            type: 'type RegisterPushTokenOutput { id: ID!, deviceId: String!, token: String!, serviceType: String!, owner: User, meta: JSON }',
         },
     ],
 
@@ -25,21 +52,7 @@ const RegisterPushTokenService = new GQLCustomSchema('RegisterPushTokenService',
         {
             access: access.canRegisterPushToken,
             schema: 'registerPushToken(data: RegisterPushTokenInput!): RegisterPushTokenOutput',
-            resolver: async (parent, args, context) => {
-                const { data: { dv, sender, deviceId, token, serviceType } } = args
-                const userId = get(context, 'authedItem.id', null)
-                const attrs = {
-                    dv,
-                    sender,
-                    deviceId,
-                    token,
-                    serviceType,
-                    owner: userId ? { disconnectAll: true, connect: { id: userId } } : null,
-                }
-                const existingToken = await PushTokenAPI.getOne(context, { deviceId, serviceType })
-
-                return PushTokenAPI.createOrUpdate(context, attrs, existingToken)
-            },
+            resolver,
         },
     ],
 

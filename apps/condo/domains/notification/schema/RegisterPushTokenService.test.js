@@ -8,24 +8,23 @@ const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@core/keystone/test.utils')
 
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
-
 const { registerPushTokenByTestClient } = require('@condo/domains/notification/utils/testSchema')
-const { DEVICE_SERVICE_TYPES_KEYS } = require('@condo/domains/notification/constants')
+const { DEVICE_SERVICE_TYPES_KEYS, PUSH_TOKEN_OPERATIONS } = require('@condo/domains/notification/constants')
 const { getRandomItem } = require('@core/keystone/test.utils')
 
-const getRandomServiceType = () => getRandomItem(DEVICE_SERVICE_TYPES_KEYS)
-const getRandomTokenData = () => ({
+const getRandomTokenData = (operation) => ({
     deviceId: faker.datatype.uuid(),
     token: faker.datatype.uuid(),
-    serviceType: getRandomServiceType(),
+    serviceType: getRandomItem(DEVICE_SERVICE_TYPES_KEYS),
+    operation: operation || 'register',
+    meta: {},
 })
 
 describe('RegisterPushTokenService', () => {
     test('anonymous: execute', async () => {
         const client = await makeClient()
         const payload = getRandomTokenData()
-        const [data, attrs] = await registerPushTokenByTestClient(client, payload)
+        const [data] = await registerPushTokenByTestClient(client, payload)
 
         expect(data.id).not.toBeFalsy()
         expect(data.deviceId).toEqual(payload.deviceId)
@@ -56,5 +55,65 @@ describe('RegisterPushTokenService', () => {
         expect(data.token).toEqual(payload.token)
         expect(data.serviceType).toEqual(payload.serviceType)
         expect(data.owner.id).toEqual(admin.user.id)
+    })
+
+    test('consequent create actually will update', async () => {
+        const client = await makeClient()
+        const payload = getRandomTokenData()
+        // payload for second create request shares both device id and device type,
+        // but has different token, so token should be updated instead of creation of new record
+        const payload1 = { ...payload, token: faker.datatype.uuid() }
+        const [data] = await registerPushTokenByTestClient(client, payload)
+        const [data1] = await registerPushTokenByTestClient(client, payload1)
+
+        expect(data.id).not.toBeFalsy()
+        expect(data.deviceId).toEqual(payload.deviceId)
+        expect(data.token).toEqual(payload.token)
+        expect(data.serviceType).toEqual(payload.serviceType)
+        expect(data.owner).toBeNull()
+
+        expect(data1.id).not.toBeFalsy()
+        expect(data1.deviceId).toEqual(payload1.deviceId)
+        expect(data1.token).toEqual(payload1.token)
+        expect(data1.serviceType).toEqual(payload1.serviceType)
+        expect(data1.owner).toBeNull()
+
+        expect(data.id).toEqual(data1.id)
+        expect(data.deviceId).toEqual(data1.deviceId)
+        expect(data.serviceType).toEqual(data1.serviceType)
+        expect(data.token).not.toEqual(data1.token)
+    })
+
+    test('register by anonymous, connect authorized user and disconnect by anonymous', async () => {
+        const anonymous = await makeClient()
+        const anonymous1 = await makeClient()
+        const user = await makeLoggedInClient()
+        const registerPayload = getRandomTokenData()
+        const { deviceId, serviceType, token } = registerPayload
+        const connectPayload = { deviceId, serviceType, operation: PUSH_TOKEN_OPERATIONS.connect }
+        const disconnectPayload = { deviceId, serviceType, operation: PUSH_TOKEN_OPERATIONS.disconnect }
+        const [data] = await registerPushTokenByTestClient(anonymous, registerPayload)
+
+        expect(data.id).not.toBeFalsy()
+        expect(data.deviceId).toEqual(deviceId)
+        expect(data.serviceType).toEqual(serviceType)
+        expect(data.token).toEqual(token)
+        expect(data.owner).toBeNull()
+
+        const [data1] = await registerPushTokenByTestClient(user, connectPayload)
+
+        expect(data1.id).toEqual(data.id)
+        expect(data1.deviceId).toEqual(deviceId)
+        expect(data1.token).toEqual(token)
+        expect(data1.serviceType).toEqual(serviceType)
+        expect(data1.owner.id).toEqual(user.user.id)
+
+        const [data2] = await registerPushTokenByTestClient(anonymous1, disconnectPayload)
+
+        expect(data2.id).toEqual(data.id)
+        expect(data2.deviceId).toEqual(deviceId)
+        expect(data2.token).toEqual(token)
+        expect(data2.serviceType).toEqual(serviceType)
+        expect(data2.owner).toBeNull()
     })
 })

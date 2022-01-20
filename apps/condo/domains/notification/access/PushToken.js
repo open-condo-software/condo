@@ -8,39 +8,22 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 async function canReadPushTokens ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return {}
+    if (user.isAdmin) return true
 
-    return {
-        context: {
-            OR: [
-                {
-                    owner: { id: user.id },
-                },
-                // may be extended in future
-            ],
-        },
-    }
+    // User allowed to read own tokens
+    return { owner: { id: user.id } }
 }
 
-async function canManagePushTokens ({ authentication: { item: owner }, originalInput, operation }) {
-    if (owner && owner.deletedAt) return false
-    if (owner && owner.isAdmin) return true
-    if (operation === 'create') {
-        // NOTE: everyone can create push tokens, including anonymous users
-        return true
-    } else if (operation === 'update') {
-        // NOTE: everyone can update every push token if they know deviceId (almost impossible to guess)
-        return {
-            context: {
-                OR: [
-                    {
-                        deviceId: { id: originalInput.deviceId },
-                    },
-                    // may be extended in future
-                ],
-            },
-        }
-    }
+/**
+ * Access management for direct PushToken creation/updates.
+ * Only admins allowed for direct actions. All other users should use RegisterPushTokenService instead.
+ * @param user
+ * @param originalInput
+ * @param operation
+ * @returns {Promise<boolean>}
+ */
+async function canManagePushTokens ({ authentication: { item: user }, originalInput, operation }) {
+    if (user && user.isAdmin) return true
 
     return false
 }
