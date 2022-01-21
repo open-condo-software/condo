@@ -530,7 +530,7 @@
   "pages.organizations.EditOrganizationModalTitle": "Edit organization form",
   "pages.organizations.OrganizationName": "Name",
   "pages.organizations.tin": "TIN",
-  "pages.organizations.tin.TooShortMessage": "TIN field is too short",
+  "pages.organizations.tin.TooShortMessage": "TIN field must contain 10 digits",
   "pages.organizations.tin.InvalidValue": "TIN field value is not valid",
   "pages.organizations.PageTitle": "Organizations",
   "pages.users.InviteNewUserButtonLabel": "Invite new user",
