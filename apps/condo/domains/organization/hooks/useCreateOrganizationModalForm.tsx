@@ -155,11 +155,11 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
                 {CreateOrganizationModalMsg}
             </Typography.Paragraph>
 
-            <Form.Item name='name' label={NameMsg} rules={validators.name}>
+            <Form.Item name='name' label={NameMsg} rules={validators.name} validateFirst>
                 <Input />
             </Form.Item>
 
-            <Form.Item name='tin' style={FORM_ITEM_STYLES} label={InnMessage} rules={validators.tin}>
+            <Form.Item name='tin' style={FORM_ITEM_STYLES} label={InnMessage} rules={validators.tin} validateFirst>
                 <Input />
             </Form.Item>
         </BaseModalForm>
