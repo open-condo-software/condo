@@ -20,6 +20,23 @@ import { MeterReadingSource, MeterResource } from '../utils/clientSchema'
 import { IMeterReadingSourceUIState } from '../utils/clientSchema/MeterReadingSource'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
 
+const addressFilter = getFilter(['meter', 'property', 'id'], 'array', 'string', 'in')
+const addressStringContainsFilter = getStringContainsFilter(['meter', 'property', 'address'])
+const accountNumberFilter = getStringContainsFilter(['meter', 'accountNumber'])
+const placeFilter = getStringContainsFilter(['meter', 'place'])
+const numberFilter = getStringContainsFilter(['meter', 'number'])
+const unitNameFilter = getFilter(['meter', 'unitName'], 'array', 'string', 'in')
+const resourceStringContainsFilter = getStringContainsFilter(['meter', 'resource', 'name'])
+const clientNameFilter = getStringContainsFilter('clientName')
+const readingDateRangeFilter = getDayRangeFilter('date')
+const verificationDateRangeFilter = getDayRangeFilter(['meter', 'verificationDate'])
+const installationDateRangeFilter = getDayRangeFilter(['meter', 'installationDate'])
+const commissioningDateRangeFilter = getDayRangeFilter(['meter', 'commissioningDate'])
+const sealingDateRangeFilter = getDayRangeFilter(['meter', 'sealingDate'])
+const controlReadingDateRangeFilter = getDayRangeFilter(['meter', 'controlReadingDate'])
+const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
+const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
+
 export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
@@ -49,23 +66,6 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const addressFilter = getFilter(['meter', 'property', 'id'], 'array', 'string', 'in')
-    const addressStringContainsFilter = getStringContainsFilter(['meter', 'property', 'address'])
-    const accountNumberFilter = getStringContainsFilter(['meter', 'accountNumber'])
-    const placeFilter = getStringContainsFilter(['meter', 'place'])
-    const numberFilter = getStringContainsFilter(['meter', 'number'])
-    const unitNameFilter = getStringContainsFilter(['meter', 'unitName'])
-    const resourceStringContainsFilter = getStringContainsFilter(['meter', 'resource', 'name'])
-    const clientNameFilter = getStringContainsFilter('clientName')
-    const readingDateRangeFilter = getDayRangeFilter('date')
-    const verificationDateRangeFilter = getDayRangeFilter(['meter', 'verificationDate'])
-    const installationDateRangeFilter = getDayRangeFilter(['meter', 'installationDate'])
-    const commissioningDateRangeFilter = getDayRangeFilter(['meter', 'commissioningDate'])
-    const sealingDateRangeFilter = getDayRangeFilter(['meter', 'sealingDate'])
-    const controlReadingDateRangeFilter = getDayRangeFilter(['meter', 'controlReadingDate'])
-    const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
-    const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
 
     const { objs: sources } = MeterReadingSource.useObjects({})
     const sourcesOptions = convertToOptions<IMeterReadingSourceUIState>(sources, 'name', 'id')
