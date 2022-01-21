@@ -32,39 +32,42 @@ async function sendToDeveloper (type, data) {
     }
 }
 
-class SbbolRoutes {
-
-    async initialize () {
-        let tokenSet
-        try {
-            const result = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
-            tokenSet = result.tokenSet
-        } catch (e) {
-            if (!e.message.match('[tokens:expired]')) {
-                throw e
-            }
+/**
+ * Each route handler here in each application instance needs an instance of `SbbolOauth2Api` with actual
+ * client secret. This covers a case, when a client secret will get periodically updated.
+ * @return {Promise<SbbolOauth2Api>}
+ */
+async function initializeSbbolAuthApi () {
+    let tokenSet
+    try {
+        const result = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+        tokenSet = result.tokenSet
+    } catch (e) {
+        if (!e.message.match('[tokens:expired]')) {
+            throw e
         }
-
-        // In case when we we have not logged in using partner account in SBBOL, take the value from environment
-        const clientSecret = tokenSet && tokenSet.clientSecret ? tokenSet.clientSecret : SBBOL_AUTH_CONFIG.client_secret
-
-        this.sbbolAuthApi = new SbbolOauth2Api({
-            clientSecret,
-        })
-        this.initialized = true
     }
 
+    // In case when we we have not logged in using partner account in SBBOL, take the value from environment
+    const clientSecret = tokenSet && tokenSet.clientSecret ? tokenSet.clientSecret : SBBOL_AUTH_CONFIG.client_secret
+
+    return new SbbolOauth2Api({
+        clientSecret,
+    })
+}
+
+class SbbolRoutes {
+
     async startAuth (req, res, next) {
-        if (!this.initialized) {
-            await this.initialize()
-        }
+        const sbbolAuthApi = await initializeSbbolAuthApi()
+
         // nonce: to prevent several callbacks from same request
         // state: to validate user browser on callback
         const checks = { nonce: generators.nonce(), state: generators.state() }
         req.session[SBBOL_SESSION_KEY] = checks
         await req.session.save()
         try {
-            const redirectUrl = this.sbbolAuthApi.authorizationUrlWithParams(checks)
+            const redirectUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
             return res.redirect(redirectUrl)
         } catch (error) {
             return next(error)
@@ -72,16 +75,17 @@ class SbbolRoutes {
     }
 
     async completeAuth (req, res, next) {
+        const sbbolAuthApi = await initializeSbbolAuthApi()
         try {
             if (!isObject(req.session[SBBOL_SESSION_KEY])) {
                 return res.status(400).send('ERROR: Invalid nonce and state')
             }
 
             // This is NOT a `TokenSet` record from our schema
-            const tokenSet = await this.sbbolAuthApi.completeAuth(req, req.session[SBBOL_SESSION_KEY])
+            const tokenSet = await sbbolAuthApi.completeAuth(req, req.session[SBBOL_SESSION_KEY])
             const { keystone } = await getSchemaCtx('User')
             const { access_token } = tokenSet
-            const userInfo = await this.sbbolAuthApi.fetchUserInfo(access_token)
+            const userInfo = await sbbolAuthApi.fetchUserInfo(access_token)
             const errors = getSbbolUserInfoErrors(userInfo)
             if (errors.length) {
                 await sendToDeveloper('SBBOL_INVALID_USERINFO', { userInfo, errors })
