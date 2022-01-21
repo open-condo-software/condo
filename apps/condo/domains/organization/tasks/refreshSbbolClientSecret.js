@@ -1,17 +1,13 @@
 const conf = require('@core/config')
 const faker = require('faker')
-const dayjs = require('dayjs')
-const { logger: baseLogger } = require('../integrations/sbbol/common')
 const { createCronTask } = require('@core/keystone/tasks')
 const { SbbolCredentials } = require('@condo/domains/organization/integrations/sbbol/SbbolCredentials')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 
-const logger = baseLogger.child({ module: 'refreshSbbolClientSecret' })
-
-
 /**
- * Syncs new and cancelled subscriptions
+ * Changing of a client secret is performed daily for security reasons
+ * Previously we were comparing current time with `clientSecretExpiresAt` and decided, whether change is needed.
  */
 const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1 * * *', async () => {
     const credentialsManager = new SbbolCredentials()
@@ -27,16 +23,11 @@ const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1
     // the value. To be sure that we have a current value of client secret, fallback to environment variable
     const currentClientSecret = tokenSet.clientSecret || SBBOL_AUTH_CONFIG.client_secret
 
-    const now = dayjs()
-    if (now.isBefore(dayjs(tokenSet.clientSecretExpiresAt))) {
-        logger.info('No need to change client secret', { clientSecretExpiresAt: tokenSet.clientSecretExpiresAt } )
-    } else {
-        await credentialsManager.changeClientSecret({
-            clientId: SBBOL_AUTH_CONFIG.client_id,
-            currentClientSecret,
-            newClientSecret: faker.random.alphaNumeric(8),
-        })
-    }
+    await credentialsManager.changeClientSecret({
+        clientId: SBBOL_AUTH_CONFIG.client_id,
+        currentClientSecret,
+        newClientSecret: faker.random.alphaNumeric(8),
+    })
 })
 
 module.exports = refreshSbbolClientSecret
