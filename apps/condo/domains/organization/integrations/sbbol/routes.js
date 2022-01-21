@@ -34,6 +34,9 @@ async function sendToDeveloper (type, data) {
 
 class SbbolRoutes {
 
+    // TODO(antonal): find a way to initialize `SbbolOauth2Api` with `clientSecret` from `TokenSet` in `SbbolRoutes`
+    // This method is called from `apps/condo/index`, but it actually needs `apps/condo/index` to be initialized to get Kestone context
+    // to query `TokenSet` schema. So, we have a "Chicken or Egg" problem in current implementation.
     async initialize() {
         let tokenSet
         try {
