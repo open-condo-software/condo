@@ -27,7 +27,9 @@ async function getOrganizationAccessToken (organizationImportId) {
     }
     const isAccessTokenExpired = dayjs(dayjs()).isAfter(tokenSet.accessTokenExpiresAt)
     if (isAccessTokenExpired) {
-        const oauth2 = new SbbolOauth2Api()
+        const oauth2 = new SbbolOauth2Api({
+            clientSecret: tokenSet.clientSecret,
+        })
         const { access_token, refresh_token, expires_at } = await oauth2.refreshToken(tokenSet.refreshToken)
         await TokenSet.update(adminContext, tokenSet.id, {
             accessToken: access_token,
