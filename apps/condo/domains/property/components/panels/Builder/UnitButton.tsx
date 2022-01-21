@@ -112,10 +112,9 @@ const previewCss = css`
 `
 const noninteractiveCss = css`
     cursor: default;
-    pointer-events: none;
     &:after {
         animation: none !important;
-    }    
+    }
     &:hover, &:focus, &:active {
         background-color: #F5F5F5;
         color: black;
@@ -130,6 +129,11 @@ interface CustomButtonProps extends ButtonProps {
     preview?: boolean
     ellipsis?: boolean
 }
+const TOOLTIP_OVERLAY_STYLE: React.CSSProperties = {
+    background: colors.white,
+    color: colors.black,
+    borderRadius: '12px',
+}
 
 export const UnitButton: React.FC<CustomButtonProps> = (props) => {
     const { secondary, selected, preview, noninteractive, ellipsis = true, children, ...restProps } = props
@@ -142,7 +146,12 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
             ButtonLabel = `${ButtonLabel.substring(0, 2)}…`
         }
         return (
-            <Tooltip placement='topLeft' title={OriginalLabel}>
+            <Tooltip
+                placement='topLeft'
+                title={OriginalLabel}
+                color={colors.white}
+                overlayInnerStyle={TOOLTIP_OVERLAY_STYLE}
+            >
                 <Button css={css`
                     ${buttonCss};
                     ${selected ? selectedCss : ''};
