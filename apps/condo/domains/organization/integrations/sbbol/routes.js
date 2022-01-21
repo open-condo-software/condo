@@ -4,6 +4,9 @@ const { generators } = require('openid-client') // certified openid client will 
 const { getSchemaCtx } = require('@core/keystone/schema')
 const conf = require('@core/config')
 
+const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
+const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
+
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 
@@ -12,6 +15,7 @@ const { SbbolOauth2Api } = require('./oauth2')
 const sync = require('./sync')
 const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
 const { dvSenderFields } = require('./constants')
+const { getOrganizationAccessToken } = require('./accessToken')
 
 const DEVELOPER_EMAIL = conf.DEVELOPER_EMAIL
 
@@ -29,8 +33,24 @@ async function sendToDeveloper (type, data) {
 }
 
 class SbbolRoutes {
-    constructor () {
-        this.helper = new SbbolOauth2Api()
+
+    async initialize() {
+        let tokenSet
+        try {
+            const result = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+            tokenSet = result.tokenSet
+        } catch (e) {
+            if (!e.message.match('[tokens:expired]')) {
+                throw e
+            }
+        }
+
+        // In case when we we have not logged in using partner account in SBBOL, take the value from environment
+        const clientSecret = tokenSet && tokenSet.clientSecret ? tokenSet.clientSecret : SBBOL_AUTH_CONFIG.client_secret
+
+        this.helper = new SbbolOauth2Api({
+            clientSecret,
+        })
     }
 
     async startAuth (req, res, next) {
