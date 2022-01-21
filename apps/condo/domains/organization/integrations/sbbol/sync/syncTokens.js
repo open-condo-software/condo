@@ -58,6 +58,12 @@ const syncTokens = async ({ context, tokenInfoFromOAuth, organization, user }) =
     if (currentTokenSet) {
         await TokenSetAPI.update(adminContext, currentTokenSet.id, item)
     } else {
+        // Each user, created from data, provided by SBBOL, will have a corresponding record in a `TokenSet` table.
+        // Actually, only one `TokenSet` record, that corresponds to our account as a partner of SBBOL,
+        // will be used for server-server interaction with SBBOL API,
+        // Another SBBOL accounts representing our clients. Yet there is no business cases, that require
+        // to authorize requests to SBBOL API from an account of our client.
+        // But keep them saved for the future.
         await TokenSetAPI.create(adminContext, {
             ...connectOwner,
             ...item,
