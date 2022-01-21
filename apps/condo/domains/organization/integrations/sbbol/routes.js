@@ -34,10 +34,7 @@ async function sendToDeveloper (type, data) {
 
 class SbbolRoutes {
 
-    // TODO(antonal): find a way to initialize `SbbolOauth2Api` with `clientSecret` from `TokenSet` in `SbbolRoutes`
-    // This method is called from `apps/condo/index`, but it actually needs `apps/condo/index` to be initialized to get Kestone context
-    // to query `TokenSet` schema. So, we have a "Chicken or Egg" problem in current implementation.
-    async initialize() {
+    async initialize () {
         let tokenSet
         try {
             const result = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
@@ -54,9 +51,13 @@ class SbbolRoutes {
         this.helper = new SbbolOauth2Api({
             clientSecret,
         })
+        this.initialized = true
     }
 
     async startAuth (req, res, next) {
+        if (!this.initialized) {
+            await this.initialize()
+        }
         // nonce: to prevent several callbacks from same request
         // state: to validate user browser on callback
         const checks = { nonce: generators.nonce(), state: generators.state() }
