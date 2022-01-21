@@ -24,8 +24,9 @@ const RESEND_MESSAGE = gql`
     }
 `
 
-const PUSH_TOKEN_FIELDS = '{ id deviceId token serviceType meta owner { id } }'
-const PUSH_TOKEN_FIELDS_WITH_COMMON = `{ id deviceId token serviceType meta owner { id } ${COMMON_FIELDS}}`
+const PUSH_TOKEN_REQUIRED_FIELDS = 'deviceId token serviceType meta owner { id }'
+const PUSH_TOKEN_FIELDS = `{id ${PUSH_TOKEN_REQUIRED_FIELDS}}`
+const PUSH_TOKEN_FIELDS_WITH_COMMON = `{${PUSH_TOKEN_REQUIRED_FIELDS} ${COMMON_FIELDS}}`
 
 const PushToken = generateGqlQueries('PushToken', PUSH_TOKEN_FIELDS_WITH_COMMON)
 

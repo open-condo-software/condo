@@ -49,6 +49,7 @@ const PushToken = new GQLListSchema('PushToken', {
             isRequired: true,
             kmigratorOptions: { null: false },
         },
+
         meta: {
             schemaDoc: 'Device metadata. OS type, OS version, etc.',
             type: Json,

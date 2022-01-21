@@ -6,7 +6,6 @@
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, makeLoggedInClient } = require('@core/keystone/test.utils')
 
-// const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const {
     expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObjects,
@@ -155,7 +154,10 @@ describe('PushToken', () => {
         const admin = await makeLoggedInAdminClient()
         const admin1 = await makeLoggedInAdminClient()
         const [objCreated] = await createTestPushToken(admin)
-        const payload = { owner: { disconnectAll: true, connect: { id: admin1.user.id } } }
+        const payload = {
+            owner: { disconnectAll: true, connect: { id: admin1.user.id } },
+            deviceId: objCreated.deviceId,
+        }
         const [objUpdated] = await updateTestPushToken(admin1, objCreated.id, payload)
 
         expect(objUpdated.id).toEqual(objCreated.id)
@@ -166,7 +168,10 @@ describe('PushToken', () => {
         const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestPushToken(admin)
         const client = await makeClient()
-        const payload = { owner: { disconnectAll: true } }
+        const payload = {
+            owner: { disconnectAll: true },
+            deviceId: objCreated.deviceId,
+        }
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestPushToken(client, objCreated.id, payload)
@@ -177,7 +182,10 @@ describe('PushToken', () => {
         const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestPushToken(admin)
         const client = await makeLoggedInClient()
-        const payload = { owner: { disconnectAll: true } }
+        const payload = {
+            owner: { disconnectAll: true },
+            deviceId: objCreated.deviceId,
+        }
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestPushToken(client, objCreated.id, payload)
