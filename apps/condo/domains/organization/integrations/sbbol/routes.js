@@ -48,7 +48,7 @@ class SbbolRoutes {
         // In case when we we have not logged in using partner account in SBBOL, take the value from environment
         const clientSecret = tokenSet && tokenSet.clientSecret ? tokenSet.clientSecret : SBBOL_AUTH_CONFIG.client_secret
 
-        this.helper = new SbbolOauth2Api({
+        this.sbbolAuthApi = new SbbolOauth2Api({
             clientSecret,
         })
         this.initialized = true
@@ -64,7 +64,7 @@ class SbbolRoutes {
         req.session[SBBOL_SESSION_KEY] = checks
         await req.session.save()
         try {
-            const redirectUrl = this.helper.authorizationUrlWithParams(checks)
+            const redirectUrl = this.sbbolAuthApi.authorizationUrlWithParams(checks)
             return res.redirect(redirectUrl)
         } catch (error) {
             return next(error)
@@ -78,10 +78,10 @@ class SbbolRoutes {
             }
 
             // This is NOT a `TokenSet` record from our schema
-            const tokenSet = await this.helper.completeAuth(req, req.session[SBBOL_SESSION_KEY])
+            const tokenSet = await this.sbbolAuthApi.completeAuth(req, req.session[SBBOL_SESSION_KEY])
             const { keystone } = await getSchemaCtx('User')
             const { access_token } = tokenSet
-            const userInfo = await this.helper.fetchUserInfo(access_token)
+            const userInfo = await this.sbbolAuthApi.fetchUserInfo(access_token)
             const errors = getSbbolUserInfoErrors(userInfo)
             if (errors.length) {
                 await sendToDeveloper('SBBOL_INVALID_USERINFO', { userInfo, errors })
