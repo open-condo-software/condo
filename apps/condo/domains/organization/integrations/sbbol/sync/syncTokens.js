@@ -61,7 +61,12 @@ const syncTokens = async ({ context, tokenInfoFromOAuth, organization, user }) =
         await TokenSetAPI.create(adminContext, {
             ...connectOwner,
             ...item,
-            clientSecret: SBBOL_AUTH_CONFIG.client_secret, // Save client_secret only for first time. Later it will be refreshed by script
+            // It will be changed by `refreshSbbolClientSecret` cron-job periodically.
+            // Expiration date of client secret is unknown at this stage.
+            // By default, the client secret expires in 40 days after it was initialized or changed.
+            // So, a newly created `TokenSet` record will have `null` value in `clientSecretExpiresAt`,
+            // and this way it will be changed in next run of `refreshSbbolClientSecret` cron-job.
+            clientSecret: SBBOL_AUTH_CONFIG.client_secret,
         })
     }
 }
