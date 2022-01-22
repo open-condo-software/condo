@@ -7,6 +7,7 @@ import { Gutter } from 'antd/es/grid/row'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { DiffOutlined } from '@ant-design/icons'
+import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 
 import {
     PageHeader,
@@ -33,6 +34,7 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
+import { EXPORT_CONTACTS_TO_EXCEL } from '@app/condo/domains/contact/gql'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -168,6 +170,12 @@ export const ContactsPageContent = ({
                                             onRow={handleRowAction}
                                         />
                                     </Col>
+                                    <ExportToExcelActionBar
+                                        hidden={isSmall}
+                                        searchObjectsQuery={searchContactsQuery}
+                                        sortBy={sortBy}
+                                        exportToExcelQuery={EXPORT_CONTACTS_TO_EXCEL}
+                                    />
                                 </Row>
                             )
                     }
