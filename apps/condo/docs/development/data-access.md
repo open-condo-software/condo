@@ -26,7 +26,7 @@ Can have custom GraphQL data types for input and output.
 
 - `GqlWithKnexLoadList` solves "N+1" problem
 - `getByCondition`, `getById` from `@core/keystone/schema` module:
-  - returning data in database-specific format
+  - returning data from database adapter
   - skipping access control checks on Keystone level
   - should be used in:
     - mutations to resolve results
