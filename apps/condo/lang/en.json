@@ -642,6 +642,8 @@
   "SendVerificationCode": "Send verification code",
   "ServerError": "Server error",
   "ServerErrorPleaseTryAgainLater": "There are problems on the server, try to visit the page after a while",
+  "TooManyRequests": "Too many requests, please try again later",
+  "NetworkError": "Network error occurred, please try again later",
   "Share": "Share…",
   "SendTicketToEmail": "Send ticket to email",
   "ToEmployeesEmail": "To employee's email",

@@ -1,15 +1,13 @@
+import React, { useContext, useState } from 'react'
 import { Form, Typography, Row, Col } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
-
 import  { useRouter } from 'next/router'
-import React, { useContext, useState } from 'react'
-import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useMutation } from '@core/next/apollo'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
-import { WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
+import { WRONG_PHONE_ERROR, TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { LOCK_TIMEOUT } from '@condo/domains/user/constants/common'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
@@ -21,8 +19,6 @@ import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { Loader } from '@condo/domains/common/components/Loader'
-
-const LINK_STYLE = { color: colors.sberPrimary[7] }
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
@@ -36,10 +32,9 @@ function ResetPageView () {
     const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
     const InstructionsMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
     const PhoneIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotRegistered' })
-    const CheckPhoneMsg = intl.formatMessage({ id: 'pages.auth.reset.CheckPhone' })
-    const ReturnToLoginPage = intl.formatMessage({ id: 'pages.auth.reset.ReturnToLoginPage' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
+    const TooManyRequestsMsg = intl.formatMessage({ id: 'TooManyRequests' })
 
     const [form] = Form.useForm()
     const { executeRecaptcha } = useGoogleReCaptcha()
@@ -55,6 +50,10 @@ function ResetPageView () {
         [WRONG_PHONE_ERROR]: {
             name: 'phone',
             errors: [PhoneIsNotRegisteredMsg],
+        },
+        [TOO_MANY_REQUESTS]: {
+            name: 'phone',
+            errors: [TooManyRequestsMsg],
         },
     }
 
@@ -79,9 +78,9 @@ function ResetPageView () {
         }
         const captcha = await executeRecaptcha('start_confirm_phone')
         if (!captcha) {
-            return 
+            return
         }
-        
+
         const sender = getClientSideSenderInfo()
         const dv = 1
         let { phone } = form.getFieldsValue(['phone'])
@@ -118,7 +117,7 @@ function ResetPageView () {
                 <Col span={24}>
                     <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
                 </Col>
-                <Col span={24}> 
+                <Col span={24}>
                     <Form
                         {...FORM_LAYOUT}
                         form={form}
