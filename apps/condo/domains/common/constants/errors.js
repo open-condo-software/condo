@@ -19,6 +19,7 @@ const NOT_FOUND_ERROR = '[constrain:notFound:'
 const WRONG_TEXT_FORMAT = '[text:wrongFormat:'
 
 const EMPTY_DATA_EXPORT_ERROR = '[export.empty.data'
+const NETWORK_ERROR = 'failed to fetch'
 
 module.exports = {
     PHONE_WRONG_FORMAT_ERROR,
@@ -27,7 +28,7 @@ module.exports = {
     JSON_EXPECT_OBJECT_ERROR,
     JSON_EXPECT_ARRAY_ERROR,
     JSON_NO_NULL_ERROR,
-    JSON_SCHEMA_VALIDATION_ERROR,    
+    JSON_SCHEMA_VALIDATION_ERROR,
     UNIQUE_ALREADY_EXISTS_ERROR,
     REQUIRED_NO_VALUE_ERROR,
     DV_UNKNOWN_VERSION_ERROR,
@@ -36,4 +37,5 @@ module.exports = {
     STATUS_UPDATED_AT_ERROR,
     WRONG_TEXT_FORMAT,
     EMPTY_DATA_EXPORT_ERROR,
+    NETWORK_ERROR,
 }

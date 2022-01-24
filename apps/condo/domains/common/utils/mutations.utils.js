@@ -1,4 +1,5 @@
 import { notification } from 'antd'
+import { NETWORK_ERROR } from '@condo/domains/common/constants/errors'
 
 function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
     if (!intl) throw new Error('intl prop required')
@@ -62,6 +63,9 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                     // we want to SKIP any notifications
                 } else if (typeof OnErrorMsg === 'undefined') {
                     // default notification message
+                    if (e.message.toLowerCase() === NETWORK_ERROR) {
+                        friendlyDescription = intl.formatMessage({ id: 'NetworkError' })
+                    }
                     notificationContext = {
                         message: ServerErrorMsg,
                         description: friendlyDescription || e.message,

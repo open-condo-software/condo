@@ -10,6 +10,7 @@ import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useLazyQuery, useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
+import { RESET_TOKEN_NOT_FOUND } from '@condo/domains/user/constants/errors'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
@@ -47,7 +48,12 @@ const ChangePasswordPage: AuthPage = () => {
     const ChangePasswordTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorMessage' })
     const ChangePasswordTokenErrorConfirmLabel = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorConfirmLabel' })
 
-    const ErrorToFormFieldMsgMapping = {}
+    const ErrorToFormFieldMsgMapping = {
+        [RESET_TOKEN_NOT_FOUND]: {
+            name: 'token',
+            errors: [ChangePasswordTokenErrorLabel],
+        },
+    }
 
     const { requiredValidator, changeMessage, minLengthValidator } = useValidations()
     const minPasswordLengthValidator = changeMessage(minLengthValidator(MIN_PASSWORD_LENGTH), PasswordIsTooShortMsg)
