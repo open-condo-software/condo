@@ -7463,6 +7463,18 @@ export type ExportTicketsToExcelOutput = {
   linkToFile: Scalars['String'];
 };
 
+export type ExportContactsToExcelInput = {
+    where: ContactWhereInput;
+    sortBy?: Maybe<Array<SortContactsBy>>;
+    timeZone: Scalars['String'];
+};
+
+export type ExportContactsToExcelOutput = {
+    __typename?: 'ExportContactsToExcelOutput';
+    status: Scalars['String'];
+    linkToFile: Scalars['String'];
+};
+
 export type FeeDistributionField = {
   __typename?: 'FeeDistributionField';
   recipient: Scalars['String'];
