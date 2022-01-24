@@ -12,7 +12,7 @@ import isNull from 'lodash/isNull'
 import get from 'lodash/get'
 import debounce from 'lodash/debounce'
 import isFunction from 'lodash/isFunction'
-import last from 'lodash/last'
+import isEmpty from 'lodash/isEmpty'
 import { useHotkeys } from 'react-hotkeys-hook'
 import {
     EmptyBuildingBlock,
