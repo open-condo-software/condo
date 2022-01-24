@@ -6,6 +6,9 @@ name: DEPLOY CONDO
 concurrency: nodejs.condo.deploy.yml
 
 on:
+  workflow_dispatch:
+    branches:
+      - '*'
   push:
     branches:
      - "master"
