@@ -4,9 +4,11 @@
  */
 
 const { Contact } = require('./Contact')
+const { ExportContactsService } = require('./ExportContactsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Contact,
+    ExportContactsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
