@@ -22,7 +22,7 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
             organization: { id: organizationId },
         },
     })
-    
+
     const earlierThanInstallationValidator: Rule = useMemo(() => ({
         validator: async (_, value) => {
             if (!value || !installationDate)
@@ -51,14 +51,14 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
 
     const meterWithSameNumberValidator: Rule = useMemo(() => ({
         validator: async (_, value) => {
-            await refetch({
+            const { data: { objs } } = await refetch({
                 where: {
                     organization: { id: organizationId },
                     number: value,
                 },
             })
 
-            if (!isEmpty(metersWithSameNumber))
+            if (!isEmpty(objs))
                 return Promise.reject(MeterWithSameNumberIsExistMessage)
 
             return Promise.resolve()
