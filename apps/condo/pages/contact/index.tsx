@@ -175,7 +175,7 @@ export const ContactsPageContent = ({
                                         searchObjectsQuery={searchContactsQuery}
                                         sortBy={sortBy}
                                         exportToExcelQuery={EXPORT_CONTACTS_TO_EXCEL}
-                                        useTimezone={false}
+                                        useTimeZone={false}
                                     />
                                 </Row>
                             )

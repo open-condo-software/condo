@@ -12,11 +12,11 @@ interface IExportToExcelActionBarProps {
     sortBy: string
     searchObjectsQuery: string
     exportToExcelQuery: DocumentNode
-    useTimezone?: boolean
+    useTimeZone?: boolean
 }
 
 export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (props) => {
-    const { searchObjectsQuery, sortBy, exportToExcelQuery, hidden = false, useTimezone = true } = props
+    const { searchObjectsQuery, sortBy, exportToExcelQuery, hidden = false, useTimeZone = true } = props
 
     const intl = useIntl()
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
@@ -42,9 +42,9 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
     )
 
     const variablesData = { where: searchObjectsQuery, sortBy: sortBy, timeZone: undefined }
-    const deps = [exportToExcel, searchObjectsQuery, sortBy, timeZone]
+    const deps = [exportToExcel, searchObjectsQuery, sortBy]
 
-    if (useTimezone) {
+    if (useTimeZone) {
         variablesData.timeZone = timeZone
         deps.push(timeZone)
     }
