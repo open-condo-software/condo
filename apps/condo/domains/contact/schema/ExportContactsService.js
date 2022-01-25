@@ -10,6 +10,8 @@ const utc = require('dayjs/plugin/utc')
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+const CONTACTS_EXPORT_TEMPLATE_PATH = './domains/contact/templates/ContactsExportTemplate.xlsx'
+
 const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
     types: [
         {
@@ -42,7 +44,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
                 })
                 const linkToFile = await createExportFile({
                     fileName: `contacts_${dayjs().format('DD_MM')}.xlsx`,
-                    templatePath: './domains/contact/templates/ContactsExportTemplate.xlsx',
+                    templatePath: CONTACTS_EXPORT_TEMPLATE_PATH,
                     replaces: { contacts: excelRows },
                     meta: {
                         listkey: 'Contact',
