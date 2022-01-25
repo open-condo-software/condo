@@ -29,7 +29,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
                 const { where, sortBy } = args.data
                 const contacts = await loadContactsForExcelExport({ where, sortBy })
                 if (contacts.length === 0) {
-                    throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
+                    throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] no contacts found to export`)
                 }
                 const excelRows = contacts.map(contact => {
                     return {
