@@ -17,7 +17,6 @@ describe('ExportContactsService', () => {
                 data: {
                     where: { organization: { id: client.organization.id } },
                     sortBy: 'id_ASC',
-                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
                 },
             }
             const { data: { result: { status, linkToFile } } } = await client.query(EXPORT_CONTACTS_TO_EXCEL, variables)
@@ -37,7 +36,6 @@ describe('ExportContactsService', () => {
                 data: {
                     where: { organization: { id: client2.organization.id } },
                     sortBy: 'id_ASC',
-                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
                 },
             }
             const { data: { result }, errors } = await client.query(EXPORT_CONTACTS_TO_EXCEL, variables)
@@ -57,7 +55,6 @@ describe('ExportContactsService', () => {
                 data: {
                     where: { organization: { id: client2.organization.id } },
                     sortBy: 'id_ASC',
-                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
                 },
             })
             expect(result).toBeNull()
