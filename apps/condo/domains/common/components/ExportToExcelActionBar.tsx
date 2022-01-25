@@ -3,7 +3,7 @@ import { useLazyQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 import { Form, notification } from 'antd'
 import { DocumentNode } from 'graphql'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import ActionBar from './ActionBar'
 import { Button } from './Button'
 
@@ -40,6 +40,10 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
             },
         },
     )
+
+    useEffect(() => {
+        setDownloadLink(null)
+    }, [searchObjectsQuery, sortBy, exportToExcelQuery, timeZone])
 
     const variablesData = { where: searchObjectsQuery, sortBy: sortBy, timeZone: undefined }
     const deps = [exportToExcel, searchObjectsQuery, sortBy]
