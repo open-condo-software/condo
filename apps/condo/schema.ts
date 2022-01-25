@@ -7466,7 +7466,6 @@ export type ExportTicketsToExcelOutput = {
 export type ExportContactsToExcelInput = {
     where: ContactWhereInput;
     sortBy?: Maybe<Array<SortContactsBy>>;
-    timeZone: Scalars['String'];
 };
 
 export type ExportContactsToExcelOutput = {

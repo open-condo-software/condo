@@ -1,11 +1,9 @@
-import React, { useCallback, useState } from 'react'
-import { DocumentNode } from 'graphql'
-import { Form, notification } from 'antd'
 import { DatabaseFilled } from '@ant-design/icons'
-
 import { useLazyQuery } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
-
+import { Form, notification } from 'antd'
+import { DocumentNode } from 'graphql'
+import React, { useCallback, useState } from 'react'
 import ActionBar from './ActionBar'
 import { Button } from './Button'
 
@@ -14,10 +12,11 @@ interface IExportToExcelActionBarProps {
     sortBy: string
     searchObjectsQuery: string
     exportToExcelQuery: DocumentNode
+    useTimezone?: boolean
 }
 
 export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (props) => {
-    const { searchObjectsQuery, sortBy, exportToExcelQuery, hidden = false } = props
+    const { searchObjectsQuery, sortBy, exportToExcelQuery, hidden = false, useTimezone = true } = props
 
     const intl = useIntl()
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
@@ -42,9 +41,17 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         },
     )
 
+    const variablesData = { where: searchObjectsQuery, sortBy: sortBy, timeZone: undefined }
+    const deps = [exportToExcel, searchObjectsQuery, sortBy, timeZone]
+
+    if (useTimezone) {
+        variablesData.timeZone = timeZone
+        deps.push(timeZone)
+    }
+
     const handleExportToExcel = useCallback(() => {
-        exportToExcel({ variables: { data: { where: searchObjectsQuery, sortBy: sortBy, timeZone } } })
-    }, [exportToExcel, searchObjectsQuery, sortBy, timeZone])
+        exportToExcel({ variables: { data: variablesData } })
+    }, deps)
 
     return (
         <Form.Item noStyle>
@@ -54,11 +61,11 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
                         ?
                         <Button
                             type={'inlineLink'}
-                            icon={<DatabaseFilled />}
+                            icon={<DatabaseFilled/>}
                             loading={isXlsLoading}
-                            target='_blank'
+                            target="_blank"
                             href={downloadLink}
-                            rel='noreferrer'
+                            rel="noreferrer"
                         >
                             {DownloadExcelLabel}
                         </Button>
@@ -66,7 +73,7 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
                         <Button
                             type={'sberPrimary'}
                             secondary
-                            icon={<DatabaseFilled />}
+                            icon={<DatabaseFilled/>}
                             loading={isXlsLoading}
                             onClick={handleExportToExcel}
                         >
