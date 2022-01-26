@@ -7,9 +7,11 @@ import {
     Columns,
     ProcessedRow,
     ImporterErrorMessages,
-    MAX_TABLE_LENGTH,
 } from '@condo/domains/common/utils/importer'
 import { useIntl } from '@core/next/intl'
+
+const MAX_TABLE_LENGTH = 500
+const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -48,7 +50,7 @@ export const useImporter = (columns: Columns,
         setProgress(0)
         setTotalRows(Math.max(0, data.length - 1))
 
-        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors)
+        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors, SLEEP_INTERVAL_BEFORE_QUERIES, MAX_TABLE_LENGTH)
         importer.current.onProgressUpdate(setProgress)
         importer.current.onError((e) => {
             importer.current = null

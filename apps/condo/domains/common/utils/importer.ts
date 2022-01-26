@@ -46,8 +46,6 @@ export interface ColumnInfo {
     label: string
 }
 
-const SLEEP_INTERVAL_BEFORE_QUERIES = 300
-export const MAX_TABLE_LENGTH = 500
 
 export class Importer implements IImporter {
     constructor (
@@ -56,8 +54,8 @@ export class Importer implements IImporter {
         private rowValidator: RowValidator,
         private objectCreator: ObjectCreator,
         private errors: ImporterErrorMessages,
-        private sleepInterval: number = SLEEP_INTERVAL_BEFORE_QUERIES,
-        private maxTableLength: number = MAX_TABLE_LENGTH
+        private sleepInterval: number,
+        private maxTableLength: number,
     ) {
         this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
         this.columnsTypes = columnsTemplate.map(column => column.type)
