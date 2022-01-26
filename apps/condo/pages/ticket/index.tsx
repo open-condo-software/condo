@@ -55,7 +55,7 @@ export const TicketsPageContent = ({
     searchTicketsQuery,
     sortBy,
     filterMetas,
-}) => {
+}): JSX.Element => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
