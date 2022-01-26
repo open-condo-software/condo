@@ -133,10 +133,14 @@ export const TicketsPageContent = ({
                                 <Row gutter={ROW_GUTTER} align={'middle'} justify={'center'}>
                                     <Col span={23}>
                                         <FocusContainer padding={'16px'}>
-                                            <Row justify={'space-between'} gutter={TAP_BAR_ROW_GUTTER}>
-                                                <Col xs={24} lg={12}>
-                                                    <Row gutter={TOP_BAR_FIRST_COLUMN_GUTTER} align={'middle'}>
-                                                        <Col xs={24} sm={24} lg={24} xxl={9}>
+                                            <Row justify={'end'} gutter={TAP_BAR_ROW_GUTTER}>
+                                                <Col flex={'auto'}>
+                                                    <Row
+                                                        gutter={TOP_BAR_FIRST_COLUMN_GUTTER}
+                                                        align={'middle'}
+                                                        justify={'start'}
+                                                    >
+                                                        <Col xs={24} md={8}>
                                                             <Input
                                                                 placeholder={SearchPlaceholder}
                                                                 onChange={(e) => {
@@ -145,42 +149,47 @@ export const TicketsPageContent = ({
                                                                 value={search}
                                                             />
                                                         </Col>
-                                                        <Col xs={24} sm={8} md={6} lg={8} xxl={5}>
-                                                            <Checkbox
-                                                                onChange={handleEmergencyChange}
-                                                                checked={emergency}
-                                                                style={CHECKBOX_STYLE}
-                                                            >
-                                                                {EmergenciesLabel}
-                                                            </Checkbox>
-                                                        </Col>
-                                                        <Col xs={24} sm={8} md={6} lg={8} xxl={5}>
-                                                            <Checkbox
-                                                                onChange={handlePaidChange}
-                                                                checked={paid}
-                                                                style={CHECKBOX_STYLE}
-                                                            >
-                                                                {PaidLabel}
-                                                            </Checkbox>
-                                                        </Col>
-                                                        <Col xs={24} sm={8} md={6} lg={8} xxl={5}>
-                                                            <Checkbox
-                                                                onChange={handleWarrantyChange}
-                                                                checked={warranty}
-                                                                style={CHECKBOX_STYLE}
-                                                            >
-                                                                {WarrantiesLabel}
-                                                            </Checkbox>
+                                                        <Col xs={24} md={16}>
+                                                            <Row gutter={[8, 16]}>
+                                                                <Col>
+                                                                    <Checkbox
+                                                                        onChange={handleEmergencyChange}
+                                                                        checked={emergency}
+                                                                        style={CHECKBOX_STYLE}
+                                                                    >
+                                                                        {EmergenciesLabel}
+                                                                    </Checkbox>
+                                                                </Col>
+                                                                <Col>
+                                                                    <Checkbox
+                                                                        onChange={handlePaidChange}
+                                                                        checked={paid}
+                                                                        style={CHECKBOX_STYLE}
+                                                                    >
+                                                                        {PaidLabel}
+                                                                    </Checkbox>
+                                                                </Col>
+                                                                <Col>
+                                                                    <Checkbox
+                                                                        onChange={handleWarrantyChange}
+                                                                        checked={warranty}
+                                                                        style={CHECKBOX_STYLE}
+                                                                    >
+                                                                        {WarrantiesLabel}
+                                                                    </Checkbox>
+                                                                </Col>
+                                                            </Row>
                                                         </Col>
                                                     </Row>
                                                 </Col>
-                                                <Col xs={24} lg={12}>
-                                                    <Row justify={'end'}>
+                                                <Col flex={`${appliedFiltersCount > 0 ? 386 : 141}px`}>
+                                                    <Row justify={'end'} align={'middle'}>
                                                         {
                                                             appliedFiltersCount > 0 ? (
                                                                 <Col>
                                                                     <ResetFiltersModalButton
                                                                         filterTableKey={FILTER_TABLE_KEYS.TICKET}
+                                                                        size={'small'}
                                                                     />
                                                                 </Col>
                                                             ) : null
