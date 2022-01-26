@@ -17,6 +17,15 @@
  * Steps, described above, are presenting an one-off manual process.
  * Each step is supposed to be called manually and output is supposed to be read, stored (!)
  * and processed from console.
+ *
+ * @example
+ * ```shell
+ * cd apps/condo
+ * yarn node bin/sbbol/crypto.js get-crypto-info
+ * yarn node bin/sbbol/crypto.js post-csr
+ * yarn node bin/sbbol/crypto.js get-csr-state
+ * yarn node bin/sbbol/crypto.js activate-certificate
+ * ```
  */
 const conf = require('@core/config')
 const { getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/accessToken')
