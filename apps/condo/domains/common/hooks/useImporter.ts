@@ -13,9 +13,8 @@ import { useIntl } from '@core/next/intl'
 const MAX_TABLE_LENGTH = 500
 const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useImporter = (columns: Columns,
+interface IUseImporterProps {
+    columns: Columns,
     rowNormalizer: RowNormalizer,
     rowValidator: RowValidator,
     objectCreator: ObjectCreator,
@@ -23,7 +22,21 @@ export const useImporter = (columns: Columns,
     setSuccessRows: () => void,
     handleRowError: (row: ProcessedRow) => void,
     onFinish: () => void,
-    onError: () => void) => {
+    onError: () => void,
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const useImporter = ({
+    columns,
+    rowNormalizer,
+    rowValidator,
+    objectCreator,
+    setTotalRows,
+    setSuccessRows,
+    handleRowError,
+    onFinish,
+    onError,
+}: IUseImporterProps) => {
     const intl = useIntl()
     const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
         value: MAX_TABLE_LENGTH,
