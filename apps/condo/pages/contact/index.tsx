@@ -126,6 +126,7 @@ export const ContactsPageContent = ({
                                                                     accessCheck={canManageContacts}
                                                                     onFinish={refetch}
                                                                     columns={columns}
+                                                                    maxTableLength={500}
                                                                     rowNormalizer={contactNormalizer}
                                                                     rowValidator={contactValidator}
                                                                     objectCreator={contactCreator}

@@ -10,11 +10,11 @@ import {
 } from '@condo/domains/common/utils/importer'
 import { useIntl } from '@core/next/intl'
 
-const MAX_TABLE_LENGTH = 500
 const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 
 interface IUseImporterProps {
     columns: Columns,
+    maxTableLength: number,
     rowNormalizer: RowNormalizer,
     rowValidator: RowValidator,
     objectCreator: ObjectCreator,
@@ -28,6 +28,7 @@ interface IUseImporterProps {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useImporter = ({
     columns,
+    maxTableLength,
     rowNormalizer,
     rowValidator,
     objectCreator,
@@ -39,7 +40,7 @@ export const useImporter = ({
 }: IUseImporterProps) => {
     const intl = useIntl()
     const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
-        value: MAX_TABLE_LENGTH,
+        value: maxTableLength,
     })
     const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
         value: columns.map(column => `"${column.name}"`).join(', '),
@@ -63,7 +64,7 @@ export const useImporter = ({
         setProgress(0)
         setTotalRows(Math.max(0, data.length - 1))
 
-        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors, SLEEP_INTERVAL_BEFORE_QUERIES, MAX_TABLE_LENGTH)
+        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors, SLEEP_INTERVAL_BEFORE_QUERIES, maxTableLength)
         importer.current.onProgressUpdate(setProgress)
         importer.current.onError((e) => {
             importer.current = null

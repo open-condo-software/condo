@@ -31,6 +31,7 @@ interface IImportWrapperProps {
     accessCheck: boolean
     onFinish(): void
     columns: Columns
+    maxTableLength: number
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator
     objectCreator: ObjectCreator
@@ -86,6 +87,7 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         objectsName,
         accessCheck,
         columns,
+        maxTableLength,
         rowNormalizer,
         rowValidator,
         objectCreator,
@@ -136,6 +138,7 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         rowNormalizer,
         rowValidator,
         objectCreator,
+        maxTableLength,
         setTotalRows: setTotalRowsRef,
         setSuccessRows: setSuccessRowsRef,
         handleRowError,
