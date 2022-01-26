@@ -121,7 +121,7 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const clearErrors = () => {
         errors.current.splice(0, errors.current.length)
     }
-    const addError = (row: ProcessedRow) => {
+    const handleRowError = (row: ProcessedRow) => {
         errors.current.push(row)
     }
 
@@ -131,10 +131,15 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             activeModal.current = null
         }
     }
-    const [importData, progress, error, isImported, breakImport] = useImporter(
-        columns, rowNormalizer, rowValidator, objectCreator,
-        setTotalRowsRef, setSuccessRowsRef, addError,
-        () => {
+    const [importData, progress, error, isImported, breakImport] = useImporter({
+        columns,
+        rowNormalizer,
+        rowValidator,
+        objectCreator,
+        setTotalRows: setTotalRowsRef,
+        setSuccessRows: setSuccessRowsRef,
+        handleRowError,
+        onFinish: () => {
             const message = `${ImportSuccessMessage} [${successRowsRef.current}/${totalRowsRef.current}]`
             destroyActiveModal()
             if (errors.current.length > 0) {
@@ -146,12 +151,12 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 activeModal.current = modal.success(config)
             }
         },
-        () => {
+        onError: () => {
             destroyActiveModal()
             const config = getUploadErrorModalConfig(ImportTitle, ImportDefaultErrorMessage, ImportOKMessage)
             activeModal.current = modal.error(config)
-        }
-    )
+        },
+    })
 
     const handleUpload = useCallback((file) => {
         destroyActiveModal()
