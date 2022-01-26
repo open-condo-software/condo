@@ -75,7 +75,11 @@ export const TicketsPageContent = ({
     const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
+    const {
+        MultipleFiltersModal,
+        ResetFiltersModalButton,
+        setIsMultipleFiltersModalVisible,
+    } = useMultipleFiltersModal(filterMetas, FILTER_TABLE_KEYS.TICKET)
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
@@ -123,8 +127,8 @@ export const TicketsPageContent = ({
                             ? <EmptyListView
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
-                                createRoute='/ticket/create'
-                                createLabel={CreateTicket} />
+                                createRoute="/ticket/create"
+                                createLabel={CreateTicket}/>
                             : (
                                 <Row gutter={ROW_GUTTER} align={'middle'} justify={'center'}>
                                     <Col span={23}>
@@ -216,7 +220,7 @@ export const TicketsPageContent = ({
                                 </Row>
                             )
                     }
-                    <MultipleFiltersModal />
+                    <MultipleFiltersModal/>
                 </TablePageContent>
             </PageWrapper>
         </>
