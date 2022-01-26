@@ -34,6 +34,7 @@ import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportT
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunction'
+import { hasFeature } from '../../domains/common/components/containers/FeatureFlag'
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 
@@ -129,7 +130,7 @@ export const MetersPageContent = ({
                                                                 accessCheck={canManageMeterReadings}
                                                                 onFinish={refetch}
                                                                 columns={columns}
-                                                                maxTableLength={500}
+                                                                maxTableLength={hasFeature('bigger_limit_for_meter_import') ? 10000 : 500}
                                                                 rowNormalizer={meterReadingNormalizer}
                                                                 rowValidator={meterReadingValidator}
                                                                 objectCreator={meterReadingCreator}
