@@ -1,3 +1,4 @@
+import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import Form from 'antd/lib/form'
 import { Checkbox, Col, FormInstance, Input, Row, Select, Typography } from 'antd'
@@ -211,9 +212,15 @@ type ResetFiltersModalButtonProps = {
     filterTableKey?: FILTER_TABLE_KEYS
     handleReset?: () => void
     style?: CSSProperties
+    size?: SizeType
 }
 
-const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({ filterTableKey, handleReset: handleResetFromProps, style }) => {
+const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
+    filterTableKey,
+    handleReset: handleResetFromProps,
+    style,
+    size = 'large',
+}) => {
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
     const router = useRouter()
@@ -237,6 +244,7 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({ filte
             key={'reset'}
             type={'text'}
             onClick={handleReset}
+            size={size}
         >
             <Typography.Text strong type={'secondary'}>
                 {ClearAllFiltersMessage} <CloseOutlined style={CLEAR_ALL_MESSAGE_STYLE} />
