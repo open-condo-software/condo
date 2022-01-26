@@ -129,6 +129,7 @@ export const MetersPageContent = ({
                                                                 accessCheck={canManageMeterReadings}
                                                                 onFinish={refetch}
                                                                 columns={columns}
+                                                                maxTableLength={500}
                                                                 rowNormalizer={meterReadingNormalizer}
                                                                 rowValidator={meterReadingValidator}
                                                                 objectCreator={meterReadingCreator}
