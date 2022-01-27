@@ -34,7 +34,7 @@ import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportT
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunction'
-import { hasFeature } from '../../domains/common/components/containers/FeatureFlag'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 
