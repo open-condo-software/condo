@@ -3,13 +3,35 @@ const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/un
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const dayjs = require('dayjs')
 
-function addOrderToTicket (resolvedData, statusId) {
-    if (statusId === STATUS_IDS.OPEN) {
-        resolvedData.order = TICKET_ORDER_BY_STATUS[STATUS_IDS.OPEN]
-    } else {
-        resolvedData.order = null
+function addOrderToTicket (resolvedData) {
+    const statusId = get(resolvedData, 'status')
+    const timeFrame = dayjs(get(resolvedData, 'timeFrame', null))
+    let order = 0
+
+    console.log('resolvedData', resolvedData)
+
+    if (statusId) {
+        order += TICKET_ORDER_BY_STATUS[STATUS_IDS.OPEN]
     }
+
+    if (timeFrame) {
+        const now = dayjs()
+        const isLessThanOneDay = timeFrame.isSameOrBefore(now.add(1, 'day'))
+
+        if (isLessThanOneDay) {
+            if (timeFrame.startOf('day').isBefore(now)) {
+                order += 50
+            } else {
+                order += 100
+            }
+        } else {
+            order += 200
+        }
+    }
+
+    resolvedData.order = order
 }
 
 async function addClientInfoToResidentTicket (context, resolvedData) {
