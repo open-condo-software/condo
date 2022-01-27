@@ -3,7 +3,7 @@
 const mockLoggerError = jest.fn()
 
 const { buildBicryptId } = require('./buildBicryptId')
-const { catchSyncErrorFrom } = require('../../../../common/utils/testSchema')
+const { catchErrorFrom } = require('../../../../common/utils/testSchema')
 
 jest.mock('../common', () => ({
     logger: {
@@ -24,7 +24,7 @@ const checkValidationAgainstIncorrectValue = (field, invalidValue, errorFields) 
         certCenterNum: '01',
     }
     cryptoInfo[field] = invalidValue
-    catchSyncErrorFrom(() => {
+    catchErrorFrom(() => {
         buildBicryptId(cryptoInfo)
     }, e => {
         expect(e.message).toBe('Wrong format of arguments, passed to `buildBicryptId` function')
