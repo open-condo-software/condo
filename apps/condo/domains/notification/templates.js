@@ -107,17 +107,15 @@ async function renderTemplate (transport, message) {
                     text: `
                     Phone: ${userPhone}
                     Password: ${userPassword}
-
-                    Please follow link: ${serverUrl}/auth/signin
+                    -> ${serverUrl}
                 `,
                 }
             } else if (message.lang === RU_LOCALE) {
                 return {
                     text: `
-                    Номер телефона: ${userPhone}
+                    Тел: ${userPhone}
                     Пароль: ${userPassword}
-
-                    Ссылка для авторизации: ${serverUrl}/auth/signin
+                    -> ${serverUrl}
                 `,
                 }
             }
