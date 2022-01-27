@@ -90,7 +90,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
 }
 
 const INITIAL_TIMEFRAME_VALUE = dayjs(new Date()).add(2, 'day')
-const DISABLED_DATE = date => date.startOf('day').isBefore(dayjs().startOf('day'))
+const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
 
 const TicketFrameField = () => {
     const [isAutoDetectedValue, setIsAutoDetectedValue] = useState<boolean>(true)
@@ -114,7 +114,7 @@ const TicketFrameField = () => {
                             format='DD MMMM YYYY'
                             style={{ width: '100% ' }}
                             onChange={handleTicketFrameChange}
-                            disabledDate={DISABLED_DATE}
+                            disabledDate={isDateDisabled}
                         />
                     </Form.Item>
                 </Col>

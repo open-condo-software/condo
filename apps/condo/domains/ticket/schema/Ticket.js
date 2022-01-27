@@ -267,11 +267,8 @@ const Ticket = new GQLListSchema('Ticket', {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
-            const statusId = get(resolvedData, 'status')
 
-            if (statusId) {
-                addOrderToTicket(resolvedData, statusId)
-            }
+            addOrderToTicket(resolvedData)
 
             if (operation === 'create' && user && user.type === RESIDENT) {
                 await addClientInfoToResidentTicket(context, resolvedData)
