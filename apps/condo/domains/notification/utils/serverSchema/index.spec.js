@@ -1,7 +1,7 @@
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
 
 const { sendMessage, Message } = require('./index')
-const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('../../constants')
+const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('../../constants/constants')
 
 let keystone
 

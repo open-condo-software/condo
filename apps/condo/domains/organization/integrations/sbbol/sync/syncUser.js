@@ -2,7 +2,7 @@ const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js
 const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
+const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { dvSenderFields } = require('../constants')
 

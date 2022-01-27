@@ -1,14 +1,22 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const access = require('@condo/domains/notification/access/SendMessageService')
-const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS } = require('../constants')
 
 const { JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { ALPHANUMERIC_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { Message } = require('@condo/domains/notification/utils/serverSchema')
 
-const { MESSAGE_TYPES } = require('../constants')
-const { JSON_UNKNOWN_ATTR_NAME_ERROR, JSON_SUSPICIOUS_ATTR_NAME_ERROR, JSON_NO_REQUIRED_ATTR_ERROR, MESSAGE_META } = require('../constants')
+const { Message } = require('@condo/domains/notification/utils/serverSchema')
+const access = require('@condo/domains/notification/access/SendMessageService')
+
+const {
+    JSON_UNKNOWN_ATTR_NAME_ERROR,
+    JSON_SUSPICIOUS_ATTR_NAME_ERROR,
+    JSON_NO_REQUIRED_ATTR_ERROR,
+    MESSAGE_TYPES,
+    MESSAGE_META,
+    MESSAGE_SENDING_STATUS,
+    MESSAGE_RESENDING_STATUS,
+} = require('../constants/constants')
+
 const { deliveryMessage } = require('../tasks')
 
 async function checkSendMessageMeta (type, meta) {

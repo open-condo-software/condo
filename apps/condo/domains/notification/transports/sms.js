@@ -1,4 +1,4 @@
-const { SMS_TRANSPORT } = require('../constants')
+const { SMS_TRANSPORT } = require('../constants/constants')
 const { renderTemplate } = require('../templates')
 
 const { SMSAdapter } = require('@condo/domains/notification/adapters/smsAdapter')

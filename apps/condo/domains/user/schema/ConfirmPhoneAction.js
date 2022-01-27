@@ -25,7 +25,7 @@ const {
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
+const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const {
     LOCK_TIMEOUT,

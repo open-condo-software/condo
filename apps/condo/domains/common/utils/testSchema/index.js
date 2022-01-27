@@ -209,12 +209,21 @@ export const expectToThrowValidationFailureError = async (testFunc, messageConta
     })
 }
 
-export const expectToThrowMutationError = async (testFunc, messageContains, path = ['result']) => {
+export const expectToThrowMutationError = async (testFunc, messageContains, path = ['result'], name = 'GraphQLError') => {
     await catchErrorFrom(testFunc, ({errors}) => {
         expect(errors[0]).toMatchObject({
             message: expect.stringContaining(messageContains),
-            name: 'GraphQLError',
+            name,
             path
+        })
+    })
+}
+
+export const expectToThrowUserInputError = async (testFunc, messageContains, name = 'UserInputError') => {
+    await catchErrorFrom(testFunc, ({errors}) => {
+        expect(errors[0]).toMatchObject({
+            message: expect.stringContaining(messageContains),
+            name,
         })
     })
 }

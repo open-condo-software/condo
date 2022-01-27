@@ -6,7 +6,7 @@ const { uniqBy } = require('lodash')
 const conf = require('@core/config')
 const { dvSenderFields } = require('../constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants')
+const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const CUSTOMER_EMAIL = conf.NOTIFY_ABOUT_NEW_ORGANIZATION_EMAIL
 

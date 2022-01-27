@@ -23,10 +23,28 @@ const RESEND_MESSAGE = gql`
         result: resendMessage(data: $data) { status id }
     }
 `
+
+const NOTIFIABLE_DEVICE_REQUIRED_FIELDS = 'deviceId token serviceType meta owner { id }'
+const NOTIFIABLE_DEVICE_FIELDS = `{id ${NOTIFIABLE_DEVICE_REQUIRED_FIELDS}}`
+const NOTIFIABLE_DEVICE_FIELDS_WITH_COMMON = `{${NOTIFIABLE_DEVICE_REQUIRED_FIELDS} ${COMMON_FIELDS}}`
+
+const NotifiableDevice = generateGqlQueries('NotifiableDevice', NOTIFIABLE_DEVICE_FIELDS_WITH_COMMON)
+
+const SYNC_NOTIFIABLE_DEVICE_MUTATION = gql`
+    mutation syncNotifiableDevice ($data: SyncNotifiableDeviceInput!) {
+        result: syncNotifiableDevice(data: $data) ${NOTIFIABLE_DEVICE_FIELDS}
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Message,
-    SEND_MESSAGE, RESEND_MESSAGE,
+    SEND_MESSAGE,
+    RESEND_MESSAGE,
+
+    NotifiableDevice,
+    SYNC_NOTIFIABLE_DEVICE_MUTATION,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

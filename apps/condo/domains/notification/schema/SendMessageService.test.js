@@ -1,9 +1,13 @@
 const faker = require('faker')
 const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
-const { JSON_UNKNOWN_ATTR_NAME_ERROR } = require('@condo/domains/notification/constants')
+const {
+    MESSAGE_SENDING_STATUS,
+    MESSAGE_RESENDING_STATUS,
+    MESSAGE_DELIVERED_STATUS,
+    JSON_UNKNOWN_ATTR_NAME_ERROR,
+} = require('@condo/domains/notification/constants/constants')
 
 const { sendMessageByTestClient, resendMessageByTestClient, Message, createTestMessage } = require('../utils/testSchema')
-const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_DELIVERED_STATUS } = require('../constants')
 
 const { sleep } = require('@condo/domains/common/utils/sleep')
 

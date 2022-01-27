@@ -16,7 +16,7 @@ const {
     SMS_TRANSPORT,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     CUSTOMER_IMPORTANT_NOTE_TYPE,
-} = require('./constants')
+} = require('./constants/constants')
 
 async function renderTemplate (transport, message) {
     if (!MESSAGE_TRANSPORTS.includes(transport)) throw new Error('unexpected transport argument')

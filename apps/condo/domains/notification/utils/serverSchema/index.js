@@ -5,13 +5,19 @@
  */
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { MESSAGE_TYPES } = require('../../constants')
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
-const { Message: MessageGQL } = require('@condo/domains/notification/gql')
-/* AUTOGENERATE MARKER <IMPORT> */
+const {
+    Message: MessageGQL,
+    SEND_MESSAGE,
+    RESEND_MESSAGE,
+    NotifiableDevice: NotifiableDeviceGQL,
+    SYNC_NOTIFIABLE_DEVICE_MUTATION,
+} = require('@condo/domains/notification/gql')
 
-const { SEND_MESSAGE, RESEND_MESSAGE } = require('../../gql')
+const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
+
+/* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
 
@@ -46,9 +52,41 @@ async function resendMessage (context, data) {
     })
 }
 
+const NotifiableDevice = generateServerUtils(NotifiableDeviceGQL)
+
+/**
+ * Connects a device that could be sent push notifications with user and/or token
+ * Should be called for:
+ * 1. Registration of a device: required fields deviceId, optional fields: token + serviceType, user, meta
+ * 2. Connection of a device to current authorized user: required fields: deviceId
+ * 3. Update token value: required field: deviceId, token + serviceType (serviceType should always follow token, in order to select proper push transport)
+ * 4. Update meta value: required field: deviceId, meta
+ * @param context
+ * @param data
+ * @returns {Promise<*>}
+ */
+async function syncNotifiableDevice (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    if (!data.deviceId) throw new Error('no data.deviceId')
+    if (data.token && !data.serviceType) throw new Error('no data.serviceType')
+
+    return await execGqlWithoutAccess(context, {
+        query: SYNC_NOTIFIABLE_DEVICE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to syncNotifiableDevice',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    Message, sendMessage, resendMessage,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    Message,
+    sendMessage,
+    resendMessage,
+    NotifiableDevice,
+    syncNotifiableDevice,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

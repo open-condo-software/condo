@@ -4,16 +4,27 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const isEmpty = require('lodash/isEmpty')
+const sample = require('lodash/sample')
+
 const { getRandomString } = require('@core/keystone/test.utils')
-const { SEND_MESSAGE, RESEND_MESSAGE } = require('../../gql')
-const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('../../constants')
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
-const { Message: MessageGQL } = require('@condo/domains/notification/gql')
+const { DEVICE_SERVICE_TYPE_KEYS, INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+
+const {
+    Message: MessageGQL,
+    SEND_MESSAGE,
+    RESEND_MESSAGE,
+    NotifiableDevice: NotifiableDeviceGQL,
+    SYNC_NOTIFIABLE_DEVICE_MUTATION,
+} = require('@condo/domains/notification/gql')
+
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
+const NotifiableDevice = generateGQLTestUtils(NotifiableDeviceGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -87,9 +98,59 @@ async function resendMessageByTestClient (client, message, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
+async function createTestNotifiableDevice (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const deviceId = faker.datatype.uuid()
+    const serviceType = sample(DEVICE_SERVICE_TYPE_KEYS)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        deviceId,
+        serviceType,
+        owner: !isEmpty(client.user) ? { connect: { id: client.user.id } } : null,
+        ...extraAttrs,
+    }
+    const obj = await NotifiableDevice.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestNotifiableDevice (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        owner: !isEmpty(client.user) ? { disconnectAll: true, connect: { id: client.user.id } } : null,
+        ...extraAttrs,
+    }
+    const obj = await NotifiableDevice.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function syncNotifiableDeviceByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SYNC_NOTIFIABLE_DEVICE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Message, createTestMessage, updateTestMessage, sendMessageByTestClient, resendMessageByTestClient,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+        NotifiableDevice, createTestNotifiableDevice, updateTestNotifiableDevice,
+syncNotifiableDeviceByTestClient
+/* AUTOGENERATE MARKER <EXPORTS> */
 }
