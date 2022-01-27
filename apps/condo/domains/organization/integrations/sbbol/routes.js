@@ -5,7 +5,7 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const conf = require('@core/config')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants')
+const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const { getSbbolUserInfoErrors, SBBOL_SESSION_KEY } = require('./common')
 const { SbbolOauth2Api } = require('./oauth2')

@@ -11968,6 +11968,30 @@ export type Mutation = {
   deleteMessage?: Maybe<Message>;
   /**  Delete multiple Message items by ID.  */
   deleteMessages?: Maybe<Array<Maybe<Message>>>;
+  /**  Create a single NotifiableDeviceHistoryRecord item.  */
+  createNotifiableDeviceHistoryRecord?: Maybe<NotifiableDeviceHistoryRecord>;
+  /**  Create multiple NotifiableDeviceHistoryRecord items.  */
+  createNotifiableDeviceHistoryRecords?: Maybe<Array<Maybe<NotifiableDeviceHistoryRecord>>>;
+  /**  Update a single NotifiableDeviceHistoryRecord item by ID.  */
+  updateNotifiableDeviceHistoryRecord?: Maybe<NotifiableDeviceHistoryRecord>;
+  /**  Update multiple NotifiableDeviceHistoryRecord items by ID.  */
+  updateNotifiableDeviceHistoryRecords?: Maybe<Array<Maybe<NotifiableDeviceHistoryRecord>>>;
+  /**  Delete a single NotifiableDeviceHistoryRecord item by ID.  */
+  deleteNotifiableDeviceHistoryRecord?: Maybe<NotifiableDeviceHistoryRecord>;
+  /**  Delete multiple NotifiableDeviceHistoryRecord items by ID.  */
+  deleteNotifiableDeviceHistoryRecords?: Maybe<Array<Maybe<NotifiableDeviceHistoryRecord>>>;
+  /**  Create a single NotifiableDevice item.  */
+  createNotifiableDevice?: Maybe<NotifiableDevice>;
+  /**  Create multiple NotifiableDevice items.  */
+  createNotifiableDevices?: Maybe<Array<Maybe<NotifiableDevice>>>;
+  /**  Update a single NotifiableDevice item by ID.  */
+  updateNotifiableDevice?: Maybe<NotifiableDevice>;
+  /**  Update multiple NotifiableDevice items by ID.  */
+  updateNotifiableDevices?: Maybe<Array<Maybe<NotifiableDevice>>>;
+  /**  Delete a single NotifiableDevice item by ID.  */
+  deleteNotifiableDevice?: Maybe<NotifiableDevice>;
+  /**  Delete multiple NotifiableDevice items by ID.  */
+  deleteNotifiableDevices?: Maybe<Array<Maybe<NotifiableDevice>>>;
   /**  Create a single ContactHistoryRecord item.  */
   createContactHistoryRecord?: Maybe<ContactHistoryRecord>;
   /**  Create multiple ContactHistoryRecord items.  */
@@ -12396,6 +12420,7 @@ export type Mutation = {
   updateResidentTicket?: Maybe<ResidentTicketOutput>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
+  syncNotifiableDevice?: Maybe<SyncNotifiableDeviceOutput>;
   registerResident?: Maybe<Resident>;
   registerServiceConsumer?: Maybe<ServiceConsumer>;
   createOnBoardingByType?: Maybe<OnBoarding>;
@@ -14267,6 +14292,68 @@ export type MutationDeleteMessagesArgs = {
 };
 
 
+export type MutationCreateNotifiableDeviceHistoryRecordArgs = {
+  data?: Maybe<NotifiableDeviceHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateNotifiableDeviceHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<NotifiableDeviceHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateNotifiableDeviceHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<NotifiableDeviceHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateNotifiableDeviceHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<NotifiableDeviceHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteNotifiableDeviceHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteNotifiableDeviceHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateNotifiableDeviceArgs = {
+  data?: Maybe<NotifiableDeviceCreateInput>;
+};
+
+
+export type MutationCreateNotifiableDevicesArgs = {
+  data?: Maybe<Array<Maybe<NotifiableDevicesCreateInput>>>;
+};
+
+
+export type MutationUpdateNotifiableDeviceArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<NotifiableDeviceUpdateInput>;
+};
+
+
+export type MutationUpdateNotifiableDevicesArgs = {
+  data?: Maybe<Array<Maybe<NotifiableDevicesUpdateInput>>>;
+};
+
+
+export type MutationDeleteNotifiableDeviceArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteNotifiableDevicesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationCreateContactHistoryRecordArgs = {
   data?: Maybe<ContactHistoryRecordCreateInput>;
 };
@@ -15424,6 +15511,11 @@ export type MutationResendMessageArgs = {
 };
 
 
+export type MutationSyncNotifiableDeviceArgs = {
+  data: SyncNotifiableDeviceInput;
+};
+
+
 export type MutationRegisterResidentArgs = {
   data: RegisterResidentInput;
 };
@@ -15452,6 +15544,434 @@ export type MutationAuthenticateUserWithPasswordArgs = {
 
 export type MutationUpdateAuthenticatedUserArgs = {
   data?: Maybe<UserUpdateInput>;
+};
+
+/**  Used to send describe device in order to be able to send push notifications via corresponding transport, depending on serviceType. Device could be mobile or web based.   */
+export type NotifiableDevice = {
+  __typename?: 'NotifiableDevice';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the NotifiableDevice List config, or
+   *  2. As an alias to the field set on 'labelField' in the NotifiableDevice List config, or
+   *  3. As an alias to a 'name' field on the NotifiableDevice List (if one exists), or
+   *  4. As an alias to the 'id' field on the NotifiableDevice List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  /**  Mobile/web device ID, which is used to identify device. One user can have many devices, and one device can be used by many users, one at a time.  */
+  deviceId?: Maybe<Scalars['String']>;
+  /**  Used by transport services (FireBase, Apple, Huawei, etc.) to transfer push notifications to devices.  */
+  token?: Maybe<Scalars['String']>;
+  /**  Transport service, that delivers push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase.  */
+  serviceType?: Maybe<NotifiableDeviceServiceTypeType>;
+  /**  Owner user of a device and a push token. User, which is logged in on the device. Push token can be created by anonymous user and connected to authorized user later on.  */
+  owner?: Maybe<User>;
+  /**  Device metadata. OS type, OS version, etc.  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type NotifiableDeviceCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  deviceId?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
+  serviceType?: Maybe<NotifiableDeviceServiceTypeType>;
+  owner?: Maybe<UserRelateToOneInput>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type NotifiableDeviceHistoryRecord = {
+  __typename?: 'NotifiableDeviceHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the NotifiableDeviceHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the NotifiableDeviceHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the NotifiableDeviceHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the NotifiableDeviceHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  deviceId?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
+  serviceType?: Maybe<Scalars['String']>;
+  owner?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NotifiableDeviceHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type NotifiableDeviceHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  deviceId?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
+  serviceType?: Maybe<Scalars['String']>;
+  owner?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NotifiableDeviceHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum NotifiableDeviceHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type NotifiableDeviceHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  deviceId?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
+  serviceType?: Maybe<Scalars['String']>;
+  owner?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NotifiableDeviceHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type NotifiableDeviceHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<NotifiableDeviceHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<NotifiableDeviceHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  deviceId?: Maybe<Scalars['String']>;
+  deviceId_not?: Maybe<Scalars['String']>;
+  deviceId_contains?: Maybe<Scalars['String']>;
+  deviceId_not_contains?: Maybe<Scalars['String']>;
+  deviceId_starts_with?: Maybe<Scalars['String']>;
+  deviceId_not_starts_with?: Maybe<Scalars['String']>;
+  deviceId_ends_with?: Maybe<Scalars['String']>;
+  deviceId_not_ends_with?: Maybe<Scalars['String']>;
+  deviceId_i?: Maybe<Scalars['String']>;
+  deviceId_not_i?: Maybe<Scalars['String']>;
+  deviceId_contains_i?: Maybe<Scalars['String']>;
+  deviceId_not_contains_i?: Maybe<Scalars['String']>;
+  deviceId_starts_with_i?: Maybe<Scalars['String']>;
+  deviceId_not_starts_with_i?: Maybe<Scalars['String']>;
+  deviceId_ends_with_i?: Maybe<Scalars['String']>;
+  deviceId_not_ends_with_i?: Maybe<Scalars['String']>;
+  deviceId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deviceId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  token?: Maybe<Scalars['String']>;
+  token_not?: Maybe<Scalars['String']>;
+  token_contains?: Maybe<Scalars['String']>;
+  token_not_contains?: Maybe<Scalars['String']>;
+  token_starts_with?: Maybe<Scalars['String']>;
+  token_not_starts_with?: Maybe<Scalars['String']>;
+  token_ends_with?: Maybe<Scalars['String']>;
+  token_not_ends_with?: Maybe<Scalars['String']>;
+  token_i?: Maybe<Scalars['String']>;
+  token_not_i?: Maybe<Scalars['String']>;
+  token_contains_i?: Maybe<Scalars['String']>;
+  token_not_contains_i?: Maybe<Scalars['String']>;
+  token_starts_with_i?: Maybe<Scalars['String']>;
+  token_not_starts_with_i?: Maybe<Scalars['String']>;
+  token_ends_with_i?: Maybe<Scalars['String']>;
+  token_not_ends_with_i?: Maybe<Scalars['String']>;
+  token_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  token_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  serviceType?: Maybe<Scalars['String']>;
+  serviceType_not?: Maybe<Scalars['String']>;
+  serviceType_contains?: Maybe<Scalars['String']>;
+  serviceType_not_contains?: Maybe<Scalars['String']>;
+  serviceType_starts_with?: Maybe<Scalars['String']>;
+  serviceType_not_starts_with?: Maybe<Scalars['String']>;
+  serviceType_ends_with?: Maybe<Scalars['String']>;
+  serviceType_not_ends_with?: Maybe<Scalars['String']>;
+  serviceType_i?: Maybe<Scalars['String']>;
+  serviceType_not_i?: Maybe<Scalars['String']>;
+  serviceType_contains_i?: Maybe<Scalars['String']>;
+  serviceType_not_contains_i?: Maybe<Scalars['String']>;
+  serviceType_starts_with_i?: Maybe<Scalars['String']>;
+  serviceType_not_starts_with_i?: Maybe<Scalars['String']>;
+  serviceType_ends_with_i?: Maybe<Scalars['String']>;
+  serviceType_not_ends_with_i?: Maybe<Scalars['String']>;
+  serviceType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  serviceType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  owner?: Maybe<Scalars['String']>;
+  owner_not?: Maybe<Scalars['String']>;
+  owner_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  owner_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<NotifiableDeviceHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<NotifiableDeviceHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<NotifiableDeviceHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<NotifiableDeviceHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type NotifiableDeviceHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type NotifiableDeviceHistoryRecordsCreateInput = {
+  data?: Maybe<NotifiableDeviceHistoryRecordCreateInput>;
+};
+
+export type NotifiableDeviceHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<NotifiableDeviceHistoryRecordUpdateInput>;
+};
+
+export enum NotifiableDeviceServiceTypeType {
+  Firebase = 'firebase',
+  Apple = 'apple',
+  Huawei = 'huawei'
+}
+
+export type NotifiableDeviceUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  deviceId?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
+  serviceType?: Maybe<NotifiableDeviceServiceTypeType>;
+  owner?: Maybe<UserRelateToOneInput>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type NotifiableDeviceWhereInput = {
+  AND?: Maybe<Array<Maybe<NotifiableDeviceWhereInput>>>;
+  OR?: Maybe<Array<Maybe<NotifiableDeviceWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  deviceId?: Maybe<Scalars['String']>;
+  deviceId_not?: Maybe<Scalars['String']>;
+  deviceId_contains?: Maybe<Scalars['String']>;
+  deviceId_not_contains?: Maybe<Scalars['String']>;
+  deviceId_starts_with?: Maybe<Scalars['String']>;
+  deviceId_not_starts_with?: Maybe<Scalars['String']>;
+  deviceId_ends_with?: Maybe<Scalars['String']>;
+  deviceId_not_ends_with?: Maybe<Scalars['String']>;
+  deviceId_i?: Maybe<Scalars['String']>;
+  deviceId_not_i?: Maybe<Scalars['String']>;
+  deviceId_contains_i?: Maybe<Scalars['String']>;
+  deviceId_not_contains_i?: Maybe<Scalars['String']>;
+  deviceId_starts_with_i?: Maybe<Scalars['String']>;
+  deviceId_not_starts_with_i?: Maybe<Scalars['String']>;
+  deviceId_ends_with_i?: Maybe<Scalars['String']>;
+  deviceId_not_ends_with_i?: Maybe<Scalars['String']>;
+  deviceId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deviceId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  token?: Maybe<Scalars['String']>;
+  token_not?: Maybe<Scalars['String']>;
+  token_contains?: Maybe<Scalars['String']>;
+  token_not_contains?: Maybe<Scalars['String']>;
+  token_starts_with?: Maybe<Scalars['String']>;
+  token_not_starts_with?: Maybe<Scalars['String']>;
+  token_ends_with?: Maybe<Scalars['String']>;
+  token_not_ends_with?: Maybe<Scalars['String']>;
+  token_i?: Maybe<Scalars['String']>;
+  token_not_i?: Maybe<Scalars['String']>;
+  token_contains_i?: Maybe<Scalars['String']>;
+  token_not_contains_i?: Maybe<Scalars['String']>;
+  token_starts_with_i?: Maybe<Scalars['String']>;
+  token_not_starts_with_i?: Maybe<Scalars['String']>;
+  token_ends_with_i?: Maybe<Scalars['String']>;
+  token_not_ends_with_i?: Maybe<Scalars['String']>;
+  token_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  token_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  serviceType?: Maybe<NotifiableDeviceServiceTypeType>;
+  serviceType_not?: Maybe<NotifiableDeviceServiceTypeType>;
+  serviceType_in?: Maybe<Array<Maybe<NotifiableDeviceServiceTypeType>>>;
+  serviceType_not_in?: Maybe<Array<Maybe<NotifiableDeviceServiceTypeType>>>;
+  owner?: Maybe<UserWhereInput>;
+  owner_is_null?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type NotifiableDeviceWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type NotifiableDevicesCreateInput = {
+  data?: Maybe<NotifiableDeviceCreateInput>;
+};
+
+export type NotifiableDevicesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<NotifiableDeviceUpdateInput>;
 };
 
 /**  User action guide. It should be used to build complex hierarchical systems of user actions.  */
@@ -20154,6 +20674,22 @@ export type Query = {
   _allMessagesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the Message list.  */
   _MessagesMeta?: Maybe<_ListMeta>;
+  /**  Search for all NotifiableDeviceHistoryRecord items which match the where clause.  */
+  allNotifiableDeviceHistoryRecords?: Maybe<Array<Maybe<NotifiableDeviceHistoryRecord>>>;
+  /**  Search for the NotifiableDeviceHistoryRecord item with the matching ID.  */
+  NotifiableDeviceHistoryRecord?: Maybe<NotifiableDeviceHistoryRecord>;
+  /**  Perform a meta-query on all NotifiableDeviceHistoryRecord items which match the where clause.  */
+  _allNotifiableDeviceHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the NotifiableDeviceHistoryRecord list.  */
+  _NotifiableDeviceHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all NotifiableDevice items which match the where clause.  */
+  allNotifiableDevices?: Maybe<Array<Maybe<NotifiableDevice>>>;
+  /**  Search for the NotifiableDevice item with the matching ID.  */
+  NotifiableDevice?: Maybe<NotifiableDevice>;
+  /**  Perform a meta-query on all NotifiableDevice items which match the where clause.  */
+  _allNotifiableDevicesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the NotifiableDevice list.  */
+  _NotifiableDevicesMeta?: Maybe<_ListMeta>;
   /**  Search for all ContactHistoryRecord items which match the where clause.  */
   allContactHistoryRecords?: Maybe<Array<Maybe<ContactHistoryRecord>>>;
   /**  Search for the ContactHistoryRecord item with the matching ID.  */
@@ -21939,6 +22475,56 @@ export type Query_AllMessagesMetaArgs = {
   where?: Maybe<MessageWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortMessagesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllNotifiableDeviceHistoryRecordsArgs = {
+  where?: Maybe<NotifiableDeviceHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNotifiableDeviceHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryNotifiableDeviceHistoryRecordArgs = {
+  where: NotifiableDeviceHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllNotifiableDeviceHistoryRecordsMetaArgs = {
+  where?: Maybe<NotifiableDeviceHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNotifiableDeviceHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllNotifiableDevicesArgs = {
+  where?: Maybe<NotifiableDeviceWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNotifiableDevicesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryNotifiableDeviceArgs = {
+  where: NotifiableDeviceWhereUniqueInput;
+};
+
+
+export type Query_AllNotifiableDevicesMetaArgs = {
+  where?: Maybe<NotifiableDeviceWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNotifiableDevicesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -26580,6 +27166,58 @@ export enum SortMultiPaymentsBy {
   DeletedAtDesc = 'deletedAt_DESC'
 }
 
+export enum SortNotifiableDeviceHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  DeviceIdAsc = 'deviceId_ASC',
+  DeviceIdDesc = 'deviceId_DESC',
+  TokenAsc = 'token_ASC',
+  TokenDesc = 'token_DESC',
+  ServiceTypeAsc = 'serviceType_ASC',
+  ServiceTypeDesc = 'serviceType_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortNotifiableDevicesBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  DeviceIdAsc = 'deviceId_ASC',
+  DeviceIdDesc = 'deviceId_DESC',
+  TokenAsc = 'token_ASC',
+  TokenDesc = 'token_DESC',
+  ServiceTypeAsc = 'serviceType_ASC',
+  ServiceTypeDesc = 'serviceType_DESC',
+  OwnerAsc = 'owner_ASC',
+  OwnerDesc = 'owner_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
+
 export enum SortOnBoardingHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
@@ -28328,6 +28966,25 @@ export type StartPasswordRecoveryInput = {
 export type StartPasswordRecoveryOutput = {
   __typename?: 'StartPasswordRecoveryOutput';
   status: Scalars['String'];
+};
+
+export type SyncNotifiableDeviceInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  deviceId: Scalars['String'];
+  token?: Maybe<Scalars['String']>;
+  serviceType?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+};
+
+export type SyncNotifiableDeviceOutput = {
+  __typename?: 'SyncNotifiableDeviceOutput';
+  id: Scalars['ID'];
+  deviceId: Scalars['String'];
+  token?: Maybe<Scalars['String']>;
+  serviceType?: Maybe<Scalars['String']>;
+  owner?: Maybe<User>;
+  meta?: Maybe<Scalars['JSON']>;
 };
 
 /**  Users request or contact with the user  */
@@ -34549,7 +35206,7 @@ export type TokenSetsUpdateInput = {
 };
 
 
-/**  Individual / person / service account / impersonal company account  */
+/**  Individual / person / service account / impersonal company account. Used primarly for authorization purposes, optimized access control with checking of `type` field, tracking authority of performed CRUD operations. Think of `User` as a technical entity, not a business actor. Business actor entities are Resident, OrganizationEmployee etc., — they are participating in high-level business scenarios and have connected to `User`. Almost everyting, created in the system, ends up to `User` as a source of action.  */
 export type User = {
   __typename?: 'User';
   /**
@@ -34604,7 +35261,7 @@ export type User = {
 };
 
 
-/**  Individual / person / service account / impersonal company account  */
+/**  Individual / person / service account / impersonal company account. Used primarly for authorization purposes, optimized access control with checking of `type` field, tracking authority of performed CRUD operations. Think of `User` as a technical entity, not a business actor. Business actor entities are Resident, OrganizationEmployee etc., — they are participating in high-level business scenarios and have connected to `User`. Almost everyting, created in the system, ends up to `User` as a source of action.  */
 export type UserHasEmailArgs = {
   formatAs?: Maybe<Scalars['String']>;
 };

@@ -3,7 +3,7 @@ const FormData = require('form-data')
 
 const conf = require('@core/config')
 
-const { EMAIL_TRANSPORT } = require('../constants')
+const { EMAIL_TRANSPORT } = require('../constants/constants')
 const { renderTemplate } = require('../templates')
 
 const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CONFIG) : null

@@ -1,7 +1,7 @@
 const { v4: uuid } = require('uuid')
 const conf = require('@core/config')
 const { WRONG_PHONE_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT, TOKEN_EXPIRED_ERROR } = require('@condo/domains/user/constants/errors')
-const { RESET_PASSWORD_MESSAGE_TYPE, SMS_TRANSPORT, EMAIL_TRANSPORT } = require('@condo/domains/notification/constants')
+const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
 const { GQLCustomSchema, getById } = require('@core/keystone/schema')
