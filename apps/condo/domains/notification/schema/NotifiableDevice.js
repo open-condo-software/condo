@@ -50,7 +50,7 @@ const NotifiableDevice = new GQLListSchema('NotifiableDevice', {
             type: Relationship,
             ref: 'User',
             isRequired: false,
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             knexOptions: { isNotNullable: false }, // token can be crated by anonymous and User could be connected later.
         },
 
