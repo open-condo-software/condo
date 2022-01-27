@@ -15,7 +15,7 @@ const access = require('@condo/domains/notification/access/Device')
 const { PUSH_TRANSPORT_TYPE_KEYS } = require('../constants/constants')
 
 const Device = new GQLListSchema('Device', {
-    schemaDoc: 'Used to send describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport. Device could be mobile or web based. ',
+    schemaDoc: 'Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport. Device could be mobile or web based. ',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,

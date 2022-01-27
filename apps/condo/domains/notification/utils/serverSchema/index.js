@@ -70,7 +70,7 @@ async function syncDevice (context, data) {
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
     if (!data.deviceId) throw new Error('no data.deviceId')
-    if (data.pushToken && !data.pushTransport) throw new Error('no data.pushTransport')
+    if (!data.pushTransport) throw new Error('no data.pushTransport')
 
     return await execGqlWithoutAccess(context, {
         query: SYNC_DEVICE_MUTATION,
