@@ -62,6 +62,10 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
+        timeFrame: {
+            schemaDoc: 'Time after which the ticket must be completed',
+            type: DateTimeUtc,
+        },
         order: {
             schemaDoc: 'Field required for specific sorting of model objects',
             type: Integer,
