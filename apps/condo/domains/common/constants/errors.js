@@ -21,9 +21,6 @@ const WRONG_TEXT_FORMAT = '[text:wrongFormat:'
 const EMPTY_DATA_EXPORT_ERROR = '[export.empty.data'
 const NETWORK_ERROR = 'failed to fetch'
 
-const DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE = 'duplicate key value violates unique constraint'
-const INVALID_MUTATION_ATTEMPT_ERROR_MESSAGE = 'You attempted to perform an invalid mutation'
-
 module.exports = {
     PHONE_WRONG_FORMAT_ERROR,
     EMAIL_WRONG_FORMAT_ERROR,
@@ -42,6 +39,4 @@ module.exports = {
     WRONG_TEXT_FORMAT,
     EMPTY_DATA_EXPORT_ERROR,
     NETWORK_ERROR,
-    DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
-    INVALID_MUTATION_ATTEMPT_ERROR_MESSAGE,
 }

@@ -13,13 +13,12 @@ const {
     expectToThrowMutationError,
     expectToThrowUserInputError,
 } = require('@condo/domains/common/utils/testSchema')
-const {
-    DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
-} = require('@condo/domains/common/constants/errors')
 
 const { Device, createTestDevice, updateTestDevice } = require('@condo/domains/notification/utils/testSchema')
 
 const { PUSH_TRANSPORT_TYPE_KEYS } = require('../constants/constants')
+
+const DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE = 'duplicate key value violates unique constraint'
 
 describe('Device', () => {
     test('anonymous: direct create Device access denied', async () => {
