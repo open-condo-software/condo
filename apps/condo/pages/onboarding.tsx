@@ -1,13 +1,13 @@
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
+import { OnBoardingStepItem } from '@condo/domains/onboarding/components/OnBoardingStepItem'
+import { useIntl } from '@core/next/intl'
 import { Col, Row, Skeleton, Space, Typography } from 'antd'
+import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
-import get from 'lodash/get'
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OnBoardingStepItem } from '@condo/domains/onboarding/components/OnBoardingStepItem'
-import { useIntl } from '@core/next/intl'
-import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { useServiceSubscriptionWelcomePopup } from '../domains/subscription/hooks/useServiceSubscriptionWelcomePopup'
 
 interface IOnBoardingIndexPage extends React.FC {
@@ -93,7 +93,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
             </PageWrapper>
             {
                 isServiceSubscriptionWelcomePopupVisible && (
-                    <ServiceSubscriptionWelcomePopup />
+                    <ServiceSubscriptionWelcomePopup/>
                 )
             }
         </>
