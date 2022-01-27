@@ -5,14 +5,14 @@
 
 const { Message } = require('./Message')
 const { SendMessageService } = require('./SendMessageService')
-const { NotifiableDevice } = require('./NotifiableDevice')
-const { SyncNotifiableDeviceService } = require('./SyncNotifiableDeviceService')
+const { Device } = require('./Device')
+const { SyncDeviceService } = require('./SyncDeviceService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Message,
     SendMessageService,
-    NotifiableDevice,
-    SyncNotifiableDeviceService,
+    Device,
+    SyncDeviceService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

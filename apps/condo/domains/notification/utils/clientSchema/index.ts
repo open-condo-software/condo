@@ -4,5 +4,5 @@
  */
 
 export * as Message from './Message'
-export * as NotifiableDevice from './NotifiableDevice'
+export * as Device from './Device'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

@@ -92,6 +92,23 @@ function generateGQLTestUtils (gql) {
         return [data.obj, attrs]
     }
 
+    /**
+     * Tries to receive existing item, and updates it on success or creates new one. Updated/created value is returned.
+     * Attention! Be careful with where. Because of getOne, this helper will throw exception, if it gets 1+ items.
+     * @param context
+     * @param where
+     * @param attrs
+     * @returns {Promise<*|null|undefined>}
+     */
+    async function updateOrCreate (context, where, attrs) {
+        const existingItem = await getOne(context, where)
+        const shouldUpdate = Boolean(existingItem && existingItem.id)
+
+        return shouldUpdate
+            ? await update(context, existingItem.id, attrs)
+            : await create(context, attrs)
+    }
+
     return {
         gql,
         getAll,
@@ -102,6 +119,7 @@ function generateGQLTestUtils (gql) {
         update,
         delete: delete_,
         softDelete,
+        updateOrCreate,
     }
 }
 
