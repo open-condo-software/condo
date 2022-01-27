@@ -25,6 +25,8 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { useRouter } from 'next/router'
 import { PropertyWhereInput } from '@app/condo/schema'
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
+import dayjs from 'dayjs'
 
 const { TabPane } = Tabs
 
@@ -87,6 +89,53 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     )
 }
 
+const INITIAL_TIMEFRAME_VALUE = dayjs(new Date()).add(2, 'day')
+const DISABLED_DATE = date => date.startOf('day').isBefore(dayjs().startOf('day'))
+
+const TicketFrameField = () => {
+    const [isAutoDetectedValue, setIsAutoDetectedValue] = useState<boolean>(true)
+
+    const handleTicketFrameChange = useCallback(() => {
+        setIsAutoDetectedValue(false)
+    }, [])
+
+    return (
+        <>
+            <Typography.Title level={5}>Срок выполнения заявки</Typography.Title>
+            <Row align={'bottom'} gutter={[40, 0]}>
+                <Col span={10}>
+                    <Form.Item
+                        label={'Выполнить до...'}
+                        name={'timeFrame'}
+                        required
+                        initialValue={INITIAL_TIMEFRAME_VALUE}
+                    >
+                        <DatePicker
+                            format='DD MMMM YYYY'
+                            style={{ width: '100% ' }}
+                            onChange={handleTicketFrameChange}
+                            disabledDate={DISABLED_DATE}
+                        />
+                    </Form.Item>
+                </Col>
+                {
+                    isAutoDetectedValue && (
+                        <Col style={{ height: '48px' }}>
+                            <Row justify={'center'} align={'middle'} style={{ height: '100%' }}>
+                                <Col>
+                                    <Typography.Text type={'secondary'}>
+                                        Дата определена автоматически (+2 дня)
+                                    </Typography.Text>
+                                </Col>
+                            </Row>
+                        </Col>
+                    )
+                }
+            </Row>
+        </>
+    )
+}
+
 export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
     const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
@@ -142,12 +191,15 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                             />
                         </Form.Item>
                     </Col>
-                    <Col flex={0}>
+                    <Col span={24} flex={0}>
                         <Form.Item
                             label={AttachedFilesLabel}
                         >
                             <UploadComponent/>
                         </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <TicketFrameField />
                     </Col>
                 </Row>
             </Col>
