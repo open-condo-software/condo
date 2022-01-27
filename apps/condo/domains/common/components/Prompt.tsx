@@ -70,6 +70,7 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
             visible={isModalVisible}
             onCancel={hideModal}
             title={title}
+            centered
             footer={[
                 <Button key="back" type='sberDanger' style={{ margin: '16px' }} onClick={handleCancel}>
                     {LeaveLabel}
