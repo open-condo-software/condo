@@ -31,7 +31,7 @@ interface IImportWrapperProps {
     accessCheck: boolean
     onFinish(): void
     columns: Columns
-    maxTableLength: number
+    maxTableLength?: number
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator
     objectCreator: ObjectCreator
@@ -82,7 +82,7 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTransla
     )
 }
 
-export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
+const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const {
         objectsName,
         accessCheck,
@@ -193,4 +193,12 @@ export const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             </ModalContext.Provider>
         )
     )
+}
+
+ImportWrapper.defaultProps = {
+    maxTableLength: 500,
+}
+
+export {
+    ImportWrapper,
 }

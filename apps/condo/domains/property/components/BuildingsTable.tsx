@@ -152,7 +152,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                     accessCheck={role?.canManageProperties}
                                     onFinish={refetch}
                                     columns={columns}
-                                    maxTableLength={500}
                                     rowNormalizer={propertyNormalizer}
                                     rowValidator={propertyValidator}
                                     domainTranslate={PropertyTitle}
