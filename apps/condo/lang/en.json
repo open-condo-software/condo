@@ -286,6 +286,7 @@
   "pages.condo.property.form.AreaTitle": "Area",
   "pages.condo.property.form.YearValidationError": "Wrong year format",
   "pages.condo.property.form.YearOfConstructionTitle": "Year of construction",
+  "pages.condo.property.form.AddressTitle": "Street, property №",
   "pages.condo.property.id.PageTitle": "Property",
   "pages.condo.property.id.Square": "Square",
   "pages.condo.property.id.TicketsClosed": "Tickets closed",

@@ -47,6 +47,7 @@ const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
 const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
+    const AddressTitle = intl.formatMessage({ id: 'pages.condo.property.form.AddressTitle' })
     const NameMsg = intl.formatMessage({ id: 'pages.condo.property.form.field.Name' })
     const AreaTitle = intl.formatMessage({ id: 'pages.condo.property.form.AreaTitle' })
     const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
@@ -157,6 +158,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         {...INPUT_LAYOUT_PROPS}
                                     >
                                         <AddressSuggestionsSearchInput
+                                            placeholder={AddressTitle}
                                             onSelect={(_, option) => {
                                                 const address = JSON.parse(option.key) as AddressMetaField
                                                 if (!validHouseTypes.includes(address.data.house_type_full)) {

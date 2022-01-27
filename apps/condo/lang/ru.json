@@ -286,6 +286,7 @@
   "pages.condo.property.form.AreaTitle": "Площадь",
   "pages.condo.property.form.YearValidationError": "Неверный год постройки",
   "pages.condo.property.form.YearOfConstructionTitle": "Год постройки",
+  "pages.condo.property.form.AddressTitle": "Улица, дом №",
   "pages.condo.property.id.PageTitle": "Объект",
   "pages.condo.property.id.Square": "Площадь",
   "pages.condo.property.id.TicketsClosed": "Заявок закрыто",
