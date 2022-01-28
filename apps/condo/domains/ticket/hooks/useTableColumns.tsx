@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import { identity } from 'lodash/util'
 import { Space, Tag, Typography } from 'antd'
 import { TextProps } from 'antd/es/typography/Text'
+import dayjs from 'dayjs'
 
 import { useIntl } from '@core/next/intl'
 
@@ -163,6 +164,29 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
         [search])
 
+    const renderNumber = useCallback((number, ticket) => {
+        const timeFrame = dayjs(get(ticket, 'timeFrame'))
+        let extraHighlighterProps
+        let extraTitle
+
+        if (timeFrame) {
+            const now = dayjs()
+            const isLessThanOneDay = timeFrame.isBefore(now.add(1, 'day'))
+
+            if (isLessThanOneDay) {
+                if (timeFrame.startOf('day').isBefore(now)) {
+                    extraHighlighterProps = { type: 'danger' }
+                    extraTitle = 'Просрочена на 1 день'
+                } else {
+                    extraHighlighterProps = { type: 'warning' }
+                    extraTitle = 'На выполнение менее 24ч'
+                }
+            }
+        }
+
+        return getTableCellRenderer(search, false, null, extraHighlighterProps, null, extraTitle)(number)
+    }, [search])
+
     const columnWidths = useMemo(() => breakpoints.xxl ?
         COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN : COLUMNS_WIDTH_SMALLER_XXL_SCREEN,
     [breakpoints]
@@ -180,7 +204,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: columnWidths.number,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
                 filterIcon: getFilterIcon,
-                render: getTableCellRenderer(search),
+                render: renderNumber,
                 align: 'right',
             },
             {

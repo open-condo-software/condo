@@ -114,7 +114,7 @@ const TicketFrameField = () => {
                             format='DD MMMM YYYY'
                             style={{ width: '100% ' }}
                             onChange={handleTicketFrameChange}
-                            disabledDate={isDateDisabled}
+                            // disabledDate={isDateDisabled}
                         />
                     </Form.Item>
                 </Col>
@@ -156,7 +156,27 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
             <Col span={24}>
                 <Row gutter={[0, 24]}>
                     <Col span={24}>
-                        <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
+                        <Typography.Title level={5} style={{ margin: '0' }}>{DescriptionLabel}</Typography.Title>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item name={'details'} rules={validations.details}>
+                            <InputWithCounter
+                                InputComponent={Input.TextArea}
+                                currentLength={currentDetailsLength}
+                                autoSize={true}
+                                maxLength={500}
+                                onChange={e => setCurrentDetailsLength(e.target.value.length)}
+                                placeholder={DescriptionPlaceholder}
+                                disabled={disableUserInteraction}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            label={AttachedFilesLabel}
+                        >
+                            <UploadComponent/>
+                        </Form.Item>
                     </Col>
                     <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
                     <Col span={24}>
@@ -177,26 +197,6 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                 </Form.Item>
                             </Col>
                         </Row>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
-                            <InputWithCounter
-                                InputComponent={Input.TextArea}
-                                currentLength={currentDetailsLength}
-                                autoSize={true}
-                                maxLength={500}
-                                onChange={e => setCurrentDetailsLength(e.target.value.length)}
-                                placeholder={DescriptionPlaceholder}
-                                disabled={disableUserInteraction}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={24} flex={0}>
-                        <Form.Item
-                            label={AttachedFilesLabel}
-                        >
-                            <UploadComponent/>
-                        </Form.Item>
                     </Col>
                     <Col span={24}>
                         <TicketFrameField />

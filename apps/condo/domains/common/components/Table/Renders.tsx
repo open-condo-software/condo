@@ -120,7 +120,7 @@ export const getTableCellRenderer: TTableCellRendererFN = (
             <EmptyTableCell>
                 {
                     text && (
-                        <Typography.Paragraph ellipsis={ellipsisConfig} title={title} style={ELLIPSIS_STYLES}>
+                        <Typography.Paragraph ellipsis={ellipsisConfig} title={title} type='danger' style={ELLIPSIS_STYLES}>
                             {highlightedContent}
                         </Typography.Paragraph>
                     )
