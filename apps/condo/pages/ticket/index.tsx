@@ -268,7 +268,7 @@ export const TicketsPageContent = ({
 }
 
 const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
-const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'timeFrame_ASC', 'createdAt_DESC']
+const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'deadline_ASC', 'createdAt_DESC']
 
 const TicketsPage: ITicketIndexPage = () => {
     const userOrganization = useOrganization()

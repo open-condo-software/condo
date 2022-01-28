@@ -1994,7 +1994,8 @@
     chalk "^4.0.0"
 
 "@condo/domains@link:./apps/condo/domains":
-  version "1.0.0"
+  version "0.0.0"
+  uid ""
 
 "@ctrl/tinycolor@^3.4.0":
   version "3.4.0"

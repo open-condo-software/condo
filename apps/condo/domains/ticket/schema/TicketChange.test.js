@@ -55,7 +55,6 @@ describe('TicketChange', () => {
                 related: { connect: { id: ticket2.id } },
                 // TODO(antonal): figure out how to get old list of related items in many-to-many relationship.
                 watchers: { connect: [{ id: client2.user.id }, { id: client3.user.id }] },
-                timeFrame: new Date(),
             })
 
             const payload = {
@@ -86,7 +85,6 @@ describe('TicketChange', () => {
                     disconnect: [{ id: client2.user.id }],
                     connect: [{ id: client4.user.id }],
                 },
-                timeFrame: new Date(),
             }
 
             const [updatedTicket] = await updateTestTicket(admin, ticket.id, payload)

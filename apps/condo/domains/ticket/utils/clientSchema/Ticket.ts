@@ -9,8 +9,9 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '@app/condo/schema'
+import dayjs from 'dayjs'
 
-const FIELDS = ['id', 'timeFrame', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitName', 'sectionName', 'floorName', 'watchers', 'operator', 'assignee', 'classifier', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule', 'details', 'related', 'isEmergency', 'isWarranty', 'isPaid', 'meta', 'source', 'property', 'executor']
+const FIELDS = ['id', 'deadline', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitName', 'sectionName', 'floorName', 'watchers', 'operator', 'assignee', 'classifier', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule', 'details', 'related', 'isEmergency', 'isWarranty', 'isPaid', 'meta', 'source', 'property', 'executor']
 const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor', 'related', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule']
 const DISCONNECT_ON_NULL = ['problemClassifier']
 export interface ITicketUIState extends Ticket {
@@ -39,6 +40,7 @@ export interface ITicketFormState {
     contact?: string
     clientPhone?: string
     clientName?: string
+    deadline?: string
 }
 
 function convertToUIFormState (state: ITicketUIState): ITicketFormState | undefined {
@@ -48,6 +50,9 @@ function convertToUIFormState (state: ITicketUIState): ITicketFormState | undefi
         const attrId = get(state[attr], 'id')
         result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
     }
+
+    result['deadline'] = dayjs(state['deadline'])
+
     return result as ITicketFormState
 }
 
