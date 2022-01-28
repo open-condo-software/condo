@@ -71,7 +71,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     searchContacts(client, {
         organizationId: organization,
         propertyId: property ? property : undefined,
-        unitName: unitName ? unitName : undefined,
+        // If we need to find contacts who do not have an unitName (concierge, etc.),
+        // then we need to pass null in the unitName search, not undefined
+        unitName: unitName ? unitName : null,
     })
         .then(({ data, loading, error }) => {
             setContacts(data.objs)
