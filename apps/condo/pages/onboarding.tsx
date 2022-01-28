@@ -55,7 +55,10 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                                 {onBoardingSteps.length > 0 && !get(onBoarding, 'completed')
                                     ? (
                                         <Row gutter={[0, 0]}>
-                                            {onBoardingSteps.sort((leftStep, rightStep) => leftStep.order > rightStep.order ? 1 : -1)
+                                            {onBoardingSteps
+                                                .sort((leftStep, rightStep) => {
+                                                    return leftStep.order > rightStep.order ? 1 : -1
+                                                })
                                                 .map((step) => {
                                                     const { title, description, iconView, stepAction, type, id } = step
 
@@ -74,7 +77,8 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                                                             />
                                                         </Col>
                                                     )
-                                                })}
+                                                })
+                                            }
                                         </Row>
                                     )
                                     : (
