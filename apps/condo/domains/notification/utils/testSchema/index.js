@@ -144,7 +144,7 @@ async function syncDeviceByTestClient(client, extraAttrs = {}) {
     }
     const { data, errors } = await client.mutate(SYNC_DEVICE_MUTATION, { data: attrs })
     throwIfError(data, errors)
-    // const obj = Device.getOne(client, { id: data.id })
+
     return [data.result, attrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */

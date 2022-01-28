@@ -6995,7 +6995,7 @@ export enum CurrentStateType {
   Deactivated = 'DEACTIVATED'
 }
 
-/**  Used to send describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport. Device could be mobile or web based.   */
+/**  Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport. Device could be mobile or web based.   */
 export type Device = {
   __typename?: 'Device';
   /**
