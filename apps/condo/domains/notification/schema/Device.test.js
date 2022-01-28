@@ -16,7 +16,7 @@ const {
 
 const { Device, createTestDevice, updateTestDevice } = require('@condo/domains/notification/utils/testSchema')
 
-const { PUSH_TRANSPORT_TYPE_KEYS } = require('../constants/constants')
+const { PUSH_TRANSPORT_TYPES } = require('../constants/constants')
 
 const DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE = 'duplicate key value violates unique constraint'
 
@@ -166,7 +166,7 @@ describe('Device', () => {
     test('admin: pushToken is unique', async () => {
         const admin = await makeLoggedInAdminClient()
         const admin1 = await makeLoggedInAdminClient()
-        const extraAttrs = { pushToken: faker.datatype.uuid(), pushTransport: sample(PUSH_TRANSPORT_TYPE_KEYS) }
+        const extraAttrs = { pushToken: faker.datatype.uuid(), pushTransport: sample(PUSH_TRANSPORT_TYPES) }
 
         await createTestDevice(admin, extraAttrs)
 
