@@ -31,7 +31,7 @@ interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
     type: OnBoardingStepType | null,
 }
 
-interface OnBoardingContext {
+export interface IOnBoardingContext {
     progress?: number
     isLoading?: boolean
     onBoarding?: IOnBoarding
@@ -51,7 +51,7 @@ const onBoardingIcons = {
     creditCard: CreditCardFilled,
 }
 
-const OnBoardingContext = createContext<OnBoardingContext>({})
+const OnBoardingContext = createContext<IOnBoardingContext>({})
 
 export const useOnBoardingContext = () => useContext(OnBoardingContext)
 
