@@ -733,6 +733,7 @@
   "onboarding.complete.description": "Вы можете продолжить работу с Doma.ai",
   "onboarding.complete.button": "Ок, спасибо!",
   "onboarding.step.title.create.Organization": "Создание организации",
+  "onboarding.step.warn.create.Organization": "Сначала создайте организацию",
   "onboarding.step.description.create.Organization": "Добавляйте свою организацию, чтобы получить доступ ко всем функциям.",
   "onboarding.step.title.create.Property": "Добавление дома",
   "onboarding.step.description.create.Property": "Это позволит легко находить нужную информацию по объектам и работать с шахматкой квартир.",
