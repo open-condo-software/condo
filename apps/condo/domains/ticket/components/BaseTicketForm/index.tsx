@@ -27,6 +27,7 @@ import { useRouter } from 'next/router'
 import { PropertyWhereInput } from '@app/condo/schema'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import dayjs from 'dayjs'
+import styled from '@emotion/styled'
 
 const { TabPane } = Tabs
 
@@ -34,6 +35,11 @@ export const LAYOUT = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
 }
+
+const ContactsInfoFocusContainer = styled(FocusContainer)`
+  position: relative;
+  left: ${({ padding }) => padding ? padding : '24px'};
+`
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const intl = useIntl()
@@ -54,7 +60,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                     }
 
                     return (
-                        <FocusContainer className={!property && 'disabled'}>
+                        <ContactsInfoFocusContainer className={!property && 'disabled'}>
                             <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
                                 <TabPane tab={TicketFromResidentMessage} key="1">
                                     <ContactsEditorComponent
@@ -81,7 +87,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                                     disabled
                                 />
                             </Tabs>
-                        </FocusContainer>
+                        </ContactsInfoFocusContainer>
                     )
                 }}
             </Form.Item>
@@ -89,50 +95,48 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     )
 }
 
-const INITIAL_TIMEFRAME_VALUE = dayjs(new Date()).add(2, 'day')
+const INITIAL_DEADLINE_VALUE = dayjs(new Date()).add(2, 'day')
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
 
-const TicketFrameField = () => {
-    const [isAutoDetectedValue, setIsAutoDetectedValue] = useState<boolean>(true)
+const TicketDeadlineField = ({ initialValue }) => {
+    const [isAutoDetectedValue, setIsAutoDetectedValue] = useState<boolean>(!initialValue)
 
-    const handleTicketFrameChange = useCallback(() => {
+    const handleTicketDeadlineChange = useCallback(() => {
         setIsAutoDetectedValue(false)
     }, [])
 
     return (
-        <>
-            <Typography.Title level={5}>Срок выполнения заявки</Typography.Title>
-            <Row align={'bottom'} gutter={[40, 0]}>
-                <Col span={10}>
-                    <Form.Item
-                        label={'Выполнить до...'}
-                        name={'timeFrame'}
-                        required
-                        initialValue={INITIAL_TIMEFRAME_VALUE}
-                    >
-                        <DatePicker
-                            format='DD MMMM YYYY'
-                            style={{ width: '100% ' }}
-                            onChange={handleTicketFrameChange}
-                            // disabledDate={isDateDisabled}
-                        />
-                    </Form.Item>
-                </Col>
-                {
-                    isAutoDetectedValue && (
-                        <Col style={{ height: '48px' }}>
-                            <Row justify={'center'} align={'middle'} style={{ height: '100%' }}>
-                                <Col>
-                                    <Typography.Text type={'secondary'}>
+        <Row align={'bottom'} gutter={[40, 0]}>
+            <Col span={10}>
+                <Form.Item
+                    label={'Выполнить до...'}
+                    name={'deadline'}
+                    required
+                    initialValue={INITIAL_DEADLINE_VALUE}
+                >
+                    <DatePicker
+                        format='DD MMMM YYYY'
+                        style={{ width: '100% ' }}
+                        onChange={handleTicketDeadlineChange}
+                        disabledDate={isDateDisabled}
+                        locale={'ru'}
+                    />
+                </Form.Item>
+            </Col>
+            {
+                isAutoDetectedValue && (
+                    <Col style={{ height: '48px' }}>
+                        <Row justify={'center'} align={'middle'} style={{ height: '100%' }}>
+                            <Col>
+                                <Typography.Text type={'secondary'}>
                                         Дата определена автоматически (+2 дня)
-                                    </Typography.Text>
-                                </Col>
-                            </Row>
-                        </Col>
-                    )
-                }
-            </Row>
-        </>
+                                </Typography.Text>
+                            </Col>
+                        </Row>
+                    </Col>
+                )
+            }
+        </Row>
     )
 }
 
@@ -152,58 +156,70 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
 
     return (
-        <>
-            <Col span={24}>
-                <Row gutter={[0, 24]}>
-                    <Col span={24}>
-                        <Typography.Title level={5} style={{ margin: '0' }}>{DescriptionLabel}</Typography.Title>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item name={'details'} rules={validations.details}>
-                            <InputWithCounter
-                                InputComponent={Input.TextArea}
-                                currentLength={currentDetailsLength}
-                                autoSize={true}
-                                maxLength={500}
-                                onChange={e => setCurrentDetailsLength(e.target.value.length)}
-                                placeholder={DescriptionPlaceholder}
-                                disabled={disableUserInteraction}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item
-                            label={AttachedFilesLabel}
-                        >
-                            <UploadComponent/>
-                        </Form.Item>
-                    </Col>
-                    <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
-                    <Col span={24}>
-                        <Row>
-                            <Col span={24} lg={6}>
-                                <Form.Item name={'isEmergency'} valuePropName='checked'>
-                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
-                                </Form.Item>
-                            </Col>
-                            <Col span={24} lg={6}>
-                                <Form.Item name={'isPaid'} valuePropName='checked'>
-                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
-                                </Form.Item>
-                            </Col>
-                            <Col span={24} lg={6}>
-                                <Form.Item name={'isWarranty'} valuePropName='checked'>
-                                    <Checkbox disabled={disableUserInteraction}>{WarrantyLabel}</Checkbox>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col span={24}>
-                        <TicketFrameField />
-                    </Col>
-                </Row>
-            </Col>
-        </>
+        <Col span={24}>
+            <Row gutter={[0, 60]}>
+                <Col span={24}>
+                    <Row gutter={[0, 24]}>
+                        <Col span={24}>
+                            <Typography.Title level={4} style={{ margin: '0' }}>{DescriptionLabel}</Typography.Title>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item name={'details'} rules={validations.details}>
+                                <InputWithCounter
+                                    InputComponent={Input.TextArea}
+                                    currentLength={currentDetailsLength}
+                                    maxLength={500}
+                                    onChange={e => setCurrentDetailsLength(e.target.value.length)}
+                                    placeholder={DescriptionPlaceholder}
+                                    disabled={disableUserInteraction}
+                                    style={{ height: '120px' }}
+                                />
+                            </Form.Item>
+                            <Form.Item>
+                                <UploadComponent/>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col span={24}>
+                    <Row gutter={[0, 24]}>
+                        <Col span={24}>
+                            <Typography.Title level={4} style={{ margin: '0' }}>Классификатор</Typography.Title>
+                        </Col>
+                        <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
+                    </Row>
+                </Col>
+                <Col span={24}>
+                    <Row>
+                        <Col span={24} lg={6}>
+                            <Form.Item name={'isEmergency'} valuePropName='checked'>
+                                <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24} lg={6}>
+                            <Form.Item name={'isPaid'} valuePropName='checked'>
+                                <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24} lg={6}>
+                            <Form.Item name={'isWarranty'} valuePropName='checked'>
+                                <Checkbox disabled={disableUserInteraction}>{WarrantyLabel}</Checkbox>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col span={24}>
+                    <Row gutter={[0, 24]}>
+                        <Col span={24}>
+                            <Typography.Title level={4} style={{ margin: '0' }}>Срок выполнения заявки</Typography.Title>
+                        </Col>
+                        <Col span={24}>
+                            <TicketDeadlineField initialValue={initialValues.deadline} />
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
+        </Col>
     )
 }
 
@@ -345,90 +361,95 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                             </Typography.Paragraph>
                         </Prompt>
                         <Col lg={13} md={24}>
-                            <Row gutter={[0, 40]}>
+                            <Row gutter={[0, 60]}>
                                 <Col span={24}>
-                                    <Row justify={'space-between'} gutter={[0, 15]}>
+                                    <Row gutter={[0, 40]}>
                                         <Col span={24}>
-                                            <Typography.Title level={5}
-                                                style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
-                                        </Col>
-                                        {
-                                            !organizationPropertiesLoading && organizationProperties.length === 0 ? (
+                                            <Row gutter={[0, 15]}>
                                                 <Col span={24}>
-                                                    <Alert
-                                                        showIcon
-                                                        type='warning'
-                                                        message={
-                                                            <>
-                                                                {NoPropertiesMessage}&nbsp;
-                                                                <Button
-                                                                    type={'inlineLink'}
-                                                                    size={'small'}
-                                                                    onClick={() => router.push('/property/create')}
-                                                                >
-                                                                    {AddMessage}
-                                                                </Button>
-                                                            </>
-                                                        }
-                                                    />
+                                                    <Typography.Title level={4} style={{ margin: '0' }}>
+                                                        {UserInfoTitle}
+                                                    </Typography.Title>
                                                 </Col>
-                                            ) : null
-                                        }
-                                        <Col span={24}>
-                                            <Form.Item
-                                                name={'property'}
-                                                label={AddressLabel}
-                                                rules={PROPERTY_VALIDATION_RULES}
-                                            >
-                                                <PropertyAddressSearchInput
-                                                    organization={organization}
-                                                    autoFocus={true}
-                                                    onSelect={(_, option) => {
-                                                        form.setFieldsValue({
-                                                            unitName: null,
-                                                            sectionName: null,
-                                                            floorName: null,
-                                                        })
-                                                        setSelectedPropertyId(option.key)
-                                                    }}
-                                                    onClear={() => {
-                                                        setSelectedPropertyId(null)
-                                                    }}
-                                                    placeholder={AddressPlaceholder}
-                                                    notFoundContent={AddressNotFoundContent}
-                                                />
-                                            </Form.Item>
+                                                {
+                                                    !organizationPropertiesLoading && organizationProperties.length === 0 ? (
+                                                        <Col span={24}>
+                                                            <Alert
+                                                                showIcon
+                                                                type='warning'
+                                                                message={
+                                                                    <>
+                                                                        {NoPropertiesMessage}&nbsp;
+                                                                        <Button
+                                                                            type={'inlineLink'}
+                                                                            size={'small'}
+                                                                            onClick={() => router.push('/property/create')}
+                                                                        >
+                                                                            {AddMessage}
+                                                                        </Button>
+                                                                    </>
+                                                                }
+                                                            />
+                                                        </Col>
+                                                    ) : null
+                                                }
+                                                <Col span={24}>
+                                                    <Form.Item
+                                                        name={'property'}
+                                                        label={AddressLabel}
+                                                        rules={PROPERTY_VALIDATION_RULES}
+                                                    >
+                                                        <PropertyAddressSearchInput
+                                                            organization={organization}
+                                                            autoFocus={true}
+                                                            onSelect={(_, option) => {
+                                                                form.setFieldsValue({
+                                                                    unitName: null,
+                                                                    sectionName: null,
+                                                                    floorName: null,
+                                                                })
+                                                                setSelectedPropertyId(option.key)
+                                                            }}
+                                                            onClear={() => {
+                                                                setSelectedPropertyId(null)
+                                                            }}
+                                                            placeholder={AddressPlaceholder}
+                                                            notFoundContent={AddressNotFoundContent}
+                                                        />
+                                                    </Form.Item>
+                                                </Col>
+                                                {selectedPropertyId && (
+                                                    <UnitInfo
+                                                        property={property}
+                                                        loading={organizationPropertiesLoading}
+                                                        setSelectedUnitName={setSelectedUnitName}
+                                                        form={form}
+                                                    />
+                                                )}
+                                            </Row>
                                         </Col>
-                                        {selectedPropertyId && (
-                                            <UnitInfo
-                                                property={property}
-                                                loading={organizationPropertiesLoading}
-                                                setSelectedUnitName={setSelectedUnitName}
-                                                form={form}
-                                            />
-                                        )}
+                                        <ContactsInfo
+                                            ContactsEditorComponent={ContactsEditorComponent}
+                                            form={form}
+                                            initialValues={initialValues}
+                                            selectedPropertyId={selectedPropertyId}
+                                        />
                                     </Row>
                                 </Col>
-                                <ContactsInfo
-                                    ContactsEditorComponent={ContactsEditorComponent}
-                                    form={form}
-                                    initialValues={initialValues}
-                                    selectedPropertyId={selectedPropertyId}
-                                />
-                                <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
-                                    {
-                                        ({ getFieldsValue }) => {
-                                            const {
-                                                property,
-                                                categoryClassifier,
-                                            } = getFieldsValue(['property', 'categoryClassifier'])
+                                <Col span={24}>
+                                    <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
+                                        {
+                                            ({ getFieldsValue }) => {
+                                                const {
+                                                    property,
+                                                    categoryClassifier,
+                                                } = getFieldsValue(['property', 'categoryClassifier'])
 
-                                            const disableUserInteraction = !property
+                                                const disableUserInteraction = !property
 
-                                            return (
-                                                <Col span={24}>
+                                                return (
                                                     <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
-                                                        <Row gutter={[0, 40]}>
+                                                        <Row gutter={[0, 60]}>
                                                             <TicketInfo
                                                                 form={form}
                                                                 UploadComponent={UploadComponent}
@@ -448,11 +469,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             />
                                                         </Row>
                                                     </FrontLayerContainer>
-                                                </Col>
-                                            )
+                                                )
+                                            }
                                         }
-                                    }
-                                </Form.Item>
+                                    </Form.Item>
+                                </Col>
                             </Row>
                         </Col>
                         {props.children({ handleSave, isLoading, form })}

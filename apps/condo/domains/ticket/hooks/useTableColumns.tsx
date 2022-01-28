@@ -165,16 +165,16 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         [search])
 
     const renderNumber = useCallback((number, ticket) => {
-        const timeFrame = dayjs(get(ticket, 'timeFrame'))
+        const deadline = dayjs(get(ticket, 'deadline'))
         let extraHighlighterProps
         let extraTitle
 
-        if (timeFrame) {
+        if (deadline) {
             const now = dayjs()
-            const isLessThanOneDay = timeFrame.isBefore(now.add(1, 'day'))
+            const isLessThanOneDay = deadline.isBefore(now.add(1, 'day'))
 
             if (isLessThanOneDay) {
-                if (timeFrame.startOf('day').isBefore(now)) {
+                if (deadline.startOf('day').isBefore(now)) {
                     extraHighlighterProps = { type: 'danger' }
                     extraTitle = 'Просрочена на 1 день'
                 } else {
