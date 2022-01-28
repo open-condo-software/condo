@@ -12,7 +12,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 
 const access = require('@condo/domains/notification/access/Device')
 
-const { PUSH_TRANSPORT_TYPE_KEYS } = require('../constants/constants')
+const { PUSH_TRANSPORT_TYPES } = require('../constants/constants')
 
 const Device = new GQLListSchema('Device', {
     schemaDoc: 'Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport. Device could be mobile or web based. ',
@@ -38,7 +38,7 @@ const Device = new GQLListSchema('Device', {
         pushTransport: {
             schemaDoc: 'Transport service, that delivers push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase.',
             type: Select,
-            options: PUSH_TRANSPORT_TYPE_KEYS,
+            options: PUSH_TRANSPORT_TYPES,
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false },

@@ -9,7 +9,7 @@ const { GQLCustomSchema, getById } = require('@core/keystone/schema')
 const access = require('@condo/domains/notification/access/SyncDeviceService')
 const { Device: DeviceAPI } = require('@condo/domains/notification/utils/serverSchema')
 
-const { PUSH_TRANSPORT_TYPE_KEYS } = require('../constants/constants')
+const { PUSH_TRANSPORT_TYPES } = require('../constants/constants')
 
 const resolveSyncDevice = async (parent, args, context) => {
     const { data: { dv, sender, deviceId, pushToken, pushTransport, meta } } = args
@@ -27,7 +27,7 @@ const SyncDeviceService = new GQLCustomSchema('SyncDeviceService', {
     types: [
         {
             access: true,
-            type: `enum PushTransportType { ${PUSH_TRANSPORT_TYPE_KEYS.join(' ')} }`,
+            type: `enum PushTransportType { ${PUSH_TRANSPORT_TYPES.join(' ')} }`,
         },
         {
             access: true,

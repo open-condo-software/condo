@@ -91,13 +91,10 @@ const MESSAGE_STATUSES = [
     MESSAGE_DELIVERED_STATUS, MESSAGE_CANCELED_STATUS,
 ]
 
-const PUSH_TRANSPORT_TYPES = {
-    firebase: 'Android device with Google Apps',
-    apple: 'Apple device',
-    huawei: 'Android device without Google Apps (Huawei)',
-}
-
-const PUSH_TRANSPORT_TYPE_KEYS = Object.keys(PUSH_TRANSPORT_TYPES)
+const PUSH_TRANSPORT_FIREBASE = 'firebase'
+const PUSH_TRANSPORT_APPLE = 'apple'
+const PUSH_TRANSPORT_HUAWEI = 'huawei'
+const PUSH_TRANSPORT_TYPES = [PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI]
 
 module.exports = {
     JSON_NO_REQUIRED_ATTR_ERROR,
@@ -126,5 +123,4 @@ module.exports = {
     SHARE_TICKET_MESSAGE_TYPE,
     CUSTOMER_IMPORTANT_NOTE_TYPE,
     PUSH_TRANSPORT_TYPES,
-    PUSH_TRANSPORT_TYPE_KEYS,
 }

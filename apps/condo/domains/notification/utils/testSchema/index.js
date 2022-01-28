@@ -11,7 +11,7 @@ const { getRandomString } = require('@core/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
-const { PUSH_TRANSPORT_TYPE_KEYS, INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TRANSPORT_TYPES, INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const {
     Message: MessageGQL,
@@ -103,7 +103,7 @@ async function createTestDevice (client, extraAttrs = {}) {
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const deviceId = faker.datatype.uuid()
-    const pushTransport = sample(PUSH_TRANSPORT_TYPE_KEYS)
+    const pushTransport = sample(PUSH_TRANSPORT_TYPES)
 
     const attrs = {
         dv: 1,

@@ -8,10 +8,10 @@ const sample = require('lodash/sample')
 const { makeClient, makeLoggedInClient } = require('@core/keystone/test.utils')
 
 const { syncDeviceByTestClient } = require('@condo/domains/notification/utils/testSchema')
-const { PUSH_TRANSPORT_TYPE_KEYS } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TRANSPORT_TYPES } = require('@condo/domains/notification/constants/constants')
 
 const getRandomTokenData = (extraAttrs = {}) => {
-    const pushTransport = sample(PUSH_TRANSPORT_TYPE_KEYS)
+    const pushTransport = sample(PUSH_TRANSPORT_TYPES)
     const data =  {
         deviceId: faker.datatype.uuid(),
         pushToken: faker.datatype.uuid(),
