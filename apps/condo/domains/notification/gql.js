@@ -24,11 +24,9 @@ const RESEND_MESSAGE = gql`
     }
 `
 
-const DEVICE_REQUIRED_FIELDS = 'deviceId pushToken pushTransport meta owner { id }'
-const DEVICE_FIELDS = `{id ${DEVICE_REQUIRED_FIELDS}}`
-const DEVICE_FIELDS_WITH_COMMON = `{${DEVICE_REQUIRED_FIELDS} ${COMMON_FIELDS}}`
+const DEVICE_FIELDS = `{deviceId pushToken pushTransport meta owner { id } ${COMMON_FIELDS}}`
 
-const Device = generateGqlQueries('Device', DEVICE_FIELDS_WITH_COMMON)
+const Device = generateGqlQueries('Device', DEVICE_FIELDS)
 
 const SYNC_DEVICE_MUTATION = gql`
     mutation syncDevice ($data: SyncDeviceInput!) {
