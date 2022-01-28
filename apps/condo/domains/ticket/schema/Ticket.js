@@ -268,7 +268,12 @@ const Ticket = new GQLListSchema('Ticket', {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
 
-            addOrderToTicket(resolvedData)
+            // addOrderToTicket(resolvedData)
+            const statusId = get(resolvedData, 'status')
+
+            if (statusId) {
+                addOrderToTicket(resolvedData, statusId)
+            }
 
             if (operation === 'create' && user && user.type === RESIDENT) {
                 await addClientInfoToResidentTicket(context, resolvedData)
@@ -307,8 +312,9 @@ const Ticket = new GQLListSchema('Ticket', {
              * new resolver should be implemented in `ticketChangeDisplayNameResolversForSingleRelations` and `relatedManyToManyResolvers`
              */
             const { property, unitName, placeClassifier, categoryClassifier, problemClassifier } = Ticket.schema.fields
+            const a = buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS })
             await storeChangesIfUpdated(
-                buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
+                a,
                 createTicketChange,
                 ticketChangeDisplayNameResolversForSingleRelations,
                 relatedManyToManyResolvers,
