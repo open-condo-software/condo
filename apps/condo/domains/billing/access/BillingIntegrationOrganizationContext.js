@@ -7,59 +7,49 @@ const { get } = require('lodash')
 const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isSupport || user.isAdmin) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isSupport || item.isAdmin) return true
-
-        return {
-            OR: [
-                { organization: { employees_some: { user: { id: item.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false } } },
-                { integration: { accessRights_some: { user: { id: item.id }, deletedAt: null } } },
-            ],
-        }
+    return {
+        OR: [
+            { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false } } },
+            { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+        ],
     }
-
-    return false
 }
 
-async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    
+    if (user.isAdmin) return true
+    if (user.isSupport && !get(originalInput, ['organization', 'connect', 'id'])) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-        if (item.isSupport && !get(originalInput, ['organization', 'connect', 'id'])) return true
+    let organizationId, integrationId
 
-        let organizationId, integrationId
-
-        if (operation === 'create') {
-            // NOTE: can only be created by the organization integration manager
-            organizationId = get(originalInput, ['organization', 'connect', 'id'])
-            integrationId = get(originalInput, ['integration', 'connect', 'id'])
-            if (!organizationId || !integrationId) return false
-        } else if (operation === 'update') {
-            // NOTE: can update by the organization integration manager OR the integration account
-            if (!itemId) return false
-            const context = await getById('BillingIntegrationOrganizationContext', itemId)
-            if (!context) return false
-            const { organization, integration } = context
-            organizationId = organization
-            integrationId = integration
-        }
-
+    if (operation === 'create') {
+        // NOTE: can only be created by the organization integration manager
+        organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        integrationId = get(originalInput, ['integration', 'connect', 'id'])
         if (!organizationId || !integrationId) return false
-        const canManageIntegrations = await checkOrganizationPermission(item.id, organizationId, 'canManageIntegrations')
-        if (canManageIntegrations) return true
-
-        return await checkBillingIntegrationAccessRight(item.id, integrationId)
+    } else if (operation === 'update') {
+        // NOTE: can update by the organization integration manager OR the integration account
+        if (!itemId) return false
+        const context = await getById('BillingIntegrationOrganizationContext', itemId)
+        if (!context) return false
+        const { organization, integration } = context
+        organizationId = organization
+        integrationId = integration
     }
 
-    return false
+    if (!organizationId || !integrationId) return false
+    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+    if (canManageIntegrations) return true
+
+    return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }
 
 /*

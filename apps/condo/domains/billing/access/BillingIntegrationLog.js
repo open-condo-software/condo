@@ -6,30 +6,25 @@ const { get } = require('lodash')
 const { checkBillingIntegrationAccessRight } = require('../utils/accessSchema')
 const { getById } = require('@core/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadBillingIntegrationLogs ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadBillingIntegrationLogs ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return {}
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return {}
-
-        return {
-            context: {
-                OR: [
-                    { organization: { employees_some: { user: { id: item.id }, role: { canManageIntegrations: true }, deletedAt: null, isBlocked: false } } },
-                    { integration: { accessRights_some: { user: { id: item.id }, deletedAt: null } } },
-                ],
-            },
-        }
+    return {
+        context: {
+            OR: [
+                { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, deletedAt: null, isBlocked: false } } },
+                { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+            ],
+        },
     }
-
-    return false
 }
 
 async function canManageBillingIntegrationLogs ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
 
     let contextId
