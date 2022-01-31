@@ -3,30 +3,20 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadForgotPasswordAction ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadForgotPasswordAction ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return {}
-
-        return false
-    }
+    if (user.isAdmin) return {}
 
     return false
 }
 
-async function canManageForgotPasswordAction ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
-
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-
-        return false
-    }
+async function canManageForgotPasswordAction ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
     return false
 }

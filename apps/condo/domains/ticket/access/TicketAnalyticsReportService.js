@@ -3,37 +3,28 @@
  */
 const get = require('lodash/get')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketAnalyticsReport ({ authentication: { item, listKey }, args: { data: { where } } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadTicketAnalyticsReport ({ authentication: { item: user }, args: { data: { where } } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-        const organizationId = get(where, ['organization', 'id'], false)
-        if (!organizationId) return false
+    const organizationId = get(where, ['organization', 'id'], false)
+    if (!organizationId) return false
 
-        return await checkUserBelongsToOrganization(item.id, organizationId)
-    }
-
-    return false
+    return await checkUserBelongsToOrganization(user.id, organizationId)
 }
 
-async function canReadExportTicketAnalyticsToExcel ({ authentication: { item, listKey }, args: { data: { where } } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadExportTicketAnalyticsToExcel ({ authentication: { item: user }, args: { data: { where } } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-        const organizationId = get(where, ['organization', 'id'], false)
-        if (!organizationId) return false
+    const organizationId = get(where, ['organization', 'id'], false)
+    if (!organizationId) return false
 
-        return await checkUserBelongsToOrganization(item.id, organizationId)
-    }
-
-    return false
+    return await checkUserBelongsToOrganization(user.id, organizationId)
 }
 
 /*

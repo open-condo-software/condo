@@ -3,14 +3,13 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { get } = require('lodash')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { find } = require('@core/keystone/schema')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
 const userIsAuthenticated = (args) => {
-    const { authentication: { item, listKey } } = args
-    if (!item || !listKey) return throwAuthenticationError()
-    if (item.deletedAt) return false
+    const { authentication: { item: user } } = args
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
-    return Boolean(listKey === USER_SCHEMA_NAME && item.id)
+    return !!user.id
 }
 
 const userIsAdmin = (args) => {

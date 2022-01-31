@@ -3,32 +3,21 @@
  */
 const access = require('@core/keystone/access')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadUsers ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadUsers ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-
-        return true
-    }
-
-    return false
+    return true
 }
 
-async function canManageUsers ({ authentication: { item, listKey }, operation, itemId }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canManageUsers ({ authentication: { item: user }, operation, itemId }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isSupport || user.isAdmin) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isSupport || item.isAdmin) return true
-        if (operation === 'create') return false
-        if (operation === 'update') return Boolean(itemId === item.id)
-
-        return false
-    }
+    if (operation === 'create') return false
+    if (operation === 'update') return itemId === user.id
 
     return false
 }

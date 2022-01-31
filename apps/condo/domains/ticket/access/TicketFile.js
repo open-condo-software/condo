@@ -7,61 +7,54 @@ const { getById } = require('@core/keystone/schema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
 
-async function canReadTicketFiles ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadTicketFiles ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isSupport || item.isAdmin) return {}
-        const userId = item.id
-        if (item.type === RESIDENT) return { createdBy: { id: userId } }
+    if (user.isSupport || user.isAdmin) return {}
 
-        return {
-            organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(userId),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                ],
-            },
-        }
+    if (user.type === RESIDENT) return { createdBy: { id: user.id } }
+
+    return {
+        organization: {
+            OR: [
+                queryOrganizationEmployeeFor(user.id),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+            ],
+        },
     }
-
-    return false
 }
 
 
-async function canManageTicketFiles ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-        const userId = item.id
+async function canManageTicketFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
-        if (item.type === RESIDENT) {
-            if (operation === 'create') return true
-            const ticketFile = await getById('TicketFile', itemId)
-            if (!ticketFile) return false
-            return ticketFile.createdBy === userId
-        }
-
-        if (item.type === STAFF) {
-            if (operation === 'create') {
-                const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-                return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, 'canManageTickets')
-            }
-            const ticketFile = await getById('TicketFile', itemId)
-            if (!ticketFile) return false
-
-            const { ticket, createdBy, organization } = ticketFile
-            if (!ticket) return createdBy === userId
-            if (!organization) return false
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organization, 'canManageTickets')
-
-        }
+    if (user.type === RESIDENT) {
+        if (operation === 'create') return true
+        const ticketFile = await getById('TicketFile', itemId)
+        if (!ticketFile) return false
+        return ticketFile.createdBy === user.id
     }
+
+    if (user.type === STAFF) {
+        if (operation === 'create') {
+            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+            return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTickets')
+        }
+        const ticketFile = await getById('TicketFile', itemId)
+        if (!ticketFile) return false
+
+        const { ticket, createdBy, organization } = ticketFile
+        if (!ticket) return createdBy === user.id
+        if (!organization) return false
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTickets')
+
+    }
+
     return false
 }
 
