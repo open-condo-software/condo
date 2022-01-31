@@ -145,7 +145,7 @@ const TicketAssignments = ({
         <Col span={24}>
             <Row gutter={[0, 24]}>
                 <Col span={24}>
-                    <Typography.Title level={4} style={{ margin: '0' }}>{TicketAssignmentTitle}</Typography.Title>
+                    <Typography.Title level={4}>{TicketAssignmentTitle}</Typography.Title>
                 </Col>
                 <Col span={24}>
                     <Row justify={'space-between'}>
@@ -197,7 +197,6 @@ const TicketAssignments = ({
                         </Col>
                     </Row>
                 </Col>
-
             </Row>
         </Col>
     )

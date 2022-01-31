@@ -4,11 +4,15 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert } from 'antd'
 import get from 'lodash/get'
+import styled from '@emotion/styled'
+import { useRouter } from 'next/router'
+import { PropertyWhereInput } from '@app/condo/schema'
+import isEmpty from 'lodash/isEmpty'
+
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
@@ -20,14 +24,12 @@ import Prompt from '@condo/domains/common/components/Prompt'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
-import { TicketAssignments } from './TicketAssignments'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
-import { useRouter } from 'next/router'
-import { PropertyWhereInput } from '@app/condo/schema'
-import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
-import dayjs from 'dayjs'
-import styled from '@emotion/styled'
+
+import { TicketDeadlineField } from './TicketDeadlineField'
+import { useTicketValidations } from './useTicketValidations'
+import { TicketAssignments } from './TicketAssignments'
 
 const { TabPane } = Tabs
 
@@ -95,53 +97,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     )
 }
 
-const INITIAL_DEADLINE_VALUE = dayjs(new Date()).add(2, 'day')
-const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
-
-const TicketDeadlineField = ({ initialValue }) => {
-    const intl = useIntl()
-    const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
-    const AutoCompletionMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion' })
-
-    const [isAutoDetectedValue, setIsAutoDetectedValue] = useState<boolean>(!initialValue)
-
-    const handleTicketDeadlineChange = useCallback(() => {
-        setIsAutoDetectedValue(false)
-    }, [])
-
-    return (
-        <Row align={'bottom'} gutter={[40, 0]}>
-            <Col span={10}>
-                <Form.Item
-                    label={CompleteBeforeMessage}
-                    name={'deadline'}
-                    required
-                    initialValue={INITIAL_DEADLINE_VALUE}
-                >
-                    <DatePicker
-                        format='DD MMMM YYYY'
-                        style={{ width: '100% ' }}
-                        onChange={handleTicketDeadlineChange}
-                        // disabledDate={isDateDisabled}
-                    />
-                </Form.Item>
-            </Col>
-            {
-                isAutoDetectedValue && (
-                    <Col style={{ height: '48px' }}>
-                        <Row justify={'center'} align={'middle'} style={{ height: '100%' }}>
-                            <Col>
-                                <Typography.Text type={'secondary'}>
-                                    {AutoCompletionMessage}
-                                </Typography.Text>
-                            </Col>
-                        </Row>
-                    </Col>
-                )
-            }
-        </Row>
-    )
-}
+const INPUT_WITH_COUNTER_STYLE = { height: '120px' }
 
 export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
@@ -164,7 +120,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Typography.Title level={4} style={{ margin: '0' }}>{DescriptionLabel}</Typography.Title>
+                            <Typography.Title level={4}>{DescriptionLabel}</Typography.Title>
                         </Col>
                         <Col span={24}>
                             <Form.Item name={'details'} rules={validations.details}>
@@ -175,7 +131,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                     onChange={e => setCurrentDetailsLength(e.target.value.length)}
                                     placeholder={DescriptionPlaceholder}
                                     disabled={disableUserInteraction}
-                                    style={{ height: '120px' }}
+                                    style={INPUT_WITH_COUNTER_STYLE}
                                 />
                             </Form.Item>
                             <Form.Item>
@@ -187,7 +143,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Typography.Title level={4} style={{ margin: '0' }}>{ClassifierLabel}</Typography.Title>
+                            <Typography.Title level={4}>{ClassifierLabel}</Typography.Title>
                         </Col>
                         <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
                     </Row>
@@ -214,7 +170,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Typography.Title level={4} style={{ margin: '0' }}>{TicketDeadlineLabel}</Typography.Title>
+                            <Typography.Title level={4}>{TicketDeadlineLabel}</Typography.Title>
                         </Col>
                         <Col span={24}>
                             <TicketDeadlineField initialValue={initialValues.deadline} />
@@ -370,12 +326,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         <Col span={24}>
                                             <Row gutter={[0, 15]}>
                                                 <Col span={24}>
-                                                    <Typography.Title level={4} style={{ margin: '0' }}>
+                                                    <Typography.Title level={4}>
                                                         {UserInfoTitle}
                                                     </Typography.Title>
                                                 </Col>
                                                 {
-                                                    !organizationPropertiesLoading && organizationProperties.length === 0 ? (
+                                                    !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
                                                         <Col span={24}>
                                                             <Alert
                                                                 showIcon
