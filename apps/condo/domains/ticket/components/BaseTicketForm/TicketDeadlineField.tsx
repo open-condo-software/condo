@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import { useIntl } from '@core/next/intl'
 import React, { useCallback, useState } from 'react'
 import { Col, Form, Row, Typography } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
+import { Gutter } from 'antd/lib/grid/row'
 
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 
