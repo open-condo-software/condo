@@ -3,62 +3,54 @@
  */
 const { getAvailableResidentMetersIds } = require('../utils/serverSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    queryOrganizationEmployeeFor,
+    checkPermissionInUserOrganizationOrRelatedOrganization,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { get } = require('lodash')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadMeterReadings ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadMeterReadings ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    
+    if (user.isSupport || user.isAdmin) return {}
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isSupport || item.isAdmin) return {}
-        const userId = item.id
-
-        if (item.type === RESIDENT) {
-            const availableMeterIds = await getAvailableResidentMetersIds(userId)
-
-            return {
-                meter: { id_in: availableMeterIds, deletedAt: null },
-                deletedAt: null,
-            }
-        }
+    if (user.type === RESIDENT) {
+        const availableMeterIds = await getAvailableResidentMetersIds(user.id)
 
         return {
-            organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(userId),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                ],
-            },
+            meter: { id_in: availableMeterIds, deletedAt: null },
+            deletedAt: null,
         }
     }
 
-    return false
+    return {
+        organization: {
+            OR: [
+                queryOrganizationEmployeeFor(user.id),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+            ],
+        },
+    }
 }
 
-async function canManageMeterReadings ({ authentication: { item, listKey }, originalInput, operation }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canManageMeterReadings ({ authentication: { item: user }, originalInput, operation }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-        const userId = item.id
-        if (operation === 'create') {
-            if (item.type === RESIDENT) {
-                const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
-                const availableMeterIds = await getAvailableResidentMetersIds(userId)
-                return availableMeterIds.includes(meterId)
-            }
-            const inputOrganization = get(originalInput, ['organization', 'connect', 'id'])
-            if (!inputOrganization) return false
-
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, inputOrganization, 'canManageMeterReadings')
+    if (operation === 'create') {
+        if (user.type === RESIDENT) {
+            const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
+            const availableMeterIds = await getAvailableResidentMetersIds(user.id)
+            return availableMeterIds.includes(meterId)
         }
+        const inputOrganization = get(originalInput, ['organization', 'connect', 'id'])
+        if (!inputOrganization) return false
 
-        return false
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, inputOrganization, 'canManageMeterReadings')
     }
 
     return false
