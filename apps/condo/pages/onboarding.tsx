@@ -1,13 +1,14 @@
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
-import { OnBoardingStepItem } from '@condo/domains/onboarding/components/OnBoardingStepItem'
+import { OnBoardingStepItem, OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 import { useIntl } from '@core/next/intl'
 import { Col, Row, Skeleton, Space, Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
+import { useNoOrganizationToolTip } from '../domains/onboarding/hooks/useNoOrganizationToolTip'
 import { useServiceSubscriptionWelcomePopup } from '../domains/subscription/hooks/useServiceSubscriptionWelcomePopup'
 
 interface IOnBoardingIndexPage extends React.FC {
@@ -25,6 +26,8 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
         ServiceSubscriptionWelcomePopup,
         isServiceSubscriptionWelcomePopupVisible,
     } = useServiceSubscriptionWelcomePopup()
+
+    const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
 
     useEffect(() => {
         refetchOnBoarding()
@@ -66,7 +69,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                                                         return null
                                                     }
 
-                                                    return (
+                                                    const content = (
                                                         <Col lg={16} md={24} key={id}>
                                                             <OnBoardingStepItem
                                                                 action={stepAction}
@@ -77,17 +80,24 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                                                             />
                                                         </Col>
                                                     )
+
+                                                    return type === OnBoardingStepType.DISABLED
+                                                        ? wrapElementIntoNoOrganizationToolTip({
+                                                            element: content,
+                                                            placement: 'topLeft',
+                                                        })
+                                                        : content
                                                 })
                                             }
                                         </Row>
                                     )
                                     : (
-                                        <React.Fragment>
+                                        <>
                                             <Skeleton active/>
                                             <Skeleton active/>
                                             <Skeleton active/>
                                             <Skeleton active/>
-                                        </React.Fragment>
+                                        </>
                                     )
                                 }
                             </Col>
