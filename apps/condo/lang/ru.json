@@ -438,6 +438,7 @@
   "pages.condo.ticket.TicketChanges.executor": "исполнителя",
   "pages.condo.ticket.TicketChanges.classifier": "классификатор",
   "pages.condo.ticket.TicketChanges.address": "адрес",
+  "pages.condo.ticket.TicketChanges.deadline": "срок заявки",
   "pages.condo.ticket.TicketChanges.ticketType": "тип заявки",
   "pages.condo.ticket.TicketChanges.isPaid.true": "платной",
   "pages.condo.ticket.TicketChanges.isPaid.false": "бесплатной",

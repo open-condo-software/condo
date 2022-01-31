@@ -11,6 +11,7 @@ import { green } from '@ant-design/colors'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { FormattedMessage } from 'react-intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import dayjs from 'dayjs'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -64,6 +65,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const ExecutorMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.executor' })
     const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.address' })
+    const DeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deadline' })
 
     const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
@@ -84,6 +86,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['executorDisplayName', ExecutorMessage],
         ['classifierDisplayName', ClassifierMessage],
         ['placeClassifierDisplayName', ClassifierMessage],
+        ['deadline', DeadlineMessage],
     ]
 
     const BooleanToString = {
@@ -103,6 +106,9 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     const formatField = (field, value, type: TicketChangeFieldMessageType) => {
         const formatterFor = {
+            deadline: (field, value) => {
+                return <Typography.Text>{dayjs(value).format('DD MMMM YYYY')}</Typography.Text>
+            },
             clientPhone: (field, value) => (
                 <PhoneLink value={value} />
             ),
@@ -174,6 +180,8 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
         const valueFrom = formatField(field, ticketChange[`${field}From`], TicketChangeFieldMessageType.From)
         const valueTo = formatField(field, ticketChange[`${field}To`], TicketChangeFieldMessageType.To)
+
+        console.log('ticketChange', ticketChange)
 
         if (valueFrom && valueTo) {
             return (
