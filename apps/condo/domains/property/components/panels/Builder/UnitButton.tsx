@@ -93,7 +93,7 @@ const buttonSecondaryCss = css`
 const selectedCss = css`
     background: ${gradients.sberActionInversed};
     color: white;
-    border: 1px solid transparent;
+    border: none;
     
     &:hover, &:focus {
         background: ${gradients.sberActionGradient};
