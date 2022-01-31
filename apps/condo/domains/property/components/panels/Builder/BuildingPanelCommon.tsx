@@ -41,7 +41,7 @@ export const CustomScrollbarCss = css`
 
 export const MapSectionContainer = styled.div<{ visible: boolean }>`
   display: ${({ visible }) => visible ? 'inline-block' : 'none'};
-  margin-right: 16px;
+  margin-right: 28px;
   text-align: center;
 `
 
