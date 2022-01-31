@@ -73,6 +73,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
     const ShortSectionNameMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
     const ShortFloorNameMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
+    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
+    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -165,21 +167,26 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         [search])
 
     const renderNumber = useCallback((number, ticket) => {
-        const deadline = dayjs(get(ticket, 'deadline'))
+        const deadline = dayjs(get(ticket, 'deadline')).startOf('day')
         let extraHighlighterProps
         let extraTitle
 
         if (deadline) {
-            const now = dayjs()
-            const isLessThanOneDay = deadline.isBefore(now.add(1, 'day'))
+            const now = dayjs().startOf('day')
+            const tomorrow = now.add(1, 'day')
+            const isLessThanOneDay = deadline.isBefore(tomorrow) || deadline.isSame(tomorrow)
 
             if (isLessThanOneDay) {
-                if (deadline.startOf('day').isBefore(now)) {
+                const deadlineDay = deadline.startOf('day')
+
+                if (deadlineDay.isBefore(now)) {
                     extraHighlighterProps = { type: 'danger' }
-                    extraTitle = 'Просрочена на 1 день'
+                    const diff = deadlineDay.diff(now, 'minute')
+
+                    extraTitle = OverdueMessage.replace('{days}', dayjs.duration(diff, 'minute').humanize())
                 } else {
                     extraHighlighterProps = { type: 'warning' }
-                    extraTitle = 'На выполнение менее 24ч'
+                    extraTitle = LessThenDayMessage
                 }
             }
         }

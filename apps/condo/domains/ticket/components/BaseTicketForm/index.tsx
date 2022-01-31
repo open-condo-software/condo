@@ -99,6 +99,10 @@ const INITIAL_DEADLINE_VALUE = dayjs(new Date()).add(2, 'day')
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
 
 const TicketDeadlineField = ({ initialValue }) => {
+    const intl = useIntl()
+    const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
+    const AutoCompletionMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion' })
+
     const [isAutoDetectedValue, setIsAutoDetectedValue] = useState<boolean>(!initialValue)
 
     const handleTicketDeadlineChange = useCallback(() => {
@@ -109,7 +113,7 @@ const TicketDeadlineField = ({ initialValue }) => {
         <Row align={'bottom'} gutter={[40, 0]}>
             <Col span={10}>
                 <Form.Item
-                    label={'Выполнить до...'}
+                    label={CompleteBeforeMessage}
                     name={'deadline'}
                     required
                     initialValue={INITIAL_DEADLINE_VALUE}
@@ -118,8 +122,7 @@ const TicketDeadlineField = ({ initialValue }) => {
                         format='DD MMMM YYYY'
                         style={{ width: '100% ' }}
                         onChange={handleTicketDeadlineChange}
-                        disabledDate={isDateDisabled}
-                        locale={'ru'}
+                        // disabledDate={isDateDisabled}
                     />
                 </Form.Item>
             </Col>
@@ -129,7 +132,7 @@ const TicketDeadlineField = ({ initialValue }) => {
                         <Row justify={'center'} align={'middle'} style={{ height: '100%' }}>
                             <Col>
                                 <Typography.Text type={'secondary'}>
-                                        Дата определена автоматически (+2 дня)
+                                    {AutoCompletionMessage}
                                 </Typography.Text>
                             </Col>
                         </Row>
@@ -142,13 +145,13 @@ const TicketDeadlineField = ({ initialValue }) => {
 
 export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
-    const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
-    const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
+    const TicketDeadlineLabel = intl.formatMessage({ id: 'TicketDeadline' })
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
     const WarrantyLabel = intl.formatMessage({ id: 'Warranty' })
     const PaidLabel = intl.formatMessage({ id: 'Paid' })
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
+    const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
 
     const { ClassifiersEditorComponent } = useTicketThreeLevelsClassifierHook({ initialValues })
 
@@ -184,7 +187,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Typography.Title level={4} style={{ margin: '0' }}>Классификатор</Typography.Title>
+                            <Typography.Title level={4} style={{ margin: '0' }}>{ClassifierLabel}</Typography.Title>
                         </Col>
                         <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
                     </Row>
@@ -211,7 +214,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Typography.Title level={4} style={{ margin: '0' }}>Срок выполнения заявки</Typography.Title>
+                            <Typography.Title level={4} style={{ margin: '0' }}>{TicketDeadlineLabel}</Typography.Title>
                         </Col>
                         <Col span={24}>
                             <TicketDeadlineField initialValue={initialValues.deadline} />
