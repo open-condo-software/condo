@@ -9,7 +9,7 @@
  * @returns {Promise<boolean>}
  */
 async function canSyncDevice ({ args: { data } }) {
-    if (!data.deviceId) return false
+    if (!data.deviceId || !data.pushTransport) return false
 
     return true
 }

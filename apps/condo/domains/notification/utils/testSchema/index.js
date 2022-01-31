@@ -133,6 +133,7 @@ async function syncDeviceByTestClient(client, extraAttrs = {}) {
 
     return [data.result, attrs]
 }
+
 async function disconnectUserFromDeviceByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
