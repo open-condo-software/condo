@@ -276,8 +276,8 @@ const buildDataToStoreChangeFrom = async (args) => {
         const field = fields[key]
         if (isScalar(field)) {
             if (existingItem[key] !== updatedItem[key]) {
-                data[`${ key }From`] = existingItem[key]
-                data[`${ key }To`] = updatedItem[key]
+                data[`${ key }From`] = convertScalarValueToInput(existingItem[key])
+                data[`${ key }To`] = convertScalarValueToInput(updatedItem[key])
             }
         } else if (isRelationSingle(field)) {
             if (existingItem[key] !== updatedItem[key]) {
@@ -309,6 +309,19 @@ const buildDataToStoreChangeFrom = async (args) => {
         }
     }))
     return data
+}
+
+/**
+ * In some cases we cannot just pass a value of existing item into input values set.
+ * For example, a `Datetime` Keystone fields accepts `String`, but not a `Date`, as it comes
+ * from a GraphQL query result.
+ * @param value - value of Keystone instance field
+ */
+const convertScalarValueToInput = (value) => {
+    if (value instanceof Date) {
+        return value.toISOString()
+    }
+    return value
 }
 
 const isFieldChanged = (fieldsChanges, fieldKey) => (
