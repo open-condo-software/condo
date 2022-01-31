@@ -22,7 +22,6 @@ export const useNoOrganizationToolTip = (): INoOrganizationToolTipHook => {
                 title={CreateOrgWarning}
                 placement={params.placement}
                 trigger="click"
-                zIndex={1250}
             >
                 {params.element}
             </Tooltip>
