@@ -15,7 +15,7 @@ async function canManageOrganizationLinks ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return Boolean(user.isSupport || user.isAdmin)
+    return !!(user.isSupport || user.isAdmin)
 }
 
 /*
