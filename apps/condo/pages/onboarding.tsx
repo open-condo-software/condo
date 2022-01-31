@@ -2,6 +2,10 @@ import { AuthRequired } from '@condo/domains/common/components/containers/AuthRe
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { OnBoardingStepItem, OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
+import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
+import {
+    useServiceSubscriptionWelcomePopup,
+} from '@condo/domains/subscription/hooks/useServiceSubscriptionWelcomePopup'
 import { useIntl } from '@core/next/intl'
 import { Col, Row, Skeleton, Space, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -9,8 +13,6 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
-import { useNoOrganizationToolTip } from '../domains/onboarding/hooks/useNoOrganizationToolTip'
-import { useServiceSubscriptionWelcomePopup } from '../domains/subscription/hooks/useServiceSubscriptionWelcomePopup'
 
 interface IOnBoardingIndexPage extends React.FC {
     headerAction?: JSX.Element
