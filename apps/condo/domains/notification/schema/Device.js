@@ -9,6 +9,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 
 const access = require('@condo/domains/notification/access/Device')
 
@@ -29,7 +30,7 @@ const Device = new GQLListSchema('Device', {
             type: Text,
             isRequired: true,
             knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false },
+            kmigratorOptions: { unique: true, null: false },
         },
 
         pushToken: {
@@ -37,15 +38,23 @@ const Device = new GQLListSchema('Device', {
             type: Text,
             required: false,
             kmigratorOptions: { unique: true, null: true },
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    // pushTransport is required when pushToken is present in request
+                    if (resolvedData['pushToken'] && !resolvedData['pushTransport']) {
+                        addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}pushTransport] Value is required`)
+                    }
+                },
+            },
         },
 
         pushTransport: {
             schemaDoc: 'Transport service, that delivers push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase.',
             type: Select,
             options: PUSH_TRANSPORT_TYPES,
-            isRequired: true,
-            knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false },
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true },
         },
 
         owner: {
@@ -72,16 +81,6 @@ const Device = new GQLListSchema('Device', {
         delete: false,
         auth: true,
     },
-    kmigratorOptions: {
-        constraints: [
-            {
-                type: 'models.UniqueConstraint',
-                fields: ['deviceId', 'pushTransport'],
-                name: 'deviceId_pushTransport_unique_context_globalId',
-            },
-        ],
-    },
-
 })
 
 module.exports = {
