@@ -4,10 +4,11 @@ import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoa
 import { OnBoardingStepItem, OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 import { useIntl } from '@core/next/intl'
 import { Col, Row, Skeleton, Space, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useNoOrganizationToolTip } from '../domains/onboarding/hooks/useNoOrganizationToolTip'
 import { useServiceSubscriptionWelcomePopup } from '../domains/subscription/hooks/useServiceSubscriptionWelcomePopup'
 
@@ -15,6 +16,9 @@ interface IOnBoardingIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
+
+const GUTTER_TITLE: [Gutter, Gutter] = [0, 40]
+const GUTTER_BODY: [Gutter, Gutter] = [0, 0]
 
 const OnBoardingPage: IOnBoardingIndexPage = () => {
     const intl = useIntl()
@@ -39,6 +43,12 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
         }
     }, [onBoarding])
 
+    const sortedOnBoardingSteps = useMemo(() => {
+        return onBoardingSteps.sort((leftStep, rightStep) => {
+            return leftStep.order > rightStep.order ? 1 : -1
+        })
+    }, [onBoardingSteps])
+
     return (
         <>
             <Head>
@@ -47,7 +57,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
             <PageWrapper>
                 <AuthRequired>
                     <PageContent>
-                        <Row gutter={[0, 40]}>
+                        <Row gutter={GUTTER_TITLE}>
                             <Col span={24}>
                                 <Space direction={'vertical'} size={24}>
                                     <Typography.Title level={1}>{Title}</Typography.Title>
@@ -57,37 +67,33 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                             <Col span={24}>
                                 {onBoardingSteps.length > 0 && !get(onBoarding, 'completed')
                                     ? (
-                                        <Row gutter={[0, 0]}>
-                                            {onBoardingSteps
-                                                .sort((leftStep, rightStep) => {
-                                                    return leftStep.order > rightStep.order ? 1 : -1
-                                                })
-                                                .map((step) => {
-                                                    const { title, description, iconView, stepAction, type, id } = step
+                                        <Row gutter={GUTTER_BODY}>
+                                            {sortedOnBoardingSteps.map((step) => {
+                                                const { title, description, iconView, stepAction, type, id } = step
 
-                                                    if (!type) {
-                                                        return null
-                                                    }
+                                                if (!type) {
+                                                    return null
+                                                }
 
-                                                    const content = (
-                                                        <Col lg={16} md={24} key={id}>
-                                                            <OnBoardingStepItem
-                                                                action={stepAction}
-                                                                icon={iconView}
-                                                                type={type}
-                                                                title={title}
-                                                                description={description}
-                                                            />
-                                                        </Col>
-                                                    )
+                                                const content = (
+                                                    <Col lg={16} md={24} key={id}>
+                                                        <OnBoardingStepItem
+                                                            action={stepAction}
+                                                            icon={iconView}
+                                                            type={type}
+                                                            title={title}
+                                                            description={description}
+                                                        />
+                                                    </Col>
+                                                )
 
-                                                    return type === OnBoardingStepType.DISABLED
-                                                        ? wrapElementIntoNoOrganizationToolTip({
-                                                            element: content,
-                                                            placement: 'topLeft',
-                                                        })
-                                                        : content
-                                                })
+                                                return type === OnBoardingStepType.DISABLED
+                                                    ? wrapElementIntoNoOrganizationToolTip({
+                                                        element: content,
+                                                        placement: 'topLeft',
+                                                    })
+                                                    : content
+                                            })
                                             }
                                         </Row>
                                     )
