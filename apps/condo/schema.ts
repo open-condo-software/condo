@@ -7423,6 +7423,18 @@ export type DevicesUpdateInput = {
   data?: Maybe<DeviceUpdateInput>;
 };
 
+export type DisconnectUserFromDeviceInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  deviceId: Scalars['String'];
+  pushTransport: PushTransportType;
+};
+
+export type DisconnectUserFromDeviceOutput = {
+  __typename?: 'DisconnectUserFromDeviceOutput';
+  id?: Maybe<Scalars['ID']>;
+};
+
 /**  Grouping of properties and employees with one single responsible person  */
 export type Division = {
   __typename?: 'Division';
@@ -12849,6 +12861,7 @@ export type Mutation = {
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   syncDevice?: Maybe<Device>;
+  disconnectUserFromDevice?: Maybe<DisconnectUserFromDeviceOutput>;
   registerResident?: Maybe<Resident>;
   registerServiceConsumer?: Maybe<ServiceConsumer>;
   createOnBoardingByType?: Maybe<OnBoarding>;
@@ -15941,6 +15954,11 @@ export type MutationResendMessageArgs = {
 
 export type MutationSyncDeviceArgs = {
   data: SyncDeviceInput;
+};
+
+
+export type MutationDisconnectUserFromDeviceArgs = {
+  data: DisconnectUserFromDeviceInput;
 };
 
 
@@ -28985,7 +29003,7 @@ export type SyncDeviceInput = {
   sender: SenderFieldInput;
   deviceId: Scalars['String'];
   pushToken?: Maybe<Scalars['String']>;
-  pushTransport?: Maybe<PushTransportType>;
+  pushTransport: PushTransportType;
   meta?: Maybe<Scalars['JSON']>;
 };
 
