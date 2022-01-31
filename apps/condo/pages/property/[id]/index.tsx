@@ -67,6 +67,7 @@ const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, 
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
 const PROPERTY_PAGE_CONTENT_ROW_CARDS_GUTTER: RowProps['gutter'] = [24, 40]
 const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '40px' }
+const PROPERTY_PAGE_ACTION_BAR_SPACE_STYLE: React.CSSProperties = { marginBottom: 0 }
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
     icon: <DeleteFilled />,
@@ -137,7 +138,7 @@ export const PropertyPageContent = ({ property, role }) => {
             {
                 role && role.canManageProperties ? (
                     <ActionBar>
-                        <Space size={20} wrap>
+                        <Space size={20} wrap style={PROPERTY_PAGE_ACTION_BAR_SPACE_STYLE}>
                             <Link href={`/property/${property.id}/update`}>
                                 <span>
                                     <Button
