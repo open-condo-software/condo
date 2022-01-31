@@ -3,12 +3,11 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canGetAllResidentBillingReceipts ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
+async function canGetAllResidentBillingReceipts ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
 
-    return listKey === USER_SCHEMA_NAME
+    return true
 }
 
 /*
