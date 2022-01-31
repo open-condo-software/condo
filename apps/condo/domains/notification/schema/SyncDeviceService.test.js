@@ -24,7 +24,7 @@ const getRandomTokenData = (extraAttrs = {}) => {
 
 describe('SyncDeviceService', () => {
     describe('Anonymous', () => {
-        it('register deviceId + pushTransport + (no pushToken/meta | pushToken | meta | pushToken + meta)', async () => {
+        it('registers deviceId + pushTransport (no pushToken/meta | pushToken | meta | pushToken + meta)', async () => {
             const client = await makeClient()
             const payload = getRandomTokenData({ pushToken: null, meta: null }) // no meta or pushToken
             const payload1 = getRandomTokenData({ meta: null }) // no meta, with pushToken
@@ -68,7 +68,7 @@ describe('SyncDeviceService', () => {
             expect(data3.owner).toBeNull()
         })
 
-        it('register deviceId + pushTransport & update pushToken', async () => {
+        it('registers deviceId + pushTransport & updates pushToken', async () => {
             const client = await makeClient()
             const payload = getRandomTokenData({ pushToken: null, meta: null })
 
@@ -96,7 +96,7 @@ describe('SyncDeviceService', () => {
             expect(data1.owner).toBeNull()
         })
 
-        it('register deviceId + pushTransport & update meta', async () => {
+        it('registers deviceId + pushTransport & updates meta', async () => {
             const client = await makeClient()
             const payload = getRandomTokenData({ pushToken: null, meta: null })
 
@@ -124,7 +124,7 @@ describe('SyncDeviceService', () => {
             expect(data1.owner).toBeNull()
         })
 
-        it('register deviceId + pushTransport & update pushToken + meta', async () => {
+        it('registers deviceId + pushTransport & updates pushToken + meta', async () => {
             const client = await makeClient()
             const payload = getRandomTokenData({ pushToken: null, meta: null })
 
@@ -154,7 +154,7 @@ describe('SyncDeviceService', () => {
             expect(data1.owner).toBeNull()
         })
 
-        it('register deviceId + pushTransport & connect to user', async () => {
+        it('registers deviceId + pushTransport & connects to user', async () => {
             const client = await makeClient()
             const user = await makeLoggedInClient()
             const payload = getRandomTokenData({ pushToken: null, meta: null })
@@ -183,7 +183,7 @@ describe('SyncDeviceService', () => {
             expect(data1.owner.id).toEqual(user.user.id)
         })
 
-        it('register deviceId + pushTransport & update pushToken + connect to user', async () => {
+        it('registers deviceId + pushTransport & updates pushToken + connects to user', async () => {
             const client = await makeClient()
             const user = await makeLoggedInClient()
             const payload = getRandomTokenData({ meta: null, pushToken: null })
@@ -213,7 +213,7 @@ describe('SyncDeviceService', () => {
             expect(data1.owner.id).toEqual(user.user.id)
         })
 
-        it('register deviceId + pushTransport & update meta + connect to user', async () => {
+        it('registers deviceId + pushTransport & updates meta + connects to user', async () => {
             const client = await makeClient()
             const user = await makeLoggedInClient()
             const payload = getRandomTokenData({ meta: null, pushToken: null })
@@ -243,7 +243,7 @@ describe('SyncDeviceService', () => {
             expect(data1.owner.id).toEqual(user.user.id)
         })
 
-        it('register deviceId + pushTransport & update pushToken + meta + connect to user', async () => {
+        it('registers deviceId + pushTransport & updates pushToken + meta + connects to user', async () => {
             const client = await makeClient()
             const user = await makeLoggedInClient()
             const payload = getRandomTokenData({ meta: null, pushToken: null })
@@ -274,7 +274,7 @@ describe('SyncDeviceService', () => {
     })
 
     describe('Authorized', () => {
-        it('register deviceId + pushTransport & connect to user', async () => {
+        it('registers deviceId + pushTransport & connects to user', async () => {
             const user = await makeLoggedInClient()
             const payload = getRandomTokenData({ pushToken: null, meta: null })
 
@@ -289,7 +289,7 @@ describe('SyncDeviceService', () => {
             expect(data.owner.id).toEqual(user.user.id)
         })
 
-        it('register deviceId + pushTransport & reconnect to different user', async () => {
+        it('registers deviceId + pushTransport & reconnects to different user', async () => {
             const user = await makeLoggedInClient()
             const user1 = await makeLoggedInClient()
             const payload = getRandomTokenData({ pushToken: null, meta: null })
@@ -316,7 +316,7 @@ describe('SyncDeviceService', () => {
             expect(data1.owner.id).toEqual(user1.user.id)
         })
 
-        it('register deviceId + pushTransport + (pushToken | meta | pushToken + meta) & connect to user', async () => {
+        it('registers deviceId + pushTransport + (pushToken | meta | pushToken + meta) & connects to user', async () => {
             const user = await makeLoggedInClient()
             const payload = getRandomTokenData({ meta: null })
             const payload1 = getRandomTokenData({ pushToken: null })
@@ -353,7 +353,7 @@ describe('SyncDeviceService', () => {
             expect(data2.owner.id).toEqual(user.user.id)
         })
 
-        it('register deviceId + pushTransport & update pushToken + reconnect to different user', async () => {
+        it('registers deviceId + pushTransport & updates pushToken + reconnects to different user', async () => {
             const client = await makeLoggedInClient()
             const user = await makeLoggedInClient()
             const payload = getRandomTokenData({ meta: null, pushToken: null })
@@ -408,7 +408,7 @@ describe('SyncDeviceService', () => {
         })
 
 
-        it('register deviceId + pushTransport & update pushToken + meta + reconnect to different user', async () => {
+        it('registers deviceId + pushTransport & updates pushToken + meta + reconnects to different user', async () => {
             const client = await makeLoggedInClient()
             const user = await makeLoggedInClient()
             const payload = getRandomTokenData({ meta: null, pushToken: null })

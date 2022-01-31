@@ -21,8 +21,8 @@ const { PUSH_TRANSPORT_TYPES } = require('../constants/constants')
 const DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE = 'duplicate key value violates unique constraint'
 
 describe('Device', () => {
-    describe('Anonymous', async () => {
-        it('direct create Device access denied', async () => {
+    describe('Anonymous', () => {
+        it('disallows to create Device directly with access denied error', async () => {
             const client = await makeClient()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -73,8 +73,8 @@ describe('Device', () => {
         })
     })
 
-    describe('User', async () => {
-        it('direct create Device access denied', async () => {
+    describe('User', () => {
+        it('disallows to create Device directly with access denied error', async () => {
             const client = await makeLoggedInClient()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -91,7 +91,7 @@ describe('Device', () => {
             expect(othersDevice).toBeUndefined()
         })
 
-        it('can read own Device', async () => {
+        it('allows to read own Device', async () => {
             const admin = await makeLoggedInAdminClient()
             const [pushToken] = await createTestDevice(admin)
             const lastDevice = await Device.getOne(admin, { id: pushToken.id })
@@ -126,8 +126,8 @@ describe('Device', () => {
         })
     })
 
-    describe('Admin', async () => {
-        it('direct create Device allowed', async () => {
+    describe('Admin', () => {
+        it('allows to create Device directly', async () => {
             const admin = await makeLoggedInAdminClient()
 
             const [obj, attrs] = await createTestDevice(admin)
@@ -143,7 +143,7 @@ describe('Device', () => {
             expect(obj.owner.id).toEqual(admin.user.id)
         })
 
-        it('deviceId is required', async () => {
+        it('checks that deviceId is required', async () => {
             const admin = await makeLoggedInAdminClient()
 
             await expectToThrowValidationFailureError(async () => {
@@ -151,7 +151,7 @@ describe('Device', () => {
             })
         })
 
-        it('pushToken is not required by itself', async () => {
+        it('checks that pushToken is not required', async () => {
             const admin = await makeLoggedInAdminClient()
 
             const [obj, attrs] = await createTestDevice(admin, { pushToken: null })
@@ -168,7 +168,7 @@ describe('Device', () => {
             expect(obj.pushToken).toBeNull()
         })
 
-        it('pushTransport is required', async () => {
+        it('checks that pushTransport is required', async () => {
             const admin = await makeLoggedInAdminClient()
 
             await expectToThrowValidationFailureError(async () => {
@@ -188,7 +188,7 @@ describe('Device', () => {
             )
         })
 
-        it('able to read other`s Devices', async () => {
+        it('allows to read other`s Devices', async () => {
             const admin = await makeLoggedInAdminClient()
             const admin2 = await makeLoggedInAdminClient()
             const [pushToken] = await createTestDevice(admin)
@@ -203,7 +203,7 @@ describe('Device', () => {
             expect(obj.owner.id).toEqual(admin.user.id)
         })
 
-        it('deviceId + pushTransport is unique', async () => {
+        it('checks that deviceId + pushTransport is unique', async () => {
             const admin = await makeLoggedInAdminClient()
             const admin1 = await makeLoggedInAdminClient()
             const [objCreated] = await createTestDevice(admin)
@@ -216,7 +216,7 @@ describe('Device', () => {
             )
         })
 
-        it('pushToken is unique', async () => {
+        it('checks that pushToken is unique', async () => {
             const admin = await makeLoggedInAdminClient()
             const admin1 = await makeLoggedInAdminClient()
             const extraAttrs = { pushToken: faker.datatype.uuid(), pushTransport: sample(PUSH_TRANSPORT_TYPES) }
@@ -230,7 +230,7 @@ describe('Device', () => {
             )
         })
 
-        it('update Device', async () => {
+        it('allows to update Device', async () => {
             const admin = await makeLoggedInAdminClient()
             const admin1 = await makeLoggedInAdminClient()
             const [objCreated] = await createTestDevice(admin)
