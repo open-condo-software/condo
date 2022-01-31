@@ -3,28 +3,19 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadOnBoardings ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadOnBoardings ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
-    if (listKey === USER_SCHEMA_NAME) {
-        return {}
-    }
-
-    return false
+    return {}
 }
 
-async function canManageOnBoardings ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canManageOnBoardings ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
-    if (listKey === USER_SCHEMA_NAME) {
-        return true
-    }
-
-    return false
+    return true
 }
 
 /*
