@@ -3,33 +3,23 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadServiceSubscriptionPayments ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadServiceSubscriptionPayments ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    
+    if (user.isSupport || user.isAdmin) return {}
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isSupport || item.isAdmin) return {}
-
-        return {
-            organization: queryOrganizationEmployeeFor(item.id),
-        }
+    return {
+        organization: queryOrganizationEmployeeFor(user.id),
     }
-
-    return false
 }
 
-async function canManageServiceSubscriptionPayments ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
-
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-
-        return false
-    }
+async function canManageServiceSubscriptionPayments ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
     return false
 }
