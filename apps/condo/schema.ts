@@ -28229,6 +28229,10 @@ export enum SortTicketChangesBy {
   StatusReasonFromDesc = 'statusReasonFrom_DESC',
   StatusReasonToAsc = 'statusReasonTo_ASC',
   StatusReasonToDesc = 'statusReasonTo_DESC',
+  DeadlineFromAsc = 'deadlineFrom_ASC',
+  DeadlineFromDesc = 'deadlineFrom_DESC',
+  DeadlineToAsc = 'deadlineTo_ASC',
+  DeadlineToDesc = 'deadlineTo_DESC',
   OrderFromAsc = 'orderFrom_ASC',
   OrderFromDesc = 'orderFrom_DESC',
   OrderToAsc = 'orderTo_ASC',
@@ -29596,6 +29600,10 @@ export type TicketChange = {
   statusReasonFrom?: Maybe<Scalars['String']>;
   /**  Text reason for status changes. Sometimes you should describe the reason why you change the `status`  */
   statusReasonTo?: Maybe<Scalars['String']>;
+  /**  Time after which the ticket must be completed  */
+  deadlineFrom?: Maybe<Scalars['String']>;
+  /**  Time after which the ticket must be completed  */
+  deadlineTo?: Maybe<Scalars['String']>;
   /**  Field required for specific sorting of model objects  */
   orderFrom?: Maybe<Scalars['Int']>;
   /**  Field required for specific sorting of model objects  */
@@ -29788,6 +29796,8 @@ export type TicketChangeCreateInput = {
   statusReopenedCounterTo?: Maybe<Scalars['Int']>;
   statusReasonFrom?: Maybe<Scalars['String']>;
   statusReasonTo?: Maybe<Scalars['String']>;
+  deadlineFrom?: Maybe<Scalars['String']>;
+  deadlineTo?: Maybe<Scalars['String']>;
   orderFrom?: Maybe<Scalars['Int']>;
   orderTo?: Maybe<Scalars['Int']>;
   numberFrom?: Maybe<Scalars['Int']>;
@@ -29891,6 +29901,8 @@ export type TicketChangeUpdateInput = {
   statusReopenedCounterTo?: Maybe<Scalars['Int']>;
   statusReasonFrom?: Maybe<Scalars['String']>;
   statusReasonTo?: Maybe<Scalars['String']>;
+  deadlineFrom?: Maybe<Scalars['String']>;
+  deadlineTo?: Maybe<Scalars['String']>;
   orderFrom?: Maybe<Scalars['Int']>;
   orderTo?: Maybe<Scalars['Int']>;
   numberFrom?: Maybe<Scalars['Int']>;
@@ -30055,6 +30067,22 @@ export type TicketChangeWhereInput = {
   statusReasonTo_not_ends_with_i?: Maybe<Scalars['String']>;
   statusReasonTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   statusReasonTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deadlineFrom?: Maybe<Scalars['String']>;
+  deadlineFrom_not?: Maybe<Scalars['String']>;
+  deadlineFrom_lt?: Maybe<Scalars['String']>;
+  deadlineFrom_lte?: Maybe<Scalars['String']>;
+  deadlineFrom_gt?: Maybe<Scalars['String']>;
+  deadlineFrom_gte?: Maybe<Scalars['String']>;
+  deadlineFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deadlineFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deadlineTo?: Maybe<Scalars['String']>;
+  deadlineTo_not?: Maybe<Scalars['String']>;
+  deadlineTo_lt?: Maybe<Scalars['String']>;
+  deadlineTo_lte?: Maybe<Scalars['String']>;
+  deadlineTo_gt?: Maybe<Scalars['String']>;
+  deadlineTo_gte?: Maybe<Scalars['String']>;
+  deadlineTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deadlineTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   orderFrom?: Maybe<Scalars['Int']>;
   orderFrom_not?: Maybe<Scalars['Int']>;
   orderFrom_lt?: Maybe<Scalars['Int']>;
