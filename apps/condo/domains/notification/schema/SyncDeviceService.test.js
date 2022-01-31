@@ -304,7 +304,7 @@ describe('SyncDeviceService', () => {
             expect(data.owner).not.toBeNull()
             expect(data.owner.id).toEqual(user.user.id)
 
-            const payload1 = { deviceId: payload.deviceId, pushTransport: payload.pushTransport}
+            const payload1 = { deviceId: payload.deviceId, pushTransport: payload.pushTransport }
             const [data1] = await syncDeviceByTestClient(user1, payload1)
 
             expect(data1.id).toEqual(data.id)
