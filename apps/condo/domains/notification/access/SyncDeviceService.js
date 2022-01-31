@@ -5,7 +5,7 @@
 /**
  * Manages SyncDeviceService access rights
  * Service can be accessed by both unauthorized and authorized users in different scenarios,
- * that are managed within service itself, in order not to duplicate operation type detection heuristics logic
+ * that are managed within service itself, in order to not duplicate operation type detection heuristics logic
  * @returns {Promise<boolean>}
  */
 async function canSyncDevice ({ args: { data } }) {

@@ -11,18 +11,6 @@ const { Device: DeviceAPI } = require('@condo/domains/notification/utils/serverS
 
 const { PUSH_TRANSPORT_TYPES } = require('../constants/constants')
 
-const resolveSyncDevice = async (parent, args, context) => {
-    const { data: { dv, sender, deviceId, pushToken, pushTransport, meta } } = args
-    const userId = get(context, 'authedItem.id', null)
-    const owner = userId ? { disconnectAll: true, connect: { id: userId } } : null
-    const attrs = { dv, sender, deviceId, pushToken, pushTransport, meta, owner }
-    const where = { deviceId, pushTransport }
-    const data = await DeviceAPI.updateOrCreate(context, where, attrs)
-    const result = await getById('Device', data.id)
-
-    return result
-}
-
 const SyncDeviceService = new GQLCustomSchema('SyncDeviceService', {
     types: [
         {
@@ -39,7 +27,17 @@ const SyncDeviceService = new GQLCustomSchema('SyncDeviceService', {
         {
             access: access.canSyncDevice,
             schema: 'syncDevice(data: SyncDeviceInput!): Device',
-            resolver: resolveSyncDevice,
+            resolver: async (parent, args, context) => {
+                const { data: { dv, sender, deviceId, pushToken, pushTransport, meta } } = args
+                const userId = get(context, 'authedItem.id', null)
+                const owner = userId ? { disconnectAll: true, connect: { id: userId } } : null
+                const attrs = { dv, sender, deviceId, pushToken, pushTransport, meta, owner }
+                const where = { deviceId, pushTransport }
+                const data = await DeviceAPI.updateOrCreate(context, where, attrs)
+                const result = await getById('Device', data.id)
+
+                return result
+            },
         },
     ],
     
