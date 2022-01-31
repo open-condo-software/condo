@@ -8,50 +8,41 @@ const { getById } = require('@core/keystone/schema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 
-async function canReadContacts ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadContacts ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    
+    if (user.isAdmin) return {}
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return {}
-        const userId = item.id
-
-        return {
-            organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(userId),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                ],
-            },
-        }
+    return {
+        organization: {
+            OR: [
+                queryOrganizationEmployeeFor(user.id),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+            ],
+        },
     }
-
-    return false
 }
 
-async function canManageContacts ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canManageContacts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-        const userId = item.id
+    if (user.isAdmin) return true
 
-        if (operation === 'create') {
-            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+    if (operation === 'create') {
+        const organizationId = get(originalInput, ['organization', 'connect', 'id'])
 
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, 'canManageContacts')
-        }
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageContacts')
+    }
 
-        if (operation === 'update') {
-            const contact = await getById('Contact', itemId)
-            if (!contact) return false
-            const contactOrganization = contact.organization
+    if (operation === 'update') {
+        const contact = await getById('Contact', itemId)
+        if (!contact) return false
+        const contactOrganization = contact.organization
 
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, contactOrganization, 'canManageContacts')
-        }
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, contactOrganization, 'canManageContacts')
     }
 
     return false

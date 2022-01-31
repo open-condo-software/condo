@@ -4,29 +4,24 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkOrganizationPermission, checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 const { find } = require('@core/keystone/schema')
 
-async function canExportMeterReadings ({ args: { data: { where } }, authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canExportMeterReadings ({ args: { data: { where } }, authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-        const organizationId = get(where, ['organization', 'id'])
+    const organizationId = get(where, ['organization', 'id'])
 
-        if (organizationId) {
-            return await checkOrganizationPermission(item.id, organizationId, 'canManageMeters')
-        } else {
-            const organizationWhere = get(where, 'organization')
-            const [relatedFromOrganization] = await find('Organization', organizationWhere)
-            if (!relatedFromOrganization) return false
+    if (organizationId) {
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageMeters')
+    } else {
+        const organizationWhere = get(where, 'organization')
+        const [relatedFromOrganization] = await find('Organization', organizationWhere)
+        if (!relatedFromOrganization) return false
 
-            return await checkRelatedOrganizationPermission(item.id, relatedFromOrganization.id, 'canManageMeters')
-        }
+        return await checkRelatedOrganizationPermission(user.id, relatedFromOrganization.id, 'canManageMeters')
     }
-
-    return false
 }
 
 /*

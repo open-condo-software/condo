@@ -6,84 +6,73 @@ const { getAvailableResidentMetersIds } = require('../utils/serverSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { get } = require('lodash')
 const { getByCondition } = require('@core/keystone/schema')
 
-async function canReadMeters ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadMeters ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    
+    if (user.isSupport || user.isAdmin) return {}
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isSupport || item.isAdmin) return {}
-        const userId = item.id
-
-        if (item.type === RESIDENT) {
-            const availableMetersIds = await getAvailableResidentMetersIds(userId)
-
-            return {
-                id_in: availableMetersIds,
-                deletedAt: null,
-            }
-        }
+    if (user.type === RESIDENT) {
+        const availableMetersIds = await getAvailableResidentMetersIds(user.id)
 
         return {
-            organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(userId),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                ],
-            },
+            id_in: availableMetersIds,
+            deletedAt: null,
         }
     }
 
-    return false
+    return {
+        organization: {
+            OR: [
+                queryOrganizationEmployeeFor(user.id),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+            ],
+        },
+    }
 }
 
-async function canManageMeters ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canManageMeters ({ authentication: { item: user }, originalInput, operation, itemId }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
+    if (operation === 'create') {
+        const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        if (!organizationId) return false
+        const propertyId = get(originalInput, ['property', 'connect', 'id'])
+        const property = await getByCondition('Property', {
+            id: propertyId,
+            deletedAt: null,
+        })
+        if (!property) return false
+        if (organizationId !== get(property, 'organization')) return false
 
-        if (operation === 'create') {
-            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-            if (!organizationId) return false
-            const propertyId = get(originalInput, ['property', 'connect', 'id'])
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMeters')
+    }
+
+    if (operation === 'update' && itemId) {
+        const meter = await getByCondition('Meter', {
+            id: itemId,
+            deletedAt: null,
+        })
+        if (!meter) return false
+        // if we pass property then we need check that this Property is in the organization in which the Meter is located
+        const meterOrganization = get(meter, 'organization')
+        const propertyId = get(originalInput, ['property', 'connect', 'id'])
+        if (propertyId) {
             const property = await getByCondition('Property', {
                 id: propertyId,
                 deletedAt: null,
             })
             if (!property) return false
-            if (organizationId !== get(property, 'organization')) return false
-
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(item.id, organizationId, 'canManageMeters')
+            if (meterOrganization !== get(property, 'organization')) return false
         }
 
-        if (operation === 'update' && itemId) {
-            const meter = await getByCondition('Meter', {
-                id: itemId,
-                deletedAt: null,
-            })
-            if (!meter) return false
-            // if we pass property then we need check that this Property is in the organization in which the Meter is located
-            const meterOrganization = get(meter, 'organization')
-            const propertyId = get(originalInput, ['property', 'connect', 'id'])
-            if (propertyId) {
-                const property = await getByCondition('Property', {
-                    id: propertyId,
-                    deletedAt: null,
-                })
-                if (!property) return false
-                if (meterOrganization !== get(property, 'organization')) return false
-            }
-
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(item.id, meterOrganization, 'canManageMeters')
-        }
-
-        return false
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, meterOrganization, 'canManageMeters')
     }
 
     return false

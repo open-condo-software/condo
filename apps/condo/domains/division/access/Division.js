@@ -5,49 +5,41 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkOrganizationPermission, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 const { getById } = require('@core/keystone/schema')
 
-async function canReadDivisions ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadDivisions ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isSupport || item.isAdmin) return {}
-        const userId = item.id
+    if (user.isSupport || user.isAdmin) return {}
 
-        return {
-            organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(userId),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                ],
-            },
-        }
+    return {
+        organization: {
+            OR: [
+                queryOrganizationEmployeeFor(user.id),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+            ],
+        },
     }
-
-    return false
 }
 
-async function canManageDivisions ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canManageDivisions ({ authentication: { item: user }, originalInput, operation, itemId }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    
+    if (user.isAdmin) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
+    if (operation === 'create') {
+        const organizationId = get(originalInput, ['organization', 'connect', 'id'])
 
-        if (operation === 'create') {
-            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageDivisions')
+    }
 
-            return await checkOrganizationPermission(item.id, organizationId, 'canManageDivisions')
-        }
+    if (operation === 'update') {
+        const division = await getById('Division', itemId)
+        if (!division) return false
 
-        if (operation === 'update') {
-            const division = await getById('Division', itemId)
-            if (!division) return false
-
-            return await checkOrganizationPermission(item.id, division.organization, 'canManageDivisions')
-        }
+        return await checkOrganizationPermission(user.id, division.organization, 'canManageDivisions')
     }
 
     return false
