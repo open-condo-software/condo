@@ -161,12 +161,13 @@ const buttonDefaultGradientCss = (secondary = false) => {
       
       &:before {
         border-radius: inherit;
-        background: ${gradients.sberActionGradient};
+        background: ${gradients.sberActionInversed};
         content: '';
         display: block;
         position: absolute;
         top: -1px;
-        left: -1px;
+        left: 0;
+        right: 0;
         height: inherit;
         width: inherit;
         color: black;

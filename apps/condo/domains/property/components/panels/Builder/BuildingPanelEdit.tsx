@@ -113,9 +113,10 @@ const MenuCss = css`
   & .ant-dropdown-menu-item button {
     text-align: left;
     width: 100%;
-    padding: 16px 18px;
+    padding: 0 18px;
     height: 60px;
     display: flex;
+    align-items: center;
     border: 1px solid ${colors.backgroundWhiteSecondary};
   }
   & .ant-dropdown-menu-item button svg {
@@ -401,7 +402,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                 css={DropdownCss}
                                 mouseEnterDelay={0}
                             >
-                                <Button type='sberBlack'>{AddElementTitle}<span>...</span></Button>
+                                <Button type='sberDefaultGradient' secondary>{AddElementTitle}<span>...</span></Button>
                             </Dropdown>
                         </Space>
                     </Col>
