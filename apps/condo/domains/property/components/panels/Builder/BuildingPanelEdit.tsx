@@ -149,6 +149,9 @@ const TopModal = styled.div<ITopModalProps>`
   & > .ant-row:first-child {
     margin-bottom: 20px;
   }
+  & .ant-row .ant-input-number {
+    border: 1px solid #D0D3E5;
+  }
 `
 
 const FormModalCss = css`
@@ -178,13 +181,14 @@ interface IBuildingPanelTopModalProps {
     title: string | null
     onClose: () => void
 }
+const BUILDING_TOP_MODAL_TITLE_STYLE: React.CSSProperties = { fontWeight: 700 }
 
 const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible, onClose, title, children }) => (
     <TopModal visible={visible}>
         <Row justify={'space-between'} align={'top'}>
             <Col span={22}>
                 {title !== null && (
-                    <Typography.Title level={4}>{title}</Typography.Title>
+                    <Typography.Title level={4} style={BUILDING_TOP_MODAL_TITLE_STYLE}>{title}</Typography.Title>
                 )}
             </Col>
             <Col span={2}>
@@ -834,6 +838,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
     const iconRotation = minFloorHidden ? 0 : 180
+    const minFloorMargin = minFloorHidden ? '-28px' : 0
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
@@ -868,7 +873,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
                     <InputNumber value={maxFloor} onChange={setMaxFloorValue} style={INPUT_STYLE} type={'number'} />
                 </Space>
             </Col>
-            <Col span={24} hidden={isCreateColumnsHidden}>
+            <Col span={24} hidden={isCreateColumnsHidden} style={{ marginTop: minFloorMargin }}>
                 <Space
                     direction={'vertical'}
                     size={8}
@@ -1123,7 +1128,7 @@ interface IAddParkingFormProps {
     builder: MapEdit
     refresh(): void
 }
-const TEXT_BUTTON_STYLE: React.CSSProperties = { cursor: 'pointer' }
+const TEXT_BUTTON_STYLE: React.CSSProperties = { cursor: 'pointer', marginTop: '8px', display: 'block' }
 
 const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) => {
     const intl = useIntl()
@@ -1199,6 +1204,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
     const isCreateColumnsHidden = copyId !== null
     const iconRotation = minFloorHidden ? 0 : 180
+    const minFloorMargin = minFloorHidden ? '-28px' : 0
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
@@ -1238,7 +1244,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
                     />
                 </Space>
             </Col>
-            <Col span={24} hidden={isCreateColumnsHidden}>
+            <Col span={24} hidden={isCreateColumnsHidden} style={{ marginTop: minFloorMargin }}>
                 <Space
                     direction={'vertical'}
                     size={8}
