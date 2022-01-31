@@ -15,7 +15,11 @@ const access = require('@condo/domains/notification/access/Device')
 const { PUSH_TRANSPORT_TYPES } = require('../constants/constants')
 
 const Device = new GQLListSchema('Device', {
-    schemaDoc: 'Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport. Device could be mobile or web based. ',
+    schemaDoc:  'Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. ' +
+                'Device could be mobile or web based. ' +
+                'Device could be registered (created by user, admin or anonymous) with or without token, and updated later on by admin (or a user within SyncDeviceService) by ' +
+                'adding/changing token value and connecting device to user (whose authorization was passed within request). ' +
+                'All such interactions should be done via SyncDeviceService.',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,

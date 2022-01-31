@@ -12,408 +12,427 @@ const { PUSH_TRANSPORT_TYPES } = require('@condo/domains/notification/constants/
 
 const getRandomTokenData = (extraAttrs = {}) => {
     const pushTransport = sample(PUSH_TRANSPORT_TYPES)
-    const data =  {
+
+    return {
         deviceId: faker.datatype.uuid(),
         pushToken: faker.datatype.uuid(),
         pushTransport,
         meta: { pushTransport },
         ...extraAttrs,
     }
-
-    return data
 }
 
-/**
- * Test cases for Service
- *
- * 1. anonymous/unauthorized (+)
- * 1.1. anonymous: deviceId + pushTransport (+)
- *          - register device + pushTransport  (+)
- *          - ignore update operation (nothing changed)
- * 1.2. anonymous: deviceId + pushTransport + pushToken (+)
- *          - register device & pushToken (+)
- *          - update pushToken of existing device (+)
- * 1.3. anonymous: deviceId + pushTransport + pushToken + meta (+)
- *          - register device with pushToken & meta (+)
- *          - update pushToken with meta of existing device (+)
- * 1.4. anonymous: deviceId + pushTransport + meta (+)
- *          - register device with meta (+)
- *          - update meta of existing device (either no pushToken or pushToken not changed) (+)
- *
- * 2. user
- * 2.1. user: deviceId + pushTransport (+)
- *          - register device & connect user (+)
- *          - connect user to existing device (+)
- *          - reconnect existing device to different user (+)
- * 2.2. user: deviceId + pushTransport + pushToken (+)
- *          - register device with pushToken & connect to user (+)
- *          - update pushToken of existing device & connect to user (+)
- *          - update pushToken of existing device & reconnect to different user (+)
- * 2.3. user: deviceId + pushTransport + pushToken + meta (+)
- *          - register device with pushToken & meta & connect to user (+)
- *          - update pushToken/meta of existing device & connect to user (+)
- *          - update pushToken/meta of existing device & reconnect to different user (+)
- * 2.4. user: deviceId + pushTransport + meta (+)
- *          - register device with meta & connect to user (no pushToken yet) (+)
- *          - update meta of existing device & connect to user (no pushToken yet or not changed) (+)
- *          - update meta of existing device & reconnect to different user (no pushToken yet or not changed) (+)
- *
- * 3. admin - the same with user
- */
-
 describe('SyncDeviceService', () => {
-    test('anonymous: register deviceId + pushTransport + (no pushToken/meta | pushToken | meta | pushToken + meta)', async () => {
-        const client = await makeClient()
-        const payload = getRandomTokenData({ pushToken: null, meta: null }) // no meta or pushToken
-        const payload1 = getRandomTokenData({ meta: null }) // no meta, with pushToken
-        const payload2 = getRandomTokenData({ pushToken: null }) // no pushToken, with meta
-        const payload3 = getRandomTokenData() // with meta & pushToken
+    describe('Anonymous', () => {
+        it('register deviceId + pushTransport + (no pushToken/meta | pushToken | meta | pushToken + meta)', async () => {
+            const client = await makeClient()
+            const payload = getRandomTokenData({ pushToken: null, meta: null }) // no meta or pushToken
+            const payload1 = getRandomTokenData({ meta: null }) // no meta, with pushToken
+            const payload2 = getRandomTokenData({ pushToken: null }) // no pushToken, with meta
+            const payload3 = getRandomTokenData() // with meta & pushToken
 
-        const [data] = await syncDeviceByTestClient(client, payload)
+            const [data] = await syncDeviceByTestClient(client, payload)
 
-        expect(data.id).not.toBeFalsy()
-        expect(data.deviceId).toEqual(payload.deviceId)
-        expect(data.pushTransport).toEqual(payload.pushTransport)
-        expect(data.pushToken).toBeNull()
-        expect(data.meta).toBeNull()
-        expect(data.owner).toBeNull()
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).toBeNull()
 
-        const [data1] = await syncDeviceByTestClient(client, payload1)
+            const [data1] = await syncDeviceByTestClient(client, payload1)
 
-        expect(data1.id).not.toBeFalsy()
-        expect(data1.deviceId).toEqual(payload1.deviceId)
-        expect(data1.pushTransport).toEqual(payload1.pushTransport)
-        expect(data1.pushToken).toEqual(payload1.pushToken)
-        expect(data1.meta).toBeNull()
-        expect(data1.owner).toBeNull()
+            expect(data1.id).not.toBeFalsy()
+            expect(data1.deviceId).toEqual(payload1.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toEqual(payload1.pushToken)
+            expect(data1.meta).toBeNull()
+            expect(data1.owner).toBeNull()
 
-        const [data2] = await syncDeviceByTestClient(client, payload2)
+            const [data2] = await syncDeviceByTestClient(client, payload2)
 
-        expect(data2.id).not.toBeFalsy()
-        expect(data2.deviceId).toEqual(payload2.deviceId)
-        expect(data2.pushTransport).toEqual(payload2.pushTransport)
-        expect(data2.pushToken).toBeNull()
-        expect(data2.meta).toEqual(payload2.meta)
-        expect(data2.owner).toBeNull()
+            expect(data2.id).not.toBeFalsy()
+            expect(data2.deviceId).toEqual(payload2.deviceId)
+            expect(data2.pushTransport).toEqual(payload2.pushTransport)
+            expect(data2.pushToken).toBeNull()
+            expect(data2.meta).toEqual(payload2.meta)
+            expect(data2.owner).toBeNull()
 
-        const [data3] = await syncDeviceByTestClient(client, payload3)
+            const [data3] = await syncDeviceByTestClient(client, payload3)
 
-        expect(data3.id).not.toBeFalsy()
-        expect(data3.deviceId).toEqual(payload3.deviceId)
-        expect(data3.pushTransport).toEqual(payload3.pushTransport)
-        expect(data3.pushToken).toEqual(payload3.pushToken)
-        expect(data3.meta).toEqual(payload3.meta)
-        expect(data3.owner).toBeNull()
+            expect(data3.id).not.toBeFalsy()
+            expect(data3.deviceId).toEqual(payload3.deviceId)
+            expect(data3.pushTransport).toEqual(payload3.pushTransport)
+            expect(data3.pushToken).toEqual(payload3.pushToken)
+            expect(data3.meta).toEqual(payload3.meta)
+            expect(data3.owner).toBeNull()
+        })
 
+        it('register deviceId + pushTransport & update pushToken', async () => {
+            const client = await makeClient()
+            const payload = getRandomTokenData({ pushToken: null, meta: null })
+
+            const [data] = await syncDeviceByTestClient(client, payload)
+
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).toBeNull()
+
+            const payload1 = {
+                deviceId: payload.deviceId,
+                pushTransport: payload.pushTransport,
+                pushToken: faker.datatype.uuid(),
+            }
+            const [data1] = await syncDeviceByTestClient(client, payload1)
+
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(data.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toEqual(payload1.pushToken)
+            expect(data1.meta).toBeNull()
+            expect(data1.owner).toBeNull()
+        })
+
+        it('register deviceId + pushTransport & update meta', async () => {
+            const client = await makeClient()
+            const payload = getRandomTokenData({ pushToken: null, meta: null })
+
+            const [data] = await syncDeviceByTestClient(client, payload)
+
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).toBeNull()
+
+            const payload1 = {
+                deviceId: payload.deviceId,
+                pushTransport: payload.pushTransport,
+                meta: { pushTransport: payload.pushTransport },
+            }
+            const [data1] = await syncDeviceByTestClient(client, payload1)
+
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(data.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toBeNull()
+            expect(data1.meta).toEqual(payload1.meta)
+            expect(data1.owner).toBeNull()
+        })
+
+        it('register deviceId + pushTransport & update pushToken + meta', async () => {
+            const client = await makeClient()
+            const payload = getRandomTokenData({ pushToken: null, meta: null })
+
+            const [data] = await syncDeviceByTestClient(client, payload)
+
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).toBeNull()
+
+            const pushToken = faker.datatype.uuid()
+            const payload1 = {
+                deviceId: payload.deviceId,
+                pushTransport: payload.pushTransport,
+                pushToken,
+                meta: { pushTransport: payload.pushTransport, pushToken },
+            }
+            const [data1] = await syncDeviceByTestClient(client, payload1)
+
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(data.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toEqual(payload1.pushToken)
+            expect(data1.meta).toEqual(payload1.meta)
+            expect(data1.owner).toBeNull()
+        })
+
+        it('register deviceId + pushTransport & connect to user', async () => {
+            const client = await makeClient()
+            const user = await makeLoggedInClient()
+            const payload = getRandomTokenData({ pushToken: null, meta: null })
+
+            const [data] = await syncDeviceByTestClient(client, payload)
+
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).toBeNull()
+
+            const payload1 = {
+                deviceId: payload.deviceId,
+                pushTransport: payload.pushTransport,
+            }
+            const [data1] = await syncDeviceByTestClient(user, payload1)
+
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(data.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toBeNull()
+            expect(data1.meta).toBeNull()
+            expect(data1.owner).not.toBeNull()
+            expect(data1.owner.id).toEqual(user.user.id)
+        })
+
+        it('register deviceId + pushTransport & update pushToken + connect to user', async () => {
+            const client = await makeClient()
+            const user = await makeLoggedInClient()
+            const payload = getRandomTokenData({ meta: null, pushToken: null })
+            const payload1 = getRandomTokenData({
+                deviceId: payload.deviceId,
+                pushTransport: payload.pushTransport,
+                meta: null,
+            })
+
+            const [data] = await syncDeviceByTestClient(client, payload)
+
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).toBeNull()
+
+            const [data1] = await syncDeviceByTestClient(user, payload1)
+
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(payload1.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toEqual(payload1.pushToken)
+            expect(data1.meta).toBeNull()
+            expect(data1.owner).not.toBeNull()
+            expect(data1.owner.id).toEqual(user.user.id)
+        })
+
+        it('register deviceId + pushTransport & update meta + connect to user', async () => {
+            const client = await makeClient()
+            const user = await makeLoggedInClient()
+            const payload = getRandomTokenData({ meta: null, pushToken: null })
+            const payload1 = getRandomTokenData({
+                deviceId: payload.deviceId,
+                pushTransport: payload.pushTransport,
+                pushToken: null,
+            })
+
+            const [data] = await syncDeviceByTestClient(client, payload)
+
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).toBeNull()
+
+            const [data1] = await syncDeviceByTestClient(user, payload1)
+
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(payload1.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toBeNull()
+            expect(data1.meta).toEqual(payload1.meta)
+            expect(data1.owner).not.toBeNull()
+            expect(data1.owner.id).toEqual(user.user.id)
+        })
+
+        it('register deviceId + pushTransport & update pushToken + meta + connect to user', async () => {
+            const client = await makeClient()
+            const user = await makeLoggedInClient()
+            const payload = getRandomTokenData({ meta: null, pushToken: null })
+            const payload1 = getRandomTokenData({
+                deviceId: payload.deviceId,
+                pushTransport: payload.pushTransport,
+            })
+
+            const [data] = await syncDeviceByTestClient(client, payload)
+
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).toBeNull()
+
+            const [data1] = await syncDeviceByTestClient(user, payload1)
+
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(payload1.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toEqual(payload1.pushToken)
+            expect(data1.meta).toEqual(payload1.meta)
+            expect(data1.owner).not.toBeNull()
+            expect(data1.owner.id).toEqual(user.user.id)
+        })
     })
 
-    test('anonymous: register deviceId + pushTransport & update pushToken | meta | pushToken + meta', async () => {
-        const client = await makeClient()
-        const payload = getRandomTokenData({ pushToken: null, meta: null })
+    describe('Authorized', () => {
+        it('register deviceId + pushTransport & connect to user', async () => {
+            const user = await makeLoggedInClient()
+            const payload = getRandomTokenData({ pushToken: null, meta: null })
 
-        const [data] = await syncDeviceByTestClient(client, payload)
+            const [data] = await syncDeviceByTestClient(user, payload)
 
-        expect(data.id).not.toBeFalsy()
-        expect(data.deviceId).toEqual(payload.deviceId)
-        expect(data.pushTransport).toEqual(payload.pushTransport)
-        expect(data.pushToken).toBeNull()
-        expect(data.meta).toBeNull()
-        expect(data.owner).toBeNull()
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).not.toBeNull()
+            expect(data.owner.id).toEqual(user.user.id)
+        })
 
-        const payload1 = {
-            deviceId: payload.deviceId,
-            pushTransport: payload.pushTransport,
-            pushToken: faker.datatype.uuid(),
-        }
-        const [data1] = await syncDeviceByTestClient(client, payload1)
+        it('register deviceId + pushTransport & reconnect to different user', async () => {
+            const user = await makeLoggedInClient()
+            const user1 = await makeLoggedInClient()
+            const payload = getRandomTokenData({ pushToken: null, meta: null })
 
-        expect(data1.id).toEqual(data.id)
-        expect(data1.deviceId).toEqual(data.deviceId)
-        expect(data1.pushTransport).toEqual(payload1.pushTransport)
-        expect(data1.pushToken).toEqual(payload1.pushToken)
-        expect(data1.meta).toBeNull()
-        expect(data1.owner).toBeNull()
+            const [data] = await syncDeviceByTestClient(user, payload)
 
-        const payload2 = {
-            deviceId: payload.deviceId,
-            pushTransport: payload.pushTransport,
-            meta: { pushTransport: payload.pushTransport },
-        }
-        const [data2] = await syncDeviceByTestClient(client, payload2)
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).not.toBeNull()
+            expect(data.owner.id).toEqual(user.user.id)
 
-        expect(data2.id).toEqual(data.id)
-        expect(data2.deviceId).toEqual(data.deviceId)
-        expect(data2.pushTransport).toEqual(payload2.pushTransport)
-        expect(data2.pushToken).toEqual(payload1.pushToken)
-        expect(data2.meta).toEqual(payload2.meta)
-        expect(data2.owner).toBeNull()
+            const payload1 = { deviceId: payload.deviceId, pushTransport: payload.pushTransport}
+            const [data1] = await syncDeviceByTestClient(user1, payload1)
 
-        const pushToken = faker.datatype.uuid()
-        const payload3 = {
-            deviceId: payload.deviceId,
-            pushTransport: payload.pushTransport,
-            pushToken,
-            meta: { pushTransport: payload.pushTransport, pushToken },
-        }
-        const [data3] = await syncDeviceByTestClient(client, payload3)
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(data.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toBeNull()
+            expect(data1.meta).toBeNull()
+            expect(data1.owner).not.toBeNull()
+            expect(data1.owner.id).toEqual(user1.user.id)
+        })
 
-        expect(data3.id).toEqual(data.id)
-        expect(data3.deviceId).toEqual(data.deviceId)
-        expect(data3.pushTransport).toEqual(payload3.pushTransport)
-        expect(data3.pushToken).toEqual(payload3.pushToken)
-        expect(data3.meta).toEqual(payload3.meta)
-        expect(data3.owner).toBeNull()
-    })
+        it('register deviceId + pushTransport + (pushToken | meta | pushToken + meta) & connect to user', async () => {
+            const user = await makeLoggedInClient()
+            const payload = getRandomTokenData({ meta: null })
+            const payload1 = getRandomTokenData({ pushToken: null })
+            const payload2 = getRandomTokenData()
 
-    test('anonymous: register deviceId + pushTransport & connect to user', async () => {
-        const client = await makeClient()
-        const user = await makeLoggedInClient()
-        const payload = getRandomTokenData({ pushToken: null, meta: null })
+            const [data] = await syncDeviceByTestClient(user, payload)
 
-        const [data] = await syncDeviceByTestClient(client, payload)
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toEqual(payload.pushToken)
+            expect(data.meta).toBeNull()
+            expect(data.owner).not.toBeNull()
+            expect(data.owner.id).toEqual(user.user.id)
 
-        expect(data.id).not.toBeFalsy()
-        expect(data.deviceId).toEqual(payload.deviceId)
-        expect(data.pushTransport).toEqual(payload.pushTransport)
-        expect(data.pushToken).toBeNull()
-        expect(data.meta).toBeNull()
-        expect(data.owner).toBeNull()
+            const [data1] = await syncDeviceByTestClient(user, payload1)
 
-        const payload1 = {
-            deviceId: payload.deviceId,
-            pushTransport: payload.pushTransport,
-        }
-        const [data1] = await syncDeviceByTestClient(user, payload1)
+            expect(data1.id).not.toBeFalsy()
+            expect(data1.deviceId).toEqual(payload1.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toBeNull()
+            expect(data1.meta).toEqual(payload1.meta)
+            expect(data1.owner).not.toBeNull()
+            expect(data1.owner.id).toEqual(user.user.id)
 
-        expect(data1.id).toEqual(data.id)
-        expect(data1.deviceId).toEqual(data.deviceId)
-        expect(data1.pushTransport).toEqual(payload1.pushTransport)
-        expect(data1.pushToken).toBeNull()
-        expect(data1.meta).toBeNull()
-        expect(data1.owner).not.toBeNull()
-        expect(data1.owner.id).toEqual(user.user.id)
-    })
+            const [data2] = await syncDeviceByTestClient(user, payload2)
 
-    test('authorized: register deviceId + pushTransport & connect to user', async () => {
-        const user = await makeLoggedInClient()
-        const payload = getRandomTokenData({ pushToken: null, meta: null })
+            expect(data2.id).not.toBeFalsy()
+            expect(data2.deviceId).toEqual(payload2.deviceId)
+            expect(data2.pushTransport).toEqual(payload2.pushTransport)
+            expect(data2.pushToken).toEqual(payload2.pushToken)
+            expect(data2.meta).toEqual(payload2.meta)
+            expect(data2.owner).not.toBeNull()
+            expect(data2.owner.id).toEqual(user.user.id)
+        })
 
-        const [data] = await syncDeviceByTestClient(user, payload)
+        it('register deviceId + pushTransport & update pushToken + reconnect to different user', async () => {
+            const client = await makeLoggedInClient()
+            const user = await makeLoggedInClient()
+            const payload = getRandomTokenData({ meta: null, pushToken: null })
+            const payload1 = getRandomTokenData({ deviceId: payload.deviceId, pushTransport: payload.pushTransport, meta: null })
 
-        expect(data.id).not.toBeFalsy()
-        expect(data.deviceId).toEqual(payload.deviceId)
-        expect(data.pushTransport).toEqual(payload.pushTransport)
-        expect(data.pushToken).toBeNull()
-        expect(data.meta).toBeNull()
-        expect(data.owner).not.toBeNull()
-        expect(data.owner.id).toEqual(user.user.id)
-    })
+            const [data] = await syncDeviceByTestClient(client, payload)
 
-    test('authorized: register deviceId + pushTransport & reconnect to different user', async () => {
-        const user = await makeLoggedInClient()
-        const user1 = await makeLoggedInClient()
-        const payload = getRandomTokenData({ pushToken: null, meta: null })
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).not.toBeNull()
+            expect(data.owner.id).toEqual(client.user.id)
 
-        const [data] = await syncDeviceByTestClient(user, payload)
+            const [data1] = await syncDeviceByTestClient(user, payload1)
 
-        expect(data.id).not.toBeFalsy()
-        expect(data.deviceId).toEqual(payload.deviceId)
-        expect(data.pushTransport).toEqual(payload.pushTransport)
-        expect(data.pushToken).toBeNull()
-        expect(data.meta).toBeNull()
-        expect(data.owner).not.toBeNull()
-        expect(data.owner.id).toEqual(user.user.id)
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(payload1.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toEqual(payload1.pushToken)
+            expect(data1.meta).toBeNull()
+            expect(data1.owner).not.toBeNull()
+            expect(data1.owner.id).toEqual(user.user.id)
+        })
 
-        const payload1 = {
-            deviceId: payload.deviceId,
-            pushTransport: payload.pushTransport,
-        }
-        const [data1] = await syncDeviceByTestClient(user1, payload1)
+        it('register deviceId + pushTransport & update meta + reconnect to different user', async () => {
+            const client = await makeLoggedInClient()
+            const user = await makeLoggedInClient()
+            const payload = getRandomTokenData({ meta: null, pushToken: null })
+            const payload1 = getRandomTokenData({ deviceId: payload.deviceId, pushTransport: payload.pushTransport, pushToken: null })
 
-        expect(data1.id).toEqual(data.id)
-        expect(data1.deviceId).toEqual(data.deviceId)
-        expect(data1.pushTransport).toEqual(payload1.pushTransport)
-        expect(data1.pushToken).toBeNull()
-        expect(data1.meta).toBeNull()
-        expect(data1.owner).not.toBeNull()
-        expect(data1.owner.id).toEqual(user1.user.id)
-    })
+            const [data] = await syncDeviceByTestClient(client, payload)
 
-    test('authorized: register deviceId + pushTransport + (pushToken | meta | pushToken + meta) & connect to user', async () => {
-        const user = await makeLoggedInClient()
-        const payload = getRandomTokenData({ meta: null })
-        const payload1 = getRandomTokenData( { pushToken: null })
-        const payload2 = getRandomTokenData()
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).not.toBeNull()
+            expect(data.owner.id).toEqual(client.user.id)
 
-        const [data] = await syncDeviceByTestClient(user, payload)
+            const [data1] = await syncDeviceByTestClient(user, payload1)
 
-        expect(data.id).not.toBeFalsy()
-        expect(data.deviceId).toEqual(payload.deviceId)
-        expect(data.pushTransport).toEqual(payload.pushTransport)
-        expect(data.pushToken).toEqual(payload.pushToken)
-        expect(data.meta).toBeNull()
-        expect(data.owner).not.toBeNull()
-        expect(data.owner.id).toEqual(user.user.id)
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(payload1.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toBeNull()
+            expect(data1.meta).toEqual(payload1.meta)
+            expect(data1.owner).not.toBeNull()
+            expect(data1.owner.id).toEqual(user.user.id)
+        })
 
-        const [data1] = await syncDeviceByTestClient(user, payload1)
 
-        expect(data1.id).not.toBeFalsy()
-        expect(data1.deviceId).toEqual(payload1.deviceId)
-        expect(data1.pushTransport).toEqual(payload1.pushTransport)
-        expect(data1.pushToken).toBeNull()
-        expect(data1.meta).toEqual(payload1.meta)
-        expect(data1.owner).not.toBeNull()
-        expect(data1.owner.id).toEqual(user.user.id)
+        it('register deviceId + pushTransport & update pushToken + meta + reconnect to different user', async () => {
+            const client = await makeLoggedInClient()
+            const user = await makeLoggedInClient()
+            const payload = getRandomTokenData({ meta: null, pushToken: null })
+            const payload1 = getRandomTokenData({ deviceId: payload.deviceId, pushTransport: payload.pushTransport })
 
-        const [data2] = await syncDeviceByTestClient(user, payload2)
+            const [data] = await syncDeviceByTestClient(client, payload)
 
-        expect(data2.id).not.toBeFalsy()
-        expect(data2.deviceId).toEqual(payload2.deviceId)
-        expect(data2.pushTransport).toEqual(payload2.pushTransport)
-        expect(data2.pushToken).toEqual(payload2.pushToken)
-        expect(data2.meta).toEqual(payload2.meta)
-        expect(data2.owner).not.toBeNull()
-        expect(data2.owner.id).toEqual(user.user.id)
-    })
+            expect(data.id).not.toBeFalsy()
+            expect(data.deviceId).toEqual(payload.deviceId)
+            expect(data.pushTransport).toEqual(payload.pushTransport)
+            expect(data.pushToken).toBeNull()
+            expect(data.meta).toBeNull()
+            expect(data.owner).not.toBeNull()
+            expect(data.owner.id).toEqual(client.user.id)
 
-    test('anonymous: register deviceId + pushTransport & update (pushToken | meta | pushToken + meta) + connect to user', async () => {
-        const client = await makeClient()
-        const user = await makeLoggedInClient()
-        const payload = getRandomTokenData({ meta: null, pushToken: null })
-        const payload1 = getRandomTokenData({ meta: null, pushToken: null })
-        const payload2 = getRandomTokenData({ meta: null, pushToken: null })
+            const [data1] = await syncDeviceByTestClient(user, payload1)
 
-        const payload3 = getRandomTokenData( { deviceId: payload.deviceId, pushTransport: payload.pushTransport, meta: null })
-        const payload4 = getRandomTokenData( { deviceId: payload1.deviceId, pushTransport: payload1.pushTransport, pushToken: null })
-        const payload5 = getRandomTokenData( { deviceId: payload2.deviceId, pushTransport: payload2.pushTransport })
-
-        const [data] = await syncDeviceByTestClient(client, payload)
-
-        expect(data.id).not.toBeFalsy()
-        expect(data.deviceId).toEqual(payload.deviceId)
-        expect(data.pushTransport).toEqual(payload.pushTransport)
-        expect(data.pushToken).toBeNull()
-        expect(data.meta).toBeNull()
-        expect(data.owner).toBeNull()
-
-        const [data1] = await syncDeviceByTestClient(client, payload1)
-
-        expect(data1.id).not.toBeFalsy()
-        expect(data1.deviceId).toEqual(payload1.deviceId)
-        expect(data1.pushTransport).toEqual(payload1.pushTransport)
-        expect(data1.pushToken).toBeNull()
-        expect(data1.meta).toBeNull()
-        expect(data1.owner).toBeNull()
-
-        const [data2] = await syncDeviceByTestClient(client, payload2)
-
-        expect(data2.id).not.toBeFalsy()
-        expect(data2.deviceId).toEqual(payload2.deviceId)
-        expect(data2.pushTransport).toEqual(payload2.pushTransport)
-        expect(data2.pushToken).toBeNull()
-        expect(data2.meta).toBeNull()
-        expect(data2.owner).toBeNull()
-
-        const [data3] = await syncDeviceByTestClient(user, payload3)
-
-        expect(data3.id).toEqual(data.id)
-        expect(data3.deviceId).toEqual(payload3.deviceId)
-        expect(data3.pushTransport).toEqual(payload3.pushTransport)
-        expect(data3.pushToken).toEqual(payload3.pushToken)
-        expect(data3.meta).toBeNull()
-        expect(data3.owner).not.toBeNull()
-        expect(data3.owner.id).toEqual(user.user.id)
-
-        const [data4] = await syncDeviceByTestClient(user, payload4)
-
-        expect(data4.id).toEqual(data1.id)
-        expect(data4.deviceId).toEqual(payload4.deviceId)
-        expect(data4.pushTransport).toEqual(payload4.pushTransport)
-        expect(data4.pushToken).toBeNull()
-        expect(data4.meta).toEqual(payload4.meta)
-        expect(data4.owner).not.toBeNull()
-        expect(data4.owner.id).toEqual(user.user.id)
-
-        const [data5] = await syncDeviceByTestClient(user, payload5)
-
-        expect(data5.id).toEqual(data2.id)
-        expect(data5.deviceId).toEqual(payload5.deviceId)
-        expect(data5.pushTransport).toEqual(payload5.pushTransport)
-        expect(data5.pushToken).toEqual(payload5.pushToken)
-        expect(data5.meta).toEqual(payload5.meta)
-        expect(data5.owner).not.toBeNull()
-        expect(data5.owner.id).toEqual(user.user.id)
-    })
-
-    test('authorized: register deviceId + pushTransport & update (pushToken | meta | pushToken + meta) + reconnect to different user', async () => {
-        const client = await makeLoggedInClient()
-        const user = await makeLoggedInClient()
-        const payload = getRandomTokenData({ meta: null, pushToken: null })
-        const payload1 = getRandomTokenData({ meta: null, pushToken: null })
-        const payload2 = getRandomTokenData({ meta: null, pushToken: null })
-
-        const payload3 = getRandomTokenData( { deviceId: payload.deviceId, pushTransport: payload.pushTransport, meta: null })
-        const payload4 = getRandomTokenData( { deviceId: payload1.deviceId, pushTransport: payload1.pushTransport, pushToken: null })
-        const payload5 = getRandomTokenData( { deviceId: payload2.deviceId, pushTransport: payload2.pushTransport })
-
-        const [data] = await syncDeviceByTestClient(client, payload)
-
-        expect(data.id).not.toBeFalsy()
-        expect(data.deviceId).toEqual(payload.deviceId)
-        expect(data.pushTransport).toEqual(payload.pushTransport)
-        expect(data.pushToken).toBeNull()
-        expect(data.meta).toBeNull()
-        expect(data.owner).not.toBeNull()
-        expect(data.owner.id).toEqual(client.user.id)
-
-        const [data1] = await syncDeviceByTestClient(client, payload1)
-
-        expect(data1.id).not.toBeFalsy()
-        expect(data1.deviceId).toEqual(payload1.deviceId)
-        expect(data1.pushTransport).toEqual(payload1.pushTransport)
-        expect(data1.pushToken).toBeNull()
-        expect(data1.meta).toBeNull()
-        expect(data1.owner).not.toBeNull()
-        expect(data1.owner.id).toEqual(client.user.id)
-
-        const [data2] = await syncDeviceByTestClient(client, payload2)
-
-        expect(data2.id).not.toBeFalsy()
-        expect(data2.deviceId).toEqual(payload2.deviceId)
-        expect(data2.pushTransport).toEqual(payload2.pushTransport)
-        expect(data2.pushToken).toBeNull()
-        expect(data2.meta).toBeNull()
-        expect(data2.owner).not.toBeNull()
-        expect(data2.owner.id).toEqual(client.user.id)
-
-        const [data3] = await syncDeviceByTestClient(user, payload3)
-
-        expect(data3.id).toEqual(data.id)
-        expect(data3.deviceId).toEqual(payload3.deviceId)
-        expect(data3.pushTransport).toEqual(payload3.pushTransport)
-        expect(data3.pushToken).toEqual(payload3.pushToken)
-        expect(data3.meta).toBeNull()
-        expect(data3.owner).not.toBeNull()
-        expect(data3.owner.id).toEqual(user.user.id)
-
-        const [data4] = await syncDeviceByTestClient(user, payload4)
-
-        expect(data4.id).toEqual(data1.id)
-        expect(data4.deviceId).toEqual(payload4.deviceId)
-        expect(data4.pushTransport).toEqual(payload4.pushTransport)
-        expect(data4.pushToken).toBeNull()
-        expect(data4.meta).toEqual(payload4.meta)
-        expect(data4.owner).not.toBeNull()
-        expect(data4.owner.id).toEqual(user.user.id)
-
-        const [data5] = await syncDeviceByTestClient(user, payload5)
-
-        expect(data5.id).toEqual(data2.id)
-        expect(data5.deviceId).toEqual(payload5.deviceId)
-        expect(data5.pushTransport).toEqual(payload5.pushTransport)
-        expect(data5.pushToken).toEqual(payload5.pushToken)
-        expect(data5.meta).toEqual(payload5.meta)
-        expect(data5.owner).not.toBeNull()
-        expect(data5.owner.id).toEqual(user.user.id)
+            expect(data1.id).toEqual(data.id)
+            expect(data1.deviceId).toEqual(payload1.deviceId)
+            expect(data1.pushTransport).toEqual(payload1.pushTransport)
+            expect(data1.pushToken).toEqual(payload1.pushToken)
+            expect(data1.meta).toEqual(payload1.meta)
+            expect(data1.owner).not.toBeNull()
+            expect(data1.owner.id).toEqual(user.user.id)
+        })
     })
 })

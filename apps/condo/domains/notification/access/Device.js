@@ -13,6 +13,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 async function canReadDevices ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isBlocked) return false
     if (user.isAdmin) return {}
 
     // User allowed to read own device info
