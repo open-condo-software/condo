@@ -32,7 +32,7 @@ const TICKET_STATUS_TYPES = [
     at declaration stage of `TicketChange`.
  */
 // TODO(AntonAL) add files to trackable - files are now in hidden relation
-const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusUpdatedAt', 'classifierRule', 'deadline']
+const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusUpdatedAt', 'classifierRule']
 
 module.exports = {
     NEW_OR_REOPENED_STATUS_TYPE,
