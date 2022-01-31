@@ -4,73 +4,60 @@
 
 const get = require('lodash/get')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { getByCondition } = require('@core/keystone/schema')
 
-async function canReadTicketComments ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadTicketComments ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    
+    if (user.isSupport || user.isAdmin) return {}
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isSupport || item.isAdmin) return {}
-        const userId = item.id
-
-        return {
-            ticket: {
-                organization: {
-                    OR: [
-                        queryOrganizationEmployeeFor(userId),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                    ],
-                },
+    return {
+        ticket: {
+            organization: {
+                OR: [
+                    queryOrganizationEmployeeFor(user.id),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                ],
             },
-        }
+        },
+    }
+}
+
+async function canManageTicketComments ({ authentication: { item: user }, originalInput, operation, itemId }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
+
+    if (operation === 'create') {
+        const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
+        const ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
+        if (!ticket) return false
+        const organizationId = get(ticket, 'organization')
+
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketComments')
+    } else if (operation === 'update' && itemId) {
+        const comment = await getByCondition('TicketComment', { id: itemId, deletedAt: null })
+        if (!comment || comment.user !== user.id) return false
+        const ticket = await getByCondition('Ticket', { id: comment.ticket, deletedAt: null })
+        if (!ticket) return false
+        const organizationId = get(ticket, 'organization')
+
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketComments')
     }
 
     return false
 }
 
-async function canManageTicketComments ({ authentication: { item, listKey }, originalInput, operation, itemId }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canSetUserField ({ authentication: { item: user }, originalInput }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-        const userId = item.id
-        if (operation === 'create') {
-            const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
-            const ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
-            if (!ticket) return false
-            const organizationId = get(ticket, 'organization')
-
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, 'canManageTicketComments')
-        } else if (operation === 'update' && itemId) {
-            const comment = await getByCondition('TicketComment', { id: itemId, deletedAt: null })
-            if (!comment || comment.user !== userId) return false
-            const ticket = await getByCondition('Ticket', { id: comment.ticket, deletedAt: null })
-            if (!ticket) return false
-            const organizationId = get(ticket, 'organization')
-
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, 'canManageTicketComments')
-        }
-
-        return false
-    }
-
-    return false
-}
-
-async function canSetUserField ({ authentication: { item, listKey }, originalInput }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-        return get(originalInput, ['user', 'connect', 'id']) === item.id
-    }
-    return false
+    return get(originalInput, ['user', 'connect', 'id']) === user.id
 }
 
 /*

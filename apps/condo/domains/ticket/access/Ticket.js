@@ -12,107 +12,97 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { getById, find } = require('@core/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { USER_SCHEMA_NAME } = require('@condo/domains/common/constants/utils')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
-async function canReadTickets ({ authentication: { item, listKey } }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canReadTickets ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isSupport || item.isAdmin) return {}
-        const userId = item.id
-        if (item.type === RESIDENT) {
-            const residents = await find('Resident', { user: { id: userId }, deletedAt: null })
-            const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
+    if (user.isSupport || user.isAdmin) return {}
 
-            return {
-                organization: {
-                    id_in: uniq(organizationsIds),
-                    deletedAt: null,
-                },
-                createdBy: { id: userId },
-                deletedAt: null,
-            }
-        }
+    if (user.type === RESIDENT) {
+        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+        const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
 
         return {
             organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(userId),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-                ],
+                id_in: uniq(organizationsIds),
                 deletedAt: null,
             },
+            createdBy: { id: user.id },
+            deletedAt: null,
         }
     }
 
-    return false
+    return {
+        organization: {
+            OR: [
+                queryOrganizationEmployeeFor(user.id),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+            ],
+            deletedAt: null,
+        },
+    }
 }
 
-async function canManageTickets ({ authentication: { item, listKey }, operation, itemId, originalInput }) {
-    if (!listKey || !item) return throwAuthenticationError()
-    if (item.deletedAt) return false
+async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
 
-    if (listKey === USER_SCHEMA_NAME) {
-        if (item.isAdmin) return true
-        const userId = item.id
-        if (item.type === RESIDENT) {
-            let unitName, propertyId
+    if (user.type === RESIDENT) {
+        let unitName, propertyId
 
-            if (operation === 'create') {
-                unitName = get(originalInput, 'unitName', null)
-                propertyId = get(originalInput, ['property', 'connect', 'id'])
-            } else if (operation === 'update') {
-                if (!itemId) return false
+        if (operation === 'create') {
+            unitName = get(originalInput, 'unitName', null)
+            propertyId = get(originalInput, ['property', 'connect', 'id'])
+        } else if (operation === 'update') {
+            if (!itemId) return false
 
-                const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'details'])
-                if (!isEmpty(inaccessibleUpdatedFields)) return false
+            const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'details'])
+            if (!isEmpty(inaccessibleUpdatedFields)) return false
 
-                const ticket = await getById('Ticket', itemId)
-                if (!ticket) return false
-                if (ticket.createdBy !== userId) return false
-                propertyId = get(ticket, 'property', null)
-                unitName = get(ticket, 'unitName', null)
-            }
-
-            if (!unitName || !propertyId) return false
-
-            const residents = await find('Resident', {
-                user: { id: userId },
-                property: { id: propertyId, deletedAt: null },
-                unitName,
-                deletedAt: null,
-            })
-
-            return residents.length > 0
-        }
-        if (item.type === STAFF) {
-            let organizationId
-
-            if (operation === 'create') {
-                organizationId = get(originalInput, ['organization', 'connect', 'id'])
-            } else if (operation === 'update') {
-                if (!itemId) return false
-                const ticket = await getById('Ticket', itemId)
-                organizationId = get(ticket, 'organization', null)
-            }
-
-            const permission = await checkPermissionInUserOrganizationOrRelatedOrganization(userId, organizationId, 'canManageTickets')
-            if (!permission) return false
-
-            const propertyId = get(originalInput, ['property', 'connect', 'id'], null)
-            if (propertyId) {
-                const property = await getById('Property', propertyId)
-                if (!property) return false
-
-                return organizationId === get(property, 'organization')
-            }
-
-            return true
+            const ticket = await getById('Ticket', itemId)
+            if (!ticket) return false
+            if (ticket.createdBy !== user.id) return false
+            propertyId = get(ticket, 'property', null)
+            unitName = get(ticket, 'unitName', null)
         }
 
-        return false
+        if (!unitName || !propertyId) return false
+
+        const residents = await find('Resident', {
+            user: { id: user.id },
+            property: { id: propertyId, deletedAt: null },
+            unitName,
+            deletedAt: null,
+        })
+
+        return residents.length > 0
+    }
+    if (user.type === STAFF) {
+        let organizationId
+
+        if (operation === 'create') {
+            organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        } else if (operation === 'update') {
+            if (!itemId) return false
+            const ticket = await getById('Ticket', itemId)
+            organizationId = get(ticket, 'organization', null)
+        }
+
+        const permission = await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTickets')
+        if (!permission) return false
+
+        const propertyId = get(originalInput, ['property', 'connect', 'id'], null)
+        if (propertyId) {
+            const property = await getById('Property', propertyId)
+            if (!property) return false
+
+            return organizationId === get(property, 'organization')
+        }
+
+        return true
     }
 
     return false
