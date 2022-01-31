@@ -8,14 +8,14 @@ async function canReadTokenSets ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return Boolean(user.isAdmin)
+    return !!user.isAdmin
 }
 
 async function canManageTokenSets ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return Boolean(user.isAdmin)
+    return !!user.isAdmin
 }
 
 /*

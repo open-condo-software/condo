@@ -9,7 +9,7 @@ const userIsAuthenticated = (args) => {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return !!user.id
+    return Boolean(user.id)
 }
 
 const userIsAdmin = (args) => {

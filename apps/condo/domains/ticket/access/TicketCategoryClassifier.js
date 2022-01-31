@@ -15,7 +15,7 @@ async function canManageTicketCategoryClassifiers ({ authentication: { item: use
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return Boolean(user.isSupport || user.isAdmin)
+    return !!(user.isSupport || user.isAdmin)
 }
 
 /*
