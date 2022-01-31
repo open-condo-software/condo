@@ -17,6 +17,7 @@ const {
 
 const { Device, createTestDevice, updateTestDevice } = require('@condo/domains/notification/utils/testSchema')
 
+const { getRandomTokenData } = require('../utils/testSchema/helpers')
 const { PUSH_TRANSPORT_TYPES } = require('../constants/constants')
 
 const DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE = 'duplicate key value violates unique constraint'
@@ -169,12 +170,28 @@ describe('Device', () => {
             expect(obj.pushToken).toBeNull()
         })
 
-        it('checks that pushTransport is required', async () => {
+        it('checks that pushTransport is not required by itself', async () => {
             const admin = await makeLoggedInAdminClient()
 
-            await expectToThrowValidationFailureError(async () => {
-                const extraAttrs = { pushTransport: null }
+            const [obj, attrs] = await createTestDevice(admin, { pushTransport: undefined })
 
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdAt).toMatch(DATETIME_RE)
+            expect(obj.updatedAt).toMatch(DATETIME_RE)
+            expect(obj.owner.id).toEqual(admin.user.id)
+            expect(obj.pushTransport).toBeNull()
+        })
+
+        it('checks that pushTransport is required if token provided', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const extraAttrs = { ...getRandomTokenData(), pushTransport: undefined }
+
+            await expectToThrowValidationFailureError(async () => {
                 await createTestDevice(admin, extraAttrs)
             })
         })
@@ -204,11 +221,11 @@ describe('Device', () => {
             expect(obj.owner.id).toEqual(admin.user.id)
         })
 
-        it('checks that deviceId + pushTransport is unique', async () => {
+        it('checks that deviceId is unique', async () => {
             const admin = await makeLoggedInAdminClient()
             const admin1 = await makeLoggedInAdminClient()
             const [objCreated] = await createTestDevice(admin)
-            const extraAttrs = { deviceId: objCreated.deviceId, pushTransport: objCreated.pushTransport }
+            const extraAttrs = { deviceId: objCreated.deviceId }
 
             await expectToThrowMutationError(
                 async () => await createTestDevice(admin1, extraAttrs),

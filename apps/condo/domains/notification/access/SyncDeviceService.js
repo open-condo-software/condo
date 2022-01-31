@@ -8,11 +8,9 @@
  * that are managed within service itself, in order to not duplicate operation type detection heuristics logic
  * @returns {Promise<boolean>}
  */
-async function canSyncDevice ({ args: { data }, authentication: { item: user } }) {
+async function canSyncDevice ({ authentication: { item: user } }) {
     // Can be called by anonymous or non-deleted user
     if (user && user.deletedAt) return false
-
-    if (!data.deviceId) return false
 
     return true
 }

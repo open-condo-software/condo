@@ -17,6 +17,7 @@ const {
 
 const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
 
+const { DISCONNECT_USER_FROM_DEVICE_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
@@ -80,6 +81,21 @@ async function syncDevice (context, data) {
     })
 }
 
+async function disconnectUserFromDevice (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    if (!data.deviceId) throw new Error('no data.deviceId')
+    if (!data.pushTransport) throw new Error('no data.pushTransport')
+
+    return await execGqlWithoutAccess(context, {
+        query: DISCONNECT_USER_FROM_DEVICE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to disconnectUserFromDevice',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -88,5 +104,6 @@ module.exports = {
     resendMessage,
     Device,
     syncDevice,
+    disconnectUserFromDevice,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

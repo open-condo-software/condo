@@ -34,15 +34,20 @@ const SYNC_DEVICE_MUTATION = gql`
     }
 `
 
+const DISCONNECT_USER_FROM_DEVICE_MUTATION = gql`
+    mutation disconnectUserFromDevice ($data: DisconnectUserFromDeviceInput!) {
+        result: disconnectUserFromDevice(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Message,
     SEND_MESSAGE,
     RESEND_MESSAGE,
-
     Device,
     SYNC_DEVICE_MUTATION,
-
+    DISCONNECT_USER_FROM_DEVICE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
