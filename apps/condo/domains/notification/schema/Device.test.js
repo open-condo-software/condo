@@ -10,6 +10,7 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
     expectToThrowMutationError,
     expectToThrowUserInputError,
 } = require('@condo/domains/common/utils/testSchema')
@@ -25,7 +26,7 @@ describe('Device', () => {
         it('disallows to create Device directly with access denied error', async () => {
             const client = await makeClient()
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestDevice(client)
             })
         })
@@ -57,7 +58,7 @@ describe('Device', () => {
                 deviceId: objCreated.deviceId,
             }
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestDevice(client, objCreated.id, payload)
             })
         })
