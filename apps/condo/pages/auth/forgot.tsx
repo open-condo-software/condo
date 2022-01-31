@@ -9,7 +9,7 @@ import { useMutation } from '@core/next/apollo'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 import { WRONG_PHONE_ERROR, TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { LOCK_TIMEOUT } from '@condo/domains/user/constants/common'
+import { SMS_CODE_TTL } from '@condo/domains/user/constants/common'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -140,7 +140,7 @@ function ResetPageView () {
                             </Col>
                             <Col span={24}>
                                 <Form.Item>
-                                    <CountDownTimer action={startConfirmPhoneAction} id={'FORGOT_ACTION'} timeout={LOCK_TIMEOUT}>
+                                    <CountDownTimer action={startConfirmPhoneAction} id={'FORGOT_ACTION'} timeout={SMS_CODE_TTL}>
                                         {({ countdown, runAction }) => {
                                             const isCountDownActive = countdown > 0
                                             return (
