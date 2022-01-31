@@ -267,8 +267,6 @@ const Ticket = new GQLListSchema('Ticket', {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
-
-            // addOrderToTicket(resolvedData)
             const statusId = get(resolvedData, 'status')
 
             if (statusId) {
@@ -312,9 +310,9 @@ const Ticket = new GQLListSchema('Ticket', {
              * new resolver should be implemented in `ticketChangeDisplayNameResolversForSingleRelations` and `relatedManyToManyResolvers`
              */
             const { property, unitName, placeClassifier, categoryClassifier, problemClassifier } = Ticket.schema.fields
-            const a = buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS })
+
             await storeChangesIfUpdated(
-                a,
+                buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
                 createTicketChange,
                 ticketChangeDisplayNameResolversForSingleRelations,
                 relatedManyToManyResolvers,

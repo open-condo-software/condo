@@ -2,7 +2,6 @@ import React from 'react'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
-import 'dayjs/locale/ru'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
@@ -142,8 +141,6 @@ const MenuItems: React.FC = () => {
 const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
     dayjs.locale(intl.locale)
-
-    console.log('intl', intl.locale)
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later

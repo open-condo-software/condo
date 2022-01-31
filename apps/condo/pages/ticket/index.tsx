@@ -104,8 +104,6 @@ export const TicketsPageContent = ({
 
     const [hoveredTicket, setHoveredTicket] = useState()
 
-    console.log('tickets', tickets)
-
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
