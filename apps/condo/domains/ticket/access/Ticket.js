@@ -30,7 +30,6 @@ async function canReadTickets ({ authentication: { item: user } }) {
                 deletedAt: null,
             },
             createdBy: { id: user.id },
-            deletedAt: null,
         }
     }
 
