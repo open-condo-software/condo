@@ -37,7 +37,7 @@ async function canManageContacts ({ authentication: { item: user }, originalInpu
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageContacts')
     }
 
-    if (operation === 'update') {
+    if (operation === 'update' && itemId) {
         const contact = await getById('Contact', itemId)
         if (!contact) return false
         const contactOrganization = contact.organization
