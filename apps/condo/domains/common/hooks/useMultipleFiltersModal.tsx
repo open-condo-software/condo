@@ -47,6 +47,8 @@ import {
     getQueryToValueProcessorByType,
     updateQuery,
 } from '../utils/filters.utils'
+import { colors } from '../constants/style'
+import { Tooltip } from '../components/Tooltip'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -308,9 +310,9 @@ type ResetFiltersModalButtonProps = {
 }
 
 const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
-                                                                             handleReset: handleResetFromProps,
-                                                                             style,
-                                                                             size = 'large',
+    handleReset: handleResetFromProps,
+    style,
+    size = 'large',
 }) => {
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
