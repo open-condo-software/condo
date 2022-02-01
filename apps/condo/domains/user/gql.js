@@ -108,6 +108,14 @@ const SIGNIN_AS_USER_MUTATION = gql`
     }
 `
 
+// TODO(codegen): write return type result!
+
+const REGISTER_NEW_USER_SERVICE_MUTATION = gql`
+    mutation registerNewUserService ($data: RegisterNewUserServiceInput!) {
+        result: registerNewUserService(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -129,6 +137,9 @@ module.exports = {
     SIGNIN_RESIDENT_USER_MUTATION,
     CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION,
     SIGNIN_AS_USER_MUTATION,
+
+
+    REGISTER_NEW_USER_SERVICE_MUTATION,
 
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
