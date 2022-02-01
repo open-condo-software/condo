@@ -31,6 +31,15 @@ Look carefully at errors of this generator, in most cases they are self-explanat
 Validation should be performed in resolver.
 Don't validate input in access control modules.
 
-## Return result
+## Returning result
 
-Use `getById` functions from `@core/keystone/schema` to return result of custom mutation or query.
+**When an instance of a Keystone list is to be returned, you should use data-access utils, that using Keystone database adapter under the hood, like `getById` from `@core/keystone/schema`.**
+
+This way from resolver we can query any set of fields for given Keystone list with any nesting.
+
+For example, consider a `Property` schema and following custom Query: `customPropertyQuery( id: ID! ): Property`.
+Suppose, that we have declared only `id name` fields in `apps/condo/domains/property/gql.js`. This will be the only fields, that utils from `generateServerUtils` will return.
+Suppose, that we are using this custom query in a following way — `customPropertyQuery('asdf-123') { id name unitsCount organization { id name } }`.
+This way we will get an error in resolver, because set of queried fields mismatches to what we have manually declared in `apps/condo/domains/property/gql.js`.
+
+So, to avoid this side effect, use wrappers around Keystone database adapter.
