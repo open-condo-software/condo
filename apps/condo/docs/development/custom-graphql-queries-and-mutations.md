@@ -8,7 +8,7 @@ Depending on a task in question, you should pay attention to following:
 - Checking data version in `dv` field
 - Compatibility issues of existing consumers of our GraphQL API, when you're going to change input/output data format
 
-If something is unclear, please, discuss with colleagues from appropriate department.
+If something is unclear, please, discuss with colleagues from appropriate department or open an issue.
 
 ## Input validation
 
