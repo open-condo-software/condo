@@ -111,6 +111,7 @@ const gradients = {
     sberActionGradient: 'linear-gradient(115deg, #4CD174 16%, #6DB8F2 84%)',
     sberActionInversed: 'linear-gradient(115deg, #3DCB68 16%, #58A6E2 84%)',
     fadeOutGradient: 'linear-gradient(180deg, #FFFFFF 21.92%,rgba(255,255,255,0) 106.02%)',
+    mainGradientPressed: 'linear-gradient(115deg, #2ABB56 16%, #3A97DC 84%);',
 }
 
 const zIndex = {
