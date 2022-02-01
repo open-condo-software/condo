@@ -66,3 +66,13 @@ So, to avoid this side effect, use wrappers around Keystone database adapter.
 Probably, you're not using wrappers from `@core/keystone/schema` to query data for returning result.
 You're having a mismatch between what you're querying and what is actually returned.
 Read "Returning result" section above.
+
+## Testing
+
+Pay attention to cover following cases:
+- Catch all exceptions, supposed to be explicitly thrown in internal logic of custom query or mutation
+- Execution of custom query or mutation from all roles 
+
+Following cases may not be a subject of testing, **when they are already covered** in tests for appropriate Keystone list schema:
+- Violations of database constraints
+- Side effects, implemented in hooks of some Keystone list schema
