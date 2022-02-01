@@ -43,3 +43,11 @@ Suppose, that we are using this custom query in a following way — `customPrope
 This way we will get an error in resolver, because set of queried fields mismatches to what we have manually declared in `apps/condo/domains/property/gql.js`.
 
 So, to avoid this side effect, use wrappers around Keystone database adapter.
+
+## Debugging
+
+### `null` is returned for some fields, that have a value in DB
+
+Probably, you're not using wrappers from `@core/keystone/schema` to query data for returning result.
+You're having a mismatch between what you're querying and what is actually returned.
+Read "Returning result" section above.
