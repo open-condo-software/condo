@@ -1,10 +1,8 @@
 import dayjs from 'dayjs'
 import { useIntl } from '@core/next/intl'
 import React, { useCallback, useState } from 'react'
-import { Col, Form, Row, Typography } from 'antd'
+import { Col, DatePicker, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
-
-import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 
 const INITIAL_DEADLINE_VALUE = dayjs(new Date()).add(2, 'day')
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
