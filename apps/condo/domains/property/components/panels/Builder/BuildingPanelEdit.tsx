@@ -772,16 +772,15 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
 
     const [minFloor, setMinFloor] = useState(1)
-    const [maxFloor, setMaxFloor] = useState(null)
+    const [floorCount, setFloorCount] = useState(null)
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
     const [copyId, setCopyId] = useState<string | null>(null)
-    const [maxMinError, setMaxMinError] = useState(false)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const [sectionName, setSectionName] = useState<string>(builder.nextSectionName)
 
     const resetForm = useCallback(() => {
         setMinFloor(1)
-        setMaxFloor(null)
+        setFloorCount(null)
         setUnitsOnFloor(null)
     }, [])
 
@@ -793,18 +792,19 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     }, [minFloorHidden])
 
     const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
-    const setMaxFloorValue = useCallback((value) => { setMaxFloor(value) }, [])
+    const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])
+    const maxFloorValue = useMemo(() => {
+        if (floorCount === 1) return minFloor
+        return floorCount + minFloor - 1
+    }, [floorCount, minFloor])
 
     useEffect(() => {
-        if (minFloor && maxFloor) {
-            setMaxMinError((maxFloor < minFloor))
-        }
-        if (minFloor && maxFloor && unitsOnFloor && !maxMinError && sectionName) {
+        if (minFloor && floorCount && unitsOnFloor && sectionName) {
             builder.addPreviewSection({
                 id: '',
                 name: sectionName,
                 minFloor,
-                maxFloor,
+                maxFloor: maxFloorValue,
                 unitsOnFloor,
             })
             refresh()
@@ -812,14 +812,14 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
             builder.removePreviewSection()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [minFloor, maxFloor, unitsOnFloor, sectionName])
+    }, [minFloor, floorCount, unitsOnFloor, sectionName])
 
     useEffect(() => {
         if (copyId !== null) {
             const sectionToCopy = builder.map.sections.find((section) => section.id === copyId)
             const floorIndexes = sectionToCopy.floors.map((floor) => floor.index)
             setMinFloor(Math.min(...floorIndexes))
-            setMaxFloor(Math.max(...floorIndexes))
+            setFloorCount(floorIndexes.length)
             setUnitsOnFloor(get(sectionToCopy, 'floors.0.units.length', 0))
             setSectionName(builder.nextSectionName)
         }
@@ -827,15 +827,15 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
 
     const handleFinish = useCallback(() => {
         builder.removePreviewSection()
-        builder.addSection({ id: '', name: sectionName, minFloor, maxFloor, unitsOnFloor })
+        builder.addSection({ id: '', name: sectionName, minFloor, maxFloor: maxFloorValue, unitsOnFloor })
         setSectionName(builder.nextSectionName)
         refresh()
         resetForm()
-    }, [refresh, resetForm, builder, sectionName, minFloor, maxFloor, unitsOnFloor])
+    }, [refresh, resetForm, builder, sectionName, minFloor, floorCount, unitsOnFloor])
 
     const setSectionNameValue = useCallback((value) => setSectionName(value ? value.toString() : ''), [])
 
-    const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
+    const isSubmitDisabled = !(minFloor && floorCount && unitsOnFloor)
     const isCreateColumnsHidden = copyId !== null
     const iconRotation = minFloorHidden ? 0 : 180
     const minFloorMargin = minFloorHidden ? '-28px' : 0
@@ -868,16 +868,15 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
+                <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{FloorCountLabel}</Typography.Text>
-                    <InputNumber value={maxFloor} onChange={setMaxFloorValue} style={INPUT_STYLE} type={'number'} />
+                    <InputNumber value={floorCount} onChange={setFloorCountValue} min={1} style={INPUT_STYLE} type={'number'} />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden} style={{ marginTop: minFloorMargin }}>
                 <Space
                     direction={'vertical'}
                     size={8}
-                    className={maxMinError ? 'ant-form-item-has-error' : ''}
                     hidden={minFloorHidden}
                 >
                     <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
@@ -1143,9 +1142,8 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     const CopyLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.mode.copy' })
 
     const [minFloor, setMinFloor] = useState<number>(1)
-    const [maxFloor, setMaxFloor] = useState<number | null>(null)
+    const [floorCount, setFloorCount] = useState<number | null>(null)
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
-    const [maxMinError, setMaxMinError] = useState(false)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const [copyId, setCopyId] = useState<string | null>(null)
     const [parkingName, setParkingName] = useState<string>(builder.nextParkingName)
@@ -1155,25 +1153,26 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
         setMinFloorHidden(!minFloorHidden)
     }, [minFloorHidden])
     const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
-    const setMaxFloorValue = useCallback((value) => { setMaxFloor(value) }, [])
+    const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])
     const setParkingNameValue = useCallback((value) => setParkingName(value ? value.toString() : ''), [])
+    const maxFloorValue = useMemo(() => {
+        if (floorCount === 1) return minFloor
+        return floorCount + minFloor - 1
+    }, [floorCount, minFloor])
 
     const resetForm = useCallback(() => {
         setMinFloor(1)
-        setMaxFloor(null)
+        setFloorCount(null)
         setUnitsOnFloor(null)
     }, [])
 
     useEffect(() => {
-        if (minFloor && maxFloor) {
-            setMaxMinError((maxFloor < minFloor))
-        }
-        if (minFloor && maxFloor && unitsOnFloor && !maxMinError && parkingName) {
+        if (minFloor && floorCount && unitsOnFloor && parkingName) {
             builder.addPreviewParking({
                 id: '',
                 name: parkingName,
                 minFloor,
-                maxFloor,
+                maxFloor: maxFloorValue,
                 unitsOnFloor,
             })
             refresh()
@@ -1181,27 +1180,27 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
             builder.removePreviewParking()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [minFloor, maxFloor, unitsOnFloor, parkingName])
+    }, [minFloor, floorCount, unitsOnFloor, parkingName])
 
     useEffect(() => {
         if (copyId !== null) {
             const sectionToCopy = builder.map.parking.find((section) => section.id === copyId)
             const floorIndexes = sectionToCopy.floors.map((floor) => floor.index)
             setMinFloor(Math.min(...floorIndexes))
-            setMaxFloor(Math.max(...floorIndexes))
+            setFloorCount(floorIndexes.length)
             setUnitsOnFloor(get(sectionToCopy, 'floors.0.units.length', 0))
         }
     }, [builder, copyId])
 
     const handleFinish = useCallback(() => {
         builder.removePreviewParking()
-        builder.addParking({ id: '', name: parkingName, minFloor, maxFloor, unitsOnFloor })
+        builder.addParking({ id: '', name: parkingName, minFloor, maxFloor: maxFloorValue, unitsOnFloor })
         setParkingName(builder.nextParkingName)
         refresh()
         resetForm()
-    }, [refresh, resetForm, builder, minFloor, maxFloor, unitsOnFloor, parkingName])
+    }, [refresh, resetForm, builder, minFloor, floorCount, unitsOnFloor, parkingName])
 
-    const isSubmitDisabled = !(minFloor && maxFloor && unitsOnFloor && !maxMinError)
+    const isSubmitDisabled = !(minFloor && floorCount && unitsOnFloor)
     const isCreateColumnsHidden = copyId !== null
     const iconRotation = minFloorHidden ? 0 : 180
     const minFloorMargin = minFloorHidden ? '-28px' : 0
@@ -1234,13 +1233,14 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8} className={maxMinError ? 'ant-form-item-has-error' : ''}>
+                <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{FloorCountLabel}</Typography.Text>
                     <InputNumber
-                        value={maxFloor}
-                        onChange={setMaxFloorValue}
+                        value={floorCount}
+                        onChange={setFloorCountValue}
                         style={INPUT_STYLE}
                         type={'number'}
+                        min={1}
                     />
                 </Space>
             </Col>
@@ -1248,7 +1248,6 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
                 <Space
                     direction={'vertical'}
                     size={8}
-                    className={maxMinError ? 'ant-form-item-has-error' : ''}
                     hidden={minFloorHidden}
                 >
                     <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
