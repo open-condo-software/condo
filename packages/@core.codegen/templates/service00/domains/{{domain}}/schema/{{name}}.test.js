@@ -3,7 +3,7 @@
  */
 
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 
 const { {{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient } = require('@condo/domains/{{domain}}/utils/testSchema')
  
