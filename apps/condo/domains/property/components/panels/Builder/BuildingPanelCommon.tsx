@@ -231,7 +231,7 @@ const BuildingViewModeSelectCss = css`
   padding: 4px;
   background-color: ${colors.backgroundWhiteSecondary};
   height: 48px;
-  border-radius: 4px;
+  border-radius: 8px;
 
   & label.ant-radio-button-wrapper {
     background-color: ${colors.backgroundWhiteSecondary};
@@ -239,7 +239,9 @@ const BuildingViewModeSelectCss = css`
     border: none;
     border-radius: 4px;
     box-shadow: none;
-    line-height: 44px;
+    line-height: 40px;
+    font-size: 14px;
+    font-weight: 600;
   }
   & label.ant-radio-button-wrapper.ant-radio-button-wrapper-checked {
     background-color: ${colors.white};
@@ -251,7 +253,7 @@ const BuildingViewModeSelectCss = css`
     background-color: ${colors.backgroundWhiteSecondary};
   }
   & .ant-radio-button-wrapper:hover {
-    color: ${gradients.sberActionGradient};
+    color: ${gradients.mainGradientPressed};
   }
   & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
     background-color: ${colors.white};
@@ -259,7 +261,7 @@ const BuildingViewModeSelectCss = css`
     color: ${colors.black}
   }
   & .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-disabled):not(.ant-radio-button-wrapper-checked):hover span:not(.ant-radio-button) {
-    background: ${gradients.sberActionGradient};
+    background: ${gradients.mainGradientPressed};
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
