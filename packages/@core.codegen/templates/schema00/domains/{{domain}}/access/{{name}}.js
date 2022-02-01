@@ -27,6 +27,8 @@ async function canManage{{ pluralize.plural(name) }} ({ authentication: { item: 
         // TODO(codegen): write canManage{{ pluralize.plural(name) }} update logic!
         return true
     }
+
+    return false
 }
 
 /*
