@@ -18,14 +18,31 @@ Don't validate input in access control modules.
 ## Returning result
 
 **When an instance of a Keystone list is to be returned, you should use data-access utils, that using Keystone database adapter under the hood.**
-For example, `getById` from `@core/keystone/schema`.
+
+Example of using `getById` from `@core/keystone/schema`:
 
 ```js
-// some custom logic
-// ...
+const SyncDeviceService = new GQLCustomSchema('SyncDeviceService', {
+    types: [
+        // some declarations ...
+    ],
 
-const result = await getById('Property', id)
-return result
+    mutations: [
+        {
+            // some other fields ...
+            schema: 'syncDevice(data: SyncDeviceInput!): Device',
+            resolver: async (parent, args, context) => {
+                // some logic
+                // ...
+                
+                const data = await DeviceAPI.updateOrCreate(context, where, attrs)
+                const result = await getById('Device', data.id)
+
+                return result
+            },
+        },
+    ],
+})
 ```
 
 Wrong usage, that will get you some weird effects (read below):
