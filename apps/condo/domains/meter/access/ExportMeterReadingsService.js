@@ -17,6 +17,7 @@ async function canExportMeterReadings ({ args: { data: { where } }, authenticati
         return await checkOrganizationPermission(user.id, organizationId, 'canManageMeters')
     } else {
         const organizationWhere = get(where, 'organization')
+        if (!organizationWhere) return false
         const [relatedFromOrganization] = await find('Organization', organizationWhere)
         if (!relatedFromOrganization) return false
 

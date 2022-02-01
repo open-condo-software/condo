@@ -11,6 +11,7 @@ async function canExportTicketsToExcel ({ args: { data: { where } }, authenticat
     const organizationId = get(where, ['organization', 'id'])
     if (organizationId) return await checkOrganizationPermission(user.id, organizationId, 'canManageTickets')
     const organizationWhere = get(where, 'organization')
+    if (!organizationWhere) return false
     const [organization] = await find('Organization', organizationWhere)
     if (!organization) return false
 
