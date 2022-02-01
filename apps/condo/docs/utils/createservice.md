@@ -33,7 +33,22 @@ Don't validate input in access control modules.
 
 ## Returning result
 
-**When an instance of a Keystone list is to be returned, you should use data-access utils, that using Keystone database adapter under the hood, like `getById` from `@core/keystone/schema`.**
+**When an instance of a Keystone list is to be returned, you should use data-access utils, that using Keystone database adapter under the hood.**
+For example, `getById` from `@core/keystone/schema`.
+
+```js
+// some custom logic
+// ...
+
+const result = await getById('Property', id)
+return result
+```
+
+Wrong usage, that will get you some weird effects (read below):
+
+```js
+return await Ticket.create(/*...*/)
+```
 
 This way from resolver we can query any set of fields for given Keystone list with any nesting.
 
