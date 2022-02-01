@@ -11,14 +11,14 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
         {
             access: true,
             // TODO(codegen): write RegisterNewServiceUserService input !
-            type: 'input RegisterNewUserServiceInput { dv: Int!, sender: JSON! }',
+            type: 'input RegisterNewServiceUserInput {  dv: Int!, sender: SenderFieldInput!, name: String!, email: String, password: String! meta: JSON }',
         },
     ],
     
     mutations: [
         {
-            access: access.canRegisterNewUserService,
-            schema: 'registerNewUserService(data: RegisterNewUserServiceInput!): User',
+            access: access.canRegisterNewServiceUser,
+            schema: 'registerNewServiceUser(data: RegisterNewUserServiceInput!): User',
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(codegen): write RegisterNewServiceUserService logic!
                 const { data } = args
