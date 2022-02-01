@@ -93,7 +93,7 @@ export const TicketsPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    const loading = isTicketsFetching || !isInitialFiltersApplied
+    const loading = isTicketsFetching
 
     const [hoveredTicket, setHoveredTicket] = useState()
 
