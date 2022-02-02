@@ -23,6 +23,8 @@ const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && con
 const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
 const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql.js')
+const http = require('http')
+const https = require('https')
 
 const SIGNIN_BY_EMAIL_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {
@@ -96,8 +98,12 @@ const prepareNextExpressApp = async (dir) => {
 
 const makeFakeClient = async (app) => {
     const request = require('supertest')
+    const server = http.createServer(app).listen(0)
+    const port = server.address().port
+    const protocol = app instanceof https.Server ? 'https' : 'http'
+    const serverUrl = protocol + '://127.0.0.1:' + port
 
-    const client = request(app)
+    const client = request(server)
 
     let cookies = {}
 
@@ -123,8 +129,27 @@ const makeFakeClient = async (app) => {
         return Object.entries(cookies).map(([key, value]) => `${key}=${value}`).join(';')
     }
 
+    async function run (method, args) {
+        return new Promise((resolve, reject) => {
+            client[method](...args).set('Cookie', [cookiesToString(cookies)]).end(function end (err, res) {
+                if (err) {
+                    console.error(method, args, err)
+                    return reject(err)
+                }
+                const setCookies = res.headers['set-cookie']
+                if (setCookies) {
+                    cookies = { ...cookies, ...extractCookies(setCookies) }
+                }
+                return resolve(res.res)
+            })
+        })
+    }
+
     return {
+        serverUrl,
         ...client,
+        get: (url) => run('get', [url]),
+        post: (url) => run('post', [url]),
         setHeaders: (headers) => {
             customHeaders = {...customHeaders, ...headers}
         },
@@ -135,13 +160,13 @@ const makeFakeClient = async (app) => {
                     query: print(query),
                     variables: JSON.stringify(variables),
                 }).end(function (err, res) {
-                    const setCookies = res.headers['set-cookie']
-                    if (setCookies) {
-                        cookies = { ...cookies, ...extractCookies(setCookies) }
-                    }
                     if (err) {
                         console.error(err)
                         return reject(err)
+                    }
+                    const setCookies = res.headers['set-cookie']
+                    if (setCookies) {
+                        cookies = { ...cookies, ...extractCookies(setCookies) }
                     }
                     const body = res.body
                     if (body && body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
@@ -158,13 +183,13 @@ const makeFakeClient = async (app) => {
                     query: print(query),
                     variables: JSON.stringify(variables),
                 }).end(function (err, res) {
-                    const setCookies = res.headers['set-cookie']
-                    if (setCookies) {
-                        cookies = { ...cookies, ...extractCookies(setCookies) }
-                    }
                     if (err) {
                         console.error(err)
                         return reject(err)
+                    }
+                    const setCookies = res.headers['set-cookie']
+                    if (setCookies) {
+                        cookies = { ...cookies, ...extractCookies(setCookies) }
                     }
                     const body = res.body
                     if (body && body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
@@ -179,6 +204,7 @@ const makeFakeClient = async (app) => {
 
 const makeRealClient = async () => {
     // TODO(pahaz): remove axios! need something else ... may be apollo client
+    const serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
     const cookieJar = new CookieJar()
     const client = axios.create({
         withCredentials: true,
@@ -194,6 +220,7 @@ const makeRealClient = async () => {
     client.defaults.jar = cookieJar
 
     return {
+        serverUrl,
         ...client,
         setHeaders: (headers) => {
             client.defaults.headers = {...client.defaults.headers, ...headers}
