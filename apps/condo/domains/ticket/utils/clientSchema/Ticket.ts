@@ -46,12 +46,14 @@ export interface ITicketFormState {
 function convertToUIFormState (state: ITicketUIState): ITicketFormState | undefined {
     if (!state) return
     const result = {}
+    const deadline = state['deadline']
+
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
         result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
     }
 
-    result['deadline'] = dayjs(state['deadline'])
+    result['deadline'] = deadline && dayjs(deadline)
 
     return result as ITicketFormState
 }

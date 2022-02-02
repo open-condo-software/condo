@@ -285,6 +285,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const action = async (variables, ...args) => {
         const { details, ...otherVariables } = variables
+        const deadline = get(variables, 'deadline')
         let createdContact
 
         if (role.canManageContacts && canCreateContactRef.current) {
@@ -295,6 +296,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             ...otherVariables,
             details: normalizeText(details),
             contact: get(createdContact, 'id') || variables.contact,
+            deadline: deadline && deadline.startOf('day'),
         }, ...args)
 
         await syncModifiedFiles(result.id)
@@ -451,4 +453,3 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </>
     )
 }
-
