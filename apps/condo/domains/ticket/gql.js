@@ -155,6 +155,21 @@ const TicketProblemClassifier = generateGqlQueries('TicketProblemClassifier', TI
 const TICKET_CLASSIFIER_RULE_FIELDS = `{ place { id name } category { id name } problem { id name } ${COMMON_FIELDS} }`
 const TicketClassifierRule = generateGqlQueries('TicketClassifierRule', TICKET_CLASSIFIER_RULE_FIELDS)
 
+const SET_TICKET_LAST_TIME_VIEWED_MUTATION = gql`
+    mutation setTicketLastTimeViewed ($data: SetTicketLastTimeViewedInput!) {
+        result: setTicketLastTimeViewed(data: $data) { status }
+    }
+`
+
+const GET_TICKET_LAST_TIME_VIEWED_QUERY = gql`
+    query getTicketLastTimeViewed {
+         result: getTicketLastTimeViewed {
+            syncedTicketLastTimeViewed
+         }
+    }
+`
+
+
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -186,5 +201,7 @@ module.exports = {
     TicketClassifierRule,
     RESIDENT_TICKET_FIELDS,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
+    SET_TICKET_LAST_TIME_VIEWED_MUTATION,
+    GET_TICKET_LAST_TIME_VIEWED_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

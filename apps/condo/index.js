@@ -132,8 +132,10 @@ module.exports = {
             apollo: {
                 formatError,
                 debug: IS_ENABLE_APOLLO_DEBUG,
-                introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
-                playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                // introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                // playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                introspection: true,
+                playground: true,
             },
         }),
         FileAdapter.makeFileAdapterMiddleware(),
@@ -144,7 +146,7 @@ module.exports = {
             authStrategy,
             hooks: require.resolve('@app/condo/admin-ui'),
         }),
-        conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
+        // conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
     ].filter(identity),
 
     /** @type {(app: import('express').Application) => void} */

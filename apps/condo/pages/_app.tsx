@@ -1,12 +1,12 @@
 import React from 'react'
-import { ConfigProvider } from 'antd'
+import { Badge, ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
 import Head from 'next/head'
-import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
+import { HomeFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
@@ -38,6 +38,8 @@ import {
     SubscriptionProvider,
     useServiceSubscriptionContext,
 } from '@condo/domains/subscription/components/SubscriptionContext'
+import { UnreadTicketsSyncProvider, useTicketsCounter } from '@condo/domains/ticket/components/UnreadTickets'
+import { ThunderboltFilledWithBadge } from '@condo/domains/common/components/icons/ThunderboltFilledWithBadge'
 import dayjs from 'dayjs'
 import {
     useEndTrialSubscriptionReminderPopup,
@@ -77,7 +79,7 @@ const MenuItems: React.FC = () => {
         label: 'menu.Analytics',
     }, {
         path: 'ticket',
-        icon: ThunderboltFilled,
+        icon: ThunderboltFilledWithBadge,
         label: 'menu.ControlRoom',
     }, {
         path: 'property',
@@ -100,6 +102,7 @@ const MenuItems: React.FC = () => {
         icon: ApiFilled,
         label: 'menu.Billing',
     }]
+    const ticketsCounter = useTicketsCounter()
 
     return (
         <>
@@ -167,16 +170,18 @@ const MyApp = ({ Component, pageProps }) => {
                         <OnBoardingProvider>
                             <SubscriptionProvider>
                                 <LayoutContextProvider>
-                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                        <RequiredAccess>
-                                            <Component {...pageProps} />
-                                            {
-                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                    <EndTrialSubscriptionReminderPopup/>
-                                                )
-                                            }
-                                        </RequiredAccess>
-                                    </LayoutComponent>
+                                    <UnreadTicketsSyncProvider>
+                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                            <RequiredAccess>
+                                                <Component {...pageProps} />
+                                                {
+                                                    isEndTrialSubscriptionReminderPopupVisible && (
+                                                        <EndTrialSubscriptionReminderPopup/>
+                                                    )
+                                                }
+                                            </RequiredAccess>
+                                        </LayoutComponent>
+                                    </UnreadTicketsSyncProvider>
                                 </LayoutContextProvider>
                             </SubscriptionProvider>
                         </OnBoardingProvider>

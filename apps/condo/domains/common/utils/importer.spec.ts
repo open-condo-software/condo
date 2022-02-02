@@ -244,6 +244,21 @@ describe('importer tests', () => {
             expect(result).toStrictEqual(expectedResult)
         })
     })
+    it('Handle a lot of invalid rows', async () => {
+        const result = []
+        const fakeCreator = getFakeCreator(result)
+        const importer = new Importer(testColumns, bypassNormalizer, bypassValidator, fakeCreator, defaultErrors, TEST_SLEEP_TIME)
+
+        const tableLength = 500
+        const brokenRowsCount = 499
+        const table = generateTable(tableLength)
+        for (let i = 1; i < brokenRowsCount; i++) {
+            table[i][0].value = 'not integer'
+        }
+        importer.onError(() => void 0)
+        importer.onFinish(() => void 0)
+        expect(() => importer.import(table)).not.toThrow()
+    })
     it('should not import after break', async () => {
         const result = []
         let errors = false

@@ -100,6 +100,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         menuItemWrapperProps,
         isCollapsed,
         toolTipDecorator = null,
+        children,
     } = props
     const { route } = useRouter()
     const intl = useIntl()

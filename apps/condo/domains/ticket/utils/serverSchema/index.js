@@ -5,7 +5,7 @@
  */
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const compact = require('lodash/compact')
-const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
 const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
@@ -18,6 +18,8 @@ const { TicketProblemClassifier: TicketProblemClassifierGQL } = require('@condo/
 const { TicketClassifierRule: TicketClassifierRuleGQL } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
+const { TICKET_LAST_TIME_VIEWED_MUTATION } = require('@condo/domains/ticket/gql')
+const { GET_TICKET_LAST_TIME_VIEWED_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -34,6 +36,34 @@ const TicketProblemClassifier = generateServerUtils(TicketProblemClassifierGQL)
 const TicketClassifierRule = generateServerUtils(TicketClassifierRuleGQL)
 
 const ResidentTicket = generateServerUtils(ResidentTicketGQL)
+
+async function ticketLastTimeViewed (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write ticketLastTimeViewed serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: TICKET_LAST_TIME_VIEWED_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to ticketLastTimeViewed',
+        dataPath: 'obj',
+    })
+}
+
+async function getTicketLastTimeViewed (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write getTicketLastTimeViewed serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_TICKET_LAST_TIME_VIEWED_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to getTicketLastTimeViewed',
+        dataPath: 'obj',
+    })
+}
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -109,5 +139,7 @@ module.exports = {
     ResidentTicket,
     TicketSource,
     loadTicketsForExcelExport,
+    ticketLastTimeViewed,
+    getTicketLastTimeViewed,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

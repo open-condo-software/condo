@@ -39,6 +39,7 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { FILTER_TABLE_KEYS, FiltersStorage } from '@condo/domains/common/utils/FiltersStorage'
 import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
+import { useTicketsCounter } from '@condo/domains/ticket/components/UnreadTickets'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -70,6 +71,7 @@ export const TicketsPageContent = ({
 
     const { isSmall } = useLayoutContext()
     const { organization } = useOrganization()
+    const ticketCounter = useTicketsCounter()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -140,6 +142,10 @@ export const TicketsPageContent = ({
         },
     }), [tooltipData, filters, hoveredTicket, tickets, total])
 
+    useEffect(() => {
+        ticketCounter.syncWithServer(Date.now())
+    }, [])
+    
     return (
         <>
             <Head>
