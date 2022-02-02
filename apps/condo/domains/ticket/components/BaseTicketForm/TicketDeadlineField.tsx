@@ -3,13 +3,14 @@ import { useIntl } from '@core/next/intl'
 import React, { useCallback, useState } from 'react'
 import { Col, DatePicker, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
+import { TicketFormItem } from './index'
 
 const INITIAL_DEADLINE_VALUE = dayjs(new Date()).add(2, 'day')
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
 const AUTO_DETECTED_DEADLINE_COL_STYLE = { height: '48px' }
 const AUTO_DETECTED_DEADLINE_ROW_STYLE = { height: '100%' }
-const TICKET_DEADLINE_FIELD_COL_PROPS = { style: { width: '100%' } }
 const TICKET_DEADLINE_FIELD_ROW_GUTTER: [Gutter, Gutter] = [40, 0]
+const DATE_PICKER_STYLE = { width: '100%' }
 
 export const TicketDeadlineField = ({ initialValue }) => {
     const intl = useIntl()
@@ -24,21 +25,20 @@ export const TicketDeadlineField = ({ initialValue }) => {
 
     return (
         <Row align={'bottom'} gutter={TICKET_DEADLINE_FIELD_ROW_GUTTER}>
-            <Col>
-                <Form.Item
+            <Col span={10}>
+                <TicketFormItem
                     label={CompleteBeforeMessage}
                     name={'deadline'}
                     required
                     initialValue={INITIAL_DEADLINE_VALUE}
-                    wrapperCol={TICKET_DEADLINE_FIELD_COL_PROPS}
-                    labelCol={TICKET_DEADLINE_FIELD_COL_PROPS}
                 >
                     <DatePicker
                         format='DD MMMM YYYY'
                         onChange={handleTicketDeadlineChange}
                         disabledDate={isDateDisabled}
+                        style={DATE_PICKER_STYLE}
                     />
-                </Form.Item>
+                </TicketFormItem>
             </Col>
             {
                 isAutoDetectedValue && (
