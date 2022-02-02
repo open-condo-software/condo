@@ -8,7 +8,7 @@ const INITIAL_DEADLINE_VALUE = dayjs(new Date()).add(2, 'day')
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
 const AUTO_DETECTED_DEADLINE_COL_STYLE = { height: '48px' }
 const AUTO_DETECTED_DEADLINE_ROW_STYLE = { height: '100%' }
-const TICKET_DEADLINE_DATEPICKER_STYLE = { width: '100%' }
+const TICKET_DEADLINE_FIELD_COL_PROPS = { style: { width: '100%' } }
 const TICKET_DEADLINE_FIELD_ROW_GUTTER: [Gutter, Gutter] = [40, 0]
 
 export const TicketDeadlineField = ({ initialValue }) => {
@@ -24,18 +24,19 @@ export const TicketDeadlineField = ({ initialValue }) => {
 
     return (
         <Row align={'bottom'} gutter={TICKET_DEADLINE_FIELD_ROW_GUTTER}>
-            <Col span={10}>
+            <Col>
                 <Form.Item
                     label={CompleteBeforeMessage}
                     name={'deadline'}
                     required
                     initialValue={INITIAL_DEADLINE_VALUE}
+                    wrapperCol={TICKET_DEADLINE_FIELD_COL_PROPS}
+                    labelCol={TICKET_DEADLINE_FIELD_COL_PROPS}
                 >
                     <DatePicker
                         format='DD MMMM YYYY'
-                        style={TICKET_DEADLINE_DATEPICKER_STYLE}
                         onChange={handleTicketDeadlineChange}
-                        // disabledDate={isDateDisabled}
+                        disabledDate={isDateDisabled}
                     />
                 </Form.Item>
             </Col>

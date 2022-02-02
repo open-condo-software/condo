@@ -97,7 +97,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     )
 }
 
-const INPUT_WITH_COUNTER_STYLE = { height: '120px' }
+const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%' }
 
 export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
@@ -319,7 +319,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 {PromptHelpMessage}
                             </Typography.Paragraph>
                         </Prompt>
-                        <Col lg={13} md={24}>
+                        <Col lg={15} md={24}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>

@@ -309,18 +309,18 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                     <Form.Item name={'classifierRule'} rules={validations.classifierRule} noStyle={true}>
                         <Input type='hidden'></Input>
                     </Form.Item>
-                    <Col span={12} style={{ paddingRight: '20px' }}>
+                    <Col span={12}>
                         <Form.Item label={PlaceClassifierLabel} name={'placeClassifier'} rules={validations.placeClassifier}>
                             <PlaceSelect disabled={disabled} />
                         </Form.Item>
                     </Col>
-                    <Col span={12} style={{ paddingLeft: '20px' }}>
+                    <Col span={12}>
                         <Form.Item label={CategoryClassifierLabel} name={'categoryClassifier'} rules={validations.categoryClassifier}>
                             <CategorySelect disabled={disabled} />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
-                        <Form.Item name={'problemClassifier'}  label={ProblemClassifierLabel}>
+                        <Form.Item name={'problemClassifier'} label={ProblemClassifierLabel}>
                             <ProblemSelect disabled={disabled} />
                         </Form.Item>
                     </Col>
