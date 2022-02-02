@@ -1,4 +1,5 @@
 /** @jsx jsx */
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CloseOutlined, DeleteFilled, DownOutlined } from '@ant-design/icons'
 import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
@@ -18,7 +19,6 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { Col, Row, Typography, Input, Select, InputNumber, Space, Dropdown, Menu, RowProps, DropDownProps, notification, Radio } from 'antd'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import {
@@ -40,6 +40,7 @@ import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import isEmpty from 'lodash/isEmpty'
+import isNull from 'lodash/isNull'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import {
@@ -1254,7 +1255,6 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
         if (minFloor > 0) return floorCount + minFloor - 1
         return floorCount + minFloor
     }, [floorCount, minFloor])
-    const setParkingNameValue = useCallback((value) => setParkingName(value ? value.toString() : ''), [])
 
     const resetForm = useCallback(() => {
         setMinFloor(1)
