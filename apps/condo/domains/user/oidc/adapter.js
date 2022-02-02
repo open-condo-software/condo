@@ -1,9 +1,8 @@
-// npm i ioredis@^4.0.0
-const Redis = require('ioredis') // eslint-disable-line import/no-unresolved
+const Redis = require('ioredis')
 const isEmpty = require('lodash/isEmpty')
 
 const DEBUG = false
-let REDIS = null
+
 const GRANTABLE = new Set([
     'AccessToken',
     'AuthorizationCode',
@@ -18,6 +17,9 @@ const CONSUMABLE = new Set([
     'DeviceCode',
     'BackchannelAuthenticationRequest',
 ])
+
+// OIDC Redis connection! initialized if required to avoid build time redis connections!
+let REDIS = null
 
 function grantKeyFor (id) {
     return `grant:${id}`
