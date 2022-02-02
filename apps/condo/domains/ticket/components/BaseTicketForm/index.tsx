@@ -2,7 +2,7 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
-import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert } from 'antd'
+import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, FormItemProps } from 'antd'
 import get from 'lodash/get'
 import styled from '@emotion/styled'
 import { useRouter } from 'next/router'
@@ -51,7 +51,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
 
     return (
         <Col span={24}>
-            <Form.Item shouldUpdate noStyle>
+            <TicketFormItem shouldUpdate noStyle>
                 {({ getFieldsValue }) => {
                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
 
@@ -92,12 +92,17 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                         </ContactsInfoFocusContainer>
                     )
                 }}
-            </Form.Item>
+            </TicketFormItem>
         </Col>
     )
 }
 
 const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%' }
+const FORM_FILED_COL_PROPS = { style: { width: '100%' } }
+
+export const TicketFormItem: React.FC<FormItemProps> = (props) => (
+    <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
+)
 
 export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
@@ -123,7 +128,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                             <Typography.Title level={4}>{DescriptionLabel}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <Form.Item name={'details'} rules={validations.details}>
+                            <TicketFormItem name={'details'} rules={validations.details}>
                                 <InputWithCounter
                                     InputComponent={Input.TextArea}
                                     currentLength={currentDetailsLength}
@@ -133,10 +138,10 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                     disabled={disableUserInteraction}
                                     style={INPUT_WITH_COUNTER_STYLE}
                                 />
-                            </Form.Item>
-                            <Form.Item>
+                            </TicketFormItem>
+                            <TicketFormItem>
                                 <UploadComponent/>
-                            </Form.Item>
+                            </TicketFormItem>
                         </Col>
                     </Row>
                 </Col>
@@ -145,7 +150,9 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                         <Col span={24}>
                             <Typography.Title level={4}>{ClassifierLabel}</Typography.Title>
                         </Col>
-                        <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
+                        <Col span={24}>
+                            <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
+                        </Col>
                     </Row>
                 </Col>
                 <Col span={24}>
@@ -353,7 +360,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                     ) : null
                                                 }
                                                 <Col span={24}>
-                                                    <Form.Item
+                                                    <TicketFormItem
                                                         name={'property'}
                                                         label={AddressLabel}
                                                         rules={PROPERTY_VALIDATION_RULES}
@@ -375,7 +382,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             placeholder={AddressPlaceholder}
                                                             notFoundContent={AddressNotFoundContent}
                                                         />
-                                                    </Form.Item>
+                                                    </TicketFormItem>
                                                 </Col>
                                                 {selectedPropertyId && (
                                                     <UnitInfo
