@@ -48,6 +48,7 @@ module.exports = withTM(withLess(withCSS({
     webpack: (config) => {
         const plugins = config.plugins
 
+        // NOTE: Replace Moment.js with Day.js in antd project
         config.plugins = [ ...plugins, new AntdDayjsWebpackPlugin() ]
 
         return config
