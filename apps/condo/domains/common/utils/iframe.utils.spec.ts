@@ -4,6 +4,7 @@ import {
     REQUIREMENT_MESSAGE_TYPE,
     LOADED_STATUS_MESSAGE_TYPE,
     ERROR_MESSAGE_TYPE,
+    RESIZE_MESSAGE_TYPE,
 } from './iframe.utils'
 
 describe('parseMessage', () => {
@@ -17,6 +18,7 @@ describe('parseMessage', () => {
         ['Loading message', { type: LOADED_STATUS_MESSAGE_TYPE, status: 'done' }],
         ['Error message', { type: ERROR_MESSAGE_TYPE, message: 'Validation failure error' }],
         ['Error message', { type: ERROR_MESSAGE_TYPE, message: 'Validation failure error', requestMessage: { type: 'IMPORTANT', requirement: 'auth' } }],
+        ['Size message', { type: RESIZE_MESSAGE_TYPE, height: 500 }],
     ]
     const invalidCases: Array<any> = [
         ['Invalid notification type', { type: NOTIFICATION_MESSAGE_TYPE, notificationType: 'importantInformation', message: 'Hello, world!' }],
@@ -24,6 +26,7 @@ describe('parseMessage', () => {
         ['No type', { type: NOTIFICATION_MESSAGE_TYPE, message: 'Hello, world!' }],
         ['Invalid requirement', { type: REQUIREMENT_MESSAGE_TYPE, requirement: 'cup of tea' }],
         ['Invalid type', { type: 'IMPORTANT', requirement: 'auth' }],
+        ['Invalid height', { type: RESIZE_MESSAGE_TYPE, height: 'bla' }],
     ]
     test.each(validCases)('Valid: %p', (message, payload) => {
         const result = parseMessage(payload)

@@ -12,6 +12,7 @@ import {
     REQUIREMENT_MESSAGE_TYPE,
     NOTIFICATION_MESSAGE_TYPE,
     LOADED_STATUS_MESSAGE_TYPE,
+    RESIZE_MESSAGE_TYPE,
     sendError,
 } from '@condo/domains/common/utils/iframe.utils'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
@@ -42,6 +43,8 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     const [isAuthRequired, setIsAuthRequired] = useState(false)
     const [isOrganizationRequired, setIsOrganizationRequired] = useState(false)
 
+    const [frameHeight, setFrameHeight] = useState(300)
+
     // NOTE: Changing this will trigger iframe reload
     // By default used to reload after user / organization changes
     const iframeKey = `${get(user, 'id', null)}:${get(organization, 'id', null)}`
@@ -71,6 +74,10 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
         setIsLoading(false)
     }, [])
 
+    const handleResize = useCallback((message) => {
+        setFrameHeight(message.height)
+    }, [])
+
     const handleMessage = useCallback((event) => {
         if (event.origin !== pageOrigin) return
         if (event.data && typeof event.data !== 'object') return
@@ -84,7 +91,8 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
         if (message.type === REQUIREMENT_MESSAGE_TYPE) handleRequirement(message)
         else if (message.type === NOTIFICATION_MESSAGE_TYPE) handleNotification(message)
         else if (message.type === LOADED_STATUS_MESSAGE_TYPE) handleLoad()
-    }, [handleLoad, handleNotification, handleRequirement, pageOrigin])
+        else if (message.type === RESIZE_MESSAGE_TYPE) handleResize(message)
+    }, [handleLoad, handleNotification, handleRequirement, pageOrigin, handleResize])
 
     let Wrapper: React.FC = React.Fragment
     if (!isAuthenticated && isAuthRequired) Wrapper = AuthRequired
@@ -113,6 +121,8 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
                 style={styles}
                 key={iframeKey}
                 frameBorder={0}
+                height={frameHeight}
+                scrolling={'no'}
             />
         </Wrapper>
     </>

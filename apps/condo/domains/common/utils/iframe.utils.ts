@@ -3,15 +3,18 @@ import get from 'lodash/get'
 const Ajv = require('ajv')
 const ajv = new Ajv()
 
+// CONST DECLARATION BLOCK (for checking by external observer)
 export const NOTIFICATION_MESSAGE_TYPE = 'notification'
 export const REQUIREMENT_MESSAGE_TYPE = 'requirement'
 export const LOADED_STATUS_MESSAGE_TYPE = 'loading'
+export const RESIZE_MESSAGE_TYPE = 'resize'
 export const ERROR_MESSAGE_TYPE = 'error'
 
 export type NotificationType = 'info' | 'warning' | 'error' | 'success'
 export type RequirementType = 'auth' | 'organization'
 export type LoadingStatuses = 'done'
 
+// TYPES DECLARATION BLOCK
 type NotificationMessageType = {
     type: 'notification',
     notificationType: NotificationType,
@@ -34,18 +37,25 @@ type ErrorMessageType = {
     requestMessage?: Record<string, unknown>,
 }
 
+type ResizeMessageType = {
+    type: 'resize',
+    height: number,
+}
+
 type ParsedMessageType = {
-    message?: RequirementMessageType | NotificationMessageType | LoadedStatusMessageType | ErrorMessageType,
+    message?: RequirementMessageType | NotificationMessageType | LoadedStatusMessageType | ErrorMessageType | ResizeMessageType,
     errors?: Array<string>,
 }
 
 type parseMessageType = (data: any) => ParsedMessageType
 
+// CONFIGURATION BLOCK
 const AvailableMessageTypes = [
     NOTIFICATION_MESSAGE_TYPE,
     REQUIREMENT_MESSAGE_TYPE,
     LOADED_STATUS_MESSAGE_TYPE,
     ERROR_MESSAGE_TYPE,
+    RESIZE_MESSAGE_TYPE,
 ]
 
 const MessagesRequiredProperties = {
@@ -53,6 +63,7 @@ const MessagesRequiredProperties = {
     [REQUIREMENT_MESSAGE_TYPE]: ['requirement'],
     [LOADED_STATUS_MESSAGE_TYPE]: ['status'],
     [ERROR_MESSAGE_TYPE]: ['message'],
+    [RESIZE_MESSAGE_TYPE]: ['height'],
 }
 
 const MessageSchema = {
@@ -64,6 +75,7 @@ const MessageSchema = {
         requirement: { enum: ['auth', 'organization'] },
         status: { const: 'done' },
         requestMessage: {  type: 'object' },
+        height: { type: 'number' },
     },
     additionalProperties: false,
     required: ['type'],
@@ -77,6 +89,7 @@ const MessageSchema = {
 
 const validator = ajv.compile(MessageSchema)
 
+// PARSING PART
 export const parseMessage: parseMessageType = (data) => {
     if (!validator(data)) {
         return { errors: validator.errors.map(error => `JSON validation error. SchemaPath ${error.schemaPath}, message: ${error.message}`) }
@@ -115,9 +128,19 @@ export const parseMessage: parseMessageType = (data) => {
             },
         }
     }
+    if (data.type === RESIZE_MESSAGE_TYPE) {
+        return {
+            message: {
+                type: RESIZE_MESSAGE_TYPE,
+                height: data.height,
+            },
+        }
+    }
+
     return { errors: ['UNKNOWN MESSAGE TYPE'] }
 }
 
+// UTILS BLOCK
 export const sendMessage = (message: string, messageType: NotificationType, receiver: Window, receiverOrigin: string): void => {
     if (receiver) {
         receiver.postMessage({
@@ -152,6 +175,15 @@ export const sendError = (message: string, requestMessage: Record<string, unknow
             type: ERROR_MESSAGE_TYPE,
             message,
             requestMessage,
+        }, receiverOrigin)
+    }
+}
+
+export const sendSize = (height: number, receiver: Window, receiverOrigin: string): void => {
+    if (receiver) {
+        receiver.postMessage({
+            type: RESIZE_MESSAGE_TYPE,
+            height,
         }, receiverOrigin)
     }
 }
