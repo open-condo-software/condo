@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { sendLoadedStatus, sendRequirementRequest } from '@condo/domains/common/utils/iframe.utils'
+import { sendLoadedStatus, sendRequirementRequest, sendSize } from '@condo/domains/common/utils/iframe.utils'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import getConfig from 'next/config'
@@ -37,6 +37,18 @@ export const IFrameWrapper: React.FC<IFrameWrapperProps> = (props) => {
             sendRequirementRequest('auth', parent, parentOrigin)
         }
     }, [parentType, isAuthenticated, withUser, parentOrigin])
+
+    useEffect(() => {
+        const observer = new ResizeObserver((entries) => {
+            if (parentType && entries && entries.length) {
+                sendSize(entries[0].target.clientHeight, parent, parentOrigin)
+            }
+        })
+        observer.observe(document.body)
+        return () => {
+            observer.unobserve(document.body)
+        }
+    }, [parentOrigin, parentType])
 
 
     return (
