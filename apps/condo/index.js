@@ -161,9 +161,7 @@ module.exports = {
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })
-            let isSenderValid = true
-
-            isSenderValid = hasValidJsonStructure(
+            const isSenderValid = hasValidJsonStructure(
                 {
                     resolvedData: { sender: cookies['sender'] },
                     fieldPath: 'sender',
