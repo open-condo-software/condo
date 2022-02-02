@@ -3,7 +3,7 @@
  */
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@core/keystone/test.utils')
 
-const { disconnectUserFromDeviceByTestClient, syncDeviceByTestClient, Device: DeviceAPI} = require('@condo/domains/notification/utils/testSchema')
+const { disconnectUserFromDeviceByTestClient, syncDeviceByTestClient, Device: DeviceAPI } = require('@condo/domains/notification/utils/testSchema')
 
 const { getRandomTokenData } = require('../utils/testSchema/helpers')
 const { expectToThrowUserInputError } = require('@condo/domains/common/utils/testSchema')

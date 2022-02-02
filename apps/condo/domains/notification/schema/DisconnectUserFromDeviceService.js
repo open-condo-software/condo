@@ -10,7 +10,7 @@ const DisconnectUserFromDeviceService = new GQLCustomSchema('DisconnectUserFromD
     types: [
         {
             access: true,
-            type: 'input DisconnectUserFromDeviceInput { dv: Int!, sender: SenderFieldInput!, deviceId: String!, pushTransport: PushTransportType }',
+            type: 'input DisconnectUserFromDeviceInput { dv: Int!, sender: SenderFieldInput!, deviceId: String! }',
         },
         {
             access: true,
