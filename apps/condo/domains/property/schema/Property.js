@@ -168,7 +168,7 @@ const Property = new GQLListSchema('Property', {
             },
         },
         uninhabitedUnitsCount: {
-            schemaDoc: 'A number of non-residential units. Number of parking places for unit.unitType = parking',
+            schemaDoc: 'A number of non-residential units. Number of parking places for unit.unitType = parking, apartment, commercial & warehouse',
             type: Integer,
             isRequired: true,
             defaultValue: 0,
