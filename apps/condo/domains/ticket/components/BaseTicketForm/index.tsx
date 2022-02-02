@@ -275,8 +275,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const PROPERTY_VALIDATION_RULES = [...validations.property, { validator: addressValidation }]
 
     const action = async (variables, ...args) => {
-        const { details, deadline, ...otherVariables } = variables
-        console.log('var', variables)
+        const { details, ...otherVariables } = variables
         let createdContact
 
         if (role.canManageContacts && canCreateContactRef.current) {

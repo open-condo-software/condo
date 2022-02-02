@@ -21,6 +21,8 @@ const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ER
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { TERMINAL_TICKET_STATUS_IDS } = require('../constants/statusTransitions')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -272,6 +274,10 @@ const Ticket = new GQLListSchema('Ticket', {
 
             if (statusId) {
                 addOrderToTicket(resolvedData, statusId)
+
+                if (TERMINAL_TICKET_STATUS_IDS.includes(statusId)) {
+                    resolvedData.deadline = null
+                }
             }
 
             if (operation === 'create' && user && user.type === RESIDENT) {
