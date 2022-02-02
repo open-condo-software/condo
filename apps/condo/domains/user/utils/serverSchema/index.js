@@ -19,6 +19,7 @@ const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domain
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
 const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
+const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -46,6 +47,20 @@ async function registerNewServiceUser (context, data) {
         query: REGISTER_NEW_SERVICE_USER_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerNewUserService',
+        dataPath: 'obj',
+    })
+}
+
+async function resetUser (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write resetUser serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: RESET_USER_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to resetUser',
         dataPath: 'obj',
     })
 }
@@ -104,5 +119,6 @@ module.exports = {
     signinAsUser,
     registerNewServiceUser,
     sendMessageToSupport,
+    resetUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

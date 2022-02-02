@@ -14,6 +14,7 @@ const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domain
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
 const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
+const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -236,6 +237,21 @@ async function signinAsUserByTestClient(client, id, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function resetUserByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(RESET_USER_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 async function registerNewServiceUserByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
@@ -298,6 +314,7 @@ module.exports = {
     updateTestForgotPasswordAction,
     signinAsUserByTestClient,
     registerNewServiceUserByTestClient,
+    resetUserByTestClient,
     supportSendMessageToSupportByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
