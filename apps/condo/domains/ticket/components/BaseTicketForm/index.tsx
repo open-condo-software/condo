@@ -41,6 +41,8 @@ export const LAYOUT = {
 const ContactsInfoFocusContainer = styled(FocusContainer)`
   position: relative;
   left: ${({ padding }) => padding ? padding : '24px'};
+  box-sizing: border-box;
+  width: 100%;
 `
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
@@ -326,7 +328,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 {PromptHelpMessage}
                             </Typography.Paragraph>
                         </Prompt>
-                        <Col lg={15} md={24}>
+                        <Col lg={20} md={24}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
