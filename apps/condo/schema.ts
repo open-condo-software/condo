@@ -19740,6 +19740,8 @@ export type Property = {
   map?: Maybe<BuildingMap>;
   /**  A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.  */
   unitsCount?: Maybe<Scalars['Int']>;
+  /**  A number of non-residential units. Number of parking places for unit.unitType = parking  */
+  uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   /**  Counter for closed tickets  */
   ticketsClosed?: Maybe<Scalars['String']>;
   /**  Counter for not closed tickets  */
@@ -19768,6 +19770,7 @@ export type PropertyCreateInput = {
   type?: Maybe<PropertyTypeType>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -19799,6 +19802,7 @@ export type PropertyHistoryRecord = {
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
@@ -19826,6 +19830,7 @@ export type PropertyHistoryRecordCreateInput = {
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
@@ -19858,6 +19863,7 @@ export type PropertyHistoryRecordUpdateInput = {
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
@@ -19963,6 +19969,14 @@ export type PropertyHistoryRecordWhereInput = {
   unitsCount_gte?: Maybe<Scalars['Int']>;
   unitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   unitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_not?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_lt?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_lte?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_gt?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_gte?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  uninhabitedUnitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsClosed_not?: Maybe<Scalars['JSON']>;
   ticketsClosed_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -20095,6 +20109,7 @@ export type PropertyUpdateInput = {
   type?: Maybe<PropertyTypeType>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -20179,6 +20194,14 @@ export type PropertyWhereInput = {
   unitsCount_gte?: Maybe<Scalars['Int']>;
   unitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   unitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_not?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_lt?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_lte?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_gt?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_gte?: Maybe<Scalars['Int']>;
+  uninhabitedUnitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  uninhabitedUnitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   yearOfConstruction_not?: Maybe<Scalars['String']>;
   yearOfConstruction_lt?: Maybe<Scalars['String']>;
@@ -27802,6 +27825,8 @@ export enum SortPropertiesBy {
   TypeDesc = 'type_DESC',
   UnitsCountAsc = 'unitsCount_ASC',
   UnitsCountDesc = 'unitsCount_DESC',
+  UninhabitedUnitsCountAsc = 'uninhabitedUnitsCount_ASC',
+  UninhabitedUnitsCountDesc = 'uninhabitedUnitsCount_DESC',
   YearOfConstructionAsc = 'yearOfConstruction_ASC',
   YearOfConstructionDesc = 'yearOfConstruction_DESC',
   AreaAsc = 'area_ASC',
@@ -27833,6 +27858,8 @@ export enum SortPropertyHistoryRecordsBy {
   TypeDesc = 'type_DESC',
   UnitsCountAsc = 'unitsCount_ASC',
   UnitsCountDesc = 'unitsCount_DESC',
+  UninhabitedUnitsCountAsc = 'uninhabitedUnitsCount_ASC',
+  UninhabitedUnitsCountDesc = 'uninhabitedUnitsCount_DESC',
   YearOfConstructionAsc = 'yearOfConstruction_ASC',
   YearOfConstructionDesc = 'yearOfConstruction_DESC',
   AreaAsc = 'area_ASC',

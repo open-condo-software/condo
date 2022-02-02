@@ -13,6 +13,7 @@
     "makemigrations": "./../../bin/kmigrator.py makemigrations",
     "migrate": "./../../bin/kmigrator.py migrate",
     "migrate:down": "./../../bin/kmigrator.py down",
+    "migrate:unlock": "./../../bin/kmigrator.py unlock",
     "maketypes": "mkdirp dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.yaml",
     "createservice": "node ./../../bin/createservice",
     "createschema": "node ./../../bin/createschema",
