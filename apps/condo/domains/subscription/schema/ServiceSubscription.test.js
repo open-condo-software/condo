@@ -119,7 +119,7 @@ describe('ServiceSubscription', () => {
             expect(obj.currency).toEqual('RUB')
         })
 
-        it('should have positive prices and unitsCount if they are set', async () => {
+        it('should have positive prices and `unitsCount` if they are set', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
 

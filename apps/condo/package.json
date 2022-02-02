@@ -6,7 +6,6 @@
     "test": "mkdirp dist/admin && jest",
     "dev": "keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
-    "frontend": "next dev -p 3001",
     "build": "cross-env PHASE=build keystone build",
     "start": "keystone start",
     "worker": "node worker.js",
