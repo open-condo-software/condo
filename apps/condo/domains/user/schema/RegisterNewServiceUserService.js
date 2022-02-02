@@ -23,7 +23,7 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
         {
             access: access.canRegisterNewServiceUser,
             schema: 'registerNewServiceUser(data: RegisterNewServiceUserInput!): User',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const { ...restUserData } = data
                 const userData = {
