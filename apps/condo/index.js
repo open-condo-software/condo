@@ -19,6 +19,7 @@ const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatte
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -127,6 +128,7 @@ class CustomBodyParserMiddleware {
 module.exports = {
     keystone,
     apps: [
+        new OIDCMiddleware(),
         new CustomBodyParserMiddleware(),
         new GraphQLApp({
             apollo: {
