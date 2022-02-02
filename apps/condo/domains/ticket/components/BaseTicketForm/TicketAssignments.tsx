@@ -8,6 +8,7 @@ import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSear
 import { searchEmployeeUser } from '../../utils/clientSchema/search'
 import React, { useState } from 'react'
 import { Rule } from 'rc-field-form/lib/interface'
+import { TicketFormItem } from './index'
 
 type TicketAssignmentsProps = {
     validations: { [key: string]: Rule[] },
@@ -161,7 +162,7 @@ const TicketAssignments = ({
                             </Col>
                         )}
                         <Col span={11}>
-                            <Form.Item
+                            <TicketFormItem
                                 name={'executor'}
                                 rules={validations.executor}
                                 label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
@@ -176,10 +177,10 @@ const TicketAssignments = ({
                                         get(role, 'canBeAssignedAsExecutor', false)
                                     ))}
                                 />
-                            </Form.Item>
+                            </TicketFormItem>
                         </Col>
                         <Col span={11}>
-                            <Form.Item
+                            <TicketFormItem
                                 name={'assignee'}
                                 rules={validations.assignee}
                                 label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
@@ -193,7 +194,7 @@ const TicketAssignments = ({
                                         get(role, 'canBeAssignedAsResponsible', false)
                                     ))}
                                 />
-                            </Form.Item>
+                            </TicketFormItem>
                         </Col>
                     </Row>
                 </Col>

@@ -1,9 +1,11 @@
 import { useIntl } from '@core/next/intl'
 import { get } from 'lodash'
-import { Col, Form, Input, Row } from 'antd'
-import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
+import { Col, Input, Row } from 'antd'
 import React from 'react'
 import { LabeledValue } from 'antd/lib/select'
+
+import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
+import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 
 export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
     const intl = useIntl()
@@ -31,7 +33,7 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
         <Col span={16}>
             <Row justify={'space-between'}>
                 <Col span={6}>
-                    <Form.Item name={'unitName'} label={FlatNumberLabel}>
+                    <TicketFormItem name={'unitName'} label={FlatNumberLabel}>
                         <UnitNameInput
                             property={property}
                             loading={loading}
@@ -46,17 +48,17 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
                                 }
                             }}
                         />
-                    </Form.Item>
+                    </TicketFormItem>
                 </Col>
                 <Col span={6}>
-                    <Form.Item name={'sectionName'} label={SectionNameLabel}>
+                    <TicketFormItem name={'sectionName'} label={SectionNameLabel}>
                         <Input disabled/>
-                    </Form.Item>
+                    </TicketFormItem>
                 </Col>
                 <Col span={6}>
-                    <Form.Item name={'floorName'} label={FloorNameLabel}>
+                    <TicketFormItem name={'floorName'} label={FloorNameLabel}>
                         <Input disabled/>
-                    </Form.Item>
+                    </TicketFormItem>
                 </Col>
             </Row>
         </Col>
