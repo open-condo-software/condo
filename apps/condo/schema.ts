@@ -7463,7 +7463,6 @@ export type DisconnectUserFromDeviceInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   deviceId: Scalars['String'];
-  pushTransport?: Maybe<PushTransportType>;
 };
 
 export type DisconnectUserFromDeviceOutput = {
