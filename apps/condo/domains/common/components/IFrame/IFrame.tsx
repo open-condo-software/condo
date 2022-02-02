@@ -28,6 +28,7 @@ type optionsType = {
 
 const getIframeStyles: (boolean) => CSSProperties = (isLoading) => ({
     visibility: isLoading ? 'hidden' : 'visible',
+    width: '100%',
 })
 
 export const IFrame: React.FC<IFrameProps> = (props) => {
