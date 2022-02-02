@@ -8,6 +8,7 @@ const {STAFF, MIN_PASSWORD_LENGTH} = require("@condo/domains/user/constants/comm
 const {
     MIN_PASSWORD_LENGTH_ERROR
 } = require("@condo/domains/user/constants/errors");
+const { ensureNotExists } = require('@condo/domains/user/utils/ensureNotExists')
 
 
 const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUserService', {
@@ -23,7 +24,6 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
             access: access.canRegisterNewServiceUser,
             schema: 'registerNewServiceUser(data: RegisterNewServiceUserInput!): User',
             resolver: async (parent, args, context, info, extra = {}) => {
-                // TODO(codegen): write RegisterNewServiceUserService logic!
                 const { data } = args
                 const { ...restUserData } = data
                 const userData = {
@@ -31,7 +31,7 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
                     type: STAFF,
                 }
                 console.log(userData)
-                //await ensureNotExists(context, 'email', userData.email)
+                await ensureNotExists(context, 'email', userData.email)
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then ${MIN_PASSWORD_LENGTH} character`)
                 }
