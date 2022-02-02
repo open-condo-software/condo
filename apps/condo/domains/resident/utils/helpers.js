@@ -1,13 +1,9 @@
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
-const dayjs = require('dayjs')
-const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
 
 const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
-
-dayjs.extend(isSameOrBefore)
 
 /**
  * Connects or disconnects residents to/from organization & property.
