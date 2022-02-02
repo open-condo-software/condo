@@ -12846,6 +12846,8 @@ export type Mutation = {
   shareTicket?: Maybe<ShareTicketOutput>;
   createResidentTicket?: Maybe<ResidentTicketOutput>;
   updateResidentTicket?: Maybe<ResidentTicketOutput>;
+  updateTicketLastTimeViewedRecord?: Maybe<TicketLastTimeViewedRecord>;
+  deleteTicketLastTimeViewedRecord?: Maybe<TicketLastTimeViewedRecord>;
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   syncDevice?: Maybe<Device>;
@@ -15926,6 +15928,17 @@ export type MutationCreateResidentTicketArgs = {
 export type MutationUpdateResidentTicketArgs = {
   id?: Maybe<Scalars['ID']>;
   data?: Maybe<ResidentTicketUpdateInput>;
+};
+
+
+export type MutationUpdateTicketLastTimeViewedRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketLastTimeViewedRecordUpdateInput>;
+};
+
+
+export type MutationDeleteTicketLastTimeViewedRecordArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -20980,6 +20993,7 @@ export type Query = {
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   allResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
+  allTicketLastTimeViewedRecords?: Maybe<Array<Maybe<TicketLastTimeViewedRecord>>>;
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   /** The version of the Keystone application serving this API. */
@@ -23446,6 +23460,16 @@ export type QueryAllResidentTicketsArgs = {
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
   sortBy?: Maybe<Array<SortResidentTicketsBy>>;
+};
+
+
+export type QueryAllTicketLastTimeViewedRecordsArgs = {
+  where?: Maybe<TicketLastTimeViewedRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketLastTimeViewedRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
 };
 
 
@@ -28546,6 +28570,13 @@ export enum SortTicketHistoryRecordsBy {
   HistoryActionDesc = 'history_action_DESC'
 }
 
+export enum SortTicketLastTimeViewedRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  LastTimeViewedAsc = 'lastTimeViewed_ASC',
+  LastTimeViewedDesc = 'lastTimeViewed_DESC'
+}
+
 export enum SortTicketPlaceClassifierHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
@@ -32885,6 +32916,44 @@ export type TicketLabel = {
   label: Scalars['String'];
   color: Scalars['String'];
   value: Scalars['String'];
+};
+
+export type TicketLastTimeViewedRecord = {
+  __typename?: 'TicketLastTimeViewedRecord';
+  id: Scalars['ID'];
+  lastTimeViewed: Scalars['String'];
+};
+
+export type TicketLastTimeViewedRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  id: Scalars['ID'];
+  lastTimeViewed: Scalars['String'];
+};
+
+export type TicketLastTimeViewedRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  lastTimeViewed: Scalars['String'];
+};
+
+export type TicketLastTimeViewedRecordWhereInput = {
+  id: Scalars['ID'];
+  lastTimeViewed: Scalars['String'];
+  AND?: Maybe<Array<Maybe<TicketLastTimeViewedRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TicketLastTimeViewedRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
 };
 
 /**  Describes where the incident occurred  */

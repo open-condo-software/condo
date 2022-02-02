@@ -143,7 +143,7 @@ export const TicketsPageContent = ({
     }), [tooltipData, filters, hoveredTicket, tickets, total])
 
     useEffect(() => {
-        ticketCounter.syncWithServer(Date.now())
+        ticketCounter.syncWithServer(new Date().toISOString())
     }, [])
     
     return (

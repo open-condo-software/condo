@@ -22,7 +22,7 @@ const { TicketClassifierRule } = require('./TicketClassifierRule')
 const { CreateResidentTicketService } = require('./CreateResidentTicketService')
 const { GetAllResidentTicketsService } = require('./GetAllResidentTicketsService')
 const { UpdateResidentTicketService } = require('./UpdateResidentTicketService')
-const { TicketLastTimeViewedService } = require('./TicketLastTimeViewedService')
+const { TicketLastTimeViewedRecordService } = require('./TicketLastTimeViewedRecordService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -44,6 +44,6 @@ module.exports = {
     TicketCategoryClassifier,
     TicketProblemClassifier,
     TicketClassifierRule,
-    TicketLastTimeViewedService,
+    TicketLastTimeViewedRecordService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

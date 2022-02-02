@@ -38,7 +38,7 @@ import {
     SubscriptionProvider,
     useServiceSubscriptionContext,
 } from '@condo/domains/subscription/components/SubscriptionContext'
-import { UnreadTicketsSyncProvider, useTicketsCounter } from '@condo/domains/ticket/components/UnreadTickets'
+import { UnreadTicketsSyncProvider } from '@condo/domains/ticket/components/UnreadTickets'
 import { ThunderboltFilledWithBadge } from '@condo/domains/common/components/icons/ThunderboltFilledWithBadge'
 import dayjs from 'dayjs'
 import {
@@ -102,7 +102,6 @@ const MenuItems: React.FC = () => {
         icon: ApiFilled,
         label: 'menu.Billing',
     }]
-    const ticketsCounter = useTicketsCounter()
 
     return (
         <>

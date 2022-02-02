@@ -21,11 +21,17 @@ const Wrapper = styled.div`
 export const ThunderboltFilledWithBadge = () => {
     const { isCollapsed } = useLayoutContext()
     const ticketsCounter = useTicketsCounter()
-    if (isCollapsed && ticketsCounter.numberOfUnreadTickets > 0) {
-        return <Wrapper>
-            <Badge />
-            <ThunderboltFilled />
-        </Wrapper>
+
+    if (ticketsCounter.numberOfUnreadTickets > 0) {
+        if (isCollapsed){
+            return <Wrapper>
+                <Badge />
+                <ThunderboltFilled />
+            </Wrapper>
+        }
+        else {
+            return null
+        }
     }
     return  <ThunderboltFilled />
 }

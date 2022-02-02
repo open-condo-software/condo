@@ -155,20 +155,49 @@ const TicketProblemClassifier = generateGqlQueries('TicketProblemClassifier', TI
 const TICKET_CLASSIFIER_RULE_FIELDS = `{ place { id name } category { id name } problem { id name } ${COMMON_FIELDS} }`
 const TicketClassifierRule = generateGqlQueries('TicketClassifierRule', TICKET_CLASSIFIER_RULE_FIELDS)
 
-const SET_TICKET_LAST_TIME_VIEWED_MUTATION = gql`
-    mutation setTicketLastTimeViewed ($data: SetTicketLastTimeViewedInput!) {
-        result: setTicketLastTimeViewed(data: $data) { status }
-    }
-`
+const TICKET_LAST_TIME_VIEWED_FIELDS = '{ id lastTimeViewed }'
+const TicketLastTimeViewedRecord = generateGqlQueries('TicketLastTimeViewedRecord', TICKET_LAST_TIME_VIEWED_FIELDS)
+const TicketLastTimeViewedRecordType = `type ${TicketLastTimeViewedRecord.SINGULAR_FORM} { id: ID!, lastTimeViewed: String! }`
+const TicketLastTimeViewedRecordCreateInput = `input ${TicketLastTimeViewedRecord.SINGULAR_FORM}CreateInput { dv: Int, sender: SenderFieldInput, id: ID!, lastTimeViewed: String! }`
+const TicketLastTimeViewedRecordUpdateInput = `input ${TicketLastTimeViewedRecord.SINGULAR_FORM}UpdateInput { dv: Int, sender: SenderFieldInput, lastTimeViewed: String! }`
+const TicketLastTimeViewedRecordWhereInput = `
+input ${TicketLastTimeViewedRecord.SINGULAR_FORM}WhereInput {
+     id: ID!, 
+     lastTimeViewed: String! 
+     AND: [${TicketLastTimeViewedRecord.SINGULAR_FORM}WhereInput]
+     OR: [${TicketLastTimeViewedRecord.SINGULAR_FORM}WhereInput]
+     dv: Int
+     dv_not: Int
+     dv_lt: Int
+     dv_lte: Int
+     dv_gt: Int
+     dv_gte: Int
+     dv_in: [Int]
+     dv_not_in: [Int]
+     sender: SenderFieldInput
+     sender_not: SenderFieldInput
+     sender_in: [SenderFieldInput]
+     sender_not_in: [SenderFieldInput]
+}`
+const SortTicketLastTimeViewedRecordsByEnum = `
+enum Sort${TicketLastTimeViewedRecord.PLURAL_FORM}By {
+    dv_ASC
+    dv_DESC
+    lastTimeViewed_ASC
+    lastTimeViewed_DESC
+}`
 
-const GET_TICKET_LAST_TIME_VIEWED_QUERY = gql`
-    query getTicketLastTimeViewed {
-         result: getTicketLastTimeViewed {
-            syncedTicketLastTimeViewed
-         }
-    }
-`
-
+// Queries and mutations
+const allTicketLastTimeViewedRecordsQuery = `
+all${TicketLastTimeViewedRecord.PLURAL_FORM}(
+    where: ${TicketLastTimeViewedRecord.SINGULAR_FORM}WhereInput
+    search: String
+    sortBy: [Sort${TicketLastTimeViewedRecord.PLURAL_FORM}By!]
+    orderBy: String
+    first: Int
+    skip: Int): [${TicketLastTimeViewedRecord.SINGULAR_FORM}]`
+const updateTicketLastTimeViewedRecordMutation = `update${TicketLastTimeViewedRecord.SINGULAR_FORM}(id: ID!, data: ${TicketLastTimeViewedRecord.SINGULAR_FORM}UpdateInput): ${TicketLastTimeViewedRecord.SINGULAR_FORM}`
+const deleteTicketLastTimeViewedRecordMutation = `delete${TicketLastTimeViewedRecord.SINGULAR_FORM}(id: ID!): ${TicketLastTimeViewedRecord.SINGULAR_FORM}`
 
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
@@ -201,7 +230,14 @@ module.exports = {
     TicketClassifierRule,
     RESIDENT_TICKET_FIELDS,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
-    SET_TICKET_LAST_TIME_VIEWED_MUTATION,
-    GET_TICKET_LAST_TIME_VIEWED_QUERY,
+    TicketLastTimeViewedRecord,
+    TicketLastTimeViewedRecordType,
+    TicketLastTimeViewedRecordCreateInput,
+    TicketLastTimeViewedRecordUpdateInput,
+    TicketLastTimeViewedRecordWhereInput,
+    SortTicketLastTimeViewedRecordsByEnum,
+    allTicketLastTimeViewedRecordsQuery,
+    updateTicketLastTimeViewedRecordMutation,
+    deleteTicketLastTimeViewedRecordMutation,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
