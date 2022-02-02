@@ -5,7 +5,7 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MIN_PASSWORD_LENGTH_ERROR, PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/errors')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
+const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils } = require('@condo/domains/user/utils/serverSchema')
 const {
     CONFIRM_PHONE_ACTION_EXPIRED,
 } = require('@condo/domains/user/constants/errors')
