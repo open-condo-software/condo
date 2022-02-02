@@ -35,7 +35,7 @@ export const TicketDeadlineField = ({ initialValue }) => {
                         format='DD MMMM YYYY'
                         style={TICKET_DEADLINE_DATEPICKER_STYLE}
                         onChange={handleTicketDeadlineChange}
-                        disabledDate={isDateDisabled}
+                        // disabledDate={isDateDisabled}
                     />
                 </Form.Item>
             </Col>
