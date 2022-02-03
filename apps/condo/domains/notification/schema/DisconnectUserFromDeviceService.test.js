@@ -64,7 +64,7 @@ describe('DisconnectUserFromDeviceService', () => {
     })
 
     describe('user', () => {
-        it('allows to disconnect user from device', async () => {
+        it('can disconnect user from device', async () => {
             const user = await makeLoggedInClient()
             const user1 = await makeLoggedInClient()
             const admin = await makeLoggedInAdminClient()
