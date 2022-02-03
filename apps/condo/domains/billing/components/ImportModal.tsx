@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { Modal, Typography } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
@@ -11,7 +11,6 @@ import getConfig from 'next/config'
 const { publicRuntimeConfig: { registryImportUrl } } = getConfig()
 
 interface IImportModalProps {
-    closable: boolean
     visible: boolean
     onClose: () => void
 }
@@ -28,10 +27,11 @@ const WideModalStyles = css`
 
 export const ImportModal: React.FC<IImportModalProps> = ({
     visible,
-    closable,
     onClose,
 }) => {
     const intl = useIntl()
+
+    const [modalClosable, setModalClosable] = useState(true)
 
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id', null)
@@ -49,6 +49,13 @@ export const ImportModal: React.FC<IImportModalProps> = ({
     const [option] = options.filter(opt => opt.name === optionId)
     const optionName = get(option, 'displayName', optionId)
 
+    const lockModalHandler = useCallback((message) => {
+        const messageType = get(message, 'type')
+        if (messageType !== 'ModalLock') return
+        const locked = Boolean(get(message, 'locked', true))
+        setModalClosable(!locked)
+    }, [])
+
     const ModalTitle = intl.formatMessage({ id: 'RegistriesUploading' }, { name: optionName })
     return (
         <>
@@ -57,18 +64,18 @@ export const ImportModal: React.FC<IImportModalProps> = ({
                 visible={visible}
                 onCancel={(e) => {
                     e.preventDefault()
-                    if (closable) {
+                    if (modalClosable) {
                         onClose()
                     }
                 }}
                 footer={null}
-                closable={closable}
+                closable={modalClosable}
                 title={<Typography.Title level={4}>{ModalTitle}</Typography.Title>}
                 centered
                 className={'registry-import-modal'}
                 style={{ marginTop:40 }}
             >
-                <IFrame pageUrl={registryImportUrl}/>
+                <IFrame pageUrl={registryImportUrl} handlers={[lockModalHandler]}/>
             </Modal>
         </>
     )

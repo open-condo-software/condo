@@ -163,49 +163,45 @@ export const parseMessage: parseMessageType = (data) => {
 }
 
 // UTILS BLOCK
-export const sendMessage = (message: string, messageType: NotificationType, receiver: Window, receiverOrigin: string): void => {
+export const sendMessage = (message: Record<string, unknown>, receiver: Window, receiverOrigin: string): void => {
     if (receiver) {
-        receiver.postMessage({
-            type: NOTIFICATION_MESSAGE_TYPE,
-            notificationType: messageType,
-            message,
-        }, receiverOrigin)
+        receiver.postMessage(message, receiverOrigin)
     }
+}
+
+export const sendNotification = (message: string, messageType: NotificationType, receiver: Window, receiverOrigin: string): void => {
+    sendMessage({
+        type: NOTIFICATION_MESSAGE_TYPE,
+        notificationType: messageType,
+        message,
+    }, receiver, receiverOrigin)
 }
 
 export const sendRequirementRequest = (requirement: RequirementType, receiver: Window, receiverOrigin: string): void => {
-    if (receiver) {
-        receiver.postMessage({
-            type:REQUIREMENT_MESSAGE_TYPE,
-            requirement,
-        }, receiverOrigin)
-    }
+    sendMessage({
+        type:REQUIREMENT_MESSAGE_TYPE,
+        requirement,
+    }, receiver, receiverOrigin)
 }
 
 export const sendLoadedStatus = (receiver: Window, receiverOrigin: string): void => {
-    if (receiver) {
-        receiver.postMessage({
-            type: LOADED_STATUS_MESSAGE_TYPE,
-            status: 'done',
-        }, receiverOrigin)
-    }
+    sendMessage({
+        type: LOADED_STATUS_MESSAGE_TYPE,
+        status: 'done',
+    }, receiver, receiverOrigin)
 }
 
 export const sendError = (message: string, requestMessage: Record<string, unknown>, receiver: Window, receiverOrigin: string): void => {
-    if (receiver) {
-        receiver.postMessage({
-            type: ERROR_MESSAGE_TYPE,
-            message,
-            requestMessage,
-        }, receiverOrigin)
-    }
+    sendMessage({
+        type: ERROR_MESSAGE_TYPE,
+        message,
+        requestMessage,
+    }, receiver, receiverOrigin)
 }
 
 export const sendSize = (height: number, receiver: Window, receiverOrigin: string): void => {
-    if (receiver) {
-        receiver.postMessage({
-            type: RESIZE_MESSAGE_TYPE,
-            height,
-        }, receiverOrigin)
-    }
+    sendMessage({
+        type: RESIZE_MESSAGE_TYPE,
+        height,
+    }, receiver, receiverOrigin)
 }
