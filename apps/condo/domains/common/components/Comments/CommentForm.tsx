@@ -1,6 +1,6 @@
 import React from 'react'
 import { FormWithAction } from '../containers/FormList'
-import { Form, Input } from 'antd'
+import { Col, Form, Input, Row } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import Icon from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
@@ -15,7 +15,7 @@ const Holder = styled.div`
   button.ant-btn {
     position: absolute;
     right: 4px;
-    bottom: 23px;
+    bottom: 26px;
   }
   .ant-form-item-explain {
     display: none;
@@ -86,7 +86,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                             />
                         </Form.Item>
                         <Button
-                            type="sberPrimary"
+                            type="sberDefaultGradient"
                             size="middle"
                             icon={<Icon component={SendMessage} style={{ color: 'white' }}/>}
                             onClick={(e) => {

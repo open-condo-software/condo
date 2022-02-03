@@ -6,12 +6,12 @@ import { Button } from '@condo/domains/common/components/Button'
 import { Comments } from '@condo/domains/common/components/Comments'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { formatPhone } from '@condo/domains/common/utils/helpers'
+import { formatPhone, getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
@@ -40,6 +40,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
+import { BaseType } from 'antd/lib/typography/Base'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -123,6 +124,7 @@ const TicketTag = styled(Tag)`
   font-size: ${fontSizes.content};
   line-height: 24px;
 `
+const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
 
 const TicketContent = ({ ticket }) => {
     const intl = useIntl()
@@ -144,10 +146,9 @@ const TicketContent = ({ ticket }) => {
 
     const propertyWasDeleted = !!get(ticket, ['property', 'deletedAt'])
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
-    const ticketUnit = ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : ''
-    const ticketAddress = get(ticket, ['property', 'address']) + ticketUnit
-    const ticketAddressExtra = ticket.sectionName && ticket.floorName
-        ? `${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName}`
+    const ticketUnit = ticket.unitName ? `${ShortFlatNumber} ${ticket.unitName}` : ''
+    const ticketSectionAndFloor = ticket.sectionName && ticket.floorName
+        ? `(${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName})`
         : ''
 
     const { objs: files } = TicketFile.useObjects({
@@ -186,6 +187,63 @@ const TicketContent = ({ ticket }) => {
 
     }, [LessThenDayMessage, OverdueMessage, ToCompleteMessage, ticketDeadline])
 
+    const ticketClassifierNames = useMemo(() => compact([
+        get(ticket, ['placeClassifier', 'name']),
+        get(ticket, ['categoryClassifier', 'name']),
+        get(ticket, ['problemClassifier', 'name']),
+    ]), [ticket])
+
+    const getClassifierTextType = useCallback(
+        (index: number): BaseType => index !== ticketClassifierNames.length - 1 ? null : 'secondary',
+        [ticketClassifierNames.length])
+
+    const { streetPart, renderPostfix } = getAddressDetails(ticket.property)
+
+    const TicketUnitMessage = useCallback(() => (
+        <Typography.Paragraph style={{ margin: 0 }}>
+            <Typography.Text strong>{ticketUnit}&nbsp;</Typography.Text>
+            <Typography.Text>{ticketSectionAndFloor}</Typography.Text>
+        </Typography.Paragraph>
+    ), [ticketSectionAndFloor, ticketUnit])
+
+    const DeletedPropertyAddressMessage = useCallback(() => (
+        <>
+            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+                {renderPostfix}
+            </Typography.Paragraph>
+            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+                {streetPart}
+            </Typography.Paragraph>
+            {
+                ticketUnit && (
+                    <Typography.Text type={'secondary'}>
+                        <TicketUnitMessage />
+                    </Typography.Text>
+
+                )
+            }
+            <Typography.Text type={'secondary'}>
+                ({ DeletedMessage })
+            </Typography.Text>
+        </>
+    ), [DeletedMessage, TicketUnitMessage, renderPostfix, streetPart, ticketUnit])
+
+    const PropertyAddressMessage = useCallback(() => (
+        <>
+            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+                {renderPostfix}
+            </Typography.Paragraph>
+            <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
+                <Typography.Link style={{ color: 'black' }} underline>
+                    {streetPart}
+                </Typography.Link>
+            </Link>
+            {ticketUnit && <TicketUnitMessage />}
+        </>
+    ), [TicketUnitMessage, renderPostfix, streetPart, ticket, ticketUnit])
+
+    console.log('ticket assignee', ticket.assignee)
+
     return (
         <Col span={24}>
             <Row gutter={[0, 24]}>
@@ -198,26 +256,15 @@ const TicketContent = ({ ticket }) => {
                     ) : null
                 }
                 <PageFieldRow title={AddressMessage} highlight>
-                    {propertyWasDeleted ?
-                        <Typography.Text type={'secondary'}>{ ticketAddress } ({ DeletedMessage })</Typography.Text> :
-                        <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
-                            <Typography.Link>
-                                {ticketAddress}
-                                {ticketAddressExtra && (
-                                    <>
-                                        <br/>
-                                        <Typography.Text>
-                                            {ticketAddressExtra}
-                                        </Typography.Text>
-                                    </>
-                                )}
-                            </Typography.Link>
-                        </Link>
+                    {
+                        propertyWasDeleted ? (
+                            <DeletedPropertyAddressMessage />
+                        ) : <PropertyAddressMessage />
                     }
                 </PageFieldRow>
                 <PageFieldRow title={ClientMessage} highlight>
                     <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
-                        <Typography.Link>
+                        <Typography.Link style={{ color: colors.black }} underline>
                             <TicketUserInfoField
                                 user={{
                                     name: get(ticket, 'clientName'),
@@ -238,23 +285,31 @@ const TicketContent = ({ ticket }) => {
                 <PageFieldRow title={ClassifierMessage}>
                     <Breadcrumb separator="≫">
                         {
-                            compact([
-                                get(ticket, ['placeClassifier', 'name']),
-                                get(ticket, ['categoryClassifier', 'name']),
-                                get(ticket, ['problemClassifier', 'name']),
-                            ]).map(name => {
+                            ticketClassifierNames.map((name, index) => {
                                 return (
-                                    <Breadcrumb.Item key={name}>{name}</Breadcrumb.Item>
+                                    <Breadcrumb.Item key={name}>
+                                        <Typography.Text
+                                            style={CLASSIFIER_VALUE_STYLE}
+                                            strong
+                                            type={getClassifierTextType(index)}
+                                        >
+                                            {name}
+                                        </Typography.Text>
+                                    </Breadcrumb.Item>
                                 )
                             })
                         }
                     </Breadcrumb>
                 </PageFieldRow>
                 <PageFieldRow title={ExecutorMessage}>
-                    <TicketUserInfoField user={get(ticket, ['executor'])}/>
+                    <Typography.Text strong>
+                        <TicketUserInfoField user={get(ticket, ['executor'])}/>
+                    </Typography.Text>
                 </PageFieldRow>
                 <PageFieldRow title={AssigneeMessage}>
-                    <TicketUserInfoField user={get(ticket, ['assignee'])}/>
+                    <Typography.Text strong>
+                        <TicketUserInfoField user={get(ticket, ['assignee'])}/>
+                    </Typography.Text>
                 </PageFieldRow>
             </Row>
         </Col>
@@ -353,7 +408,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     <Row gutter={[0, 40]}>
                                         <Col lg={18} xs={24}>
                                             <Space size={8} direction={'vertical'}>
-                                                <Typography.Title level={1} style={{ margin: 0 }}>{TicketTitleMessage}</Typography.Title>
+                                                <Typography.Title level={1}>{TicketTitleMessage}</Typography.Title>
                                                 <Typography.Text>
                                                     <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
                                                     <UserNameField user={get(ticket, ['createdBy'])}>
@@ -394,13 +449,26 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                         <Button
                                             disabled={disabledEditButton}
                                             color={'green'}
-                                            type={'sberPrimary'}
+                                            type={'sberDefaultGradient'}
                                             secondary
                                             icon={<EditFilled />}
                                         >
                                             {UpdateMessage}
                                         </Button>
                                     </Link>
+                                    {
+                                        !isSmall && (
+                                            <Button
+                                                type={'sberDefaultGradient'}
+                                                icon={<FilePdfFilled />}
+                                                href={`/ticket/${ticket.id}/pdf`}
+                                                target={'_blank'}
+                                                secondary
+                                            >
+                                                {PrintMessage}
+                                            </Button>
+                                        )
+                                    }
                                     {
                                         canShareTickets
                                             ? <ShareTicketModal
@@ -412,19 +480,6 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                 locale={get(organization, 'country')}
                                             />
                                             : null
-                                    }
-                                    {
-                                        !isSmall && (
-                                            <Button
-                                                type={'sberPrimary'}
-                                                icon={<FilePdfFilled />}
-                                                href={`/ticket/${ticket.id}/pdf`}
-                                                target={'_blank'}
-                                                secondary
-                                            >
-                                                {PrintMessage}
-                                            </Button>
-                                        )
                                     }
                                 </ActionBar>
                                 <TicketChanges

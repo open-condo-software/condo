@@ -268,7 +268,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     return (
         <>
             <Button
-                type={'sberPrimary'}
+                type={'sberDefaultGradient'}
                 icon={<ShareAltOutlined />}
                 secondary
                 onClick={handleShow}

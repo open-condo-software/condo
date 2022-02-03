@@ -69,7 +69,13 @@ export const getAddressDetails = (property: Property) => {
     const areaWithType = get(addressMeta, 'area_with_type')
     const areaPart = areaWithType && areaWithType !== cityPart && areaWithType
 
-    return { streetPart, areaPart, settlementPart, regionPart, cityPart }
+    const regionLine = regionPart ? `\n${regionPart}` : ''
+    const areaLine = areaPart ? `${regionLine ? ',' : ''}\n${areaPart}` : ''
+    const cityLine = cityPart ? `${regionLine ? ',' : ''}\n${cityPart}` : ''
+    const settlementLine = settlementPart ? `,\n${settlementPart}` : ''
+    const renderPostfix = regionLine + areaLine + settlementLine + cityLine
+
+    return { streetPart, areaPart, settlementPart, regionPart, cityPart, renderPostfix }
 }
 
 /**
