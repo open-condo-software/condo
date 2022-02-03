@@ -25,7 +25,7 @@ interface IContainerProps {
 }
 
 const Container = styled.aside<IContainerProps>`
-  background: #F5F5F5;
+  background: ${colors.backgroundLightGrey};
   border-radius: 8px;
   
   ${({ isSmall }) => {
