@@ -10,7 +10,7 @@ const { expectToThrowUserInputError } = require('@condo/domains/common/utils/tes
 
 describe('DisconnectUserFromDeviceService', () => {
     describe('anonymous', () => {
-        it('allows to disconnect user from device', async () => {
+        it('can disconnect user from device', async () => {
             const user = await makeLoggedInClient()
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
