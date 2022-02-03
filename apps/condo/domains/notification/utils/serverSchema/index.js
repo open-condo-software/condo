@@ -71,7 +71,6 @@ async function syncDevice (context, data) {
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
     if (!data.deviceId) throw new Error('no data.deviceId')
-    if (!data.pushTransport) throw new Error('no data.pushTransport')
 
     return await execGqlWithoutAccess(context, {
         query: SYNC_DEVICE_MUTATION,
@@ -86,7 +85,6 @@ async function disconnectUserFromDevice (context, data) {
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
     if (!data.deviceId) throw new Error('no data.deviceId')
-    if (!data.pushTransport) throw new Error('no data.pushTransport')
 
     return await execGqlWithoutAccess(context, {
         query: DISCONNECT_USER_FROM_DEVICE_MUTATION,
