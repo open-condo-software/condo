@@ -30,7 +30,6 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
                     ...restUserData,
                     type: STAFF,
                 }
-                console.log(userData)
                 await ensureNotExists(context, 'email', userData.email)
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
                     throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then ${MIN_PASSWORD_LENGTH} character`)
@@ -53,7 +52,6 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
                 })
                 if (createErrors) {
                     const msg = '[error] Unable to create user'
-                    console.log(createErrors)
                     throw new Error(msg)
                 }
                 // end of TODO
