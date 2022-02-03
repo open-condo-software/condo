@@ -38,7 +38,7 @@ import {
     SubscriptionProvider,
     useServiceSubscriptionContext,
 } from '@condo/domains/subscription/components/SubscriptionContext'
-import { UnreadTicketsSyncProvider } from '@condo/domains/ticket/components/UnreadTickets'
+import { UnreadTicketsSyncProvider, useTicketsCounter } from '@condo/domains/ticket/components/UnreadTickets'
 import { ThunderboltFilledWithBadge } from '@condo/domains/common/components/icons/ThunderboltFilledWithBadge'
 import dayjs from 'dayjs'
 import {
@@ -57,9 +57,10 @@ const ANT_LOCALES = {
     en: enUS,
 }
 
-interface IMenuItemData {
+type MenuItemData = {
     path: string,
     icon: React.FC,
+    children?: React.ReactElement,
     label: string,
 }
 
@@ -72,14 +73,16 @@ const MenuItems: React.FC = () => {
     const disabled = !link || (hasSubscriptionFeature && isExpired)
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
+    const ticketsCounter = useTicketsCounter()
 
-    const menuItemsData: IMenuItemData[] = [{
+    const menuItemsData: MenuItemData[] = [{
         path: 'reports',
         icon: BarChartIcon,
         label: 'menu.Analytics',
     }, {
         path: 'ticket',
         icon: ThunderboltFilledWithBadge,
+        children: (<Badge count={ticketsCounter.numberOfUnreadTickets} />),
         label: 'menu.ControlRoom',
     }, {
         path: 'property',
@@ -125,6 +128,7 @@ const MenuItems: React.FC = () => {
                         disabled={disabled}
                         isCollapsed={isCollapsed}
                         toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                        children={menuItemData.children}
                     />
                 ))}
                 <MenuItem

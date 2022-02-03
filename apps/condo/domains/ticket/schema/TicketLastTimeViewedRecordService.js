@@ -56,7 +56,7 @@ const TicketLastTimeViewedRecordService = new GQLCustomSchema('TicketLastTimeVie
                     throw new Error('Wrong date')
                 }
                 const dateObj = new Date(data)
-                if (!isValidDate(dateObj)) {
+                if (!isValidDate(dateObj) || dateObj.getTime() < new Date().getTime() - 1000 * 5) {
                     throw new Error('Wrong date')
                 }
                 await store.set(getDSKey(context.authedItem.id), dateObj.toISOString())

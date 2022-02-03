@@ -159,11 +159,11 @@ const TICKET_LAST_TIME_VIEWED_FIELDS = '{ id lastTimeViewed }'
 const TicketLastTimeViewedRecord = generateGqlQueries('TicketLastTimeViewedRecord', TICKET_LAST_TIME_VIEWED_FIELDS)
 const TicketLastTimeViewedRecordType = `type ${TicketLastTimeViewedRecord.SINGULAR_FORM} { id: ID!, lastTimeViewed: String! }`
 const TicketLastTimeViewedRecordCreateInput = `input ${TicketLastTimeViewedRecord.SINGULAR_FORM}CreateInput { dv: Int, sender: SenderFieldInput, id: ID!, lastTimeViewed: String! }`
-const TicketLastTimeViewedRecordUpdateInput = `input ${TicketLastTimeViewedRecord.SINGULAR_FORM}UpdateInput { dv: Int, sender: SenderFieldInput, lastTimeViewed: String! }`
+const TicketLastTimeViewedRecordUpdateInput = `input ${TicketLastTimeViewedRecord.SINGULAR_FORM}UpdateInput { dv: Int, sender: SenderFieldInput, id: ID!, lastTimeViewed: String! }`
 const TicketLastTimeViewedRecordWhereInput = `
 input ${TicketLastTimeViewedRecord.SINGULAR_FORM}WhereInput {
      id: ID!, 
-     lastTimeViewed: String! 
+     lastTimeViewed: String 
      AND: [${TicketLastTimeViewedRecord.SINGULAR_FORM}WhereInput]
      OR: [${TicketLastTimeViewedRecord.SINGULAR_FORM}WhereInput]
      dv: Int

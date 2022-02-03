@@ -6,7 +6,7 @@ import { useTicketsCounter } from '@condo/domains/ticket/components/UnreadTicket
 import { useLayoutContext } from '../LayoutContext'
 
 
-const Badge = styled.div`
+const NotificationPoint = styled.div`
     position: absolute;
     width: 10px;
     height: 10px;
@@ -22,16 +22,13 @@ export const ThunderboltFilledWithBadge = () => {
     const { isCollapsed } = useLayoutContext()
     const ticketsCounter = useTicketsCounter()
 
-    if (ticketsCounter.numberOfUnreadTickets > 0) {
-        if (isCollapsed){
-            return <Wrapper>
-                <Badge />
+    if (isCollapsed && ticketsCounter.numberOfUnreadTickets > 0) {
+        return (
+            <Wrapper>
+                <NotificationPoint />
                 <ThunderboltFilled />
             </Wrapper>
-        }
-        else {
-            return null
-        }
+        )
     }
     return  <ThunderboltFilled />
 }

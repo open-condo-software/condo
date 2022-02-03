@@ -3,48 +3,29 @@
  */
 const dayjs = require('dayjs')
 const { makeLoggedInClient } = require('@core/keystone/test.utils')
-const { setTicketLastTimeViewedByTestClient, getTicketLastTimeViewedByTestClient } = require('@condo/domains/ticket/utils/testSchema')
-const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { TicketLastTimeViewedRecord } = require('../utils/testSchema')
   
-describe('TicketLastTimeViewedService', () => {
+describe('TicketLastTimeViewedRecordService', () => {
     beforeEach(async () => {
         const client = await makeLoggedInClient()
-        setTicketLastTimeViewedByTestClient(client, { viewedAt: 0 })
+        await TicketLastTimeViewedRecord.update(client, client.user.id, { id: client.user.id, lastTimeViewed: new Date().toISOString() })
     })
-    test('Returns 0 at first time', async () => {
-        const client = await makeLoggedInClient()
-        const [{ syncedTicketLastTimeViewed }] = await getTicketLastTimeViewedByTestClient(client)
-        expect(syncedTicketLastTimeViewed).toEqual(0)
-    })
+
     test('set ticket last time viewed', async () => {
         const client = await makeLoggedInClient()
-        const start = dayjs().unix()
-        await setTicketLastTimeViewedByTestClient(client, { viewedAt: start })
-        const [{ syncedTicketLastTimeViewed }] = await getTicketLastTimeViewedByTestClient(client)
-        expect(syncedTicketLastTimeViewed).toEqual(start)
+        const start = dayjs().toISOString()
+        console.log(client.user.id)
+        await TicketLastTimeViewedRecord.update(client, client.user.id, { id: client.user.id, lastTimeViewed: start })
+        const [{ id, lastTimeViewed }] = await TicketLastTimeViewedRecord.getAll(client, { id: client.user.id })
+        expect(id).toEqual(client.user.id)
+        expect(lastTimeViewed).toEqual(start)
     })
  
-    const invalidUnixTimes = [-500, 0.003, 0.2 + 0.4]
-    test.each(invalidUnixTimes)('Not setting invalid unix time', async (invalidUnixTime) => {
+    const invalidUnixTimes = ['', '0.003', 'hello']
+    test.each(invalidUnixTimes)('Not setting invalid date', async (invalidUnixTime) => {
         const client = await makeLoggedInClient()
-        const [{ status }] = await setTicketLastTimeViewedByTestClient(client, { viewedAt: invalidUnixTime })
-        expect(status).toEqual('Wrong date')
-        const [{ syncedTicketLastTimeViewed }] = await getTicketLastTimeViewedByTestClient(client)
-        expect(syncedTicketLastTimeViewed).toEqual(0)    
+        const { errors } = await TicketLastTimeViewedRecord.update(client, client.user.id, { id: client.user.id, lastTimeViewed: invalidUnixTime }, { raw: true })
+        expect(errors[0].message).toBe('Wrong date')
     })
-     
-    const invalidDates = [NaN, Infinity, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 'wrong date', {}]
-    test.each(invalidDates)('Not setting invalid date', async (invalidDate) => {
-        const client = await makeLoggedInClient()
-        await catchErrorFrom(async () => {
-            await setTicketLastTimeViewedByTestClient(client, { viewedAt: invalidDate })
-        }, ({ errors }) => {
-            expect(errors[0]).toMatchObject({
-                message: expect.stringContaining('Variable "$data" got invalid value'),
-                name: 'UserInputError',
-            })
-        })
-        const [{ syncedTicketLastTimeViewed }] = await getTicketLastTimeViewedByTestClient(client)
-        expect(syncedTicketLastTimeViewed).toEqual(0)    
-    })
+    // TODO: add security tests
 })

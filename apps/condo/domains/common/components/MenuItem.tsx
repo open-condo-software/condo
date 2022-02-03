@@ -136,6 +136,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
                 <Typography.Text className="label">
                     {Message}
                 </Typography.Text>
+                {children}
             </Space>
         )
 

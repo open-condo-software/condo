@@ -10,7 +10,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { TICKET_STATUS_TYPES } = require('../../constants')
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
+const { Ticket: TicketGQL, TicketLastTimeViewedRecord: TicketLastTimeViewedRecordGQL } = require('@condo/domains/ticket/gql')
 const {
     TicketStatus: TicketStatusGQL,
     TicketChange: TicketChangeGQL,
@@ -24,10 +24,6 @@ const {
     TicketClassifierRule: TicketClassifierRuleGQL,
 } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
-const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
-const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
-const { GET_TICKET_LAST_TIME_VIEWED_QUERY } = require('@condo/domains/ticket/gql')
-const { SET_TICKET_LAST_TIME_VIEWED_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -46,6 +42,7 @@ const TicketCategoryClassifier = generateGQLTestUtils(TicketCategoryClassifierGQ
 const TicketProblemClassifier = generateGQLTestUtils(TicketProblemClassifierGQL)
 const TicketClassifierRule = generateGQLTestUtils(TicketClassifierRuleGQL)
 const ResidentTicket = generateGQLTestUtils(ResidentTicketGQL)
+const TicketLastTimeViewedRecord = generateGQLTestUtils(TicketLastTimeViewedRecordGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -377,28 +374,6 @@ async function updateResidentTicketByTestClient(client, id, extraAttrs = {}) {
     const obj = await ResidentTicket.update(client, id, attrs)
     return [obj, attrs]
 }
-async function setTicketLastTimeViewedByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const attrs = {
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(SET_TICKET_LAST_TIME_VIEWED_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
-async function getTicketLastTimeViewedByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(GET_TICKET_LAST_TIME_VIEWED_QUERY, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -432,9 +407,8 @@ module.exports = {
     TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
     createTestTicketPlaceClassifier, updateTestTicketPlaceClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier, createTestTicketProblemClassifier, updateTestTicketProblemClassifier, createTestTicketClassifierRule, updateTestTicketClassifierRule,
+    TicketLastTimeViewedRecord,
     createResidentTicketByTestClient,
     updateResidentTicketByTestClient,
-    setTicketLastTimeViewedByTestClient,
-    getTicketLastTimeViewedByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

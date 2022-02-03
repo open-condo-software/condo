@@ -6,7 +6,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 async function canOperateTicketLastTimeViewedRecord ({ args, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.isAdmin) return true
-    return args.id === user.id
+    return args.id === user.id || args.where.id === user.id
 }
 const canGetAllTicketLastTimeViewedRecord = canOperateTicketLastTimeViewedRecord
 const canUpdateTicketLastTimeViewedRecord = canOperateTicketLastTimeViewedRecord
