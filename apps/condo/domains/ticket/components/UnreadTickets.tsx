@@ -45,7 +45,6 @@ export const UnreadTicketsSyncProvider: React.FC = ({ children }) => {
     const syncWithServer = useCallback((_lastTimeTicketsViewed)=> {
         if (!isAuthenticated || !user) return
         lastTimeTicketsViewed.current = _lastTimeTicketsViewed
-        console.log(lastTimeTicketsViewed.current)
         updateTicketLastTimeViewedRecordMutation({
             variables: {
                 id: user.id,
