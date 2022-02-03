@@ -17,7 +17,7 @@ const { User: UserGQL } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
-const { REGISTER_NEW_USER_SERVICE_MUTATION } = require('@condo/domains/user/gql')
+const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -44,7 +44,7 @@ async function registerNewUserService (context, data) {
     // TODO(codegen): write registerNewUserService serverSchema guards
 
     return await execGqlWithoutAccess(context, {
-        query: REGISTER_NEW_USER_SERVICE_MUTATION,
+        query: REGISTER_NEW_SERVICE_USER_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerNewUserService',
         dataPath: 'obj',
