@@ -1,5 +1,5 @@
-const {User: UserServerUtils} = require("@condo/domains/user/utils/serverSchema");
-const {STAFF} = require("@condo/domains/user/constants/common");
+const { User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
+const { STAFF } = require('@condo/domains/user/constants/common')
 
 async function ensureNotExists (context, field, value) {
     const existed = await UserServerUtils.getAll(context, { [field]: value, type: STAFF })
