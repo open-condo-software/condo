@@ -27,7 +27,8 @@ import { ITicketStatusUIState } from '../utils/clientSchema/TicketStatus'
 import { ITicketCategoryClassifierUIState } from '../utils/clientSchema/TicketCategoryClassifier'
 
 const filterNumber = getNumberFilter('number')
-const filterDateRange = getDayRangeFilter('createdAt')
+const filterCreatedAtRange = getDayRangeFilter('createdAt')
+const filterDeadlineRange = getDayRangeFilter('deadline')
 const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
@@ -53,7 +54,8 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
-    const DateMessage = intl.formatMessage({ id: 'Date' })
+    const DateMessage = intl.formatMessage({ id: 'CreatedDate' })
+    const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
     const StatusMessage =  intl.formatMessage({ id: 'Status' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
@@ -174,7 +176,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'createdAt',
-                filters: [filterDateRange],
+                filters: [filterCreatedAtRange],
                 component: {
                     type: ComponentType.DateRange,
                     props: {
@@ -182,6 +184,21 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                     modalFilterComponentWrapper: {
                         label: DateMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'deadline',
+                filters: [filterDeadlineRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                        disabledDate: () => false,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: CompleteBeforeMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
