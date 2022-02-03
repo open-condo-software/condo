@@ -10,13 +10,11 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
     types: [
         {
             access: true,
-            // TODO(codegen): write ResetUserService input !
-            type: 'input ResetUserInput { dv: Int!, sender: JSON! }',
+            type: 'input ResetUserInput { dv: Int!, sender: JSON! id: }',
         },
         {
             access: true,
-            // TODO(codegen): write ResetUserService output !
-            type: 'type ResetUserOutput { id: String! }',
+            type: 'type ResetUserOutput { status: String! }',
         },
     ],
     
@@ -27,9 +25,10 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(codegen): write ResetUserService logic!
                 const { data } = args
-                return {
-                    id: null,
+                const result = {
+                    status: 'ok',
                 }
+                return result
             },
         },
     ],
