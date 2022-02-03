@@ -70,7 +70,8 @@ export default function GlobalStyle () {
                 width: 100%;
               }
 
-              .ant-input-affix-wrapper input {
+              .ant-input-affix-wrapper input, .ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused {
+                border-color: ${colors.black};
                 box-shadow: none !important;
               }
 
