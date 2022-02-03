@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const mockPushSubscriptionActivationToSalesCRM = jest.fn()
 const mockPushOrganizationToSalesCRM = jest.fn()
 
