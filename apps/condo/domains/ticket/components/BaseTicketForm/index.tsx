@@ -272,7 +272,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     return (
         <>
             <FormWithAction
-                {...LAYOUT}
                 action={action}
                 initialValues={initialValues}
                 validateTrigger={['onBlur', 'onSubmit']}
