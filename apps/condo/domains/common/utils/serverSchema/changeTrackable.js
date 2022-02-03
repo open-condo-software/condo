@@ -275,8 +275,11 @@ const buildDataToStoreChangeFrom = async (args) => {
     await Promise.all(keys(fields).map(async (key) => {
         const field = fields[key]
         if (isScalar(field)) {
-            if (existingItem[key] !== updatedItem[key]) {
-                data[`${ key }From`] = convertScalarValueToInput(existingItem[key])
+            const convertedExistingValue = convertScalarValueToInput(existingItem[key])
+            const convertedUpdatedValue = convertScalarValueToInput(updatedItem[key])
+
+            if (convertedExistingValue !== convertedUpdatedValue) {
+                data[`${ key }From`] = convertedExistingValue
                 data[`${ key }To`] = convertScalarValueToInput(updatedItem[key])
             }
         } else if (isRelationSingle(field)) {
