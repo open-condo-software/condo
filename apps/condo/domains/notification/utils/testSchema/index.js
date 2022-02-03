@@ -62,7 +62,7 @@ async function sendMessageByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const email = getRandomEmail()
-    const to = get(client, 'user.id') ? { email, to: client.user.id }: { email }
+    const to = get(client, 'user.id') ? { email, user: { id: client.user.id } }: { email }
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const type = INVITE_NEW_EMPLOYEE_MESSAGE_TYPE
     const meta = { dv: 1, inviteCode: faker.random.alphaNumeric(8) }
