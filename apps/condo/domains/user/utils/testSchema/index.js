@@ -12,7 +12,7 @@ const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/us
 const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
-const { REGISTER_NEW_USER_SERVICE_MUTATION } = require('@condo/domains/user/gql')
+const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -235,16 +235,24 @@ async function signinAsUserByTestClient(client, id, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
-async function registerNewUserServiceByTestClient(client, extraAttrs = {}) {
+async function registerNewServiceUserByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
+    const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
+    const name = faker.name.firstName()
+    const email = createTestEmail()
+    const password = getRandomString()
+    const meta = {
+        dv: 1, city: faker.address.city(), county: faker.address.county(),
+    }
     const attrs = {
         dv: 1,
         sender,
+        name,
+        email,
+        password, meta,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(REGISTER_NEW_USER_SERVICE_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(REGISTER_NEW_SERVICE_USER_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -256,6 +264,6 @@ module.exports = {
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
     signinAsUserByTestClient,
-    registerNewUserServiceByTestClient
+    registerNewServiceUserByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
