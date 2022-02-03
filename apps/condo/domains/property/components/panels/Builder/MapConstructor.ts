@@ -912,7 +912,7 @@ class MapEdit extends MapView {
         if (unitIndex.unit === -1) {
             return
         }
-        console.log(unit)
+
         const oldSection = this.map.sections[unitIndex.section].id
         const oldFloor = this.map.sections[unitIndex.section].floors[unitIndex.floor].id
 
