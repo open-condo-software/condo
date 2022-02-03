@@ -600,3 +600,29 @@ export const getChartOptions: IGetChartOptions = ({
 
     return { option, opts }
 }
+
+export enum TicketDeadlineType {
+    MORE_THAN_DAY,
+    LESS_THAN_DAY,
+    OVERDUE,
+}
+
+export function getDeadlineType (deadline: Dayjs): TicketDeadlineType {
+    const today = dayjs().startOf('day')
+    const tomorrow = today.add(1, 'day')
+    const isLessThanOneDay = deadline.isBefore(tomorrow) || deadline.isSame(tomorrow)
+
+    if (isLessThanOneDay) {
+        return (deadline.isBefore(today) || deadline.isSame(today)) ? TicketDeadlineType.OVERDUE : TicketDeadlineType.LESS_THAN_DAY
+    }
+
+    return TicketDeadlineType.MORE_THAN_DAY
+}
+
+export function getHumanizeDeadlineDateDifference (deadline: Dayjs) {
+    const diff = deadline.diff(dayjs().startOf('day'), 'day')
+    const moreThanDayDiff = dayjs.duration(diff, 'days').humanize()
+    const overdueDiff = dayjs.duration(diff, 'days').subtract(1, 'day').humanize()
+
+    return { moreThanDayDiff, overdueDiff }
+}

@@ -726,6 +726,7 @@
   "ticket.assignments.executor.All": "All employees",
   "ticket.deadline.AutoCompletion": "Date determined automatically (+2 days)",
   "ticket.deadline.CompleteBefore": "Complete before…",
+  "ticket.deadline.ToComplete": "To complete {days}",
   "ticket.deadline.LessThenDay": "To be completed in less than 24 hours",
   "ticket.deadline.Overdue": "Overdue by {days}",
   "OK": "OK",
