@@ -42,12 +42,21 @@ type ResizeMessageType = {
     height: number,
 }
 
-type ParsedMessageType = {
-    message?: RequirementMessageType | NotificationMessageType | LoadedStatusMessageType | ErrorMessageType | ResizeMessageType,
-    errors?: Array<string>,
+type SystemMessageType = RequirementMessageType | NotificationMessageType | LoadedStatusMessageType | ErrorMessageType | ResizeMessageType
+
+type SystemMessageReturnType = {
+    type: 'system'
+    message: SystemMessageType
 }
 
-type parseMessageType = (data: any) => ParsedMessageType
+type CustomMessageReturnType = {
+    type: 'custom'
+    message: Record<string, unknown>
+}
+
+type ParsedMessageReturnType = SystemMessageReturnType | CustomMessageReturnType
+
+type parseMessageType = (data: any) => ParsedMessageReturnType
 
 // CONFIGURATION BLOCK
 const AvailableMessageTypes = [
@@ -66,7 +75,16 @@ const MessagesRequiredProperties = {
     [RESIZE_MESSAGE_TYPE]: ['height'],
 }
 
-const MessageSchema = {
+const SystemMessageDetectorSchema = {
+    type: 'object',
+    properties: {
+        type: { enum: AvailableMessageTypes },
+    },
+    additionalProperties: true,
+    required: ['type'],
+}
+
+const SystemMessageSchema = {
     type: 'object',
     properties: {
         type: { enum: AvailableMessageTypes },
@@ -87,57 +105,61 @@ const MessageSchema = {
     })),
 }
 
-const validator = ajv.compile(MessageSchema)
+const systemMessageDetector = ajv.compile(SystemMessageDetectorSchema)
+const systemMessageValidator = ajv.compile(SystemMessageSchema)
 
 // PARSING PART
 export const parseMessage: parseMessageType = (data) => {
-    if (!validator(data)) {
-        return { errors: validator.errors.map(error => `JSON validation error. SchemaPath ${error.schemaPath}, message: ${error.message}`) }
-    }
-    if (data.type === NOTIFICATION_MESSAGE_TYPE) {
-        return {
-            message: {
-                type: NOTIFICATION_MESSAGE_TYPE,
-                notificationType: data.notificationType,
-                message: data.message,
-            },
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return null
+    if (systemMessageDetector(data)) {
+        if (!systemMessageValidator(data)) return null
+        switch (data.type) {
+            case NOTIFICATION_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: NOTIFICATION_MESSAGE_TYPE,
+                        notificationType: data.notificationType,
+                        message: data.message,
+                    },
+                }
+            case REQUIREMENT_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: REQUIREMENT_MESSAGE_TYPE,
+                        requirement: data.requirement,
+                    },
+                }
+            case LOADED_STATUS_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: LOADED_STATUS_MESSAGE_TYPE,
+                        status: data.status,
+                    },
+                }
+            case ERROR_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: ERROR_MESSAGE_TYPE,
+                        message: data.message,
+                        requestMessage: get(data, 'requestMessage'),
+                    },
+                }
+            case RESIZE_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: RESIZE_MESSAGE_TYPE,
+                        height: data.height,
+                    },
+                }
         }
+    } else {
+        return { type: 'custom', message: data }
     }
-    if (data.type === REQUIREMENT_MESSAGE_TYPE) {
-        return {
-            message: {
-                type: REQUIREMENT_MESSAGE_TYPE,
-                requirement: data.requirement,
-            },
-        }
-    }
-    if (data.type === LOADED_STATUS_MESSAGE_TYPE) {
-        return {
-            message: {
-                type: LOADED_STATUS_MESSAGE_TYPE,
-                status: data.status,
-            },
-        }
-    }
-    if (data.type === ERROR_MESSAGE_TYPE) {
-        return {
-            message: {
-                type: ERROR_MESSAGE_TYPE,
-                message: data.message,
-                requestMessage: get(data, 'requestMessage'),
-            },
-        }
-    }
-    if (data.type === RESIZE_MESSAGE_TYPE) {
-        return {
-            message: {
-                type: RESIZE_MESSAGE_TYPE,
-                height: data.height,
-            },
-        }
-    }
-
-    return { errors: ['UNKNOWN MESSAGE TYPE'] }
 }
 
 // UTILS BLOCK
