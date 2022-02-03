@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const { syncUser } = require('./syncUser')
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')

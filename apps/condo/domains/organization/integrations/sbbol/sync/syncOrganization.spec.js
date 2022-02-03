@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const faker = require('faker')
 const { syncOrganization } = require('./syncOrganization')
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
