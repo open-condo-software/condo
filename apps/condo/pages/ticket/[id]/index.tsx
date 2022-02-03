@@ -18,7 +18,12 @@ import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { Ticket, TicketChange, TicketComment, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
-import { getTicketCreateMessage, getTicketTitleMessage } from '@condo/domains/ticket/utils/helpers'
+import {
+    getDeadlineType, getHumanizeDeadlineDateDifference,
+    getTicketCreateMessage,
+    getTicketTitleMessage,
+    TicketDeadlineType,
+} from '@condo/domains/ticket/utils/helpers'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
@@ -33,7 +38,8 @@ import { compact, get, isEmpty } from 'lodash'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
+import dayjs, { Dayjs } from 'dayjs'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -131,9 +137,13 @@ const TicketContent = ({ ticket }) => {
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const Deadline = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
+    const ToCompleteMessage = intl.formatMessage({ id: 'ticket.deadline.ToComplete' })
+    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
+    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
 
     const propertyWasDeleted = !!get(ticket, ['property', 'deletedAt'])
-
+    const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
     const ticketUnit = ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : ''
     const ticketAddress = get(ticket, ['property', 'address']) + ticketUnit
     const ticketAddressExtra = ticket.sectionName && ticket.floorName
@@ -145,11 +155,48 @@ const TicketContent = ({ ticket }) => {
     }, {
         fetchPolicy: 'network-only',
     })
-    const { isSmall } = useLayoutContext()
+
+    const getTicketDeadlineMessage = useCallback(() => {
+        const deadlineType = getDeadlineType(ticketDeadline)
+        const { moreThanDayDiff, overdueDiff } = getHumanizeDeadlineDateDifference(ticketDeadline)
+
+        switch (deadlineType) {
+            case TicketDeadlineType.MORE_THAN_DAY: {
+                return (
+                    <Typography.Text type={'warning'} strong>
+                        ({ToCompleteMessage.replace('{days}', moreThanDayDiff)})
+                    </Typography.Text>
+                )
+            }
+            case TicketDeadlineType.LESS_THAN_DAY: {
+                return (
+                    <Typography.Text type={'warning'} strong>
+                        ({LessThenDayMessage})
+                    </Typography.Text>
+                )
+            }
+            case TicketDeadlineType.OVERDUE: {
+                return (
+                    <Typography.Text type={'danger'} strong>
+                        ({OverdueMessage.replace('{days}', overdueDiff)})
+                    </Typography.Text>
+                )
+            }
+        }
+
+    }, [LessThenDayMessage, OverdueMessage, ToCompleteMessage, ticketDeadline])
 
     return (
         <Col span={24}>
-            <Row gutter={[0, 8]}>
+            <Row gutter={[0, 24]}>
+                {
+                    ticketDeadline ? (
+                        <PageFieldRow title={Deadline}>
+                            <Typography.Text strong> {dayjs(ticketDeadline).format('DD MMMM YYYY')} </Typography.Text>
+                            {getTicketDeadlineMessage()}
+                        </PageFieldRow>
+                    ) : null
+                }
                 <PageFieldRow title={AddressMessage} highlight>
                     {propertyWasDeleted ?
                         <Typography.Text type={'secondary'}>{ ticketAddress } ({ DeletedMessage })</Typography.Text> :
@@ -188,32 +235,28 @@ const TicketContent = ({ ticket }) => {
                         <TicketFileList files={files} />
                     </PageFieldRow>
                 )}
+                <PageFieldRow title={ClassifierMessage}>
+                    <Breadcrumb separator="≫">
+                        {
+                            compact([
+                                get(ticket, ['placeClassifier', 'name']),
+                                get(ticket, ['categoryClassifier', 'name']),
+                                get(ticket, ['problemClassifier', 'name']),
+                            ]).map(name => {
+                                return (
+                                    <Breadcrumb.Item key={name}>{name}</Breadcrumb.Item>
+                                )
+                            })
+                        }
+                    </Breadcrumb>
+                </PageFieldRow>
+                <PageFieldRow title={ExecutorMessage}>
+                    <TicketUserInfoField user={get(ticket, ['executor'])}/>
+                </PageFieldRow>
+                <PageFieldRow title={AssigneeMessage}>
+                    <TicketUserInfoField user={get(ticket, ['assignee'])}/>
+                </PageFieldRow>
             </Row>
-            <FocusContainer style={{ marginTop: '1.6em' }} margin={isSmall ? '0' :  '0 -24px'}>
-                <Row gutter={[0, 8]}>
-                    <PageFieldRow title={ExecutorMessage}>
-                        <TicketUserInfoField user={get(ticket, ['executor'])}/>
-                    </PageFieldRow>
-                    <PageFieldRow title={AssigneeMessage}>
-                        <TicketUserInfoField user={get(ticket, ['assignee'])}/>
-                    </PageFieldRow>
-                    <PageFieldRow title={ClassifierMessage}>
-                        <Breadcrumb separator="≫">
-                            {
-                                compact([
-                                    get(ticket, ['placeClassifier', 'name']),
-                                    get(ticket, ['categoryClassifier', 'name']),
-                                    get(ticket, ['problemClassifier', 'name']),
-                                ]).map(name => {
-                                    return (
-                                        <Breadcrumb.Item key={name}>{name}</Breadcrumb.Item>
-                                    )
-                                })
-                            }
-                        </Breadcrumb>
-                    </PageFieldRow>
-                </Row>
-            </FocusContainer>
         </Col>
     )
 }

@@ -22,7 +22,7 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { TicketStatus } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
-import { IFilters } from '../utils/helpers'
+import { getDeadlineType, getHumanizeDeadlineDateDifference, IFilters, TicketDeadlineType } from '../utils/helpers'
 import { getTicketDetailsRender } from '../utils/clientSchema/Renders'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
@@ -167,32 +167,33 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         [search])
 
     const renderNumber = useCallback((number, ticket) => {
-        const deadline = dayjs(get(ticket, 'deadline')).startOf('day')
+        const deadline = dayjs(get(ticket, 'deadline'))
         let extraHighlighterProps
         let extraTitle
 
         if (deadline) {
-            const now = dayjs().startOf('day')
-            const tomorrow = now.add(1, 'day')
-            const isLessThanOneDay = deadline.isBefore(tomorrow) || deadline.isSame(tomorrow)
+            const deadlineType = getDeadlineType(deadline)
 
-            if (isLessThanOneDay) {
-                const deadlineDay = deadline.startOf('day')
-
-                if (deadlineDay.isBefore(now)) {
-                    extraHighlighterProps = { type: 'danger' }
-                    const diff = deadlineDay.diff(now, 'minute')
-
-                    extraTitle = OverdueMessage.replace('{days}', dayjs.duration(diff, 'minute').humanize())
-                } else {
+            switch (deadlineType) {
+                case TicketDeadlineType.LESS_THAN_DAY: {
                     extraHighlighterProps = { type: 'warning' }
                     extraTitle = LessThenDayMessage
+
+                    break
+                }
+                case TicketDeadlineType.OVERDUE: {
+                    const { overdueDiff } = getHumanizeDeadlineDateDifference(deadline)
+
+                    extraHighlighterProps = { type: 'danger' }
+                    extraTitle = OverdueMessage.replace('{days}', overdueDiff)
+
+                    break
                 }
             }
         }
 
         return getTableCellRenderer(search, false, null, extraHighlighterProps, null, extraTitle)(number)
-    }, [search])
+    }, [LessThenDayMessage, OverdueMessage, search])
 
     const columnWidths = useMemo(() => breakpoints.xxl ?
         COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN : COLUMNS_WIDTH_SMALLER_XXL_SCREEN,

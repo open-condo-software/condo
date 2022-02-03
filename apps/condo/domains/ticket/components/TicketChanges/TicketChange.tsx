@@ -181,8 +181,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         const valueFrom = formatField(field, ticketChange[`${field}From`], TicketChangeFieldMessageType.From)
         const valueTo = formatField(field, ticketChange[`${field}To`], TicketChangeFieldMessageType.To)
 
-        console.log('ticketChange', ticketChange)
-
         if (valueFrom && valueTo) {
             return (
                 <>
