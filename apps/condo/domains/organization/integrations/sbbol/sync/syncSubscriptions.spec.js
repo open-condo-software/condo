@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const { syncSubscriptions } = require('./syncSubscriptions')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')

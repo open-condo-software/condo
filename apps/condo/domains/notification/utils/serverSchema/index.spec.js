@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
 
 const { sendMessage, Message } = require('./index')
