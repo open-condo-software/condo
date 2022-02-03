@@ -12,7 +12,6 @@ import { ImportModal } from '@condo/domains/billing/components/ImportModal'
 
 const BillingDemoPage = () => {
     const [modalVisible, setModalVisible] = useState(false)
-    const [modalClosable, setModalClosable] = useState(true)
     const closeModal = useCallback(() => {
         setModalVisible(false)
     }, [])
@@ -30,7 +29,7 @@ const BillingDemoPage = () => {
             </Head>
             <PageWrapper>
                 <Row gutter={[40, 40]}>
-                    <Col span={8}>
+                    <Col span={12}>
                         <Button
                             type='sberDefaultGradient'
                             size='large'
@@ -39,21 +38,11 @@ const BillingDemoPage = () => {
                             Открыть модалку
                         </Button>
                     </Col>
-                    <Col span={8}>
-                        <Button
-                            type='sberDefaultGradient'
-                            size='large'
-                            onClick={() => {setModalClosable(!modalClosable)}}
-                        >
-                            {`Closable: ${modalClosable}`}
-                        </Button>
-                    </Col>
                 </Row>
 
                 <ImportModal
                     visible={modalVisible}
                     onClose={closeModal}
-                    closable={modalClosable}
                 />
             </PageWrapper>
         </FeatureFlagRequired>
