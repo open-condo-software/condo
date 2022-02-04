@@ -125,6 +125,7 @@ const TicketTag = styled(Tag)`
   line-height: 24px;
 `
 const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
+const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
 
 const TicketContent = ({ ticket }) => {
     const intl = useIntl()
@@ -234,15 +235,13 @@ const TicketContent = ({ ticket }) => {
                 {renderPostfix}
             </Typography.Paragraph>
             <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
-                <Typography.Link style={{ color: 'black' }} underline>
+                <Typography.Link style={TICKET_CARD_LINK_STYLE}>
                     {streetPart}
                 </Typography.Link>
             </Link>
             {ticketUnit && <TicketUnitMessage />}
         </>
     ), [TicketUnitMessage, renderPostfix, streetPart, ticket, ticketUnit])
-
-    console.log('ticket assignee', ticket.assignee)
 
     return (
         <Col span={24}>
@@ -264,7 +263,7 @@ const TicketContent = ({ ticket }) => {
                 </PageFieldRow>
                 <PageFieldRow title={ClientMessage} highlight>
                     <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
-                        <Typography.Link style={{ color: colors.black }} underline>
+                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
                             <TicketUserInfoField
                                 user={{
                                     name: get(ticket, 'clientName'),
@@ -326,6 +325,12 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
+    const ChangedMessage = intl.formatMessage({ id: 'Changed' })
+    const TimeHasPassedMessage = intl.formatMessage({ id: 'TimeHasPassed' })
+    const DaysShortMessage = intl.formatMessage({ id: 'DaysShort' })
+    const HoursShortMessage = intl.formatMessage({ id: 'HoursShort' })
+    const MinutesShortMessage = intl.formatMessage({ id: 'MinutesShort' })
+    const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
@@ -387,6 +392,26 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
 
     const ticketStatusType = get(ticket, ['status', 'type'])
     const disabledEditButton = useMemo(() => ticketStatusType === CLOSED_STATUS_TYPE, [ticketStatusType])
+    const updatedAt = get(ticket, 'updatedAt')
+
+    const getTimeSinceCreation = useCallback(() => {
+        const diffInMinutes = dayjs().diff(dayjs(updatedAt), 'minutes')
+        const daysHavePassed = dayjs.duration(diffInMinutes, 'minutes').format('D')
+        const hoursHavePassed = dayjs.duration(diffInMinutes, 'minutes').format('H')
+        const minutesHavePassed = dayjs.duration(diffInMinutes, 'minutes').format('m')
+
+        const timeSinceCreation = compact([
+            Number(daysHavePassed) > 0 && DaysShortMessage.replace('${days}', daysHavePassed),
+            Number(hoursHavePassed) > 0 && HoursShortMessage.replace('${hours}', hoursHavePassed),
+            Number(minutesHavePassed) > 0 && MinutesShortMessage.replace('${minutes}', minutesHavePassed),
+        ])
+
+        if (isEmpty(timeSinceCreation)) {
+            return LessThanMinuteMessage
+        }
+
+        return timeSinceCreation.join(' ')
+    }, [DaysShortMessage, HoursShortMessage, LessThanMinuteMessage, MinutesShortMessage, updatedAt])
 
     if (!ticket) {
         return (
@@ -426,14 +451,28 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                             </Space>
                                         </Col>
                                         <Col lg={6} xs={24}>
-                                            <Row justify={isSmall ? 'center' : 'end'}>
-                                                <TicketStatusSelect
-                                                    organization={organization}
-                                                    employee={employee}
-                                                    ticket={ticket}
-                                                    onUpdate={handleTicketStatusChanged}
-                                                    loading={loading}
-                                                />
+                                            <Row justify={isSmall ? 'center' : 'end'} gutter={[0, 8]}>
+                                                <Col span={24}>
+                                                    <TicketStatusSelect
+                                                        organization={organization}
+                                                        employee={employee}
+                                                        ticket={ticket}
+                                                        onUpdate={handleTicketStatusChanged}
+                                                        loading={loading}
+                                                    />
+                                                </Col>
+                                                {
+                                                    updatedAt && (
+                                                        <Col>
+                                                            <Typography.Paragraph style={{ margin: 0 }}>
+                                                                {ChangedMessage}: {dayjs(updatedAt).format('DD.MM.YY, HH:mm')}
+                                                            </Typography.Paragraph>
+                                                            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+                                                                {TimeHasPassedMessage.replace('${time}', getTimeSinceCreation())}
+                                                            </Typography.Paragraph>
+                                                        </Col>
+                                                    )
+                                                }
                                             </Row>
                                         </Col>
                                     </Row>
@@ -444,7 +483,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     </Space>
                                 </Col>
                                 <TicketContent ticket={ticket}/>
-                                <ActionBar>
+                                <ActionBar style={!isSmall && { left: '-24px' }}>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
                                             disabled={disabledEditButton}
