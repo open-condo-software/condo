@@ -1,8 +1,9 @@
 /** @jsx jsx */
 
 import { Affix, Space } from 'antd'
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { css, jsx } from '@emotion/core'
+import get from 'lodash/get'
 
 const actionBar = css`
     position: relative;
@@ -16,13 +17,15 @@ const actionBar = css`
     }
 `
 interface IActionBarProps {
-    fullscreen?: boolean;
-    hidden?: boolean;
+    fullscreen?: boolean
+    hidden?: boolean
+    style?: CSSProperties
 }
 
 const ActionBar: React.FC<IActionBarProps> = (props) => {
     const { children, fullscreen = true, hidden } = props
-    const barWidthStyle = { width: fullscreen ? '100%' : 'unset' }
+    const style = get(props, 'style', {})
+    const barWidthStyle = { width: fullscreen ? '100%' : 'unset', ...style }
 
     if (hidden) {
         return null

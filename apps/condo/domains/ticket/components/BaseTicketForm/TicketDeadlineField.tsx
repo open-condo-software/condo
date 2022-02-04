@@ -5,7 +5,7 @@ import { Col, DatePicker, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import { TicketFormItem } from './index'
 
-const INITIAL_DEADLINE_VALUE = dayjs(new Date()).add(2, 'day')
+const INITIAL_DEADLINE_VALUE = dayjs().add(2, 'day')
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
 const AUTO_DETECTED_DEADLINE_COL_STYLE = { height: '48px' }
 const AUTO_DETECTED_DEADLINE_ROW_STYLE = { height: '100%' }

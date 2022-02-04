@@ -54,24 +54,6 @@ export const getTicketTitleMessage = (intl, ticket) => {
     return `${intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })} № ${ticket.number}`
 }
 
-export const getTicketFormattedLastStatusUpdate = (intl, ticket) => {
-    if (!ticket) {
-        return
-    }
-
-    const { createdAt, statusUpdatedAt } = ticket
-    const ticketLastUpdateDate = statusUpdatedAt || createdAt
-
-    if (ticketLastUpdateDate) {
-        let duration = dayjs.duration(dayjs(ticketLastUpdateDate).diff(dayjs()))
-        if (Math.abs(duration.asSeconds()) < 60) return intl.formatMessage({ id: 'LessThanMinuteAgo' })
-        const locale = get(LOCALES, intl.locale)
-        if (locale) duration = duration.locale(locale)
-        return duration.humanize(true)
-    }
-    return ''
-}
-
 export const getTicketPdfName = (intl, ticket) => {
     return `${intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })}_${ticket.number}.pdf`
 }
