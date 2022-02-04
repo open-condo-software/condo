@@ -41,6 +41,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import { BaseType } from 'antd/lib/typography/Base'
+import { OrganizationEmployee } from '../../../domains/organization/utils/clientSchema'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -156,6 +157,32 @@ const TicketContent = ({ ticket }) => {
         where: { ticket: { id: ticket ? ticket.id : null } },
     }, {
         fetchPolicy: 'network-only',
+    })
+
+    const ticketOrganizationId = get(ticket, ['organization', 'id'], null)
+    const ticketExecutorUserId = get(ticket, ['executor', 'id'], null)
+    const ticketAssigneeUserId = get(ticket, ['assignee', 'id'], null)
+
+    const { obj: executor } = OrganizationEmployee.useObject({
+        where: {
+            organization: {
+                id: ticketOrganizationId,
+            },
+            user: {
+                id: ticketExecutorUserId,
+            },
+        },
+    })
+
+    const { obj: assignee } = OrganizationEmployee.useObject({
+        where: {
+            organization: {
+                id: ticketOrganizationId,
+            },
+            user: {
+                id: ticketAssigneeUserId,
+            },
+        },
     })
 
     const getTicketDeadlineMessage = useCallback(() => {
@@ -301,14 +328,30 @@ const TicketContent = ({ ticket }) => {
                     </Breadcrumb>
                 </PageFieldRow>
                 <PageFieldRow title={ExecutorMessage}>
-                    <Typography.Text strong>
-                        <TicketUserInfoField user={get(ticket, ['executor'])}/>
-                    </Typography.Text>
+                    <Link href={`/employee/${get(executor, 'id')}`}>
+                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
+                            <Typography.Text strong>
+                                <TicketUserInfoField user={{
+                                    name: get(executor, 'name'),
+                                    phone: get(executor, 'phone'),
+                                    email: get(executor, 'email'),
+                                }}/>
+                            </Typography.Text>
+                        </Typography.Link>
+                    </Link>
                 </PageFieldRow>
                 <PageFieldRow title={AssigneeMessage}>
-                    <Typography.Text strong>
-                        <TicketUserInfoField user={get(ticket, ['assignee'])}/>
-                    </Typography.Text>
+                    <Link href={`/employee/${get(executor, 'id')}`}>
+                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
+                            <Typography.Text strong>
+                                <TicketUserInfoField user={{
+                                    name: get(assignee, 'name'),
+                                    phone: get(assignee, 'phone'),
+                                    email: get(assignee, 'email'),
+                                }}/>
+                            </Typography.Text>
+                        </Typography.Link>
+                    </Link>
                 </PageFieldRow>
             </Row>
         </Col>
