@@ -153,7 +153,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     problemClassifierToDisplay = ticketChange['problemClassifierDisplayNameTo']
                 }
 
-                return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay} → ${problemClassifierToDisplay}`
+                return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay}${problemClassifierToDisplay ? ` → ${problemClassifierToDisplay}` : ''}`
             },
         }
         return has(formatterFor, field)

@@ -41,7 +41,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import { BaseType } from 'antd/lib/typography/Base'
-import { OrganizationEmployee } from '../../../domains/organization/utils/clientSchema'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
