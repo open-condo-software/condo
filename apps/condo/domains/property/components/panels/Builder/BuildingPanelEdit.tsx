@@ -41,6 +41,7 @@ import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
+import last from 'lodash/last'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import {
@@ -98,40 +99,6 @@ const DropdownCss = css`
   & span:last-child {
     margin-left: 28px;
   }
-`
-
-const RadioGroupCss = css`
-  padding: 4px;
-  background-color: #E6E8F1;
-  height: 48px;
-  border-radius: 4px;
-
-  & label.ant-radio-button-wrapper {
-    background-color: #E6E8F1;
-    height: 40px;
-    border: none;
-    border-radius: 4px;
-    box-shadow: none;
-    line-height: 44px;
-  }
-  & label.ant-radio-button-wrapper.ant-radio-button-wrapper-checked {
-    background-color: ${colors.white};
-    color: ${colors.black};
-    border-color: transparent;
-  }
-  & .ant-radio-button-wrapper-checked::before,
-  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before {
-    background-color: #E6E8F1;
-  }
-  & .ant-radio-button-wrapper:hover {
-    color: ${colors.black};
-  }
-  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
-    color: ${colors.black};
-    background-color: ${colors.white};
-    border-color: transparent;
-  }
-  
 `
 
 const MenuCss = css`
@@ -588,6 +555,30 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
             container.current.style.paddingRight = SCROLL_CONTAINER_EDIT_PADDING
         } else {
             if (container.current !== null) container.current.style.paddingRight = '0px'
+        }
+
+        if (container.current && container.current.style.paddingRight !== '0px') {
+            const lastSectionSelected = builder.editMode === 'editSection'
+                && get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
+            const addUnitToLastSection = builder.editMode === 'addUnit'
+                && last(builder.sections).floors
+                    .flatMap(floor => floor.units.map(unit => unit.id))
+                    .includes(String(builder.previewUnitId))
+            const addParkingUnitToLastSection = builder.editMode === 'addParkingUnit'
+                && last(builder.parking).floors
+                    .flatMap(floor => floor.units.map(unit => unit.id))
+                    .includes(String(builder.previewParkingUnitId))
+            const editUnitAtLastSection = false
+            const editParkingUnitAtLastSection = false
+
+            if (lastSectionSelected
+                || addParkingUnitToLastSection
+                || addUnitToLastSection
+                || editUnitAtLastSection
+                || editParkingUnitAtLastSection) {
+                const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
+                container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
+            }
         }
     }, [builder])
 
