@@ -1,7 +1,5 @@
 const Redis = require('ioredis')
-const isEmpty = require('lodash/isEmpty')
-
-const DEBUG = false
+const { isEmpty } = require('lodash')
 
 const GRANTABLE = new Set([
     'AccessToken',
@@ -42,7 +40,6 @@ class AdapterFactory {
 
 class RedisAdapter {
     constructor (name) {
-        if (DEBUG) console.log(name)
         this.name = name
 
         if (REDIS === null) REDIS = new Redis(process.env.OIDC_REDIS_URL, { keyPrefix: 'oidc:' })
@@ -63,8 +60,6 @@ class RedisAdapter {
     }
 
     async find (id) {
-        if (DEBUG) console.log('find', this.name, id)
-
         const data = CONSUMABLE.has(this.name)
             ? await this.client.hgetall(this.key(id))
             : await this.client.get(this.key(id))
@@ -94,7 +89,6 @@ class RedisAdapter {
     }
 
     async upsert (id, payload, expiresIn) {
-        if (DEBUG) console.log('upsert', this.name, id)
         const key = this.key(id)
         const store = CONSUMABLE.has(this.name)
             ? { payload: JSON.stringify(payload) } : JSON.stringify(payload)
@@ -133,7 +127,6 @@ class RedisAdapter {
     }
 
     async revokeByGrantId (grantId) { // eslint-disable-line class-methods-use-this
-        if (DEBUG) console.log('revokeByGrantId', this.name, grantId)
         const multi = this.client.multi()
         const tokens = await this.client.lrange(grantKeyFor(grantId), 0, -1)
         tokens.forEach((token) => multi.del(token))

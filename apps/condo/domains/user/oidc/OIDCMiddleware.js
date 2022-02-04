@@ -58,7 +58,7 @@ class OIDCMiddleware {
 
             */
 
-            // TODO(pahaz): we need to refactor it! we need to think about claims
+            // TODO(pahaz): we need to think about claims
 
             try {
                 let interactionDetails = await provider.interactionDetails(req, res)
