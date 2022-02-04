@@ -244,6 +244,23 @@ const makeClient = async () => {
     return await makeRealClient()
 }
 
+const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
+    const cookies = (cookie) ? cookie.split(';').map(Cookie.parse) : []
+    const cookieJar = new CookieJar()
+    const domain = (urlParse(cookieDomain).protocol || 'http:') + '//' + urlParse(cookieDomain).host
+    cookies.forEach((cookie) => cookieJar.setCookieSync(cookie, domain))
+    const client = axios.create({
+        withCredentials: true,
+        adapter: require('axios/lib/adapters/http'),
+        validateStatus: (status) => status >= 200 && status < 500,
+        ...options,
+    })
+    axiosCookieJarSupport(client)
+    client.defaults.jar = cookieJar
+    client.getCookie = () => flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).join(';')
+    return client
+}
+
 const makeLoggedInClient = async (args) => {
     if (!args) {
         args = {
@@ -383,6 +400,7 @@ module.exports = {
     prepareKeystoneExpressApp,
     prepareNextExpressApp,
     setFakeClientMode,
+    createAxiosClientWithCookie,
     makeClient,
     makeLoggedInClient,
     makeLoggedInAdminClient,
