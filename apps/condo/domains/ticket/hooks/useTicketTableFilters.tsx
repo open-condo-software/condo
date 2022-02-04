@@ -189,21 +189,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 },
             },
             {
-                keyword: 'deadline',
-                filters: [filterDeadlineRange],
-                component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                        disabledDate: () => false,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: CompleteBeforeMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            {
                 keyword: 'source',
                 filters: [filterSource],
                 component: {
@@ -358,6 +343,21 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                     modalFilterComponentWrapper: {
                         label: ClientPhoneMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'deadline',
+                filters: [filterDeadlineRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                        disabledDate: () => false,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: CompleteBeforeMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
