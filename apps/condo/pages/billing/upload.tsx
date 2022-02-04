@@ -12,12 +12,17 @@ import { ImportModal } from '@condo/domains/billing/components/ImportModal'
 
 const BillingDemoPage = () => {
     const [modalVisible, setModalVisible] = useState(false)
+    const [useDemoUrl, setUseDemoUrl] = useState(true)
+
     const closeModal = useCallback(() => {
         setModalVisible(false)
     }, [])
     const showModal = useCallback(() => {
         setModalVisible(true)
     }, [])
+    const switchUrl = () => {
+        setUseDemoUrl(!useDemoUrl)
+    }
 
     return (
         <FeatureFlagRequired
@@ -38,11 +43,21 @@ const BillingDemoPage = () => {
                             Открыть модалку
                         </Button>
                     </Col>
+                    <Col span={12}>
+                        <Button
+                            type='sberDefaultGradient'
+                            size='large'
+                            onClick={switchUrl}
+                        >
+                            {`Playground: ${useDemoUrl}`}
+                        </Button>
+                    </Col>
                 </Row>
 
                 <ImportModal
                     visible={modalVisible}
                     onClose={closeModal}
+                    demo={useDemoUrl}
                 />
             </PageWrapper>
         </FeatureFlagRequired>
