@@ -7,8 +7,6 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const adapter = require('../oidc/adapter')
 const { createAxiosClientWithCookie } = require('@core/keystone/test.utils')
 
-const DEBUG = true
-
 async function createClient (oidcClient) {
     const clients = new adapter('Client')
     await clients.upsert(oidcClient.client_id, oidcClient)
@@ -33,21 +31,41 @@ async function request (url, cookie) {
     }
 }
 
+function expectCookieKeys (cookie, keys) {
+    console.log(cookie)
+    expect(cookie.split(';').map(x => x.split('=')[0])).toEqual(keys)
+}
+
+async function expectToGetAuthenticatedUser (url, expectedUser, headers = {}) {
+    const data1 = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({ 'operationName': null, 'variables': {}, 'query': '{ authenticatedUser { id name } }' }),
+        headers: { 'Content-Type': 'application/json', ...headers },
+    })
+
+    expect(data1.status).toBe(200)
+    expect(data1.headers.raw()['set-cookie']).toBeFalsy()
+    expect(await data1.json()).toMatchObject({
+        'data': {
+            'authenticatedUser': expectedUser,
+        },
+    })
+}
+
 test('getCookie test util', async () => {
     const c = await makeClientWithNewRegisteredAndLoggedInUser()
     const cookie = c.getCookie()
+    const graphql = JSON.stringify({ 'operationName': null, 'variables': {}, 'query': '{ authenticatedUser { id name } }' })
 
     const result1 = await axios.create({
         timeout: 2000,
         headers: {
             'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Cache: 'no-cache',
             Cookie: cookie,
         },
         validateStatus: () => true,
     })
-        .post(`${c.serverUrl}/admin/api`, JSON.stringify({ 'operationName': null, 'variables': {}, 'query': '{ authenticatedUser { id name } }' }))
+        .post(`${c.serverUrl}/admin/api`, graphql)
     expect(result1.data).toMatchObject({
         'data': {
             'authenticatedUser': {
@@ -59,11 +77,10 @@ test('getCookie test util', async () => {
 
     const result2 = await fetch(`${c.serverUrl}/admin/api`, {
         method: 'POST',
-        body: JSON.stringify({ 'operationName': null, 'variables': {}, 'query': '{ authenticatedUser { id name } }' }),
+        body: graphql,
         headers: {
             'Content-Type': 'application/json',
             Cookie: cookie,
-
         },
     })
     expect(await result2.json()).toMatchObject({
@@ -75,6 +92,11 @@ test('getCookie test util', async () => {
         },
     })
 
+    await expectToGetAuthenticatedUser(
+        `${c.serverUrl}/admin/api`,
+        { id: c.user.id, name: c.user.name },
+        { Cookie: cookie },
+    )
 })
 
 test('oidc', async () => {
@@ -89,50 +111,47 @@ test('oidc', async () => {
     })
 
     const c = await makeClientWithNewRegisteredAndLoggedInUser()
-    expect(c.getCookie().split(';').map(x => x.split('=')[0])).toEqual(['keystone.sid'])
+    expectCookieKeys(c.getCookie(), ['keystone.sid'])
 
-    // server side ( create oidc client and prepare oidcAuthUrl )
+    // 1) server side ( create oidc client and prepare oidcAuthUrl )
+
     const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
-    if (DEBUG) console.log('Discovered issuer %s %O', oidcIssuer.issuer, oidcIssuer.metadata)
     const serverSideOidcClient = new oidcIssuer.Client({
         client_id: 'foo',
         client_secret: 'secret',
         redirect_uris: ['https://jwt.io/'], // using jwt.io as redirect_uri to show the ID Token contents
         response_types: ['code id_token'],
-        // id_token_signed_response_alg (default "RS256")
         token_endpoint_auth_method: 'client_secret_basic',
     })
 
     const nonce = generators.nonce()
-    const url = new URL(serverSideOidcClient.authorizationUrl({
-        scope: 'openid',
-        nonce,
-    }))
-
+    const scope = 'openid'
+    const url = new URL(serverSideOidcClient.authorizationUrl({ scope, nonce }))
     const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
-    if (DEBUG) console.log('oidcAuthUrl', oidcAuthUrl)
+
+    // 2) client side ( open oidcAuthUrl )
 
     const res1 = await request(oidcAuthUrl, c.getCookie())
-    if (DEBUG) console.log('res1', res1.status, res1.data, res1.url)
     expect(res1.status).toBe(200)
+    expectCookieKeys(res1.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
     const redirectTo = `${c.serverUrl}${'/oidc' + res1.data.redirectTo.split('/oidc')[1]}`
-    if (DEBUG) console.log('redirectTo', redirectTo)
 
-    const res2 = await request(redirectTo, res1.cookie)
-    if (DEBUG) console.log('res2', res2.status, res2.url)
+    const res2 = await request(redirectTo, res1.cookie) // redirect to jwt.io
+    expect(res2.status).toBe(200)
+    expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig', '_session', '_session.sig', '_session.legacy', '_session.legacy.sig'])
 
-    // server side ( callback with code to oidc app site; server get the access and cann use it )
+    // 3) callback to server side ( callback with code to oidc app site; server get the access and cann use it )
+
     const params = serverSideOidcClient.callbackParams(res2.url.replace('https://jwt.io/#', 'https://jwt.io/?'))
-    if (DEBUG) console.log('callbackParams', params)
     const tokenSet = await serverSideOidcClient.callback('https://jwt.io/', { code: params.code }, { nonce })
-    if (DEBUG) console.log('received and validated tokens %j', tokenSet)
-    if (DEBUG) console.log('refreshed ID Token claims %j', tokenSet.claims())
-    expect(tokenSet.access_token).toHaveLength(43) // important!
-    const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
-    if (DEBUG) console.log('userinfo %j', userinfo)
-    expect(userinfo).toEqual({ 'sub': c.user.id })
+    expect(tokenSet.access_token).toHaveLength(43) // important to be 43!
+    expect(tokenSet.id_token.length > 10).toBeTruthy()
 
+    // 4) check requests by accessToken to /oidc/userinfo
+
+    const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
+    expect(userinfo).toEqual({ 'sub': c.user.id })
     expect(await getAccessToken(tokenSet.access_token)).toMatchObject({
         'accountId': c.user.id,
         'clientId': 'foo',
@@ -142,35 +161,12 @@ test('oidc', async () => {
         'scope': 'openid',
     })
 
-    const data1 = await fetch(`${c.serverUrl}/admin/api`, {
-        method: 'POST',
-        body: JSON.stringify({ 'operationName': null, 'variables': {}, 'query': '{ authenticatedUser { id name } }' }),
-        headers: { 'Content-Type': 'application/json' },
-    })
+    // 5) check requests by accessToken to /admin/api
 
-    expect(data1.headers.raw()['set-cookie']).toBeFalsy()
-    expect(await data1.json()).toMatchObject({
-        'data': {
-            'authenticatedUser': null,
-        },
-    })
-
-    const data2 = await fetch(`${c.serverUrl}/admin/api`, {
-        method: 'POST',
-        body: JSON.stringify({ variables: {}, query: '{ authenticatedUser { id name } }' }),
-        headers: {
-            'Authorization': `Bearer ${tokenSet.access_token}`,
-            'Content-Type': 'application/json',
-        },
-    })
-
-    expect(data2.headers.raw()['set-cookie']).toBeFalsy()
-    expect(await data2.json()).toMatchObject({
-        'data': {
-            'authenticatedUser': {
-                id: c.user.id,
-                name: c.user.name,
-            },
-        },
-    })
+    await expectToGetAuthenticatedUser(`${c.serverUrl}/admin/api`, null)
+    await expectToGetAuthenticatedUser(
+        `${c.serverUrl}/admin/api`,
+        { id: c.user.id, name: c.user.name },
+        { 'Authorization': `Bearer ${tokenSet.access_token}` },
+    )
 })
