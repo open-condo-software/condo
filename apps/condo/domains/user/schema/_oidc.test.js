@@ -1,5 +1,6 @@
 const fetch = require('node-fetch')
 const { Issuer, generators } = require('openid-client')
+const { default: axios } = require('axios')
 
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 

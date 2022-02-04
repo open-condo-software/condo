@@ -107,13 +107,11 @@ class OIDCMiddleware {
                 const redirectTo = await provider.interactionResult(req, res, result, { mergeWithLastSubmission: false })
                 res.send({ redirectTo })
             } catch (err) {
-                console.error(err)
-                const result = {
-                    error: 'access_denied',
-                    error_description: 'End-User aborted interaction',
-                }
-                await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false })
-                return next(err)
+                console.error('interaction', err)
+                res.status(400).json({
+                    error: 'invalid_request',
+                    error_description: err.toString(),
+                })
             }
         })
         app.use('/oidc', provider.callback())
