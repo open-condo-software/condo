@@ -29,18 +29,19 @@ enum TicketChangeFieldMessageType {
 }
 
 export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
-    const intl = useIntl()
     const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
     const { isSmall } = useLayoutContext()
+
+    const formattedDate = dayjs(ticketChange.createdAt).format('DD.MM.YY')
+    const formattedTime = dayjs(ticketChange.createdAt).format('HH:mm')
 
     return (
         <Row gutter={[12, 12]}>
             <Col xs={24} lg={6}>
-                {
-                    isSmall
-                        ? <Typography.Text disabled>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
-                        : <Typography.Text style={{ fontSize: fontSizes.content }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
-                }
+                <Typography.Text style={isSmall && { fontSize: fontSizes.content }} disabled={isSmall}>
+                    {formattedDate}
+                    <Typography.Text type={'secondary'}>, {formattedTime}</Typography.Text>
+                </Typography.Text>
             </Col>
             <Col xs={24} lg={18}>
                 {changedFieldMessages.map(({ field, message }) => (
