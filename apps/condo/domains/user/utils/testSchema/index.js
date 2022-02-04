@@ -241,6 +241,6 @@ module.exports = {
     makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, addResidentAccess, addStaffAccess, createTestEmail, createTestPhone, createTestLandlineNumber,
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
-signinAsUserByTestClient
+    signinAsUserByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -1,11 +1,13 @@
-const { syncSubscriptions } = require('./syncSubscriptions')
-const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
+const { find } = require('lodash')
+const dayjs = require('dayjs')
+
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
+const { SUBSCRIPTION_TYPE, SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
+const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { find } = require('lodash')
-const { SUBSCRIPTION_TYPE, SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
-const dayjs = require('dayjs')
+
+const { syncSubscriptions } = require('./syncSubscriptions')
 
 const firstInn = '7784523718'
 const secondInn = '1234567890'

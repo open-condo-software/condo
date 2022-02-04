@@ -1,12 +1,13 @@
 const faker = require('faker')
-const { syncOrganization } = require('./syncOrganization')
+const { getItem, updateItem } = require('@keystonejs/server-side-graphql-client')
+
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
-const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
-const { getItem, updateItem } = require('@keystonejs/server-side-graphql-client')
+
+const { syncOrganization } = require('./syncOrganization')
+const { MockSbbolResponses } = require('./MockSbbolResponses')
 
 let keystone
 

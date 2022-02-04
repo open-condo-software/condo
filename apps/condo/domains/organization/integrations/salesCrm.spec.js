@@ -1,17 +1,18 @@
-const mockPushSubscriptionActivationToSalesCRM = jest.fn()
-const mockPushOrganizationToSalesCRM = jest.fn()
-
 const dayjs = require('dayjs')
+
 const { prepareKeystoneExpressApp, setFakeClientMode, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { MockSbbolResponses } = require('./sbbol/sync/MockSbbolResponses')
-const { createTestOrganization } = require('../utils/testSchema')
 const { createTestServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 const { rightSbbolOfferAccept } = require('@condo/domains/subscription/utils/testSchema/constants')
-const { syncOrganization } = require('./sbbol/sync/syncOrganization')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
+const { MockSbbolResponses } = require('./sbbol/sync/MockSbbolResponses')
+const { createTestOrganization } = require('../utils/testSchema')
+const { syncOrganization } = require('./sbbol/sync/syncOrganization')
 const { SBBOL_FINGERPRINT_NAME } = require('./sbbol/common')
 const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
 
+const mockPushSubscriptionActivationToSalesCRM = jest.fn()
+const mockPushOrganizationToSalesCRM = jest.fn()
 
 jest.mock('../utils/serverSchema/Organization')
 jest.mock('../utils/serverSchema/Organization', () => {

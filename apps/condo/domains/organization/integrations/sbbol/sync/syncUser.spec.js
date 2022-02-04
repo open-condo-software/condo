@@ -1,11 +1,13 @@
-const { syncUser } = require('./syncUser')
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
+const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
+
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { User: UserApi } = require('@condo/domains/user/utils/serverSchema')
 const { OnBoarding: OnBoardingApi } = require('@condo/domains/onboarding/utils/serverSchema')
-const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+
+const { syncUser } = require('./syncUser')
+const { MockSbbolResponses } = require('./MockSbbolResponses')
 
 let keystone
 
