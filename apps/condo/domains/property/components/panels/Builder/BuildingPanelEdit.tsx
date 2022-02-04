@@ -795,7 +795,8 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])
     const maxFloorValue = useMemo(() => {
         if (floorCount === 1) return minFloor
-        return floorCount + minFloor - 1
+        if (minFloor > 0) return floorCount + minFloor - 1
+        return floorCount + minFloor
     }, [floorCount, minFloor])
 
     useEffect(() => {
@@ -1157,7 +1158,8 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     const setParkingNameValue = useCallback((value) => setParkingName(value ? value.toString() : ''), [])
     const maxFloorValue = useMemo(() => {
         if (floorCount === 1) return minFloor
-        return floorCount + minFloor - 1
+        if (minFloor > 0) return floorCount + minFloor - 1
+        return floorCount + minFloor
     }, [floorCount, minFloor])
 
     const resetForm = useCallback(() => {
