@@ -1,7 +1,8 @@
 const axios = require('axios').default
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const { gql } = require('graphql-tag')
-const { CookieJar } = require('tough-cookie')
+const { CookieJar, Cookie } = require('tough-cookie')
+const urlParse = require("url").parse
 const { print } = require('graphql/language/printer')
 const crypto = require('crypto')
 const express = require('express')
@@ -25,6 +26,7 @@ const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL |
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql.js')
 const http = require('http')
 const https = require('https')
+const { flattenDeep } = require('lodash')
 
 const SIGNIN_BY_EMAIL_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {
@@ -45,6 +47,7 @@ const CREATE_USER_MUTATION = gql`
 `
 
 let __expressApp = null
+let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
 
@@ -53,22 +56,20 @@ function setFakeClientMode (path) {
     if (__isAwaiting) return
     const module = require(path)
     let mode = null
-    if (module.hasOwnProperty('URL_PREFIX') && module.hasOwnProperty('prepareBackApp')) {
-        mode = 'multi-server'
-        beforeAll(async () => {
-            __expressApp = await module.prepareBackApp()
-        }, 10000)
-    } else if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
+    if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
         mode = 'keystone'
         beforeAll(async () => {
             const res = await prepareKeystoneExpressApp(path)
             __expressApp = res.app
             __keystone = res.keystone
+            __expressServer = http.createServer(__expressApp).listen(0)
         }, 10000)
         afterAll(async () => {
+            if(__expressServer) __expressServer.close()
             if (__keystone) await __keystone.disconnect()
             __keystone = null
             __expressApp = null
+            __expressServer = null
         }, 10000)
     }
     if (!mode) throw new Error('setFakeServerOption(path) unknown module type')
@@ -96,9 +97,8 @@ const prepareNextExpressApp = async (dir) => {
     return { app }
 }
 
-const makeFakeClient = async (app) => {
+const makeFakeClient = async (app, server) => {
     const request = require('supertest')
-    const server = http.createServer(app).listen(0)
     const port = server.address().port
     const protocol = app instanceof https.Server ? 'https' : 'http'
     const serverUrl = protocol + '://127.0.0.1:' + port
@@ -129,27 +129,9 @@ const makeFakeClient = async (app) => {
         return Object.entries(cookies).map(([key, value]) => `${key}=${value}`).join(';')
     }
 
-    async function run (method, args) {
-        return new Promise((resolve, reject) => {
-            client[method](...args).set('Cookie', [cookiesToString(cookies)]).end(function end (err, res) {
-                if (err) {
-                    console.error(method, args, err)
-                    return reject(err)
-                }
-                const setCookies = res.headers['set-cookie']
-                if (setCookies) {
-                    cookies = { ...cookies, ...extractCookies(setCookies) }
-                }
-                return resolve(res.res)
-            })
-        })
-    }
-
     return {
         serverUrl,
-        ...client,
-        get: (url) => run('get', [url]),
-        post: (url) => run('post', [url]),
+        getCookie: () => cookiesToString(cookies),
         setHeaders: (headers) => {
             customHeaders = {...customHeaders, ...headers}
         },
@@ -221,9 +203,9 @@ const makeRealClient = async () => {
 
     return {
         serverUrl,
-        ...client,
+        getCookie: () => flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).join(';'),
         setHeaders: (headers) => {
-            client.defaults.headers = {...client.defaults.headers, ...headers}
+            client.defaults.headers = { ...client.defaults.headers, ...headers}
         },
         mutate: async (query, variables = {}) => {
             if (query.kind !== 'Document') throw new Error('query is not a gql object')
@@ -256,7 +238,7 @@ const makeRealClient = async () => {
 
 const makeClient = async () => {
     if (__expressApp) {
-        return await makeFakeClient(__expressApp)
+        return await makeFakeClient(__expressApp, __expressServer)
     }
 
     return await makeRealClient()
