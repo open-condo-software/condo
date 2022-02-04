@@ -13,6 +13,8 @@ const { publicRuntimeConfig: { registryImportUrl } } = getConfig()
 interface IImportModalProps {
     visible: boolean
     onClose: () => void
+    // TODO(DOMA-2122): Remove this prop
+    demo?: boolean
 }
 
 const WideModalStyles = css`
@@ -28,6 +30,7 @@ const WideModalStyles = css`
 export const ImportModal: React.FC<IImportModalProps> = ({
     visible,
     onClose,
+    demo,
 }) => {
     const intl = useIntl()
 
@@ -49,6 +52,8 @@ export const ImportModal: React.FC<IImportModalProps> = ({
     const [option] = options.filter(opt => opt.name === optionId)
     const optionName = get(option, 'displayName', optionId)
 
+    const ModalTitle = intl.formatMessage({ id: 'RegistriesUploading' }, { name: optionName })
+
     const lockModalHandler = useCallback((message) => {
         const messageType = get(message, 'type')
         if (messageType !== 'ModalLock') return
@@ -56,7 +61,9 @@ export const ImportModal: React.FC<IImportModalProps> = ({
         setModalClosable(!locked)
     }, [])
 
-    const ModalTitle = intl.formatMessage({ id: 'RegistriesUploading' }, { name: optionName })
+    const suffix = demo ? '/demo' : ''
+    const pageUrl = registryImportUrl + suffix
+
     return (
         <>
             <Global styles={WideModalStyles}/>
@@ -75,7 +82,7 @@ export const ImportModal: React.FC<IImportModalProps> = ({
                 className={'registry-import-modal'}
                 style={{ marginTop:40 }}
             >
-                <IFrame pageUrl={registryImportUrl} handlers={[lockModalHandler]}/>
+                <IFrame pageUrl={pageUrl} handlers={[lockModalHandler]} key={pageUrl}/>
             </Modal>
         </>
     )
