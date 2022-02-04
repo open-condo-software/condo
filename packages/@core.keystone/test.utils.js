@@ -26,7 +26,7 @@ const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL |
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql.js')
 const http = require('http')
 const https = require('https')
-const { flattenDeep } = require('lodash')
+const { flattenDeep, fromPairs, toPairs } = require('lodash')
 
 const SIGNIN_BY_EMAIL_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {
@@ -203,7 +203,7 @@ const makeRealClient = async () => {
 
     return {
         serverUrl,
-        getCookie: () => flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).join(';'),
+        getCookie: () => toPairs(fromPairs(flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).map(x => x.split('=')))).map(([k, v]) => `${k}=${v}`).join(';'),
         setHeaders: (headers) => {
             client.defaults.headers = { ...client.defaults.headers, ...headers}
         },
@@ -257,7 +257,7 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
     })
     axiosCookieJarSupport(client)
     client.defaults.jar = cookieJar
-    client.getCookie = () => flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).join(';')
+    client.getCookie = () => toPairs(fromPairs(flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).map(x => x.split('=')))).map(([k, v]) => `${k}=${v}`).join(';')
     return client
 }
 

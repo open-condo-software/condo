@@ -17,9 +17,8 @@ function getOidcToken (req) {
 
         const [type, token] = authHeader.split(' ')
 
-        if (type !== 'Bearer' || token.length !== 43 || token.includes('.')) {
-            return
-        }
+        if (!type || !token) return
+        if (type !== 'Bearer' || token.length !== 43 || token.includes('.')) return
 
         return token
     } catch (e) {
@@ -73,7 +72,7 @@ function OIDCBearerTokenKeystonePatch (app) {
                         return _end.call(res, chunk, encoding)
                     }
                 } catch (error) {
-                    console.error(error)
+                    console.error('oidcBearerTokenPatch', error)
                     // pass
                 }
             }
