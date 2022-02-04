@@ -5,8 +5,9 @@ const { default: axios } = require('axios')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const adapter = require('../oidc/adapter')
+const { createAxiosClientWithCookie } = require('@core/keystone/test.utils')
 
-const DEBUG = false
+const DEBUG = true
 
 async function createClient (oidcClient) {
     const clients = new adapter('Client')
@@ -17,6 +18,64 @@ async function getAccessToken (accessToken) {
     const clients = new adapter('AccessToken')
     return await clients.find(accessToken)
 }
+
+async function request (url, cookie) {
+    const client = createAxiosClientWithCookie({}, cookie, url)
+    const res = await client.get(url)
+    cookie = client.getCookie()
+    return {
+        cookie,
+        client,
+        url: res.config.url,
+        status: res.status,
+        data: res.data,
+        headers: res.headers,
+    }
+}
+
+test('getCookie test util', async () => {
+    const c = await makeClientWithNewRegisteredAndLoggedInUser()
+    const cookie = c.getCookie()
+
+    const result1 = await axios.create({
+        timeout: 2000,
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Cache: 'no-cache',
+            Cookie: cookie,
+        },
+        validateStatus: () => true,
+    })
+        .post(`${c.serverUrl}/admin/api`, JSON.stringify({ 'operationName': null, 'variables': {}, 'query': '{ authenticatedUser { id name } }' }))
+    expect(result1.data).toMatchObject({
+        'data': {
+            'authenticatedUser': {
+                id: c.user.id,
+                name: c.user.name,
+            },
+        },
+    })
+
+    const result2 = await fetch(`${c.serverUrl}/admin/api`, {
+        method: 'POST',
+        body: JSON.stringify({ 'operationName': null, 'variables': {}, 'query': '{ authenticatedUser { id name } }' }),
+        headers: {
+            'Content-Type': 'application/json',
+            Cookie: cookie,
+
+        },
+    })
+    expect(await result2.json()).toMatchObject({
+        'data': {
+            'authenticatedUser': {
+                id: c.user.id,
+                name: c.user.name,
+            },
+        },
+    })
+
+})
 
 test('oidc', async () => {
     await createClient({
@@ -30,6 +89,7 @@ test('oidc', async () => {
     })
 
     const c = await makeClientWithNewRegisteredAndLoggedInUser()
+    expect(c.getCookie().split(';').map(x => x.split('=')[0])).toEqual(['keystone.sid'])
 
     // server side ( create oidc client and prepare oidcAuthUrl )
     const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
@@ -41,31 +101,29 @@ test('oidc', async () => {
         response_types: ['code id_token'],
         // id_token_signed_response_alg (default "RS256")
         token_endpoint_auth_method: 'client_secret_basic',
-    }) // => Client
+    })
 
     const nonce = generators.nonce()
     const url = new URL(serverSideOidcClient.authorizationUrl({
-        scope: 'openid refresh_token mazafaka jjjh',
+        scope: 'openid',
         nonce,
     }))
 
-    const oidcAuthUrl = `${url.pathname}${url.search}`
+    const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
     if (DEBUG) console.log('oidcAuthUrl', oidcAuthUrl)
 
-    // client side ( go to url and pass throw interactions; accept access and allow oidc app to use my data )
-    const res1 = await c.get(oidcAuthUrl)
-    if (DEBUG) console.log('res1', res1.text, res1.headers.location)
-    expect(res1.statusCode).toBe(303)
-    const res2 = await c.get(res1.headers.location)
-    if (DEBUG) console.log('res2', res2.text, res2.headers.location)
-    expect(res2.statusCode).toBe(200)
-    const redirectTo = '/oidc' + JSON.parse(res2.text)['redirectTo'].split('/oidc')[1]
+    const res1 = await request(oidcAuthUrl, c.getCookie())
+    if (DEBUG) console.log('res1', res1.status, res1.data, res1.url)
+    expect(res1.status).toBe(200)
+
+    const redirectTo = `${c.serverUrl}${'/oidc' + res1.data.redirectTo.split('/oidc')[1]}`
     if (DEBUG) console.log('redirectTo', redirectTo)
-    const res3 = await c.get(redirectTo)
-    if (DEBUG) console.log('res3', res3.text, res3.headers.location)
+
+    const res2 = await request(redirectTo, res1.cookie)
+    if (DEBUG) console.log('res2', res2.status, res2.url)
 
     // server side ( callback with code to oidc app site; server get the access and cann use it )
-    const params = serverSideOidcClient.callbackParams(res3.headers.location.replace('https://jwt.io/#', 'https://jwt.io/?'))
+    const params = serverSideOidcClient.callbackParams(res2.url.replace('https://jwt.io/#', 'https://jwt.io/?'))
     if (DEBUG) console.log('callbackParams', params)
     const tokenSet = await serverSideOidcClient.callback('https://jwt.io/', { code: params.code }, { nonce })
     if (DEBUG) console.log('received and validated tokens %j', tokenSet)
@@ -91,7 +149,7 @@ test('oidc', async () => {
     })
 
     expect(data1.headers.raw()['set-cookie']).toBeFalsy()
-    expect(await data1.json()).toEqual({
+    expect(await data1.json()).toMatchObject({
         'data': {
             'authenticatedUser': null,
         },
@@ -107,7 +165,7 @@ test('oidc', async () => {
     })
 
     expect(data2.headers.raw()['set-cookie']).toBeFalsy()
-    expect(await data2.json()).toEqual({
+    expect(await data2.json()).toMatchObject({
         'data': {
             'authenticatedUser': {
                 id: c.user.id,
