@@ -128,6 +128,9 @@ const User = new GQLListSchema('User', {
                         addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}] invalid format`)
                         return
                     }
+                    // NOTE: We allow to remove phone from user (e.g ResetUserService.js)
+                    if (isNull(resolvedData.phone) && operation === 'update') return
+                    // NOTE: Undefined here means that user.phone is not being updated
                     if (isUndefined(resolvedData.phone) && operation === 'update') return
                     if (!resolvedData.phone) {
                         addFieldValidationError(`${PHONE_IS_REQUIRED_ERROR}] phone is required`)
