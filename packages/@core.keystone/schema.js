@@ -9,7 +9,6 @@ const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
 const IS_DEV = process.env.NODE_ENV === 'development'
-const isNotNullObject = (v) => typeof v === 'object' && v !== null
 
 function registerSchemas (keystone, modulesList, globalPreprocessors = []) {
     modulesList.forEach(
@@ -53,32 +52,6 @@ class GQLListSchema {
         this._keystone = null
     }
 
-    _factory (props = {}) {
-        const result = {}
-        for (const [name, field] of Object.entries(this.schema.fields)) {
-            if (props.hasOwnProperty(name)) {
-                if (props[name] !== undefined) {
-                    result[name] = props[name]
-                }
-            } else if (field.factory) {
-                result[name] = field.factory()
-            } else if (field.hasOwnProperty('defaultValue') && typeof field.defaultValue !== 'function') {
-                result[name] = field.defaultValue
-            }
-        }
-        return result
-    }
-
-    _override (schema) {
-        const mergedSchema = { ...this.schema, ...schema }
-        Object.keys(schema).forEach((key) => {
-            if (isNotNullObject(schema[key]) && isNotNullObject(this.schema[key]) && !Array.isArray(schema[key])) {
-                mergedSchema[key] = { ...this.schema[key], ...schema[key] }
-            }
-        })
-        return new GQLListSchema(this.name, mergedSchema)
-    }
-
     _register (keystone, globalPreprocessors = []) {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
@@ -95,13 +68,13 @@ class GQLListSchema {
         }
     }
 
-    on (eventName, listener) {
+    _on (eventName, listener) {
         ow(eventName, ow.string)
         ow(listener, ow.function)
         return EVENTS.on(`${this.name}:${eventName}`, listener)
     }
 
-    async emit (eventName, eventData) {
+    async _emit (eventName, eventData) {
         ow(eventName, ow.string)
         ow(eventData, ow.object)
         return await EVENTS.emit(`${this.name}:${eventName}`, eventData)
@@ -131,11 +104,6 @@ class GQLCustomSchema {
         this._keystone = null
     }
 
-    _override (schema) {
-        const mergedSchema = { ...this.schema, ...schema }
-        return new GQLCustomSchema(this.name, mergedSchema)
-    }
-
     _register (keystone, globalPreprocessors = []) {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
@@ -144,13 +112,13 @@ class GQLCustomSchema {
         keystone.extendGraphQLSchema(this._keystoneSchema)
     }
 
-    on (eventName, listener) {
+    _on (eventName, listener) {
         ow(eventName, ow.string)
         ow(listener, ow.function)
         return EVENTS.on(`${this.name}:${eventName}`, listener)
     }
 
-    async emit (eventName, eventData) {
+    async _emit (eventName, eventData) {
         ow(eventName, ow.string)
         ow(eventData, ow.object)
         return await EVENTS.emit(`${this.name}:${eventName}`, eventData)
