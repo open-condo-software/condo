@@ -110,7 +110,7 @@ const SIGNIN_AS_USER_MUTATION = gql`
 
 const RESET_USER_MUTATION = gql`
     mutation resetUser ($data: ResetUserInput!) {
-        result: resetUser(data: $data) { id }
+        result: resetUser(data: $data) { id name phone email }
     }
 `
 
