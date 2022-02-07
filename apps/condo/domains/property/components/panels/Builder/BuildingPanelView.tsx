@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Col, Row, RowProps } from 'antd'
 import { useRouter } from 'next/router'
@@ -60,7 +60,7 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
 const UNIT_BUTTON_SECTION_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px' }
 const FLOOR_CONTAINER_STYLE: React.CSSProperties = { display: 'block' }
 const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { paddingLeft: '8px' }
-const FULLSCREEN_HEADER_STYLE: React.CSSProperties = { marginBottom: '28px' }
+const FULLSCREEN_HEADER_STYLE: React.CSSProperties = { marginBottom: '28px', alignItems: 'center' }
 const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh }) => {
@@ -82,16 +82,38 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
         refresh()
     }, [builder, refresh])
 
+    const unitTypeOptions = builder.getUnitTypeOptions()
+
+    const UnitTypeOptionsLegend = useMemo(() => <Row
+        gutter={UNIT_TYPE_ROW_GUTTER}
+        style={UNIT_TYPE_ROW_STYLE}
+        hidden={builder.viewMode === MapViewMode.parking}
+    >
+        {unitTypeOptions
+            .filter(unitType => unitType !== BuildingUnitType.Flat)
+            .map((unitType, unitTypeKey) => (
+                <Col key={unitTypeKey} flex={0}>
+                    <UnitTypeLegendItem unitType={unitType}>
+                        {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                    </UnitTypeLegendItem>
+                </Col>
+            ))}
+    </Row>, [builder.viewMode, unitTypeOptions])
+
     const showViewModeSelect = !builder.isEmptySections && !builder.isEmptyParking
 
     return (
         <FullscreenWrapper mode={'view'} className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
-                <Row justify='end' style={FULLSCREEN_HEADER_STYLE} hidden={!isFullscreen || !showViewModeSelect}>
+                <Row justify='end' style={FULLSCREEN_HEADER_STYLE} hidden={!showViewModeSelect}>
                     {
-                        isFullscreen && (
+                        isFullscreen ? (
                             <Col flex={1}>
                                 <AddressTopTextContainer>{get(property, 'address')}</AddressTopTextContainer>
+                            </Col>
+                        ) : (
+                            <Col flex={1}>
+                                {UnitTypeOptionsLegend}
                             </Col>
                         )
                     }
@@ -107,21 +129,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                         )
                     }
                 </Row>
-                <Row
-                    gutter={UNIT_TYPE_ROW_GUTTER}
-                    style={UNIT_TYPE_ROW_STYLE}
-                    hidden={builder.viewMode === MapViewMode.parking}
-                >
-                    {builder.getUnitTypeOptions()
-                        .filter(unitType => unitType !== BuildingUnitType.Flat)
-                        .map((unitType, unitTypeKey) => (
-                            <Col key={unitTypeKey} flex={0}>
-                                <UnitTypeLegendItem unitType={unitType}>
-                                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
-                                </UnitTypeLegendItem>
-                            </Col>
-                        ))}
-                </Row>
+                {isFullscreen && UnitTypeOptionsLegend}
             </FullscreenHeader>
             <Row align='middle' style={CHESS_ROW_STYLE}>
                 {
