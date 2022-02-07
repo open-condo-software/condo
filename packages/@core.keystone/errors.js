@@ -49,7 +49,8 @@
  *                     executeSomeAnotherAction
  *                 } catch(e) {
  *                     throw new GraphQLError({
- *                         ...errors.UNABLE_EXECUTE_SOME_PROCEDURE
+ *                         ...errors.UNABLE_EXECUTE_SOME_PROCEDURE,
+ *                         internalError: e
  *                     })
  *                 }
  *             }
@@ -86,6 +87,7 @@ const CustomGraphQLSchemaErrorCode = {
  * @property {CustomGraphQLSchemaErrorCode} code - standardized error code
  * @property {String} message - humanized and error description that in future will be localized
  * @property {String} [correctExample] - correct value of an argument
+ * @property {Object} [internalError] - error from internal part of the system. Not required, because in some cases it is not secure to expose internal error messages
  */
 
 class GraphQLError extends ApolloError {
