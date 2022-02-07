@@ -3,7 +3,7 @@
  */
 
 import { pick, get } from 'lodash'
-import { MeterReadingFilterTemplate, MeterReadingFilterTemplateUpdateInput, QueryAllMeterReadingFilterTemplatesArgs } from '../../../../schema'
+import { MeterReadingFilterTemplate, MeterReadingFilterTemplateUpdateInput, QueryAllMeterReadingFilterTemplatesArgs } from '@app/condo/schema'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
