@@ -13,6 +13,7 @@ const { SigninResidentUserService } = require('./SigninResidentUserService')
 const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
 const { SigninAsUserService } = require('./SigninAsUserService')
 const { RegisterNewServiceUserService } = require('./RegisterNewServiceUserService')
+const { SupportMessagesForwardingService } = require('./SupportMessagesForwardingService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -27,5 +28,6 @@ module.exports = {
     ChangePhoneNumberResidentUserService,
     SigninAsUserService,
     RegisterNewServiceUserService,
+    SupportMessagesForwardingService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
