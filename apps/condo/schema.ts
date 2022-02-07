@@ -25225,7 +25225,8 @@ export enum SendMessageType {
   SmsVerify = 'SMS_VERIFY',
   ShareTicket = 'SHARE_TICKET',
   DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
-  CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE'
+  CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
+  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT'
 }
 
 export type SenderField = {
@@ -30003,20 +30004,14 @@ export type StartPasswordRecoveryOutput = {
   status: Scalars['String'];
 };
 
-export type SupportMessagesForwardingFrom = {
-  organizationId: Scalars['ID'];
-  residentId: Scalars['ID'];
-  os: Scalars['String'];
-  appVersion: Scalars['String'];
-};
-
 export type SupportMessagesForwardingInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
   text: Scalars['String'];
   email?: Maybe<Scalars['String']>;
   attachments?: Maybe<Array<Maybe<Scalars['Upload']>>>;
-  from: SupportMessagesForwardingFrom;
+  os: Scalars['String'];
+  appVersion: Scalars['String'];
   meta: Scalars['JSON'];
 };
 
