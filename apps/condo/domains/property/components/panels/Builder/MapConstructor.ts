@@ -334,6 +334,10 @@ class MapView extends Map {
         return Math.max(...this.map.sections.map(section => section.index))
     }
 
+    get lastParkingIndex (): number {
+        return Math.max(...this.map.parking.map(parkingSection => parkingSection.index))
+    }
+
     public getUnitInfo (id: string): BuildingUnitArg {
         const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: BuildingMapEntityType.Unit, unitType: BuildingUnitType.Flat }
         if (!id) {
