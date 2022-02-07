@@ -13441,6 +13441,7 @@ export type Mutation = {
   signinResidentUser?: Maybe<SigninResidentUserOutput>;
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
   signinAsUser?: Maybe<SigninAsUserOutput>;
+  supportMessagesForwarding?: Maybe<SupportMessagesForwardingOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -16611,6 +16612,11 @@ export type MutationChangePhoneNumberResidentUserArgs = {
 
 export type MutationSigninAsUserArgs = {
   data: SigninAsUserInput;
+};
+
+
+export type MutationSupportMessagesForwardingArgs = {
+  data: SupportMessagesForwardingInput;
 };
 
 
@@ -29994,6 +30000,16 @@ export type StartPasswordRecoveryInput = {
 
 export type StartPasswordRecoveryOutput = {
   __typename?: 'StartPasswordRecoveryOutput';
+  status: Scalars['String'];
+};
+
+export type SupportMessagesForwardingInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+};
+
+export type SupportMessagesForwardingOutput = {
+  __typename?: 'SupportMessagesForwardingOutput';
   status: Scalars['String'];
 };
 
