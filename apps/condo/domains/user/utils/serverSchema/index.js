@@ -18,6 +18,7 @@ const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/us
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
+const { SUPPORT_MESSAGES_FORWARDING_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -45,6 +46,20 @@ async function registerNewServiceUser (context, data) {
         query: REGISTER_NEW_SERVICE_USER_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerNewUserService',
+        dataPath: 'obj',
+    })
+}
+
+async function supportMessagesForwarding (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write supportMessagesForwarding serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: SUPPORT_MESSAGES_FORWARDING_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to supportMessagesForwarding',
         dataPath: 'obj',
     })
 }
@@ -89,5 +104,6 @@ module.exports = {
     updateEmployeesRelatedToUser,
     signinAsUser,
     registerNewServiceUser,
+    supportMessagesForwarding,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -13,6 +13,7 @@ const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
+const { SUPPORT_MESSAGES_FORWARDING_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -255,14 +256,48 @@ async function registerNewServiceUserByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function supportMessagesForwardingByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SUPPORT_MESSAGES_FORWARDING_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    User, UserAdmin, createTestUser, updateTestUser, registerNewUser, makeLoggedInClient, makeClientWithResidentUser, makeClientWithStaffUser, makeClientWithSupportUser,
-    makeClientWithNewRegisteredAndLoggedInUser, addAdminAccess, addSupportAccess, addResidentAccess, addStaffAccess, createTestEmail, createTestPhone, createTestLandlineNumber,
-    ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
-    ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
+    User,
+    UserAdmin,
+    createTestUser,
+    updateTestUser,
+    registerNewUser,
+    makeLoggedInClient,
+    makeClientWithResidentUser,
+    makeClientWithStaffUser,
+    makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    addAdminAccess,
+    addSupportAccess,
+    addResidentAccess,
+    addStaffAccess,
+    createTestEmail,
+    createTestPhone,
+    createTestLandlineNumber,
+    ConfirmPhoneAction,
+    createTestConfirmPhoneAction,
+    updateTestConfirmPhoneAction,
+    ForgotPasswordAction,
+    createTestForgotPasswordAction,
+    updateTestForgotPasswordAction,
     signinAsUserByTestClient,
     registerNewServiceUserByTestClient,
+    supportMessagesForwardingByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
