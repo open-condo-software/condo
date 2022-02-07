@@ -24,6 +24,7 @@ interface ITableProps extends TableProps<TableRecord> {
     columns: Array<Record<string, unknown>> | ColumnsType<TableRecord>
     onRow?: (record: TableRecord, index?: number) => React.HTMLAttributes<HTMLElement>
     applyQuery?: (queryParams) => Promise<boolean>
+    shouldHidePaginationOnSinglePage?: boolean,
 }
 
 export const DEFAULT_PAGE_SIZE = 30
@@ -38,10 +39,12 @@ export const Table: React.FC<ITableProps> = ({
     pageSize,
     onRow,
     applyQuery,
+    shouldHidePaginationOnSinglePage,
     ...otherTableProps
 }) => {
     const rowsPerPage = pageSize || DEFAULT_PAGE_SIZE
     const rowKey = keyPath || 'id'
+    const hideOnSinglePage = !!shouldHidePaginationOnSinglePage
 
     const router = useRouter()
     const { filters, offset, sorters } = parseQuery(router.query)
@@ -124,6 +127,7 @@ export const Table: React.FC<ITableProps> = ({
                     current: currentPageIndex,
                     pageSize: rowsPerPage,
                     position: ['bottomLeft'],
+                    hideOnSinglePage,
                 }}
                 {...otherTableProps}
             />
