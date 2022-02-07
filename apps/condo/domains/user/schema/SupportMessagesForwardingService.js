@@ -10,8 +10,11 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
     types: [
         {
             access: true,
-            // TODO(codegen): write SupportMessagesForwardingService input !
-            type: 'input SupportMessagesForwardingInput { dv: Int!, sender: JSON! }',
+            type: 'type SupportMessagesForwardingFrom { organizationId: ID!, residentId: ID!, os: String!, appVersion: String! }',
+        },
+        {
+            access: true,
+            type: 'input SupportMessagesForwardingInput { dv: Int!, sender: JSON!, text: String!, email: String, attachments: [Upload], from: SupportMessagesForwardingFrom!, meta: JSON! }',
         },
         {
             access: true,
