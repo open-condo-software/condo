@@ -225,7 +225,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
     const AddParkingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const ResidentialBuildingTitle = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
     const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
     const AddParkingFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingFloor' })
     const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
@@ -365,8 +364,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
             </Menu.Item>
         </Menu>
     ), [menuClick])
-
-    const showViewModeCheckBox = !isEmpty(mapEdit.sections) && !isEmpty(mapEdit.parking)
 
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
     const showSectionFilter = mapEdit.viewMode === MapViewMode.section && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
@@ -560,6 +557,8 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
         if (container.current && container.current.style.paddingRight !== '0px') {
             const lastSectionSelected = builder.editMode === 'editSection'
                 && get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
+            const lastParkingSelected = builder.editMode === 'editParking'
+                && get(builder.getSelectedParking(), 'index') === builder.lastParkingIndex
             const addUnitToLastSection = builder.editMode === 'addUnit'
                 && last(builder.sections).floors
                     .flatMap(floor => floor.units.map(unit => unit.id))
@@ -568,10 +567,13 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                 && last(builder.parking).floors
                     .flatMap(floor => floor.units.map(unit => unit.id))
                     .includes(String(builder.previewParkingUnitId))
-            const editUnitAtLastSection = false
-            const editParkingUnitAtLastSection = false
+            const editUnitAtLastSection = builder.editMode === 'editUnit'
+                && get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
+            const editParkingUnitAtLastSection = builder.editMode === 'editParkingUnit'
+                && get(builder.getSelectedParkingUnit(), 'sectionIndex') === builder.lastParkingIndex
 
             if (lastSectionSelected
+                || lastParkingSelected
                 || addParkingUnitToLastSection
                 || addUnitToLastSection
                 || editUnitAtLastSection
@@ -1306,18 +1308,6 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
                         </Select.Option>
                     ))}
                 </Select>
-            </Col>
-            <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{ParkingNameLabel}</Typography.Text>
-                    <InputNumber
-                        value={parkingName}
-                        min={1}
-                        onChange={setParkingNameValue}
-                        style={INPUT_STYLE}
-                        type={'number'}
-                    />
-                </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction={'vertical'} size={8}>
