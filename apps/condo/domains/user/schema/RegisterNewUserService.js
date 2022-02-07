@@ -3,21 +3,28 @@ const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { MIN_PASSWORD_LENGTH_ERROR, PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/errors')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
-const {
-    CONFIRM_PHONE_ACTION_EXPIRED,
-} = require('@condo/domains/user/constants/errors')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { BAD_USER_INPUT, NOT_FOUND, GraphQLError } = require('@core/keystone/errors')
 
 async function ensureNotExists (context, field, value) {
     const existed = await UserServerUtils.getAll(context, { [field]: value, type: STAFF })
     if (existed.length !== 0) {
         throw new Error(`[unique:${field}:multipleFound] user with this ${field} is already exists`)
     }
+}
+
+/**
+ * List of possible errors, that this custom schema can throw
+ * They will be rendered in documentation section in GraphiQL for this custom schema
+ */
+const errors = {
+    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: { argument: 'confirmPhoneActionToken', code: NOT_FOUND, message: 'Unable to find confirm phone action' },
+    WRONG_PHONE_FORMAT: { argument: 'phone', code: BAD_USER_INPUT,  message: 'Wrong format of provided phone number', correctExample: '+79991234567' },
+    MIN_PASSWORD_LENGTH: { argument: 'password', code: BAD_USER_INPUT, message: `Password length is less then ${MIN_PASSWORD_LENGTH} character` },
 }
 
 // TODO(zuch): create registerStaffUserService, separate logic of creating employee, make confirmPhoneActionToken to be required, remove meta, args to UserInput
@@ -32,6 +39,11 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
         {
             access: true,
             schema: 'registerNewUser(data: RegisterNewUserInput!): User',
+            doc: {
+                summary: 'Registers new user and sends notification',
+                description: 'User will be registered only in case of correct provided token of phone confirmation action. After successful registration, phone confirmation action will be marked as completed and will not be allowed for further usage',
+                errors,
+            },
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { confirmPhoneActionToken, ...restUserData } = data
@@ -50,7 +62,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         }
                     )
                     if (!action) {
-                        throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] Unable to find confirm phone action`)
+                        throw new GraphQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION)
                     }
                     confirmPhoneActionId = action.id
                     const { phone, isPhoneVerified } = action
@@ -58,7 +70,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     userData.isPhoneVerified = isPhoneVerified
                 }
                 if (!normalizePhone(userData.phone)) {
-                    throw new Error(`${PHONE_WRONG_FORMAT_ERROR}] invalid format`)
+                    throw new GraphQLError(errors.WRONG_PHONE_FORMAT)
                 }
                 await ensureNotExists(context, 'phone', userData.phone)
                 if (!isEmpty(userData.email)) {
@@ -66,7 +78,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
 
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
-                    throw new Error(`${MIN_PASSWORD_LENGTH_ERROR}] Password length less then ${MIN_PASSWORD_LENGTH} character`)
+                    throw new GraphQLError(errors.MIN_PASSWORD_LENGTH)
                 }
                 // TODO(zuch): fix bug when user can not be created because of createAt and updatedAt fields
                 // const user = await UserServerUtils.create(context, userData)

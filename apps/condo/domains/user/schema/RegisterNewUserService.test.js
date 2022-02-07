@@ -45,9 +45,14 @@ describe('RegisterNewUserService', () => {
 
         expect(data).toEqual({ 'user': null })
         expect(errors).toMatchObject([{
-            'message': '[format:phone] invalid format',
-            'name': 'GraphQLError',
-            'path': ['user'],
+            message: 'Wrong format of provided phone number',
+            name: 'GraphQLError',
+            path: ['user'],
+            extensions: {
+                argument: 'phone',
+                code: 'BAD_USER_INPUT',
+                correctExample: '+79991234567',
+            },
         }])
     })
 
