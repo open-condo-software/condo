@@ -30003,9 +30003,21 @@ export type StartPasswordRecoveryOutput = {
   status: Scalars['String'];
 };
 
+export type SupportMessagesForwardingFrom = {
+  organizationId: Scalars['ID'];
+  residentId: Scalars['ID'];
+  os: Scalars['String'];
+  appVersion: Scalars['String'];
+};
+
 export type SupportMessagesForwardingInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
+  text: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
+  attachments?: Maybe<Array<Maybe<Scalars['Upload']>>>;
+  from: SupportMessagesForwardingFrom;
+  meta: Scalars['JSON'];
 };
 
 export type SupportMessagesForwardingOutput = {

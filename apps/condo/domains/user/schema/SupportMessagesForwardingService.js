@@ -10,7 +10,7 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
     types: [
         {
             access: true,
-            type: 'type SupportMessagesForwardingFrom { organizationId: ID!, residentId: ID!, os: String!, appVersion: String! }',
+            type: 'input SupportMessagesForwardingFrom { organizationId: ID!, residentId: ID!, os: String!, appVersion: String! }',
         },
         {
             access: true,
@@ -27,7 +27,6 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
             access: access.canSupportMessagesForwarding,
             schema: 'supportMessagesForwarding(data: SupportMessagesForwardingInput!): SupportMessagesForwardingOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                // TODO(codegen): write SupportMessagesForwardingService logic!
                 const { data } = args
                 return {
                     id: null,
