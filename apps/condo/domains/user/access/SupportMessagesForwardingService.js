@@ -8,8 +8,7 @@ async function canSupportMessagesForwarding ({ authentication: { item: user } })
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    // TODO(codegen): write mutation access logic!
-    return false
+    return { user: { id: user.id } }
 }
 
 /*
