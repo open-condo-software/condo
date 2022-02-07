@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -7,7 +7,7 @@ import { get } from 'lodash'
 import { Row, Col, Typography } from 'antd'
 import { EditFilled } from '@ant-design/icons'
 import { green } from '@ant-design/colors'
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -23,8 +23,9 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { useTableColumns } from '@condo/domains/division/hooks/useTechniciansTableColumns'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { useOrganization } from '@core/next/organization'
-import qs from 'qs'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+
+const EMPLOYEE_TABLE_PAGE_SIZE = 10
 
 type DivisionPageContentProps = {
     division: ReturnType<typeof useObject>['obj']
@@ -48,6 +49,8 @@ export const DivisionPageContent = ({ division, loading, columns, role }: Divisi
     const UpdateTitle = intl.formatMessage({ id: 'Edit' })
 
     const router = useRouter()
+    const { offset } = parseQuery(router.query)
+    const currentPageIndex = getPageIndexFromOffset(offset, EMPLOYEE_TABLE_PAGE_SIZE)
 
     const handleCompleteSoftDelete = () => {
         router.push('/property/')
@@ -61,6 +64,11 @@ export const DivisionPageContent = ({ division, loading, columns, role }: Divisi
         name: executor.name || '',
         ...executor,
     }))
+
+    const dataSource = useMemo(() => {
+        return executors.slice(EMPLOYEE_TABLE_PAGE_SIZE * (currentPageIndex - 1), EMPLOYEE_TABLE_PAGE_SIZE * currentPageIndex)
+    }, [currentPageIndex, executors])
+
     return (
         <>
             <Typography.Title style={{ marginBottom: '60px' }}>
@@ -93,17 +101,12 @@ export const DivisionPageContent = ({ division, loading, columns, role }: Divisi
                 <Col span={24}>
                     {executors.length > 0 ? (
                         <Table
-                            dataSource={executors}
+                            dataSource={dataSource}
                             columns={columns}
                             loading={loading}
                             totalRows={executors.length}
-                            pagination={{
-                                hideOnSinglePage: true,
-                            }}
-                            applyQuery={(queryParams) => {
-                                const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-                                return router.push(`${router.query.id}${newQuery}`)
-                            }}
+                            pageSize={EMPLOYEE_TABLE_PAGE_SIZE}
+                            shouldHidePaginationOnSinglePage
                         />
                     ) : (
                         <FocusContainer>
@@ -159,16 +162,10 @@ function DivisionPage () {
     const router = useRouter()
     const { query: { id } } = router
 
-    const EXECUTORS_PAGE_SIZE = 10
-    const { offset } = parseQuery(router.query)
-
-    const currentPageIndex = getPageIndexFromOffset(offset, EXECUTORS_PAGE_SIZE)
-
     const { loading, obj: division, error } = useObject({
         where: {
-            id: typeof id === 'string' ? id : undefined,
+            id: typeof id === 'string' ? id : null,
         },
-        skip: (currentPageIndex - 1) * EXECUTORS_PAGE_SIZE,
     })
 
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.division.id.PageTitle' }, {
