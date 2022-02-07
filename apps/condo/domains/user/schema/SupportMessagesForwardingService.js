@@ -15,8 +15,7 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
         },
         {
             access: true,
-            // TODO(codegen): write SupportMessagesForwardingService output !
-            type: 'type SupportMessagesForwardingOutput { id: String! }',
+            type: 'type SupportMessagesForwardingOutput { status: String! }',
         },
     ],
     
