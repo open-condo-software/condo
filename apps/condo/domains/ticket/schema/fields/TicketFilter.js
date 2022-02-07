@@ -17,6 +17,7 @@ const TicketFilterFields = {
     executor: '[String]',
     assignee: '[String]',
     executorName: 'String',
+    deadline: '[String]',
     assigneeName: 'String',
     attributes: '[String]',
     source: '[String]',
