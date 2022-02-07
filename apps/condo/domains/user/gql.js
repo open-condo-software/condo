@@ -108,6 +108,14 @@ const SIGNIN_AS_USER_MUTATION = gql`
     }
 `
 
+// TODO(codegen): write return type result!
+
+const SUPPORT_MESSAGES_FORWARDING_MUTATION = gql`
+    mutation supportMessagesForwarding ($data: SupportMessagesForwardingInput!) {
+        result: supportMessagesForwarding(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -129,6 +137,9 @@ module.exports = {
     SIGNIN_RESIDENT_USER_MUTATION,
     CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION,
     SIGNIN_AS_USER_MUTATION,
+
+
+    SUPPORT_MESSAGES_FORWARDING_MUTATION,
 
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
