@@ -9,7 +9,7 @@ const SIGNIN_AS_USER_MUTATION = gql`
         mutation signinAsUser ($data: SigninAsUserInput!) {
             result: signinAsUser(data: $data) { user { id } token }
         }
-    `
+`
 
 const ICON_STYLE = {
     cursor: 'pointer',
