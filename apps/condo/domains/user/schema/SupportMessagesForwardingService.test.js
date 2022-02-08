@@ -7,12 +7,22 @@ const { MESSAGE_SENDING_STATUS } = require('@condo/domains/notification/constant
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const conf = require('@core/config')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { Message } = require('@condo/domains/notification/utils/testSchema')
 
 const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CONFIG) : null
 
-describe('SupportMessagesForwardingService', () => {
+describe('SupportMessagesForwardingService', async () => {
     test('Forward message to support: no attachments', async () => {
-        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+        await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+
         const emailFrom = 'hello@mailforspam.com'
         const payload = {
             attachments: [],
@@ -24,9 +34,39 @@ describe('SupportMessagesForwardingService', () => {
             meta: {},
         }
 
-        const [data, attrs] = await supportMessagesForwardingByTestClient(userClient, payload)
+        const [data] = await supportMessagesForwardingByTestClient(userClient, payload)
 
         expect(data.status).toEqual(MESSAGE_SENDING_STATUS)
+    })
+
+    test('Forward message to support: synthetic test with two organizations', async () => {
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+        const [organization] = await registerNewOrganization(userClient)
+        const [property] = await createTestProperty(adminClient, organization)
+
+        await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+        await createTestResident(adminClient, userClient.user, organization, property)
+        await addResidentAccess(userClient.user)
+
+        const emailFrom = 'hello@mailforspam.com'
+
+        const payload = {
+            attachments: [],
+            text: `Test message from resident to support. This message should be sent from ${emailFrom}. Resident must be attached to two organizations.`,
+            email: emailFrom, // email passed from mobile application
+            os: 'ios',
+            appVersion: '0.0.1a',
+            lang: RU_LOCALE,
+            meta: {},
+        }
+
+        const [message] = await supportMessagesForwardingByTestClient(userClient, payload)
+        expect(message.status).toEqual(MESSAGE_SENDING_STATUS)
+
+        const messages = await Message.getAll(adminClient, { id: message.id })
+        expect(messages).toHaveLength(1)
+        expect(messages[0].meta.organizationsData).toHaveLength(2)
     })
 
     test('Forward message to support: no attachments, no email', async () => {
@@ -34,14 +74,14 @@ describe('SupportMessagesForwardingService', () => {
         const { from: defaultFrom } = EMAIL_API_CONFIG
         const payload = {
             attachments: [],
-            text: `Test message from resident to support. In this message resident not pass the email address, so the sender's email is default: ${defaultFrom}`,
+            text: `Test message from resident to support. In this message resident has not passed the email address, so the sender's email is default: ${defaultFrom}`,
             os: 'android',
             appVersion: '0.0.1a',
             lang: RU_LOCALE,
             meta: {},
         }
 
-        const [data, attrs] = await supportMessagesForwardingByTestClient(userClient, payload)
+        const [data] = await supportMessagesForwardingByTestClient(userClient, payload)
 
         expect(data.status).toEqual(MESSAGE_SENDING_STATUS)
     })
