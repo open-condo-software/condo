@@ -43,6 +43,12 @@ const Message = new GQLListSchema('Message', {
             isRequired: false,
         },
 
+        emailFrom: {
+            schemaDoc: 'from Email',
+            type: Text,
+            isRequired: false,
+        },
+
         lang: {
             schemaDoc: 'Message status',
             type: 'Select',
