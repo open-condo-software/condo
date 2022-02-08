@@ -41,7 +41,7 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
                     dv,
                     sender,
                     lang,
-                    emailFrom: `${user.name} <${emailFrom}>`,
+                    emailFrom: emailFrom ? `${user.name} <${emailFrom}>` : null,
                     email: SUPPORT_EMAIL,
                     meta: {
                         dv,
@@ -51,6 +51,7 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
                     },
                     type: MESSAGE_FORWARDED_TO_SUPPORT,
                 }
+                // todo: Should we update the contact's email?
                 const message = await Message.create(context, messageAttrs)
                 await deliveryMessage.delay(message.id)
 
