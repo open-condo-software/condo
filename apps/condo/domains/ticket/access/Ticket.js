@@ -14,7 +14,7 @@ const { getById, find } = require('@core/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
-async function canReadTickets ({ authentication: { item: user } }) {
+async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -29,7 +29,10 @@ async function canReadTickets ({ authentication: { item: user } }) {
                 id_in: uniq(organizationsIds),
                 deletedAt: null,
             },
-            createdBy: { id: user.id },
+            OR: [
+                { createdBy: { id: user.id } },
+                { contact: { phone: user.phone } },
+            ],
         }
     }
 
