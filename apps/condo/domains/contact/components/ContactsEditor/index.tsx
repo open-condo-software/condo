@@ -1,10 +1,8 @@
-import { find, get } from 'lodash'
+import { find, get, debounce } from 'lodash'
 import { Col, Form, FormInstance, Input, Row, Skeleton } from 'antd'
 import { PlusCircleFilled } from '@ant-design/icons'
 import React, { useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
-import { useApolloClient } from '@core/next/apollo'
-import { searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
 import { ContactOption } from './ContactOption'
@@ -13,6 +11,9 @@ import { green } from '@ant-design/colors'
 import styled from '@emotion/styled'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
+import { Contact } from '@condo/domains/contact/utils/clientSchema'
+
+const DEBOUNCE_TIMEOUT = 800
 
 /**
  * Displays validation error, but hides form input
@@ -63,23 +64,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     const { form, fields, value: initialValue, onChange, organization, role, property, unitName, allowLandLine } = props
 
-    const [contacts, setContacts] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState()
-    const client = useApolloClient()
-
-    searchContacts(client, {
-        organizationId: organization,
-        propertyId: property ? property : undefined,
-        // If we need to find contacts who do not have an unitName (concierge, etc.),
-        // then we need to pass null in the unitName search, not undefined
-        unitName: unitName ? unitName : null,
-    })
-        .then(({ data, loading, error }) => {
-            setContacts(data.objs)
-            setLoading(loading)
-            setError(error)
-        })
 
     const [selectedContact, setSelectedContact] = useState(null)
     const [value, setValue] = useState(initialValue)
@@ -87,8 +71,21 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     // We need this to keep manually typed information preserved between rerenders
     // with different set of prefetched contacts. For example, when a different unitName is selected,
     // manually typed information should not be lost.
-    const [manuallyTypedContact, setManuallyTypedContact] = useState()
+    const [manuallyTypedContact, setManuallyTypedContact] = useState({ id: undefined, name: '', phone: '' })
     const [displayEditableContactFields, setDisplayEditableContactFields] = useState(false)
+
+    const {
+        objs: fetchedContacts,
+        loading,
+        error,
+    } = Contact.useObjects({
+        where: {
+            organization: { id: organization },
+            property: { id: property ? property : null },
+            unitName: unitName ? unitName : undefined,
+        },
+        first: 1000,
+    })
 
     const { phoneValidator } = useValidations({ allowLandLine })
     const validations = {
@@ -119,7 +116,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     const handleClickOnMinusButton = () => {
         setDisplayEditableContactFields(false)
-        setSelectedContact(contacts[0])
+        setSelectedContact(fetchedContacts[0])
         setEditableFieldsChecked(false)
     }
 
@@ -129,16 +126,16 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         triggerOnChange(contact)
     }
 
-    const handleChangeContact = (contact) => {
+    const handleChangeContact = debounce((contact) => {
         // User can manually type phone and name, that will match already existing contact,
         // so, it should be connected with ticket
-        const contactFromFetched = find(contacts, { ...contact, unitName })
+        const contactFromFetched = find(fetchedContacts, { ...contact, unitName })
         const contactToSet = contactFromFetched || contact
         triggerOnChange(contactToSet)
         setManuallyTypedContact(contact)
         setEditableFieldsChecked(true)
         setSelectedContact(null)
-    }
+    }, DEBOUNCE_TIMEOUT)
 
     const handleSyncedFieldsChecked = () => {
         setSelectedContact(null)
@@ -167,7 +164,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         throw error
     }
 
-    const initialValueIsPresentedInFetchedContacts = contacts && initialValue && initialValue.name && initialValue.phone && find(contacts, initialValue)
+    const initialValueIsPresentedInFetchedContacts = fetchedContacts && initialValue && initialValue.name && initialValue.phone && find(fetchedContacts, initialValue)
 
     const sameAsInitial = (contact) => (
         initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone
@@ -181,15 +178,15 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                         left={PhoneLabel}
                         right={FullNameLabel}
                     />
-                    {contacts.length === 0 || !unitName ? (
+                    {fetchedContacts.length === 0 || !unitName ? (
                         <ContactSyncedAutocompleteFields
                             initialValue={initialValue || manuallyTypedContact}
                             onChange={handleChangeContact}
-                            contacts={contacts}
+                            contacts={fetchedContacts}
                         />
                     ) : (
                         <>
-                            {contacts.map((contact, i) => (
+                            {fetchedContacts.map((contact, i) => (
                                 <ContactOption
                                     key={contact.id}
                                     contact={contact}
@@ -212,7 +209,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             onChange={handleChangeContact}
                                             onChecked={handleSyncedFieldsChecked}
                                             checked={editableFieldsChecked}
-                                            contacts={contacts}
+                                            contacts={fetchedContacts}
                                             displayMinusButton={true}
                                             onClickMinusButton={handleClickOnMinusButton}
                                         />
