@@ -10,7 +10,7 @@ const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CON
 
 async function prepareMessageToSend (message) {
     const email = message.email || (message.user && message.user.email) || null
-    if (!email) throw new Error('on email to send')
+    if (!email) throw new Error('no email to send')
 
     const { subject, text, html } = await renderTemplate(EMAIL_TRANSPORT, message)
 
