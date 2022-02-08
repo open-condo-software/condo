@@ -22,9 +22,25 @@ async function ensureNotExists (context, field, value) {
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const errors = {
-    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: { argument: 'confirmPhoneActionToken', code: NOT_FOUND, message: 'Unable to find confirm phone action' },
-    WRONG_PHONE_FORMAT: { argument: 'phone', code: BAD_USER_INPUT,  message: 'Wrong format of provided phone number', correctExample: '+79991234567' },
-    MIN_PASSWORD_LENGTH: { argument: 'password', code: BAD_USER_INPUT, message: `Password length is less then ${MIN_PASSWORD_LENGTH} character` },
+    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'confirmPhoneActionToken'],
+        code: NOT_FOUND,
+        message: 'Unable to find confirm phone action',
+    },
+    WRONG_PHONE_FORMAT: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'phone'],
+        code: BAD_USER_INPUT,
+        message: 'Wrong format of provided phone number',
+        correctExample: '+79991234567',
+    },
+    MIN_PASSWORD_LENGTH: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
+    },
 }
 
 // TODO(zuch): create registerStaffUserService, separate logic of creating employee, make confirmPhoneActionToken to be required, remove meta, args to UserInput
