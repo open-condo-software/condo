@@ -20,7 +20,7 @@
     "@keystonejs/list-plugins": "^8.1.0",
     "@keystonejs/server-side-graphql-client": "^2.1.0",
     "@keystonejs/utils": "^6.1.0",
-    "axios": "^0.21.0",
+    "axios": "^0.21.2",
     "axios-cookiejar-support": "^1.0.1",
     "connect-redis": "^6.0.0",
     "crypto": "^1.0.1",
