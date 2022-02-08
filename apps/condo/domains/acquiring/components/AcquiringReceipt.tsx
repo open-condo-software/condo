@@ -40,6 +40,7 @@ const PageWrapper = styled.div`
   width: 335px;
   padding: 20px;
   font-size: 12px;
+  
   & .moneyContainer {
     border-top: 1px solid ${colors.lightGrey[5]};
     box-sizing: border-box;
