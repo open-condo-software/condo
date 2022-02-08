@@ -8,7 +8,7 @@ const { GQL_CUSTOM_SCHEMA_TYPE } = require('../schema')
 /**
  * Documentation object for custom GraphQL mutation or query
  *
- * @typedef CondoGraphQLSchemaDoc
+ * @typedef GQLSchemaDoc
  * @property {String} summary – short textual description about what it does. Be short and explicit, please!
  * @property {String} description - additional details about business logic
  * @property {Array.<GQLError>} errors - set of errors, that can be thrown by this custom mutation or query
@@ -36,9 +36,9 @@ const { GQL_CUSTOM_SCHEMA_TYPE } = require('../schema')
 /**
  * Our addon to Keystone config object for custom query or mutation
  *
- * @typedef CondoCustomQueryOrMutationConfig
+ * @typedef GQLQueryOrMutationConfig
  * @extends KeystoneCustomQueryOrMutationConfig
- * @property {CondoGraphQLSchemaDoc} doc
+ * @property {GQLSchemaDoc} doc
  * @see https://v5.keystonejs.com/keystonejs/keystone/#extendgraphqlschemaconfig
  */
 
@@ -46,10 +46,10 @@ const { GQL_CUSTOM_SCHEMA_TYPE } = require('../schema')
  * Custom Keystone-like schema config, that at first nesting level has the same set of properties as in Keystone,
  * but on a second level it has extra properties
  *
- * @typedef CondoCustomGraphQLSchema
+ * @typedef GQLSchemaConfig
  * @property {Array.<KeystoneCustomTypeConfig>} types - A list of objects of the form { type, access } where the type string defines a GraphQL type
- * @property {Array.<CondoCustomQueryOrMutationConfig>} queries - A list of configurations for custom queries
- * @property {Array.<CondoCustomQueryOrMutationConfig>} mutations - A list of configurations for custom mutations
+ * @property {Array.<GQLQueryOrMutationConfig>} queries - A list of configurations for custom queries
+ * @property {Array.<GQLQueryOrMutationConfig>} mutations - A list of configurations for custom mutations
  * @see https://v5.keystonejs.com/keystonejs/keystone/#extendgraphqlschemaconfig
  */
 
@@ -65,7 +65,7 @@ const formatError = (errorConfig) => (
 
 /**
  * Formats documentation in human readable way
- * @param {CondoGraphQLSchemaDoc} doc
+ * @param {GQLSchemaDoc} doc
  * @return {string}
  */
 const formatDoc = ({ summary, description, errors }) => {
@@ -85,7 +85,7 @@ const formatDoc = ({ summary, description, errors }) => {
 /**
  * Prepends a standard GraphQL comment `"""` before a provided declaration
  * Renders list of errors
- * @param {CondoCustomQueryOrMutationConfig} queryOrMutationConfig declaration of a custom query or mutation
+ * @param {GQLQueryOrMutationConfig} queryOrMutationConfig declaration of a custom query or mutation
  * @returns {String}
  */
 const formatSchemaDeclarationWithDocumentationFor = ({ doc, schema }) => (`
@@ -97,7 +97,7 @@ const formatSchemaDeclarationWithDocumentationFor = ({ doc, schema }) => (`
 
 /**
  * If `doc` property is present, render it
- * @param {CondoCustomQueryOrMutationConfig} queryOrMutationConfig - declaration of custom query or mutation
+ * @param {GQLQueryOrMutationConfig} queryOrMutationConfig - declaration of custom query or mutation
  */
 const injectDocumentation = (queryOrMutationConfig) => (
     queryOrMutationConfig.hasOwnProperty('doc')
@@ -121,7 +121,7 @@ const injectDocumentation = (queryOrMutationConfig) => (
  *
  * @param schemaType
  * @param {String} name - custom schema name, that should be unique across entire GraphQL schema
- * @param {CondoCustomGraphQLSchema} schema
+ * @param {GQLSchemaConfig} schema
  * @return {*|{mutations, queries}}
  */
 const schemaDoc = (schemaType, name, schema) => {
