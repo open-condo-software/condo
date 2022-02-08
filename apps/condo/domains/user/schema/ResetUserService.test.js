@@ -3,8 +3,8 @@
  */
 
 const faker = require('faker')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
-const { getById } = require('@core/keystone/schema')
 const { makeClient } = require('@core/keystone/test.utils')
 
 const { expectToThrowMutationError, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
@@ -15,6 +15,7 @@ const {
     registerNewUser,
     resetUserByTestClient,
     makeClientWithSupportUser,
+    UserAdmin,
 } = require('@condo/domains/user/utils/testSchema')
 
  
@@ -29,7 +30,9 @@ describe('ResetUserService', () => {
 
         await resetUserByTestClient(support, payload)
 
-        const resetUser = await getById('User', user.id)
+        // We use admin context here, since support does not have access to email and phone fields
+        const adminClient = await makeLoggedInAdminClient()
+        const [resetUser] = await UserAdmin.getAll(adminClient, { id: user.id })
         expect(resetUser.id).toEqual(user.id)
         expect(resetUser.name).toEqual(DELETED_USER_NAME)
         expect(resetUser.phone).toBeNull()
