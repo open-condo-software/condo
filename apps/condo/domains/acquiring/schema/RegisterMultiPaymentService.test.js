@@ -30,7 +30,11 @@ const {
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowMutationError,
 } = require('@condo/domains/common/utils/testSchema')
-const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
+const {
+    FEE_CALCULATION_PATH,
+    WEB_VIEW_PATH,
+    DIRECT_PAYMENT_PATH,
+} = require('@condo/domains/acquiring/constants/links')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const {
     REGISTER_MP_EMPTY_INPUT,
@@ -75,6 +79,7 @@ describe('RegisterMultiPaymentService', () => {
                 expect(result).toHaveProperty('multiPaymentId')
                 expect(result).toHaveProperty('webViewUrl', `${hostUrl}${WEB_VIEW_PATH.replace('[id]', result.multiPaymentId )}`)
                 expect(result).toHaveProperty('feeCalculationUrl', `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', result.multiPaymentId )}`)
+                expect(result).toHaveProperty('directPaymentUrl', `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', result.multiPaymentId )}`)
             })
         })
         test('Anonymous user', async () => {
