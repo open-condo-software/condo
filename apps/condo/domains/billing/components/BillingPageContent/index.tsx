@@ -12,7 +12,7 @@ import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clien
 import { MainContent } from './MainContent'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const SETTINGS_ROUTE = '/settings'
+const BILLING_SETTINGS_ROUTE = '/settings?tab=billing'
 
 interface IBillingPageContentProps {
     access: boolean,
@@ -73,7 +73,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
             <EmptyListView
                 label={NoBillingIntegrationYetMessage}
                 message={YouCanIntegrateWithMessage}
-                createRoute={SETTINGS_ROUTE}
+                createRoute={BILLING_SETTINGS_ROUTE}
                 createLabel={ConnectBillingMessage}
             />
         )
