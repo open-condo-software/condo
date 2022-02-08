@@ -4,37 +4,64 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/SupportMessagesForwardingService')
-
+const { Message } = require('@condo/domains/notification/utils/serverSchema')
+const { deliveryMessage } = require('@condo/domains/notification/tasks')
+const { MESSAGE_FORWARDED_TO_SUPPORT } = require('@condo/domains/notification/constants/constants')
+const { SUPPORT_EMAIL } = require('@condo/domains/common/constants/requisites')
+const { get } = require('lodash')
+const { LOCALES } = require('@condo/domains/common/constants/locale')
 
 const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesForwardingService', {
     types: [
         {
             access: true,
-            type: 'input SupportMessagesForwardingFrom { organizationId: ID!, residentId: ID!, os: String!, appVersion: String! }',
+            type: `enum SupportMessagesForwardingLang { ${Object.keys(LOCALES).join(' ')} }`,
         },
         {
             access: true,
-            type: 'input SupportMessagesForwardingInput { dv: Int!, sender: JSON!, text: String!, email: String, attachments: [Upload], from: SupportMessagesForwardingFrom!, meta: JSON! }',
+            type: 'input SupportMessagesForwardingInput { dv: Int!, sender: JSON!, text: String!, email: String, attachments: [Upload], os: String!, appVersion: String!, lang: SupportMessagesForwardingLang!, meta: JSON! }',
         },
         {
             access: true,
-            type: 'type SupportMessagesForwardingOutput { status: String! }',
+            type: 'type SupportMessagesForwardingOutput { id: String!, status: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canSupportMessagesForwarding,
             schema: 'supportMessagesForwarding(data: SupportMessagesForwardingInput!): SupportMessagesForwardingOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
+                const { dv, sender, text, email: emailFrom, attachments, os, appVersion, lang, meta } = data
+
+                const user = get(context, ['req', 'user'])
+
+                const messageAttrs = {
+                    dv,
+                    sender,
+                    lang,
+                    emailFrom: `${user.name} <${emailFrom}>`,
+                    email: SUPPORT_EMAIL,
+                    meta: {
+                        dv,
+                        text,
+                        os,
+                        appVersion,
+                    },
+                    type: MESSAGE_FORWARDED_TO_SUPPORT,
+                }
+                const message = await Message.create(context, messageAttrs)
+                await deliveryMessage.delay(message.id)
+
                 return {
-                    id: null,
+                    id: message.id,
+                    status: message.status,
                 }
             },
         },
     ],
-    
+
 })
 
 module.exports = {
