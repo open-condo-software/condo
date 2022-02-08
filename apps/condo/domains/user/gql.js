@@ -119,7 +119,7 @@ const REGISTER_NEW_SERVICE_USER_MUTATION = gql`
 
 const SUPPORT_MESSAGES_FORWARDING_MUTATION = gql`
     mutation supportMessagesForwarding ($data: SupportMessagesForwardingInput!) {
-        result: supportMessagesForwarding(data: $data) { id }
+        result: supportMessagesForwarding(data: $data) { id, status }
     }
 `
 
