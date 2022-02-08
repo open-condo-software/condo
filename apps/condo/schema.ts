@@ -8562,6 +8562,8 @@ export type Message = {
   phone?: Maybe<Scalars['String']>;
   /**  to Email  */
   email?: Maybe<Scalars['String']>;
+  /**  from Email  */
+  emailFrom?: Maybe<Scalars['String']>;
   /**  Message status  */
   lang?: Maybe<MessageLangType>;
   /**  Message type  */
@@ -8591,6 +8593,7 @@ export type MessageCreateInput = {
   user?: Maybe<UserRelateToOneInput>;
   phone?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  emailFrom?: Maybe<Scalars['String']>;
   lang?: Maybe<MessageLangType>;
   type?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -8623,6 +8626,7 @@ export type MessageHistoryRecord = {
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  emailFrom?: Maybe<Scalars['String']>;
   lang?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -8649,6 +8653,7 @@ export type MessageHistoryRecordCreateInput = {
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  emailFrom?: Maybe<Scalars['String']>;
   lang?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -8680,6 +8685,7 @@ export type MessageHistoryRecordUpdateInput = {
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  emailFrom?: Maybe<Scalars['String']>;
   lang?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -8757,6 +8763,24 @@ export type MessageHistoryRecordWhereInput = {
   email_not_ends_with_i?: Maybe<Scalars['String']>;
   email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  emailFrom?: Maybe<Scalars['String']>;
+  emailFrom_not?: Maybe<Scalars['String']>;
+  emailFrom_contains?: Maybe<Scalars['String']>;
+  emailFrom_not_contains?: Maybe<Scalars['String']>;
+  emailFrom_starts_with?: Maybe<Scalars['String']>;
+  emailFrom_not_starts_with?: Maybe<Scalars['String']>;
+  emailFrom_ends_with?: Maybe<Scalars['String']>;
+  emailFrom_not_ends_with?: Maybe<Scalars['String']>;
+  emailFrom_i?: Maybe<Scalars['String']>;
+  emailFrom_not_i?: Maybe<Scalars['String']>;
+  emailFrom_contains_i?: Maybe<Scalars['String']>;
+  emailFrom_not_contains_i?: Maybe<Scalars['String']>;
+  emailFrom_starts_with_i?: Maybe<Scalars['String']>;
+  emailFrom_not_starts_with_i?: Maybe<Scalars['String']>;
+  emailFrom_ends_with_i?: Maybe<Scalars['String']>;
+  emailFrom_not_ends_with_i?: Maybe<Scalars['String']>;
+  emailFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  emailFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   lang?: Maybe<Scalars['String']>;
   lang_not?: Maybe<Scalars['String']>;
   lang_contains?: Maybe<Scalars['String']>;
@@ -8927,6 +8951,7 @@ export type MessageUpdateInput = {
   user?: Maybe<UserRelateToOneInput>;
   phone?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  emailFrom?: Maybe<Scalars['String']>;
   lang?: Maybe<MessageLangType>;
   type?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -8997,6 +9022,24 @@ export type MessageWhereInput = {
   email_not_ends_with_i?: Maybe<Scalars['String']>;
   email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  emailFrom?: Maybe<Scalars['String']>;
+  emailFrom_not?: Maybe<Scalars['String']>;
+  emailFrom_contains?: Maybe<Scalars['String']>;
+  emailFrom_not_contains?: Maybe<Scalars['String']>;
+  emailFrom_starts_with?: Maybe<Scalars['String']>;
+  emailFrom_not_starts_with?: Maybe<Scalars['String']>;
+  emailFrom_ends_with?: Maybe<Scalars['String']>;
+  emailFrom_not_ends_with?: Maybe<Scalars['String']>;
+  emailFrom_i?: Maybe<Scalars['String']>;
+  emailFrom_not_i?: Maybe<Scalars['String']>;
+  emailFrom_contains_i?: Maybe<Scalars['String']>;
+  emailFrom_not_contains_i?: Maybe<Scalars['String']>;
+  emailFrom_starts_with_i?: Maybe<Scalars['String']>;
+  emailFrom_not_starts_with_i?: Maybe<Scalars['String']>;
+  emailFrom_ends_with_i?: Maybe<Scalars['String']>;
+  emailFrom_not_ends_with_i?: Maybe<Scalars['String']>;
+  emailFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  emailFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   lang?: Maybe<MessageLangType>;
   lang_not?: Maybe<MessageLangType>;
   lang_in?: Maybe<Array<Maybe<MessageLangType>>>;
@@ -27731,6 +27774,8 @@ export enum SortMessageHistoryRecordsBy {
   PhoneDesc = 'phone_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
+  EmailFromAsc = 'emailFrom_ASC',
+  EmailFromDesc = 'emailFrom_DESC',
   LangAsc = 'lang_ASC',
   LangDesc = 'lang_DESC',
   TypeAsc = 'type_ASC',
@@ -27766,6 +27811,8 @@ export enum SortMessagesBy {
   PhoneDesc = 'phone_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
+  EmailFromAsc = 'emailFrom_ASC',
+  EmailFromDesc = 'emailFrom_DESC',
   LangAsc = 'lang_ASC',
   LangDesc = 'lang_DESC',
   TypeAsc = 'type_ASC',
