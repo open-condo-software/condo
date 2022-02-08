@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import Head from 'next/head'
 import { Typography, Tabs, Tooltip, Col } from 'antd'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
@@ -8,6 +8,9 @@ import { BillingChooser } from '@condo/domains/billing/components/Settings/Billi
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
+import { useRouter } from 'next/router'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+
 
 const SettingsPage = () => {
     const intl = useIntl()
@@ -18,6 +21,21 @@ const SettingsPage = () => {
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
+    const router = useRouter()
+    const { tab } = parseQuery(router.query)
+
+    const availableTabs = useMemo(() => {
+        const result = ['billing']
+        if (hasSubscriptionFeature) result.push('subscription')
+        return result
+    }, [hasSubscriptionFeature])
+
+    const defaultTab = availableTabs.includes(tab) ? tab : undefined
+
+    const handleTabChange = (newKey) => {
+        const newRoute = `${router.route}?tab=${newKey}`
+        return router.push(newRoute)
+    }
 
     return (
         <>
@@ -32,9 +50,11 @@ const SettingsPage = () => {
                     <PageContent>
                         <Col lg={20} xs={24}>
                             <Tabs
-                                defaultActiveKey="settings"
+                                defaultActiveKey={defaultTab}
+                                activeKey={defaultTab}
                                 tabBarStyle={{ marginBottom: 40 }}
                                 style={{ overflow: 'visible' }}
+                                onChange={handleTabChange}
                             >
                                 {
                                     hasSubscriptionFeature && (
@@ -47,7 +67,7 @@ const SettingsPage = () => {
                                     )
                                 }
                                 <Tabs.TabPane
-                                    key={'billingChooser'}
+                                    key={'billing'}
                                     tab={BillingTitle}
                                 >
                                     <BillingChooser/>
