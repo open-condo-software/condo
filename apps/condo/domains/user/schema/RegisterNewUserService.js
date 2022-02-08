@@ -8,7 +8,7 @@ const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { BAD_USER_INPUT, NOT_FOUND, GraphQLError } = require('@core/keystone/errors')
+const { BAD_USER_INPUT, NOT_FOUND, GQLError } = require('@core/keystone/errors')
 
 async function ensureNotExists (context, field, value) {
     const existed = await UserServerUtils.getAll(context, { [field]: value, type: STAFF })
@@ -78,7 +78,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         }
                     )
                     if (!action) {
-                        throw new GraphQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION)
+                        throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION)
                     }
                     confirmPhoneActionId = action.id
                     const { phone, isPhoneVerified } = action
@@ -86,7 +86,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     userData.isPhoneVerified = isPhoneVerified
                 }
                 if (!normalizePhone(userData.phone)) {
-                    throw new GraphQLError(errors.WRONG_PHONE_FORMAT)
+                    throw new GQLError(errors.WRONG_PHONE_FORMAT)
                 }
                 await ensureNotExists(context, 'phone', userData.phone)
                 if (!isEmpty(userData.email)) {
@@ -94,7 +94,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
 
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
-                    throw new GraphQLError(errors.MIN_PASSWORD_LENGTH)
+                    throw new GQLError(errors.MIN_PASSWORD_LENGTH)
                 }
                 // TODO(zuch): fix bug when user can not be created because of createAt and updatedAt fields
                 // const user = await UserServerUtils.create(context, userData)

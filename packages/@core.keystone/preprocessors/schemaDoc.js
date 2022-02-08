@@ -11,7 +11,7 @@ const { GQL_CUSTOM_SCHEMA_TYPE } = require('../schema')
  * @typedef CondoGraphQLSchemaDoc
  * @property {String} summary – short textual description about what it does. Be short and explicit, please!
  * @property {String} description - additional details about business logic
- * @property {Array.<CustomGraphQLSchemaError>} errors - set of errors, that can be thrown by this custom mutation or query
+ * @property {Array.<GQLError>} errors - set of errors, that can be thrown by this custom mutation or query
  */
 
 /**
@@ -55,7 +55,7 @@ const { GQL_CUSTOM_SCHEMA_TYPE } = require('../schema')
 
 /**
  * Formats error for documentation of GraphQL API in human readable way
- * @param {CustomGraphQLSchemaError} errorConfig
+ * @param {GQLError} errorConfig
  * @return {string}
  * TODO: localize error message
  */

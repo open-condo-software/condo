@@ -73,7 +73,7 @@ const INTERNAL_ERROR = 'INTERNAL_ERROR'
  * @readonly
  * @enum {String}
  */
-const CustomGraphQLSchemaErrorCode = {
+const GQLErrorCode = {
     NOT_FOUND,
     BAD_USER_INPUT,
     INTERNAL_ERROR,
@@ -82,19 +82,19 @@ const CustomGraphQLSchemaErrorCode = {
 /**
  * Error object, that can be thrown in a custom GraphQL mutation or query
  *
- * @typedef CustomGraphQLSchemaError
+ * @typedef GQLError
  * @property {String} [mutation] - name of mutation where the error has been occured
  * @property {String} [query] - name of query where the error has been occured
  * @property {Array.<String>} variable - path to mutation or query argument, that is a subject of an error
- * @property {CustomGraphQLSchemaErrorCode} code - standardized error code
+ * @property {GQLErrorCode} code - standardized error code
  * @property {String} message - humanized and error description that in future will be localized
  * @property {String} [correctExample] - correct value of an argument
  * @property {Object} [internalError] - error from internal part of the system. Not required, because in some cases it is not secure to expose internal error messages
  */
 
-class GraphQLError extends ApolloError {
+class GQLError extends ApolloError {
     /**
-     * @param {CustomGraphQLSchemaError} fields
+     * @param {GQLError} fields
      * @see https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors
      */
     constructor (fields) {
@@ -107,6 +107,6 @@ module.exports = {
     NOT_FOUND,
     BAD_USER_INPUT,
     INTERNAL_ERROR,
-    GraphQLError,
-    CondoGraphQLSchemaErrorCode: CustomGraphQLSchemaErrorCode,
+    GQLError,
+    GQLErrorCode,
 }
