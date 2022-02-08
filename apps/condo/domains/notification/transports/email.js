@@ -14,7 +14,7 @@ async function prepareMessageToSend (message) {
 
     const { subject, text, html } = await renderTemplate(EMAIL_TRANSPORT, message)
 
-    return { to: email, subject, text, html }
+    return { to: email, emailFrom: message.emailFrom, subject, text, html }
 }
 
 /**
@@ -22,6 +22,7 @@ async function prepareMessageToSend (message) {
  *
  * @param {Object} args - send email arguments
  * @param {string} args.to - Email address `To` recipient(s). Example: "Bob <bob@host.com>". You can use commas to separate multiple recipients.
+ * @param {string?} args.emailFrom - The sender's email address. Examples: 'Vasiliy <pupkin@mailforspam.com>', 'duduka@example.com'.
  * @param {string} args.cc - Email address for `Cc` (Carbon Copy)
  * @param {string} args.bcc - Email address for `Bcc` (Blind Carbon Copy)
  * @param {string} args.subject - Message subject
@@ -30,14 +31,14 @@ async function prepareMessageToSend (message) {
  * @typedef {[boolean, Object]} StatusAndMetadata
  * @return {StatusAndMetadata} Status and delivery Metadata (debug only)
  */
-async function send ({ to, cc, bcc, subject, text, html } = {}) {
+async function send ({ to, emailFrom = null, cc, bcc, subject, text, html } = {}) {
     if (!EMAIL_API_CONFIG) throw new Error('no EMAIL_API_CONFIG')
     if (!to || !to.includes('@')) throw new Error('unsupported to argument format')
     if (!subject) throw new Error('no subject argument')
     if (!text && !html) throw new Error('no text or html argument')
-    const { api_url, token, from } = EMAIL_API_CONFIG
+    const { api_url, token, from: defaultFrom } = EMAIL_API_CONFIG
     const form = new FormData()
-    form.append('from', from)
+    form.append('from', emailFrom || defaultFrom)
     form.append('to', to)
     form.append('subject', subject)
     if (text) form.append('text', text)
