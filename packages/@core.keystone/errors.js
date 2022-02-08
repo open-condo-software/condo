@@ -3,15 +3,15 @@
  *
  * @example
  * ```js
- * const { BAD_USER_INPUT, NOT_FOUND, GraphQLError } = require('@core/keystone/errors')
+ * const { BAD_USER_INPUT, NOT_FOUND, GQLError } = require('@core/keystone/errors')
  *
  * // Declare all errors, that can be thrown by a custom action, implemented below
  * const errors = {
  *     // A key for an error is in free form for local usage inside a module. It will not be rendered somewhere
  *     // Take Look at `CondoGraphQLSchemaError` JsDoc type declaration for detailed explanation of each field
- *     WRONG_PHONE_FORMAT: { argument: 'phone', code: BAD_USER_INPUT,  message: 'Wrong format of provided phone number', correctExample: '+79991234567' },
- *     UNABLE_TO_FIND_USER: { argument: 'userId', code: NOT_FOUND, message: 'Unable to find specified user' },
- *     UNABLE_EXECUTE_SOME_PROCEDURE: { code: INTERNAL_ERROR, message: `Oops, something went wrong` },
+ *     WRONG_PHONE_FORMAT: { mutation: 'myCustomSchema', variable: ['data', 'phone'], code: BAD_USER_INPUT,  message: 'Wrong format of provided phone number', correctExample: '+79991234567' },
+ *     UNABLE_TO_FIND_USER: { mutation: 'myCustomSchema', variable: ['data', 'userId'], code: NOT_FOUND, message: 'Unable to find specified user' },
+ *     UNABLE_EXECUTE_SOME_PROCEDURE: { mutation: 'myCustomSchema', code: INTERNAL_ERROR, message: `Oops, something went wrong` },
  * }
  *
  * const MyCustomSchema = new GQLCustomSchema('myCustomAction', {
@@ -35,20 +35,20 @@
  *                 // validate passed arguments
  *                 if (!normalizePhone(args.phone)) {
  *                     // Use our customized error class and pass appropriate error into it
- *                     throw new GraphQLError(errors.WRONG_PHONE_FORMAT)
+ *                     throw new GQLError(errors.WRONG_PHONE_FORMAT)
  *                 }
  *
  *                 // find some record
  *                 const user = await User.getOne(context, { id: args.userId })
  *                 if (!user) {
- *                     throw new GraphQLError(errors.UNABLE_TO_FIND_USER)
+ *                     throw new GQLError(errors.UNABLE_TO_FIND_USER)
  *                 }
  *
  *                 // execute some another actions, that is not guaranteed to be succeed
  *                 try {
  *                     executeSomeAnotherAction
  *                 } catch(e) {
- *                     throw new GraphQLError({
+ *                     throw new GQLError({
  *                         ...errors.UNABLE_EXECUTE_SOME_PROCEDURE,
  *                         internalError: e
  *                     })
