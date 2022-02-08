@@ -103,9 +103,9 @@ const PAYMENT_CATEGORIES_META = [
     {
         id: '9',
         name: 'Капремонт',
-        active: false,
-        canGetBillingFromOrganization: false,
-        canGetAcquiringFromOrganization: false,
+        active: true,
+        canGetBillingFromOrganization: true,
+        canGetAcquiringFromOrganization: true,
     },
     {
         id: '10',
