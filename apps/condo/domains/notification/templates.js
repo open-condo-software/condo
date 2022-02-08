@@ -16,6 +16,7 @@ const {
     SMS_TRANSPORT,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     CUSTOMER_IMPORTANT_NOTE_TYPE,
+    MESSAGE_FORWARDED_TO_SUPPORT,
 } = require('./constants/constants')
 
 async function renderTemplate (transport, message) {
@@ -248,6 +249,21 @@ async function renderTemplate (transport, message) {
             text: `
                 Название: ${get(data, ['organization', 'name'])},
                 ИНН: ${get(data, ['organization', 'meta', 'inn'])},
+            `,
+        }
+    }
+
+    if (message.type === MESSAGE_FORWARDED_TO_SUPPORT) {
+        const { dv, emailFrom, text, os, appVersion, organizationsData } = message.meta
+
+        return {
+            subject: 'Обращение из мобильного приложения',
+            text: `
+                Приложение: ${os} ${appVersion}
+                Email: ${emailFrom ? emailFrom : 'не указан'}
+                Сообщение: ${text}
+                УК: ${organizationsData.map(({ name, inn }) => `
+                  - ${name}. ИНН: ${inn}`).join('')}
             `,
         }
     }
