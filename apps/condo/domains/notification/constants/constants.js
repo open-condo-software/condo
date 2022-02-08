@@ -20,6 +20,7 @@ const RESET_PASSWORD_MESSAGE_TYPE = 'RESET_PASSWORD'
 const SMS_VERIFY_CODE_MESSAGE_TYPE = 'SMS_VERIFY'
 const DEVELOPER_IMPORTANT_NOTE_TYPE = 'DEVELOPER_IMPORTANT_NOTE_TYPE'
 const CUSTOMER_IMPORTANT_NOTE_TYPE = 'CUSTOMER_IMPORTANT_NOTE_TYPE'
+const MESSAGE_FORWARDED_TO_SUPPORT = 'MESSAGE_FORWARDED_TO_SUPPORT'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -30,6 +31,7 @@ const MESSAGE_TYPES = [
     SHARE_TICKET_MESSAGE_TYPE,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     CUSTOMER_IMPORTANT_NOTE_TYPE,
+    MESSAGE_FORWARDED_TO_SUPPORT,
 ]
 
 const MESSAGE_META = {
@@ -73,6 +75,11 @@ const MESSAGE_META = {
         data: { defaultValue: null, required: true },
     },
     [CUSTOMER_IMPORTANT_NOTE_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        type: { defaultValue: 'UNKNOWN', required: true },
+        data: { defaultValue: null, required: true },
+    },
+    [MESSAGE_FORWARDED_TO_SUPPORT]: {
         dv: { defaultValue: '', required: true },
         type: { defaultValue: 'UNKNOWN', required: true },
         data: { defaultValue: null, required: true },
@@ -123,4 +130,5 @@ module.exports = {
     SHARE_TICKET_MESSAGE_TYPE,
     CUSTOMER_IMPORTANT_NOTE_TYPE,
     PUSH_TRANSPORT_TYPES,
+    MESSAGE_FORWARDED_TO_SUPPORT,
 }
