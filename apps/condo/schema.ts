@@ -30012,11 +30012,18 @@ export type SupportMessagesForwardingInput = {
   attachments?: Maybe<Array<Maybe<Scalars['Upload']>>>;
   os: Scalars['String'];
   appVersion: Scalars['String'];
+  lang: SupportMessagesForwardingLang;
   meta: Scalars['JSON'];
 };
 
+export enum SupportMessagesForwardingLang {
+  Ru = 'ru',
+  En = 'en'
+}
+
 export type SupportMessagesForwardingOutput = {
   __typename?: 'SupportMessagesForwardingOutput';
+  id: Scalars['String'];
   status: Scalars['String'];
 };
 
