@@ -49,7 +49,8 @@ describe('RegisterNewUserService', () => {
             name: 'GraphQLError',
             path: ['user'],
             extensions: {
-                argument: 'phone',
+                mutation: 'registerNewUser',
+                variable: ['data', 'phone'],
                 code: 'BAD_USER_INPUT',
                 correctExample: '+79991234567',
             },
