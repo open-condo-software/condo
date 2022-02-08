@@ -10,6 +10,8 @@ const { MESSAGE_FORWARDED_TO_SUPPORT } = require('@condo/domains/notification/co
 const { SUPPORT_EMAIL } = require('@condo/domains/common/constants/requisites')
 const { get } = require('lodash')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
+const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesForwardingService', {
     types: [
@@ -37,6 +39,15 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
 
                 const user = get(context, ['req', 'user'])
 
+                const residents = await Resident.getAll(context, { user: { id: user.id } })
+
+                const organizationsIds = residents.map((resident) => {
+                    return resident.organization.id
+                })
+                const organizations = await Organization.getAll(context, { id_in: organizationsIds })
+
+                const organizationsData = organizations.map(({ name, meta: { inn } }) => ({ name, inn }))
+
                 const messageAttrs = {
                     dv,
                     sender,
@@ -45,9 +56,11 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
                     email: SUPPORT_EMAIL,
                     meta: {
                         dv,
+                        emailFrom,
                         text,
                         os,
                         appVersion,
+                        organizationsData,
                     },
                     type: MESSAGE_FORWARDED_TO_SUPPORT,
                 }
