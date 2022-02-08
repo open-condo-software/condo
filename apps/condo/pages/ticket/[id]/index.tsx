@@ -39,7 +39,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import { BaseType } from 'antd/lib/typography/Base'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
@@ -270,6 +270,9 @@ const TicketContent = ({ ticket }) => {
         </>
     ), [TicketUnitMessage, renderPostfix, streetPart, ticket, ticketUnit])
 
+    const contact = get(ticket, 'contact')
+    const shouldLinkContact = !!(get(contact, 'id') && !get(contact, 'deletedAt'))
+
     return (
         <Col span={24}>
             <Row gutter={[0, 24]}>
@@ -289,16 +292,27 @@ const TicketContent = ({ ticket }) => {
                     }
                 </PageFieldRow>
                 <PageFieldRow title={ClientMessage} highlight>
-                    <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
-                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                            <TicketUserInfoField
-                                user={{
-                                    name: get(ticket, 'clientName'),
-                                    phone: get(ticket, 'clientPhone'),
-                                }}
-                            />
-                        </Typography.Link>
-                    </Link>
+                    {
+                        shouldLinkContact
+                            ? <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
+                                <Typography.Link style={TICKET_CARD_LINK_STYLE}>
+                                    <TicketUserInfoField
+                                        user={{
+                                            name: get(ticket, 'clientName'),
+                                            phone: get(ticket, 'clientPhone'),
+                                        }}
+                                    />
+                                </Typography.Link>
+                            </Link>
+                            : <Typography.Text>
+                                <TicketUserInfoField
+                                    user={{
+                                        name: get(ticket, 'clientName'),
+                                        phone: get(ticket, 'clientPhone'),
+                                    }}
+                                />
+                            </Typography.Text>
+                    }
                 </PageFieldRow>
                 <PageFieldRow title={TicketInfoMessage}>
                     {ticket.details}
