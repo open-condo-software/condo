@@ -24275,6 +24275,7 @@ export type RegisterMultiPaymentOutput = {
   multiPaymentId: Scalars['String'];
   webViewUrl: Scalars['String'];
   feeCalculationUrl: Scalars['String'];
+  directPaymentUrl: Scalars['String'];
 };
 
 export type RegisterMultiPaymentReceiptInfoInput = {
