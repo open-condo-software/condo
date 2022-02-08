@@ -97,7 +97,7 @@ describe('Contact', () => {
                 await createTestContact(adminClient, userClient.organization, userClient.property, {
                     name: '',
                 })
-            }, ({ errors, data }) => {
+            }, ({ errors }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch('Name should not be a blank string')
             })
@@ -105,7 +105,7 @@ describe('Contact', () => {
                 await createTestContact(adminClient, userClient.organization, userClient.property, {
                     name: 'a',
                 })
-            }, ({ errors, data }) => {
+            }, ({ errors }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch('Name should not be a one-character string')
             })
@@ -459,6 +459,49 @@ describe('Contact', () => {
             expect(softDeletedObj.name).toEqual(contact.name)
             expect(softDeletedObj.email).toEqual(contact.email)
             expect(softDeletedObj.phone).toEqual(contact.phone)
+        })
+
+        it('Can create same contact after softDeletion', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithProperty()
+            const [organization] = await createTestOrganization(adminClient)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                canManageContacts: true,
+            })
+            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+            const [contact] = await createTestContact(adminClient, userClient.organization, userClient.property)
+
+            await Contact.softDelete(userClient, contact.id)
+            const [newContact] = await createTestContact(adminClient, userClient.organization, userClient.property, {
+                unitName: contact.unitName,
+                name: contact.name,
+                phone: contact.phone,
+                email: contact.email,
+            })
+            expect(newContact).toHaveProperty(['organization', 'id'], contact.organization.id)
+            expect(newContact).toHaveProperty(['property', 'id'], contact.property.id)
+            expect(newContact).toHaveProperty(['unitName'], contact.unitName)
+            expect(newContact).toHaveProperty(['name'], contact.name)
+            expect(newContact).toHaveProperty(['phone'], contact.phone)
+            expect(newContact).toHaveProperty(['email'], contact.email)
+            expect(newContact.id).not.toEqual(contact.id)
+
+            await Contact.softDelete(userClient, newContact.id)
+
+            const [newestContact] = await createTestContact(adminClient, userClient.organization, userClient.property, {
+                unitName: contact.unitName,
+                name: contact.name,
+                phone: contact.phone,
+                email: contact.email,
+            })
+            expect(newestContact).toHaveProperty(['organization', 'id'], contact.organization.id)
+            expect(newestContact).toHaveProperty(['property', 'id'], contact.property.id)
+            expect(newestContact).toHaveProperty(['unitName'], contact.unitName)
+            expect(newestContact).toHaveProperty(['name'], contact.name)
+            expect(newestContact).toHaveProperty(['phone'], contact.phone)
+            expect(newestContact).toHaveProperty(['email'], contact.email)
+            expect(newestContact.id).not.toEqual(contact.id)
+            expect(newestContact.id).not.toEqual(newContact.id)
         })
 
         it('cannot be soft deleted by user from another organization', async () => {
