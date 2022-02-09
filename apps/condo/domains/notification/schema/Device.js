@@ -39,7 +39,7 @@ const Device = new GQLListSchema('Device', {
             required: false,
             kmigratorOptions: { unique: true, null: true },
             hooks: {
-                validateInput: async ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
                     // pushTransport is required when pushToken is present in request
                     if (resolvedData['pushToken'] && !resolvedData['pushTransport']) {
                         addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}pushTransport] Value is required`)

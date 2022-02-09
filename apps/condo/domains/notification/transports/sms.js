@@ -5,6 +5,7 @@ const { SMSAdapter } = require('@condo/domains/notification/adapters/smsAdapter'
 
 async function prepareMessageToSend (message) {
     const phone = message.phone || (message.user && message.user.phone) || null
+
     if (!phone) throw new Error('on phone to send')
 
     const { text } = await renderTemplate(SMS_TRANSPORT, message)
@@ -24,6 +25,7 @@ async function prepareMessageToSend (message) {
 async function send ({ phone, message } = {}) {
     const Adapter = new SMSAdapter()
     const result = await Adapter.send({ phone, message })
+
     return result
 }
 

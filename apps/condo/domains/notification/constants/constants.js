@@ -18,9 +18,12 @@ const DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE'
 const REGISTER_NEW_USER_MESSAGE_TYPE = 'REGISTER_NEW_USER'
 const RESET_PASSWORD_MESSAGE_TYPE = 'RESET_PASSWORD'
 const SMS_VERIFY_CODE_MESSAGE_TYPE = 'SMS_VERIFY'
-const DEVELOPER_IMPORTANT_NOTE_TYPE = 'DEVELOPER_IMPORTANT_NOTE_TYPE'
-const CUSTOMER_IMPORTANT_NOTE_TYPE = 'CUSTOMER_IMPORTANT_NOTE_TYPE'
 const MESSAGE_FORWARDED_TO_SUPPORT = 'MESSAGE_FORWARDED_TO_SUPPORT'
+const DEVELOPER_IMPORTANT_NOTE_TYPE = 'DEVELOPER_IMPORTANT_NOTE'
+const CUSTOMER_IMPORTANT_NOTE_TYPE = 'CUSTOMER_IMPORTANT_NOTE'
+const TICKET_ASSIGNEE_CONNECTED_TYPE = 'TICKET_ASSIGNEE_CONNECTED'
+const TICKET_EXECUTOR_CONNECTED_TYPE = 'TICKET_EXECUTOR_CONNECTED'
+const TICKET_STATUS_CHANGED_TYPE = 'TICKET_STATUS_CHANGED'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -32,7 +35,19 @@ const MESSAGE_TYPES = [
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     CUSTOMER_IMPORTANT_NOTE_TYPE,
     MESSAGE_FORWARDED_TO_SUPPORT,
+    TICKET_ASSIGNEE_CONNECTED_TYPE,
+    TICKET_EXECUTOR_CONNECTED_TYPE,
+    TICKET_STATUS_CHANGED_TYPE,
 ]
+
+const DEFAULT_TRANSPORT_PRIORITIES = [SMS_TRANSPORT, EMAIL_TRANSPORT]
+const PUSH_EMAIL = [PUSH_TRANSPORT, EMAIL_TRANSPORT]
+
+const TRANSPORT_PRIORITIES_BY_MESSAGE_TYPES = {
+    [TICKET_ASSIGNEE_CONNECTED_TYPE]: PUSH_EMAIL,
+    [TICKET_EXECUTOR_CONNECTED_TYPE]: PUSH_EMAIL,
+    [TICKET_STATUS_CHANGED_TYPE]: PUSH_EMAIL,
+}
 
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
@@ -80,12 +95,31 @@ const MESSAGE_META = {
         data: { defaultValue: null, required: true },
     },
     [MESSAGE_FORWARDED_TO_SUPPORT]: {
+        dv: {defaultValue: '', required: true},
+        text: {defaultValue: null, required: true},
+        os: {defaultValue: null, required: true},
+        appVersion: {defaultValue: null, required: true},
+        organizationsData: {defaultValue: [], isRequired: false},
+        attachments: {defaultValue: [], isRequired: false},
+    },
+    [TICKET_ASSIGNEE_CONNECTED_TYPE]: {
         dv: { defaultValue: '', required: true },
-        text: { defaultValue: null, required: true },
-        os: { defaultValue: null, required: true },
-        appVersion: { defaultValue: null, required: true },
-        organizationsData: { defaultValue: [], isRequired: false },
-        attachments: { defaultValue: [], isRequired: false },
+        ticketId: { defaultValue: '', required: true },
+        ticketNumber: { defaultValue: '', required: true },
+        userId: { defaultValue: null, required: true },
+    },
+    [TICKET_EXECUTOR_CONNECTED_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        ticketId: { defaultValue: '', required: true },
+        ticketNumber: { defaultValue: '', required: true },
+        userId: { defaultValue: null, required: true },
+    },
+    [TICKET_STATUS_CHANGED_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        ticketId: { defaultValue: '', required: true },
+        ticketNumber: { defaultValue: '', required: true },
+        ticketStatus: { defaultValue: '', required: true },
+        userId: { defaultValue: null, required: true },
     },
 }
 
@@ -94,17 +128,22 @@ const MESSAGE_RESENDING_STATUS = 'resending'
 const MESSAGE_PROCESSING_STATUS = 'processing'
 const MESSAGE_ERROR_STATUS = 'error'
 const MESSAGE_DELIVERED_STATUS = 'delivered'
+const MESSAGE_READ_STATUS = 'read'
 const MESSAGE_CANCELED_STATUS = 'canceled'
 const MESSAGE_STATUSES = [
     MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS,
     MESSAGE_PROCESSING_STATUS, MESSAGE_ERROR_STATUS,
     MESSAGE_DELIVERED_STATUS, MESSAGE_CANCELED_STATUS,
+    MESSAGE_READ_STATUS,
 ]
 
 const PUSH_TRANSPORT_FIREBASE = 'firebase'
 const PUSH_TRANSPORT_APPLE = 'apple'
 const PUSH_TRANSPORT_HUAWEI = 'huawei'
 const PUSH_TRANSPORT_TYPES = [PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI]
+
+const PUSH_FAKE_TOKEN_SUCCESS = 'PUSH_FAKE_TOKEN_SUCCESS'
+const PUSH_FAKE_TOKEN_FAIL = 'PUSH_FAKE_TOKEN_FAIL'
 
 module.exports = {
     JSON_NO_REQUIRED_ATTR_ERROR,
@@ -134,4 +173,14 @@ module.exports = {
     CUSTOMER_IMPORTANT_NOTE_TYPE,
     PUSH_TRANSPORT_TYPES,
     MESSAGE_FORWARDED_TO_SUPPORT,
+    PUSH_TRANSPORT_FIREBASE,
+    PUSH_TRANSPORT_APPLE,
+    PUSH_TRANSPORT_HUAWEI,
+    TICKET_ASSIGNEE_CONNECTED_TYPE,
+    TICKET_EXECUTOR_CONNECTED_TYPE,
+    TICKET_STATUS_CHANGED_TYPE,
+    TRANSPORT_PRIORITIES_BY_MESSAGE_TYPES,
+    DEFAULT_TRANSPORT_PRIORITIES,
+    PUSH_FAKE_TOKEN_SUCCESS,
+    PUSH_FAKE_TOKEN_FAIL,
 }
