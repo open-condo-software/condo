@@ -1,9 +1,9 @@
 import { ParsedUrlQuery } from 'querystring'
 import get from 'lodash/get'
 
-import { IRecordWithId, RecordWithAddressDetails } from '../types'
+import { IRecordWithId } from '../types'
 import { FilterValue } from 'antd/es/table/interface'
-import { Property } from '@app/condo/schema'
+import { AddressMetaField } from '@app/condo/schema'
 
 const DEFAULT_WIDTH_PRECISION = 2
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
@@ -34,11 +34,15 @@ export const preciseFloor = (x: number, precision: number = DEFAULT_WIDTH_PRECIS
     return Math.floor(x * Math.pow(10, precision)) / 100
 }
 
+type ObjectWithAddressInfo = {
+    address: string,
+    addressMeta: AddressMetaField
+}
 /**
- * Tries to extract address details from a property
+ * Tries to extract address details from a property (or any object, containing address and addressMeta, like ticket)
  * @param property
  */
-export const getAddressDetails = (property: Property) => {
+export const getAddressDetails = (property: ObjectWithAddressInfo) => {
     const addressMeta = get(property, ['addressMeta', 'data'])
 
     const streetWithType = get(addressMeta, 'street_with_type')
