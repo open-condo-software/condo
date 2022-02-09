@@ -1,7 +1,9 @@
 /** @type {import('ow').default} */
 const ow = require('ow')
-const { pickBy, identity, get, isFunction, isArray } = require('lodash')
+const { pickBy, identity, isFunction, isArray } = require('lodash')
 const Emittery = require('emittery')
+
+const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
 
 let EVENTS = new Emittery()
 let SCHEMAS = new Map()
@@ -10,32 +12,19 @@ const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
 const IS_DEV = process.env.NODE_ENV === 'development'
 
+/**
+ * This function is Keystone v5 only compatible and will be removed soon!
+ * @deprecated use one of ./KSv5v6/v5/registerSchema
+ */
 function registerSchemas (keystone, modulesList, globalPreprocessors = []) {
-    modulesList.forEach(
-        (module) => {
-            if (GQL_SCHEMA_TYPES.includes(module._type)) {
-                module._register(keystone, globalPreprocessors)
-            } else {
-                Object.values(module).forEach(
-                    (GQLSchema) => {
-                        if (GQL_SCHEMA_TYPES.includes(GQLSchema._type)) {
-                            GQLSchema._register(keystone, globalPreprocessors)
-                        } else {
-                            console.warn('Wrong schema module export format! What\'s this? ', GQLSchema)
-                        }
-                    })
-            }
-        })
+    const { registerSchemas: registerSchemasV5 } = require('./KSv5v6/v5/registerSchema')
+    registerSchemasV5(keystone, modulesList, globalPreprocessors)
 }
 
 async function unregisterAllSchemas () {
     console.warn('unregisterAllSchemas() called! It\'just for debug/tests purposes. Don\'t use it in prod!')
     EVENTS = new Emittery()
     SCHEMAS = new Map()
-}
-
-async function getAllRegisteredSchemasNames () {
-    return [...SCHEMAS.keys()]
 }
 
 class GQLListSchema {
@@ -48,24 +37,19 @@ class GQLListSchema {
         schema.fields = pickBy(schema.fields, identity)
         this.name = name
         this.schema = schema
+        this.plugins = []
+        this.registeredSchema = null
         this._type = GQL_LIST_SCHEMA_TYPE
         this._keystone = null
     }
 
-    _register (keystone, globalPreprocessors = []) {
+    _register (globalPreprocessors = [], { addSchema }) {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
-        this._keystone = keystone
-        this._keystoneSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
-        keystone.createList(this.name, this._keystoneSchema)  // create this._keystone.lists[this.name] as List type
-        const keystoneList = get(this._keystone, ['lists', this.name])
-        if (keystoneList) {
-            // We need to save a shallow copy of createList config argument because
-            // we want to use it in a future for kMigrator or some another extensions which need to define extra schema
-            // extensions! It allow to use `this._keystone.lists[this.name].createListConfig`
-            keystoneList.createListConfig = { ...this.schema }
-            keystoneList.processedCreateListConfig = { ...this._keystoneSchema }
-        }
+        const plugins = this.schema.plugins || []
+        if (plugins.length) this.schema = applyPlugins(this.schema, plugins, { schemaName: this.name, addSchema })
+        this.schema.plugins = undefined
+        this.registeredSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
     }
 
     _on (eventName, listener) {
@@ -100,16 +84,18 @@ class GQLCustomSchema {
 
         this.name = name
         this.schema = schema
+        this.registeredSchema = null
         this._type = GQL_CUSTOM_SCHEMA_TYPE
         this._keystone = null
     }
 
-    _register (keystone, globalPreprocessors = []) {
+    _register (globalPreprocessors = [], { addSchema }) {
         if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
         SCHEMAS.set(this.name, this)
-        this._keystone = keystone
-        this._keystoneSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
-        keystone.extendGraphQLSchema(this._keystoneSchema)
+        const plugins = this.schema.plugins || []
+        if (plugins.length) this.schema = applyPlugins(this.schema, plugins, { schemaName: this.name, addSchema })
+        this.schema.plugins = undefined
+        this.registeredSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
     }
 
     _on (eventName, listener) {
@@ -123,6 +109,17 @@ class GQLCustomSchema {
         ow(eventData, ow.object)
         return await EVENTS.emit(`${this.name}:${eventName}`, eventData)
     }
+}
+
+function applyPlugins (schema, plugins, { schemaName, addSchema }) {
+    if (!isArray(plugins)) throw new Error('wrong plugins type')
+    return plugins.reduce((schema, fn) => {
+        if (fn._type !== GQL_SCHEMA_PLUGIN) throw new Error(`Schema ${schemaName}: wrong plugin type. You can use only GQLSchema plugins. It's not the same as Keystone v5 plugins!`)
+        if (!isFunction(fn)) throw new Error(`Schema ${schemaName}: plugin is not a function!`)
+        const newSchema = fn(schema, { schemaName, addSchema })
+        if (!newSchema) throw new Error(`Schema ${schemaName}: plugin should return a new schema object!`)
+        return newSchema
+    }, schema)
 }
 
 function transformByPreprocessors (preprocessors, schemaType, name, schema) {
@@ -177,11 +174,11 @@ module.exports = {
     GQLCustomSchema,
     registerSchemas,
     unregisterAllSchemas,
-    getAllRegisteredSchemasNames,
     getSchemaCtx,
     find,
     getById,
     getByCondition,
+    GQL_SCHEMA_TYPES,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
 }

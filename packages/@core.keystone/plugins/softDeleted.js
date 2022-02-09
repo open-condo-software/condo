@@ -1,10 +1,10 @@
-const { DateTimeUtc } = require('@keystonejs/fields')
-const { getType } = require('@keystonejs/utils')
 const { get, isPlainObject } = require('lodash')
-const { HiddenRelationship } = require('./utils')
-const { composeHook, evaluateKeystoneAccessResult } = require('./utils')
+const { getType } = require('@keystonejs/utils')
 
-const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => ({ fields = {}, hooks = {}, access, ...rest }, { listKey, keystone }) => {
+const { composeHook, evaluateKeystoneAccessResult } = require('./utils')
+const { plugin } = require('./utils/typing')
+
+const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName }) => {
     // TODO(pahaz):
     //  [x] 1) filter by default deletedAt = null (access.read), how-to change it?!
     //  [x] 2) allow update only for deletedAt = null (access.update)
@@ -18,7 +18,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     //  [ ] 5) check access to newId
 
     const datedOptions = {
-        type: DateTimeUtc,
+        type: 'DateTimeUtc',
         access: {
             read: true,
             create: false,
@@ -27,8 +27,8 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
         kmigratorOptions: { null: true, db_index: true },
     }
     const newIdOptions = {
-        type: HiddenRelationship,
-        ref: listKey,
+        type: 'HiddenRelationship',
+        ref: schemaName,
         access: {
             read: true,
             create: false,
@@ -67,17 +67,17 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     const newAccess = async (args) => {
         const { operation } = args
         if (operation === 'read') {
-            const current = await evaluateKeystoneAccessResult(access, 'read', args, keystone)
+            const current = await evaluateKeystoneAccessResult(access, 'read', args)
             return applySoftDeletedFilters(current, deletedAtField, args)
         } else if (operation === 'delete') {
             return false
         } else {
-            return await evaluateKeystoneAccessResult(access, operation, args, keystone)
+            return await evaluateKeystoneAccessResult(access, operation, args)
         }
     }
 
     return { fields, hooks, access: newAccess, ...rest }
-}
+})
 
 /**
  * Gets "where" variables from http graphQL request

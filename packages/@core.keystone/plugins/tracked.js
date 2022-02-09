@@ -1,11 +1,9 @@
-const { DateTimeUtc } = require('@keystonejs/fields')
-const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
-
 const { composeHook } = require('./utils')
+const { plugin } = require('./utils/typing')
 
-const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', updatedAtField = 'updatedAt', updatedByField = 'updatedBy' } = {}) => ({ fields = {}, hooks = {}, ...rest }) => {
+const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', updatedAtField = 'updatedAt', updatedByField = 'updatedBy' } = {}) => plugin(({ fields = {}, hooks = {}, ...rest }) => {
     const datedOptions = {
-        type: DateTimeUtc,
+        type: 'DateTimeUtc',
         kmigratorOptions: { db_index: true },
         access: {
             read: true,
@@ -15,7 +13,7 @@ const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', u
     }
 
     const relationshipOptions = {
-        type: AuthedRelationship,
+        type: 'AuthedRelationship',
         ref: 'User',
         kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         access: {
@@ -83,7 +81,7 @@ const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', u
     const originalResolveInput = hooks.resolveInput
     hooks.resolveInput = composeHook(originalResolveInput, newResolveInput)
     return { fields, hooks, ...rest }
-}
+})
 
 module.exports = {
     tracked,
