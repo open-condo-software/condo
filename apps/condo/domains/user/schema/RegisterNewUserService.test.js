@@ -41,6 +41,7 @@ describe('RegisterNewUserService', () => {
                 mutation: 'registerNewUser',
                 variable: ['data', 'phone'],
                 code: 'CONFLICT',
+                type: 'NOT_UNIQUE',
             },
         }])
     })
@@ -93,6 +94,7 @@ describe('RegisterNewUserService', () => {
                 mutation: 'registerNewUser',
                 variable: ['data', 'email'],
                 code: 'CONFLICT',
+                type: 'NOT_UNIQUE',
             },
         }])
     })
