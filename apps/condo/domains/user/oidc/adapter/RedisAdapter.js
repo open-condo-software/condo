@@ -1,5 +1,13 @@
+// The RedisAdapter is based on: https://github.com/panva/node-oidc-provider/blob/main/example/adapters/redis.js
+
 const Redis = require('ioredis')
 const { isEmpty } = require('lodash')
+
+const conf = require('@core/config')
+
+const OIDC_REDIS_URL = conf.OIDC_REDIS_URL || conf.REDIS_URL
+const OIDC_REDIS_KEY_PREFIX = 'oidc:'
+if (!OIDC_REDIS_URL) throw new Error('No OIDC_REDIS_URL environment')
 
 const GRANTABLE = new Set([
     'AccessToken',
@@ -17,7 +25,7 @@ const CONSUMABLE = new Set([
 ])
 
 // OIDC Redis connection! initialized if required to avoid build time redis connections!
-let REDIS = null
+let RedisClient = null
 
 function grantKeyFor (id) {
     return `grant:${id}`
@@ -31,19 +39,12 @@ function uidKeyFor (uid) {
     return `uid:${uid}`
 }
 
-class AdapterFactory {
-    constructor (name) {
-        // TODO(pahaz): store Client inside keystone gql and others models inside Redis!
-        return new RedisAdapter(name)
-    }
-}
-
 class RedisAdapter {
     constructor (name) {
         this.name = name
 
-        if (REDIS === null) REDIS = new Redis(process.env.OIDC_REDIS_URL, { keyPrefix: 'oidc:' })
-        this.client = REDIS
+        if (RedisClient === null) RedisClient = new Redis(OIDC_REDIS_URL, { keyPrefix: OIDC_REDIS_KEY_PREFIX })
+        this.client = RedisClient
     }
 
     key (id) {
@@ -136,4 +137,6 @@ class RedisAdapter {
 
 }
 
-module.exports = AdapterFactory
+module.exports = {
+    RedisAdapter,
+}
