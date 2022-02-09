@@ -1,6 +1,7 @@
 import isEqual from 'lodash/isEqual'
 import cloneDeep from 'lodash/cloneDeep'
 import dayjs from 'dayjs'
+import get from 'lodash/get'
 
 export type TableRow = Array<Record<'value', string | number | Date>>
 export type ProcessedRow = {
@@ -54,6 +55,7 @@ export class Importer implements IImporter {
         private rowValidator: RowValidator,
         private objectCreator: ObjectCreator,
         private errors: ImporterErrorMessages,
+        private codeToErrorMapping,
         private sleepInterval: number,
         private maxTableLength: number,
     ) {
@@ -193,15 +195,37 @@ export class Importer implements IImporter {
                 return this.rowValidator(normalizedRow)
                     .then(isValid => {
                         if (isValid) {
-                            return this.objectCreator(normalizedRow).then(() => {
-                                if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
-                                    this.failProcessingHandler(normalizedRow)
-                                }
-                                if (this.successProcessingHandler) {
-                                    this.successProcessingHandler(row)
-                                }
-                                return Promise.resolve()
-                            })
+                            return this.objectCreator(normalizedRow)
+                                .then(() => {
+                                    if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
+                                        this.failProcessingHandler(normalizedRow)
+                                    }
+                                    if (this.successProcessingHandler) {
+                                        this.successProcessingHandler(row)
+                                    }
+                                    return Promise.resolve()
+                                })
+                                .catch((e) => {
+                                    const mutationErrors = get(e, 'graphQLErrors')
+                                    normalizedRow.errors = normalizedRow.errors || []
+
+                                    mutationErrors.forEach(mutationError => {
+                                        const mutationErrorMessages = get(mutationError, ['data', 'messages'])
+                                        mutationErrorMessages.forEach(message => {
+                                            const errorCodes = Object.keys(this.codeToErrorMapping)
+
+                                            errorCodes.forEach(code => {
+                                                if (message.includes(code)) {
+                                                    normalizedRow.errors.push(this.codeToErrorMapping[code])
+                                                }
+                                            })
+                                        })
+                                    })
+                                    if (this.failProcessingHandler) {
+                                        this.failProcessingHandler(normalizedRow)
+                                        return Promise.resolve()
+                                    }
+                                })
                         } else {
                             if (this.failProcessingHandler) {
                                 this.failProcessingHandler(normalizedRow)

@@ -23,6 +23,7 @@ interface IUseImporterProps {
     handleRowError: (row: ProcessedRow) => void,
     onFinish: () => void,
     onError: () => void,
+    codeToErrorMapping?
 }
 
 export const useImporter = ({
@@ -36,6 +37,7 @@ export const useImporter = ({
     handleRowError,
     onFinish,
     onError,
+    codeToErrorMapping,
 }: IUseImporterProps) => {
     const intl = useIntl()
     const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
@@ -63,7 +65,7 @@ export const useImporter = ({
         setProgress(0)
         setTotalRows(Math.max(0, data.length - 1))
 
-        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors, SLEEP_INTERVAL_BEFORE_QUERIES, maxTableLength)
+        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors, codeToErrorMapping, SLEEP_INTERVAL_BEFORE_QUERIES, maxTableLength)
         importer.current.onProgressUpdate(setProgress)
         importer.current.onError((e) => {
             importer.current = null
