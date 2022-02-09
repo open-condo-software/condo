@@ -7,7 +7,6 @@ const conf = require('@core/config')
 
 const OIDC_REDIS_URL = conf.OIDC_REDIS_URL || conf.REDIS_URL
 const OIDC_REDIS_KEY_PREFIX = 'oidc:'
-if (!OIDC_REDIS_URL) throw new Error('No OIDC_REDIS_URL environment')
 
 const GRANTABLE = new Set([
     'AccessToken',
@@ -43,6 +42,7 @@ class RedisAdapter {
     constructor (name) {
         this.name = name
 
+        if (!OIDC_REDIS_URL) throw new Error('No OIDC_REDIS_URL environment')
         if (RedisClient === null) RedisClient = new Redis(OIDC_REDIS_URL, { keyPrefix: OIDC_REDIS_KEY_PREFIX })
         this.client = RedisClient
     }
