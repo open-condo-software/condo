@@ -629,6 +629,8 @@
   "meter.import.column.CommissioningDate": "Commissioning date",
   "meter.import.column.SealingDate": "Sealing date",
   "meter.import.column.ControlReadingsDate": "Control readings date",
+  "meter.import.error.MeterAccountNumberExistInOtherUnit": "Meter with such account number exists in another unit",
+  "meter.import.error.MeterNumberExistInOrganization": "Meter with this number already exists in your organization",
   "meter.import.error.MeterResourceNotFound": "Meter type was not found according to specified abbreviation in \"Type\" column",
   "meter.import.error.UnitNameNotFound": "Unit was not found in property",
   "meter.import.error.WrongDateFormatMessage": "Incorrect date format in column \"{columnName}\". Use either value of String type in format: \"{format}\", or value of Date type",

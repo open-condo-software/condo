@@ -35,6 +35,7 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunction'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT, EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '../../domains/meter/constants/errors'
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 
@@ -54,6 +55,8 @@ export const MetersPageContent = ({
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many' })
     const MeterReadingImportObjectsNameManyGenitive = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many.genitive' })
+    const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.MeterAccountNumberExistInOtherUnit' })
+    const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -92,6 +95,11 @@ export const MetersPageContent = ({
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleMultipleFiltersButtonClick = useCallback(() => setIsMultipleFiltersModalVisible(true),
         [setIsMultipleFiltersModalVisible])
+
+    const codeToErrorMapping = {
+        [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: MeterAccountNumberExistInOtherUnitMessage,
+        [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: MeterNumberExistInOrganizationMessage,
+    }
 
     return (
         <>
@@ -136,6 +144,7 @@ export const MetersPageContent = ({
                                                                 objectCreator={meterReadingCreator}
                                                                 domainTranslate={MeterReadingImportObjectsNameManyGenitive}
                                                                 exampleTemplateLink={'/meter-import-example.xlsx'}
+                                                                codeToErrorMapping={codeToErrorMapping}
                                                             >
                                                                 <Button
                                                                     type={'sberPrimary'}

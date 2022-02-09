@@ -37,6 +37,7 @@ interface IImportWrapperProps {
     objectCreator: ObjectCreator
     domainTranslate: string
     exampleTemplateLink?: string | null
+    codeToErrorMapping?
 }
 
 const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTranslate, exampleTemplateLink }) => {
@@ -94,6 +95,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         onFinish,
         domainTranslate,
         exampleTemplateLink = null,
+        codeToErrorMapping,
     } = props
     const intl = useIntl()
     const ImportTitle = intl.formatMessage({ id:'Import' })
@@ -159,6 +161,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             const config = getUploadErrorModalConfig(ImportTitle, ImportDefaultErrorMessage, ImportOKMessage)
             activeModal.current = modal.error(config)
         },
+        codeToErrorMapping,
     })
 
     const handleUpload = useCallback((file) => {
