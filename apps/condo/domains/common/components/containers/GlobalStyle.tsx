@@ -75,6 +75,10 @@ export default function GlobalStyle () {
               .ant-checkbox {
                 border-color: ${colors.inputBorderGrey};
               }
+              
+              .ant-checkbox-inner {
+                border-radius: 4px;
+              }
 
               .ant-checkbox-checked .ant-checkbox-inner::after {
                 transform: rotate(45deg) scale(1) translate(-75%, -50%);
