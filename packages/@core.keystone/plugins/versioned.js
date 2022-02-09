@@ -1,10 +1,9 @@
-const { Integer } = require('@keystonejs/fields')
-
 const { composeHook } = require('./utils')
+const { plugin } = require('./utils/typing')
 
-const versioned = ({ versionField = 'v', startBy = 1 } = {}) => ({ fields = {}, hooks = {}, ...rest }) => {
+const versioned = ({ versionField = 'v', startBy = 1 } = {}) => plugin(({ fields = {}, hooks = {}, ...rest }) => {
     const versionOptions = {
-        type: Integer,
+        type: 'Integer',
         isRequired: true,
         defaultValue: startBy,
         access: {
@@ -27,7 +26,7 @@ const versioned = ({ versionField = 'v', startBy = 1 } = {}) => ({ fields = {}, 
     const originalResolveInput = hooks.resolveInput
     hooks.resolveInput = composeHook(originalResolveInput, newResolveInput)
     return { fields, hooks, ...rest }
-}
+})
 
 module.exports = {
     versioned,
