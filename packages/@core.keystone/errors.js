@@ -3,15 +3,15 @@
  *
  * @example
  * ```js
- * const { BAD_USER_INPUT, NOT_FOUND, GQLError } = require('@core/keystone/errors')
+ * const { GQLError, GQLErrorCode } = require('@core/keystone/errors')
  *
  * // Declare all errors, that can be thrown by a custom action, implemented below
  * const errors = {
  *     // A key for an error is in free form for local usage inside a module. It will not be rendered somewhere
  *     // Take Look at `CondoGraphQLSchemaError` JsDoc type declaration for detailed explanation of each field
- *     WRONG_PHONE_FORMAT: { mutation: 'myCustomSchema', variable: ['data', 'phone'], code: BAD_USER_INPUT,  message: 'Wrong format of provided phone number', correctExample: '+79991234567' },
- *     UNABLE_TO_FIND_USER: { mutation: 'myCustomSchema', variable: ['data', 'userId'], code: NOT_FOUND, message: 'Unable to find specified user' },
- *     UNABLE_EXECUTE_SOME_PROCEDURE: { mutation: 'myCustomSchema', code: INTERNAL_ERROR, message: `Oops, something went wrong` },
+ *     WRONG_PHONE_FORMAT: { mutation: 'myCustomSchema', variable: ['data', 'phone'], code: GQLErrorCode.BAD_USER_INPUT,  message: 'Wrong format of provided phone number', correctExample: '+79991234567' },
+ *     UNABLE_TO_FIND_USER: { mutation: 'myCustomSchema', variable: ['data', 'userId'], code: GQLErrorCode.NOT_FOUND, message: 'Unable to find specified user' },
+ *     UNABLE_EXECUTE_SOME_PROCEDURE: { mutation: 'myCustomSchema', code: GQLErrorCode.INTERNAL_ERROR, message: `Oops, something went wrong` },
  * }
  *
  * const MyCustomSchema = new GQLCustomSchema('myCustomAction', {
