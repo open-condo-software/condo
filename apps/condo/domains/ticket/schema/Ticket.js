@@ -245,8 +245,9 @@ const Ticket = new GQLListSchema('Ticket', {
                 resolveInput: async ({ resolvedData, existingItem, fieldPath }) => {
                     if (resolvedData['property'] && resolvedData['property'] !== get(existingItem, 'property')) {
                         const property = await getById('Property', resolvedData['property'])
-                        resolvedData[fieldPath] = get(property, 'address')
+                        return property.address
                     }
+                    return resolvedData[fieldPath]
                 },
             },
         },
