@@ -31,6 +31,15 @@ function getOidcToken (req) {
     }
 }
 
+/**
+ * We need to patch the Keystone request because there is no extensibility for non Keystone Bearer tokens.
+ *
+ * We just detect the OIDC Bearer token and patch the request.session and request.user before the keystone core logic.
+ * Thus, the Keystone logic perceives the request as a normal user request.
+ *
+ * @param app Express
+ * @void
+ */
 function OIDCBearerTokenKeystonePatch (app) {
     const tokens = new AdapterFactory('AccessToken')
     // const grants = new AdapterFactory('Grant')
