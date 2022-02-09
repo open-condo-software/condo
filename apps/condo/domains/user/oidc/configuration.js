@@ -1,7 +1,7 @@
-const adapter = require('./adapter')
+const { AdapterFactory } = require('./adapter')
 
 module.exports = {
-    adapter,
+    adapter: AdapterFactory,
     interactions: {
         url (ctx, interaction) { // eslint-disable-line no-unused-vars
             return `/oidc/interaction/${interaction.uid}`

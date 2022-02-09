@@ -2,9 +2,11 @@ const express = require('express')
 const Provider = require('oidc-provider')
 
 const conf = require('@core/config')
+const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 const configuration = require('./configuration')
 const { OIDCBearerTokenKeystonePatch } = require('./OIDCBearerTokenKeystonePatch')
+const { logger } = require('./logger')
 
 class OIDCMiddleware {
     prepareMiddleware ({ keystone, dev, distDir }) {
@@ -89,17 +91,27 @@ class OIDCMiddleware {
 
                 const { prompt: { details } } = interactionDetails
                 if (details.missingOIDCScope) {
-                    console.warn('addOIDCScope', details.missingOIDCScope.join(' '))
+                    logger.warn({
+                        message: 'OIDCInteraction->addOIDCScope()',
+                        missingOIDCScope: details.missingOIDCScope,
+                    })
                     grant.addOIDCScope(details.missingOIDCScope.join(' '))
                 }
                 if (details.missingOIDCClaims) {
-                    console.warn('addOIDCClaims', details.missingOIDCClaims)
+                    logger.warn({
+                        message: 'OIDCInteraction->addOIDCClaims()',
+                        missingOIDCClaims: details.missingOIDCClaims,
+                    })
                     grant.addOIDCClaims(details.missingOIDCClaims)
                 }
                 if (details.missingResourceScopes) {
                     // eslint-disable-next-line no-restricted-syntax
                     for (const [indicator, scopes] of Object.entries(details.missingResourceScopes)) {
-                        console.warn('addResourceScope', indicator, scopes.join(' '))
+                        logger.warn({
+                            message: 'OIDCInteraction->addResourceScope()',
+                            indicator, scopes,
+                        })
+
                         grant.addResourceScope(indicator, scopes.join(' '))
                     }
                 }
@@ -107,7 +119,10 @@ class OIDCMiddleware {
                 const redirectTo = await provider.interactionResult(req, res, result, { mergeWithLastSubmission: false })
                 res.send({ redirectTo })
             } catch (err) {
-                console.error('interaction', err)
+                logger.error({
+                    message: 'ERROR<-OIDCInteraction',
+                    error: safeFormatError(err),
+                })
                 res.status(400).json({
                     error: 'invalid_request',
                     error_description: err.toString(),
