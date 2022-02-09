@@ -99,7 +99,7 @@ const GQLErrorType = {
  * @typedef GQLError
  * @property {String} [mutation] - name of mutation where the error has been occured
  * @property {String} [query] - name of query where the error has been occured
- * @property {Array.<String>} variable - path to mutation or query argument, that is a subject of an error
+ * @property {Array.<String>} [variable] - path to mutation or query argument, that is a subject of an error
  * @property {GQLErrorCode} code - standardized error code
  * @property {String} message - humanized and error description that in future will be localized
  * @property {String} [correctExample] - correct value of an argument
