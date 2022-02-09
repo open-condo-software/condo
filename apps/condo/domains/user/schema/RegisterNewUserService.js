@@ -48,6 +48,11 @@ const errors = {
         type: GQLErrorType.NOT_UNIQUE,
         message: 'User with specified email already exists',
     },
+    UNABLE_TO_CREATE_USER: {
+        mutation: 'registerNewUser',
+        code: GQLErrorCode.INTERNAL_ERROR,
+        message: 'Unable to create user',
+    },
 }
 
 async function ensureNotExists (context, field, value) {
@@ -131,8 +136,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     variables: { data: userData },
                 })
                 if (createErrors) {
-                    const msg = '[error] Unable to create user'
-                    throw new Error(msg)
+                    throw new GQLError(errors.UNABLE_TO_CREATE_USER)
                 }
                 // end of TODO
                 if (confirmPhoneActionToken) {
