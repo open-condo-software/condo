@@ -456,10 +456,10 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
 
     const ticketStatusType = get(ticket, ['status', 'type'])
     const disabledEditButton = useMemo(() => ticketStatusType === CLOSED_STATUS_TYPE, [ticketStatusType])
-    const updatedAt = get(ticket, 'updatedAt')
+    const statusUpdatedAt = get(ticket, 'statusUpdatedAt')
 
     const getTimeSinceCreation = useCallback(() => {
-        const diffInMinutes = dayjs().diff(dayjs(updatedAt), 'minutes')
+        const diffInMinutes = dayjs().diff(dayjs(statusUpdatedAt), 'minutes')
         const daysHavePassed = dayjs.duration(diffInMinutes, 'minutes').format('D')
         const hoursHavePassed = dayjs.duration(diffInMinutes, 'minutes').format('H')
         const minutesHavePassed = dayjs.duration(diffInMinutes, 'minutes').format('m')
@@ -475,7 +475,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         }
 
         return timeSinceCreation.join(' ')
-    }, [DaysShortMessage, HoursShortMessage, LessThanMinuteMessage, MinutesShortMessage, updatedAt])
+    }, [DaysShortMessage, HoursShortMessage, LessThanMinuteMessage, MinutesShortMessage, statusUpdatedAt])
 
     if (!ticket) {
         return (
@@ -526,10 +526,10 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                     />
                                                 </Col>
                                                 {
-                                                    updatedAt && (
+                                                    statusUpdatedAt && (
                                                         <Col>
                                                             <Typography.Paragraph style={{ margin: 0 }}>
-                                                                {ChangedMessage}: {dayjs(updatedAt).format('DD.MM.YY, HH:mm')}
+                                                                {ChangedMessage}: {dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm')}
                                                             </Typography.Paragraph>
                                                             <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
                                                                 {TimeHasPassedMessage.replace('${time}', getTimeSinceCreation())}

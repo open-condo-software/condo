@@ -63,14 +63,7 @@ export const getTicketLabel = (intl, ticket) => {
         return
     }
 
-    const { createdAt, statusUpdatedAt } = ticket
-    const ticketLastUpdateDate = statusUpdatedAt || createdAt
-    const formattedDate = intl.formatDate(dayjs(ticketLastUpdateDate).valueOf(), {
-        day: 'numeric',
-        month: 'short',
-    })
-
-    return `${get(ticket, ['status', 'name'])} ${intl.formatMessage({ id: 'From' })} ${formattedDate}`
+    return get(ticket, ['status', 'name'])
 }
 
 export const sortStatusesByType = (statuses: Array<TicketStatus>) => {
