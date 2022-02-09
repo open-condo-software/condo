@@ -1,4 +1,4 @@
-const { keys, transform, pick, pickBy, omit, difference } = require('lodash')
+const { keys, transform, pick, pickBy, omit, difference, isEqual } = require('lodash')
 const { Text, Uuid } = require('@keystonejs/fields')
 const { Relationship } = require('@keystonejs/fields')
 const { Json, LocalizedText } = require('@core/keystone/fields')
@@ -278,7 +278,7 @@ const buildDataToStoreChangeFrom = async (args) => {
             const convertedExistingValue = convertScalarValueToInput(existingItem[key])
             const convertedUpdatedValue = convertScalarValueToInput(updatedItem[key])
 
-            if (convertedExistingValue !== convertedUpdatedValue) {
+            if (!isEqual(convertedExistingValue, convertedUpdatedValue)) {
                 data[`${ key }From`] = convertedExistingValue
                 data[`${ key }To`] = convertScalarValueToInput(updatedItem[key])
             }
