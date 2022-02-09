@@ -309,7 +309,7 @@ const Property = new GQLListSchema('Property', {
                 if (isAddressUpdated) {
                     // Change linked tickets "propertyAddress"
                     const userInfo = { dv: updatedItem.dv, sender: updatedItem.sender }
-                    await manageTicketPropertyAddressChange.delay(updatedItem.id, updatedItem.address, userInfo)
+                    await manageTicketPropertyAddressChange.delay(updatedItem.id, updatedItem.address, updatedItem.addressMeta, userInfo)
                     // Reconnect residents (if any) to oldest non-deleted property with address = updatedItem.address
                     await manageResidentToPropertyAndOrganizationConnections.delay(updatedItem.address)
                 }
