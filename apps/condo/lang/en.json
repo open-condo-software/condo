@@ -428,6 +428,8 @@
   "pages.condo.ticket.index.PageTitle": "All tickets",
   "pages.condo.ticket.index.PaidLabel": "Paid",
   "pages.condo.ticket.index.ResetFilters": "Reset",
+  "pages.condo.ticket.select.group.Units": "Units",
+  "pages.condo.ticket.select.group.Parking": "Parking",
   "pages.condo.ticket.title.TicketInfo": "Task information",
   "pages.condo.ticket.title.UserInfo": "Resident information",
   "pages.condo.ticket.warning.modal.Title": "Do not save ticket?",
