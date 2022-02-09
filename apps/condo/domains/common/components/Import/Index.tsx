@@ -4,7 +4,7 @@ import {
     RowNormalizer,
     RowValidator,
     ObjectCreator,
-    ProcessedRow,
+    ProcessedRow, MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 import { Modal, Popover, Typography, Space } from 'antd'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
@@ -37,7 +37,7 @@ interface IImportWrapperProps {
     objectCreator: ObjectCreator
     domainTranslate: string
     exampleTemplateLink?: string | null
-    codeToErrorMapping?
+    mutationErrorsToMessages?: MutationErrorsToMessagesType
 }
 
 const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTranslate, exampleTemplateLink }) => {
@@ -95,7 +95,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         onFinish,
         domainTranslate,
         exampleTemplateLink = null,
-        codeToErrorMapping,
+        mutationErrorsToMessages,
     } = props
     const intl = useIntl()
     const ImportTitle = intl.formatMessage({ id:'Import' })
@@ -161,7 +161,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             const config = getUploadErrorModalConfig(ImportTitle, ImportDefaultErrorMessage, ImportOKMessage)
             activeModal.current = modal.error(config)
         },
-        codeToErrorMapping,
+        mutationErrorsToMessages,
     })
 
     const handleUpload = useCallback((file) => {
