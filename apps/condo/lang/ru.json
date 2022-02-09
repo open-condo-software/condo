@@ -629,6 +629,8 @@
   "meter.import.column.CommissioningDate": "Дата ввода в эксплуатацию",
   "meter.import.column.SealingDate": "Дата опломбирования",
   "meter.import.column.ControlReadingsDate": "Дата контрольных показаний",
+  "meter.import.error.MeterAccountNumberExistInOtherUnit": "Прибор учета с таким лицевым счетом уже существует в другой квартире",
+  "meter.import.error.MeterNumberExistInOrganization": "Прибор учета с таким номером уже существует в вашей организации",
   "meter.import.error.MeterResourceNotFound": "Не найден тип счётчика по указанной аббревиатуре",
   "meter.import.error.UnitNameNotFound": "Указанная квартира не найдена в доме",
   "meter.import.error.WrongDateFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в формате \"{format}\", либо значение с типом Дата",
