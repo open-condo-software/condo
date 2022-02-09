@@ -55,12 +55,11 @@ async function expectToGetAuthenticatedUser (url, expectedUser, headers = {}) {
 test('getCookie test util', async () => {
     const c = await makeClientWithNewRegisteredAndLoggedInUser()
     const cookie = c.getCookie()
-    const graphql = JSON.stringify({ 'operationName': null, 'variables': {}, 'query': '{ authenticatedUser { id name } }' })
+    const graphql = { 'query': '{ authenticatedUser { id name } }' }
 
     const result1 = await axios.create({
         timeout: 2000,
         headers: {
-            'Content-Type': 'application/json',
             Cookie: cookie,
         },
         validateStatus: () => true,
@@ -77,7 +76,7 @@ test('getCookie test util', async () => {
 
     const result2 = await fetch(`${c.serverUrl}/admin/api`, {
         method: 'POST',
-        body: graphql,
+        body: JSON.stringify(graphql),
         headers: {
             'Content-Type': 'application/json',
             Cookie: cookie,
