@@ -166,7 +166,7 @@ const TicketContent = ({ ticket }) => {
     const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
 
-    const propertyWasDeleted = !!get(ticket, ['property', 'deletedAt'])
+    const propertyWasDeleted = !(ticket.property)
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
     const ticketUnit = ticket.unitName ? `${ShortFlatNumber} ${ticket.unitName}` : ''
     const ticketSectionAndFloor = ticket.sectionName && ticket.floorName
@@ -245,7 +245,7 @@ const TicketContent = ({ ticket }) => {
         (index: number): BaseType => index !== ticketClassifierNames.length - 1 ? null : 'secondary',
         [ticketClassifierNames.length])
 
-    const { streetPart, renderPostfix } = getAddressDetails(ticket.property)
+    const { streetPart, renderPostfix } = getAddressDetails({ address: ticket.propertyAddress, addressMeta: ticket.propertyAddressMeta })
 
     const TicketUnitMessage = useCallback(() => (
         <Typography.Paragraph style={{ margin: 0 }}>
@@ -414,7 +414,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const { query: { id } } = router as { query: { [key: string]: string } }
 
     const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
-        where: { id: id, property: { OR: [{ deletedAt: null }, { deletedAt_not: null }] }, deletedAt: null },
+        where: { id: id },
     }, {
         fetchPolicy: 'network-only',
     })
