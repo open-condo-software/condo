@@ -8,7 +8,7 @@ const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { GQLError, GQLErrorCode } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode, GQLErrorType } = require('@core/keystone/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -38,12 +38,14 @@ const errors = {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
         code: GQLErrorCode.CONFLICT,
+        type: GQLErrorType.NOT_UNIQUE,
         message: 'User with specified phone already exists',
     },
     USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
         variable: ['data', 'email'],
         code: GQLErrorCode.CONFLICT,
+        type: GQLErrorType.NOT_UNIQUE,
         message: 'User with specified email already exists',
     },
 }

@@ -72,7 +72,9 @@ const BAD_USER_INPUT = 'BAD_USER_INPUT'
 const INTERNAL_ERROR = 'INTERNAL_ERROR'
 
 /**
- * Set of error types, used in custom GraphQL queries or mutations
+ * First level of error classification, used in custom GraphQL queries or mutations
+ * Only generic error kinds are listed
+ * Conceptually, it conforms to HTTP standard for error codes
  * @readonly
  * @enum {String}
  */
@@ -81,6 +83,14 @@ const GQLErrorCode = {
     CONFLICT,
     BAD_USER_INPUT,
     INTERNAL_ERROR,
+}
+
+// A record with specified set of field values already exists, so, the request violates unique constraints
+const NOT_UNIQUE = 'NOT_UNIQUE'
+
+// Second level of error classification
+const GQLErrorType = {
+    NOT_UNIQUE,
 }
 
 /**
@@ -110,4 +120,5 @@ class GQLError extends ApolloError {
 module.exports = {
     GQLError,
     GQLErrorCode,
+    GQLErrorType,
 }
