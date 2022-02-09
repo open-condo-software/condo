@@ -33,7 +33,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                                 <Button
                                     key='submit'
                                     onClick={handleSave}
-                                    type='sberPrimary'
+                                    type='sberDefaultGradient'
                                     loading={isLoading}
                                     disabled={disabledCondition}
                                 >
