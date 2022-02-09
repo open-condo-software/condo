@@ -1,8 +1,10 @@
 const { get } = require('lodash')
 
 const { getSchemaCtx } = require('@core/keystone/schema')
+const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-const adapter = require('./adapter')
+const { AdapterFactory } = require('./adapter')
+const { logger } = require('./logger')
 
 function getOidcToken (req) {
     try {
@@ -22,15 +24,18 @@ function getOidcToken (req) {
 
         return token
     } catch (e) {
-        console.error('getOidcToken(...)', e)
+        logger.error({
+            message: 'ERROR<-getOidcToken()',
+            error: safeFormatError(e),
+        })
     }
 }
 
 function OIDCBearerTokenKeystonePatch (app) {
-    const tokens = new adapter('AccessToken')
-    // const grants = new adapter('Grant')
+    const tokens = new AdapterFactory('AccessToken')
+    // const grants = new AdapterFactory('Grant')
 
-    app.use(async function oidcBearerTokenPatch (req, res, next) {
+    app.use(async function oidcBearerTokenPatchMiddleware (req, res, next) {
         // We want to detect request with OIDC AccessToken and without req.user!
         // In such case we need to update req.session and req.user to user from AccessToken!
         const oidcToken = getOidcToken(req)
@@ -72,8 +77,11 @@ function OIDCBearerTokenKeystonePatch (app) {
                         return _end.call(res, chunk, encoding)
                     }
                 } catch (error) {
-                    console.error('oidcBearerTokenPatch', error)
-                    // pass
+                    logger.error({
+                        message: 'ERROR<-oidcBearerTokenPatchMiddleware()',
+                        error: safeFormatError(error),
+                    })
+                    throw error
                 }
             }
         }

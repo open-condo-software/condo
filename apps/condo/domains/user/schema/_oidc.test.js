@@ -2,18 +2,19 @@ const fetch = require('node-fetch')
 const { Issuer, generators } = require('openid-client')
 const { default: axios } = require('axios')
 
+const { createAxiosClientWithCookie, getRandomString } = require('@core/keystone/test.utils')
+
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const adapter = require('../oidc/adapter')
-const { createAxiosClientWithCookie } = require('@core/keystone/test.utils')
+const { AdapterFactory } = require('../oidc/adapter')
 
 async function createClient (oidcClient) {
-    const clients = new adapter('Client')
+    const clients = new AdapterFactory('Client')
     await clients.upsert(oidcClient.client_id, oidcClient)
 }
 
 async function getAccessToken (accessToken) {
-    const clients = new adapter('AccessToken')
+    const clients = new AdapterFactory('AccessToken')
     return await clients.find(accessToken)
 }
 
@@ -32,7 +33,6 @@ async function request (url, cookie) {
 }
 
 function expectCookieKeys (cookie, keys) {
-    console.log(cookie)
     expect(cookie.split(';').map(x => x.split('=')[0])).toEqual(keys)
 }
 
@@ -99,10 +99,12 @@ test('getCookie test util', async () => {
 })
 
 test('oidc', async () => {
+    const clientId = getRandomString()
+    const clientSecret = getRandomString()
     await createClient({
         // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
-        client_id: 'foo',
-        client_secret: 'secret',
+        client_id: clientId,
+        client_secret: clientSecret,
         redirect_uris: ['https://jwt.io/'], // using jwt.io as redirect_uri to show the ID Token contents
         response_types: ['code id_token', 'code', 'id_token'],
         grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
@@ -116,8 +118,8 @@ test('oidc', async () => {
 
     const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
     const serverSideOidcClient = new oidcIssuer.Client({
-        client_id: 'foo',
-        client_secret: 'secret',
+        client_id: clientId,
+        client_secret: clientSecret,
         redirect_uris: ['https://jwt.io/'], // using jwt.io as redirect_uri to show the ID Token contents
         response_types: ['code id_token'],
         token_endpoint_auth_method: 'client_secret_basic',
@@ -153,7 +155,7 @@ test('oidc', async () => {
     expect(userinfo).toEqual({ 'sub': c.user.id })
     expect(await getAccessToken(tokenSet.access_token)).toMatchObject({
         'accountId': c.user.id,
-        'clientId': 'foo',
+        'clientId': clientId,
         'expiresWithSession': true,
         'gty': 'authorization_code',
         'kind': 'AccessToken',
