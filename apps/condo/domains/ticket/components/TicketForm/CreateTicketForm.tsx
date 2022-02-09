@@ -24,8 +24,8 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
         <Form.Item noStyle shouldUpdate>
             {
                 ({ getFieldsValue }) => {
-                    const { property, details, placeClassifier, categoryClassifier } = getFieldsValue(REQUIRED_TICKET_FIELDS)
-                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier
+                    const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
 
                     return (
                         <ActionBar>
@@ -45,6 +45,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                                     details={details}
                                     placeClassifier={placeClassifier}
                                     categoryClassifier={categoryClassifier}
+                                    deadline={deadline}
                                 />
                             </Space>
                         </ActionBar>
