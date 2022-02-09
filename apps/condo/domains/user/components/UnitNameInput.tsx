@@ -1,7 +1,10 @@
 import { Select, Input, SelectProps } from 'antd'
-import React, { useMemo } from 'react'
+import React from 'react'
 import get from 'lodash/get'
 import flattenDeep from 'lodash/flattenDeep'
+import isEmpty from 'lodash/isEmpty'
+import { useIntl } from '@core/next/intl'
+
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 
 export interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange' | 'onSelect'> {
@@ -11,28 +14,37 @@ export interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange
     loading: boolean
 }
 
-export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
-    const { placeholder, property, loading, ...restInputProps } = props
+// TODO(Dimitreee): move search to serverside
+const getOptionGroupBySectionType = (groupLabel, sections) => {
+    const unflattenUnits = sections.map((section) => {
+        const floors = get(section, ['floors'], [])
 
-    // TODO(Dimitreee): move search to serverside
-    const options = useMemo(() => {
-        const sections = get(property, ['map', 'sections'], [])
+        return floors.map((floor) => floor.units).reverse()
+    })
 
-        const unflattenUnits = sections.map((section) => {
-            const floors = get(section, ['floors'], [])
+    const flattenUnits: Array<{ id: string, label }> = flattenDeep(unflattenUnits)
 
-            return floors.map((floor) => floor.units).reverse()
-        })
-
-        const flattenUnits: Array<{ id: string, label }> = flattenDeep(unflattenUnits)
-
-        return flattenUnits.map(
-            (unit) => (
-                <Select.Option key={unit.label} value={unit.label} title={String(unit.label)}>{unit.label}</Select.Option>
-            )
+    const options = flattenUnits.map(
+        (unit) => (
+            <Select.Option key={unit.label} value={unit.label} title={String(unit.label)}>{unit.label}</Select.Option>
         )
+    )
 
-    }, [property])
+    return !isEmpty(options) && (
+        <Select.OptGroup label={groupLabel}>
+            {options}
+        </Select.OptGroup>
+    )
+}
+
+export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
+    const intl = useIntl()
+    const UnitsLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.Units' })
+    const ParkingLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.Parking' })
+
+    const { placeholder, property, loading, ...restInputProps } = props
+    const sections = get(property, ['map', 'sections'], [])
+    const parking = get(property, ['map', 'parking'], [])
 
     return (
         <Select
@@ -44,7 +56,8 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             disabled={loading}
             {...restInputProps}
         >
-            {options}
+            {getOptionGroupBySectionType(UnitsLabel, sections)}
+            {getOptionGroupBySectionType(ParkingLabel, parking)}
         </Select>
     )
 }
