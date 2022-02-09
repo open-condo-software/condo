@@ -3,7 +3,7 @@
  */
 
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const get = require('lodash/get')
@@ -21,8 +21,8 @@ const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ER
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { TERMINAL_TICKET_STATUS_IDS } = require('../constants/statusTransitions')
+const { PROPERTY_ADDRESS_MISMATCH } = require('../constants/errors')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -228,6 +228,7 @@ const Ticket = new GQLListSchema('Ticket', {
         // premise/unit
         // placeDetail (behind the radiator, on the fifth step of the stairs)
         // Intercom code
+
         property: {
             schemaDoc: 'Property related to the Ticket',
             type: Relationship,
@@ -235,6 +236,19 @@ const Ticket = new GQLListSchema('Ticket', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+        },
+        propertyAddress: {
+            schemaDoc: 'Address of property, which synced with property and displayed, if property is deleted',
+            type: Text,
+            isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData, existingItem, fieldPath }) => {
+                    if (resolvedData['property'] && resolvedData['property'] !== get(existingItem, 'property')) {
+                        const property = await getById('Property', resolvedData['property'])
+                        resolvedData[fieldPath] = get(property, 'address')
+                    }
+                },
+            },
         },
 
         sectionName: {
@@ -286,7 +300,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
             return resolvedData
         },
-        validateInput: ({ resolvedData, existingItem, addValidationError, context }) => {
+        validateInput: async ({ resolvedData, existingItem, addValidationError, context }) => {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
@@ -302,6 +316,18 @@ const Ticket = new GQLListSchema('Ticket', {
                         if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.createdAt)) {
                             return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
                         }
+                    }
+                }
+                const propertyChanged = resolvedData['property'] && resolvedData['property'] !== get(existingItem, 'property')
+                const propertyAddressChanged = resolvedData['propertyAddress'] && resolvedData['propertyAddress'] !== get(existingItem, 'propertyAddress')
+                const newItem = { ...existingItem, ...resolvedData }
+                if (propertyChanged || propertyAddressChanged) {
+                    const propertyId = get(newItem, 'property', null)
+                    const property = await getById('Property', propertyId)
+                    if (!property) return addValidationError('Cannot find property with matching ID')
+                    const propertyAddress = get(newItem, 'propertyAddress', 'DELETED')
+                    if (property.address !== propertyAddress) {
+                        return addValidationError(`${PROPERTY_ADDRESS_MISMATCH} Synced values of property.address and propertyAddress does not match`)
                     }
                 }
             } else {
