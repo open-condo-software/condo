@@ -7,6 +7,23 @@ import { LabeledValue } from 'antd/lib/select'
 import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 
+const getSectionAndFloorByUnit = (unitName, sections) => {
+    const sectionAndFloor = { sectionName: null, floorName: null }
+
+    for (const section of sections) {
+        for (const floor of section.floors) {
+            for (const unit of floor.units) {
+                if (unit.label === unitName) {
+                    sectionAndFloor.sectionName = section.name
+                    sectionAndFloor.floorName = floor.name
+                }
+            }
+        }
+    }
+
+    return sectionAndFloor
+}
+
 export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
     const intl = useIntl()
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
@@ -16,16 +33,16 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
     const updateSectionAndFloor = (form, unitName) => {
         if (unitName) {
             const sections = get(property, ['map', 'sections'], [])
-            for (const section of sections) {
-                for (const floor of section.floors) {
-                    for (const unit of floor.units) {
-                        if (unit.label === unitName) {
-                            return form.setFieldsValue({ sectionName: section.name, floorName: floor.name })
-                        }
-                    }
-                }
+            let sectionAndFloor = getSectionAndFloorByUnit(unitName, sections)
+
+            if (!sectionAndFloor.sectionName && !sectionAndFloor.floorName) {
+                const parking = get(property, ['map', 'parking'], [])
+                sectionAndFloor = getSectionAndFloorByUnit(unitName, parking)
             }
+
+            return form.setFieldsValue({ sectionName: sectionAndFloor.sectionName, floorName: sectionAndFloor.floorName })
         }
+
         form.setFieldsValue({ sectionName: null, floorName: null })
     }
 
