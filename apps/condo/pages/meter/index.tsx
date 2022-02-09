@@ -35,7 +35,7 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunction'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
-import { EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT, EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '../../domains/meter/constants/errors'
+import { EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT, EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '@condo/domains/meter/constants/errors'
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 
