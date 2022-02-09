@@ -14,12 +14,13 @@ const { get, isEmpty, isUndefined, isNull } = require('lodash')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 const { STAFF, USER_TYPES } = require('@condo/domains/user/constants/common')
 const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR, PHONE_IS_REQUIRED_ERROR } = require('@condo/domains/user/constants/errors')
 
+const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
+
 const User = new GQLListSchema('User', {
-    schemaDoc: 'Individual / person / service account / impersonal company account. Used primarly for authorization purposes, optimized access control with checking of `type` field, tracking authority of performed CRUD operations. Think of `User` as a technical entity, not a business actor. Business actor entities are Resident, OrganizationEmployee etc., — they are participating in high-level business scenarios and have connected to `User`. Almost everyting, created in the system, ends up to `User` as a source of action.',
+    schemaDoc: 'Individual / person / service account / impersonal company account. Used primarily for authorization purposes, optimized access control with checking of `type` field, tracking authority of performed CRUD operations. Think of `User` as a technical entity, not a business actor. Business actor entities are Resident, OrganizationEmployee etc., — they are participating in high-level business scenarios and have connected to `User`. Almost everyting, created in the system, ends up to `User` as a source of action.',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
