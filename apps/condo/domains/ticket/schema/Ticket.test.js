@@ -17,6 +17,7 @@ const { createTestOrganizationEmployeeRole } = require('@condo/domains/organizat
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { PROPERTY_ADDRESS_MISMATCH } = require('../constants/errors')
+const dayjs = require('dayjs')
 
 describe('Ticket', () => {
     describe('Crud', () => {
@@ -43,6 +44,8 @@ describe('Ticket', () => {
             expect(obj.sourceMeta).toEqual(null)
             expect(obj.classifier).toEqual(expect.objectContaining({ id: attrs.classifier.connect.id }))
             expect(obj.property).toEqual(expect.objectContaining({ id: client.property.id }))
+            expect(obj.propertyAddress).toEqual(client.property.address)
+            expect(obj.propertyAddressMeta).toEqual(client.property.addressMeta)
             expect(obj.status).toEqual(expect.objectContaining({ id: attrs.status.connect.id }))
             expect(obj.statusReopenedCounter).toEqual(0)
             expect(obj.statusReason).toEqual(null)
@@ -654,6 +657,18 @@ describe('Ticket', () => {
                         propertyAddressMeta: property.addressMeta,
                     })
                 }, PROPERTY_ADDRESS_MISMATCH)
+            })
+            test('Should be unchanged on Property softDeletion', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(client, client.organization, client.property)
+                await updateTestProperty(client, client.property.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+
+                const [refetchTicket] = await Ticket.getAll(client, { id: ticket.id })
+                expect(refetchTicket).toBeDefined()
+                expect(refetchTicket).toHaveProperty('propertyAddress', client.property.address)
+                expect(refetchTicket).toHaveProperty('propertyAddressMeta', client.property.addressMeta)
             })
         })
     })
