@@ -22,20 +22,20 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
         <Form.Item noStyle shouldUpdate>
             {
                 ({ getFieldsValue }) => {
-                    const { property, details, placeClassifier, categoryClassifier } = getFieldsValue(REQUIRED_TICKET_FIELDS)
-                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier
+                    const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
 
                     return (
                         <ActionBar>
                             <FormResetButton
-                                type='sberPrimary'
+                                type='sberDefaultGradient'
                                 secondary
                             />
                             <Space size={12}>
                                 <Button
                                     key='submit'
                                     onClick={handleSave}
-                                    type='sberPrimary'
+                                    type='sberDefaultGradient'
                                     loading={isLoading}
                                     disabled={!property}
                                 >
@@ -47,6 +47,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                                     details={details}
                                     placeClassifier={placeClassifier}
                                     categoryClassifier={categoryClassifier}
+                                    deadline={deadline}
                                 />
                             </Space>
                         </ActionBar>
