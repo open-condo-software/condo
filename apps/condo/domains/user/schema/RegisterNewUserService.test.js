@@ -1,7 +1,6 @@
 const faker = require('faker')
 const { createTestUser, registerNewUser, createTestPhone, createTestEmail, createTestLandlineNumber } = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
-const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
 
@@ -34,7 +33,16 @@ describe('RegisterNewUserService', () => {
                 email,
             },
         })
-        expect(JSON.stringify(errors)).toMatch(PHONE_ALREADY_REGISTERED_ERROR)
+        expect(errors).toMatchObject([{
+            message: 'User with specified phone already exists',
+            name: 'GraphQLError',
+            path: ['user'],
+            extensions: {
+                mutation: 'registerNewUser',
+                variable: ['data', 'phone'],
+                code: 'CONFLICT',
+            },
+        }])
     })
 
     test('register user with landline phone number', async () => {
@@ -77,6 +85,15 @@ describe('RegisterNewUserService', () => {
                 email,
             },
         })
-        expect(JSON.stringify(errors)).toMatch(EMAIL_ALREADY_REGISTERED_ERROR)
+        expect(errors).toMatchObject([{
+            message: 'User with specified email already exists',
+            name: 'GraphQLError',
+            path: ['user'],
+            extensions: {
+                mutation: 'registerNewUser',
+                variable: ['data', 'email'],
+                code: 'CONFLICT',
+            },
+        }])
     })
 })

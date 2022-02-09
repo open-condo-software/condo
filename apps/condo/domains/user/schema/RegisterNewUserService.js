@@ -10,13 +10,6 @@ const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { GQLError, GQLErrorCode } = require('@core/keystone/errors')
 
-async function ensureNotExists (context, field, value) {
-    const existed = await UserServerUtils.getAll(context, { [field]: value, type: STAFF })
-    if (existed.length !== 0) {
-        throw new Error(`[unique:${field}:multipleFound] user with this ${field} is already exists`)
-    }
-}
-
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
@@ -41,6 +34,28 @@ const errors = {
         code: GQLErrorCode.BAD_USER_INPUT,
         message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
     },
+    USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'phone'],
+        code: GQLErrorCode.CONFLICT,
+        message: 'User with specified phone already exists',
+    },
+    USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'email'],
+        code: GQLErrorCode.CONFLICT,
+        message: 'User with specified email already exists',
+    },
+}
+
+async function ensureNotExists (context, field, value) {
+    const existed = await UserServerUtils.getAll(context, { [field]: value, type: STAFF })
+    if (existed.length !== 0) {
+        throw new GQLError({
+            phone: errors.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS,
+            email: errors.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS,
+        }[field])
+    }
 }
 
 // TODO(zuch): create registerStaffUserService, separate logic of creating employee, make confirmPhoneActionToken to be required, remove meta, args to UserInput
