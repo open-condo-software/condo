@@ -7,9 +7,10 @@ const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const get = require('lodash/get')
+const isEqual = require('lodash/isEqual')
 const { addClientInfoToResidentTicket, addOrderToTicket } = require('../utils/serverSchema/resolveHelpers')
 
-const { SENDER_FIELD, DV_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CONTACT_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
+const { SENDER_FIELD, DV_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CONTACT_FIELD, CLIENT_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
 const { triggersManager } = require('@core/triggers')
@@ -251,6 +252,20 @@ const Ticket = new GQLListSchema('Ticket', {
                 },
             },
         },
+        propertyAddressMeta: {
+            ...ADDRESS_META_FIELD,
+            schemaDoc: 'Address meta of property, which synced with property and used to form view of address, if property is deleted',
+            isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData, existingItem, fieldPath }) => {
+                    if (resolvedData['property'] && resolvedData['property'] !== get(existingItem, 'property')) {
+                        const property = await getById('Property', resolvedData['property'])
+                        return property.addressMeta
+                    }
+                    return resolvedData[fieldPath]
+                },
+            },
+        },
 
         sectionName: {
             schemaDoc: 'Section name/number of an apartment building (property). You need to take from Property.map',
@@ -321,14 +336,19 @@ const Ticket = new GQLListSchema('Ticket', {
                 }
                 const propertyChanged = resolvedData['property'] && resolvedData['property'] !== get(existingItem, 'property')
                 const propertyAddressChanged = resolvedData['propertyAddress'] && resolvedData['propertyAddress'] !== get(existingItem, 'propertyAddress')
+                const propertyAddressMetaChanged = resolvedData['propertyAddressMeta'] && resolvedData['propertyAddressMeta'] !== get(existingItem, 'propertyAddressMeta')
                 const newItem = { ...existingItem, ...resolvedData }
-                if (propertyChanged || propertyAddressChanged) {
+                if (propertyChanged || propertyAddressChanged || propertyAddressMetaChanged) {
                     const propertyId = get(newItem, 'property', null)
                     const property = await getById('Property', propertyId)
                     if (!property) return addValidationError('Cannot find property with matching ID')
                     const propertyAddress = get(newItem, 'propertyAddress', 'DELETED')
                     if (property.address !== propertyAddress) {
                         return addValidationError(`${PROPERTY_ADDRESS_MISMATCH} Synced values of property.address and propertyAddress does not match`)
+                    }
+                    const propertyAddressMeta = get(newItem, 'propertyAddressMeta', {})
+                    if (!isEqual(propertyAddressMeta, property.addressMeta)) {
+                        return addValidationError(`${PROPERTY_ADDRESS_MISMATCH} Synced values of property.addressMeta and propertyAddressMeta does not match`)
                     }
                 }
             } else {

@@ -605,11 +605,12 @@ describe('Ticket', () => {
         })
     })
     describe('Validations', () => {
-        describe('propertyAddress', () => {
+        describe('propertyAddress and propertyAddressMeta', () => {
             test('Should be filled resolved automatically on ticket creation', async () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(client, client.organization, client.property)
                 expect(ticket).toHaveProperty('propertyAddress', client.property.address)
+                expect(ticket).toHaveProperty('propertyAddressMeta', client.property.addressMeta)
             })
             test('Should be changed after property changed', async () => {
                 const client = await makeClientWithProperty()
@@ -619,6 +620,7 @@ describe('Ticket', () => {
                     property: { connect: { id: newProperty.id } },
                 })
                 expect(updatedTicket).toHaveProperty('propertyAddress', newProperty.address)
+                expect(updatedTicket).toHaveProperty('propertyAddressMeta', newProperty.addressMeta)
             })
             test('Should be changed after address of linked property changed', async () => {
                 const client = await makeClientWithProperty()
@@ -635,6 +637,7 @@ describe('Ticket', () => {
                 const [changedTicket] = await Ticket.getAll(client, { id: ticket.id })
                 expect(changedTicket).toBeDefined()
                 expect(changedTicket).toHaveProperty('propertyAddress', client2.property.address)
+                expect(changedTicket).toHaveProperty('propertyAddressMeta', client2.property.addressMeta)
             })
 
             test('Cannot be changed to other address if property linked', async () => {
@@ -644,6 +647,11 @@ describe('Ticket', () => {
                 await expectToThrowValidationFailureError(async () => {
                     await updateTestTicket(client, ticket.id, {
                         propertyAddress: property.address,
+                    })
+                }, PROPERTY_ADDRESS_MISMATCH)
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestTicket(client, ticket.id, {
+                        propertyAddressMeta: property.addressMeta,
                     })
                 }, PROPERTY_ADDRESS_MISMATCH)
             })
