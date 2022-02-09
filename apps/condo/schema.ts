@@ -29926,6 +29926,8 @@ export type Ticket = {
   property?: Maybe<Property>;
   /**  Address of property, which synced with property and displayed, if property is deleted  */
   propertyAddress?: Maybe<Scalars['String']>;
+  /**  Address meta of property, which synced with property and used to form view of address, if property is deleted  */
+  propertyAddressMeta?: Maybe<AddressMetaField>;
   /**  Section name/number of an apartment building (property). You need to take from Property.map  */
   sectionName?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
@@ -30419,6 +30421,10 @@ export type TicketChange = {
   propertyAddressFrom?: Maybe<Scalars['String']>;
   /**  Address of property, which synced with property and displayed, if property is deleted  */
   propertyAddressTo?: Maybe<Scalars['String']>;
+  /**  Address meta of property, which synced with property and used to form view of address, if property is deleted  */
+  propertyAddressMetaFrom?: Maybe<Scalars['JSON']>;
+  /**  Address meta of property, which synced with property and used to form view of address, if property is deleted  */
+  propertyAddressMetaTo?: Maybe<Scalars['JSON']>;
   /**  Section name/number of an apartment building (property). You need to take from Property.map  */
   sectionNameFrom?: Maybe<Scalars['String']>;
   /**  Section name/number of an apartment building (property). You need to take from Property.map  */
@@ -30595,6 +30601,8 @@ export type TicketChangeCreateInput = {
   metaTo?: Maybe<Scalars['JSON']>;
   propertyAddressFrom?: Maybe<Scalars['String']>;
   propertyAddressTo?: Maybe<Scalars['String']>;
+  propertyAddressMetaFrom?: Maybe<Scalars['JSON']>;
+  propertyAddressMetaTo?: Maybe<Scalars['JSON']>;
   sectionNameFrom?: Maybe<Scalars['String']>;
   sectionNameTo?: Maybe<Scalars['String']>;
   floorNameFrom?: Maybe<Scalars['String']>;
@@ -30702,6 +30710,8 @@ export type TicketChangeUpdateInput = {
   metaTo?: Maybe<Scalars['JSON']>;
   propertyAddressFrom?: Maybe<Scalars['String']>;
   propertyAddressTo?: Maybe<Scalars['String']>;
+  propertyAddressMetaFrom?: Maybe<Scalars['JSON']>;
+  propertyAddressMetaTo?: Maybe<Scalars['JSON']>;
   sectionNameFrom?: Maybe<Scalars['String']>;
   sectionNameTo?: Maybe<Scalars['String']>;
   floorNameFrom?: Maybe<Scalars['String']>;
@@ -31094,6 +31104,14 @@ export type TicketChangeWhereInput = {
   propertyAddressTo_not_ends_with_i?: Maybe<Scalars['String']>;
   propertyAddressTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   propertyAddressTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  propertyAddressMetaFrom?: Maybe<Scalars['JSON']>;
+  propertyAddressMetaFrom_not?: Maybe<Scalars['JSON']>;
+  propertyAddressMetaFrom_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  propertyAddressMetaFrom_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  propertyAddressMetaTo?: Maybe<Scalars['JSON']>;
+  propertyAddressMetaTo_not?: Maybe<Scalars['JSON']>;
+  propertyAddressMetaTo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  propertyAddressMetaTo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sectionNameFrom?: Maybe<Scalars['String']>;
   sectionNameFrom_not?: Maybe<Scalars['String']>;
   sectionNameFrom_contains?: Maybe<Scalars['String']>;
@@ -32972,6 +32990,7 @@ export type TicketCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<PropertyRelateToOneInput>;
   propertyAddress?: Maybe<Scalars['String']>;
+  propertyAddressMeta?: Maybe<Scalars['JSON']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -33735,6 +33754,7 @@ export type TicketHistoryRecord = {
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   propertyAddress?: Maybe<Scalars['String']>;
+  propertyAddressMeta?: Maybe<Scalars['JSON']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -33785,6 +33805,7 @@ export type TicketHistoryRecordCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   propertyAddress?: Maybe<Scalars['String']>;
+  propertyAddressMeta?: Maybe<Scalars['JSON']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -33840,6 +33861,7 @@ export type TicketHistoryRecordUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   propertyAddress?: Maybe<Scalars['String']>;
+  propertyAddressMeta?: Maybe<Scalars['JSON']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -34082,6 +34104,10 @@ export type TicketHistoryRecordWhereInput = {
   propertyAddress_not_ends_with_i?: Maybe<Scalars['String']>;
   propertyAddress_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   propertyAddress_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  propertyAddressMeta?: Maybe<Scalars['JSON']>;
+  propertyAddressMeta_not?: Maybe<Scalars['JSON']>;
+  propertyAddressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  propertyAddressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sectionName?: Maybe<Scalars['String']>;
   sectionName_not?: Maybe<Scalars['String']>;
   sectionName_contains?: Maybe<Scalars['String']>;
@@ -35758,6 +35784,7 @@ export type TicketUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   property?: Maybe<PropertyRelateToOneInput>;
   propertyAddress?: Maybe<Scalars['String']>;
+  propertyAddressMeta?: Maybe<Scalars['JSON']>;
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
@@ -35979,6 +36006,10 @@ export type TicketWhereInput = {
   propertyAddress_not_ends_with_i?: Maybe<Scalars['String']>;
   propertyAddress_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   propertyAddress_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  propertyAddressMeta?: Maybe<Scalars['JSON']>;
+  propertyAddressMeta_not?: Maybe<Scalars['JSON']>;
+  propertyAddressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  propertyAddressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sectionName?: Maybe<Scalars['String']>;
   sectionName_not?: Maybe<Scalars['String']>;
   sectionName_contains?: Maybe<Scalars['String']>;
