@@ -104,9 +104,6 @@ class GQLError extends ApolloError {
 }
 
 module.exports = {
-    NOT_FOUND,
-    BAD_USER_INPUT,
-    INTERNAL_ERROR,
     GQLError,
     GQLErrorCode,
 }

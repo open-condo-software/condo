@@ -8,7 +8,7 @@ const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { BAD_USER_INPUT, NOT_FOUND, GQLError } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode } = require('@core/keystone/errors')
 
 async function ensureNotExists (context, field, value) {
     const existed = await UserServerUtils.getAll(context, { [field]: value, type: STAFF })
@@ -25,20 +25,20 @@ const errors = {
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
         mutation: 'registerNewUser',
         variable: ['data', 'confirmPhoneActionToken'],
-        code: NOT_FOUND,
+        code: GQLErrorCode.NOT_FOUND,
         message: 'Unable to find confirm phone action',
     },
     WRONG_PHONE_FORMAT: {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
-        code: BAD_USER_INPUT,
+        code: GQLErrorCode.BAD_USER_INPUT,
         message: 'Wrong format of provided phone number',
         correctExample: '+79991234567',
     },
     MIN_PASSWORD_LENGTH: {
         mutation: 'registerNewUser',
         variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
+        code: GQLErrorCode.BAD_USER_INPUT,
         message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
     },
 }
