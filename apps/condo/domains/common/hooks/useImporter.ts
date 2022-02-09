@@ -6,7 +6,7 @@ import {
     ObjectCreator,
     Columns,
     ProcessedRow,
-    ImporterErrorMessages,
+    ImporterErrorMessages, MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 import { useIntl } from '@core/next/intl'
 
@@ -23,7 +23,7 @@ interface IUseImporterProps {
     handleRowError: (row: ProcessedRow) => void,
     onFinish: () => void,
     onError: () => void,
-    codeToErrorMapping?
+    mutationErrorsToMessages?: MutationErrorsToMessagesType
 }
 
 export const useImporter = ({
@@ -37,7 +37,7 @@ export const useImporter = ({
     handleRowError,
     onFinish,
     onError,
-    codeToErrorMapping,
+    mutationErrorsToMessages,
 }: IUseImporterProps) => {
     const intl = useIntl()
     const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
@@ -65,7 +65,7 @@ export const useImporter = ({
         setProgress(0)
         setTotalRows(Math.max(0, data.length - 1))
 
-        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors, codeToErrorMapping, SLEEP_INTERVAL_BEFORE_QUERIES, maxTableLength)
+        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors, mutationErrorsToMessages, SLEEP_INTERVAL_BEFORE_QUERIES, maxTableLength)
         importer.current.onProgressUpdate(setProgress)
         importer.current.onError((e) => {
             importer.current = null

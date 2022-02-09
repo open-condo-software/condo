@@ -25,6 +25,7 @@ export type ImporterErrorMessages = {
     tooManyRows: string
     invalidTypes: string
 }
+export type MutationErrorsToMessagesType = { [errorCode: string]: string }
 
 interface IImporter {
     import: (data: Array<TableRow>) => Promise<void>
@@ -55,7 +56,7 @@ export class Importer implements IImporter {
         private rowValidator: RowValidator,
         private objectCreator: ObjectCreator,
         private errors: ImporterErrorMessages,
-        private codeToErrorMapping,
+        private mutationErrorsToMessages: MutationErrorsToMessagesType,
         private sleepInterval: number,
         private maxTableLength: number,
     ) {
@@ -212,11 +213,11 @@ export class Importer implements IImporter {
                                     mutationErrors.forEach(mutationError => {
                                         const mutationErrorMessages = get(mutationError, ['data', 'messages'])
                                         mutationErrorMessages.forEach(message => {
-                                            const errorCodes = Object.keys(this.codeToErrorMapping)
+                                            const errorCodes = Object.keys(this.mutationErrorsToMessages)
 
                                             errorCodes.forEach(code => {
                                                 if (message.includes(code)) {
-                                                    normalizedRow.errors.push(this.codeToErrorMapping[code])
+                                                    normalizedRow.errors.push(this.mutationErrorsToMessages[code])
                                                 }
                                             })
                                         })
