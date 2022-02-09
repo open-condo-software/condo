@@ -429,6 +429,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         fetchPolicy: 'network-only',
     })
 
+    console.log(ticket)
+
     const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
         where: { ticket: { id } },
         // @ts-ignore

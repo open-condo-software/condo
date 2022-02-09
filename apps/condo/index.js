@@ -83,6 +83,7 @@ if (!IS_BUILD_PHASE) {
     registerTasks([
         require('@condo/domains/notification/tasks'),
         require('@condo/domains/organization/tasks'),
+        require('@condo/domains/ticket/tasks'),
         require('@condo/domains/resident/tasks'),
     ])
 
