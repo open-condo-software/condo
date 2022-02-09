@@ -290,6 +290,8 @@ const TicketContent = ({ ticket }) => {
         </>
     ), [TicketUnitMessage, renderPostfix, streetPart, ticket, ticketUnit])
 
+    const contactId = get(ticket, ['contact', 'id'])
+
     return (
         <Col span={24}>
             <Row gutter={[0, 40]}>
@@ -311,16 +313,27 @@ const TicketContent = ({ ticket }) => {
                             }
                         </PageFieldRow>
                         <PageFieldRow title={ClientMessage} highlight>
-                            <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
-                                <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                                    <TicketUserInfoField
-                                        user={{
-                                            name: get(ticket, 'clientName'),
-                                            phone: get(ticket, 'clientPhone'),
-                                        }}
-                                    />
-                                </Typography.Link>
-                            </Link>
+                            {
+                                contactId
+                                    ? <Link href={`/contact/${contactId}`}>
+                                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
+                                            <TicketUserInfoField
+                                                user={{
+                                                    name: get(ticket, 'clientName'),
+                                                    phone: get(ticket, 'clientPhone'),
+                                                }}
+                                            />
+                                        </Typography.Link>
+                                    </Link>
+                                    : <Typography.Text>
+                                        <TicketUserInfoField
+                                            user={{
+                                                name: get(ticket, 'clientName'),
+                                                phone: get(ticket, 'clientPhone'),
+                                            }}
+                                        />
+                                    </Typography.Text>
+                            }
                         </PageFieldRow>
                         <PageFieldRow title={TicketInfoMessage}>
                             {ticket.details}
