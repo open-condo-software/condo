@@ -39,7 +39,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import { BaseType } from 'antd/lib/typography/Base'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
@@ -52,6 +52,21 @@ interface ITicketFileListProps {
 const UploadListWrapperStyles = css`
   .ant-upload-list-text-container:first-child .ant-upload-list-item {
     margin-top: 0;
+  }
+  
+  & .ant-upload-span a.ant-upload-list-item-name {
+    color: ${colors.black};
+    text-decoration: underline;
+    text-decoration-color: ${colors.lightGrey[5]};
+  }
+  
+  .ant-upload-span .ant-upload-text-icon {
+    font-size: ${fontSizes.content};
+    
+    & .anticon-paper-clip.anticon {
+      font-size: ${fontSizes.content};
+      color: #52c41a;
+    }
   }
 `
 
