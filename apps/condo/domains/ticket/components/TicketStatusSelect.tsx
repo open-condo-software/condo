@@ -19,7 +19,9 @@ interface IStyledSelect {
 const StyledSelect = styled(Select)<IStyledSelect>`
   width: 100%;
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: 8px;
+  padding: 0 8px;
+  box-sizing: border-box;
   color: ${({ color }) => color};
   background-color: ${({ backgroundColor }) => backgroundColor};
 
