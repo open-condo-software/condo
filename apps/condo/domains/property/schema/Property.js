@@ -29,6 +29,7 @@ const access = require('@condo/domains/property/access/Property')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 
 const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
+const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
 
 
 const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
@@ -295,7 +296,7 @@ const Property = new GQLListSchema('Property', {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown 'dv'`)
             }
         },
-        afterChange: async ({ operation, existingItem, updatedItem, context }) => {
+        afterChange: async ({ operation, existingItem, updatedItem }) => {
             const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
             const isCreatedProperty = operation === 'create' && Boolean(updatedItem.address)
             const isRestoredProperty = operation === 'update' && Boolean(existingItem.deletedAt) && !updatedItem.deletedAt
@@ -306,6 +307,8 @@ const Property = new GQLListSchema('Property', {
             // We handle resident reconnections only for these operation types
             if (isCreatedProperty || isRestoredProperty || isSoftDeleteOperation || isAddressUpdated) {
                 if (isAddressUpdated) {
+                    // Change linked tickets "propertyAddress"
+                    await manageTicketPropertyAddressChange.delay(updatedItem.id, updatedItem.address)
                     // Reconnect residents (if any) to oldest non-deleted property with address = updatedItem.address
                     await manageResidentToPropertyAndOrganizationConnections.delay(updatedItem.address)
                 }
