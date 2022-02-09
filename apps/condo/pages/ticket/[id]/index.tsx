@@ -122,9 +122,15 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
 }
 
 const TicketTag = styled(Tag)`
+  &.ant-tag {
+    border-radius: 100px;
+    padding: 2px 10px 4px;
+  }
+  
   font-size: ${fontSizes.content};
   line-height: 24px;
 `
+
 const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
 const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
 
