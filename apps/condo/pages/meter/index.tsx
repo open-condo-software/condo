@@ -96,10 +96,10 @@ export const MetersPageContent = ({
     const handleMultipleFiltersButtonClick = useCallback(() => setIsMultipleFiltersModalVisible(true),
         [setIsMultipleFiltersModalVisible])
 
-    const codeToErrorMapping = {
+    const mutationErrorsToMessages = useMemo(() => ({
         [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: MeterAccountNumberExistInOtherUnitMessage,
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: MeterNumberExistInOrganizationMessage,
-    }
+    }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage])
 
     return (
         <>
@@ -144,7 +144,7 @@ export const MetersPageContent = ({
                                                                 objectCreator={meterReadingCreator}
                                                                 domainTranslate={MeterReadingImportObjectsNameManyGenitive}
                                                                 exampleTemplateLink={'/meter-import-example.xlsx'}
-                                                                codeToErrorMapping={codeToErrorMapping}
+                                                                mutationErrorsToMessages={mutationErrorsToMessages}
                                                             >
                                                                 <Button
                                                                     type={'sberPrimary'}
