@@ -101,7 +101,7 @@ const PdfView = () => {
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
 
-    const { loading, obj: ticket, error } = Ticket.useObject({ where: { id:id, property: { OR: [{ deletedAt_not: null }, { deletedAt: null }] } } })
+    const { loading, obj: ticket, error } = Ticket.useObject({ where: { id:id } })
 
     useEffect(() => {
         if (ticket) {
@@ -124,7 +124,7 @@ const PdfView = () => {
     }
 
     const TicketCreationDate = getTicketCreateMessage(intl, ticket)
-    const ticketAddress = get(ticket, ['property', 'address'])
+    const ticketAddress = get(ticket, ['propertyAddress'])
         + (ticket.sectionName && ticket.floorName ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}` : '')
         + (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
     const isEmergency = get(ticket, 'isEmergency')
