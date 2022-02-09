@@ -309,7 +309,7 @@ const TicketContent = ({ ticket }) => {
                     </PageFieldRow>
                 )}
                 <PageFieldRow title={ClassifierMessage}>
-                    <Breadcrumb separator="≫">
+                    <Breadcrumb separator="»">
                         {
                             ticketClassifierNames.map((name, index) => {
                                 return (
