@@ -20,6 +20,7 @@ describe('SigninResidentUserService', () => {
             const [updatedToken] = await ConfirmPhoneActionTestUtils.getAll(admin, { token: token.token })
             expect(updatedToken.completedAt).not.toBe(null)
         })
+
         it('can signin with confirmed phone token', async () => {
             const admin = await makeLoggedInAdminClient()
             const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
@@ -37,6 +38,7 @@ describe('SigninResidentUserService', () => {
             const [updatedToken] = await ConfirmPhoneActionTestUtils.getAll(admin, { token: token.token })
             expect(updatedToken.completedAt).not.toBe(null)
         })
+
         it('can not register with expired phone token', async () => {
             const admin = await makeLoggedInAdminClient()
             const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true, expiresAt: new Date().toISOString() })
@@ -58,6 +60,7 @@ describe('SigninResidentUserService', () => {
                 },
             }])
         })
+
         it('can not register with used phone token', async () => {
             const admin = await makeLoggedInAdminClient()
             const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true, completedAt: new Date().toISOString() })
@@ -79,6 +82,7 @@ describe('SigninResidentUserService', () => {
                 },
             }])
         })
+        
         it('can not register with not confirmed phone token', async () => {
             const admin = await makeLoggedInAdminClient()
             const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: false })
