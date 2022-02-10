@@ -245,7 +245,9 @@ const TicketContent = ({ ticket }) => {
         (index: number): BaseType => index !== ticketClassifierNames.length - 1 ? null : 'secondary',
         [ticketClassifierNames.length])
 
-    const { streetPart, renderPostfix } = getAddressDetails({ address: ticket.propertyAddress, addressMeta: ticket.propertyAddressMeta })
+    const address = get(ticket, ['property', 'address'], ticket.propertyAddress)
+    const addressMeta = get(ticket, ['property', 'addressMeta'], ticket.propertyAddressMeta)
+    const { streetPart, renderPostfix } = getAddressDetails({ address, addressMeta })
 
     const TicketUnitMessage = useCallback(() => (
         <Typography.Paragraph style={{ margin: 0 }}>
