@@ -497,8 +497,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]} justify={'space-between'}>
-                        <Col lg={15} xs={24}>
+                    <Row gutter={[0, 40]}>
+                        <Col lg={16} xs={24}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
@@ -640,7 +640,7 @@ const TicketIdPage = () => {
     return <TicketPageContent organization={organization} employee={link} TicketContent={TicketContent} />
 }
 
-TicketIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket'}/>
+TicketIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.ControlRoom' }} path={'/ticket'}/>
 TicketIdPage.requiredAccess = OrganizationRequired
 
 export default TicketIdPage
