@@ -40,6 +40,14 @@ export type AcquiringIntegration = {
   sender?: Maybe<SenderField>;
   /**  Name of `acquiring component`, which is set up by developer  */
   name?: Maybe<Scalars['String']>;
+  /**  Short acquiring description, that would be shown on settings card  */
+  shortDescription?: Maybe<Scalars['String']>;
+  /**  Title of confirmation/details page of integration  */
+  detailsTitle?: Maybe<Scalars['String']>;
+  /**  Text of confirmation/details page of integration written in markdown  */
+  detailsText?: Maybe<Scalars['String']>;
+  /**  Indicates whether this integration is hidden inside the CRM  */
+  isHidden?: Maybe<Scalars['Boolean']>;
   accessRights: Array<AcquiringIntegrationAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
   /**  Can multiple receipts be united through this acquiring  */
@@ -778,6 +786,10 @@ export type AcquiringIntegrationCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
@@ -806,6 +818,10 @@ export type AcquiringIntegrationHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
@@ -826,6 +842,10 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
@@ -851,6 +871,10 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
@@ -899,6 +923,62 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription?: Maybe<Scalars['String']>;
+  shortDescription_not?: Maybe<Scalars['String']>;
+  shortDescription_contains?: Maybe<Scalars['String']>;
+  shortDescription_not_contains?: Maybe<Scalars['String']>;
+  shortDescription_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_i?: Maybe<Scalars['String']>;
+  shortDescription_not_i?: Maybe<Scalars['String']>;
+  shortDescription_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_not_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsTitle_not?: Maybe<Scalars['String']>;
+  detailsTitle_contains?: Maybe<Scalars['String']>;
+  detailsTitle_not_contains?: Maybe<Scalars['String']>;
+  detailsTitle_starts_with?: Maybe<Scalars['String']>;
+  detailsTitle_not_starts_with?: Maybe<Scalars['String']>;
+  detailsTitle_ends_with?: Maybe<Scalars['String']>;
+  detailsTitle_not_ends_with?: Maybe<Scalars['String']>;
+  detailsTitle_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_i?: Maybe<Scalars['String']>;
+  detailsTitle_contains_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_contains_i?: Maybe<Scalars['String']>;
+  detailsTitle_starts_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_ends_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsText?: Maybe<Scalars['String']>;
+  detailsText_not?: Maybe<Scalars['String']>;
+  detailsText_contains?: Maybe<Scalars['String']>;
+  detailsText_not_contains?: Maybe<Scalars['String']>;
+  detailsText_starts_with?: Maybe<Scalars['String']>;
+  detailsText_not_starts_with?: Maybe<Scalars['String']>;
+  detailsText_ends_with?: Maybe<Scalars['String']>;
+  detailsText_not_ends_with?: Maybe<Scalars['String']>;
+  detailsText_i?: Maybe<Scalars['String']>;
+  detailsText_not_i?: Maybe<Scalars['String']>;
+  detailsText_contains_i?: Maybe<Scalars['String']>;
+  detailsText_not_contains_i?: Maybe<Scalars['String']>;
+  detailsText_starts_with_i?: Maybe<Scalars['String']>;
+  detailsText_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsText_ends_with_i?: Maybe<Scalars['String']>;
+  detailsText_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isHidden?: Maybe<Scalars['Boolean']>;
+  isHidden_not?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   canGroupReceipts_not?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
@@ -1013,6 +1093,10 @@ export type AcquiringIntegrationUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
@@ -1060,6 +1144,62 @@ export type AcquiringIntegrationWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription?: Maybe<Scalars['String']>;
+  shortDescription_not?: Maybe<Scalars['String']>;
+  shortDescription_contains?: Maybe<Scalars['String']>;
+  shortDescription_not_contains?: Maybe<Scalars['String']>;
+  shortDescription_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_i?: Maybe<Scalars['String']>;
+  shortDescription_not_i?: Maybe<Scalars['String']>;
+  shortDescription_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_not_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsTitle?: Maybe<Scalars['String']>;
+  detailsTitle_not?: Maybe<Scalars['String']>;
+  detailsTitle_contains?: Maybe<Scalars['String']>;
+  detailsTitle_not_contains?: Maybe<Scalars['String']>;
+  detailsTitle_starts_with?: Maybe<Scalars['String']>;
+  detailsTitle_not_starts_with?: Maybe<Scalars['String']>;
+  detailsTitle_ends_with?: Maybe<Scalars['String']>;
+  detailsTitle_not_ends_with?: Maybe<Scalars['String']>;
+  detailsTitle_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_i?: Maybe<Scalars['String']>;
+  detailsTitle_contains_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_contains_i?: Maybe<Scalars['String']>;
+  detailsTitle_starts_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_ends_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsText?: Maybe<Scalars['String']>;
+  detailsText_not?: Maybe<Scalars['String']>;
+  detailsText_contains?: Maybe<Scalars['String']>;
+  detailsText_not_contains?: Maybe<Scalars['String']>;
+  detailsText_starts_with?: Maybe<Scalars['String']>;
+  detailsText_not_starts_with?: Maybe<Scalars['String']>;
+  detailsText_ends_with?: Maybe<Scalars['String']>;
+  detailsText_not_ends_with?: Maybe<Scalars['String']>;
+  detailsText_i?: Maybe<Scalars['String']>;
+  detailsText_not_i?: Maybe<Scalars['String']>;
+  detailsText_contains_i?: Maybe<Scalars['String']>;
+  detailsText_not_contains_i?: Maybe<Scalars['String']>;
+  detailsText_starts_with_i?: Maybe<Scalars['String']>;
+  detailsText_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailsText_ends_with_i?: Maybe<Scalars['String']>;
+  detailsText_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailsText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isHidden?: Maybe<Scalars['Boolean']>;
+  isHidden_not?: Maybe<Scalars['Boolean']>;
   /**  condition must be true for all nodes  */
   accessRights_every?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -26697,6 +26837,14 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
+  DetailsTitleAsc = 'detailsTitle_ASC',
+  DetailsTitleDesc = 'detailsTitle_DESC',
+  DetailsTextAsc = 'detailsText_ASC',
+  DetailsTextDesc = 'detailsText_DESC',
+  IsHiddenAsc = 'isHidden_ASC',
+  IsHiddenDesc = 'isHidden_DESC',
   CanGroupReceiptsAsc = 'canGroupReceipts_ASC',
   CanGroupReceiptsDesc = 'canGroupReceipts_DESC',
   HostUrlAsc = 'hostUrl_ASC',
@@ -26722,6 +26870,14 @@ export enum SortAcquiringIntegrationsBy {
   DvDesc = 'dv_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
+  DetailsTitleAsc = 'detailsTitle_ASC',
+  DetailsTitleDesc = 'detailsTitle_DESC',
+  DetailsTextAsc = 'detailsText_ASC',
+  DetailsTextDesc = 'detailsText_DESC',
+  IsHiddenAsc = 'isHidden_ASC',
+  IsHiddenDesc = 'isHidden_DESC',
   AccessRightsAsc = 'accessRights_ASC',
   AccessRightsDesc = 'accessRights_DESC',
   CanGroupReceiptsAsc = 'canGroupReceipts_ASC',

@@ -11,6 +11,7 @@ const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/er
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
+const { Markdown } = require('@keystonejs/fields-markdown')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
@@ -22,6 +23,32 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         name: {
             schemaDoc: 'Name of `acquiring component`, which is set up by developer',
             type: Text,
+            isRequired: true,
+        },
+
+        shortDescription: {
+            schemaDoc: 'Short acquiring description, that would be shown on settings card',
+            type: Text,
+            isRequired: false,
+        },
+
+        detailsTitle: {
+            schemaDoc: 'Title of confirmation/details page of integration',
+            type: Text,
+            isRequired: false,
+        },
+
+        detailsText: {
+            schemaDoc: 'Text of confirmation/details page of integration written in markdown',
+            type: Markdown,
+            isRequired: false,
+        },
+
+        // TODO(DOMA-1647): Need better solution, used to test UPS flow for now
+        isHidden: {
+            schemaDoc: 'Indicates whether this integration is hidden inside the CRM',
+            type: Checkbox,
+            defaultValue: false,
             isRequired: true,
         },
 
