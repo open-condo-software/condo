@@ -1,9 +1,10 @@
 import dayjs from 'dayjs'
 import { useIntl } from '@core/next/intl'
 import React, { useCallback, useState } from 'react'
-import { Col, DatePicker, Form, Row, Typography } from 'antd'
+import { Col, DatePicker, Row, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import { TicketFormItem } from './index'
+import get from 'lodash/get'
 
 const INITIAL_DEADLINE_VALUE = dayjs().add(8, 'day')
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
@@ -12,12 +13,14 @@ const AUTO_DETECTED_DEADLINE_ROW_STYLE = { height: '100%' }
 const TICKET_DEADLINE_FIELD_ROW_GUTTER: [Gutter, Gutter] = [40, 0]
 const DATE_PICKER_STYLE = { width: '100%' }
 
-export const TicketDeadlineField = ({ initialValue }) => {
+export const TicketDeadlineField = ({ initialValues }) => {
     const intl = useIntl()
     const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
     const AutoCompletionMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion' })
 
-    const [isAutoDetectedValue, setIsAutoDetectedValue] = useState<boolean>(!initialValue)
+    const isExistedTicket = get(initialValues, 'property')
+
+    const [isAutoDetectedValue, setIsAutoDetectedValue] = useState<boolean>(!isExistedTicket)
 
     const handleTicketDeadlineChange = useCallback(() => {
         setIsAutoDetectedValue(false)

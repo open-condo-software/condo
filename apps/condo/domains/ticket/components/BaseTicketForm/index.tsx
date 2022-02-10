@@ -184,7 +184,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                             <Typography.Title level={4}>{TicketDeadlineLabel}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <TicketDeadlineField initialValue={initialValues.deadline} />
+                            <TicketDeadlineField initialValues={initialValues} />
                         </Col>
                     </Row>
                 </Col>

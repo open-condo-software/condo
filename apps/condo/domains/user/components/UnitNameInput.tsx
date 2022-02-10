@@ -16,6 +16,8 @@ export interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange
 
 // TODO(Dimitreee): move search to serverside
 const getOptionGroupBySectionType = (groupLabel, sections) => {
+    if (!sections) return
+
     const unflattenUnits = sections.map((section) => {
         const floors = get(section, ['floors'], [])
 
