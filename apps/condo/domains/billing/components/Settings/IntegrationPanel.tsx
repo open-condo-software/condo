@@ -1,15 +1,19 @@
 import React from 'react'
 import styled from '@emotion/styled'
-import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
 import { Row, Tooltip, Typography, Col } from 'antd'
-import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
+
+import { useIntl } from '@core/next/intl'
+
+import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
 import { Tag, TagType } from '@condo/domains/common/components/Tag'
+
 
 export type CardStatuses = 'available' | 'inProgress' | 'done' | 'disabled' | 'error'
 
 interface IIntegrationPanelProps {
-    integrationId: string
+    integrationUrlPrefix: string
+    integrationUrlId: string
     title: string
     shortDescription: string
     status: CardStatuses
@@ -33,7 +37,8 @@ const CardContainer = styled.div`
 `
 
 export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
-    integrationId,
+    integrationUrlPrefix,
+    integrationUrlId,
     title,
     shortDescription,
     status }) => {
@@ -75,7 +80,7 @@ export const IntegrationPanel: React.FC<IIntegrationPanelProps> = ({
 
 
     const router = useRouter()
-    const onSelectPushRoute = `/settings/integration/${integrationId}/`
+    const onSelectPushRoute = `/settings/${integrationUrlPrefix}/${integrationUrlId}/`
     const onClickEvent = () => {
         router.push(onSelectPushRoute)
     }

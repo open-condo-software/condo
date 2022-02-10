@@ -20,11 +20,12 @@ interface IIntegrationChooser {
     integrationContextModel: any,
     integrationMessages: {
         oneIntegrationWarningMessage: string,
-    }
+    },
+    integrationPanelUrlPrefix: string
 }
 
 export const IntegrationChooser: React.FC<IIntegrationChooser> = (
-    { integrationModel, integrationContextModel, integrationMessages },
+    { integrationModel, integrationContextModel, integrationMessages, integrationPanelUrlPrefix },
 ) => {
     const intl = useIntl()
 
@@ -119,7 +120,8 @@ export const IntegrationChooser: React.FC<IIntegrationChooser> = (
                                         }}
                                     >
                                         <IntegrationPanel
-                                            integrationId={integration.id}
+                                            integrationUrlPrefix={integrationPanelUrlPrefix}
+                                            integrationUrlId={integration.id}
                                             title={integration.name}
                                             shortDescription={get(integration, 'shortDescription')}
                                             status={status}
