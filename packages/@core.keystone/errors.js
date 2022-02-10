@@ -70,6 +70,9 @@ const CONFLICT = 'CONFLICT'
 const BAD_USER_INPUT = 'BAD_USER_INPUT'
 // Generic error, that something went wrong at server side, though user input was correct
 const INTERNAL_ERROR = 'INTERNAL_ERROR'
+// Access denied. Semantically it corresponds to 403 HTTP code
+const FORBIDDEN = 'FORBIDDEN'
+
 
 /**
  * First level of error classification, used in custom GraphQL queries or mutations
@@ -83,6 +86,7 @@ const GQLErrorCode = {
     CONFLICT,
     BAD_USER_INPUT,
     INTERNAL_ERROR,
+    FORBIDDEN,
 }
 
 // A record with specified set of field values already exists, so, the request violates unique constraints
