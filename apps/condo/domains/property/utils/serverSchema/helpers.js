@@ -29,13 +29,13 @@ const getAddressUpToBuildingFrom = (addressMeta) => {
  */
 const normalizePropertyMap = ({ sections, parking, ...restMapProps }) => ({
     ...restMapProps,
-    parking: parking.map(({ floors, ...restSectionProps }) => ({
+    parking: !isNull(parking) ? parking.map(({ floors, ...restSectionProps }) => ({
         ...restSectionProps,
         floors: floors.map(({ units, ...restFloorProps }) => ({
             ...restFloorProps,
             units: units.map(unit => omitBy(unit, isNull)),
         })),
-    })),
+    })) : [],
     sections: sections.map(({ floors, ...restSectionProps }) => ({
         ...restSectionProps,
         floors: floors.map(({ units, ...restFloorProps }) => ({
