@@ -107,7 +107,7 @@ describe('helpers', () => {
             expect(sanitizedMap).toStrictEqual(mapWithoutNameInUnit)
         })
 
-        it('should correct resolve null values at parking section', () => {
+        it('should correctly resolve null values at parking section', () => {
             const map = {
                 'dv': 1,
                 'type': 'building',
