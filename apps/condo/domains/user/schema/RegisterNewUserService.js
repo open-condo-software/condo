@@ -29,7 +29,7 @@ const errors = {
         message: 'Wrong format of provided phone number',
         correctExample: '+79991234567',
     },
-    MIN_PASSWORD_LENGTH: {
+    PASSWORD_IS_TOO_SHORT: {
         mutation: 'registerNewUser',
         variable: ['data', 'password'],
         code: GQLErrorCode.BAD_USER_INPUT,
@@ -118,7 +118,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
 
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(errors.MIN_PASSWORD_LENGTH)
+                    throw new GQLError(errors.PASSWORD_IS_TOO_SHORT)
                 }
                 // TODO(zuch): fix bug when user can not be created because of createAt and updatedAt fields
                 // const user = await UserServerUtils.create(context, userData)
