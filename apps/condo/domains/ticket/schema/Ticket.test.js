@@ -5,7 +5,7 @@ const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowValidationFailureError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowUserInputError } = require('@condo/domains/common/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganizationLink, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const faker = require('faker')
@@ -16,7 +16,6 @@ const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/prop
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
-const { PROPERTY_ADDRESS_MISMATCH } = require('../constants/errors')
 const dayjs = require('dayjs')
 
 describe('Ticket', () => {
@@ -643,20 +642,30 @@ describe('Ticket', () => {
                 expect(changedTicket).toHaveProperty('propertyAddressMeta', client2.property.addressMeta)
             })
 
-            test('Cannot be changed to other address if property linked', async () => {
+            test('Cannot be created / changed manually', async () => {
                 const client = await makeClientWithProperty()
                 const [property] = await createTestProperty(client, client.organization)
                 const [ticket] = await createTestTicket(client, client.organization, client.property)
-                await expectToThrowValidationFailureError(async () => {
+                await expectToThrowUserInputError(async () => {
                     await updateTestTicket(client, ticket.id, {
                         propertyAddress: property.address,
                     })
-                }, PROPERTY_ADDRESS_MISMATCH)
-                await expectToThrowValidationFailureError(async () => {
+                }, 'Field "propertyAddress" is not defined by type "TicketUpdateInput"')
+                await expectToThrowUserInputError(async () => {
                     await updateTestTicket(client, ticket.id, {
                         propertyAddressMeta: property.addressMeta,
                     })
-                }, PROPERTY_ADDRESS_MISMATCH)
+                }, 'Field "propertyAddressMeta" is not defined by type "TicketUpdateInput"')
+                await expectToThrowUserInputError(async () => {
+                    await createTestTicket(client, client.organization, client.property, {
+                        propertyAddress: property.address,
+                    })
+                }, 'Field "propertyAddress" is not defined by type "TicketCreateInput"')
+                await expectToThrowUserInputError(async () => {
+                    await createTestTicket(client, client.organization, client.property, {
+                        propertyAddressMeta: property.addressMeta,
+                    })
+                }, 'Field "propertyAddressMeta" is not defined by type "TicketCreateInput"')
             })
             test('Should be unchanged on Property softDeletion', async () => {
                 const client = await makeClientWithProperty()

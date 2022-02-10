@@ -3,11 +3,10 @@
  */
 
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema, getById } = require('@core/keystone/schema')
+const { GQLListSchema, getByCondition } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const get = require('lodash/get')
-const isEqual = require('lodash/isEqual')
 const { addClientInfoToResidentTicket, addOrderToTicket } = require('../utils/serverSchema/resolveHelpers')
 
 const { SENDER_FIELD, DV_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CONTACT_FIELD, CLIENT_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
@@ -23,7 +22,6 @@ const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, 
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { TERMINAL_TICKET_STATUS_IDS } = require('../constants/statusTransitions')
-const { PROPERTY_ADDRESS_MISMATCH } = require('../constants/errors')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -242,28 +240,24 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Address of property, which synced with property and displayed, if property is deleted',
             type: Text,
             isRequired: true,
-            hooks: {
-                resolveInput: async ({ resolvedData, existingItem, fieldPath }) => {
-                    if (resolvedData['property'] && resolvedData['property'] !== get(existingItem, 'property')) {
-                        const property = await getById('Property', resolvedData['property'])
-                        return property.address
-                    }
-                    return resolvedData[fieldPath]
-                },
+            // USED TO REMOVE FIELDS FROM SCHEMA DOC FOR CREATE / UPDATE OPERATIONS
+            access: {
+                create: false,
+                read: true,
+                update: false,
+                delete: false,
             },
         },
         propertyAddressMeta: {
             ...ADDRESS_META_FIELD,
             schemaDoc: 'Address meta of property, which synced with property and used to form view of address, if property is deleted',
             isRequired: true,
-            hooks: {
-                resolveInput: async ({ resolvedData, existingItem, fieldPath }) => {
-                    if (resolvedData['property'] && resolvedData['property'] !== get(existingItem, 'property')) {
-                        const property = await getById('Property', resolvedData['property'])
-                        return property.addressMeta
-                    }
-                    return resolvedData[fieldPath]
-                },
+            // USED TO REMOVE FIELDS FROM SCHEMA DOC FOR CREATE / UPDATE OPERATIONS
+            access: {
+                create: false,
+                read: true,
+                update: false,
+                delete: false,
             },
         },
 
@@ -314,6 +308,18 @@ const Ticket = new GQLListSchema('Ticket', {
                 await addClientInfoToResidentTicket(context, resolvedData)
             }
 
+            const newItem = { ...existingItem, ...resolvedData }
+            const propertyId = get(newItem, 'property', null)
+            const property = await getByCondition('Property', {
+                id: propertyId,
+                deletedAt: null,
+            })
+            // If property was soft- or hard-deleted = keep existing data = don't modify propertyAddress and propertyAddressMeta
+            if (property) {
+                resolvedData.propertyAddress = property.address
+                resolvedData.propertyAddressMeta = property.addressMeta
+            }
+
             return resolvedData
         },
         validateInput: async ({ resolvedData, existingItem, addValidationError, context }) => {
@@ -332,23 +338,6 @@ const Ticket = new GQLListSchema('Ticket', {
                         if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.createdAt)) {
                             return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
                         }
-                    }
-                }
-                const propertyChanged = resolvedData['property'] && resolvedData['property'] !== get(existingItem, 'property')
-                const propertyAddressChanged = resolvedData['propertyAddress'] && resolvedData['propertyAddress'] !== get(existingItem, 'propertyAddress')
-                const propertyAddressMetaChanged = resolvedData['propertyAddressMeta'] && resolvedData['propertyAddressMeta'] !== get(existingItem, 'propertyAddressMeta')
-                const newItem = { ...existingItem, ...resolvedData }
-                if (propertyChanged || propertyAddressChanged || propertyAddressMetaChanged) {
-                    const propertyId = get(newItem, 'property', null)
-                    const property = await getById('Property', propertyId)
-                    if (!property) return addValidationError('Cannot find property with matching ID')
-                    const propertyAddress = get(newItem, 'propertyAddress', 'DELETED')
-                    if (property.address !== propertyAddress) {
-                        return addValidationError(`${PROPERTY_ADDRESS_MISMATCH} Synced values of property.address and propertyAddress does not match`)
-                    }
-                    const propertyAddressMeta = get(newItem, 'propertyAddressMeta', {})
-                    if (!isEqual(propertyAddressMeta, property.addressMeta)) {
-                        return addValidationError(`${PROPERTY_ADDRESS_MISMATCH} Synced values of property.addressMeta and propertyAddressMeta does not match`)
                     }
                 }
             } else {
