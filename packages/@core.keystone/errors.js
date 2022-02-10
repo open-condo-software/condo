@@ -91,10 +91,13 @@ const GQLErrorCode = {
 
 // A record with specified set of field values already exists, so, the request violates unique constraints
 const NOT_UNIQUE = 'NOT_UNIQUE'
+// Provided value does not matches specified format. For example not matches regexp, string length requirement etc.
+const WRONG_FORMAT = 'WRONG_FORMAT'
 
 // Second level of error classification
 const GQLErrorType = {
     NOT_UNIQUE,
+    WRONG_FORMAT,
 }
 
 /**
