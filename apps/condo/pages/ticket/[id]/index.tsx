@@ -38,7 +38,7 @@ import { compact, get, isEmpty } from 'lodash'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import dayjs from 'dayjs'
 import { BaseType } from 'antd/lib/typography/Base'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -65,7 +65,7 @@ const UploadListWrapperStyles = css`
     
     & .anticon-paper-clip.anticon {
       font-size: ${fontSizes.content};
-      color: #52c41a;
+      color: ${colors.green[5]};
     }
   }
 `
@@ -386,6 +386,9 @@ const TicketContent = ({ ticket }) => {
     )
 }
 
+const TICKET_CREATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px' }
+const TICKET_UPDATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px', textAlign: 'end' }
+
 export const TicketPageContent = ({ organization, employee, TicketContent }) => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
@@ -510,11 +513,11 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                 <Col span={24}>
                                                     <Row>
                                                         <Col span={24}>
-                                                            <Typography.Text style={{ margin: 0, fontSize: '12px' }}>
-                                                                <Typography.Text style={{ margin: 0, fontSize: '12px' }} type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                                                            <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                                                <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE} type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
                                                                 <UserNameField user={get(ticket, ['createdBy'])}>
                                                                     {({ name, postfix }) => (
-                                                                        <Typography.Text style={{ margin: 0, fontSize: '12px' }}>
+                                                                        <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                                             {name}
                                                                             {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
                                                                         </Typography.Text>
@@ -523,7 +526,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                             </Typography.Text>
                                                         </Col>
                                                         <Col span={24}>
-                                                            <Typography.Text type='secondary' style={{ margin: 0, fontSize: '12px' }}>
+                                                            <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                                 {SourceMessage} — {get(ticket, ['source', 'name'])}
                                                             </Typography.Text>
                                                         </Col>
@@ -545,10 +548,10 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                 {
                                                     statusUpdatedAt && (
                                                         <Col>
-                                                            <Typography.Paragraph style={{ margin: 0, fontSize: '12px', textAlign: 'end' }}>
+                                                            <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
                                                                 {ChangedMessage}: {dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm')}
                                                             </Typography.Paragraph>
-                                                            <Typography.Paragraph style={{ margin: 0, fontSize: '12px', textAlign: 'end' }} type={'secondary'}>
+                                                            <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE} type={'secondary'}>
                                                                 {TimeHasPassedMessage.replace('${time}', getTimeSinceCreation())}
                                                             </Typography.Paragraph>
                                                         </Col>
