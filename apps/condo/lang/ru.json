@@ -738,7 +738,7 @@
   "ticket.assignments.executor.OnOtherDivisions": "Сотрудники на других участках",
   "ticket.assignments.executor.Other": "Остальные сотрудники",
   "ticket.assignments.executor.All": "Все сотрудники",
-  "ticket.deadline.AutoCompletion": "Дата определена автоматически (+2 дня)",
+  "ticket.deadline.AutoCompletion": "Дата определена автоматически (+8 дней)",
   "ticket.deadline.CompleteBefore": "Выполнить до…",
   "ticket.deadline.ToComplete": "На выполнение {days}",
   "ticket.deadline.LessThenDay": "На выполнение менее 24ч.",

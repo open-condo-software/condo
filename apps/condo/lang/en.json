@@ -738,7 +738,7 @@
   "ticket.assignments.executor.OnOtherDivisions": "Employees on other divisions",
   "ticket.assignments.executor.Other": "Other employees",
   "ticket.assignments.executor.All": "All employees",
-  "ticket.deadline.AutoCompletion": "Date determined automatically (+2 days)",
+  "ticket.deadline.AutoCompletion": "Date determined automatically (+8 days)",
   "ticket.deadline.CompleteBefore": "Complete before…",
   "ticket.deadline.ToComplete": "To complete {days}",
   "ticket.deadline.LessThenDay": "To be completed in less than 24 hours",
