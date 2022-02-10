@@ -16,7 +16,7 @@ const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constant
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
 
 describe('RegisterNewServiceUserService', () => {
-    test('register new service user', async () => {
+    test('admin can create service user', async () => {
         const client = await makeLoggedInAdminClient()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
         const [user] = await registerNewServiceUserByTestClient(client, { name })
@@ -42,7 +42,7 @@ describe('RegisterNewServiceUserService', () => {
         })
         expect(JSON.stringify(errors)).toMatch(EMAIL_ALREADY_REGISTERED_ERROR)
     })
-    test('support create service user', async () => {
+    test('support can create service user', async () => {
         const client = await makeClientWithSupportUser()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
         const [user] = await registerNewServiceUserByTestClient(client, { name })
