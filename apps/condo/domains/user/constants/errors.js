@@ -28,9 +28,6 @@ const CAPTCHA_CHECK_FAILED = '[security:captcha:failed'
 const SMS_FOR_IP_DAY_LIMIT_REACHED = '[security:sms:for:ip:day:limit'
 const SMS_FOR_PHONE_DAY_LIMIT_REACHED = '[security:sms:for:phone:day:limit'
 
-const SIGNIN_AS_USER_NOT_FOUND = '[signin:as:user:not:found'
-const SIGNIN_AS_USER_DENIED = '[signin:as:user:denied'
-
 module.exports = {
     WRONG_PASSWORD_ERROR,
     EMPTY_PASSWORD_ERROR,
@@ -55,6 +52,4 @@ module.exports = {
     CAPTCHA_CHECK_FAILED,
     SMS_FOR_IP_DAY_LIMIT_REACHED,
     SMS_FOR_PHONE_DAY_LIMIT_REACHED,
-    SIGNIN_AS_USER_NOT_FOUND,
-    SIGNIN_AS_USER_DENIED,
 }
