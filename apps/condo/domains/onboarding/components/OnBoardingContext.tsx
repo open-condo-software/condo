@@ -24,6 +24,7 @@ import {
 } from '@condo/domains/onboarding/utils/stepUtils'
 import { OnBoardingStepType } from './OnBoardingStepItem'
 import { DivisionIcon } from '@condo/domains/common/components/icons/DivisionIcon'
+import { ONBOARDING_COMPLETED_PROGRESS } from '@condo/domains/onboarding/constants'
 
 interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
     stepAction: () => void,
@@ -38,8 +39,6 @@ export interface IOnBoardingContext {
     onBoardingSteps?: Array<IDecoratedOnBoardingStepType>
     refetchOnBoarding?: () => Promise<IOnBoarding>
 }
-
-const ONBOARDING_COMPLETED_PROGRESS = 100
 
 const onBoardingIcons = {
     organization: BankOutlined,

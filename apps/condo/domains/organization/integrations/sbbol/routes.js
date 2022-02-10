@@ -10,6 +10,7 @@ const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/c
 const { getSbbolUserInfoErrors, SBBOL_SESSION_KEY } = require('./common')
 const { SbbolOauth2Api } = require('./oauth2')
 const sync = require('./sync')
+const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
 const { dvSenderFields } = require('./constants')
 
 const DEVELOPER_EMAIL = conf.DEVELOPER_EMAIL
@@ -66,12 +67,18 @@ class SbbolRoutes {
                 organizationEmployeeId,
             } = await sync({ keystone, userInfo, tokenSet })
             await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
+
             if (organizationEmployeeId) {
                 res.cookie('organizationLinkId', organizationEmployeeId)
             }
             delete req.session[SBBOL_SESSION_KEY]
             await req.session.save()
-            return res.redirect('/onboarding')
+
+            const { finished } = await getOnBoardingStatus(user)
+
+            if (!finished) return res.redirect('/onboarding')
+            
+            return res.redirect('/')
         } catch (error) {
             return next(error)
         }
