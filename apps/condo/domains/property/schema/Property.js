@@ -178,13 +178,14 @@ const Property = new GQLListSchema('Property', {
                 resolveInput: async ({ operation, existingItem, resolvedData }) => {
                     let uninhabitedUnitsCount = 0
                     const getUninhabitedUnitsCount = (map) => {
-                        return get(map, 'parking', [])
-                            .map((section) => get(section, 'floors', [])
+                        const parkingSection = get(map, 'parking', [])
+                        return !isEmpty(parkingSection)
+                            ? parkingSection.map((section) => get(section, 'floors', [])
                                 .map(floor => get(floor, 'units', []).length)
                             )
-                            .flat()
-                            .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
-
+                                .flat()
+                                .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
+                            : 0
                     }
 
                     if (operation === 'create') {
