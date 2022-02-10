@@ -35,7 +35,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         detailsTitle: {
             schemaDoc: 'Title of confirmation/details page of integration',
             type: Text,
-            isRequired: false,
+            isRequired: true,
         },
 
         detailsText: {

@@ -7,6 +7,8 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegration')
+const { SHORT_DESCRIPTION_FIELD, DETAILS_TITLE_FIELD, DETAILS_TEXT_FIELD, IS_HIDDEN_FIELD } = require(
+    './fields/BillingIntegration/fields')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
@@ -28,23 +30,11 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             isRequired: true,
         },
 
-        shortDescription: {
-            schemaDoc: 'Short integration description, that would be shown on settings card',
-            type: Text,
-            isRequired: false,
-        },
+        shortDescription: SHORT_DESCRIPTION_FIELD,
 
-        detailsTitle: {
-            schemaDoc: 'Title of confirmation/details page of integration',
-            type: Text,
-            isRequired: true,
-        },
+        detailsTitle: DETAILS_TITLE_FIELD,
 
-        detailsText: {
-            schemaDoc: 'Text of confirmation/details page of integration written in markdown',
-            type: Text,
-            isRequired: false,
-        },
+        detailsText: DETAILS_TEXT_FIELD,
 
         detailsConfirmButtonText: {
             schemaDoc: 'Text of button, which you click to start integration and create integration context',
@@ -97,12 +87,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         },
 
         // TODO(DOMA-1647): Need better solution, used to test UPS flow for now
-        isHidden: {
-            schemaDoc: 'Indicates whether the integration is hidden inside the CRM',
-            type: Checkbox,
-            defaultValue: false,
-            isRequired: true,
-        },
+        isHidden: IS_HIDDEN_FIELD,
 
         availableOptions: AVAILABLE_OPTIONS_FIELD,
     },
