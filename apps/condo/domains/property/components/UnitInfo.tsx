@@ -47,7 +47,7 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
     }
 
     return (
-        <Col span={16}>
+        <Col span={12}>
             <Row justify={'space-between'}>
                 <Col span={6}>
                     <TicketFormItem name={'unitName'} label={FlatNumberLabel}>
