@@ -7,11 +7,12 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
+const { SHORT_DESCRIPTION_FIELD, DETAILS_TITLE_FIELD, DETAILS_TEXT_FIELD, IS_HIDDEN_FIELD } = require(
+    '@condo/domains/billing/schema/fields/BillingIntegration/fields')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
-const { Markdown } = require('@keystonejs/fields-markdown')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
@@ -26,31 +27,13 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: true,
         },
 
-        shortDescription: {
-            schemaDoc: 'Short acquiring description, that would be shown on settings card',
-            type: Text,
-            isRequired: false,
-        },
+        shortDescription: SHORT_DESCRIPTION_FIELD,
 
-        detailsTitle: {
-            schemaDoc: 'Title of confirmation/details page of integration',
-            type: Text,
-            isRequired: true,
-        },
+        detailsTitle: DETAILS_TITLE_FIELD,
 
-        detailsText: {
-            schemaDoc: 'Text of confirmation/details page of integration written in markdown',
-            type: Markdown,
-            isRequired: false,
-        },
+        detailsText: DETAILS_TEXT_FIELD,
 
-        // TODO(DOMA-1647): Need better solution, used to test UPS flow for now
-        isHidden: {
-            schemaDoc: 'Indicates whether this integration is hidden inside the CRM',
-            type: Checkbox,
-            defaultValue: false,
-            isRequired: true,
-        },
+        isHidden: IS_HIDDEN_FIELD,
 
         accessRights: {
             type: Relationship,
