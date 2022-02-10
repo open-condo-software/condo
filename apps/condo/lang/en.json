@@ -153,7 +153,7 @@
   "OneAcquiringWarning": "Attention! It's impossible to integrate with more than one acquiring",
   "NoPermissionToSettings": "You have no permission to view this tab content...",
   "NoPermissionToPage": "You have no permission to view this page",
-  "NoMoreIntegrationsAllowed": "You can integrate only with one billing at the same time. Contact support of «{company}» to resolve this conflict.",
+  "NoMoreIntegrationsAllowed": "You can only have one active integration in the same time. Contact support of «{company}» to resolve this conflict.",
   "NumberIsNotValid": "Please enter the correct number",
   "CompanyName": "Domá",
   "ContactSupportToCancelIntegration": "To cancel integration contact support of «{company}».",

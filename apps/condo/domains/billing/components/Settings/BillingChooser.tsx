@@ -8,12 +8,13 @@ export const BillingChooser: React.FC = () => {
     const intl = useIntl()
 
     const OneBillingWarningMessage = intl.formatMessage({ id: 'OneBillingWarning' })
-    
+
     return <IntegrationChooser
         integrationModel={BillingIntegration}
         integrationContextModel={BillingIntegrationOrganizationContext}
         integrationMessages={{
             'oneIntegrationWarningMessage': OneBillingWarningMessage,
         }}
+        integrationPanelUrlPrefix='integration'
     />
 }
