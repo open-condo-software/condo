@@ -161,17 +161,17 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                 </Col>
                 <Col span={24}>
                     <Row>
-                        <Col span={24} lg={6}>
+                        <Col span={24} lg={4}>
                             <Form.Item name={'isEmergency'} valuePropName='checked'>
                                 <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
                             </Form.Item>
                         </Col>
-                        <Col span={24} lg={6}>
+                        <Col span={24} lg={4}>
                             <Form.Item name={'isPaid'} valuePropName='checked'>
                                 <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
                             </Form.Item>
                         </Col>
-                        <Col span={24} lg={6}>
+                        <Col span={24} lg={4}>
                             <Form.Item name={'isWarranty'} valuePropName='checked'>
                                 <Checkbox disabled={disableUserInteraction}>{WarrantyLabel}</Checkbox>
                             </Form.Item>
