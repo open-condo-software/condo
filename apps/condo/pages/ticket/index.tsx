@@ -203,7 +203,7 @@ export const TicketsPageContent = ({
                                                         </Col>
                                                     </Row>
                                                 </Col>
-                                                <Col flex={`${appliedFiltersCount > 0 ? 386 : 141}px`}>
+                                                <Col>
                                                     <Row justify={'end'} align={'middle'}>
                                                         {
                                                             appliedFiltersCount > 0 ? (
