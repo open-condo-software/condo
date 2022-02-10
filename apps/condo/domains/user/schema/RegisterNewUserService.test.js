@@ -61,6 +61,7 @@ describe('RegisterNewUserService', () => {
                 mutation: 'registerNewUser',
                 variable: ['data', 'phone'],
                 code: 'BAD_USER_INPUT',
+                type: 'WRONG_FORMAT',
                 correctExample: '+79991234567',
             },
         }])
@@ -98,4 +99,6 @@ describe('RegisterNewUserService', () => {
             },
         }])
     })
+
+    // TODO: test on min password length
 })

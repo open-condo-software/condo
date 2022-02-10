@@ -25,6 +25,7 @@ const errors = {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
         code: GQLErrorCode.BAD_USER_INPUT,
+        type: GQLErrorType.WRONG_FORMAT,
         message: 'Wrong format of provided phone number',
         correctExample: '+79991234567',
     },
@@ -32,6 +33,7 @@ const errors = {
         mutation: 'registerNewUser',
         variable: ['data', 'password'],
         code: GQLErrorCode.BAD_USER_INPUT,
+        type: GQLErrorType.WRONG_FORMAT,
         message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
     },
     USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
