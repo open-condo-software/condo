@@ -10,12 +10,14 @@ import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 const getSectionAndFloorByUnit = (unitName, sections) => {
     const sectionAndFloor = { sectionName: null, floorName: null }
 
-    for (const section of sections) {
-        for (const floor of section.floors) {
-            for (const unit of floor.units) {
-                if (unit.label === unitName) {
-                    sectionAndFloor.sectionName = section.name
-                    sectionAndFloor.floorName = floor.name
+    if (sections) {
+        for (const section of sections) {
+            for (const floor of section.floors) {
+                for (const unit of floor.units) {
+                    if (unit.label === unitName) {
+                        sectionAndFloor.sectionName = section.name
+                        sectionAndFloor.floorName = floor.name
+                    }
                 }
             }
         }
