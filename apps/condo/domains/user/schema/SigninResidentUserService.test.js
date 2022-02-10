@@ -1,11 +1,6 @@
-
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 const { SIGNIN_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser, createTestConfirmPhoneAction, ConfirmPhoneAction: ConfirmPhoneActionTestUtils } = require('@condo/domains/user/utils/testSchema')
-const {
-    CONFIRM_PHONE_ACTION_EXPIRED,
-} = require('@condo/domains/user/constants/errors')
-
 
 describe('SigninResidentUserService', () => {
     describe('Anonymous', () => {
@@ -51,8 +46,17 @@ describe('SigninResidentUserService', () => {
                 sender: { dv: 1, fingerprint: 'tests' },
                 token: token.token,
             }
-            const { errors: [error] } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
-            expect(error.message).toContain(CONFIRM_PHONE_ACTION_EXPIRED)
+            const { errors } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
+            expect(errors).toMatchObject([{
+                message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'signinResidentUser',
+                    code: 'NOT_FOUND',
+                    variable: ['data', 'token'],
+                },
+            }])
         })
         it('can not register with used phone token', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -63,8 +67,17 @@ describe('SigninResidentUserService', () => {
                 sender: { dv: 1, fingerprint: 'tests' },
                 token: token.token,
             }
-            const { errors: [error] } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
-            expect(error.message).toContain(CONFIRM_PHONE_ACTION_EXPIRED)
+            const { errors } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
+            expect(errors).toMatchObject([{
+                message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'signinResidentUser',
+                    code: 'NOT_FOUND',
+                    variable: ['data', 'token'],
+                },
+            }])
         })
         it('can not register with not confirmed phone token', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -75,8 +88,17 @@ describe('SigninResidentUserService', () => {
                 sender: { dv: 1, fingerprint: 'tests' },
                 token: token.token,
             }
-            const { errors: [error] } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
-            expect(error.message).toContain(CONFIRM_PHONE_ACTION_EXPIRED)
+            const { errors } = await client.mutate(SIGNIN_RESIDENT_USER_MUTATION, { data })
+            expect(errors).toMatchObject([{
+                message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'signinResidentUser',
+                    code: 'NOT_FOUND',
+                    variable: ['data', 'token'],
+                },
+            }])
         })
     })
 })
