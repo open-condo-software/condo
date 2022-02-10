@@ -1,6 +1,5 @@
 const { v4: uuid } = require('uuid')
 const conf = require('@core/config')
-const { WRONG_PHONE_ERROR, MULTIPLE_ACCOUNTS_MATCHES, RESET_TOKEN_NOT_FOUND, PASSWORD_TOO_SHORT, TOKEN_EXPIRED_ERROR } = require('@condo/domains/user/constants/errors')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
@@ -10,6 +9,57 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { ConfirmPhoneAction: ConfirmPhoneActionUtil, ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { GQLError, GQLErrorCode, GQLErrorType } = require('@core/keystone/errors')
+
+/**
+ * List of possible errors, that this custom schema can throw
+ * They will be rendered in documentation section in GraphiQL for this custom schema
+ */
+const errors = {
+    checkPasswordRecoveryToken: {
+        UNABLE_TO_FIND_FORGOT_PASSWORD_ACTION: {
+            mutation: 'checkPasswordRecoveryToken',
+            variable: ['data', 'token'],
+            code: GQLErrorCode.NOT_FOUND,
+            message: 'Unable to find non-expired token',
+        },
+    },
+    startPasswordRecovery: {
+        USER_NOT_FOUND: {
+            mutation: 'startPasswordRecovery',
+            variable: ['data', 'phone'],
+            code: GQLErrorCode.NOT_FOUND,
+            message: 'Unable to find user with specified phone',
+        },
+        MULTIPLE_USERS_FOUND: {
+            mutation: 'startPasswordRecovery',
+            variable: ['data', 'phone'],
+            code: GQLErrorCode.CONFLICT,
+            message: 'Unable to find exact one user to start password recovery',
+        },
+    },
+    changePasswordWithToken: {
+        PASSWORD_IS_TOO_SHORT: {
+            mutation: 'changePasswordWithToken',
+            variable: ['data', 'password'],
+            code: GQLErrorCode.BAD_USER_INPUT,
+            type: GQLErrorType.WRONG_FORMAT,
+            message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
+        },
+        TOKEN_NOT_FOUND: {
+            mutation: 'changePasswordWithToken',
+            variable: ['data', 'token'],
+            code: GQLErrorCode.NOT_FOUND,
+            message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
+        },
+        USER_NOT_FOUND: {
+            mutation: 'changePasswordWithToken',
+            variable: ['data', 'phone'],
+            code: GQLErrorCode.NOT_FOUND,
+            message: 'Unable to find user with specified phone',
+        },
+    },
+}
 
 const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
     types: [
@@ -43,6 +93,11 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
         {
             access: true,
             schema: 'checkPasswordRecoveryToken(data: CheckPasswordRecoveryTokenInput!): CheckPasswordRecoveryTokenOutput',
+            doc: {
+                summary: 'Tells, whether specified password recovery token is exists and not expired',
+                details: 'Returns "ok" status, if a token is found and not expired',
+                errors: errors.checkPasswordRecoveryToken,
+            },
             resolver: async (parent, args, context, info, extra) => {
                 const { data: { token } } = args
                 const now = extra.extraNow || Date.now()
@@ -52,7 +107,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     usedAt: null,
                 })
                 if (!action) {
-                    throw new Error(`${TOKEN_EXPIRED_ERROR}]: Unable to find valid token`)
+                    throw new GQLError(errors.checkPasswordRecoveryToken.UNABLE_TO_FIND_FORGOT_PASSWORD_ACTION)
                 }
                 return { status: 'ok' }
             },
@@ -62,6 +117,10 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
         {
             access: true,
             schema: 'startPasswordRecovery(data: StartPasswordRecoveryInput!): StartPasswordRecoveryOutput',
+            doc: {
+                summary: 'Beginning of a multi-step process of a password recovery.\n1. Start recovery and get token to confirm phone number\n2. Confirm phone number\n3. Call `changePasswordWithToken` mutation',
+                errors: errors.startPasswordRecovery,
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { phone: inputPhone, sender, dv } } = args
                 const phone = normalizePhone(inputPhone)
@@ -75,11 +134,11 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const users = await User.getAll(context, { phone, type: STAFF })
 
                 if (isEmpty(users)) {
-                    throw new Error(`${WRONG_PHONE_ERROR}] Unable to find user when trying to start password recovery`)
+                    throw new GQLError(errors.startPasswordRecovery.USER_NOT_FOUND)
                 }
 
                 if (users.length !== 1) {
-                    throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] Unable to find exact one user to start password recovery`)
+                    throw new GQLError(errors.startPasswordRecovery.MULTIPLE_USERS_FOUND)
                 }
 
                 const userId = users[0].id
@@ -126,12 +185,16 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
         {
             access: true,
             schema: 'changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput',
+            doc: {
+                schema: 'Changes password and authorizes this action via correct token, that should correspond to either ForgotPasswordAction (deprecated) or `ConfirmPhoneAction`',
+                errors: errors.changePasswordWithToken,
+            },
             resolver: async (parent, args, context, info, extra) => {
                 const { data: { token, password } } = args
                 const now = extra.extraNow || (new Date(Date.now())).toISOString()
 
                 if (password.length < MIN_PASSWORD_LENGTH) {
-                    throw new Error(`${PASSWORD_TOO_SHORT}] Password is too short`)
+                    throw new GQLError(errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT)
                 }
 
                 let [action] = await ForgotPasswordActionUtil.getAll(context, {
@@ -159,7 +222,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                         isPhoneVerified: true,
                     })
                     if (!action) {
-                        throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+                        throw new GQLError(errors.changePasswordWithToken.TOKEN_NOT_FOUND)
                     }
                     phone = action.phone
                     const [user] = await User.getAll(context, {
@@ -169,7 +232,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     userId = user && user.id
 
                     if (!userId) {
-                        throw new Error(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+                        throw new GQLError(errors.changePasswordWithToken.USER_NOT_FOUND)
                     }
                     await ConfirmPhoneActionUtil.update(context, action.id, {
                         completedAt: now,
