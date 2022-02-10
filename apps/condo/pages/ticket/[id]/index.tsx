@@ -139,10 +139,9 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
 const TicketTag = styled(Tag)`
   &.ant-tag {
     border-radius: 100px;
-    padding: 2px 10px 4px;
   }
   
-  font-size: ${fontSizes.content};
+  font-size: ${fontSizes.label};
   line-height: 24px;
 `
 
@@ -293,87 +292,95 @@ const TicketContent = ({ ticket }) => {
 
     return (
         <Col span={24}>
-            <Row gutter={[0, 24]}>
-                {
-                    ticketDeadline ? (
-                        <PageFieldRow title={Deadline}>
-                            <Typography.Text strong> {dayjs(ticketDeadline).format('DD MMMM YYYY')} </Typography.Text>
-                            {getTicketDeadlineMessage()}
-                        </PageFieldRow>
-                    ) : null
-                }
-                <PageFieldRow title={AddressMessage} highlight>
-                    {
-                        propertyWasDeleted ? (
-                            <DeletedPropertyAddressMessage />
-                        ) : <PropertyAddressMessage />
-                    }
-                </PageFieldRow>
-                <PageFieldRow title={ClientMessage} highlight>
-                    <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
-                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                            <TicketUserInfoField
-                                user={{
-                                    name: get(ticket, 'clientName'),
-                                    phone: get(ticket, 'clientPhone'),
-                                }}
-                            />
-                        </Typography.Link>
-                    </Link>
-                </PageFieldRow>
-                <PageFieldRow title={TicketInfoMessage}>
-                    {ticket.details}
-                </PageFieldRow>
-                {!isEmpty(files) && (
-                    <PageFieldRow title={FilesFieldLabel}>
-                        <TicketFileList files={files} />
-                    </PageFieldRow>
-                )}
-                <PageFieldRow title={ClassifierMessage}>
-                    <Breadcrumb separator="»">
+            <Row gutter={[0, 40]}>
+                <Col span={24}>
+                    <Row gutter={[0, 24]}>
                         {
-                            ticketClassifierNames.map((name, index) => {
-                                return (
-                                    <Breadcrumb.Item key={name}>
-                                        <Typography.Text
-                                            style={CLASSIFIER_VALUE_STYLE}
-                                            strong
-                                            type={getClassifierTextType(index)}
-                                        >
-                                            {name}
-                                        </Typography.Text>
-                                    </Breadcrumb.Item>
-                                )
-                            })
+                            ticketDeadline ? (
+                                <PageFieldRow title={Deadline}>
+                                    <Typography.Text strong> {dayjs(ticketDeadline).format('DD MMMM YYYY')} </Typography.Text>
+                                    {getTicketDeadlineMessage()}
+                                </PageFieldRow>
+                            ) : null
                         }
-                    </Breadcrumb>
-                </PageFieldRow>
-                <PageFieldRow title={ExecutorMessage}>
-                    <Link href={`/employee/${get(executor, 'id')}`}>
-                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                            <Typography.Text strong>
-                                <TicketUserInfoField user={{
-                                    name: get(executor, 'name'),
-                                    phone: get(executor, 'phone'),
-                                    email: get(executor, 'email'),
-                                }}/>
-                            </Typography.Text>
-                        </Typography.Link>
-                    </Link>
-                </PageFieldRow>
-                <PageFieldRow title={AssigneeMessage}>
-                    <Link href={`/employee/${get(executor, 'id')}`}>
-                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                            <Typography.Text strong>
-                                <TicketUserInfoField user={{
-                                    name: get(assignee, 'name'),
-                                    phone: get(assignee, 'phone'),
-                                    email: get(assignee, 'email'),
-                                }}/>
-                            </Typography.Text>
-                        </Typography.Link>
-                    </Link>
-                </PageFieldRow>
+                        <PageFieldRow title={AddressMessage} highlight>
+                            {
+                                propertyWasDeleted ? (
+                                    <DeletedPropertyAddressMessage />
+                                ) : <PropertyAddressMessage />
+                            }
+                        </PageFieldRow>
+                        <PageFieldRow title={ClientMessage} highlight>
+                            <Link href={`/contact/${get(ticket, ['contact', 'id'])}`}>
+                                <Typography.Link style={TICKET_CARD_LINK_STYLE}>
+                                    <TicketUserInfoField
+                                        user={{
+                                            name: get(ticket, 'clientName'),
+                                            phone: get(ticket, 'clientPhone'),
+                                        }}
+                                    />
+                                </Typography.Link>
+                            </Link>
+                        </PageFieldRow>
+                        <PageFieldRow title={TicketInfoMessage}>
+                            {ticket.details}
+                        </PageFieldRow>
+                        {!isEmpty(files) && (
+                            <PageFieldRow title={FilesFieldLabel}>
+                                <TicketFileList files={files} />
+                            </PageFieldRow>
+                        )}
+                    </Row>
+                </Col>
+                <Col span={24}>
+                    <Row gutter={[0, 24]}>
+                        <PageFieldRow title={ClassifierMessage}>
+                            <Breadcrumb separator="»">
+                                {
+                                    ticketClassifierNames.map((name, index) => {
+                                        return (
+                                            <Breadcrumb.Item key={name}>
+                                                <Typography.Text
+                                                    style={CLASSIFIER_VALUE_STYLE}
+                                                    strong
+                                                    type={getClassifierTextType(index)}
+                                                >
+                                                    {name}
+                                                </Typography.Text>
+                                            </Breadcrumb.Item>
+                                        )
+                                    })
+                                }
+                            </Breadcrumb>
+                        </PageFieldRow>
+                        <PageFieldRow title={ExecutorMessage}>
+                            <Link href={`/employee/${get(executor, 'id')}`}>
+                                <Typography.Link style={TICKET_CARD_LINK_STYLE}>
+                                    <Typography.Text strong>
+                                        <TicketUserInfoField user={{
+                                            name: get(executor, 'name'),
+                                            phone: get(executor, 'phone'),
+                                            email: get(executor, 'email'),
+                                        }}/>
+                                    </Typography.Text>
+                                </Typography.Link>
+                            </Link>
+                        </PageFieldRow>
+                        <PageFieldRow title={AssigneeMessage}>
+                            <Link href={`/employee/${get(executor, 'id')}`}>
+                                <Typography.Link style={TICKET_CARD_LINK_STYLE}>
+                                    <Typography.Text strong>
+                                        <TicketUserInfoField user={{
+                                            name: get(assignee, 'name'),
+                                            phone: get(assignee, 'phone'),
+                                            email: get(assignee, 'email'),
+                                        }}/>
+                                    </Typography.Text>
+                                </Typography.Link>
+                            </Link>
+                        </PageFieldRow>
+                    </Row>
+                </Col>
             </Row>
         </Col>
     )
@@ -490,32 +497,42 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]}>
-                        <Col lg={16} xs={24}>
+                    <Row gutter={[0, 40]} justify={'space-between'}>
+                        <Col lg={15} xs={24}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
                                         <Col lg={18} xs={24}>
-                                            <Space size={8} direction={'vertical'}>
-                                                <Typography.Title level={1}>{TicketTitleMessage}</Typography.Title>
-                                                <Typography.Text>
-                                                    <Typography.Text type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
-                                                    <UserNameField user={get(ticket, ['createdBy'])}>
-                                                        {({ name, postfix }) => (
-                                                            <Typography.Text>
-                                                                {name}
-                                                                {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                            <Row gutter={[0, 20]}>
+                                                <Col span={24}>
+                                                    <Typography.Title style={{ margin: 0 }} level={1}>{TicketTitleMessage}</Typography.Title>
+                                                </Col>
+                                                <Col span={24}>
+                                                    <Row>
+                                                        <Col span={24}>
+                                                            <Typography.Text style={{ margin: 0, fontSize: '12px' }}>
+                                                                <Typography.Text style={{ margin: 0, fontSize: '12px' }} type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                                                                <UserNameField user={get(ticket, ['createdBy'])}>
+                                                                    {({ name, postfix }) => (
+                                                                        <Typography.Text style={{ margin: 0, fontSize: '12px' }}>
+                                                                            {name}
+                                                                            {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                                                        </Typography.Text>
+                                                                    )}
+                                                                </UserNameField>
                                                             </Typography.Text>
-                                                        )}
-                                                    </UserNameField>
-                                                </Typography.Text>
-                                                <Typography.Text type='secondary'>
-                                                    {SourceMessage} — {get(ticket, ['source', 'name'])}
-                                                </Typography.Text>
-                                            </Space>
+                                                        </Col>
+                                                        <Col span={24}>
+                                                            <Typography.Text type='secondary' style={{ margin: 0, fontSize: '12px' }}>
+                                                                {SourceMessage} — {get(ticket, ['source', 'name'])}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                    </Row>
+                                                </Col>
+                                            </Row>
                                         </Col>
                                         <Col lg={6} xs={24}>
-                                            <Row justify={isSmall ? 'center' : 'end'} gutter={[0, 8]}>
+                                            <Row justify={isSmall ? 'center' : 'end'} gutter={[0, 20]}>
                                                 <Col span={24}>
                                                     <TicketStatusSelect
                                                         organization={organization}
@@ -528,10 +545,10 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                 {
                                                     statusUpdatedAt && (
                                                         <Col>
-                                                            <Typography.Paragraph style={{ margin: 0 }}>
+                                                            <Typography.Paragraph style={{ margin: 0, fontSize: '12px', textAlign: 'end' }}>
                                                                 {ChangedMessage}: {dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm')}
                                                             </Typography.Paragraph>
-                                                            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+                                                            <Typography.Paragraph style={{ margin: 0, fontSize: '12px', textAlign: 'end' }} type={'secondary'}>
                                                                 {TimeHasPassedMessage.replace('${time}', getTimeSinceCreation())}
                                                             </Typography.Paragraph>
                                                         </Col>
