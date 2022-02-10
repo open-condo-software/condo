@@ -26,6 +26,7 @@ import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSc
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
+import { colors } from '@condo/domains/common/constants/style'
 
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
@@ -43,6 +44,7 @@ const ContactsInfoFocusContainer = styled(FocusContainer)`
   left: ${({ padding }) => padding ? padding : '24px'};
   box-sizing: border-box;
   width: 100%;
+  background: ${colors.backgroundLightGrey};
 `
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
