@@ -1,5 +1,5 @@
 import { Space, Typography } from 'antd'
-import React, { useCallback } from 'react'
+import React from 'react'
 import { colors } from '@condo/domains/common/constants/style'
 import { ActivateStepIcon, IconContainer, StepContainer } from './components'
 
