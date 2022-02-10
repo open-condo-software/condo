@@ -7,6 +7,7 @@ async function ensureNotExists (context, field, value) {
         throw new Error(`[unique:${field}:multipleFound] user with this ${field} is already exists`)
     }
 }
+
 module.exports = {
     ensureNotExists,
 }

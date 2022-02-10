@@ -264,6 +264,6 @@ module.exports = {
     ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction,
     signinAsUserByTestClient,
-    registerNewServiceUserByTestClient
+    registerNewServiceUserByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
