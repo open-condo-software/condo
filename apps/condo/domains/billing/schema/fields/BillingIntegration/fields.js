@@ -1,3 +1,4 @@
+const { Markdown } = require('@keystonejs/fields-markdown')
 const { Text, Checkbox } = require('@keystonejs/fields')
 
 const DETAILS_TITLE_FIELD = {
@@ -8,7 +9,7 @@ const DETAILS_TITLE_FIELD = {
 
 const DETAILS_TEXT_FIELD = {
     schemaDoc: 'Text of confirmation/details page of integration written in markdown',
-    type: Text,
+    type: Markdown,
     isRequired: false,
 }
 
