@@ -1,11 +1,10 @@
-import get from 'lodash/get'
-import { OnBoarding, OnBoardingStep, OnBoardingStep as OnBoardingStepInterface } from '@app/condo/schema'
-import { OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
+const get = require('lodash/get')
+const { ONBOARDING_STEP_TYPE } = require('@condo/domains/onboarding/constants')
 
-export const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${step.entity}`
+const getStepKey = (step) => `${step.action}.${step.entity}`
 
-export const getParentStep = (stepTransitions: Record<string, Array<string>>, stepKey: string, steps: Array<OnBoardingStepInterface>) => {
-    let parentKey: string | undefined
+const getParentStep = (stepTransitions, stepKey, steps) => {
+    let parentKey
 
     Object.keys(stepTransitions).map((key) => {
         if (!parentKey && stepTransitions[key].includes(stepKey)) {
@@ -24,10 +23,10 @@ export const getParentStep = (stepTransitions: Record<string, Array<string>>, st
     ))
 }
 
-export const getStepType = (
-    step: OnBoardingStepInterface,
-    stepsTransitions: Record<string, Array<string>>,
-    steps: Array<OnBoardingStepInterface>,
+const getStepType = (
+    step,
+    stepsTransitions,
+    steps,
 ) => {
     const stepKey = getStepKey(step)
     const stepTransitions = get(stepsTransitions, stepKey)
@@ -38,21 +37,27 @@ export const getStepType = (
 
     if (Array.isArray(stepTransitions)) {
         if (parentRequired && !parentCompleted) {
-            return OnBoardingStepType.DISABLED
+            return ONBOARDING_STEP_TYPE.DISABLED
         }
 
         if (step.completed) {
-            return OnBoardingStepType.COMPLETED
+            return ONBOARDING_STEP_TYPE.COMPLETED
         }
 
-        return OnBoardingStepType.DEFAULT
+        return ONBOARDING_STEP_TYPE.DEFAULT
     }
 }
 
-export const getOnBoardingProgress = (onBoardingSteps: Array<OnBoardingStep>, onBoarding: OnBoarding) => {
+const getOnBoardingProgress = (onBoardingSteps, onBoarding) => {
     const stepTypes = onBoardingSteps.map((step) => getStepType(step, get(onBoarding, 'stepsTransitions', {}), onBoardingSteps))
-    const totalAvailableSteps = stepTypes.filter((type) => type !== undefined && type !== OnBoardingStepType.DISABLED).length
+    const totalAvailableSteps = stepTypes.filter((type) => type !== undefined && type !== ONBOARDING_STEP_TYPE.DISABLED).length
     const completedSteps = onBoardingSteps.filter((obj) => obj.completed === true).length
 
     return (completedSteps / totalAvailableSteps) * 100
+}
+
+module.exports = {
+    getStepKey,
+    getParentStep,
+    getOnBoardingProgress,
 }
