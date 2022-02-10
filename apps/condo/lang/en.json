@@ -150,6 +150,7 @@
   "RolesAndAccess": "Roles and accesses",
   "Subscription": "Subscription",
   "OneBillingWarning": "Attention! It's impossible to integrate with more than one billing",
+  "OneAcquiringWarning": "Attention! It's impossible to integrate with more than one acquiring",
   "NoPermissionToSettings": "You have no permission to view this tab content...",
   "NoPermissionToPage": "You have no permission to view this page",
   "NoMoreIntegrationsAllowed": "You can integrate only with one billing at the same time. Contact support of «{company}» to resolve this conflict.",
