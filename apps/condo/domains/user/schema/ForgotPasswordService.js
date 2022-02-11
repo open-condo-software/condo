@@ -201,7 +201,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const now = extra.extraNow || (new Date(Date.now())).toISOString()
 
                 if (password.length < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT)
+                    throw new GQLError(errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT, context, { min: MIN_PASSWORD_LENGTH })
                 }
 
                 let [action] = await ForgotPasswordActionUtil.getAll(context, {
