@@ -2,6 +2,8 @@ import Router from 'next/router'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useIntl } from '@core/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
+import find from 'lodash/find'
+import get from 'lodash/get'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import React, { useState, useEffect, useContext } from 'react'
@@ -34,6 +36,7 @@ const ChangePasswordPage: AuthPage = () => {
     const { executeRecaptcha } = useGoogleReCaptcha()
 
     const intl = useIntl()
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const SaveMsg = intl.formatMessage({ id: 'Save' })
     const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
@@ -51,13 +54,14 @@ const ChangePasswordPage: AuthPage = () => {
     // New format of errors mapping, assuming, that errors are received from server with localized messages for user
     // Here we just need to map an error type to form field
     const ErrorToFormFieldMsgMapping = {
-        [TOKEN_NOT_FOUND]: {
-            name: 'token',
-        },
         [PASSWORD_IS_TOO_SHORT]: {
             name: 'password',
         },
     }
+
+    const NotificationErrorFilters = [
+        { type: TOKEN_NOT_FOUND },
+    ]
 
     const { requiredValidator, changeMessage, minLengthValidator } = useValidations()
     const minPasswordLengthValidator = changeMessage(minLengthValidator(MIN_PASSWORD_LENGTH), PasswordIsTooShortMsg)
@@ -97,6 +101,7 @@ const ChangePasswordPage: AuthPage = () => {
             intl,
             form,
             ErrorToFormFieldMsgMapping,
+            NotificationErrorFilters,
         }).catch(() => {
             setIsSaving(false)
         })

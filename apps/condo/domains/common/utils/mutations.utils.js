@@ -1,6 +1,8 @@
 import { notification } from 'antd'
 import { NETWORK_ERROR } from '@condo/domains/common/constants/errors'
-import pickBy from 'lodash/pickBy'
+import find from 'lodash/find'
+import get from 'lodash/get'
+
 /**
  * Mapping of error codes to field errors
  * Maps error codes to field names and list of errors, that **are declared on the client**
@@ -12,9 +14,13 @@ import pickBy from 'lodash/pickBy'
  */
 
 /**
+ * Sends provided mutation request to server and handles errors
+ *
  * !!! New errors syntax
- * To display custom notification error, depending on what error server is returned, pass a function
- * to `ErrorToFormFieldMsgMapping` argument
+ * To display custom notification error, depending on what error server is returned,
+ * pass an `NotificationErrorFilters` argument with array of filtering criterias.
+ * Filtering criteria represents a fragment of `GQLError` object, that will be applied to `e.graphQLErrors.[].extensions` property.
+ * Errors, filtered this way will be passed to Ant `notification` util.
  *
  * @param action - custom function to execute
  * @param mutation - result of `useMutation`
@@ -25,11 +31,12 @@ import pickBy from 'lodash/pickBy'
  * @param intl
  * @param form
  * @param {ErrorToFormFieldMsgMapping} ErrorToFormFieldMsgMapping - mapping of errors either in old or new format
- * @param {null|String|Function} [OnErrorMsg] - affects message formatting for Ant notification component
+ * @param {null|String|} [OnErrorMsg] - controls passing errors to Ant `notification` util
+ * @param {Array.<GQLError>} [NotificationErrorFilters] - maps errors by search criteria to `notification` util
  * @param OnCompletedMsg
  * @return {*}
  */
-function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
+function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, NotificationErrorFilters, OnErrorMsg, OnCompletedMsg }) {
     if (!intl) throw new Error('intl prop required')
     if (!mutation && !action) throw new Error('mutation or action prop required')
     if (action && mutation) throw new Error('impossible to pass mutation and action prop')
@@ -83,12 +90,11 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                             }
                         } else {
                             // Take errors from server
-                            const graphQLError = pickBy(e.graphQLErrors, { extensions: { type: key } })
+                            const graphQLError = find(e.graphQLErrors, { extensions: { type: key } })
                             if (graphQLError) {
                                 errors.push({
                                     name: errorMap.name,
-                                    // TODO(antonal): next step will be to forward localized errors
-                                    errors: graphQLError.extensions.message,
+                                    errors: get(graphQLError, ['extensions', 'messageForUser']),
                                 })
                             }
                         }
@@ -101,7 +107,29 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
 
                 if (OnErrorMsg === null) {
                     // we want to SKIP any notifications
-                } else if (typeof OnErrorMsg === 'undefined') {
+                } else if (typeof OnErrorMsg === 'string') {
+                    // custom notification message
+                    // TODO(pahaz): think about more complex notifications. OnCompletedMsg many be an object! (if we want to have come actions inside a notification)
+                    notificationContext = {
+                        message: ServerErrorMsg,
+                        description: OnErrorMsg,
+                    }
+                } else if (NotificationErrorFilters) {
+                    for (let i = 0; i < NotificationErrorFilters.length; i++) {
+                        let errorFilter = NotificationErrorFilters[i]
+                        const errorForNotification = find(e.graphQLErrors, { extensions: errorFilter })
+                        if (errorForNotification) {
+                            const description =
+                                get(errorForNotification, ['extensions', 'messageForUser']) ||
+                                get(errorForNotification, ['extensions', 'message'])
+                            notificationContext = {
+                                message: ServerErrorMsg,
+                                description,
+                            }
+                            break
+                        }
+                    }
+                } else {
                     // default notification message
                     if (e.message.toLowerCase() === NETWORK_ERROR) {
                         friendlyDescription = intl.formatMessage({ id: 'NetworkError' })
@@ -109,15 +137,6 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                     notificationContext = {
                         message: ServerErrorMsg,
                         description: friendlyDescription || e.message,
-                    }
-                } else if (typeof OnErrorMsg === 'function') {
-                    notificationContext = OnErrorMsg(e, form)
-                } else {
-                    // custom notification message
-                    // TODO(pahaz): think about more complex notifications. OnCompletedMsg many be an object! (if we want to have come actions inside a notification)
-                    notificationContext = {
-                        message: ServerErrorMsg,
-                        description: OnErrorMsg,
                     }
                 }
 
