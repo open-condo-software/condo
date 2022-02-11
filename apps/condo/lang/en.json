@@ -917,5 +917,7 @@
   "IncludingFee": "including fee",
   "MultiPayment.status.DONE": "Done",
   "MultiPayment.status.PROCESSING": "Processing",
-  "MultiPayment.status.ERROR": "Error"
+  "MultiPayment.status.ERROR": "Error",
+  "api.user.changePasswordWithToken.TOKEN_NOT_FOUND": "Unable to find non-expired ConfirmPhoneAction by specified token",
+  "api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} character"
 }
