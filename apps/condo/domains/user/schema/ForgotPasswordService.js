@@ -9,8 +9,8 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { ConfirmPhoneAction: ConfirmPhoneActionUtil, ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { GQLError, GQLErrorCode: { NOT_FOUND, BAD_USER_INPUT } } = require('@core/keystone/errors')
-const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('@condo/domains/user/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -30,12 +30,14 @@ const errors = {
             mutation: 'startPasswordRecovery',
             variable: ['data', 'phone'],
             code: BAD_USER_INPUT,
+            type: 'USER_BY_PHONE_NOT_FOUND',
             message: 'Unable to find user with specified phone',
         },
         MULTIPLE_USERS_FOUND: {
             mutation: 'startPasswordRecovery',
             variable: ['data', 'phone'],
             code: BAD_USER_INPUT,
+            type: 'MULTIPLE_USERS_FOUND',
             message: 'Unable to find exact one user to start password recovery',
         },
     },
@@ -44,19 +46,21 @@ const errors = {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'password'],
             code: BAD_USER_INPUT,
-            type: WRONG_FORMAT,
+            type: PASSWORD_IS_TOO_SHORT,
             message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
         },
         TOKEN_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'token'],
             code: BAD_USER_INPUT,
+            type: TOKEN_NOT_FOUND,
             message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
         },
         USER_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'phone'],
             code: BAD_USER_INPUT,
+            type: USER_NOT_FOUND,
             message: 'Unable to find user with specified phone',
         },
     },
@@ -223,6 +227,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                         isPhoneVerified: true,
                     })
                     if (!action) {
+                        console.error('errors.changePasswordWithToken.TOKEN_NOT_FOUND')
                         throw new GQLError(errors.changePasswordWithToken.TOKEN_NOT_FOUND)
                     }
                     phone = action.phone
