@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/SigninAsUserService')
 const { getItem } = require('@keystonejs/server-side-graphql-client')
 const { getSchemaCtx } = require('@core/keystone/schema')
-const { GQLError, GQLErrorCode } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { NOT_FOUND, FORBIDDEN } } = require('@core/keystone/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -15,17 +15,17 @@ const { GQLError, GQLErrorCode } = require('@core/keystone/errors')
 const errors = {
     USER_NOT_FOUND: {
         mutation: 'signinAsUser',
-        code: GQLErrorCode.NOT_FOUND,
+        code: NOT_FOUND,
         message: 'Could not find a user with a specified id',
     },
     DENIED_FOR_ADMIN: {
         mutation: 'signinAsUser',
-        code: GQLErrorCode.FORBIDDEN,
+        code: FORBIDDEN,
         message: 'You cannot authenticate for an another admin user',
     },
     DENIED_FOR_SUPPORT: {
         mutation: 'signinAsUser',
-        code: GQLErrorCode.FORBIDDEN,
+        code: FORBIDDEN,
         message: 'You cannot authenticate for an another support user',
     },
 }

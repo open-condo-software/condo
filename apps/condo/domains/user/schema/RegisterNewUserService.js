@@ -8,7 +8,8 @@ const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { GQLError, GQLErrorCode, GQLErrorType } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { NOT_FOUND, BAD_USER_INPUT, CONFLICT, INTERNAL_ERROR } } = require('@core/keystone/errors')
+const { NOT_UNIQUE, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -18,41 +19,41 @@ const errors = {
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
         mutation: 'registerNewUser',
         variable: ['data', 'confirmPhoneActionToken'],
-        code: GQLErrorCode.NOT_FOUND,
+        code: NOT_FOUND,
         message: 'Unable to find confirm phone action',
     },
     WRONG_PHONE_FORMAT: {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
-        code: GQLErrorCode.BAD_USER_INPUT,
-        type: GQLErrorType.WRONG_FORMAT,
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
         message: 'Wrong format of provided phone number',
         correctExample: '+79991234567',
     },
     PASSWORD_IS_TOO_SHORT: {
         mutation: 'registerNewUser',
         variable: ['data', 'password'],
-        code: GQLErrorCode.BAD_USER_INPUT,
-        type: GQLErrorType.WRONG_FORMAT,
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
         message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
     },
     USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
-        code: GQLErrorCode.CONFLICT,
-        type: GQLErrorType.NOT_UNIQUE,
+        code: CONFLICT,
+        type: NOT_UNIQUE,
         message: 'User with specified phone already exists',
     },
     USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
         variable: ['data', 'email'],
-        code: GQLErrorCode.CONFLICT,
-        type: GQLErrorType.NOT_UNIQUE,
+        code: CONFLICT,
+        type: NOT_UNIQUE,
         message: 'User with specified email already exists',
     },
     UNABLE_TO_CREATE_USER: {
         mutation: 'registerNewUser',
-        code: GQLErrorCode.INTERNAL_ERROR,
+        code: INTERNAL_ERROR,
         message: 'Unable to create user',
     },
 }
