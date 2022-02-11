@@ -64,6 +64,11 @@ const { ApolloError } = require('apollo-server-errors')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const conf = require('@core/config')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
+const template = require('lodash/template')
+const templateSettings = require('lodash/templateSettings')
+
+// Matches placeholder `{name}` in string, we are going to interpolate
+templateSettings.interpolate = /{([\s\S]+?)}/g
 
 // Unable to find a record, whose identifier is specified in some argument of query or mutation
 const NOT_FOUND = 'NOT_FOUND'
@@ -111,13 +116,14 @@ class GQLError extends ApolloError {
      * @param context - Keystone custom resolver context, used to determine request language
      * @see https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors
      */
-    constructor (fields, context) {
+    constructor (fields, context, messageInterpolations = {}) {
         const extensions = fields
         if (context) {
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
             const translations = getTranslations(locale)
             const translatedMessage = translations[fields.messageForUser]
-            extensions.messageForUser = translatedMessage
+            const interpolatedMessage = template(translatedMessage)(messageInterpolations)
+            extensions.messageForUser = interpolatedMessage
         }
         super(fields.message, fields.code, extensions)
         Object.defineProperty(this, 'name', { value: 'GraphQLError' })
