@@ -9,7 +9,8 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { ConfirmPhoneAction: ConfirmPhoneActionUtil, ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { GQLError, GQLErrorCode, GQLErrorType } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { NOT_FOUND, CONFLICT, BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -20,7 +21,7 @@ const errors = {
         UNABLE_TO_FIND_FORGOT_PASSWORD_ACTION: {
             mutation: 'checkPasswordRecoveryToken',
             variable: ['data', 'token'],
-            code: GQLErrorCode.NOT_FOUND,
+            code: NOT_FOUND,
             message: 'Unable to find non-expired token',
         },
     },
@@ -28,13 +29,13 @@ const errors = {
         USER_NOT_FOUND: {
             mutation: 'startPasswordRecovery',
             variable: ['data', 'phone'],
-            code: GQLErrorCode.NOT_FOUND,
+            code: NOT_FOUND,
             message: 'Unable to find user with specified phone',
         },
         MULTIPLE_USERS_FOUND: {
             mutation: 'startPasswordRecovery',
             variable: ['data', 'phone'],
-            code: GQLErrorCode.CONFLICT,
+            code: CONFLICT,
             message: 'Unable to find exact one user to start password recovery',
         },
     },
@@ -42,20 +43,20 @@ const errors = {
         PASSWORD_IS_TOO_SHORT: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'password'],
-            code: GQLErrorCode.BAD_USER_INPUT,
-            type: GQLErrorType.WRONG_FORMAT,
+            code: BAD_USER_INPUT,
+            type: WRONG_FORMAT,
             message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
         },
         TOKEN_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'token'],
-            code: GQLErrorCode.NOT_FOUND,
+            code: NOT_FOUND,
             message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
         },
         USER_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'phone'],
-            code: GQLErrorCode.NOT_FOUND,
+            code: NOT_FOUND,
             message: 'Unable to find user with specified phone',
         },
     },

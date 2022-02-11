@@ -64,7 +64,7 @@ const { ApolloError } = require('apollo-server-errors')
 // Unable to find a record, whose identifier is specified in some argument of query or mutation
 const NOT_FOUND = 'NOT_FOUND'
 // Data, being submitted, conflicts with constraints of a data storage
-// For example, it can violate constraints on uniqueness, number of records, formats of field values, values itself etc.
+// For example, it can violate constraints on uniqueness, number of records etc.
 const CONFLICT = 'CONFLICT'
 // Wrong format or not enough data in user input
 const BAD_USER_INPUT = 'BAD_USER_INPUT'
@@ -76,6 +76,7 @@ const FORBIDDEN = 'FORBIDDEN'
 
 /**
  * First level of error classification, used in custom GraphQL queries or mutations
+ * Second level of classification will be specific to domain in question
  * Only generic error kinds are listed
  * Conceptually, it conforms to HTTP standard for error codes
  * @readonly
@@ -89,16 +90,6 @@ const GQLErrorCode = {
     FORBIDDEN,
 }
 
-// A record with specified set of field values already exists, so, the request violates unique constraints
-const NOT_UNIQUE = 'NOT_UNIQUE'
-// Provided value does not matches specified format. For example not matches regexp, string length requirement etc.
-const WRONG_FORMAT = 'WRONG_FORMAT'
-
-// Second level of error classification
-const GQLErrorType = {
-    NOT_UNIQUE,
-    WRONG_FORMAT,
-}
 
 /**
  * Error object, that can be thrown in a custom GraphQL mutation or query
@@ -127,5 +118,4 @@ class GQLError extends ApolloError {
 module.exports = {
     GQLError,
     GQLErrorCode,
-    GQLErrorType,
 }
