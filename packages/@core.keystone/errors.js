@@ -61,6 +61,9 @@
  * ```
  */
 const { ApolloError } = require('apollo-server-errors')
+const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const conf = require('@core/config')
+const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 
 // Unable to find a record, whose identifier is specified in some argument of query or mutation
 const NOT_FOUND = 'NOT_FOUND'
@@ -105,10 +108,18 @@ const GQLErrorCode = {
 class GQLError extends ApolloError {
     /**
      * @param {GQLError} fields
+     * @param context - Keystone custom resolver context, used to determine request language
      * @see https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors
      */
-    constructor (fields) {
-        super(fields.message, fields.code, fields)
+    constructor (fields, context) {
+        const extensions = fields
+        if (context) {
+            const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+            const translations = getTranslations(locale)
+            const translatedMessage = translations[fields.messageForUser]
+            extensions.messageForUser = translatedMessage
+        }
+        super(fields.message, fields.code, extensions)
         Object.defineProperty(this, 'name', { value: 'GraphQLError' })
     }
 }

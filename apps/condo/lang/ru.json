@@ -917,5 +917,7 @@
   "IncludingFee": "в том числе комиссия",
   "MultiPayment.status.DONE": "Завершено",
   "MultiPayment.status.PROCESSING": "В обработке",
-  "MultiPayment.status.ERROR": "Ошибка"
+  "MultiPayment.status.ERROR": "Ошибка",
+  "api.user.changePasswordWithToken.TOKEN_NOT_FOUND": "Не найден действительный токен на изменение пароля",
+  "api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT": "Длина введённого пароля меньше {min} символов"
 }

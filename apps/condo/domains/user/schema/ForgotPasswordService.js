@@ -48,6 +48,7 @@ const errors = {
             code: BAD_USER_INPUT,
             type: PASSWORD_IS_TOO_SHORT,
             message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
+            messageForUser: 'api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT',
         },
         TOKEN_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
@@ -55,6 +56,7 @@ const errors = {
             code: BAD_USER_INPUT,
             type: TOKEN_NOT_FOUND,
             message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
+            messageForUser: 'api.user.changePasswordWithToken.TOKEN_NOT_FOUND',
         },
         USER_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
@@ -228,7 +230,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     })
                     if (!action) {
                         console.error('errors.changePasswordWithToken.TOKEN_NOT_FOUND')
-                        throw new GQLError(errors.changePasswordWithToken.TOKEN_NOT_FOUND)
+                        throw new GQLError(errors.changePasswordWithToken.TOKEN_NOT_FOUND, context)
                     }
                     phone = action.phone
                     const [user] = await User.getAll(context, {
