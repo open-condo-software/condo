@@ -64,7 +64,7 @@ function prepareDefaultKeystoneConfig (conf) {
         cookie: {
             sameSite: false,
             secure: false,
-            maxAge: conf.COOKIE_MAX_AGE || 1000 * 60 * 60 * 24 * 130,
+            maxAge: conf.COOKIE_MAX_AGE || 1000 * (Math.pow(2, 31) - 1),
         },
         name: conf.PROJECT_NAME,
         adapter: getAdapter(conf.DATABASE_URL),
