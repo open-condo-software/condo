@@ -18,6 +18,10 @@ import { BaseMeterModalAccountNumberField } from './BaseMeterModalAccountNumberF
 import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
 import { searchMeterResources } from '../../utils/clientSchema/search'
 import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
+import {
+    EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
+    EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
+} from '../../constants/errors'
 
 type InitialMeterFormValuesType = {
     propertyId?: string
@@ -67,7 +71,7 @@ const getInitialDateValue = (initialValues, path) => {
     return stringInitialValue && dayjsInitialValue.isValid() ? dayjsInitialValue : null
 }
 
-export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSubmit, initialValues, ModalSaveButtonLabelMsg, ModalTitleMsg, ...otherProps }) => {
+export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ propertyId, unitName, handleSubmit, initialValues, ModalSaveButtonLabelMsg, ModalTitleMsg, ...otherProps }) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const MeterPlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterPlace' })
@@ -77,6 +81,8 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
     const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
     const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
     const NextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
+    const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
+    const AccountNumberIsExistInOtherUnitMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumberIsExistInOtherUnit' })
     const ControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
     const ResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
 
@@ -97,7 +103,8 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
         meterWithSameNumberValidator,
         earlierThanInstallationValidator,
         earlierThanFirstVerificationDateValidator,
-    } = useMeterValidations(installationDate, verificationDate)
+        meterWithSameAccountNumberInOtherUnitValidation,
+    } = useMeterValidations(installationDate, verificationDate, propertyId, unitName)
 
     const initialMeterNumber = get(initialValues, ['number'])
     const meterNumberValidations = useMemo(() =>
@@ -105,6 +112,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
     [initialMeterNumber, meterWithSameNumberValidator, requiredValidator])
 
     const validations = useMemo(() => ({
+        accountNumber: [requiredValidator, meterWithSameAccountNumberInOtherUnitValidation],
         number: meterNumberValidations,
         resource: [requiredValidator],
         numberOfTariffs: [requiredValidator],
@@ -113,7 +121,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
         nextVerificationDate: [earlierThanFirstVerificationDateValidator],
         controlReadingsDate: [earlierThanInstallationValidator],
     }),
-    [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, requiredValidator])
+    [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, meterWithSameAccountNumberInOtherUnitValidation, requiredValidator])
 
     const initialResourceValue = get(initialValues, ['resource', 'id'])
     const handleCancelModal = useCallback(() => () => setModalVisible(false), [])
@@ -124,6 +132,17 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
     }, [])
 
     const tariffOptions = useMemo(() => getTariffNumberSelectOptions(), [])
+
+    const ErrorToFormFieldMsgMapping = {
+        [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: {
+            name: 'number',
+            errors: [MeterWithSameNumberIsExistMessage],
+        },
+        [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: {
+            name: 'accountNumber',
+            errors: [AccountNumberIsExistInOtherUnitMessage],
+        },
+    }
 
     return (
         <BaseModalForm
@@ -136,6 +155,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
             handleSubmit={handleSubmit}
             modalProps={BASE_MODAL_PROPS}
             submitButtonProps={SUBMIT_BUTTON_PROPS}
+            ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
             {...otherProps}
         >
             {
@@ -146,6 +166,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ handleSu
                                 <Col span={24}>
                                     <BaseMeterModalAccountNumberField
                                         initialValues={initialValues}
+                                        rules={validations.accountNumber}
                                     />
                                 </Col>
                                 <Col span={24}>

@@ -9,14 +9,16 @@ import { useOrganization } from '@core/next/organization'
 
 import { Meter } from '../utils/clientSchema'
 
-export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs) => {
+export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string) => {
     const intl = useIntl()
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
+    const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameAccountNumberIsExist' })
     const CanNotBeEarlierThanInstallationMessage = intl.formatMessage({ id: 'pages.condo.meter.СanNotBeEarlierThanInstallation' })
     const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({ id: 'pages.condo.meter.CanNotBeEarlierThanFirstVerification' })
 
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id')
+
     const { objs: metersWithSameNumber, refetch } = Meter.useObjects({
         where: {
             organization: { id: organizationId },
@@ -51,6 +53,8 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
 
     const meterWithSameNumberValidator: Rule = useMemo(() => ({
         validator: async (_, value) => {
+            if (!value) return Promise.resolve()
+
             const { data: { objs } } = await refetch({
                 where: {
                     organization: { id: organizationId },
@@ -65,7 +69,30 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
         },
     }), [MeterWithSameNumberIsExistMessage, metersWithSameNumber, organizationId, refetch])
 
+    const meterWithSameAccountNumberInOtherUnitValidation: Rule = useMemo(() => ({
+        validator: async (_, value) => {
+            if (!value) return Promise.resolve()
+
+            const { data: { objs } } = await refetch({
+                where: {
+                    accountNumber: value,
+                    organization: { id: organizationId },
+                    deletedAt: null,
+                    OR: [
+                        { unitName_not: unitName },
+                        { property: { id_not: propertyId } },
+                    ],
+                },
+            })
+
+            if (!isEmpty(objs))
+                return Promise.reject(MeterWithSameAccountNumberIsExistMessage)
+
+            return Promise.resolve()
+        },
+    }), [MeterWithSameNumberIsExistMessage, organizationId, propertyId, refetch, unitName])
+
     return useMemo(() => (
-        { meterWithSameNumberValidator, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator }
-    ), [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterWithSameNumberValidator])
+        { meterWithSameAccountNumberInOtherUnitValidation, meterWithSameNumberValidator, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator }
+    ), [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterWithSameAccountNumberInOtherUnitValidation, meterWithSameNumberValidator])
 }
