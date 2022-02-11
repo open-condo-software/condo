@@ -3,6 +3,12 @@ import { NETWORK_ERROR } from '@condo/domains/common/constants/errors'
 import find from 'lodash/find'
 import get from 'lodash/get'
 
+const getMessageFrom = (error) => (
+    get(error, ['extensions', 'messageForUser']) ||
+    get(error, ['extensions', 'message']) ||
+    get(error.message)
+)
+
 /**
  * Mapping of error codes to field errors
  * Maps error codes to field names and list of errors, that **are declared on the client**
@@ -94,7 +100,7 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                             if (graphQLError) {
                                 errors.push({
                                     name: errorMap.name,
-                                    errors: get(graphQLError, ['extensions', 'messageForUser']),
+                                    errors: [getMessageFrom(graphQLError)],
                                 })
                             }
                         }
@@ -119,12 +125,9 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                         let errorFilter = NotificationErrorFilters[i]
                         const errorForNotification = find(e.graphQLErrors, { extensions: errorFilter })
                         if (errorForNotification) {
-                            const description =
-                                get(errorForNotification, ['extensions', 'messageForUser']) ||
-                                get(errorForNotification, ['extensions', 'message'])
                             notificationContext = {
                                 message: ServerErrorMsg,
-                                description,
+                                description: getMessageFrom(errorForNotification),
                             }
                             break
                         }
