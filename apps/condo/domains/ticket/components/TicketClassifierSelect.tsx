@@ -47,6 +47,9 @@ const useTicketClassifierSelectHook = ({
     onSearch,
     initialValue,
 }: ITicketClassifierSelectHookInput): ITicketClassifierSelectHookOutput => {
+    const intl = useIntl()
+    const SelectMessage = intl.formatMessage({ id: 'Select' })
+
     const [classifiers, setClassifiersFromRules] = useState<Options[]>([])
     const [searchClassifiers, setSearchClassifiers] = useState<Options[]>([])
     const classifiersRef = useRef<HTMLSelectElement>(null)
@@ -87,6 +90,7 @@ const useTicketClassifierSelectHook = ({
                     ref={classifiersRef}
                     value={selectedRef.current}
                     showAction={['focus', 'click']}
+                    placeholder={SelectMessage}
                 >
                     {
                         optionsRef.current.map(classifier => (
