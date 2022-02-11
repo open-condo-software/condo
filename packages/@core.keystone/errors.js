@@ -1,5 +1,6 @@
 /**
- * Errors, that should be used in custom queries or mutations
+ * Generic error codes, that should be used in custom queries and mutations
+ * We kept its set to minimum to not complicate things for third-party developers
  *
  * @example
  * ```js
@@ -63,14 +64,12 @@ const { ApolloError } = require('apollo-server-errors')
 
 // Unable to find a record, whose identifier is specified in some argument of query or mutation
 const NOT_FOUND = 'NOT_FOUND'
-// Data, being submitted, conflicts with constraints of a data storage
-// For example, it can violate constraints on uniqueness, number of records etc.
-const CONFLICT = 'CONFLICT'
-// Wrong format or not enough data in user input
+// User input cannot be processed by server by following reasons:
+// wrong format, not enough data, conflicts with data storage constraints (duplicates etc)
 const BAD_USER_INPUT = 'BAD_USER_INPUT'
 // Generic error, that something went wrong at server side, though user input was correct
 const INTERNAL_ERROR = 'INTERNAL_ERROR'
-// Access denied. Semantically it corresponds to 403 HTTP code
+// Access denied
 const FORBIDDEN = 'FORBIDDEN'
 
 
@@ -84,7 +83,6 @@ const FORBIDDEN = 'FORBIDDEN'
  */
 const GQLErrorCode = {
     NOT_FOUND,
-    CONFLICT,
     BAD_USER_INPUT,
     INTERNAL_ERROR,
     FORBIDDEN,
