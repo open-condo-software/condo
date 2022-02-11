@@ -375,7 +375,8 @@ const mapScalars = (acc, value, key) => {
 }
 
 const mapScalar = (field) => (
-    pick(field, ['schemaDoc', 'type'])
+    // Fields `options` and `dataType` needs for Keystone fields of type `Select`
+    pick(field, ['schemaDoc', 'type', 'options', 'dataType'])
 )
 
 const localizedTrackableFields = new Map([['status', TicketStatus.schema.fields.name.template]])
