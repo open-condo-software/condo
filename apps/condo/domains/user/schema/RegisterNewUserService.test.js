@@ -40,7 +40,7 @@ describe('RegisterNewUserService', () => {
             extensions: {
                 mutation: 'registerNewUser',
                 variable: ['data', 'phone'],
-                code: 'CONFLICT',
+                code: 'BAD_USER_INPUT',
                 type: 'NOT_UNIQUE',
             },
         }])
@@ -94,7 +94,7 @@ describe('RegisterNewUserService', () => {
             extensions: {
                 mutation: 'registerNewUser',
                 variable: ['data', 'email'],
-                code: 'CONFLICT',
+                code: 'BAD_USER_INPUT',
                 type: 'NOT_UNIQUE',
             },
         }])

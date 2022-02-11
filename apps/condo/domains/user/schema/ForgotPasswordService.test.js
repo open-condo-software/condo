@@ -54,7 +54,7 @@ describe('ForgotPasswordAction Service', () => {
                 extensions: {
                     mutation: 'changePasswordWithToken',
                     variable: ['data', 'token'],
-                    code: 'NOT_FOUND',
+                    code: 'BAD_USER_INPUT',
                 },
             }])
         })
@@ -155,7 +155,7 @@ describe('ForgotPasswordAction Service', () => {
                 extensions: {
                     mutation: 'changePasswordWithToken',
                     variable: ['data', 'token'],
-                    code: 'NOT_FOUND',
+                    code: 'BAD_USER_INPUT',
                 },
             }])
         })
@@ -303,7 +303,7 @@ describe('ForgotPasswordAction Service', () => {
                 extensions: {
                     mutation: 'changePasswordWithToken',
                     variable: ['data', 'token'],
-                    code: 'NOT_FOUND',
+                    code: 'BAD_USER_INPUT',
                 },
             }])
         })
@@ -339,7 +339,7 @@ describe('ForgotPasswordAction Service', () => {
                 extensions: {
                     mutation: 'changePasswordWithToken',
                     variable: ['data', 'token'],
-                    code: 'NOT_FOUND',
+                    code: 'BAD_USER_INPUT',
                 },
             }])
         })

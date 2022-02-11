@@ -9,7 +9,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { ConfirmPhoneAction: ConfirmPhoneActionUtil, ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { GQLError, GQLErrorCode: { NOT_FOUND, CONFLICT, BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { NOT_FOUND, BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
 /**
@@ -21,7 +21,7 @@ const errors = {
         UNABLE_TO_FIND_FORGOT_PASSWORD_ACTION: {
             mutation: 'checkPasswordRecoveryToken',
             variable: ['data', 'token'],
-            code: NOT_FOUND,
+            code: BAD_USER_INPUT,
             message: 'Unable to find non-expired token',
         },
     },
@@ -29,13 +29,13 @@ const errors = {
         USER_NOT_FOUND: {
             mutation: 'startPasswordRecovery',
             variable: ['data', 'phone'],
-            code: NOT_FOUND,
+            code: BAD_USER_INPUT,
             message: 'Unable to find user with specified phone',
         },
         MULTIPLE_USERS_FOUND: {
             mutation: 'startPasswordRecovery',
             variable: ['data', 'phone'],
-            code: CONFLICT,
+            code: BAD_USER_INPUT,
             message: 'Unable to find exact one user to start password recovery',
         },
     },
@@ -50,13 +50,13 @@ const errors = {
         TOKEN_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'token'],
-            code: NOT_FOUND,
+            code: BAD_USER_INPUT,
             message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
         },
         USER_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'phone'],
-            code: NOT_FOUND,
+            code: BAD_USER_INPUT,
             message: 'Unable to find user with specified phone',
         },
     },

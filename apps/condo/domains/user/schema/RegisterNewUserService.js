@@ -8,7 +8,7 @@ const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { GQLError, GQLErrorCode: { NOT_FOUND, BAD_USER_INPUT, CONFLICT, INTERNAL_ERROR } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { NOT_FOUND, BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
 const { NOT_UNIQUE, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
 /**
@@ -40,14 +40,14 @@ const errors = {
     USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
-        code: CONFLICT,
+        code: BAD_USER_INPUT,
         type: NOT_UNIQUE,
         message: 'User with specified phone already exists',
     },
     USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
         variable: ['data', 'email'],
-        code: CONFLICT,
+        code: BAD_USER_INPUT,
         type: NOT_UNIQUE,
         message: 'User with specified email already exists',
     },
