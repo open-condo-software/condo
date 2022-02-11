@@ -22,7 +22,12 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
 
     if (user.type === RESIDENT) {
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+
+        if (isEmpty(residents)) return false
+
         const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
+        const residentAddressOrStatement = residents.map(resident =>
+            ({ AND: [{ contact: { phone: user.phone } }, { property: { id: resident.property } }, { unitName: resident.unitName }] }))
 
         return {
             organization: {
@@ -31,7 +36,7 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
             },
             OR: [
                 { createdBy: { id: user.id } },
-                { contact: { phone: user.phone } },
+                ...residentAddressOrStatement,
             ],
         }
     }
