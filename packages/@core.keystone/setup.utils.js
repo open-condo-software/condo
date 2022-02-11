@@ -64,6 +64,7 @@ function prepareDefaultKeystoneConfig (conf) {
         cookie: {
             sameSite: false,
             secure: false,
+            // 1000 * (Math.pow(2, 31) - 1) IS APPROXIMATELY 68 YEARS IN MILLISECONDS :)
             maxAge: conf.COOKIE_MAX_AGE || 1000 * (Math.pow(2, 31) - 1),
         },
         name: conf.PROJECT_NAME,
