@@ -5,7 +5,10 @@ const WRONG_PHONE_ERROR = '[passwordAuth:identity:notFound'
 const AUTH_BY_PASSWORD_FAILED_ERROR = '[passwordAuth:failure'
 
 const MULTIPLE_ACCOUNTS_MATCHES = '[resetPassword:identity:multipleFound'
-const RESET_TOKEN_NOT_FOUND = '[resetPassword:token:notFound'
+const TOKEN_NOT_FOUND = 'TOKEN_NOT_FOUND'
+const USER_NOT_FOUND = 'USER_NOT_FOUND'
+
+const PASSWORD_IS_TOO_SHORT = 'PASSWORD_IS_TOO_SHORT'
 const TOKEN_EXPIRED_ERROR = '[resetPassword:token:expired'
 
 const MIN_PASSWORD_LENGTH_ERROR = '[register:password:minLength'
@@ -41,7 +44,9 @@ module.exports = {
     EMAIL_WRONG_FORMAT_ERROR,
     PHONE_WRONG_FORMAT_ERROR,
     PHONE_IS_REQUIRED_ERROR,
-    RESET_TOKEN_NOT_FOUND,
+    TOKEN_NOT_FOUND,
+    USER_NOT_FOUND,
+    PASSWORD_IS_TOO_SHORT,
     TOKEN_EXPIRED_ERROR,
     MIN_PASSWORD_LENGTH_ERROR,
     CONFIRM_PHONE_ACTION_EXPIRED,
