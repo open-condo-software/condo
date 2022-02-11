@@ -496,6 +496,7 @@
   "pages.condo.meter.MeterPlace": "Место установки счетчика",
   "pages.condo.meter.NumberOfMeter": "Прибор учета №",
   "pages.condo.meter.MeterWithSameNumberIsExist": "Прибор учета с таким номером уже существует в организации",
+  "pages.condo.meter.MeterWithSameAccountNumberIsExist": "Такой лицевой счет уже существует в другой квартире",
   "pages.condo.meter.TariffsNumber": "Количество тарифов",
   "pages.condo.meter.InstallationDate": "Дата установки",
   "pages.condo.meter.CommissioningDate": "Дата ввода в эксплуатацию",

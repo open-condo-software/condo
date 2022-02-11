@@ -90,8 +90,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
-    const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
-    const AccountNumberIsExistInOtherUnitMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumberIsExistInOtherUnit' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
     const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
 
@@ -203,17 +201,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         }
     }, [createContact, createMeterReadingAction, newMeterReadings, organization.id, role])
 
-    const ErrorToFormFieldMsgMapping = {
-        [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: {
-            name: 'newMeters',
-            errors: [MeterWithSameNumberIsExistMessage],
-        },
-        [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: {
-            name: 'accountNumber',
-            errors: [AccountNumberIsExistInOtherUnitMessage],
-        },
-    }
-
     return (
         <FormWithAction
             {...LAYOUT}
@@ -224,7 +211,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                 values.unitName = selectedUnitNameRef.current
                 return values
             }}
-            ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
         >
             {({ handleSave, form }) => (
                 <>
@@ -239,7 +225,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                     </Prompt>
                     <Col span={24}>
                         <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
-                            <Col lg={13} md={24}>
+                            <Col lg={18} md={24}>
                                 <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
                                     <Col span={24}>
                                         <Row justify={'space-between'} gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>

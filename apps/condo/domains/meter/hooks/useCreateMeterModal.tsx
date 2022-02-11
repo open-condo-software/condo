@@ -30,6 +30,8 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
     const CreateMeterModal = useCallback(() => {
         return (
             <BaseMeterModalForm
+                propertyId={propertyId}
+                unitName={unitName}
                 initialValues={initialValues}
                 ModalTitleMsg={<Typography.Title level={3}>{AddMeterMessage}</Typography.Title>}
                 visible={isCreateMeterModalVisible}

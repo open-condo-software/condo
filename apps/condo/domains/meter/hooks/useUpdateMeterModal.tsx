@@ -66,6 +66,8 @@ export const useUpdateMeterModal = (refetch) => {
     const UpdateMeterModal = useCallback(() => {
         return (
             <BaseMeterModalForm
+                propertyId={get(selectedMeter, ['property', 'id'])}
+                unitName={get(selectedMeter, 'unitName')}
                 initialValues={initialValues}
                 ModalTitleMsg={<Typography.Title level={3}>{MeterNumberMessage} {meterNumber}</Typography.Title>}
                 visible={selectedMeter}
