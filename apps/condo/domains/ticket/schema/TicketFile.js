@@ -40,7 +40,7 @@ const TicketFile = new GQLListSchema('TicketFile', {
     },
     hooks: {
         afterChange: async ({ updatedItem, listKey }) => {
-            if (updatedItem) {
+            if (updatedItem && Adapter.acl) {
                 const { id, file } = updatedItem
                 if (file) {
                     const { filename } = file
