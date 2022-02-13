@@ -105,12 +105,6 @@ const canReadOnlyIfInUsers = (args) => {
     }
 }
 
-const readOnlyField = {
-    read: true,
-    create: false,
-    update: false,
-}
-
 const isSoftDelete = (originalInput) => {
     // TODO(antonal): extract validations of `originalInput` to separate module and user ajv to validate JSON-schema
     const isJustSoftDelete = Boolean(
@@ -140,7 +134,6 @@ module.exports = {
     userIsAdminOrIsThisItem,
     canReadOnlyActive,
     canReadOnlyIfInUsers,
-    readOnlyField,
     isSoftDelete,
     userIsNotResidentUser,
     canReadOnlyIfUserIsActiveOrganizationEmployee,
