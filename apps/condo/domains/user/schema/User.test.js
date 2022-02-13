@@ -5,11 +5,24 @@
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient, createTestLandlineNumber, createTestPhone, createTestEmail, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    User,
+    UserAdmin,
+    createTestUser,
+    updateTestUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeLoggedInClient,
+    createTestLandlineNumber,
+    createTestPhone,
+    createTestEmail,
+    makeClientWithResidentUser,
+} = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
+const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION', async () => {
@@ -273,5 +286,63 @@ describe('User fields', () => {
             await makeLoggedInClient(userAttrs)
         }
         await expect(checkAuthByUpperCaseEmail).rejects.toThrow(WRONG_EMAIL_ERROR)
+    })
+})
+
+const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy updatedBy createdAt updatedAt'
+const HISTORY_FIELDS = 'history_id history_action history_date'
+const USER_HISTORY_FIELDS = `{ ${HISTORY_FIELDS} name avatar meta type isPhoneVerified isEmailVerified importId importRemoteSystem ${COMMON_FIELDS} }`
+const UserHistoryAdminGQL = generateGqlQueries('UserHistoryRecord', USER_HISTORY_FIELDS)
+const UserHistoryAdmin = generateGQLTestUtils(UserHistoryAdminGQL)
+
+describe('UserHistoryRecord', () => {
+    test('create/update action generate history records', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const name = getRandomString()
+
+        const [user] = await createTestUser(admin)
+        await User.update(admin, user.id, { name })
+
+        const objs = await UserHistoryAdmin.getAll(admin, { history_id: user.id })
+        expect(objs).toMatchObject([
+            {
+                history_id: user.id,
+                history_action: 'c',
+                name: user.name,
+                avatar: user.avatar,
+                meta: user.meta,
+                type: user.type,
+                isPhoneVerified: user.isPhoneVerified,
+                isEmailVerified: user.isEmailVerified,
+                importId: user.importId,
+                importRemoteSystem: user.importRemoteSystem,
+                dv: 1,
+                sender: user.sender,
+                v: 1,
+                deletedAt: null,
+                newId: null,
+                createdBy: admin.user.id,
+                updatedBy: admin.user.id,
+            },
+            {
+                history_id: user.id,
+                history_action: 'u',
+                name,
+                avatar: user.avatar,
+                meta: user.meta,
+                type: user.type,
+                isPhoneVerified: user.isPhoneVerified,
+                isEmailVerified: user.isEmailVerified,
+                importId: user.importId,
+                importRemoteSystem: user.importRemoteSystem,
+                dv: 1,
+                sender: user.sender,
+                v: 2,
+                deletedAt: null,
+                newId: null,
+                createdBy: admin.user.id,
+                updatedBy: admin.user.id,
+            },
+        ])
     })
 })

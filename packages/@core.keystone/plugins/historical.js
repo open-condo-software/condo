@@ -1,8 +1,7 @@
 const { v4: uuid } = require('uuid')
 const { get, isFunction } = require('lodash')
-const { getType } = require('@keystonejs/utils')
 
-const { composeHook, isValidDate, evaluateKeystoneAccessResult } = require('./utils')
+const { composeHook, isValidDate } = require('./utils')
 const { plugin } = require('./utils/typing')
 const { GQLListSchema } = require('../schema')
 
@@ -13,8 +12,8 @@ function createHistoricalList (addSchema, access, historicalListKey, historicalF
     const historicalList = new GQLListSchema(historicalListKey, {
         fields: historicalFields,
         access: {
-            read: async (args) => await evaluateKeystoneAccessResult(access, 'read', args),
-            create: false,
+            read: ({ authentication: { item: user } }) => !!(get(user, 'isAdmin')),
+            create: () => false,
             update: false,
             delete: false,
         },
@@ -25,7 +24,10 @@ function createHistoricalList (addSchema, access, historicalListKey, historicalF
     return historicalList
 }
 
-function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFieldTypes) {
+function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFieldTypes = []) {
+    if (!listKey) throw new Error('can not prepareHistoryRecordFields without listKey')
+    if (!listFields) throw new Error('can not prepareHistoryRecordFields without listFields')
+    if (!historyField) throw new Error('can not prepareHistoryRecordFields without historyField')
     const defaultMapping = (field) => ({ type: 'Json' })
     const typeMapping = {
         Stars: (field) => ({ type: 'Stars', starCount: field.starCount }),
@@ -59,30 +61,19 @@ function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFi
         }),
     }
     const ignoreTypes = ignoreFieldTypes || []
+    const getFieldType = (field) => get(field, 'type.type', get(field, 'type'))
     const historyFields = Object.fromEntries(
         Object.entries(listFields)
-            .filter(([k, v]) => !((get(v, 'type') === 'Relationship' || get(v, 'type.type') === 'Relationship') && v.many))
-            .filter(([k, v]) => !ignoreTypes.includes(v.type.type))
+            .filter(([k, v]) => !(getFieldType(v) === 'Relationship' && v.many))
+            .filter(([k, v]) => !(ignoreTypes.includes(getFieldType(v))))
             .map(([k, v]) => {
-                const type = get(v, 'type.type') || get(v, 'type')
+                const type = getFieldType(v)
                 const newValue = (typeMapping[type] ? typeMapping[type] : defaultMapping)(v)
-                if (v.access) {
-                    const type = getType(v.access)
-                    if (type === 'Boolean' || type === 'Function') {
-                        newValue['access'] = {
-                            read: v.access,
-                            create: true,
-                        }
-                    } else if (type === 'Object') {
-                        newValue['access'] = {
-                            read: v.access.read,
-                            create: true,
-                        }
-                    } else {
-                        throw new Error(
-                            `Shorthand access must be specified as either a boolean or a function, received ${type}.`,
-                        )
-                    }
+                newValue.access = {
+                    read: true,
+                    create: true,
+                    update: false,
+                    delete: false,
                 }
                 return [k, newValue]
             })
@@ -165,7 +156,7 @@ const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], 
         })
         if (errors) {
             console.warn(errors)
-            if (isStrictMode) throw new Error('Cant\' create history record')
+            if (isStrictMode) throw new Error('Can\'t create history record')
         }
     }
 
