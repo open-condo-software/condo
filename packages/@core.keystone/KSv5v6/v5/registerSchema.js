@@ -52,7 +52,6 @@ function registerKeystone5Schema (gqlSchemaObject, keystone, globalPreprocessors
     if (gqlSchemaObject._type === GQL_LIST_SCHEMA_TYPE) {
         gqlSchemaObject._register(globalPreprocessors, { addSchema })
         gqlSchemaObject._keystone = keystone
-        console.log(convertStringToTypes(gqlSchemaObject.registeredSchema))
         keystone.createList(gqlSchemaObject.name, convertStringToTypes(gqlSchemaObject.registeredSchema))  // create gqlSchemaObject._keystone.lists[gqlSchemaObject.name] as List type
         const keystoneList = get(keystone, ['lists', gqlSchemaObject.name])
         if (keystoneList) {

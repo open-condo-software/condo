@@ -14,7 +14,7 @@ const TEST_EXAMPLE = {
 }
 
 function assertPluginCall (fn) {
-    fn(TEST_EXAMPLE, { listKey: 'Test', addSchema: () => undefined })
+    fn(TEST_EXAMPLE, { schemaName: 'Test', addSchema: () => undefined })
 }
 
 function plugin (fn) {
