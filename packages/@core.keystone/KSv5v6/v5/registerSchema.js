@@ -79,7 +79,6 @@ function registerSchemas (keystone, modulesList, globalPreprocessors = []) {
                 Object.values(module).forEach(
                     (GQLSchema) => {
                         if (GQL_SCHEMA_TYPES.includes(GQLSchema._type)) {
-                            console.log(GQLSchema.name)
                             registerKeystone5Schema(GQLSchema, keystone, globalPreprocessors)
                         } else {
                             console.warn('Wrong schema module export format! What\'s this? ', GQLSchema)

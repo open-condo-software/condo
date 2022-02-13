@@ -303,7 +303,7 @@ describe('UserHistoryRecord', () => {
         const [user] = await createTestUser(admin)
         await User.update(admin, user.id, { name })
 
-        const objs = await UserHistoryAdmin.getAll(admin, { history_id: user.id })
+        const objs = await UserHistoryAdmin.getAll(admin, { history_id: user.id }, { sortBy: ['createdAt_DESC'] })
         expect(objs).toMatchObject([
             {
                 history_id: user.id,
