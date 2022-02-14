@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 
-import { SignIn, ForgotPassword, ChangePassword, Registration }  from '../../objects/Auth'
+import { SignIn, ForgotPassword, Registration }  from '../../objects/Auth'
 import faker from 'faker'
 
 describe('Auth scenarios', () => {
@@ -26,21 +26,6 @@ describe('Auth scenarios', () => {
                     .fillPhone(user.phone)
                     .startPasswordRecoveryClick()
                     .checkSuccess()
-            })
-        })
-        it('can complete reset password with valid token', () => {
-            const createUser = cy.task('keystone:createUser')
-            const newPassword = faker.internet.password()
-            createUser.then(([user]) => {
-                const createForgotPasswordAction = cy.task('keystone:createForgotPasswordAction', user)
-                createForgotPasswordAction.then(([{ token }]) => {
-                    const changePassword = new ChangePassword()
-                    changePassword
-                        .visit(token)
-                        .fillPassword(newPassword)
-                        .fillConfirmPassword(newPassword)
-                        .changePasswordClick()
-                })
             })
         })
     })
