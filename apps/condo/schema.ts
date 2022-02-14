@@ -20743,7 +20743,7 @@ export type Property = {
   map?: Maybe<BuildingMap>;
   /**  A number of parts in the property. The number of flats for property.type = house. The number of garden houses for property.type = village.  */
   unitsCount?: Maybe<Scalars['Int']>;
-  /**  A number of non-residential units. Number of parking places for unit.unitType = parking  */
+  /**  A number of non-residential units. Number of parking places for unit.unitType = parking, apartment, commercial & warehouse  */
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   /**  Counter for closed tickets  */
   ticketsClosed?: Maybe<Scalars['String']>;
@@ -29553,6 +29553,10 @@ export enum SortTicketChangesBy {
   UnitNameFromDesc = 'unitNameFrom_DESC',
   UnitNameToAsc = 'unitNameTo_ASC',
   UnitNameToDesc = 'unitNameTo_DESC',
+  UnitTypeFromAsc = 'unitTypeFrom_ASC',
+  UnitTypeFromDesc = 'unitTypeFrom_DESC',
+  UnitTypeToAsc = 'unitTypeTo_ASC',
+  UnitTypeToDesc = 'unitTypeTo_DESC',
   OrganizationIdFromAsc = 'organizationIdFrom_ASC',
   OrganizationIdFromDesc = 'organizationIdFrom_DESC',
   OrganizationIdToAsc = 'organizationIdTo_ASC',
@@ -29938,6 +29942,8 @@ export enum SortTicketHistoryRecordsBy {
   FloorNameDesc = 'floorName_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -30205,6 +30211,8 @@ export enum SortTicketsBy {
   FloorNameDesc = 'floorName_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   SourceAsc = 'source_ASC',
   SourceDesc = 'source_DESC',
   IdAsc = 'id_ASC',
@@ -30485,6 +30493,8 @@ export type Ticket = {
   floorName?: Maybe<Scalars['String']>;
   /**  Flat number / door number of an apartment building (property). You need to take from Property.map  */
   unitName?: Maybe<Scalars['String']>;
+  /**  Type of unit, such as parking lot or flat  */
+  unitType?: Maybe<Scalars['String']>;
   /**  Ticket source channel/system. Examples: call, email, visit, ...  */
   source?: Maybe<TicketSource>;
   /**  In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...  */
@@ -30988,6 +30998,10 @@ export type TicketChange = {
   unitNameFrom?: Maybe<Scalars['String']>;
   /**  Flat number / door number of an apartment building (property). You need to take from Property.map  */
   unitNameTo?: Maybe<Scalars['String']>;
+  /**  Type of unit, such as parking lot or flat  */
+  unitTypeFrom?: Maybe<Scalars['String']>;
+  /**  Type of unit, such as parking lot or flat  */
+  unitTypeTo?: Maybe<Scalars['String']>;
   /**  In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...  */
   sourceMetaFrom?: Maybe<Scalars['JSON']>;
   /**  In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...  */
@@ -31160,6 +31174,8 @@ export type TicketChangeCreateInput = {
   floorNameTo?: Maybe<Scalars['String']>;
   unitNameFrom?: Maybe<Scalars['String']>;
   unitNameTo?: Maybe<Scalars['String']>;
+  unitTypeFrom?: Maybe<Scalars['String']>;
+  unitTypeTo?: Maybe<Scalars['String']>;
   sourceMetaFrom?: Maybe<Scalars['JSON']>;
   sourceMetaTo?: Maybe<Scalars['JSON']>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
@@ -31269,6 +31285,8 @@ export type TicketChangeUpdateInput = {
   floorNameTo?: Maybe<Scalars['String']>;
   unitNameFrom?: Maybe<Scalars['String']>;
   unitNameTo?: Maybe<Scalars['String']>;
+  unitTypeFrom?: Maybe<Scalars['String']>;
+  unitTypeTo?: Maybe<Scalars['String']>;
   sourceMetaFrom?: Maybe<Scalars['JSON']>;
   sourceMetaTo?: Maybe<Scalars['JSON']>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
@@ -31771,6 +31789,14 @@ export type TicketChangeWhereInput = {
   unitNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   unitNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitTypeFrom?: Maybe<Scalars['String']>;
+  unitTypeFrom_not?: Maybe<Scalars['String']>;
+  unitTypeFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitTypeFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitTypeTo?: Maybe<Scalars['String']>;
+  unitTypeTo_not?: Maybe<Scalars['String']>;
+  unitTypeTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitTypeTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sourceMetaFrom?: Maybe<Scalars['JSON']>;
   sourceMetaFrom_not?: Maybe<Scalars['JSON']>;
   sourceMetaFrom_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -33545,6 +33571,7 @@ export type TicketCreateInput = {
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -34309,6 +34336,7 @@ export type TicketHistoryRecord = {
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -34360,6 +34388,7 @@ export type TicketHistoryRecordCreateInput = {
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -34416,6 +34445,7 @@ export type TicketHistoryRecordUpdateInput = {
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -34713,6 +34743,24 @@ export type TicketHistoryRecordWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_contains?: Maybe<Scalars['String']>;
+  unitType_not_contains?: Maybe<Scalars['String']>;
+  unitType_starts_with?: Maybe<Scalars['String']>;
+  unitType_not_starts_with?: Maybe<Scalars['String']>;
+  unitType_ends_with?: Maybe<Scalars['String']>;
+  unitType_not_ends_with?: Maybe<Scalars['String']>;
+  unitType_i?: Maybe<Scalars['String']>;
+  unitType_not_i?: Maybe<Scalars['String']>;
+  unitType_contains_i?: Maybe<Scalars['String']>;
+  unitType_not_contains_i?: Maybe<Scalars['String']>;
+  unitType_starts_with_i?: Maybe<Scalars['String']>;
+  unitType_not_starts_with_i?: Maybe<Scalars['String']>;
+  unitType_ends_with_i?: Maybe<Scalars['String']>;
+  unitType_not_ends_with_i?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   source?: Maybe<Scalars['String']>;
   source_not?: Maybe<Scalars['String']>;
   source_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -36339,6 +36387,7 @@ export type TicketUpdateInput = {
   sectionName?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -36615,6 +36664,10 @@ export type TicketWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   source?: Maybe<TicketSourceWhereInput>;
   source_is_null?: Maybe<Scalars['Boolean']>;
   sourceMeta?: Maybe<Scalars['JSON']>;

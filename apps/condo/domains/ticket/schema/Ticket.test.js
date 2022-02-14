@@ -17,6 +17,7 @@ const { createTestOrganizationEmployeeRole } = require('@condo/domains/organizat
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const dayjs = require('dayjs')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 describe('Ticket', () => {
     describe('Crud', () => {
@@ -59,6 +60,7 @@ describe('Ticket', () => {
             expect(obj.operator).toEqual(null)
             expect(obj.assignee).toEqual(null)
             expect(obj.executor).toEqual(null)
+            expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
             expect(obj.watchers).toEqual([])
         })
 

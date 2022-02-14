@@ -149,10 +149,19 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const renderUnit = useCallback((text, record) => {
         const sectionName = get(record, 'sectionName')
         const floorName = get(record, 'floorName')
+        const unitType = get(record, 'unitType', 'flat')
+        let unitNamePrefix = null
+        let extraTitle = null
         const postfix = sectionName && floorName &&
             `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
-
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
+        if (text) {
+            extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+            if (unitType !== 'flat') {
+                unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
+            }
+        }
+        const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
+        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS, extraTitle)(unitName)
     }, [ShortFloorNameMessage, ShortSectionNameMessage, search])
 
     const renderAddress = useCallback(
