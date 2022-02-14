@@ -13,7 +13,7 @@ const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { v4: uuid } = require('uuid')
-const conf = require('@core/config')
+const dayjs = require('dayjs')
 
 const FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
 const adapter = new FileAdapter(FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME)
@@ -51,7 +51,7 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
                     const stream = createReadStream()
                     return adapter.save({
                         stream,
-                        id: uuid(),
+                        id: `${dayjs().format('YYYY-MM-DD_HH-mm-ss')}_${uuid()}`,
                         filename: originalFilename,
                     }).then(({ filename, id }) => {
                         const ret = {
