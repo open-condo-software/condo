@@ -12,6 +12,7 @@ import { Gutter } from 'antd/es/grid/row'
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
+import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { AcquiringIntegration, AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
@@ -82,7 +83,7 @@ const AcquiringIntegrationDetailsPage = () => {
     const markDownText = get(integration, 'detailsText')
 
     return (
-        <>
+        <FeatureFlagRequired name={'acquiring'} fallback={<Error statusCode={404}/>}>
             <Head>
                 <title>{pageTitle}</title>
             </Head>
@@ -123,7 +124,7 @@ const AcquiringIntegrationDetailsPage = () => {
                     }
                 </OrganizationRequired>
             </PageWrapper>
-        </>
+        </FeatureFlagRequired>
     )
 }
 
