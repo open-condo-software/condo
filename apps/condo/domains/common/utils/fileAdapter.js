@@ -107,6 +107,9 @@ class FileAdapter {
         }
     }
 
+    static isLocal (adapter) {
+        return adapter instanceof LocalFileAdapter
+    }
 }
 
 
