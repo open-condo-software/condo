@@ -86,7 +86,6 @@ const MESSAGE_META = {
         appVersion: { defaultValue: null, required: true },
         organizationsData: { defaultValue: [], isRequired: false },
         attachments: { defaultValue: [], isRequired: false },
-        emailFrom: { defaultValue: null, isRequired: false },
     },
 }
 

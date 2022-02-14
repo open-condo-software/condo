@@ -50,7 +50,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput }',
+            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, emailFrom: String, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput }',
         },
         {
             access: true,
@@ -72,12 +72,12 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(pahaz): think about sending emails with attachments
                 const { data } = args
-                const { dv, sender, to, type, meta, lang } = data
+                const { dv, sender, to, emailFrom, type, meta, lang } = data
                 if (!to.user && !to.email && !to.phone) throw new Error('invalid send to input')
 
                 await checkSendMessageMeta(type, meta)
 
-                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang }
+                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang, emailFrom }
 
                 // TODO(pahaz): add email/phone validation
                 if (to.email) messageAttrs.email = to.email

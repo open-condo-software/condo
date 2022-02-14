@@ -90,6 +90,7 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
                     to: {
                         email: SUPPORT_EMAIL,
                     },
+                    emailFrom: emailFrom ? `${user.name} <${emailFrom}>` : null,
                     meta: {
                         dv,
                         text,
@@ -97,7 +98,6 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
                         appVersion,
                         organizationsData,
                         attachments: files,
-                        emailFrom: emailFrom ? `${user.name} <${emailFrom}>` : null,
                     },
                 }
 
