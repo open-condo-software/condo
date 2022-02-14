@@ -81,8 +81,12 @@ const MESSAGE_META = {
     },
     [MESSAGE_FORWARDED_TO_SUPPORT]: {
         dv: { defaultValue: '', required: true },
-        type: { defaultValue: 'UNKNOWN', required: true },
-        data: { defaultValue: null, required: true },
+        text: { defaultValue: null, required: true },
+        os: { defaultValue: null, required: true },
+        appVersion: { defaultValue: null, required: true },
+        organizationsData: { defaultValue: [], isRequired: false },
+        attachments: { defaultValue: [], isRequired: false },
+        emailFrom: { defaultValue: null, isRequired: false },
     },
 }
 
