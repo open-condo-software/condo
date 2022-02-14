@@ -3,7 +3,6 @@ const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const { gql } = require('graphql-tag')
 const { CookieJar, Cookie } = require('tough-cookie')
 const urlParse = require('url').parse
-const { print } = require('graphql/language/printer')
 const crypto = require('crypto')
 const express = require('express')
 const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
@@ -14,6 +13,7 @@ const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
 const { onError } = require('@apollo/client/link/error')
 const { createUploadLink } = require('apollo-upload-client')
 const FormData = require('form-data')
+const fetch = require('node-fetch')
 
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
 const NUMBER_RE = /^[1-9][0-9]*$/i
@@ -196,7 +196,6 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
 }
 
 const makeFakeClient = async (app, server) => {
-    // const request = require('supertest')
     const port = server.address().port
     const protocol = app instanceof https.Server ? 'https' : 'http'
     const serverUrl = protocol + '://127.0.0.1:' + port
@@ -234,12 +233,18 @@ const makeRealClient = async () => {
         getCookie,
         setHeaders,
         mutate: async (mutation, variables = {}) => {
-            const response = client.mutate({ mutation, variables })
-            return response.data
+            try {
+                return await client.mutate({ mutation, variables })
+            } catch (e) {
+                return { errors: [e] }
+            }
         },
         query: async (query, variables = {}) => {
-            const response = client.query({ query, variables })
-            return response.data
+            try {
+                return await client.query({ query, variables })
+            } catch (e) {
+                return { errors: [e] }
+            }
         },
     }
 }
