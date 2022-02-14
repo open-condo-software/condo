@@ -1,5 +1,8 @@
 const fetch = require('node-fetch')
 const FormData = require('form-data')
+const fs = require('fs')
+const https = require('https')
+const http = require('http')
 
 const conf = require('@core/config')
 
@@ -14,7 +17,7 @@ async function prepareMessageToSend (message) {
 
     const { subject, text, html } = await renderTemplate(EMAIL_TRANSPORT, message)
 
-    return { to: email, emailFrom: message.emailFrom, subject, text, html }
+    return { to: email, emailFrom: message.emailFrom, subject, text, html, meta: message.meta }
 }
 
 /**
@@ -28,10 +31,11 @@ async function prepareMessageToSend (message) {
  * @param {string} args.subject - Message subject
  * @param {string} args.text - Body of the message. (text version)
  * @param {string} args.html - Body of the message. (HTML version)
+ * @param {object} args.meta - The `message.meta` field
  * @typedef {[boolean, Object]} StatusAndMetadata
  * @return {StatusAndMetadata} Status and delivery Metadata (debug only)
  */
-async function send ({ to, emailFrom = null, cc, bcc, subject, text, html } = {}) {
+async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta } = {}) {
     if (!EMAIL_API_CONFIG) throw new Error('no EMAIL_API_CONFIG')
     if (!to || !to.includes('@')) throw new Error('unsupported to argument format')
     if (!subject) throw new Error('no subject argument')
@@ -45,6 +49,33 @@ async function send ({ to, emailFrom = null, cc, bcc, subject, text, html } = {}
     if (cc) form.append('cc', cc)
     if (bcc) form.append('bcc', bcc)
     if (html) form.append('html', html)
+
+    if (meta && meta.attachments) {
+        const streamsPromises = meta.attachments.map((attachment) => {
+            const { publicUrl, mimetype, originalFilename } = attachment
+            return new Promise((resolve, reject) => {
+                if (/^http/.test(publicUrl)) {
+                    const httpx = /^http:/.test(publicUrl) ? http : https
+                    httpx.get(publicUrl, (stream) => {
+                        resolve({ originalFilename, mimetype, stream })
+                    })
+                } else {
+                    resolve({ originalFilename, mimetype, stream: fs.createReadStream(publicUrl) })
+                }
+            })
+        })
+        const streamsData = await Promise.all(streamsPromises)
+        streamsData.forEach((streamData) => {
+            const { originalFilename, mimetype, stream } = streamData
+            form.append(
+                'attachment',
+                stream,
+                {
+                    filename: originalFilename,
+                    contentType: mimetype,
+                })
+        })
+    }
 
     const auth = `api:${token}`
     const result = await fetch(
