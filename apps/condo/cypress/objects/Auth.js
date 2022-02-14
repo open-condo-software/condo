@@ -3,7 +3,6 @@
 
 const SIGNIN_URL = '/auth/signin/'
 const FORGOT_PASSWORD_URL = '/auth/forgot'
-const CHANGE_PASSWORD_URL = '/auth/change-password?token='
 const REGISTER_URL = '/auth/register/'
 
 class SignIn {
@@ -52,6 +51,7 @@ class ForgotPassword {
     }
 
     fillPhone (value) {
+        cy.wait(500)
         const field = cy.get('[data-cy=forgot-phone-item] input')
         field.clear()
         field.type(value)
@@ -73,43 +73,6 @@ class ForgotPassword {
     }
 
 }
-
-class ChangePassword {
-/*
-    Elements:
-        changepassword-password-item
-        changepassword-confirm-item
-        changepassword-button
-*/
-    visit (token) {
-        cy.visit(CHANGE_PASSWORD_URL + token)
-        return this
-    }
-
-    fillPassword (value) {
-        const field = cy.get('[data-cy=changepassword-password-item] input')
-        field.clear()
-        field.type(value)
-        return this
-    }
-
-    fillConfirmPassword (value) {
-        const field = cy.get('[data-cy=changepassword-confirm-item] input')
-        field.clear()
-        field.type(value)
-        return this
-    }
-
-    changePasswordClick () {
-        const button = cy.get('[data-cy=changepassword-button]')
-        button
-            .trigger('mouseover')
-            .trigger('click')
-            .click()
-        return this
-    }
-}
-
 
 class Registration {
 /*
@@ -190,6 +153,5 @@ class Registration {
 export {
     SignIn,
     ForgotPassword,
-    ChangePassword,
     Registration,
 }
