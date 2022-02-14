@@ -149,17 +149,17 @@ const TicketContent = ({ ticket }) => {
     const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const Deadline = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
     const ToCompleteMessage = intl.formatMessage({ id: 'ticket.deadline.ToComplete' }).toLowerCase()
     const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' }).toLowerCase()
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' }).toLowerCase()
+    const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` })
 
     const propertyWasDeleted = !(ticket.property)
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
-    const ticketUnit = ticket.unitName ? `${ShortFlatNumber} ${ticket.unitName}` : ''
+    const ticketUnit = ticket.unitName ? `${UnitTypePrefix.toLowerCase()} ${ticket.unitName}` : ''
     const ticketSectionAndFloor = ticket.sectionName && ticket.floorName
         ? `(${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName})`
         : ''
