@@ -53,19 +53,23 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
                         stream,
                         id: `${dayjs().format('YYYY-MM-DD_HH-mm-ss')}_${uuid()}`,
                         filename: originalFilename,
-                    }).then(({ filename, id }) => {
+                    }).then(({ filename, id, ...restSaveData }) => {
                         const ret = {
+                            encoding,
                             filename,
                             id,
-                            originalFilename,
-                            // serverUrl: conf.SERVER_URL,
-                            publicUrl: adapter.publicUrl({ filename }),
                             mimetype,
-                            encoding,
+                            originalFilename,
+                            publicUrl: adapter.publicUrl({ filename }),
                         }
 
                         if (FileAdapter.isLocal(adapter)) {
-                            ret.publicUrl = `${conf.SERVER_URL}${ret.publicUrl}`
+                            // Full path to the file within the same filesystem
+                            ret.publicUrl = `${adapter.src}/${filename}`
+                        } else {
+                            if (adapter.acl && adapter.acl.generateUrl) {
+                                ret.publicUrl = adapter.acl.generateUrl(`${adapter.folder}/${filename}`)
+                            }
                         }
 
                         return ret
