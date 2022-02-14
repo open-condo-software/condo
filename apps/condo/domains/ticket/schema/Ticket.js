@@ -202,6 +202,12 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
+        canReadByResident: {
+            schemaDoc: 'Determines if a resident in the mobile app can see the ticket created in crm',
+            type: Checkbox,
+            defaultValue: false,
+            isRequired: true,
+        },
         meta: {
             schemaDoc: 'Extra analytics not related to remote system',
             type: Json,
