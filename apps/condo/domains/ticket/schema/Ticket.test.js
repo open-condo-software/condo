@@ -516,6 +516,36 @@ describe('Ticket', () => {
             expect(ticketsAfterHiddenTicketToResident).toHaveLength(0)
         })
 
+        test('resident: cannot update ticket from crm', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const userAttrs = residentClient.userAttrs
+            const newDetails = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone: userAttrs.phone,
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestTicket(residentClient, ticket.id, {
+                    details: newDetails,
+                })
+            })
+        })
+
         test('resident: cannot read not his Tickets', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
