@@ -2,8 +2,6 @@ import Router from 'next/router'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useIntl } from '@core/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
-import find from 'lodash/find'
-import get from 'lodash/get'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import React, { useState, useEffect, useContext } from 'react'
@@ -12,7 +10,7 @@ import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useLazyQuery, useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
-import { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT } from '@condo/domains/user/constants/errors'
+import { PASSWORD_IS_TOO_SHORT } from '@condo/domains/user/constants/errors'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
@@ -36,7 +34,6 @@ const ChangePasswordPage: AuthPage = () => {
     const { executeRecaptcha } = useGoogleReCaptcha()
 
     const intl = useIntl()
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const SaveMsg = intl.formatMessage({ id: 'Save' })
     const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
@@ -58,10 +55,6 @@ const ChangePasswordPage: AuthPage = () => {
             name: 'password',
         },
     }
-
-    const NotificationErrorFilters = [
-        { type: TOKEN_NOT_FOUND },
-    ]
 
     const { requiredValidator, changeMessage, minLengthValidator } = useValidations()
     const minPasswordLengthValidator = changeMessage(minLengthValidator(MIN_PASSWORD_LENGTH), PasswordIsTooShortMsg)
@@ -101,7 +94,6 @@ const ChangePasswordPage: AuthPage = () => {
             intl,
             form,
             ErrorToFormFieldMsgMapping,
-            NotificationErrorFilters,
         }).catch(() => {
             setIsSaving(false)
         })

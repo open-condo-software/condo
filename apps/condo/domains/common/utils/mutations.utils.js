@@ -27,6 +27,18 @@ const getMessageFrom = (error) => (
  * pass an `NotificationErrorFilters` argument with array of filtering criterias.
  * Filtering criteria represents a fragment of `GQLError` object, that will be applied to `e.graphQLErrors.[].extensions` property.
  * Errors, filtered this way will be passed to Ant `notification` util.
+ * @example
+ * Pass to `notification` only messages with `extensions.type = 'TOKEN_NOT_FOUND'`:
+ * ```js
+ * const NotificationErrorFilters = [
+ *     { type: TOKEN_NOT_FOUND },
+ * ]
+ * ```
+ * Skip notifications:
+ * ```js
+ * NotificationErrorFilters = null
+ * ```
+ *
  *
  * @param action - custom function to execute
  * @param mutation - result of `useMutation`
@@ -132,9 +144,14 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                             break
                         }
                     }
-                } else {
-                    // default notification message
-                    if (e.message.toLowerCase() === NETWORK_ERROR) {
+                } else if (NotificationErrorFilters === null) {
+                    // skip notificaitons
+                } else if (typeof NotificationErrorFilters === 'undefined') {
+                    // Try to display localized message for user
+                    const messageForUser = get(e.graphQLErrors, [0, 'extensions', 'messageForUser'])
+                    if (messageForUser) {
+                        friendlyDescription = messageForUser
+                    } else if (e.message.toLowerCase() === NETWORK_ERROR) {
                         friendlyDescription = intl.formatMessage({ id: 'NetworkError' })
                     }
                     notificationContext = {
