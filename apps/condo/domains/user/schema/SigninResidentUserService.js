@@ -6,7 +6,8 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/SigninResidentUserService')
 const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
 const { getRandomString } = require('@core/keystone/test.utils')
-const { GQLError, GQLErrorCode: { NOT_FOUND, INTERNAL_ERROR } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
+const { TOKEN_NOT_FOUND } = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -14,10 +15,11 @@ const { GQLError, GQLErrorCode: { NOT_FOUND, INTERNAL_ERROR } } = require('@core
  */
 const errors = {
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
-        code: NOT_FOUND,
         mutation: 'signinResidentUser',
-        message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
         variable: ['data', 'token'],
+        code: BAD_USER_INPUT,
+        type: TOKEN_NOT_FOUND,
+        message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
     },
     UNABLE_TO_CREATE_USER: {
         code: INTERNAL_ERROR,

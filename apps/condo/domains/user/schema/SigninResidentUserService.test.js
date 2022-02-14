@@ -55,8 +55,9 @@ describe('SigninResidentUserService', () => {
                 path: ['result'],
                 extensions: {
                     mutation: 'signinResidentUser',
-                    code: 'NOT_FOUND',
                     variable: ['data', 'token'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
                 },
             }])
         })
@@ -77,8 +78,9 @@ describe('SigninResidentUserService', () => {
                 path: ['result'],
                 extensions: {
                     mutation: 'signinResidentUser',
-                    code: 'NOT_FOUND',
                     variable: ['data', 'token'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
                 },
             }])
         })
@@ -99,8 +101,9 @@ describe('SigninResidentUserService', () => {
                 path: ['result'],
                 extensions: {
                     mutation: 'signinResidentUser',
-                    code: 'NOT_FOUND',
                     variable: ['data', 'token'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
                 },
             }])
         })

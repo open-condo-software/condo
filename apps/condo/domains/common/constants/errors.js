@@ -14,7 +14,8 @@ const DV_UNKNOWN_VERSION_ERROR = '[dv:unknownDataVersion:'
 const STATUS_UPDATED_AT_ERROR = '[dv:incorrectStatusUpdatedAt:'
 
 const ALREADY_EXISTS_ERROR = '[constrain:alreadyExists:'
-const NOT_FOUND_ERROR = '[constrain:notFound:'
+const NOT_FOUND_ERROR = '[constrain:notFound:' // TODO(antonal): replace to `NOT_FOUND` across entire project
+const NOT_FOUND = 'NOT_FOUND'
 
 const WRONG_TEXT_FORMAT = '[text:wrongFormat:'
 
@@ -40,6 +41,7 @@ module.exports = {
     DV_UNKNOWN_VERSION_ERROR,
     ALREADY_EXISTS_ERROR,
     NOT_FOUND_ERROR,
+    NOT_FOUND,
     STATUS_UPDATED_AT_ERROR,
     WRONG_TEXT_FORMAT,
     EMPTY_DATA_EXPORT_ERROR,

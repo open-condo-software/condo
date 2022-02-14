@@ -3,7 +3,6 @@ const { makeLoggedInClient, createTestConfirmPhoneAction, ConfirmPhoneAction } =
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { User, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser } = require('@condo/domains/user/utils/testSchema')
 const { START_PASSWORD_RECOVERY_MUTATION, CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN, COMPLETE_CONFIRM_PHONE_MUTATION } = require('@condo/domains/user/gql')
-
 const faker = require('faker')
 
 const captcha = () => {
@@ -55,6 +54,7 @@ describe('ForgotPasswordAction Service', () => {
                     mutation: 'changePasswordWithToken',
                     variable: ['data', 'token'],
                     code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
                 },
             }])
         })
@@ -156,6 +156,7 @@ describe('ForgotPasswordAction Service', () => {
                     mutation: 'changePasswordWithToken',
                     variable: ['data', 'token'],
                     code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
                 },
             }])
         })
@@ -178,7 +179,8 @@ describe('ForgotPasswordAction Service', () => {
                 extensions: {
                     mutation: 'changePasswordWithToken',
                     variable: ['data', 'token'],
-                    code: 'NOT_FOUND',
+                    code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
                 },
             }])
         })
@@ -274,7 +276,8 @@ describe('ForgotPasswordAction Service', () => {
                 extensions: {
                     mutation: 'changePasswordWithToken',
                     variable: ['data', 'token'],
-                    code: 'NOT_FOUND',
+                    code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
                 },
             }])
         })

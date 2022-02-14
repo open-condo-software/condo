@@ -61,6 +61,8 @@ describe('ChangePhoneNumberResidentUserService', () => {
                         mutation: 'changePhoneNumberResidentUser',
                         message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
                         variable: ['data', 'token'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'NOT_FOUND',
                     },
                 }])
             })
@@ -83,6 +85,8 @@ describe('ChangePhoneNumberResidentUserService', () => {
                         mutation: 'changePhoneNumberResidentUser',
                         message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
                         variable: ['data', 'token'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'NOT_FOUND',
                     },
                 }])
             })
