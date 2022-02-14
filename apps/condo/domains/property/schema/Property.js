@@ -137,7 +137,11 @@ const Property = new GQLListSchema('Property', {
                         return get(map, 'sections', [])
                             .map((section) => get(section, 'floors', [])
                                 .map(floor => get(floor, 'units', [])))
-                            .flat(2).filter(unit => get(unit, 'unitType', 'flat') === 'flat').length
+                            .flat(2).filter(unit => {
+                                const unitType = get(unit, 'unitType', 'flat')
+                                // unitType may be null with old property data, so all these units used to be 'flat' type by default
+                                return !isEmpty(unitType) ? unitType === 'flat' : isEmpty(unitType)
+                            }).length
                     }
 
                     let unitsCount = 0
@@ -187,7 +191,10 @@ const Property = new GQLListSchema('Property', {
                         const sectionUnitsCount = get(map, 'sections', [])
                             .map((section) => get(section, 'floors', [])
                                 .map(floor => get(floor, 'units', [])))
-                            .flat(2).filter(unit => get(unit, 'unitType', 'flat') !== 'flat').length
+                            .flat(2).filter(unit => {
+                                const unitType = get(unit, 'unitType', 'flat')
+                                return !isEmpty(unitType) ? unitType !== 'flat' : !isEmpty(unitType)
+                            }).length
 
                         return parkingUnitsCount + sectionUnitsCount
                     }
