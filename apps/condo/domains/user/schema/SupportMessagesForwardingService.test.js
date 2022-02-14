@@ -25,7 +25,7 @@ describe('SupportMessagesForwardingService', async () => {
         const adminClient = await makeLoggedInAdminClient()
         await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-        const os = 'android'
+        const os = 'android v11'
 
         const payload = {
             os,
@@ -57,7 +57,7 @@ describe('SupportMessagesForwardingService', async () => {
         const payload = {
             text: `Test message from resident to support. This message should be sent from ${FORWARDING_EMAILS_FROM}`,
             email: FORWARDING_EMAILS_FROM, // email passed from mobile application
-            os: 'android',
+            os: 'android 8',
             appVersion: '0.0.1a',
             lang: RU_LOCALE,
             meta: {},
@@ -82,7 +82,7 @@ describe('SupportMessagesForwardingService', async () => {
         const payload = {
             text: `Test message from resident to support. This message should be sent from ${FORWARDING_EMAILS_FROM}. Resident must be attached to two organizations.`,
             email: FORWARDING_EMAILS_FROM, // email passed from mobile application
-            os: 'ios',
+            os: 'ios 15.1',
             appVersion: '0.0.1a',
             lang: RU_LOCALE,
             meta: {},
@@ -101,7 +101,7 @@ describe('SupportMessagesForwardingService', async () => {
         const { from: defaultFrom } = EMAIL_API_CONFIG
         const payload = {
             text: `Test message from resident to support. In this message resident has not passed the email address, so the sender's email is default: ${defaultFrom}`,
-            os: 'android',
+            os: 'android 12',
             appVersion: '0.0.1a',
             lang: RU_LOCALE,
             meta: {},
