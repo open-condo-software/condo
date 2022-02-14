@@ -4,14 +4,19 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/SupportMessagesForwardingService')
-const { Message } = require('@condo/domains/notification/utils/serverSchema')
-const { deliveryMessage } = require('@condo/domains/notification/tasks')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MESSAGE_FORWARDED_TO_SUPPORT } = require('@condo/domains/notification/constants/constants')
 const { SUPPORT_EMAIL } = require('@condo/domains/common/constants/requisites')
 const { get } = require('lodash')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { v4: uuid } = require('uuid')
+const conf = require('@core/config')
+
+const FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
+const adapter = new FileAdapter(FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME)
 
 const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesForwardingService', {
     types: [
@@ -35,9 +40,39 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
             schema: 'supportMessagesForwarding(data: SupportMessagesForwardingInput!): SupportMessagesForwardingOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv, sender, text, email: emailFrom, attachments, os, appVersion, lang, meta } = data
+                const { dv, sender, text, email: emailFrom, attachments = [], os, appVersion, lang, meta } = data
 
                 const user = get(context, ['req', 'user'])
+
+                const attachmentsData = await Promise.all(attachments)
+
+                const filesPromises = attachmentsData.map((result) => {
+                    const { filename: originalFilename, mimetype, encoding, createReadStream } = result
+                    const stream = createReadStream()
+                    return adapter.save({
+                        stream,
+                        id: uuid(),
+                        filename: originalFilename,
+                    }).then(({ filename, id }) => {
+                        const ret = {
+                            filename,
+                            id,
+                            originalFilename,
+                            // serverUrl: conf.SERVER_URL,
+                            publicUrl: adapter.publicUrl({ filename }),
+                            mimetype,
+                            encoding,
+                        }
+
+                        if (FileAdapter.isLocal(adapter)) {
+                            ret.publicUrl = `${conf.SERVER_URL}${ret.publicUrl}`
+                        }
+
+                        return ret
+                    })
+                })
+
+                const files = await Promise.all(filesPromises)
 
                 const residents = await Resident.getAll(context, { user: { id: user.id } })
 
@@ -49,28 +84,28 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
                 const organizationsData = organizations.map(({ name, meta: { inn } }) => ({ name, inn }))
 
                 const messageAttrs = {
-                    dv,
                     sender,
                     lang,
-                    emailFrom: emailFrom ? `${user.name} <${emailFrom}>` : null,
-                    email: SUPPORT_EMAIL,
+                    type: MESSAGE_FORWARDED_TO_SUPPORT,
+                    to: {
+                        email: SUPPORT_EMAIL,
+                    },
                     meta: {
                         dv,
-                        emailFrom,
                         text,
                         os,
                         appVersion,
                         organizationsData,
+                        attachments: files,
+                        emailFrom: emailFrom ? `${user.name} <${emailFrom}>` : null,
                     },
-                    type: MESSAGE_FORWARDED_TO_SUPPORT,
                 }
-                // todo: Should we update the contact's email?
-                const message = await Message.create(context, messageAttrs)
-                await deliveryMessage.delay(message.id)
+
+                const sendingResult = await sendMessage(context, messageAttrs)
 
                 return {
-                    id: message.id,
-                    status: message.status,
+                    id: sendingResult.id,
+                    status: sendingResult.status,
                 }
             },
         },
@@ -80,4 +115,5 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
 
 module.exports = {
     SupportMessagesForwardingService,
+    FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME,
 }
