@@ -10,7 +10,7 @@ const { ConfirmPhoneAction: ConfirmPhoneActionUtil, ForgotPasswordAction: Forgot
 const isEmpty = require('lodash/isEmpty')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
-const { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('@condo/domains/user/constants/errors')
+const { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -22,6 +22,7 @@ const errors = {
             mutation: 'checkPasswordRecoveryToken',
             variable: ['data', 'token'],
             code: BAD_USER_INPUT,
+            type: TOKEN_NOT_FOUND,
             message: 'Unable to find non-expired token',
         },
     },

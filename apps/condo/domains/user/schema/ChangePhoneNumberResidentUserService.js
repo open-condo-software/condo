@@ -5,7 +5,8 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/ChangePhoneNumberResidentUserService')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
-const { GQLError, GQLErrorCode: { NOT_FOUND } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -13,7 +14,8 @@ const { GQLError, GQLErrorCode: { NOT_FOUND } } = require('@core/keystone/errors
  */
 const errors = {
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
-        code: NOT_FOUND,
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
         mutation: 'changePhoneNumberResidentUser',
         message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
         variable: ['data', 'token'],

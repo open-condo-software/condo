@@ -3,7 +3,8 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const { User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { GQLError, GQLErrorCode } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@core/keystone/errors')
+const { NOT_FOUND, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -12,20 +13,22 @@ const { GQLError, GQLErrorCode } = require('@core/keystone/errors')
 const errors = {
     WRONG_PHONE_FORMAT: {
         mutation: 'authenticateUserWithPhoneAndPassword',
-        code: GQLErrorCode.BAD_USER_INPUT,
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
         variable: ['data', 'phone'],
         message: 'Wrong format of provided phone number',
         correctExample: '+79991234567',
     },
     UNABLE_TO_FIND_USER_BY_PHONE: {
         mutation: 'authenticateUserWithPhoneAndPassword',
-        code: GQLErrorCode.NOT_FOUND,
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
         message: 'Unable to find user by provided phone. Try to register',
         variable: ['data', 'phone'],
     },
     WRONG_PASSWORD: {
         mutation: 'authenticateUserWithPhoneAndPassword',
-        code: GQLErrorCode.FORBIDDEN,
+        code: FORBIDDEN,
         message: 'Wrong password',
         variable: ['data', 'password'],
     },

@@ -70,8 +70,6 @@ const templateSettings = require('lodash/templateSettings')
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
 
-// Unable to find a record, whose identifier is specified in some argument of query or mutation
-const NOT_FOUND = 'NOT_FOUND'
 // User input cannot be processed by server by following reasons:
 // wrong format, not enough data, conflicts with data storage constraints (duplicates etc)
 const BAD_USER_INPUT = 'BAD_USER_INPUT'
@@ -90,7 +88,6 @@ const FORBIDDEN = 'FORBIDDEN'
  * @enum {String}
  */
 const GQLErrorCode = {
-    NOT_FOUND,
     BAD_USER_INPUT,
     INTERNAL_ERROR,
     FORBIDDEN,
