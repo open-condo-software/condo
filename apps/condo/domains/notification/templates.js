@@ -260,7 +260,8 @@ async function renderTemplate (transport, message) {
         return {
             subject: 'Обращение из мобильного приложения',
             text: `
-                Приложение: ${os} ${appVersion}
+                Система: ${os}
+                Версия приложения: ${appVersion}
                 Email: ${emailFrom ? emailFrom : 'не указан'}
                 Сообщение: ${text}
                 УК: ${organizationsData.map(({ name, inn }) => `
