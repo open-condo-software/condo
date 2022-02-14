@@ -37,7 +37,7 @@ async function signinAsUser (context, data) {
     })
 }
 
-async function registerNewUserService (context, data) {
+async function registerNewServiceUser (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -90,6 +90,6 @@ module.exports = {
     ForgotPasswordAction,
     updateEmployeesRelatedToUser,
     signinAsUser,
-    registerNewUserService,
+    registerNewServiceUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
