@@ -208,10 +208,18 @@ const makeFakeClient = async (app, server) => {
         getCookie,
         setHeaders,
         mutate: async (mutation, variables = {}) => {
-            return client.mutate({ mutation, variables })
+            try {
+                return await client.mutate({ mutation, variables })
+            } catch (e) {
+                return { errors: [e] }
+            }
         },
         query: async (query, variables = {}) => {
-            return client.query({ query, variables })
+            try {
+                return await client.query({ query, variables })
+            } catch (e) {
+                return { errors: [e] }
+            }
         },
     }
 }
