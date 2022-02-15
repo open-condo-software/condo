@@ -159,6 +159,10 @@ module.exports = {
             next()
         })
 
+        app.get('/.well-known/change-password', function (req, res) {
+            res.redirect('/auth/forgot')
+        })
+
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })
