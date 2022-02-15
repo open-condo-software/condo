@@ -57,7 +57,7 @@ const safeFormatError = (error, hideInternals = false) => {
     //  + 'path' -- GraphQL query path with aliases
     //  + 'extensions' -- some extra context
     //  + 'originalError' -- original Error instance
-    if (error instanceof ApolloError || error instanceof GraphQLError) {
+    if (error instanceof ApolloError || error instanceof GraphQLError || error.name === GraphQLError.name) {
         const pickKeys3 = ['path', 'locations']
         Object.assign(result, pickBy(pick(error, pickKeys3), identity))
         const developerErrorMessage = printError(error)
@@ -65,7 +65,7 @@ const safeFormatError = (error, hideInternals = false) => {
             // we want to show a developer friendly message
             result.developerMessage = printError(error)
         }
-        if (error.extensions) {
+        if (error.extensions && Object.keys(error.extensions).length > 0) {
             result.extensions = _(error.extensions).toJSON()
             // we already have more details inside originalError object and don't need this
             if (result.extensions.exception) delete result.extensions.exception
