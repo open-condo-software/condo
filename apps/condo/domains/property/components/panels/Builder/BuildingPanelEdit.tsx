@@ -830,6 +830,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const FloorCountLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.floorCount' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
     const CreateNewLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.create' })
+    const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
     const CopyLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.copy' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
     const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
@@ -841,6 +842,7 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     const [copyId, setCopyId] = useState<string | null>(null)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const [sectionName, setSectionName] = useState<string>(builder.nextSectionName)
+    const [unitType, setUnitType] = useState<BuildingUnitType>(BuildingUnitType.Flat)
 
     const resetForm = useCallback(() => {
         setMinFloor(1)
@@ -871,13 +873,13 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
                 minFloor,
                 maxFloor: maxFloorValue,
                 unitsOnFloor,
-            })
+            }, unitType)
             refresh()
         } else {
             builder.removePreviewSection()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [minFloor, floorCount, unitsOnFloor, sectionName])
+    }, [minFloor, floorCount, unitsOnFloor, sectionName, unitType])
 
     useEffect(() => {
         if (copyId !== null) {
@@ -892,11 +894,11 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
 
     const handleFinish = useCallback(() => {
         builder.removePreviewSection()
-        builder.addSection({ id: '', name: sectionName, minFloor, maxFloor: maxFloorValue, unitsOnFloor })
+        builder.addSection({ id: '', name: sectionName, minFloor, maxFloor: maxFloorValue, unitsOnFloor }, unitType)
         setSectionName(builder.nextSectionName)
         refresh()
         resetForm()
-    }, [refresh, resetForm, builder, sectionName, minFloor, floorCount, unitsOnFloor])
+    }, [refresh, resetForm, builder, sectionName, minFloor, floorCount, unitsOnFloor, unitType])
 
     const setSectionNameValue = useCallback((value) => setSectionName(value ? value.toString() : ''), [])
 
@@ -936,6 +938,20 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{FloorCountLabel}</Typography.Text>
                     <InputNumber value={floorCount} onChange={setFloorCountValue} min={1} style={INPUT_STYLE} type={'number'} />
+                </Space>
+            </Col>
+            <Col span={24} hidden={isCreateColumnsHidden}>
+                <Space direction={'vertical'} size={8}>
+                    <Typography.Text type={'secondary'}>{UnitTypeLabel}</Typography.Text>
+                    <Select value={unitType} onSelect={setUnitType}>
+                        {Object.values(BuildingUnitType)
+                            .filter(unitType => unitType !== BuildingUnitType.Parking)
+                            .map((unitType, key) => (
+                                <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
+                                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                                </Select.Option>
+                            ))}
+                    </Select>
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden} style={{ marginTop: minFloorMargin }}>

@@ -667,9 +667,9 @@ class MapEdit extends MapView {
         }
     }
 
-    public addPreviewSection (section: Partial<BuildingSectionArg>): void {
+    public addPreviewSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitType = BuildingUnitType.Flat): void {
         this.removePreviewSection()
-        const newSection = this.generateSection(section)
+        const newSection = this.generateSection(section, unitType)
         newSection.preview = true
         newSection.floors.forEach(floor => floor.units.map(unit => {
             unit.preview = true
@@ -679,8 +679,8 @@ class MapEdit extends MapView {
         this.map.sections.push(newSection)
     }
 
-    public addSection (section: Partial<BuildingSectionArg>): void {
-        const newSection = this.generateSection(section)
+    public addSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitType = BuildingUnitType.Flat): void {
+        const newSection = this.generateSection(section, unitType)
         this.map.sections.push(newSection)
         this.notifyUpdater()
         this.editMode = 'addSection'
@@ -999,7 +999,7 @@ class MapEdit extends MapView {
 
     private selectedParkingUnit: BuildingUnit
 
-    private generateSection (section: Partial<BuildingSectionArg>): BuildingSection {
+    private generateSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitType): BuildingSection {
         let unitNumber = this.nextUnitNumber
         const { name, minFloor, maxFloor, unitsOnFloor } = section
         const newSection: BuildingSection = {
@@ -1025,7 +1025,7 @@ class MapEdit extends MapView {
                     id: String(++this.autoincrement),
                     label,
                     type: 'unit',
-                    unitType: BuildingUnitType.Flat,
+                    unitType: unitType,
                 })
             }
             newSection.floors.unshift({
