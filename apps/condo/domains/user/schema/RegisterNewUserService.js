@@ -5,14 +5,20 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MIN_PASSWORD_LENGTH_ERROR, PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/errors')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils } = require('@condo/domains/user/utils/serverSchema')
+const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
 const {
     CONFIRM_PHONE_ACTION_EXPIRED,
 } = require('@condo/domains/user/constants/errors')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { ensureNotExists } = require('@condo/domains/user/utils/ensureNotExists')
+
+async function ensureNotExists (context, field, value) {
+    const existed = await UserServerUtils.getAll(context, { [field]: value, type: STAFF })
+    if (existed.length !== 0) {
+        throw new Error(`[unique:${field}:multipleFound] user with this ${field} is already exists`)
+    }
+}
 
 // TODO(zuch): create registerStaffUserService, separate logic of creating employee, make confirmPhoneActionToken to be required, remove meta, args to UserInput
 const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
