@@ -6,8 +6,7 @@ const faker = require('faker')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 
 const access = require('@condo/domains/user/access/RegisterNewServiceUserService')
-const { STAFF, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { MIN_PASSWORD_LENGTH_ERROR } = require('@condo/domains/user/constants/errors')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 
@@ -30,7 +29,7 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
             resolver: async (parent, args, context) => {
                 const userData = {
                     ...args.data,
-                    type: STAFF,
+                    type: SERVICE,
                     password: faker.internet.password()
                 }
                 await User.create(context, userData)
