@@ -209,14 +209,14 @@ const makeFakeClient = async (app, server) => {
             try {
                 return await client.mutate({ mutation, variables })
             } catch (e) {
-                return { errors: e.graphQLErrors }
+                return { errors: e.graphQLErrors, data: { result: null } }
             }
         },
         query: async (query, variables = {}) => {
             try {
                 return await client.query({ query, variables })
             } catch (e) {
-                return { errors: e.graphQLErrors }
+                return { errors: e.graphQLErrors, data: { result: null } }
             }
         },
     }
@@ -235,14 +235,14 @@ const makeRealClient = async () => {
             try {
                 return await client.mutate({ mutation, variables })
             } catch (e) {
-                return { errors: e.graphQLErrors }
+                return { errors: e.graphQLErrors, data: { result: null } }
             }
         },
         query: async (query, variables = {}) => {
             try {
                 return await client.query({ query, variables })
             } catch (e) {
-                return { errors: e.graphQLErrors }
+                return { errors: e.graphQLErrors, data: { result: null } }
             }
         },
     }
