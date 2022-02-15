@@ -58,7 +58,7 @@ const Payment = new GQLListSchema('Payment', {
         amountWithImplicitFee: {
             ...POSITIVE_MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money recipient will get from payment. amountWithImplicitFee = amount - implicitFee',
-            isRequired: true,
+            isRequired: false,
         },
 
         explicitFee: {

@@ -13301,6 +13301,7 @@ export type Mutation = {
   signinResidentUser?: Maybe<SigninResidentUserOutput>;
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
   signinAsUser?: Maybe<SigninAsUserOutput>;
+  registerNewServiceUser?: Maybe<RegisterNewServiceUserOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -16471,6 +16472,11 @@ export type MutationChangePhoneNumberResidentUserArgs = {
 
 export type MutationSigninAsUserArgs = {
   data: SigninAsUserInput;
+};
+
+
+export type MutationRegisterNewServiceUserArgs = {
+  data: RegisterNewServiceUserInput;
 };
 
 
@@ -24269,6 +24275,21 @@ export type RegisterNewOrganizationInput = {
   description?: Maybe<Scalars['String']>;
   meta: Scalars['JSON'];
   avatar?: Maybe<Scalars['Upload']>;
+};
+
+export type RegisterNewServiceUserInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  name: Scalars['String'];
+  email: Scalars['String'];
+  meta?: Maybe<Scalars['JSON']>;
+};
+
+export type RegisterNewServiceUserOutput = {
+  __typename?: 'RegisterNewServiceUserOutput';
+  id: Scalars['ID'];
+  email: Scalars['String'];
+  password: Scalars['String'];
 };
 
 export type RegisterNewUserInput = {
@@ -37088,7 +37109,8 @@ export type UserRelateToOneInput = {
 
 export enum UserTypeType {
   Staff = 'staff',
-  Resident = 'resident'
+  Resident = 'resident',
+  Service = 'service'
 }
 
 export type UserUpdateInput = {
