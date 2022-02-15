@@ -132,11 +132,9 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
         // Log any GraphQL errors or network error that occurred
         const errorLink = onError(({ graphQLErrors, networkError }) => {
             if (graphQLErrors) {
-                graphQLErrors.forEach(
-                    ({ message, locations, path }) => console.warn(
-                        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-                    ),
-                )
+                graphQLErrors.forEach((gqlError) => {
+                    console.warn(`[GraphQL error]: ${JSON.stringify(gqlError)}}`)
+                })
             }
 
             if (networkError) {
@@ -151,6 +149,7 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
     apolloLinks.push(createUploadLink({
         uri: `${serverUrl}${API_PATH}`,
         credentials: 'include',
+        includeExtensions: true,
         isExtractableFile: (value) => {
             return value instanceof UploadingFile
         },
@@ -166,7 +165,7 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
                 .then((response) => {
                     const setCookieHeader = response.headers.raw()['set-cookie']
                     if (setCookieHeader) {
-                        // accumulate cookies passed from the server
+                        // accumulate cookies received from the server
                         cookies = {
                             ...cookies,
                             ...setCookieHeader.reduce((shapedCookies, cookieString) => {
@@ -210,14 +209,14 @@ const makeFakeClient = async (app, server) => {
             try {
                 return await client.mutate({ mutation, variables })
             } catch (e) {
-                return { errors: [e] }
+                return { errors: e.graphQLErrors }
             }
         },
         query: async (query, variables = {}) => {
             try {
                 return await client.query({ query, variables })
             } catch (e) {
-                return { errors: [e] }
+                return { errors: e.graphQLErrors }
             }
         },
     }
@@ -236,14 +235,14 @@ const makeRealClient = async () => {
             try {
                 return await client.mutate({ mutation, variables })
             } catch (e) {
-                return { errors: [e] }
+                return { errors: e.graphQLErrors }
             }
         },
         query: async (query, variables = {}) => {
             try {
                 return await client.query({ query, variables })
             } catch (e) {
-                return { errors: [e] }
+                return { errors: e.graphQLErrors }
             }
         },
     }
