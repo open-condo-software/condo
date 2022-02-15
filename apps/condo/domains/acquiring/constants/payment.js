@@ -135,7 +135,7 @@ const DEFAULT_PAYMENT_FROZEN_FIELDS = ['amount', 'currencyCode', 'accountNumber'
 const PAYMENT_FROZEN_FIELDS = {
     [PAYMENT_INIT_STATUS]: DEFAULT_PAYMENT_FROZEN_FIELDS,
     [PAYMENT_PROCESSING_STATUS]: [...DEFAULT_PAYMENT_FROZEN_FIELDS, 'multiPayment'],
-    [PAYMENT_DONE_STATUS]: [...DEFAULT_PAYMENT_FROZEN_FIELDS, 'multiPayment', 'explicitFee', 'implicitFee'],
+    [PAYMENT_DONE_STATUS]: [...DEFAULT_PAYMENT_FROZEN_FIELDS, 'multiPayment', 'explicitFee', 'implicitFee', 'amountWithImplicitFee'],
     [PAYMENT_ERROR_STATUS]: DEFAULT_PAYMENT_FROZEN_FIELDS,
 }
 

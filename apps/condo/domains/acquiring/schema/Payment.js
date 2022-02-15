@@ -51,7 +51,13 @@ const Payment = new GQLListSchema('Payment', {
 
         amount: {
             ...POSITIVE_MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Amount of money from MultiPayment.amountWithOutExplicitFee to pay for billing receipt',
+            schemaDoc: 'Amount of money to pay for billing receipt',
+            isRequired: true,
+        },
+
+        amountWithImplicitFee: {
+            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            schemaDoc: 'Amount of money recipient will get from payment. amountWithImplicitFee = amount - implicitFee',
             isRequired: true,
         },
 
