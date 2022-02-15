@@ -35,7 +35,11 @@ const errors = {
         variable: ['data', 'password'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
+        message: 'Password length is less then {min} characters',
+        messageForUser: 'api.user.registerNewUser.PASSWORD_IS_TOO_SHORT',
+        messageInterpolation: {
+            min: MIN_PASSWORD_LENGTH,
+        },
     },
     USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
@@ -119,7 +123,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
 
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(errors.PASSWORD_IS_TOO_SHORT)
+                    throw new GQLError(errors.PASSWORD_IS_TOO_SHORT, context)
                 }
                 // TODO(zuch): fix bug when user can not be created because of createAt and updatedAt fields
                 // const user = await UserServerUtils.create(context, userData)

@@ -69,7 +69,7 @@ describe('ForgotPasswordAction Service', () => {
             const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
-                message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
+                message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
                 name: 'GraphQLError',
                 path: ['result'],
                 extensions: {
@@ -99,7 +99,7 @@ describe('ForgotPasswordAction Service', () => {
             const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '' } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
-                message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
+                message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
                 name: 'GraphQLError',
                 path: ['result'],
                 extensions: {
@@ -195,7 +195,7 @@ describe('ForgotPasswordAction Service', () => {
             const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
-                message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
+                message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
                 name: 'GraphQLError',
                 path: ['result'],
                 extensions: {
@@ -225,7 +225,7 @@ describe('ForgotPasswordAction Service', () => {
             const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '' } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
-                message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
+                message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
                 name: 'GraphQLError',
                 path: ['result'],
                 extensions: {
