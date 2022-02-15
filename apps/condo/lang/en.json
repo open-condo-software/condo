@@ -919,5 +919,6 @@
   "MultiPayment.status.PROCESSING": "Processing",
   "MultiPayment.status.ERROR": "Error",
   "api.user.changePasswordWithToken.TOKEN_NOT_FOUND": "Unable to find non-expired ConfirmPhoneAction by specified token",
-  "api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} character"
+  "api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} characters",
+  "api.user.registerNewUser.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} characters"
 }

@@ -103,6 +103,8 @@ const GQLErrorCode = {
  * @property {Array.<String>} [variable] - path to mutation or query argument, that is a subject of an error
  * @property {GQLErrorCode} code - standardized error code
  * @property {String} message - humanized and error description that in future will be localized
+ * @property {String} messageForUser - i18n key for localization of message. Value of this property will be replace with translated one
+ * @property {Object.<string, string|number>} messageInterpolation - object with values for placeholder variables `{var}`, presented in translated versions of message
  * @property {String} [correctExample] - correct value of an argument
  * @property {Object} [internalError] - error from internal part of the system. Not required, because in some cases it is not secure to expose internal error messages
  */
@@ -113,14 +115,15 @@ class GQLError extends ApolloError {
      * @param context - Keystone custom resolver context, used to determine request language
      * @see https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors
      */
-    constructor (fields, context, messageInterpolations = {}) {
+    constructor (fields, context) {
         const extensions = fields
         if (context) {
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
             const translations = getTranslations(locale)
             const translatedMessage = translations[fields.messageForUser]
-            const interpolatedMessage = template(translatedMessage)(messageInterpolations)
-            extensions.messageForUser = interpolatedMessage
+            const interpolatedMessageForUser = template(translatedMessage)(fields.messageInterpolation)
+            extensions.message = template(fields.message)(fields.messageInterpolation)
+            extensions.messageForUser = interpolatedMessageForUser
         }
         super(fields.message, fields.code, extensions)
         Object.defineProperty(this, 'name', { value: 'GraphQLError' })

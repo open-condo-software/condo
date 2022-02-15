@@ -48,8 +48,11 @@ const errors = {
             variable: ['data', 'password'],
             code: BAD_USER_INPUT,
             type: PASSWORD_IS_TOO_SHORT,
-            message: `Password length is less then ${MIN_PASSWORD_LENGTH} character`,
+            message: 'Password length is less then {min} characters',
             messageForUser: 'api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT',
+            messageInterpolation: {
+                min: MIN_PASSWORD_LENGTH,
+            },
         },
         TOKEN_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
@@ -202,7 +205,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const now = extra.extraNow || (new Date(Date.now())).toISOString()
 
                 if (password.length < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT, context, { min: MIN_PASSWORD_LENGTH })
+                    throw new GQLError(errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT, context)
                 }
 
                 let [action] = await ForgotPasswordActionUtil.getAll(context, {
