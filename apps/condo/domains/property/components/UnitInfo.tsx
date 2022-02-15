@@ -1,20 +1,34 @@
-import { useIntl } from '@core/next/intl'
-import { get } from 'lodash'
-import { Col, Input, Row } from 'antd'
 import React from 'react'
-import { LabeledValue } from 'antd/lib/select'
+import { useIntl } from '@core/next/intl'
+import { Col, FormInstance, Input, Row } from 'antd'
+import get from 'lodash/get'
 
-import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
+import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
+
+import { BuildingSection, BuildingUnitType } from '@app/condo/schema'
+import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-const getSectionAndFloorByUnit = (unitName, sections) => {
+interface IGetSectionAndFloorByUnit {
+    (unitName: string, sections: BuildingSection[], unitType: BuildingUnitType): {
+        sectionName: null | string, floorName: null | string
+    }
+}
+
+const getSectionAndFloorByUnit: IGetSectionAndFloorByUnit = (unitName, sections, unitType = BuildingUnitType.Flat) => {
     const sectionAndFloor = { sectionName: null, floorName: null }
 
     if (sections) {
         for (const section of sections) {
             for (const floor of section.floors) {
-                for (const unit of floor.units) {
+                const floorUnits = floor.units.filter((unit) => {
+                    if (unitType === BuildingUnitType.Flat) {
+                        return unit.unitType === null || unit.unitType === BuildingUnitType.Flat
+                    }
+                    return unit.unitType === unitType
+                })
+                for (const unit of floorUnits) {
                     if (unit.label === unitName) {
                         sectionAndFloor.sectionName = section.name
                         sectionAndFloor.floorName = floor.name
@@ -27,28 +41,35 @@ const getSectionAndFloorByUnit = (unitName, sections) => {
     return sectionAndFloor
 }
 
-export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
+interface IUnitInfo {
+    ({ property, loading, setSelectedUnitName, form, setSelectedUnitType }: {
+        property: IPropertyUIState,
+        form: FormInstance
+        loading: boolean,
+        setSelectedUnitName: React.Dispatch<React.SetStateAction<string>>,
+        setSelectedUnitType?: React.Dispatch<React.SetStateAction<BuildingUnitType>>,
+    }): React.ReactElement
+}
+
+export const UnitInfo: IUnitInfo = (props) => {
     const intl = useIntl()
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
     const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorNameLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const { property, loading, setSelectedUnitName, form, setSelectedUnitType } = props
 
     const { isSmall } = useLayoutContext()
 
-    const updateSectionAndFloor = (form, unitName) => {
+    const updateSectionAndFloor = (form, unitName: string, unitType = BuildingUnitType.Flat) => {
         if (unitName) {
-            const sections = get(property, ['map', 'sections'], [])
-            let sectionAndFloor = getSectionAndFloorByUnit(unitName, sections)
+            const unitDestination = unitType === BuildingUnitType.Parking ? 'parking' : 'sections'
+            const sections = get(property, ['map', unitDestination], [])
+            const { sectionName, floorName } = getSectionAndFloorByUnit(unitName, sections, unitType)
 
-            if (!sectionAndFloor.sectionName && !sectionAndFloor.floorName) {
-                const parking = get(property, ['map', 'parking'], [])
-                sectionAndFloor = getSectionAndFloorByUnit(unitName, parking)
-            }
-
-            return form.setFieldsValue({ sectionName: sectionAndFloor.sectionName, floorName: sectionAndFloor.floorName })
+            return form.setFieldsValue({ sectionName, floorName, unitType })
         }
 
-        form.setFieldsValue({ sectionName: null, floorName: null })
+        form.setFieldsValue({ sectionName: null, floorName: null, unitType })
     }
 
     return (
@@ -60,13 +81,17 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
                             property={property}
                             loading={loading}
                             allowClear={true}
-                            onChange={(_, option: LabeledValue) => {
+                            onChange={(_, option: UnitNameInputOption) => {
                                 if (!option) {
                                     setSelectedUnitName(null)
+                                    setSelectedUnitType && setSelectedUnitType(BuildingUnitType.Flat)
                                     updateSectionAndFloor(form, null)
                                 } else {
-                                    setSelectedUnitName(option.key)
-                                    updateSectionAndFloor(form, option.key)
+                                    const unitType = get(option, 'data-unitType', BuildingUnitType.Flat)
+                                    const unitName = get(option, 'data-unitName')
+                                    setSelectedUnitType && setSelectedUnitType(unitType)
+                                    setSelectedUnitName(unitName)
+                                    updateSectionAndFloor(form, unitName, unitType)
                                 }
                             }}
                         />
@@ -86,3 +111,4 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
         </Col>
     )
 }
+

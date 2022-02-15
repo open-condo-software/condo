@@ -6,7 +6,7 @@ import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, Form
 import get from 'lodash/get'
 import styled from '@emotion/styled'
 import { useRouter } from 'next/router'
-import { PropertyWhereInput } from '@app/condo/schema'
+import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
 import isEmpty from 'lodash/isEmpty'
 
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -253,7 +253,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const property = organizationProperties.find(property => property.id === selectedPropertyId)
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitType>(get(initialValues, 'unitType', BuildingUnitType.Flat))
     const selectedUnitNameRef = useRef(selectedUnitName)
+    const selectedUnitTypeRef = useRef<BuildingUnitType>(selectedUnitType)
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -263,6 +265,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
     }, [selectedUnitName])
+
+    useEffect(() => {
+        selectedUnitTypeRef.current = selectedUnitType
+    }, [selectedUnitType])
 
     const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
         Model: TicketFile,
@@ -329,6 +335,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 formValuesToMutationDataPreprocessor={(values) => {
                     values.property = selectPropertyIdRef.current
                     values.unitName = selectedUnitNameRef.current
+                    values.unitType = selectedUnitTypeRef.current
                     return values
                 }}
             >
@@ -399,6 +406,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 property={property}
                                                 loading={organizationPropertiesLoading}
                                                 setSelectedUnitName={setSelectedUnitName}
+                                                setSelectedUnitType={setSelectedUnitType}
                                                 form={form}
                                             />
                                         )}
@@ -457,3 +465,4 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </>
     )
 }
+
