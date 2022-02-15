@@ -57,6 +57,6 @@ describe('RegisterNewServiceUserServiceLogic', () => {
         }, ({ errors }) => {
             expect(errors[0].originalError.errors[0].data.messages[0]).toEqual(
                 expect.stringContaining(EMAIL_ALREADY_REGISTERED_ERROR))
-        },)
+        })
     })
 })
