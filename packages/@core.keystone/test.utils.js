@@ -32,6 +32,7 @@ const http = require('http')
 const https = require('https')
 const { flattenDeep, fromPairs, toPairs, set } = require('lodash')
 const fs = require('fs')
+const { BILLING_RECEIPT_SERVICE_FIELD_NAME } = require('@condo/domains/billing/constants/constants')
 
 class UploadingFile {
     constructor (filePath) {
@@ -191,7 +192,24 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
     }))
 
     const client = new ApolloClient({
-        cache: new InMemoryCache(),
+        cache: new InMemoryCache({
+            addTypename: false,
+            typePolicies: {
+                [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
+                    // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
+                    keyFields: false,
+                },
+                BuildingSection: {
+                    keyFields: false,
+                },
+                BuildingFloor: {
+                    keyFields: false,
+                },
+                BuildingUnit: {
+                    keyFields: false,
+                },
+            },
+        }),
         link: ApolloLink.from(apolloLinks),
     })
 
