@@ -6,7 +6,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 async function canRegisterNewServiceUser ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    return !!(user.isAdmin || user.isSupport)
+    return user.isAdmin || user.isSupport
 
 }
 
