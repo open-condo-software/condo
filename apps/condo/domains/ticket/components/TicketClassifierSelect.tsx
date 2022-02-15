@@ -115,7 +115,7 @@ const useTicketClassifierSelectHook = ({
     }
 }
 
-const CLASSIFIER_ROW_GUTTER: [Gutter, Gutter] = [40, 0]
+const CLASSIFIER_ROW_GUTTER: [Gutter, Gutter] = [40, 10]
 
 export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     classifierRule,

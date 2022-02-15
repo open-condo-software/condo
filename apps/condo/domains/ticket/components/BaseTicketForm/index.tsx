@@ -104,7 +104,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
 }
 
 const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%' }
-const FORM_FILED_COL_PROPS = { style: { width: '100%' } }
+const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 
 export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
@@ -162,7 +162,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Row>
+                    <Row gutter={[40, 0]}>
                         <Col span={24} lg={4}>
                             <Form.Item name={'isEmergency'} valuePropName='checked'>
                                 <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
