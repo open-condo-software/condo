@@ -18,11 +18,11 @@ const errors = {
         {%- else %}
         query: '{{ convertFirstLetterToLower(name.replace("Service", "")) }}',
         {%- endif %}
-        variable: ['data', 'someVar'], // TODO: Provide path to a query/mutation variable, whose value caused this error. Remove this property, if variables are not relevant to this error
-        code: BAD_USER_INPUT, // TODO: use one of the basic codes, declared in '@core/keystone/errors'
-        type: NOT_FOUND, // TODO: use value from `constants/errors.js` either from 'common' or current domain
+        variable: ['data', 'someVar'], // TODO(codegen): Provide path to a query/mutation variable, whose value caused this error. Remove this property, if variables are not relevant to this error
+        code: BAD_USER_INPUT, // TODO(codegen): use one of the basic codes, declared in '@core/keystone/errors'
+        type: NOT_FOUND, // TODO(codegen): use value from `constants/errors.js` either from 'common' or current domain
         message: 'Describe what happened for developer',
-        messageForUser: 'api.user.{{ convertFirstLetterToLower(name.replace("Service", "")) }}.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO: localized message for user, use translation files
+        messageForUser: 'api.user.{{ convertFirstLetterToLower(name.replace("Service", "")) }}.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO(codegen): localized message for user, use translation files
     },
 }
 
