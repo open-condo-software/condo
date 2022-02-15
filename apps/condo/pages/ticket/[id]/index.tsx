@@ -162,9 +162,9 @@ const TicketContent = ({ ticket }) => {
     const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const Deadline = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
-    const ToCompleteMessage = intl.formatMessage({ id: 'ticket.deadline.ToComplete' })
-    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
-    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
+    const ToCompleteMessage = intl.formatMessage({ id: 'ticket.deadline.ToComplete' }).toLowerCase()
+    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' }).toLowerCase()
+    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' }).toLowerCase()
 
     const propertyWasDeleted = !(ticket.property)
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
@@ -542,7 +542,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                         </Col>
                                                         <Col span={24}>
                                                             <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                                {SourceMessage} — {get(ticket, ['source', 'name'])}
+                                                                {SourceMessage} — {get(ticket, ['source', 'name'], '').toLowerCase()}
                                                             </Typography.Text>
                                                         </Col>
                                                     </Row>
@@ -582,7 +582,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     </Space>
                                 </Col>
                                 <TicketContent ticket={ticket}/>
-                                <ActionBar style={!isSmall && { left: '-24px' }}>
+                                <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
                                             disabled={disabledEditButton}

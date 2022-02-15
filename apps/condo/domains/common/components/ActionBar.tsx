@@ -8,6 +8,7 @@ import get from 'lodash/get'
 const actionBar = css`
     position: relative;
     padding: 24px;
+    left: -24px;
     transition: box-shadow 0.6s ease-out;
 
     .ant-affix & {
@@ -25,7 +26,7 @@ interface IActionBarProps {
 const ActionBar: React.FC<IActionBarProps> = (props) => {
     const { children, fullscreen = true, hidden } = props
     const style = get(props, 'style', {})
-    const barWidthStyle = { width: fullscreen ? '100%' : 'unset', ...style }
+    const barWidthStyle = { width: fullscreen ? 'calc(100% + 48px)' : 'unset', ...style }
 
     if (hidden) {
         return null
@@ -33,7 +34,7 @@ const ActionBar: React.FC<IActionBarProps> = (props) => {
 
     return (
         <Affix offsetBottom={48} style={barWidthStyle}>
-            <Space wrap={true} size={[40, 24]} css={actionBar} style={barWidthStyle}>
+            <Space wrap={true} size={[24, 24]} css={actionBar} style={barWidthStyle}>
                 { children }
             </Space>
         </Affix>
