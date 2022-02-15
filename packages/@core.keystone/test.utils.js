@@ -30,7 +30,7 @@ const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL |
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql.js')
 const http = require('http')
 const https = require('https')
-const { flattenDeep, fromPairs, toPairs } = require('lodash')
+const { flattenDeep, fromPairs, toPairs, set } = require('lodash')
 const fs = require('fs')
 
 class UploadingFile {
@@ -111,6 +111,16 @@ const prepareNextExpressApp = async (dir) => {
     await nextApp.prepare()
     const app = nextApp.getRequestHandler()
     return { app }
+}
+
+function gqlCatchedErrorsHandler (e) {
+    const data = {}
+    if (e.graphQLErrors[0] && e.graphQLErrors[0].path) {
+        set(data, e.graphQLErrors[0].path.join('.'), null)
+    } else {
+        set(data, 'result', null)
+    }
+    return { errors: e.graphQLErrors, data }
 }
 
 /**
@@ -209,14 +219,14 @@ const makeFakeClient = async (app, server) => {
             try {
                 return await client.mutate({ mutation, variables })
             } catch (e) {
-                return { errors: e.graphQLErrors, data: { result: null } }
+                return gqlCatchedErrorsHandler(e)
             }
         },
         query: async (query, variables = {}) => {
             try {
                 return await client.query({ query, variables })
             } catch (e) {
-                return { errors: e.graphQLErrors, data: { result: null } }
+                return gqlCatchedErrorsHandler(e)
             }
         },
     }
@@ -235,14 +245,14 @@ const makeRealClient = async () => {
             try {
                 return await client.mutate({ mutation, variables })
             } catch (e) {
-                return { errors: e.graphQLErrors, data: { result: null } }
+                return gqlCatchedErrorsHandler(e)
             }
         },
         query: async (query, variables = {}) => {
             try {
                 return await client.query({ query, variables })
             } catch (e) {
-                return { errors: e.graphQLErrors, data: { result: null } }
+                return gqlCatchedErrorsHandler(e)
             }
         },
     }
