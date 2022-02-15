@@ -6,6 +6,7 @@ import { LabeledValue } from 'antd/lib/select'
 
 import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 const getSectionAndFloorByUnit = (unitName, sections) => {
     const sectionAndFloor = { sectionName: null, floorName: null }
@@ -32,6 +33,8 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
     const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorNameLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
 
+    const { isSmall } = useLayoutContext()
+
     const updateSectionAndFloor = (form, unitName) => {
         if (unitName) {
             const sections = get(property, ['map', 'sections'], [])
@@ -49,9 +52,9 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
     }
 
     return (
-        <Col span={12}>
-            <Row justify={'space-between'}>
-                <Col span={6}>
+        <Col span={isSmall ? 24 : 22}>
+            <Row gutter={[40, 0]}>
+                <Col span={5}>
                     <TicketFormItem name={'unitName'} label={FlatNumberLabel}>
                         <UnitNameInput
                             property={property}
@@ -69,12 +72,12 @@ export const UnitInfo = ({ property, loading, setSelectedUnitName, form }) => {
                         />
                     </TicketFormItem>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
                     <TicketFormItem name={'sectionName'} label={SectionNameLabel}>
                         <Input disabled/>
                     </TicketFormItem>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
                     <TicketFormItem name={'floorName'} label={FloorNameLabel}>
                         <Input disabled/>
                     </TicketFormItem>

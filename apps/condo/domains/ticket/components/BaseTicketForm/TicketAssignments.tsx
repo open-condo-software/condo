@@ -9,6 +9,7 @@ import { searchEmployeeUser } from '../../utils/clientSchema/search'
 import React, { useState } from 'react'
 import { Rule } from 'rc-field-form/lib/interface'
 import { TicketFormItem } from './index'
+import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 
 type TicketAssignmentsProps = {
     validations: { [key: string]: Rule[] },
@@ -38,6 +39,8 @@ const TicketAssignments = ({
     const ExecutorsOnThisDivisionLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnThisDivision' })
     const ExecutorsOnOtherDivisionsLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnOtherDivisions' })
     const OtherExecutors = intl.formatMessage({ id: 'ticket.assignments.executor.Other' })
+
+    const { isSmall } = useLayoutContext()
 
     const [divisions, setDivisions] = useState([])
 
@@ -144,11 +147,11 @@ const TicketAssignments = ({
 
     return (
         <Col span={24}>
-            <Row gutter={[0, 24]}>
+            <Row gutter={[0, 8]}>
                 <Col span={24}>
-                    <Typography.Title level={4}>{TicketAssignmentTitle}</Typography.Title>
+                    <Typography.Title level={3}>{TicketAssignmentTitle}</Typography.Title>
                 </Col>
-                <Col span={24}>
+                <Col span={isSmall ? 24 : 18}>
                     <Row justify={'space-between'}>
                         {autoAssign && propertyId && (
                             <Col span={24}>

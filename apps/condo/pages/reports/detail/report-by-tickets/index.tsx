@@ -1014,7 +1014,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             </Col>
                         </Row>
                     </Col>
-                    <ActionBar fullscreen hidden={isSmall}>
+                    <ActionBar hidden={isSmall}>
                         <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
                             {PrintTitle}
                         </Button>
