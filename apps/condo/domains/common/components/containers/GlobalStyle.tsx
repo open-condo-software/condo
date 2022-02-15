@@ -268,7 +268,7 @@ const uploadControlCss = css`
   }
   .upload-control-wrapper .ant-upload.ant-upload-select {
     order:1;
-    margin-top:20px;
+    margin-top:5px;
   }
   .upload-control-wrapper .ant-upload-list-item-card-actions .anticon.anticon-delete {
     font-size:18px;

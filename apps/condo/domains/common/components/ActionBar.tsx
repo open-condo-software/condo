@@ -3,11 +3,11 @@
 import { Affix, Space } from 'antd'
 import React, { CSSProperties } from 'react'
 import { css, jsx } from '@emotion/core'
-import get from 'lodash/get'
 
 const actionBar = css`
     position: relative;
     padding: 24px;
+    box-sizing: border-box;
     left: -24px;
     transition: box-shadow 0.6s ease-out;
 
@@ -18,15 +18,14 @@ const actionBar = css`
     }
 `
 interface IActionBarProps {
-    fullscreen?: boolean
     hidden?: boolean
     style?: CSSProperties
+    isFormActionBar?: boolean
 }
 
 const ActionBar: React.FC<IActionBarProps> = (props) => {
-    const { children, fullscreen = true, hidden } = props
-    const style = get(props, 'style', {})
-    const barWidthStyle = { width: fullscreen ? 'calc(100% + 48px)' : 'unset', ...style }
+    const { children, hidden } = props
+    const barWidthStyle = { width: props.isFormActionBar ? '100%' : 'calc(100% + 48px)' }
 
     if (hidden) {
         return null

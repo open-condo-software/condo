@@ -26,7 +26,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                     const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
 
                     return (
-                        <ActionBar>
+                        <ActionBar isFormActionBar>
                             <FormResetButton
                                 type='sberDefaultGradient'
                                 secondary
