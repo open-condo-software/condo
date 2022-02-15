@@ -1,6 +1,6 @@
 import React from 'react'
 import { css, Global } from '@emotion/core'
-import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT } from '@condo/domains/common/constants/style'
+import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT, gradients } from '@condo/domains/common/constants/style'
 
 export default function GlobalStyle () {
     return (
@@ -27,6 +27,17 @@ export default function GlobalStyle () {
               .ant-radio-wrapper {
                 white-space: inherit;
               }
+              .ant-radio-inner::after {
+                background: ${gradients.sberActionGradient};
+              }
+              .ant-radio-checked .ant-radio-inner {
+                border-color: ${colors.inputBorderGrey};
+                
+                &::after {
+                  border-color: ${colors.inputBorderGrey};
+                }
+              }
+              
               .ant-checkbox-wrapper {
                 white-space: inherit;
               }
