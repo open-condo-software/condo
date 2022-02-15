@@ -3,7 +3,7 @@
  */
 const faker = require('faker')
 
-const { GQLCustomSchema, getById } = require('@core/keystone/schema')
+const { GQLCustomSchema } = require('@core/keystone/schema')
 
 const access = require('@condo/domains/user/access/RegisterNewServiceUserService')
 const { STAFF, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
@@ -15,24 +15,26 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
     types: [
         {
             access: true,
-            type: 'input RegisterNewServiceUserInput {  dv: Int!, sender: SenderFieldInput!, name: String!, email: String!, password: String! meta: JSON }',
+            type: 'input RegisterNewServiceUserInput { dv: Int!, sender: SenderFieldInput!, name: String!, email: String!, meta: JSON }',
+        },
+        {
+            access: true,
+            type: 'type RegisterNewServiceUserOutput { email: String!, password: String! }',
         },
     ],
     
     mutations: [
         {
             access: access.canRegisterNewServiceUser,
-            schema: 'registerNewServiceUser(data: RegisterNewServiceUserInput!): User',
+            schema: 'registerNewServiceUser(data: RegisterNewServiceUserInput!): RegisterNewServiceUserOutput',
             resolver: async (parent, args, context) => {
                 const userData = {
                     ...args.data,
                     type: STAFF,
                     password: faker.internet.password()
                 }
-                const user = {...await User.create(context, userData)}
-
-                // Hack that helps to resolve all subfields in result of this mutation
-                return await getById('User', user.id)
+                await User.create(context, userData)
+                return { email: userData.email, password: userData.password}
             },
         },
     ],

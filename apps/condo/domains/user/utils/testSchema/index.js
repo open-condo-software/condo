@@ -240,7 +240,6 @@ async function registerNewServiceUserByTestClient(client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
     const email = createTestEmail()
-    const password = getRandomString()
     const meta = {
         dv: 1, city: faker.address.city(), county: faker.address.county(),
     }
@@ -249,7 +248,7 @@ async function registerNewServiceUserByTestClient(client, extraAttrs = {}) {
         sender,
         name,
         email,
-        password, meta,
+        meta,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_NEW_SERVICE_USER_MUTATION, { data: attrs })
