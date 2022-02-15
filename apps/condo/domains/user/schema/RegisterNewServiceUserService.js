@@ -30,10 +30,10 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
                 const userData = {
                     ...args.data,
                     type: SERVICE,
-                    password: faker.internet.password()
+                    password: faker.internet.password(),
                 }
                 await User.create(context, userData)
-                return { email: userData.email, password: userData.password}
+                return { email: userData.email, password: userData.password }
             },
         },
     ],
