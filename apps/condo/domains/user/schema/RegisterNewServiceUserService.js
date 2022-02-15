@@ -18,7 +18,7 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
         },
         {
             access: true,
-            type: 'type RegisterNewServiceUserOutput { email: String!, password: String! }',
+            type: 'type RegisterNewServiceUserOutput { id: ID!, email: String!, password: String! }',
         },
     ],
     
@@ -32,8 +32,8 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
                     type: SERVICE,
                     password: faker.internet.password(),
                 }
-                await User.create(context, userData)
-                return { email: userData.email, password: userData.password }
+                const user = await User.create(context, userData)
+                return { id: user.id, email: userData.email, password: userData.password }
             },
         },
     ],
