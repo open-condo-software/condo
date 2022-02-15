@@ -1,17 +1,17 @@
 import { find, get, debounce } from 'lodash'
 import { Col, Form, FormInstance, Input, Row, Skeleton } from 'antd'
-import { PlusCircleFilled } from '@ant-design/icons'
+import { PlusCircleOutlined } from '@ant-design/icons'
 import React, { useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
 import { ContactOption } from './ContactOption'
 import { Button } from '@condo/domains/common/components/Button'
-import { green } from '@ant-design/colors'
 import styled from '@emotion/styled'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
+import { colors } from '@condo/domains/common/constants/style'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -226,12 +226,12 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                         <Button
                                             type="link"
                                             style={{
-                                                color: green[6],
+                                                color: colors.black,
                                                 paddingLeft: '5px',
                                             }}
                                             onClick={handleClickOnPlusButton}
-                                            icon={<PlusCircleFilled style={{
-                                                color: green[6],
+                                            icon={<PlusCircleOutlined style={{
+                                                color: colors.black,
                                                 fontSize: 21,
                                                 position: 'relative',
                                                 top: '2px',

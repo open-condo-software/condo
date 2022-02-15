@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, FormItemProps } from 'antd'
 import get from 'lodash/get'
@@ -53,17 +53,19 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
 
+    const contactId = useMemo(() => get(initialValues, ['contact', 'id']), [initialValues])
+
+    const value = useMemo(() => contactId && ({
+        id: contactId,
+        name: get(initialValues, 'clientName'),
+        phone: get(initialValues, 'clientPhone'),
+    }), [contactId, initialValues])
+
     return (
         <Col span={24}>
             <TicketFormItem shouldUpdate noStyle>
                 {({ getFieldsValue }) => {
                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
-
-                    const value = {
-                        id: get(initialValues, ['contact', 'id']),
-                        name: get(initialValues, 'clientName'),
-                        phone: get(initialValues, 'clientPhone'),
-                    }
 
                     return (
                         <ContactsInfoFocusContainer className={!property && 'disabled'}>
