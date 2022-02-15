@@ -114,14 +114,37 @@ const prepareNextExpressApp = async (dir) => {
     return { app }
 }
 
+/**
+ * @param {Error} e
+ * @param {Object[]} e.graphQLErrors
+ * @param {ServerError} e.networkError
+ * @param {String} e.message
+ * @param {*} e.extraInfo
+ * @param {String} e.stack
+ * @returns {{data: Object, errors: []}}
+ */
 function gqlCatchedErrorsHandler (e) {
     const data = {}
-    if (e.graphQLErrors[0] && e.graphQLErrors[0].path) {
-        set(data, e.graphQLErrors[0].path.join('.'), null)
-    } else {
+    const errors = []
+
+    if (e.graphQLErrors && e.graphQLErrors.length > 0) {
+        e.graphQLErrors.map((graphQLError) => {
+            if (graphQLError.path) {
+                set(data, graphQLError.path.join('.'), null)
+            }
+            errors.push(graphQLError)
+        })
+    }
+
+    if (Object.keys(data).length === 0) {
         set(data, 'result', null)
     }
-    return { errors: e.graphQLErrors, data }
+
+    if (e.networkError) {
+        errors.push(e.networkError)
+    }
+
+    return { data, errors }
 }
 
 /**
