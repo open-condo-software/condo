@@ -19508,8 +19508,10 @@ export type Payment = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Amount of money from MultiPayment.amountWithOutExplicitFee to pay for billing receipt  */
+  /**  Amount of money to pay for billing receipt  */
   amount?: Maybe<Scalars['String']>;
+  /**  Amount of money recipient will get from payment. amountWithImplicitFee = amount - implicitFee  */
+  amountWithImplicitFee?: Maybe<Scalars['String']>;
   /**  Amount of money which payer pays on top of initial "amount"  */
   explicitFee?: Maybe<Scalars['String']>;
   /**  Amount of money which recipient pays from initial amount for transaction  */
@@ -19564,6 +19566,7 @@ export type PaymentCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   amount?: Maybe<Scalars['String']>;
+  amountWithImplicitFee?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -19603,6 +19606,7 @@ export type PaymentHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['String']>;
+  amountWithImplicitFee?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -19636,6 +19640,7 @@ export type PaymentHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['String']>;
+  amountWithImplicitFee?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -19674,6 +19679,7 @@ export type PaymentHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['String']>;
+  amountWithImplicitFee?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -19725,6 +19731,14 @@ export type PaymentHistoryRecordWhereInput = {
   amount_gte?: Maybe<Scalars['String']>;
   amount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   amount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amountWithImplicitFee?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_not?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_lt?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_lte?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_gt?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_gte?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amountWithImplicitFee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitFee_not?: Maybe<Scalars['String']>;
   explicitFee_lt?: Maybe<Scalars['String']>;
@@ -19993,6 +20007,7 @@ export type PaymentUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   amount?: Maybe<Scalars['String']>;
+  amountWithImplicitFee?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -20041,6 +20056,14 @@ export type PaymentWhereInput = {
   amount_gte?: Maybe<Scalars['String']>;
   amount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   amount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amountWithImplicitFee?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_not?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_lt?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_lte?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_gt?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_gte?: Maybe<Scalars['String']>;
+  amountWithImplicitFee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amountWithImplicitFee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitFee_not?: Maybe<Scalars['String']>;
   explicitFee_lt?: Maybe<Scalars['String']>;
@@ -28440,6 +28463,8 @@ export enum SortPaymentHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   AmountAsc = 'amount_ASC',
   AmountDesc = 'amount_DESC',
+  AmountWithImplicitFeeAsc = 'amountWithImplicitFee_ASC',
+  AmountWithImplicitFeeDesc = 'amountWithImplicitFee_DESC',
   ExplicitFeeAsc = 'explicitFee_ASC',
   ExplicitFeeDesc = 'explicitFee_DESC',
   ImplicitFeeAsc = 'implicitFee_ASC',
@@ -28483,6 +28508,8 @@ export enum SortPaymentsBy {
   DvDesc = 'dv_DESC',
   AmountAsc = 'amount_ASC',
   AmountDesc = 'amount_DESC',
+  AmountWithImplicitFeeAsc = 'amountWithImplicitFee_ASC',
+  AmountWithImplicitFeeDesc = 'amountWithImplicitFee_DESC',
   ExplicitFeeAsc = 'explicitFee_ASC',
   ExplicitFeeDesc = 'explicitFee_DESC',
   ImplicitFeeAsc = 'implicitFee_ASC',
