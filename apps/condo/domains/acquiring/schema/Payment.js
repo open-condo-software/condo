@@ -239,9 +239,15 @@ const Payment = new GQLListSchema('Payment', {
                 if (!PAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
                     return addValidationError(`${PAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
                 }
+                const amount =  get(resolvedData, 'amount', 0)
+                const implicitFee =  get(resolvedData, 'implicitFee', 0)
+                const calculatedFields = {
+                    amountWithImplicitFee: Big(amount).minus(Big(implicitFee)),
+                }
                 const newItem = {
                     ...existingItem,
                     ...resolvedData,
+                    ...calculatedFields,
                 }
                 const requiredFields = PAYMENT_REQUIRED_FIELDS[newStatus]
                 let requiredMissing = false
