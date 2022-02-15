@@ -264,6 +264,7 @@ async function createTestPayment (client, organization, receipt=null, context=nu
     const recipientBankAccount = get(receipt,  ['recipient', 'bankAccount'], faker.datatype.number().toString())
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
     const implicitFee = String(Math.floor(Math.random() * 100) / 2)
+    const amountWithImplicitFee = Big(amount).minus(explicitFee).toFixed(2)
     const period = dayjs().format('YYYY-MM-01')
     const contextId = get(context, 'id')
     const receiptId = get(receipt, 'id')
@@ -272,6 +273,7 @@ async function createTestPayment (client, organization, receipt=null, context=nu
         dv: 1,
         sender,
         amount,
+        amountWithImplicitFee,
         explicitFee,
         implicitFee,
         currencyCode: 'RUB',
