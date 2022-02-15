@@ -36,7 +36,7 @@ describe('RegisterNewServiceUserServiceAccess', () => {
             await registerNewServiceUserByTestClient(client)
         })
     })
-    test('support can create service user1', async () => {
+    test('deleted admin can not register service user', async () => {
         const client = await makeClientWithSupportUser()
         const admin = await makeLoggedInAdminClient()
         await User.update(admin, client.user.id, { deletedAt: 'true' })
