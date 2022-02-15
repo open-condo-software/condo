@@ -1,7 +1,11 @@
-import { MapEdit } from './MapConstructor'
-import { BuildingMap, BuildingMapEntityType } from '@app/condo/schema'
-import { notValidBuildingMapJson, buildingMapJson, autoFixBuildingMapJson } from '@condo/domains/property/constants/property'
+import { BuildingMap, BuildingMapEntityType, BuildingUnitType } from '@app/condo/schema'
+import {
+    autoFixBuildingMapJson,
+    buildingMapJson,
+    notValidBuildingMapJson,
+} from '@condo/domains/property/constants/property'
 import { cloneDeep } from 'lodash'
+import { MapEdit } from './MapConstructor'
 
 const testSection = {
     id: '',
@@ -344,6 +348,18 @@ describe('Map constructor', () => {
                 expect(Building.isEmpty).toBeFalsy()
                 expect(Building.isEmptySections).toBeFalsy()
                 expect(Building.isEmptyParking).toBeTruthy()
+            })
+            it('units should have selected unitType', () => {
+                const Building = createBuildingMap(5)
+                Building.addSection({
+                    id: '', minFloor: -10, maxFloor: 10, unitsOnFloor: 10, name: sectionName(),
+                }, BuildingUnitType.Commercial)
+                expect(Building.sections).toHaveLength(6)
+                Building.validate()
+                const newSectionUnitTypes = Building.sections[5].floors
+                    .map(floor => floor.units.map(unit => unit.unitType)).flat(2)
+                expect(Building.isMapValid).toBeTruthy()
+                expect(newSectionUnitTypes.every(unitType => unitType === BuildingUnitType.Commercial)).toBeTruthy()
             })
         })
         describe('Edit section', () => {
