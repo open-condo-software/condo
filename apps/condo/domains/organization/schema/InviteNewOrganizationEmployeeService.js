@@ -36,7 +36,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
                 if (!phone) throw new Error(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
-                const [userOrganization] = await Organization.getAll(context, { id: organization.id })
+                const userOrganization = await Organization.getOne(context, { id: organization.id })
                 let user = await guards.checkStaffUserExistency(context, email, phone)
                 const existedEmployee = await guards.checkEmployeeExistency(context, userOrganization, email, phone, user)
 
