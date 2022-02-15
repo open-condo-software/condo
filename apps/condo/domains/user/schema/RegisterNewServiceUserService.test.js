@@ -53,11 +53,10 @@ describe('RegisterNewServiceUserServiceLogic', () => {
         const [, userAttrs] = await createTestUser(admin)
         const email = userAttrs.email
         await catchErrorFrom(async () => {
-                await registerNewServiceUserByTestClient(admin, { email })
-            }, ({ errors }) => {
-                expect(errors[0].originalError.errors[0].data.messages[0]).toEqual(
-                    expect.stringContaining(EMAIL_ALREADY_REGISTERED_ERROR))
-            },
-        )
+            await registerNewServiceUserByTestClient(admin, { email })
+        }, ({ errors }) => {
+            expect(errors[0].originalError.errors[0].data.messages[0]).toEqual(
+                expect.stringContaining(EMAIL_ALREADY_REGISTERED_ERROR))
+        },)
     })
 })
