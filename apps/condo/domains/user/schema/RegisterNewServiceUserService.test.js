@@ -5,7 +5,6 @@ const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const {
     registerNewServiceUserByTestClient,
-    createTestUser,
     makeLoggedInClient,
     makeClientWithSupportUser, User,
 } = require('@condo/domains/user/utils/testSchema')
@@ -50,7 +49,7 @@ describe('RegisterNewServiceUserServiceAccess', () => {
 describe('RegisterNewServiceUserServiceLogic', () => {
     test('can not register service user with existed email', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createTestUser(admin)
+        const [, userAttrs] = await registerNewServiceUserByTestClient(admin)
         const email = userAttrs.email
         await catchErrorFrom(async () => {
             await registerNewServiceUserByTestClient(admin, { email })
