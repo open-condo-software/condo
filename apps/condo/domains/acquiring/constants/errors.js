@@ -39,7 +39,8 @@ const MULTIPAYMENT_NO_RECEIPT_PAYMENTS = '[multiPayment:payments:noReceipt] Some
 const MULTIPAYMENT_MULTIPLE_CURRENCIES = '[multiPayment:payments:currencyCode:mismatch] Some of listed payments have currency code which is not equal to multiPayment\'s one.'
 const MULTIPAYMENT_NOT_UNIQUE_RECEIPTS = '[multiPayment:payments:receipt:duplicates] Some of listed payments have same billing receipt which is not allowed. Please group all payments with same receipt into single one and repeat process.'
 const MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH = '[multiPayment:amount:formulaMismatch] Amount equality is not satisfied (multiPayment.amountWithoutExplicitFee = sum of multiPayment.payments.amount)'
-const MULTIPAYMENT_IMPLICIT_FEE_MISMATCH = '[multiPayment:implicitFee:formulaMismatch] Implicit fee equality is not satisfied (multiPayment.implicitFee = sum of multiPayment.payments.implicitFee if specified otherwise 0).'
+const MULTIPAYMENT_IMPLICIT_FEE_MISMATCH = '[multiPayment:implicitFee:formulaMismatch] All of multipayment\'s payments have implicit fee, but it\'s equality is not satisfied (multiPayment.implicitFee = sum of multiPayment.payments.implicitFee)'
+const MULTIPAYMENT_SERVICE_FEE_MISMATCH = '[multiPayment:serviceFee:formulaMismatch] All of multipayment\'s payments have service fee, but it\'s  equality is not satisfied (multiPayment.serviceFee = sum of multiPayment.payments.serviceFee)'
 const MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS = '[multiPayment:receipt:context:integration:multiple] Cannot create multiPayment form payments linked to different acquiring integrations (integrations amount not equal to 1)'
 const MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH = '[multiPayment:integration:mismatch] Acquiring integration from payment\'s receipts does not equal to multiPayment.integration'
 const MULTIPAYMENT_CANNOT_GROUP_RECEIPTS = '[multiPayment:integration:canGroupReceipts:false:multipleReceipts] Cannot create multipayment with multiple payments since acquiring integration cannot group receipts'
@@ -50,6 +51,7 @@ const MULTIPAYMENT_UNDONE_PAYMENTS = `[multiPayment:payments:status:not:done] Ca
 const MULTIPAYMENT_DELETED_PAYMENTS = `[multiPayment:payments:deletedAt:not:null] Cannot move multipayment status to "${MULTIPAYMENT_DONE_STATUS}" if at least 1 of it's payments was deleted.`
 const MULTIPAYMENT_EXPLICIT_FEE_MISMATCH = '[multiPayment:explicitFee:formulaMismatch] Explicit fee equality is not satisfied (multiPayment.explicitFee = sum of multiPayment.payments.explicitFee)'
 const MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE = '[multiPayment:payments:implicitFee:inconsistentBehaviour] Implicit fee must be indicated either for all payments, or for none of them, but was partially indicated'
+const MULTIPAYMENT_INCONSISTENT_SERVICE_FEE = '[multiPayment:payments:serviceFee:inconsistentBehaviour] Service fee must be indicated either for all payments, or for none of them, but was partially indicated'
 const MULTIPAYMENT_NON_INIT_PAYMENTS = `[multiPayment:payments:status:not:initial] MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_INIT_STATUS}".`
 const MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP = '[multiPayment:payments:multiPayment:not:null] Some of payments are already linked to multipayments.'
 
@@ -106,4 +108,6 @@ module.exports = {
     MULTIPAYMENT_DELETED_PAYMENTS,
     MULTIPAYMENT_NON_INIT_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
+    MULTIPAYMENT_INCONSISTENT_SERVICE_FEE,
+    MULTIPAYMENT_SERVICE_FEE_MISMATCH,
 }
