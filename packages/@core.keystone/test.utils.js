@@ -136,12 +136,14 @@ function gqlCatchedErrorsHandler (e) {
         })
     }
 
-    if (Object.keys(data).length === 0) {
-        set(data, 'result', null)
+    if (e.networkError) {
+        if (e.networkError.result && e.networkError.result.errors) {
+            e.networkError.result.errors.forEach((err) => errors.push(err))
+        }
     }
 
-    if (e.networkError) {
-        errors.push(e.networkError)
+    if (Object.keys(data).length === 0) {
+        set(data, 'result', null)
     }
 
     return { data, errors }
