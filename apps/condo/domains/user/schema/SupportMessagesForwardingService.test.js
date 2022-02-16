@@ -98,7 +98,7 @@ describe('SupportMessagesForwardingService', async () => {
 
     test('Forward message to support: no attachments, no email', async () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-        const { from: defaultFrom } = EMAIL_API_CONFIG
+        const defaultFrom = 'default-email@doma.ai'
         const payload = {
             text: `Test message from resident to support. In this message resident has not passed the email address, so the sender's email is default: ${defaultFrom}`,
             os: 'android 12',
