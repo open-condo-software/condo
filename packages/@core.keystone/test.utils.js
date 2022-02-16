@@ -121,17 +121,13 @@ const prepareNextExpressApp = async (dir) => {
  * @param {String} e.message
  * @param {*} e.extraInfo
  * @param {String} e.stack
- * @returns {{data: Object, errors: []}}
+ * @returns {{errors: []}}
  */
 function gqlCatchedErrorsHandler (e) {
-    const data = {}
     const errors = []
 
     if (e.graphQLErrors && e.graphQLErrors.length > 0) {
         e.graphQLErrors.map((graphQLError) => {
-            if (graphQLError.path) {
-                set(data, graphQLError.path.join('.'), null)
-            }
             errors.push(graphQLError)
         })
     }
@@ -142,11 +138,7 @@ function gqlCatchedErrorsHandler (e) {
         }
     }
 
-    if (Object.keys(data).length === 0) {
-        set(data, 'result', null)
-    }
-
-    return { data, errors }
+    return { errors }
 }
 
 /**
@@ -160,6 +152,8 @@ async function doGqlRequest (callable, params) {
             ...params,
             // About error policies see https://www.apollographql.com/docs/react/v2/data/error-handling/#error-policies
             errorPolicy: 'all',
+            fetchPolicy: 'no-cache',
+            context: { queryDeduplication: false },
         })
     } catch (e) {
         return gqlCatchedErrorsHandler(e)
@@ -236,7 +230,7 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
         },
         useGETForQueries: true,
         fetch: (uri, options) => {
-            if (cookiesObj) {
+            if (cookiesObj && Object.keys(cookiesObj).length > 0) {
                 options.headers = { ...options.headers, cookie: [restoreCookies()] }
             }
             return fetch(uri, options)
@@ -254,6 +248,7 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
     const client = new ApolloClient({
         cache: new InMemoryCache({
             addTypename: false,
+            resultCaching: false,
             typePolicies: {
                 [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
                     // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
@@ -271,6 +266,7 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
             },
         }),
         link: ApolloLink.from(apolloLinks),
+        queryDeduplication: false,
     })
 
     return {
