@@ -45,7 +45,7 @@ const Message = new GQLListSchema('Message', {
 
         emailFrom: {
             schemaDoc: 'from Email',
-            type: Text,
+            type: 'Text',
             isRequired: false,
         },
 
