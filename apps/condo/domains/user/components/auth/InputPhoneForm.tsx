@@ -131,7 +131,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                             </Form.Item>
                         </Col>
                         <Col span={24}>
-                            <Checkbox checked={agreed} onChange={handleToggleAgreed}>
+                            <Checkbox checked={agreed} onChange={handleToggleAgreed} data-cy={'register-personal-data-checkbox'}>
                                 <FormattedMessage
                                     id='pages.auth.register.info.PersonalDataProcessingConsent'
                                     values={{

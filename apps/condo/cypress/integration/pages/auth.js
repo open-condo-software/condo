@@ -42,6 +42,7 @@ describe('Auth scenarios', () => {
             registration
                 .visit()
                 .fillPhone(user.phone)
+                .clickCheckbox()
                 .startRegistrationClick()
             cy.url().should('contain', 'token=')
             const getSmsCode = cy.task('keystone:getConfirmPhoneAction', user.phone)
