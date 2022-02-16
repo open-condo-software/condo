@@ -43,7 +43,9 @@ const {
     MULTIPAYMENT_UNDONE_PAYMENTS,
     MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
+    MULTIPAYMENT_INCONSISTENT_SERVICE_FEE,
     MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
+    MULTIPAYMENT_SERVICE_FEE_MISMATCH,
     MULTIPAYMENT_DELETED_PAYMENTS,
     MULTIPAYMENT_NON_INIT_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
@@ -81,7 +83,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
 
         serviceFee: {
             ...NON_NEGATIVE_MONEY_FIELD,
-            schemaDoc: 'The amount of money charged by service (Doma) for the provision of service. Can be explicit or implicit',
+            schemaDoc: 'The amount of money charged by service (Doma) for the provision of service after subtracting from it the shares of all participants in the process. Can be part of explicit fee, implicit fee or explicit service charge',
             isRequired: false,
         },
 
@@ -328,6 +330,17 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                         const totalImplicitFee = payments.reduce((acc, cur) => acc.plus(cur.implicitFee), Big(0))
                         if (!newItem.implicitFee || !totalImplicitFee.eq(newItem.implicitFee)) {
                             addValidationError(MULTIPAYMENT_IMPLICIT_FEE_MISMATCH)
+                        }
+                    }
+
+                    const paymentsWithServiceFee = payments.filter(payment => payment.serviceFee)
+                    if (paymentsWithServiceFee.length !== payments.length && paymentsWithServiceFee.length !== 0) {
+                        addValidationError(MULTIPAYMENT_INCONSISTENT_SERVICE_FEE)
+                    }
+                    if (paymentsWithServiceFee.length === payments.length) {
+                        const totalServiceFee = payments.reduce((acc, cur) => acc.plus(cur.serviceFee), Big(0))
+                        if (!newItem.serviceFee || !totalServiceFee.eq(newItem.serviceFee)) {
+                            addValidationError(MULTIPAYMENT_SERVICE_FEE_MISMATCH)
                         }
                     }
                 }

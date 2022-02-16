@@ -51,6 +51,7 @@ const {
     MULTIPAYMENT_UNDONE_PAYMENTS,
     MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
+    MULTIPAYMENT_INCONSISTENT_SERVICE_FEE,
     MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_DELETED_PAYMENTS,
     MULTIPAYMENT_NON_INIT_PAYMENTS,
@@ -514,23 +515,29 @@ describe('MultiPayment', () => {
                         }, MULTIPAYMENT_EXPLICIT_FEE_MISMATCH)
                     })
                 })
-                test('All payments inside single MP should have / not have implicit fee', async () => {
-                    const { payments, acquiringIntegration, admin, client } = await makePayerAndPayments(2)
-                    await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
-                        canGroupReceipts: true,
-                    })
-                    const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-                    await updateTestPayment(admin, payments[0].id, {
-                        status: PAYMENT_DONE_STATUS,
-                    })
-                    await updateTestPayment(admin, payments[1].id, {
-                        status: PAYMENT_DONE_STATUS,
-                        implicitFee: null,
-                    })
-                    await expectToThrowValidationFailureError(async () => {
-                        await updateTestMultiPayment(admin, multiPayment.id, {
-                            ...multiPaymentDonePayload,
-                        }, MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE)
+                describe('All payments inside single MP should either have or not have', () => {
+                    const cases = [
+                        ['implicit fee', 'implicitFee', MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE],
+                        ['service fee', 'serviceFee', MULTIPAYMENT_INCONSISTENT_SERVICE_FEE],
+                    ]
+                    test.each(cases)('%p', async (name, fieldName, errorMessage) => {
+                        const { payments, acquiringIntegration, admin, client } = await makePayerAndPayments(2)
+                        await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                            canGroupReceipts: true,
+                        })
+                        const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+                        await updateTestPayment(admin, payments[0].id, {
+                            status: PAYMENT_DONE_STATUS,
+                        })
+                        await updateTestPayment(admin, payments[1].id, {
+                            status: PAYMENT_DONE_STATUS,
+                            [fieldName]: null,
+                        })
+                        await expectToThrowValidationFailureError(async () => {
+                            await updateTestMultiPayment(admin, multiPayment.id, {
+                                ...multiPaymentDonePayload,
+                            }, errorMessage)
+                        })
                     })
                 })
                 test('If payments implicit fees are specified, their sum should match with multiPayment one', async () => {
@@ -669,8 +676,7 @@ describe('MultiPayment', () => {
                 expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
             })
         })
-
-
+        //
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
             const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
