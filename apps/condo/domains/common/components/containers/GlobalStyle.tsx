@@ -6,7 +6,7 @@ export default function GlobalStyle () {
     return (
         <Global
             styles={css`
-              $@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
+              @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
               body {
                 max-width: 100%;
                 overflow-x: hidden;
@@ -156,6 +156,12 @@ export default function GlobalStyle () {
               
               .ant-table-row-expand-icon-spaced {
                 display: none;
+              }
+              
+              h1.ant-typography {
+                font-weight: 700;
+                line-height: 46px;
+                letter-spacing: -0.01em;
               }
               
               a.ant-typography[disabled], 
