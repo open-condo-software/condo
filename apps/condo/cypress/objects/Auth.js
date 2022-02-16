@@ -79,6 +79,7 @@ class Registration {
     Elements:
         Step 1
             register-phone-item
+            register-personal-data-checkbox
             register-button
         Step 2
             register-smscode-item
@@ -98,6 +99,12 @@ class Registration {
         const field = cy.get('[data-cy=register-phone-item] input')
         field.clear()
         field.type(value)
+        return this
+    }
+
+    clickCheckbox () {
+        const field = cy.get('[data-cy=register-personal-data-checkbox]')
+        field.click()
         return this
     }
 
