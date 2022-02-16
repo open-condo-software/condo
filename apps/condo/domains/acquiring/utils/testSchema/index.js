@@ -223,12 +223,14 @@ async function createTestMultiPayment (client, payments, user, integration, extr
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const amountWithoutExplicitFee = payments.reduce((acc, cur) => acc.plus(cur.amount), Big(0)).toString()
     const explicitFee = payments.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0)).toString()
+    const explicitServiceCharge = payments.reduce((acc, cur) => acc.plus(cur.explicitServiceCharge || '0'), Big(0)).toString()
 
     const attrs = {
         dv: 1,
         sender,
         amountWithoutExplicitFee,
         explicitFee,
+        explicitServiceCharge,
         currencyCode: 'RUB',
         serviceCategory: 'TEST DOCUMENT',
         status: MULTIPAYMENT_INIT_STATUS,

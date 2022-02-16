@@ -52,6 +52,7 @@ const MULTIPAYMENT_FROZEN_FIELD_INCLUDED = '[multiPayment:frozenFieldsIncluding]
 const MULTIPAYMENT_UNDONE_PAYMENTS = `[multiPayment:payments:status:not:done] Cannot move multipayment status to "${MULTIPAYMENT_DONE_STATUS}" if at least 1 of it's payments have status not equal to "${PAYMENT_DONE_STATUS}".`
 const MULTIPAYMENT_DELETED_PAYMENTS = `[multiPayment:payments:deletedAt:not:null] Cannot move multipayment status to "${MULTIPAYMENT_DONE_STATUS}" if at least 1 of it's payments was deleted.`
 const MULTIPAYMENT_EXPLICIT_FEE_MISMATCH = '[multiPayment:explicitFee:formulaMismatch] Explicit fee equality is not satisfied (multiPayment.explicitFee = sum of multiPayment.payments.explicitFee)'
+const MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH = '[multiPayment:explicitServiceCharge:formulaMismatch] Explicit service charge equality is not satisfied (multiPayment.explicitServiceCharge = sum of multiPayment.payments.explicitServiceCharge)'
 const MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE = '[multiPayment:payments:implicitFee:inconsistentBehaviour] Implicit fee must be indicated either for all payments, or for none of them, but was partially indicated'
 const MULTIPAYMENT_INCONSISTENT_SERVICE_FEE = '[multiPayment:payments:serviceFee:inconsistentBehaviour] Service fee must be indicated either for all payments, or for none of them, but was partially indicated'
 const MULTIPAYMENT_NON_INIT_PAYMENTS = `[multiPayment:payments:status:not:initial] MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_INIT_STATUS}".`
@@ -91,6 +92,8 @@ module.exports = {
     PAYMENT_TOO_BIG_IMPLICIT_FEE,
     PAYMENT_NO_SUPPORTED_CONTEXT,
     PAYMENT_RECIPIENT_MISMATCH,
+    PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME,
+    PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
     MULTIPAYMENT_NO_RECEIPT_PAYMENTS,
@@ -112,6 +115,5 @@ module.exports = {
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_INCONSISTENT_SERVICE_FEE,
     MULTIPAYMENT_SERVICE_FEE_MISMATCH,
-    PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME,
-    PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
+    MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
 }

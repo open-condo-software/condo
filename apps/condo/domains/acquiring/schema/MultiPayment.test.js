@@ -56,6 +56,7 @@ const {
     MULTIPAYMENT_DELETED_PAYMENTS,
     MULTIPAYMENT_NON_INIT_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
+    MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
 } = require('@condo/domains/acquiring/constants/errors')
 const Big = require('big.js')
 const dayjs = require('dayjs')
@@ -495,15 +496,22 @@ describe('MultiPayment', () => {
                         await updateTestMultiPayment(admin, multiPayment.id, multiPaymentDonePayload)
                     }, MULTIPAYMENT_UNDONE_PAYMENTS)
                 })
-                test('Sum of all Payment\'s explicit fees should be equal to MP one', async () => {
+                const equalityCases = [
+                    ['explicitFee', 'explicitServiceCharge', MULTIPAYMENT_EXPLICIT_FEE_MISMATCH],
+                    ['explicitServiceCharge', 'explicitFee', MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH],
+                ]
+                test.each(equalityCases)('Sum of all Payment\'s %p should be equal to MP one', async (fieldName, zeroFieldName, errorMessage) => {
                     const { payments, acquiringIntegration, admin, client } = await makePayerAndPayments(2)
-                    const explicitFee = Big(payments[0].explicitFee).plus(payments[1].explicitFee).plus(50).toString()
+                    const amount = faker.random.number()
+                    const multiPaymentFieldValue = Big(amount).plus(payments[1].explicitFee).plus(50).toString()
                     await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
                         canGroupReceipts: true,
                     })
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
                     await updateTestPayment(admin, payments[0].id, {
                         status: PAYMENT_DONE_STATUS,
+                        [fieldName]: String(amount),
+                        [zeroFieldName]: '0',
                     })
                     await updateTestPayment(admin, payments[1].id, {
                         status: PAYMENT_DONE_STATUS,
@@ -511,8 +519,8 @@ describe('MultiPayment', () => {
                     await expectToThrowValidationFailureError(async () => {
                         await updateTestMultiPayment(admin, multiPayment.id, {
                             ...multiPaymentDonePayload,
-                            explicitFee,
-                        }, MULTIPAYMENT_EXPLICIT_FEE_MISMATCH)
+                            [fieldName]: multiPaymentFieldValue,
+                        }, errorMessage)
                     })
                 })
                 describe('All payments inside single MP should either have or not have', () => {
