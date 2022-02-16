@@ -125,8 +125,8 @@ const PAYMENT_REQUIRED_FIELDS = {
     // NOTE 1: Every payment, which got in "PROCESSING" should have multipayment ref, which cannot be changed later
     // NOTE 2: Every payment, which source is not our service will be created with status "DONE", where multiPayment is not required
     // NOTE 3: Same logic for acquiring context field
-    [PAYMENT_PROCESSING_STATUS]: ['explicitFee', 'multiPayment', 'context'],
-    [PAYMENT_DONE_STATUS]: ['explicitFee', 'advancedAt'],
+    [PAYMENT_PROCESSING_STATUS]: ['explicitFee', 'explicitServiceCharge', 'multiPayment', 'context'],
+    [PAYMENT_DONE_STATUS]: ['explicitFee', 'explicitServiceCharge', 'advancedAt'],
     [PAYMENT_ERROR_STATUS]: [],
 }
 
@@ -135,7 +135,7 @@ const DEFAULT_PAYMENT_FROZEN_FIELDS = ['amount', 'currencyCode', 'accountNumber'
 const PAYMENT_FROZEN_FIELDS = {
     [PAYMENT_INIT_STATUS]: DEFAULT_PAYMENT_FROZEN_FIELDS,
     [PAYMENT_PROCESSING_STATUS]: [...DEFAULT_PAYMENT_FROZEN_FIELDS, 'multiPayment'],
-    [PAYMENT_DONE_STATUS]: [...DEFAULT_PAYMENT_FROZEN_FIELDS, 'multiPayment', 'explicitFee', 'implicitFee'],
+    [PAYMENT_DONE_STATUS]: [...DEFAULT_PAYMENT_FROZEN_FIELDS, 'multiPayment', 'explicitFee', 'explicitServiceCharge', 'implicitFee'],
     [PAYMENT_ERROR_STATUS]: DEFAULT_PAYMENT_FROZEN_FIELDS,
 }
 

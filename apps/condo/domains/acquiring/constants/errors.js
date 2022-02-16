@@ -33,6 +33,8 @@ const PAYMENT_TOO_BIG_IMPLICIT_FEE = '[payment:implicitFee:tooBig] Implicit fee 
 const PAYMENT_NO_PAIRED_CONTEXT = '[payment:receipts:noContext] Input is containing "receipt", but "context" was not provided'
 const PAYMENT_NO_SUPPORTED_CONTEXT = '[payment:context:integration:supportedBillings] Acquiring integration of specified context does not support billing of specified receipt'
 const PAYMENT_RECIPIENT_MISMATCH = '[payment:recipient:mismatch] Payment\'s recipient fields values does not match with receipt recipient fields'
+const PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME = '[payment:explicitFee:explicitServiceCharge:bothGTZero] Explicit fee and explicit service charge were specified, and both of them are greater than 0, which is not allowed'
+const PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT = '[payment:explicitFee:explicitServiceCharge:bothGTZero] You\'re trying to update explicitFee/explicitServiceCharge property while other property of this pair was greater than zero, but only one of them allowed to be greater than zero at the same time. You need to explicitly pass "0" to one of them'
 const MULTIPAYMENT_EMPTY_PAYMENTS = '[multiPayment:payments:empty] Cannot create multipayment without payments'
 const MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE = '[multiPayment:implicitFee:tooBig] Implicit fee cannot be greater than amount (without explicit fee)'
 const MULTIPAYMENT_NO_RECEIPT_PAYMENTS = '[multiPayment:payments:noReceipt] Some of listed payments have no receipts.'
@@ -110,4 +112,6 @@ module.exports = {
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_INCONSISTENT_SERVICE_FEE,
     MULTIPAYMENT_SERVICE_FEE_MISMATCH,
+    PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME,
+    PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
 }
