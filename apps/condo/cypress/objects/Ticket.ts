@@ -181,6 +181,30 @@ class TicketView {
 
         return this
     }
+
+    uploadExcel () {
+
+        cy.window().document().then(doc => {
+            cy.get('.ant-affix button').click()
+            if (doc) {
+                setTimeout(() => {
+                    doc && doc.location.reload()
+                }, 9000)
+            }
+
+            cy.verifyDownload('.xlsx', {
+                contains: true,
+                timeout: 9000,
+                interval: 1000,
+            })
+
+        })
+        // cy.wait('@exportTicketsToExcel')
+        // cy.wait(5000)
+        // cy.stop()
+
+        return this
+    }
 }
 
 class TicketEdit {

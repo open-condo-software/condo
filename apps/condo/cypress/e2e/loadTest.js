@@ -33,6 +33,8 @@ describe('loadTest', () => {
 
             const ticketView = new TicketView()
             ticketView
+                .uploadExcel()
+                .visit()
                 .clickIsWarrantyCheckbox()
                 .clickIsPaidCheckbox()
                 .clickIsEmergencyCheckbox()

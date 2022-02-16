@@ -7,6 +7,7 @@ Cypress.on('uncaught:exception', (err) => {
 })
 
 const prepareTestEnvironment = () => {
+    cy.task('deleteFolder', Cypress.config('downloadsFolder'))
     cy.viewport('macbook-13')
 
     cy.intercept('POST', '/admin/api', (req) =>
