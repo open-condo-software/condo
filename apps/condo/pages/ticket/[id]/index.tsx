@@ -17,6 +17,7 @@ import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketMo
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { Ticket, TicketChange, TicketComment, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import {
     getDeadlineType, getHumanizeDeadlineDateDifference,
@@ -30,8 +31,7 @@ import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import styled from '@emotion/styled'
-import { Affix, Breadcrumb, Col, Row, Space, Tag, Typography } from 'antd'
+import { Affix, Breadcrumb, Col, Row, Space, Typography } from 'antd'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
 import UploadList from 'antd/lib/upload/UploadList/index'
 import { compact, get, isEmpty } from 'lodash'
@@ -135,15 +135,6 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
         </>
     )
 }
-
-const TicketTag = styled(Tag)`
-  &.ant-tag {
-    border-radius: 100px;
-  }
-  
-  font-size: ${fontSizes.label};
-  line-height: 24px;
-`
 
 const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
 const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
