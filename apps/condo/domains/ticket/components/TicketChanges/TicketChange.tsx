@@ -1,10 +1,10 @@
 import React  from 'react'
 import { Row, Col, Typography, Tooltip } from 'antd'
-import { has } from 'lodash'
+import { get, has } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { formatDate } from '../../utils/helpers'
+import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { green } from '@ant-design/colors'
@@ -74,6 +74,8 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
+    const { objs: ticketStatuses } = TicketStatus.useObjects({})
+
     const fields = [
         ['clientPhone', ClientPhoneMessage],
         ['details', DetailsMessage, { change: 'pages.condo.ticket.TicketChanges.details.change' }],
@@ -107,6 +109,14 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     const formatField = (field, value, type: TicketChangeFieldMessageType) => {
         const formatterFor = {
+            statusDisplayName: (field, value) => {
+                const statusIdTo = get(ticketChange, 'statusIdTo')
+                const ticketStatus = ticketStatuses.find(status => status.id === statusIdTo)
+                const ticketStatusColor = get(ticketStatus, ['colors', 'secondary'])
+                const ticketStatusChangeTextStyle = { color: ticketStatusColor }
+
+                return <Typography.Text style={ticketStatusChangeTextStyle}>{value}</Typography.Text>
+            },
             deadline: (field, value) => {
                 return <Typography.Text>{dayjs(value).format('DD MMMM YYYY')}</Typography.Text>
             },
