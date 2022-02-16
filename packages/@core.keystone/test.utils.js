@@ -230,9 +230,11 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
         },
         useGETForQueries: true,
         fetch: (uri, options) => {
+            options.headers = { ...options.headers, ...customHeaders }
             if (cookiesObj && Object.keys(cookiesObj).length > 0) {
-                options.headers = { ...options.headers, cookie: [restoreCookies()] }
+                options.headers = { ...options.headers, cookie: restoreCookies() }
             }
+
             return fetch(uri, options)
                 .then((response) => {
                     const setCookieHeader = response.headers.raw()['set-cookie']
