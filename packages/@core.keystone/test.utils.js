@@ -148,16 +148,50 @@ function gqlCatchedErrorsHandler (e) {
 }
 
 /**
+ * @param {function} callable
+ * @param {Object} params
+ * @returns {Promise<Object>}
+ */
+async function doGqlRequest (callable, params) {
+    try {
+        return await callable({
+            ...params,
+            // About error policies see https://www.apollographql.com/docs/react/v2/data/error-handling/#error-policies
+            errorPolicy: 'all',
+        })
+    } catch (e) {
+        return gqlCatchedErrorsHandler(e)
+    }
+}
+
+/**
  * @param {string} serverUrl
  * @param {boolean} logResponseErrors
  * @returns {{client: ApolloClient, getCookie: () => string, setHeaders: ({object}) => void}}
  */
 const makeApolloClient = (serverUrl, logResponseErrors = true) => {
-    let cookies = {}
+    let cookiesObj = {}
     let customHeaders = {}
 
-    function cookiesToString (cookies) {
-        return Object.entries(cookies).map(([key, value]) => `${key}=${value}`).join(';')
+    /**
+     * @returns {string}
+     */
+    const restoreCookies = () => {
+        return Object.entries(cookiesObj).map(([key, value]) => `${key}=${value}`).join(';')
+    }
+
+    /**
+     * @param {string[]} cookiesToSave
+     */
+    const saveCookies = (cookiesToSave) => {
+        cookiesObj = {
+            ...cookiesObj,
+            ...cookiesToSave.reduce((shapedCookies, cookieString) => {
+                const [rawCookie, ...flags] = cookieString.split('; ')
+                const [cookieName, value] = rawCookie.split('=')
+                return { ...shapedCookies, [cookieName]: value }
+            }, {}),
+        }
     }
 
     const apolloLinks = []
@@ -183,6 +217,13 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
     apolloLinks.push(createUploadLink({
         uri: `${serverUrl}${API_PATH}`,
         credentials: 'include',
+        headers: {
+            'content-type': 'application/json',
+            accept: 'application/json',
+            cache: 'no-cache',
+            mode: 'cors',
+            credentials: 'include',
+        },
         includeExtensions: true,
         isExtractableFile: (value) => {
             return value instanceof UploadingFile
@@ -191,23 +232,17 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
         formDataAppendFile: (form, name, file) => {
             form.append(name, file.stream)
         },
+        useGETForQueries: true,
         fetch: (uri, options) => {
-            if (cookies) {
-                options.headers.cookie = cookiesToString(cookies)
+            if (cookiesObj) {
+                options.headers = { ...options.headers, cookie: [restoreCookies()] }
             }
             return fetch(uri, options)
                 .then((response) => {
                     const setCookieHeader = response.headers.raw()['set-cookie']
                     if (setCookieHeader) {
                         // accumulate cookies received from the server
-                        cookies = {
-                            ...cookies,
-                            ...setCookieHeader.reduce((shapedCookies, cookieString) => {
-                                const [rawCookie, ...flags] = cookieString.split('; ')
-                                const [cookieName, value] = rawCookie.split('=')
-                                return { ...shapedCookies, [cookieName]: value }
-                            }, {}),
-                        }
+                        saveCookies(setCookieHeader)
                     }
                     return response
                 })
@@ -238,7 +273,7 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
 
     return {
         client,
-        getCookie: () => cookiesToString(cookies),
+        getCookie: () => restoreCookies(),
         setHeaders: (headers) => {
             customHeaders = { ...customHeaders, ...headers }
         },
@@ -257,18 +292,10 @@ const makeFakeClient = async (app, server) => {
         getCookie,
         setHeaders,
         mutate: async (mutation, variables = {}) => {
-            try {
-                return await client.mutate({ mutation, variables })
-            } catch (e) {
-                return gqlCatchedErrorsHandler(e)
-            }
+            return doGqlRequest(client.mutate, { mutation, variables })
         },
         query: async (query, variables = {}) => {
-            try {
-                return await client.query({ query, variables })
-            } catch (e) {
-                return gqlCatchedErrorsHandler(e)
-            }
+            return doGqlRequest(client.query, { query, variables })
         },
     }
 }
@@ -283,18 +310,10 @@ const makeRealClient = async () => {
         getCookie,
         setHeaders,
         mutate: async (mutation, variables = {}) => {
-            try {
-                return await client.mutate({ mutation, variables })
-            } catch (e) {
-                return gqlCatchedErrorsHandler(e)
-            }
+            return doGqlRequest(client.mutate, { mutation, variables })
         },
         query: async (query, variables = {}) => {
-            try {
-                return await client.query({ query, variables })
-            } catch (e) {
-                return gqlCatchedErrorsHandler(e)
-            }
+            return doGqlRequest(client.query, { query, variables })
         },
     }
 }
