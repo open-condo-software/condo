@@ -49,6 +49,7 @@ const {
     MULTIPAYMENT_DELETED_PAYMENTS,
     MULTIPAYMENT_NON_INIT_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
+    MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
 } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -77,7 +78,13 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
 
         explicitFee: {
             ...NON_NEGATIVE_MONEY_FIELD,
-            schemaDoc: 'The amount of commission which resident pay on top of amount',
+            schemaDoc: 'Amount of money which payer pays on top of initial "amount", which counts as fee for total "amount"',
+            isRequired: false,
+        },
+
+        explicitServiceCharge: {
+            ...NON_NEGATIVE_MONEY_FIELD,
+            schemaDoc: 'Amount of money which payer pays on top of initial "amount", which counts as internal service charge for all payments',
             isRequired: false,
         },
 
@@ -318,10 +325,17 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     if (undonePayments.length) {
                         addValidationError(`${MULTIPAYMENT_UNDONE_PAYMENTS} Undone payments ids: ${undonePayments.join(', ')}`)
                     }
-                    const totalFee = payments.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0))
-                    if (!newItem.explicitFee || !totalFee.eq(newItem.explicitFee)) {
+
+                    const totalExplicitFee = payments.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0))
+                    if (!newItem.explicitFee || !totalExplicitFee.eq(newItem.explicitFee)) {
                         addValidationError(`${MULTIPAYMENT_EXPLICIT_FEE_MISMATCH}`)
                     }
+
+                    const totalExplicitServiceCharge = payments.reduce((acc, cur) => acc.plus(cur.explicitServiceCharge || '0'), Big(0))
+                    if (!newItem.explicitFee || !totalExplicitServiceCharge.eq(newItem.explicitServiceCharge)) {
+                        addValidationError(MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH)
+                    }
+
                     const paymentsWithImplicitFee = payments.filter(payment => payment.implicitFee)
                     if (paymentsWithImplicitFee.length !== payments.length && paymentsWithImplicitFee.length !== 0) {
                         addValidationError(MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE)
