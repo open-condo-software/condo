@@ -52,7 +52,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
 
-    const contactId = get(contact, 'id')
+    const contactId = get(contact, 'id', null)
     const contactName = get(contact, 'name')
     const contactEmail = get(contact, 'email', '')
     const contactUnitName = get(contact, 'unitName')
