@@ -15,8 +15,8 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const path = require('path')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 
-const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CONFIG) : null
 const FORWARDING_EMAILS_FROM = 'doma-test-messages-forwarding@mailforspam.com'
 
 describe('SupportMessagesForwardingService', async () => {
@@ -50,9 +50,9 @@ describe('SupportMessagesForwardingService', async () => {
     })
 
     test('Forward message to support: no attachments', async () => {
-        const userClient = await makeClientWithProperty()
+        const residentClient = await makeClientWithResidentAccessAndProperty()
         const adminClient = await makeLoggedInAdminClient()
-        await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+        await createTestResident(adminClient, residentClient.user, residentClient.organization, residentClient.property)
 
         const payload = {
             text: `Test message from resident to support. This message should be sent from ${FORWARDING_EMAILS_FROM}`,
@@ -63,7 +63,7 @@ describe('SupportMessagesForwardingService', async () => {
             meta: {},
         }
 
-        const [result] = await supportMessagesForwardingByTestClient(userClient, payload)
+        const [result] = await supportMessagesForwardingByTestClient(residentClient, payload)
         expect(result.status).toEqual(MESSAGE_SENDING_STATUS)
         const messages = await Message.getAll(adminClient, { id: result.id })
         expect(messages).toHaveLength(1)
@@ -98,9 +98,8 @@ describe('SupportMessagesForwardingService', async () => {
 
     test('Forward message to support: no attachments, no email', async () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-        const defaultFrom = 'default-email@doma.ai'
         const payload = {
-            text: `Test message from resident to support. In this message resident has not passed the email address, so the sender's email is default: ${defaultFrom}`,
+            text: 'Test message from resident to support. In this message resident has not passed the email address, so the sender\'s email is default',
             os: 'android 12',
             appVersion: '0.0.1a',
             lang: RU_LOCALE,

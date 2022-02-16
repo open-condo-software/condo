@@ -255,7 +255,7 @@ async function renderTemplate (transport, message) {
 
     if (message.type === MESSAGE_FORWARDED_TO_SUPPORT) {
         const { emailFrom, meta } = message
-        const { dv, text, os, appVersion, organizationsData } = meta
+        const { dv, text, os, appVersion, organizationsData = [] } = meta
 
         return {
             subject: 'Обращение из мобильного приложения',
