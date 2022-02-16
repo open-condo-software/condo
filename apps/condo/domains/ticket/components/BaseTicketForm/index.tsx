@@ -28,6 +28,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { USER_TYPES } from '@condo/domains/user/constants/common'
 
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
@@ -223,6 +224,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
+    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
 
     const { isSmall } = useLayoutContext()
 
@@ -325,6 +327,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         }
         return result
     }
+
+    const initialCanReadByResidentValue = useMemo(() => get(initialValues, 'canReadByResident', true), [initialValues])
+    const isResidentTicket = useMemo(() => get(initialValues, ['createdBy', 'type']) === USER_TYPES.RESIDENT)
 
     return (
         <>
@@ -449,6 +454,15 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 categoryClassifier={categoryClassifier}
                                                                 form={form}
                                                             />
+                                                            {
+                                                                !isResidentTicket && (
+                                                                    <Col span={24}>
+                                                                        <Form.Item name={'canReadByResident'} valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                            <Checkbox disabled={disableUserInteraction}>{CanReadByResidentMessage}</Checkbox>
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                )
+                                                            }
                                                         </Row>
                                                     </FrontLayerContainer>
                                                 )
