@@ -441,7 +441,7 @@
   "pages.condo.ticket.TicketChanges.add": "added {field}. Now it is «{to}»",
   "pages.condo.ticket.TicketChanges.change": "changed {field}. It was «{from}», and got «{to}»",
   "pages.condo.ticket.TicketChanges.boolean.change": "changed type of ticket. Now it is «{to}»",
-  "pages.condo.ticket.TicketChanges.status.change": "moved the ticket from status «{from}» to status «{to}»",
+  "pages.condo.ticket.TicketChanges.status.change": "moved the ticket to status «{to}»",
   "pages.condo.ticket.TicketChanges.details.change": "changed {field}. It was «{from}», and got «{to}»",
   "pages.condo.ticket.TicketChanges.remove": "removed {field}. It was «{from}»",
   "pages.condo.ticket.TicketChanges.clientPhone": "client phone",

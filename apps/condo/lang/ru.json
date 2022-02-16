@@ -441,7 +441,7 @@
   "pages.condo.ticket.TicketChanges.add": "добавил {field}. Стало «{to}»",
   "pages.condo.ticket.TicketChanges.change": "изменил {field}. Был «{from}», стал «{to}»",
   "pages.condo.ticket.TicketChanges.boolean.change": "изменил статус заявки. Стала «{to}»",
-  "pages.condo.ticket.TicketChanges.status.change": "перевел задачу из статуса «{from}» в статус «{to}»",
+  "pages.condo.ticket.TicketChanges.status.change": "изменил статус на «{to}»",
   "pages.condo.ticket.TicketChanges.details.change": "изменил {field}. Было «{from}», а стало «{to}»",
   "pages.condo.ticket.TicketChanges.remove": "удалил {field}. Было «{from}»",
   "pages.condo.ticket.TicketChanges.clientPhone": "телефон клиента",
