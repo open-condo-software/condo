@@ -39,7 +39,7 @@ const FieldPairRow = (props) => {
     )
 }
 
-export const ContactPageContent = ({ organization, contact, isContactEditable, softDeleteAction }) => {
+export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
     const intl = useIntl()
     const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
@@ -52,6 +52,7 @@ export const ContactPageContent = ({ organization, contact, isContactEditable, s
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
 
+    const contactId = get(contact, 'id')
     const contactName = get(contact, 'name')
     const contactEmail = get(contact, 'email', '')
     const contactUnitName = get(contact, 'unitName')
@@ -137,9 +138,7 @@ export const ContactPageContent = ({ organization, contact, isContactEditable, s
                             </Col>
                             <Col xs={24} lg={8} offset={isSmall ? 0 : 1}>
                                 <TicketCardList
-                                    organizationId={String(organization.id)}
-                                    contactPhone={String(get(contact, 'phone'))}
-                                    contactName={contactName}
+                                    contactId={contactId}
                                 />
                             </Col>
                         </Row>
@@ -191,7 +190,6 @@ const ContactInfoPage = () => {
 
     return (
         <ContactPageContent
-            organization={organization}
             contact={contact}
             isContactEditable={isContactEditable}
             softDeleteAction={handleDeleteAction}
