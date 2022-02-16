@@ -30,6 +30,8 @@ const {
     PAYMENT_NO_PAIRED_CONTEXT,
     PAYMENT_NO_SUPPORTED_CONTEXT,
     PAYMENT_RECIPIENT_MISMATCH,
+    PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME,
+    PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_STATUSES,
@@ -57,7 +59,13 @@ const Payment = new GQLListSchema('Payment', {
 
         explicitFee: {
             ...NON_NEGATIVE_MONEY_FIELD,
-            schemaDoc: 'Amount of money which payer pays on top of initial "amount"',
+            schemaDoc: 'Amount of money which payer pays on top of initial "amount", which counts as fee for every service which is not housing and communal services',
+            isRequired: false,
+        },
+
+        explicitServiceCharge: {
+            ...NON_NEGATIVE_MONEY_FIELD,
+            schemaDoc: 'Amount of money which payer pays on top of initial "amount", which counts as internal service charge for all payments from housing and communal services category',
             isRequired: false,
         },
 
@@ -201,7 +209,16 @@ const Payment = new GQLListSchema('Payment', {
         auth: true,
     },
     hooks: {
-        validateInput: async ({ resolvedData, context, addValidationError, operation, existingItem }) => {
+        resolveInput: async ({ resolvedData }) => {
+            if (resolvedData['explicitFee'] && !resolvedData['explicitServiceCharge']) {
+                resolvedData['explicitServiceCharge'] = '0'
+            }
+            if (resolvedData['explicitServiceCharge'] && !resolvedData['explicitFee']) {
+                resolvedData['explicitFee'] = '0'
+            }
+            return resolvedData
+        },
+        validateInput: async ({ resolvedData, context, addValidationError, operation, existingItem, originalInput }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError )) return
             const { dv } = resolvedData
             if (dv === 1) {
@@ -252,6 +269,25 @@ const Payment = new GQLListSchema('Payment', {
                     }
                 }
                 if (requiredMissing) return
+                if (requiredFields.includes('explicitFee') || requiredFields.includes('explicitServiceCharge')) {
+                    // Only 1 should be greater than 0
+                    const hasPositiveExplicitFee = resolvedData.explicitFee && Big(resolvedData.explicitFee).gt(0)
+                    const hasPositiveExplicitServiceCharge = resolvedData.explicitServiceCharge && Big(resolvedData.explicitServiceCharge).gt(0)
+                    if (hasPositiveExplicitFee && hasPositiveExplicitServiceCharge) {
+                        return addValidationError(PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME)
+                    }
+                    const restrictedFeeOverride = hasPositiveExplicitFee
+                        && !originalInput.explicitServiceCharge
+                        && get(existingItem, 'explicitServiceCharge')
+                        && !Big(existingItem.explicitServiceCharge).eq('0')
+                    const restrictedChargeOverride = hasPositiveExplicitServiceCharge
+                        && !originalInput.explicitFee
+                        && get(existingItem, 'explicitFee')
+                        && !Big(existingItem.explicitFee).eq('0')
+                    if (restrictedFeeOverride || restrictedChargeOverride) {
+                        return addValidationError(PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT)
+                    }
+                }
                 const frozenFields = PAYMENT_FROZEN_FIELDS[oldStatus]
                 for (const field of frozenFields) {
                     if (resolvedData.hasOwnProperty(field)) {
