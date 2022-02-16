@@ -42,6 +42,8 @@ import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import dayjs from 'dayjs'
 import { BaseType } from 'antd/lib/typography/Base'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { USER_TYPES } from '@condo/domains/user/constants/common'
+import { FormattedMessage } from 'react-intl'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -411,6 +413,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const HoursShortMessage = intl.formatMessage({ id: 'HoursShort' })
     const MinutesShortMessage = intl.formatMessage({ id: 'MinutesShort' })
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
+    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.CanReadByResident' })
+    const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
@@ -473,6 +477,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const ticketStatusType = get(ticket, ['status', 'type'])
     const disabledEditButton = useMemo(() => ticketStatusType === CLOSED_STATUS_TYPE, [ticketStatusType])
     const statusUpdatedAt = get(ticket, 'statusUpdatedAt')
+    const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === USER_TYPES.RESIDENT, [ticket])
+    const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
 
     const getTimeSinceCreation = useCallback(() => {
         const diffInMinutes = dayjs().diff(dayjs(statusUpdatedAt), 'minutes')
@@ -535,6 +541,24 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                             <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                                 {SourceMessage} — {get(ticket, ['source', 'name'], '').toLowerCase()}
                                                             </Typography.Text>
+                                                        </Col>
+                                                        <Col span={24}>
+                                                            {
+                                                                !isResidentTicket && !canReadByResident && (
+                                                                    <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                                                        <FormattedMessage
+                                                                            id={'pages.condo.ticket.title.CanReadByResident'}
+                                                                            values={{
+                                                                                canReadByResident: (
+                                                                                    <Typography.Text type={'danger'}>
+                                                                                        {ResidentCannotReadTicketMessage}
+                                                                                    </Typography.Text>
+                                                                                ),
+                                                                            }}
+                                                                        />
+                                                                    </Typography.Text>
+                                                                )
+                                                            }
                                                         </Col>
                                                     </Row>
                                                 </Col>
