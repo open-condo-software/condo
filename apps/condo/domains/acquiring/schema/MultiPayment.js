@@ -326,7 +326,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     }
                     if (paymentsWithImplicitFee.length === payments.length) {
                         const totalImplicitFee = payments.reduce((acc, cur) => acc.plus(cur.implicitFee), Big(0))
-                        if (!newItem.explicitFee || !totalImplicitFee.eq(newItem.explicitFee)) {
+                        if (!newItem.implicitFee || !totalImplicitFee.eq(newItem.implicitFee)) {
                             addValidationError(MULTIPAYMENT_IMPLICIT_FEE_MISMATCH)
                         }
                     }
