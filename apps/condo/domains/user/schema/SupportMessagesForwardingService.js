@@ -16,7 +16,7 @@ const { v4: uuid } = require('uuid')
 const dayjs = require('dayjs')
 
 const FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
-const adapter = new FileAdapter(FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME)
+const fileAdapter = new FileAdapter(FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME)
 
 const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesForwardingService', {
     types: [
@@ -49,7 +49,7 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
                 const filesPromises = attachmentsData.map((result) => {
                     const { filename: originalFilename, mimetype, encoding, createReadStream } = result
                     const stream = createReadStream()
-                    return adapter.save({
+                    return fileAdapter.save({
                         stream,
                         id: `${dayjs().format('YYYY-MM-DD_HH-mm-ss')}_${uuid()}`,
                         filename: originalFilename,
@@ -60,15 +60,15 @@ const SupportMessagesForwardingService = new GQLCustomSchema('SupportMessagesFor
                             id,
                             mimetype,
                             originalFilename,
-                            publicUrl: adapter.publicUrl({ filename }),
+                            publicUrl: fileAdapter.publicUrl({ filename }),
                         }
 
-                        if (FileAdapter.isLocal(adapter)) {
+                        if (FileAdapter.isLocal(fileAdapter)) {
                             // Full path to the file within the same filesystem
-                            ret.publicUrl = `${adapter.src}/${filename}`
+                            ret.publicUrl = `${fileAdapter.src}/${filename}`
                         } else {
-                            if (adapter.acl && adapter.acl.generateUrl) {
-                                ret.publicUrl = adapter.acl.generateUrl(`${adapter.folder}/${filename}`)
+                            if (fileAdapter.acl && fileAdapter.acl.generateUrl) {
+                                ret.publicUrl = fileAdapter.acl.generateUrl(`${fileAdapter.folder}/${filename}`)
                             }
                         }
 

@@ -8,7 +8,7 @@ async function canSupportMessagesForwarding ({ authentication: { item: user } })
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    return { user: { id: user.id } }
+    return true
 }
 
 /*
