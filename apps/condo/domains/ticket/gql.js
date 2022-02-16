@@ -32,6 +32,8 @@ const SHARE_TICKET_MUTATION = gql`
     PS: not exactly by hands, pasted from debugger ;)
 */
 const TICKET_CHANGE_DATA_FIELDS = [
+    'canReadByResidentFrom',
+    'canReadByResidentTo',
     'deadlineFrom',
     'deadlineTo',
     'statusReopenedCounterFrom',

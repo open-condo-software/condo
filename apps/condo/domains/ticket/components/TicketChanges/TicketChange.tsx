@@ -67,6 +67,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.address' })
     const DeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deadline' })
+    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident' })
 
     const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
@@ -77,6 +78,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const { objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const fields = [
+        ['canReadByResident', CanReadByResidentMessage],
         ['clientPhone', ClientPhoneMessage],
         ['details', DetailsMessage, { change: 'pages.condo.ticket.TicketChanges.details.change' }],
         ['clientName', ClientNameMessage],
@@ -93,6 +95,10 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     ]
 
     const BooleanToString = {
+        canReadByResident: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.false' }),
+        },
         isPaid: {
             'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
             'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
@@ -174,6 +180,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const formatDiffMessage = (field, message, ticketChange, customMessages: ITicketChangeFieldMessages = {}) => {
         if (typeof ticketChange[`${field}To`] === 'boolean') {
             const valueTo = BooleanToString[field][ticketChange[`${field}To`]]
+
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
