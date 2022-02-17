@@ -34,6 +34,7 @@ const {
     PAYMENT_PROCESSING_STATUS,
     PAYMENT_ERROR_STATUS,
     MULTIPAYMENT_FROZEN_FIELDS,
+    MULTIPAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
@@ -388,13 +389,15 @@ describe('MultiPayment', () => {
                     paymentWay: 'CARD',
                     transactionId: faker.datatype.uuid(),
                 }
-                const cases = ['withdrawnAt', 'cardNumber', 'paymentWay', 'transactionId', 'explicitFee']
+                const cases = ['withdrawnAt', 'cardNumber', 'paymentWay', 'transactionId', 'explicitFee', 'explicitServiceCharge']
                 test.each(cases)(`Status ${MULTIPAYMENT_DONE_STATUS}, missing %p field`, async (field) => {
                     const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments(1)
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
                         explicitFee: null,
+                        explicitServiceCharge: null,
                     })
-                    const explicitFee = payments[0].explicitFee
+                    const explicitFee = payments.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0)).toString()
+                    const explicitServiceCharge = payments.reduce((acc, cur) => acc.plus(cur.explicitServiceCharge || '0'), Big(0)).toString()
                     for (const payment of payments) {
                         await updateTestPayment(admin, payment.id, {
                             status: PAYMENT_DONE_STATUS,
@@ -404,6 +407,7 @@ describe('MultiPayment', () => {
                     const payload = {
                         ...requiredPayload,
                         explicitFee,
+                        explicitServiceCharge,
                     }
                     await expectToThrowValidationFailureError(async () => {
                         await updateTestMultiPayment(admin, multiPayment.id, {
@@ -416,7 +420,7 @@ describe('MultiPayment', () => {
             describe('Frozen fields cannot be changed', async () => {
                 const relations = ['integration', 'user']
                 const values = ['amountWithoutExplicitFee', 'currencyCode']
-                const statuses = [MULTIPAYMENT_INIT_STATUS, MULTIPAYMENT_PROCESSING_STATUS]
+                const statuses = [MULTIPAYMENT_INIT_STATUS, MULTIPAYMENT_PROCESSING_STATUS, MULTIPAYMENT_WITHDRAWN_STATUS]
                 describe('Relation-fields', () => {
                     const cases = statuses.map(status => {
                         return MULTIPAYMENT_FROZEN_FIELDS[status]
@@ -601,58 +605,79 @@ describe('MultiPayment', () => {
                 ], { sender: client.userAttrs.sender })
                 registerMPResult = obj
             })
-            test('Successful payment', async () => {
-                // Stage 1. User goes to service and confirm payment with fees...
-                // After that our acquiring integration service move MP and P to PROCESSING and setting explicit fees
-                const { multiPaymentId } = registerMPResult
-                const payments = await Payment.getAll(integrationClient, {
-                    multiPayment: { id: multiPaymentId },
-                })
-                expect(payments).toBeDefined()
-                expect(payments).toHaveLength(1)
-                const explicitFee = '100.00'
-                let [payment] = payments
-                let multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
-                    status: MULTIPAYMENT_PROCESSING_STATUS,
-                    explicitFee,
-                })
-                expect(multiPayment).toBeDefined()
-                expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_PROCESSING_STATUS)
-                expect(multiPayment).toHaveProperty('explicitFee')
-                expect(Big(multiPayment.explicitFee).eq(explicitFee)).toBeTruthy()
-                payment = await Payment.update(integrationClient, payment.id, {
-                    status: PAYMENT_PROCESSING_STATUS,
-                    explicitFee,
-                })
-                expect(payment).toBeDefined()
-                expect(payment).toHaveProperty('status', PAYMENT_PROCESSING_STATUS)
-                expect(Big(payment.explicitFee).eq(explicitFee)).toBeTruthy()
+            describe('Successful payment',  () => {
+                const cases = [
+                    ['Housing and communal services', '100', '0'],
+                    ['Not housing and communal services', '0', '100'],
+                ]
+                test.each(cases)('%p', async (name, explicitServiceCharge, explicitFee) => {
+                    // Stage 1. User goes to service and confirm payment with fee / charge...
+                    // Meanwhile acquiring integration service move MP and P to PROCESSING and setting explicit fee / charge
+                    const { multiPaymentId } = registerMPResult
+                    const payments = await Payment.getAll(integrationClient, {
+                        multiPayment: { id: multiPaymentId },
+                    })
+                    expect(payments).toBeDefined()
+                    expect(payments).toHaveLength(1)
+                    let [payment] = payments
+                    let multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                        status: MULTIPAYMENT_PROCESSING_STATUS,
+                        explicitServiceCharge,
+                        explicitFee,
+                    })
+                    expect(multiPayment).toBeDefined()
+                    expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_PROCESSING_STATUS)
+                    expect(multiPayment).toHaveProperty('explicitFee')
+                    expect(Big(multiPayment.explicitFee).eq(explicitFee)).toBeTruthy()
+                    expect(Big(multiPayment.explicitServiceCharge).eq(explicitServiceCharge)).toBeTruthy()
+                    payment = await Payment.update(integrationClient, payment.id, {
+                        status: PAYMENT_PROCESSING_STATUS,
+                        explicitServiceCharge,
+                        explicitFee,
+                    })
+                    expect(payment).toBeDefined()
+                    expect(payment).toHaveProperty('status', PAYMENT_PROCESSING_STATUS)
+                    expect(Big(payment.explicitFee).eq(explicitFee)).toBeTruthy()
+                    expect(Big(payment.explicitServiceCharge).eq(explicitServiceCharge)).toBeTruthy()
 
-                // Stage 2. Our acquiring integration service after polling UPS service move everything to DONE
-                const transactionTime = dayjs().toISOString()
-                const cardNumber = getRandomHiddenCard()
-                const paymentWay = 'CARD'
-                const transactionId = faker.datatype.uuid()
-                payment = await Payment.update(integrationClient, payment.id, {
-                    status: PAYMENT_DONE_STATUS,
-                    advancedAt: transactionTime,
+                    // Stage 2. Our acquiring integration service after detecting successful redirect moving MP to WITHDRAWN
+                    const transactionTime = dayjs().toISOString()
+                    const cardNumber = getRandomHiddenCard()
+                    const paymentWay = 'CARD'
+                    const transactionId = faker.datatype.uuid()
+                    multiPayment = await MultiPayment.update(integrationClient, multiPayment.id, {
+                        status: MULTIPAYMENT_WITHDRAWN_STATUS,
+                        withdrawnAt: transactionTime,
+                        cardNumber,
+                        paymentWay,
+                        transactionId,
+                    })
+                    expect(multiPayment).toBeDefined()
+                    expect(multiPayment).toHaveProperty('withdrawnAt', transactionTime)
+                    expect(multiPayment).toHaveProperty('cardNumber', cardNumber)
+                    expect(multiPayment).toHaveProperty('paymentWay', paymentWay)
+                    expect(multiPayment).toHaveProperty('transactionId', transactionId)
+                    expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_WITHDRAWN_STATUS)
+
+                    // Stage 3. Our acquiring integration service after polling UPS service move everything to DONE
+                    payment = await Payment.update(integrationClient, payment.id, {
+                        status: PAYMENT_DONE_STATUS,
+                        advancedAt: transactionTime,
+                    })
+                    expect(payment).toBeDefined()
+                    expect(payment).toHaveProperty('status', PAYMENT_DONE_STATUS)
+                    expect(payment).toHaveProperty('advancedAt', transactionTime)
+                    multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                        status: MULTIPAYMENT_DONE_STATUS,
+                    })
+                    expect(multiPayment).toBeDefined()
+                    expect(multiPayment).toHaveProperty('withdrawnAt', transactionTime)
+                    expect(multiPayment).toHaveProperty('cardNumber', cardNumber)
+                    expect(multiPayment).toHaveProperty('paymentWay', paymentWay)
+                    expect(multiPayment).toHaveProperty('transactionId', transactionId)
+                    expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_DONE_STATUS)
                 })
-                expect(payment).toBeDefined()
-                expect(payment).toHaveProperty('status', PAYMENT_DONE_STATUS)
-                expect(payment).toHaveProperty('advancedAt', transactionTime)
-                multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
-                    withdrawnAt: transactionTime,
-                    cardNumber,
-                    paymentWay,
-                    transactionId,
-                    status: MULTIPAYMENT_DONE_STATUS,
-                })
-                expect(multiPayment).toBeDefined()
-                expect(multiPayment).toHaveProperty('withdrawnAt', transactionTime)
-                expect(multiPayment).toHaveProperty('cardNumber', cardNumber)
-                expect(multiPayment).toHaveProperty('paymentWay', paymentWay)
-                expect(multiPayment).toHaveProperty('transactionId', transactionId)
-                expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_DONE_STATUS)
+
             })
             test('Payment failed during money processing', async () => {
                 // Stage 1. Same as above
@@ -661,14 +686,17 @@ describe('MultiPayment', () => {
                     multiPayment: { id: multiPaymentId },
                 })
                 const explicitFee = '100.00'
+                const explicitServiceCharge = '0'
                 let [payment] = payments
                 await MultiPayment.update(integrationClient, multiPaymentId, {
                     status: MULTIPAYMENT_PROCESSING_STATUS,
                     explicitFee,
+                    explicitServiceCharge,
                 })
                 await Payment.update(integrationClient, payment.id, {
                     status: PAYMENT_PROCESSING_STATUS,
                     explicitFee,
+                    explicitServiceCharge,
                 })
 
                 // Stage 2. Our acquiring integration service after polling UPS service move everything to ERROR
@@ -684,7 +712,6 @@ describe('MultiPayment', () => {
                 expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
             })
         })
-        //
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
             const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
