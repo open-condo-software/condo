@@ -75,6 +75,7 @@ async function createTestAcquiringIntegration (client, billings, extraAttrs = {}
         sender,
         name,
         hostUrl,
+        detailsTitle: name + " INTEGRATION DETAILS",
         supportedBillingIntegrations: { connect: billingsIds },
         explicitFeeDistributionSchema: getRandomFeeDistribution(),
         ...extraAttrs
