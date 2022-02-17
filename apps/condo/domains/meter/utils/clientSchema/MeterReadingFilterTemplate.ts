@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 
 import { MeterReadingFilterTemplate as MeterReadingFilterTemplateGQL } from '@condo/domains/meter/gql'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'employee', 'filters']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'employee', 'fields']
 const RELATIONS = ['employee']
 
 export interface IMeterReadingFilterTemplateUIState extends MeterReadingFilterTemplate {
