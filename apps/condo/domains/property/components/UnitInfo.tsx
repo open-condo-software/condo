@@ -75,7 +75,7 @@ export const UnitInfo: IUnitInfo = (props) => {
     return (
         <Col span={isSmall ? 24 : 22}>
             <Row gutter={[40, 0]}>
-                <Col span={5}>
+                <Col span={5} data-cy={'unit-name-input-item'}>
                     <TicketFormItem name={'unitName'} label={FlatNumberLabel}>
                         <UnitNameInput
                             property={property}
@@ -111,4 +111,3 @@ export const UnitInfo: IUnitInfo = (props) => {
         </Col>
     )
 }
-

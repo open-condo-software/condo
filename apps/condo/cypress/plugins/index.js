@@ -6,7 +6,9 @@ const {
     createTestUser,
     createTestForgotPasswordAction,
     ConfirmPhoneAction,
+    makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
 module.exports = async (on, config) => {
 
@@ -14,16 +16,22 @@ module.exports = async (on, config) => {
 
     on('task', {
         async 'keystone:createUser' () {
-            const result = await createTestUser(admin)
-            return result
+            return await createTestUser(admin)
         },
         async 'keystone:createForgotPasswordAction' (user) {
-            const result = await createTestForgotPasswordAction(admin, user)
-            return result
+            return await createTestForgotPasswordAction(admin, user)
         },
         async 'keystone:getConfirmPhoneAction' (phone) {
-            const result = await ConfirmPhoneAction.getAll(admin, {  phone })
-            return result
+            return await ConfirmPhoneAction.getAll(admin, { phone })
+        },
+        async 'keystone:createUserWithProperty' () {
+            const result = await makeClientWithProperty()
+            const client = await makeLoggedInClient(result.userAttrs)
+            return {
+                user: result,
+                client,
+                cookie: client.getCookie(),
+            }
         },
     })
 

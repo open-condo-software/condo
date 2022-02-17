@@ -96,7 +96,17 @@ export const OrganizationSelect: React.FC = () => {
 
             const { value, label } = organizationOption
 
-            return (<Select.Option style={optionStyle} key={value} value={value} title={label}>{label}</Select.Option>)
+            return (
+                <Select.Option
+                    data-cy={'organization-select-item'}
+                    style={optionStyle}
+                    key={value}
+                    value={value}
+                    title={label}
+                >
+                    {label}
+                </Select.Option>
+            )
         })
     }, [userOrganizations])
 
