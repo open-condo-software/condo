@@ -16,9 +16,8 @@ const FormData = require('form-data')
 const fetch = require('node-fetch')
 const http = require('http')
 const https = require('https')
-const { flattenDeep, fromPairs, toPairs, set } = require('lodash')
+const { flattenDeep, fromPairs, toPairs } = require('lodash')
 const fs = require('fs')
-const { BILLING_RECEIPT_SERVICE_FIELD_NAME } = require('@condo/domains/billing/constants/constants')
 
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
 const NUMBER_RE = /^[1-9][0-9]*$/i
@@ -251,21 +250,6 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
         cache: new InMemoryCache({
             addTypename: false,
             resultCaching: false,
-            typePolicies: {
-                [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
-                    // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
-                    keyFields: false,
-                },
-                BuildingSection: {
-                    keyFields: false,
-                },
-                BuildingFloor: {
-                    keyFields: false,
-                },
-                BuildingUnit: {
-                    keyFields: false,
-                },
-            },
         }),
         link: ApolloLink.from(apolloLinks),
         queryDeduplication: false,
