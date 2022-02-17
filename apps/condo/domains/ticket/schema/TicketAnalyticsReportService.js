@@ -70,7 +70,7 @@ const createStatusRange = async (context, organizationWhereInput, labelKey = 'na
         return !statuses
             .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
     })
-    return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id, color: status.colors.primary }))
+    return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id, color: status.colors.secondary }))
 }
 
 const createCategoryClassifierRange = async (organizationWhereInput, whereIn) => {
