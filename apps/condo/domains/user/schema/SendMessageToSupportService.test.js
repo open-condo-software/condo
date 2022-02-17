@@ -16,6 +16,8 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const path = require('path')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { expectToThrowMutationError } = require('@condo/domains/common/utils/testSchema')
+const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/errors')
 
 const FORWARDING_EMAILS_FROM = 'doma-test-message-to-support@mailforspam.com'
 
@@ -47,6 +49,22 @@ describe('SendMessageToSupportService', async () => {
         expect(messages).toHaveLength(1)
         expect(messages[0].meta.attachments).toHaveLength(2)
         expect(messages[0].meta.os).toEqual(os)
+    })
+
+    test('Send message to support: no attachments, wrong email', async () => {
+        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = {
+            text: 'Test with wrong email.',
+            email: 'some-wrong_email',
+            os: 'android 13',
+            appVersion: '0.0.1a',
+            lang: RU_LOCALE,
+            meta: {},
+        }
+
+        await expectToThrowMutationError(async () => {
+            await supportSendMessageToSupportByTestClient(userClient, payload)
+        }, `${EMAIL_WRONG_FORMAT_ERROR}] invalid format`)
     })
 
     test('Send message to support: no attachments', async () => {
