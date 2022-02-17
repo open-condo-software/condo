@@ -117,7 +117,7 @@ const REGISTER_NEW_SERVICE_USER_MUTATION = gql`
 
 // TODO(codegen): write return type result!
 
-const SUPPORT_MESSAGES_FORWARDING_MUTATION = gql`
+const SEND_MESSAGE_TO_SUPPORT_MUTATION = gql`
     mutation sendMessageToSupport ($data: SendMessageToSupportInput!) {
         result: sendMessageToSupport(data: $data) { id, status }
     }
@@ -145,7 +145,7 @@ module.exports = {
     CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION,
     SIGNIN_AS_USER_MUTATION,
     REGISTER_NEW_SERVICE_USER_MUTATION,
-    SUPPORT_MESSAGES_FORWARDING_MUTATION,
+    SEND_MESSAGE_TO_SUPPORT_MUTATION,
 
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

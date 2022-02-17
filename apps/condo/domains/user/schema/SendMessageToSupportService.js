@@ -15,8 +15,8 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { v4: uuid } = require('uuid')
 const dayjs = require('dayjs')
 
-const FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
-const fileAdapter = new FileAdapter(FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME)
+const SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
+const fileAdapter = new FileAdapter(SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME)
 
 const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportService', {
     types: [
@@ -119,5 +119,4 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
 
 module.exports = {
     SendMessageToSupportService,
-    FORWARDED_EMAILS_ATTACHMENTS_FILE_FOLDER_NAME,
 }

@@ -18,7 +18,7 @@ const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/us
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
-const { SUPPORT_MESSAGES_FORWARDING_MUTATION } = require('@condo/domains/user/gql')
+const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -56,7 +56,7 @@ async function sendMessageToSupport (context, data) {
     if (!data.sender) throw new Error('no data.sender')
 
     return await execGqlWithoutAccess(context, {
-        query: SUPPORT_MESSAGES_FORWARDING_MUTATION,
+        query: SEND_MESSAGE_TO_SUPPORT_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to sendMessageToSupport',
         dataPath: 'obj',
