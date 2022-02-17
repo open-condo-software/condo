@@ -21,6 +21,7 @@ const {
     CONTEXT_OPTION_NAME_MATCH,
 } = require('@condo/domains/billing/constants/errors')
 const get = require('lodash/get')
+const { DateTimeUtc } = require('@keystonejs/fields')
 
 
 const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrationOrganizationContext', {
@@ -85,6 +86,22 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             isRequired: false,
             type: Text,
         },
+
+        paymentsAllowedFrom: {
+            schemaDoc: 'Datetime from which receipts from this billing are able to be paid for',
+            type: DateTimeUtc,
+            isRequired: false,
+        },
+
+        paymentsAllowedTo: {
+            schemaDoc: 'Datetime to which receipts from this billing are able to be paid for',
+            type: DateTimeUtc,
+            isRequired: false,
+        },
+
+        // isPaymentsAllowed: {
+        //     schemaDoc: 'Datetime to which receipts from this billing are able to be paid for',
+        // },
     },
     hooks: {
         validateInput: async ({ existingItem, resolvedData, operation, addValidationError }) => {
