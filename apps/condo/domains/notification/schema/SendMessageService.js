@@ -75,6 +75,8 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 const { dv, sender, to, emailFrom, type, meta, lang } = data
                 if (!to.user && !to.email && !to.phone) throw new Error('invalid send to input')
 
+                if (emailFrom && !to.email) throw new Error('You can not use emailFrom without to.email')
+
                 await checkSendMessageMeta(type, meta)
 
                 const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang, emailFrom }
