@@ -152,7 +152,6 @@ async function doGqlRequest (callable, params) {
             // About error policies see https://www.apollographql.com/docs/react/v2/data/error-handling/#error-policies
             errorPolicy: 'all',
             fetchPolicy: 'no-cache',
-            context: { queryDeduplication: false },
         })
     } catch (e) {
         return gqlCatchedErrorsHandler(e)
@@ -249,10 +248,8 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
     const client = new ApolloClient({
         cache: new InMemoryCache({
             addTypename: false,
-            resultCaching: false,
         }),
         link: ApolloLink.from(apolloLinks),
-        queryDeduplication: false,
     })
 
     return {
