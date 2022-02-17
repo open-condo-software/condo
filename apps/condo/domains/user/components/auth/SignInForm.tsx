@@ -28,7 +28,7 @@ export const SignInForm = (): React.ReactElement => {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
-    const LoginBySbbolMessage = intl.formatMessage({ id: 'LoginBySBBOL' })
+
 
     const { isSmall } = useLayoutContext()
     const [form] = Form.useForm()
@@ -124,15 +124,7 @@ export const SignInForm = (): React.ReactElement => {
                                     </Button>
                                 </Col >
                                 <Col xs={24} lg={14} offset={isSmall ? 0 : 3}>
-                                    <Button
-                                        key='submit'
-                                        type='sberAction'
-                                        icon={<SberIconWithoutLabel/>}
-                                        href={'/api/sbbol/auth'}
-                                        block={isSmall}
-                                    >
-                                        {LoginBySbbolMessage}
-                                    </Button>
+
                                 </Col>
                             </Row>
                         </Col>

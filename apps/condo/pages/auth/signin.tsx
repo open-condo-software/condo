@@ -27,7 +27,7 @@ const SignInPage: AuthPage = () => {
     )
 }
 
-SignInPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
+SignInPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'} sbbolButtonDescriptor={{ id: 'LoginBySBBOL' }}/>
 
 SignInPage.container = AuthLayout
 

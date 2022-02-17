@@ -5,10 +5,12 @@ import { colors } from '../constants/style'
 import { MessageDescriptor } from '@formatjs/intl/src/types'
 import Router, { useRouter } from 'next/router'
 import get from 'lodash/get'
-import { Space, Typography } from 'antd'
+import { Row, Col, Space, Typography } from 'antd'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { Button } from './Button'
 import styled from '@emotion/styled'
+import { SberIconWithoutLabel } from './icons/SberIcon'
+import { useLayoutContext } from './LayoutContext'
 
 interface IReturnBackHeaderActionProps {
     descriptor: MessageDescriptor
@@ -21,6 +23,7 @@ interface ITitleHeaderActionProps {
 }
 
 interface IRightButtonHeaderActionProps {
+    sbbolButtonDescriptor?: MessageDescriptor
     descriptor: MessageDescriptor
     path: string
 }
@@ -100,20 +103,38 @@ export const TitleHeaderAction: React.FC<ITitleHeaderActionProps> = (props) => {
 
 export const ButtonHeaderAction: React.FC<IRightButtonHeaderActionProps> = (props) => {
     const { descriptor, path } = props
+    const sbbolButtonDescriptor = props.sbbolButtonDescriptor || { id: 'LoginBySBBOL' }
     const intl = useIntl()
     const ButtonMessage = intl.formatMessage(descriptor)
+    const SbbolButtonMessage = intl.formatMessage(sbbolButtonDescriptor)
     const { isMobile } = useContext(AuthLayoutContext)
-
+    const { isSmall } = useLayoutContext()
     return (
-        <Button
-            key='submit'
-            onClick={() => Router.push(path)}
-            type='sberPrimary'
-            secondary={true}
-            size={isMobile ? 'middle' : 'large'}
-            block
-        >
-            {ButtonMessage}
-        </Button>
+        <Row justify={'space-between'} gutter={[20, 0]}>
+            <Col>
+                <Button
+                    key='submit'
+                    type='sberAction'
+                    icon={<SberIconWithoutLabel/>}
+                    href={'/api/sbbol/auth'}
+                    block={isSmall}
+                >
+                    {SbbolButtonMessage}
+                </Button>
+            </Col>
+            <Col>
+                <Button
+                    key='submit'
+                    onClick={() => Router.push(path)}
+                    type='sberPrimary'
+                    secondary={true}
+                    size={isMobile ? 'middle' : 'large'}
+                    block
+                >
+                    {ButtonMessage}
+                </Button>
+            </Col>
+        </Row>
+
     )
 }
