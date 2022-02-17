@@ -29,7 +29,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
     types: [
         {
             access: true,
-            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! id: ID!}',
+            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! user: UserWhereUniqueInput!}',
         },
         {
             access: true,
@@ -43,18 +43,18 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             schema: 'resetUser(data: ResetUserInput!): ResetUserOutput!',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv, id } = data
+                const { dv, user } = data
 
                 if (dv !== 1) {
                     throw new Error(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
                 }
 
-                const user = await getById('User', id)
-                if (!user) {
+                const userEntity = await getById('User', user.id)
+                if (!userEntity) {
                     throw new Error(`${NOT_FOUND_ERROR}user] No user found for this id`)
                 }
 
-                await User.update(context, id, {
+                await User.update(context, user.id, {
                     phone: null,
                     email: null,
                     password: null,

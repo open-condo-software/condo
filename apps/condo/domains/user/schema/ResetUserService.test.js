@@ -25,7 +25,7 @@ describe('ResetUserService', () => {
         const [user] = await registerNewUser(await makeClient())
 
         const payload = {
-            id: user.id,
+            user: { id: user.id },
         }
 
         await resetUserByTestClient(support, payload)
@@ -45,18 +45,18 @@ describe('ResetUserService', () => {
         expect(resetUser.isEmailVerified).toEqual(false)
     })
 
-    test('two reset users does not violate constrains', async () => {
+    test('two reset users do not violate constrains', async () => {
         const support = await makeClientWithSupportUser()
         const [user] = await registerNewUser(await makeClient())
         const [user2] = await registerNewUser(await makeClient())
 
         const payload = {
-            id: user.id,
+            user: { id: user.id },
         }
         await resetUserByTestClient(support, payload)
 
         const payload2 = {
-            id: user2.id,
+            user: { id: user2.id },
         }
         await resetUserByTestClient(support, payload2)
 
@@ -80,18 +80,18 @@ describe('ResetUserService', () => {
         const supportClient = await makeClientWithSupportUser()
         const userId = faker.random.uuid()
         const payload = {
-            id: userId,
+            user: { id: userId },
         }
 
         await expectToThrowMutationError(async () => {
             await resetUserByTestClient(supportClient, payload)
         }, 'No user found for this id')
     })
- 
+
     test('user cant reset user', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {
-            id: client.user.id,
+            user: { id: client.user.id },
         }
 
         await catchErrorFrom(async () => {
@@ -105,7 +105,7 @@ describe('ResetUserService', () => {
         const client = await makeClient()
         const userToResetId = faker.random.uuid()
         await catchErrorFrom(async () => {
-            await resetUserByTestClient(client, { id: userToResetId })
+            await resetUserByTestClient(client, { user: { id: userToResetId } })
         }, (e) => {
             expect(e.errors[0].name).toContain('AuthenticationError')
         })
