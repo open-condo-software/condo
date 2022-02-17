@@ -273,42 +273,11 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
 
     return {
         client,
+        serverUrl,
         getCookie: () => restoreCookies(),
         setHeaders: (headers) => {
             customHeaders = { ...customHeaders, ...headers }
         },
-    }
-}
-
-const makeFakeClient = async (app, server) => {
-    const port = server.address().port
-    const protocol = app instanceof https.Server ? 'https' : 'http'
-    const serverUrl = protocol + '://127.0.0.1:' + port
-
-    const { client, getCookie, setHeaders } = makeApolloClient(serverUrl, TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS)
-
-    return {
-        serverUrl,
-        getCookie,
-        setHeaders,
-        mutate: async (mutation, variables = {}) => {
-            return doGqlRequest(client.mutate, { mutation, variables })
-        },
-        query: async (query, variables = {}) => {
-            return doGqlRequest(client.query, { query, variables })
-        },
-    }
-}
-
-const makeRealClient = async () => {
-    const serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
-
-    const { client, getCookie, setHeaders } = makeApolloClient(serverUrl, TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS)
-
-    return {
-        serverUrl,
-        getCookie,
-        setHeaders,
         mutate: async (mutation, variables = {}) => {
             return doGqlRequest(client.mutate, { mutation, variables })
         },
@@ -319,11 +288,20 @@ const makeRealClient = async () => {
 }
 
 const makeClient = async () => {
+    // Data for real client
+    let serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
+    let logErrors = TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
+
     if (__expressApp) {
-        return await makeFakeClient(__expressApp, __expressServer)
+        const port = __expressServer.address().port
+        const protocol = __expressApp instanceof https.Server ? 'https' : 'http'
+
+        // Overriding with data for fake client
+        serverUrl = protocol + '://127.0.0.1:' + port
+        logErrors = TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
     }
 
-    return await makeRealClient()
+    return makeApolloClient(serverUrl, logErrors)
 }
 
 const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
