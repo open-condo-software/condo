@@ -118,8 +118,8 @@ const REGISTER_NEW_SERVICE_USER_MUTATION = gql`
 // TODO(codegen): write return type result!
 
 const SUPPORT_MESSAGES_FORWARDING_MUTATION = gql`
-    mutation supportMessagesForwarding ($data: SupportMessagesForwardingInput!) {
-        result: supportMessagesForwarding(data: $data) { id, status }
+    mutation sendMessageToSupport ($data: SendMessageToSupportInput!) {
+        result: sendMessageToSupport(data: $data) { id, status }
     }
 `
 
