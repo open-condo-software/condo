@@ -40,6 +40,37 @@ describe('ResetUserService', () => {
         expect(resetUser.isPhoneVerified).toEqual(false)
         expect(resetUser.isEmailVerified).toEqual(false)
     })
+
+    test('two reset users does not violate constrains', async () => {
+        const support = await makeClientWithSupportUser()
+        const [user] = await registerNewUser(await makeClient())
+        const [user2] = await registerNewUser(await makeClient())
+
+        const payload = {
+            id: user.id,
+        }
+        await resetUserByTestClient(support, payload)
+
+        const payload2 = {
+            id: user2.id,
+        }
+        await resetUserByTestClient(support, payload2)
+
+        // We use admin context here, since support does not have access to email and phone fields
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [resetUser] = await UserAdmin.getAll(adminClient, { id: user.id })
+        expect(resetUser.id).toEqual(user.id)
+        expect(resetUser.name).toEqual(DELETED_USER_NAME)
+        expect(resetUser.phone).toBeNull()
+        expect(resetUser.email).toBeNull()
+
+        const [resetUser2] = await UserAdmin.getAll(adminClient, { id: user.id })
+        expect(resetUser2.id).toEqual(user.id)
+        expect(resetUser2.name).toEqual(DELETED_USER_NAME)
+        expect(resetUser2.phone).toBeNull()
+        expect(resetUser2.email).toBeNull()
+    })
  
     test('support cant reset non existing user', async () => {
         const supportClient = await makeClientWithSupportUser()
