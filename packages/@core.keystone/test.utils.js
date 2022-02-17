@@ -14,6 +14,11 @@ const { onError } = require('@apollo/client/link/error')
 const { createUploadLink } = require('apollo-upload-client')
 const FormData = require('form-data')
 const fetch = require('node-fetch')
+const http = require('http')
+const https = require('https')
+const { flattenDeep, fromPairs, toPairs, set } = require('lodash')
+const fs = require('fs')
+const { BILLING_RECEIPT_SERVICE_FIELD_NAME } = require('@condo/domains/billing/constants/constants')
 
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
 const NUMBER_RE = /^[1-9][0-9]*$/i
@@ -28,11 +33,6 @@ const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && con
 const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
 const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql.js')
-const http = require('http')
-const https = require('https')
-const { flattenDeep, fromPairs, toPairs, set } = require('lodash')
-const fs = require('fs')
-const { BILLING_RECEIPT_SERVICE_FIELD_NAME } = require('@condo/domains/billing/constants/constants')
 
 class UploadingFile {
     constructor (filePath) {
