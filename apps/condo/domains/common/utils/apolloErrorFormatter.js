@@ -65,7 +65,7 @@ const safeFormatError = (error, hideInternals = false) => {
             // we want to show a developer friendly message
             result.developerMessage = printError(error)
         }
-        if (error.extensions && Object.keys(error.extensions).length > 0) {
+        if (error.extensions) {
             result.extensions = _(error.extensions).toJSON()
             // we already have more details inside originalError object and don't need this
             if (result.extensions.exception) delete result.extensions.exception
