@@ -37,6 +37,7 @@ const SigninAsUserService = new GQLCustomSchema('SigninAsUserService', {
     types: [
         {
             access: true,
+            // todo(DOMA-2305) use UserWhereUniqueInput instead of ID!
             type: 'input SigninAsUserInput { dv: Int!, sender: SenderFieldInput!, id: ID! }',
         },
         {
