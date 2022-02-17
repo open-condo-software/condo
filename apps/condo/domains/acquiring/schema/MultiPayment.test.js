@@ -4,7 +4,6 @@
 
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makePayerAndPayments, makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 
 const {
     Payment,
@@ -18,6 +17,9 @@ const {
     updateTestPayment,
     getRandomHiddenCard,
     registerMultiPaymentByTestClient,
+    makePayerAndPayments,
+    makePayer,
+    makePayerWithMultipleConsumers,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -710,6 +712,116 @@ describe('MultiPayment', () => {
                 })
                 expect(multiPayment).toBeDefined()
                 expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_ERROR_STATUS)
+            })
+        })
+        describe('Settlement bank', () => {
+            let integrationClient
+            let registerMPResult
+            beforeEach(async () => {
+                const {
+                    commonData: { admin, acquiringIntegration, client },
+                    batches,
+                } = await makePayerWithMultipleConsumers(5, 1)
+                integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
+                const payload = batches.map(batch => ({ consumerId: batch.serviceConsumer.id, receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })) }))
+                const [obj] = await registerMultiPaymentByTestClient(client, payload, { sender: client.userAttrs.sender })
+                registerMPResult = obj
+            })
+            test('Successful combined payment', async () => {
+                // Stage 1. User goes to service and confirm payment with fee + charge...
+                // Meanwhile acquiring integration service move MP and P to PROCESSING and setting fees and charge
+                const { multiPaymentId } = registerMPResult
+                const payments = await Payment.getAll(integrationClient, {
+                    multiPayment: { id: multiPaymentId },
+                })
+                expect(payments).toBeDefined()
+                expect(payments).toHaveLength(5)
+
+                // Payment 1 - implicitFee
+                // Payment 2 - explicitServiceCharge
+                // Payment 3 - explicitFee
+                // Payment 4 - implicitFee / explicitServiceCharge
+                // Payment 5 - implicitFee / explicitFee
+                const fees = [
+                    { implicitFee: '10', explicitFee: '0' },
+                    { implicitFee: '0', explicitServiceCharge: '50' },
+                    { implicitFee: '0', explicitFee: '30' },
+                    { implicitFee: '20', explicitServiceCharge: '100' },
+                    { implicitFee: '5', explicitFee: '20' },
+                ]
+                for (let i = 0; i < 5; i++) {
+                    const payment = payments[i]
+                    const updatedPayment = await Payment.update(integrationClient, payment.id, {
+                        status: PAYMENT_PROCESSING_STATUS,
+                        ...fees[i],
+                    })
+                    expect(updatedPayment).toBeDefined()
+                    expect(updatedPayment).toHaveProperty('status', PAYMENT_PROCESSING_STATUS)
+                    expect(updatedPayment).toHaveProperty('implicitFee')
+                    expect(Big(updatedPayment.implicitFee).eq(fees[i].implicitFee)).toBeTruthy()
+                    expect(updatedPayment).toHaveProperty('explicitFee')
+                    expect(Big(updatedPayment.explicitFee).eq(fees[i].explicitFee || '0')).toBeTruthy()
+                    expect(updatedPayment).toHaveProperty('explicitServiceCharge')
+                    expect(Big(updatedPayment.explicitServiceCharge).eq(fees[i].explicitServiceCharge || '0')).toBeTruthy()
+                }
+                const totalImplicitFee = fees.reduce((acc, cur) => acc.plus(cur.implicitFee || '0'), Big(0)).toString()
+                const totalExplicitFee = fees.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0)).toString()
+                const totalExplicitServiceCharge = fees.reduce((acc, cur) => acc.plus(cur.explicitServiceCharge || '0'), Big(0)).toString()
+                let multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                    status: MULTIPAYMENT_PROCESSING_STATUS,
+                    explicitServiceCharge: totalExplicitServiceCharge,
+                    explicitFee: totalExplicitFee,
+                    implicitFee: totalImplicitFee,
+                })
+                expect(multiPayment).toBeDefined()
+                expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_PROCESSING_STATUS)
+                expect(multiPayment).toHaveProperty('explicitFee')
+                expect(Big(multiPayment.explicitFee).eq(totalExplicitFee)).toBeTruthy()
+                expect(multiPayment).toHaveProperty('explicitServiceCharge')
+                expect(Big(multiPayment.explicitServiceCharge).eq(totalExplicitServiceCharge)).toBeTruthy()
+                expect(multiPayment).toHaveProperty('implicitFee')
+                expect(Big(multiPayment.implicitFee).eq(totalImplicitFee)).toBeTruthy()
+
+                // Stage 2. Our acquiring integration service after detecting successful redirect moving MP to WITHDRAWN
+                const transactionTime = dayjs().toISOString()
+                const cardNumber = getRandomHiddenCard()
+                const paymentWay = 'CARD'
+                const transactionId = faker.datatype.uuid()
+                multiPayment = await MultiPayment.update(integrationClient, multiPayment.id, {
+                    status: MULTIPAYMENT_WITHDRAWN_STATUS,
+                    withdrawnAt: transactionTime,
+                    cardNumber,
+                    paymentWay,
+                    transactionId,
+                })
+                expect(multiPayment).toBeDefined()
+                expect(multiPayment).toHaveProperty('withdrawnAt', transactionTime)
+                expect(multiPayment).toHaveProperty('cardNumber', cardNumber)
+                expect(multiPayment).toHaveProperty('paymentWay', paymentWay)
+                expect(multiPayment).toHaveProperty('transactionId', transactionId)
+                expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_WITHDRAWN_STATUS)
+
+                // Stage 3. On next day after Settlement bank complete payments, acquiring integration account setting everything to done
+                for (const payment of payments) {
+                    const advancedAt = dayjs().toISOString()
+                    const updatedPayment = await Payment.update(integrationClient, payment.id, {
+                        status: PAYMENT_DONE_STATUS,
+                        advancedAt: advancedAt,
+                    })
+                    expect(updatedPayment).toBeDefined()
+                    expect(updatedPayment).toHaveProperty('status', PAYMENT_DONE_STATUS)
+                    expect(updatedPayment).toHaveProperty('advancedAt', advancedAt)
+                }
+                multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                    status: MULTIPAYMENT_DONE_STATUS,
+                })
+                expect(multiPayment).toBeDefined()
+                expect(multiPayment).toHaveProperty('withdrawnAt', transactionTime)
+                expect(multiPayment).toHaveProperty('cardNumber', cardNumber)
+                expect(multiPayment).toHaveProperty('paymentWay', paymentWay)
+                expect(multiPayment).toHaveProperty('transactionId', transactionId)
+                expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_DONE_STATUS)
             })
         })
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
