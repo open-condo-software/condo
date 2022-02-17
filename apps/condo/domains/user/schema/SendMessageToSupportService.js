@@ -14,6 +14,8 @@ const { Organization } = require('@condo/domains/organization/utils/serverSchema
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { v4: uuid } = require('uuid')
 const dayjs = require('dayjs')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/errors')
 
 const SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
 const fileAdapter = new FileAdapter(SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME)
@@ -43,6 +45,9 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                 const { dv, sender, text, email: emailFrom, attachments = [], os, appVersion, lang, meta } = data
 
                 const user = get(context, ['req', 'user'])
+
+                const normalizedEmailFrom = normalizeEmail(emailFrom)
+                if (emailFrom && !normalizedEmailFrom) throw new Error(`${EMAIL_WRONG_FORMAT_ERROR}] invalid format`)
 
                 const attachmentsData = await Promise.all(attachments)
 
@@ -94,7 +99,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                     to: {
                         email: SUPPORT_EMAIL,
                     },
-                    emailFrom: emailFrom ? `${user.name} <${emailFrom}>` : null,
+                    emailFrom: normalizedEmailFrom ? `${user.name} <${normalizedEmailFrom}>` : null,
                     meta: {
                         dv,
                         text,
