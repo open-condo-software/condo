@@ -57,7 +57,7 @@ const safeFormatError = (error, hideInternals = false) => {
     //  + 'path' -- GraphQL query path with aliases
     //  + 'extensions' -- some extra context
     //  + 'originalError' -- original Error instance
-    if (error instanceof ApolloError || error instanceof GraphQLError || error.name === GraphQLError.name) {
+    if (error instanceof ApolloError || error instanceof GraphQLError) {
         const pickKeys3 = ['path', 'locations']
         Object.assign(result, pickBy(pick(error, pickKeys3), identity))
         const developerErrorMessage = printError(error)
