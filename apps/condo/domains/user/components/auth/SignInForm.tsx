@@ -123,24 +123,21 @@ export const SignInForm = (): React.ReactElement => {
                                         {SignInMsg}
                                     </Button>
                                 </Col >
-                                <Col xs={24} lg={14} offset={isSmall ? 0 : 3}>
-
+                                <Col xs={24} lg={14} offset={isSmall ? 0 : 3} style={{ textAlign: 'right' }}>
+                                    <Typography.Paragraph type='secondary' style={{ marginTop: '10px' }}>
+                                        <FormattedMessage
+                                            id='pages.auth.signin.ResetPasswordLink'
+                                            values={{
+                                                link: (
+                                                    <Button type={'inlineLink'} size={'small'} onClick={() => Router.push('/auth/forgot')}>
+                                                        {ResetMsg}
+                                                    </Button>
+                                                ),
+                                            }}
+                                        />
+                                    </Typography.Paragraph>
                                 </Col>
                             </Row>
-                        </Col>
-                        <Col lg={14} xs={24}>
-                            <Typography.Text type='secondary'>
-                                <FormattedMessage
-                                    id='pages.auth.signin.ResetPasswordLink'
-                                    values={{
-                                        link: (
-                                            <Button type={'inlineLink'} size={'small'} onClick={() => Router.push('/auth/forgot')}>
-                                                {ResetMsg}
-                                            </Button>
-                                        ),
-                                    }}
-                                />
-                            </Typography.Text>
                         </Col>
                     </Row>
                 </Col>
