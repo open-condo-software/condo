@@ -13484,7 +13484,7 @@ export type Mutation = {
   signinResidentUser?: Maybe<SigninResidentUserOutput>;
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
   signinAsUser?: Maybe<SigninAsUserOutput>;
-  supportMessagesForwarding?: Maybe<SupportMessagesForwardingOutput>;
+  sendMessageToSupport?: Maybe<SendMessageToSupportOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -16658,8 +16658,8 @@ export type MutationSigninAsUserArgs = {
 };
 
 
-export type MutationSupportMessagesForwardingArgs = {
-  data: SupportMessagesForwardingInput;
+export type MutationSendMessageToSupportArgs = {
+  data: SendMessageToSupportInput;
 };
 
 
@@ -30052,7 +30052,7 @@ export type StartPasswordRecoveryOutput = {
   status: Scalars['String'];
 };
 
-export type SupportMessagesForwardingInput = {
+export type SendMessageToSupportInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
   text: Scalars['String'];
@@ -30060,17 +30060,17 @@ export type SupportMessagesForwardingInput = {
   attachments?: Maybe<Array<Maybe<Scalars['Upload']>>>;
   os: Scalars['String'];
   appVersion: Scalars['String'];
-  lang: SupportMessagesForwardingLang;
+  lang: SendMessageToSupportLang;
   meta: Scalars['JSON'];
 };
 
-export enum SupportMessagesForwardingLang {
+export enum SendMessageToSupportLang {
   Ru = 'ru',
   En = 'en'
 }
 
-export type SupportMessagesForwardingOutput = {
-  __typename?: 'SupportMessagesForwardingOutput';
+export type SendMessageToSupportOutput = {
+  __typename?: 'SendMessageToSupportOutput';
   id: Scalars['String'];
   status: Scalars['String'];
 };

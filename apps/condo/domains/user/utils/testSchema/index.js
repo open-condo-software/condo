@@ -257,7 +257,7 @@ async function registerNewServiceUserByTestClient(client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
-async function supportMessagesForwardingByTestClient (client, extraAttrs = {}) {
+async function supportSendMessageToSupportByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -298,6 +298,6 @@ module.exports = {
     updateTestForgotPasswordAction,
     signinAsUserByTestClient,
     registerNewServiceUserByTestClient,
-    supportMessagesForwardingByTestClient,
+    supportSendMessageToSupportByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

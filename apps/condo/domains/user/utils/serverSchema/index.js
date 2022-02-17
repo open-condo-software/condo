@@ -50,7 +50,7 @@ async function registerNewServiceUser (context, data) {
     })
 }
 
-async function supportMessagesForwarding (context, data) {
+async function sendMessageToSupport (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -58,7 +58,7 @@ async function supportMessagesForwarding (context, data) {
     return await execGqlWithoutAccess(context, {
         query: SUPPORT_MESSAGES_FORWARDING_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to supportMessagesForwarding',
+        errorMessage: '[error] Unable to sendMessageToSupport',
         dataPath: 'obj',
     })
 }
@@ -103,6 +103,6 @@ module.exports = {
     updateEmployeesRelatedToUser,
     signinAsUser,
     registerNewServiceUser,
-    supportMessagesForwarding,
+    sendMessageToSupport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
