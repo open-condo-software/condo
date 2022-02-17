@@ -29,6 +29,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { USER_TYPES } from '@condo/domains/user/constants/common'
+import { RESIDENT } from '@condo/domains/user/constants/common'
 
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
@@ -329,7 +330,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     }
 
     const initialCanReadByResidentValue = useMemo(() => get(initialValues, 'canReadByResident', true), [initialValues])
-    const isResidentTicket = useMemo(() => get(initialValues, ['createdBy', 'type']) === USER_TYPES.RESIDENT)
+    const isResidentTicket = useMemo(() => get(initialValues, ['createdBy', 'type']) === RESIDENT, [initialValues])
 
     return (
         <>
