@@ -11,7 +11,7 @@ ALTER TABLE "AcquiringIntegration" ADD COLUMN "detailsText" text NULL;
 --
 -- Add field detailsTitle to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" ADD COLUMN "detailsTitle" text DEFAULT '' NOT NULL;
+ALTER TABLE "AcquiringIntegration" ADD COLUMN "detailsTitle" text DEFAULT 'Acquiring' NOT NULL;
 ALTER TABLE "AcquiringIntegration" ALTER COLUMN "detailsTitle" DROP DEFAULT;
 --
 -- Add field isHidden to acquiringintegration
