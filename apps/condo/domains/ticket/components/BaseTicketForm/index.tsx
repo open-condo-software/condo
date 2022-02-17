@@ -145,6 +145,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                             placeholder={DescriptionPlaceholder}
                                             disabled={disableUserInteraction}
                                             style={INPUT_WITH_COUNTER_STYLE}
+                                            data-cy={'ticket-description-input'}
                                         />
                                     </TicketFormItem>
                                 </Col>
@@ -389,7 +390,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 </Col>
                                             ) : null
                                         }
-                                        <Col span={isSmall ? 24 : 20}>
+                                        <Col span={isSmall ? 24 : 20} data-cy={'property-address-search-input-item'}>
                                             <TicketFormItem
                                                 name={'property'}
                                                 label={AddressLabel}
@@ -487,4 +488,3 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </>
     )
 }
-
