@@ -41,6 +41,33 @@ export default function GlobalStyle () {
               .ant-checkbox-wrapper {
                 white-space: inherit;
               }
+              
+              .ant-checkbox {
+                width: 24px;
+                height: 24px;
+              }
+              
+              .ant-checkbox-inner {
+                  width: 24px;
+                  height: 24px;
+              }
+
+              .ant-form-item input[type="checkbox"] {
+                width: 24px;
+                height: 24px;
+              }  
+              
+              .ant-checkbox-inner::after {
+                left: 29%;
+                width: 7.714px;
+                height: 12.143px;
+              }
+              
+              .ant-checkbox-checked .ant-checkbox-inner::after {
+                border: 3px solid #fff;
+                border-top: 0;
+                border-left: 0;
+              }
 
               .ant-list-item-action > li:last-child {
                 padding-right: 0;
