@@ -29,7 +29,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
     types: [
         {
             access: true,
-            type: 'input ResetUserInput { dv: Int!, sender: SenderField! id: UserWhereUniqueInput!}',
+            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! id: ID!}',
         },
         {
             access: true,
@@ -54,7 +54,6 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                     throw new Error(`${NOT_FOUND_ERROR}user] No user found for this id`)
                 }
 
-                //const adminContext = await context.createContext({ skipAccessControl: true })
                 await User.update(context, id, {
                     phone: null,
                     email: null,
@@ -64,6 +63,8 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                     isEmailVerified: false,
                     importId: null,
                     importRemoteSystem: null,
+                    isAdmin: false,
+                    isSupport: false,
                 })
 
                 return { status: 'ok' }

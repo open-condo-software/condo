@@ -12,7 +12,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 
 const USER_FIELDS = `{ name avatar { publicUrl } meta type isPhoneVerified isEmailVerified importId importRemoteSystem ${COMMON_FIELDS} }`
 const User = generateGqlQueries('User', USER_FIELDS)
-const UserAdmin = generateGqlQueries('User', '{ id name isAdmin isSupport email isEmailVerified phone isPhoneVerified }')
+const UserAdmin = generateGqlQueries('User', '{ id name isAdmin isSupport email isEmailVerified phone isPhoneVerified importId importRemoteSystem }')
 
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser($data: RegisterNewUserInput!) {
