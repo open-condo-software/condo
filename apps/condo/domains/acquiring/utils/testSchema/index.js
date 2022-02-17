@@ -471,6 +471,7 @@ async function completeTestPayment(residentClient, integrationClient, serviceCon
     })
     const multiPaymentDonePayload = {
         explicitFee: '0.0',
+        explicitServiceCharge: '0.0',
         withdrawnAt: dayjs().toISOString(),
         cardNumber: getRandomHiddenCard(),
         paymentWay: 'CARD',
