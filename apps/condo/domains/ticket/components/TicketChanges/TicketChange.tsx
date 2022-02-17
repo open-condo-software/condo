@@ -78,7 +78,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const { objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const fields = [
-        ['canReadByResident', CanReadByResidentMessage],
+        ['canReadByResident', CanReadByResidentMessage, { change: 'pages.condo.ticket.TicketChanges.canReadByResident.change' }],
         ['clientPhone', ClientPhoneMessage],
         ['details', DetailsMessage, { change: 'pages.condo.ticket.TicketChanges.details.change' }],
         ['clientName', ClientNameMessage],
