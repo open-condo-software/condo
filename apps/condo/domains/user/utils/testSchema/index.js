@@ -13,7 +13,7 @@ const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
-const { SUPPORT_MESSAGES_FORWARDING_MUTATION } = require('@condo/domains/user/gql')
+const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -266,7 +266,7 @@ async function supportSendMessageToSupportByTestClient (client, extraAttrs = {})
         sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(SUPPORT_MESSAGES_FORWARDING_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(SEND_MESSAGE_TO_SUPPORT_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
