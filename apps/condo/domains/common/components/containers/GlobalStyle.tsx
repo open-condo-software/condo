@@ -67,6 +67,7 @@ export default function GlobalStyle () {
 
               .react-tel-input .ant-input {
                 background-color: ${colors.whiteTranslucent} !important;
+                width: 100%;
               }
 
               .ant-input-affix-wrapper input {
