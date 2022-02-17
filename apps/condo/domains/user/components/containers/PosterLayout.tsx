@@ -44,13 +44,13 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                     <PageContent isSmall={isSmall}>
                         <ChildrenWrapper isSmall={isSmall}>
                             <Row>
-                                <Col lg={14} md={24} push={CHILDREN_COL_PUSH} pull={CHILDREN_COL_PULL}>
+                                <Col lg={15} md={24} push={CHILDREN_COL_PUSH} pull={CHILDREN_COL_PULL}>
                                     {children}
                                 </Col>
                             </Row>
                             <Footer isSmall={isSmall} style={FOOTER_STYLE}>
                                 <Row>
-                                    <Col lg={14} md={24} push={FOOTER_COL_PUSH} pull={FOOTER_COL_PULL}>
+                                    <Col lg={15} md={24} push={FOOTER_COL_PUSH} pull={FOOTER_COL_PULL}>
                                         <FormattedMessage
                                             id='FooterText'
                                             values={{
