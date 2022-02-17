@@ -114,33 +114,6 @@ const prepareNextExpressApp = async (dir) => {
 }
 
 /**
- * @param {Error} e
- * @param {Object[]} e.graphQLErrors
- * @param {ServerError} e.networkError
- * @param {String} e.message
- * @param {*} e.extraInfo
- * @param {String} e.stack
- * @returns {{errors: []}}
- */
-function gqlCatchedErrorsHandler (e) {
-    const errors = []
-
-    if (e.graphQLErrors && e.graphQLErrors.length > 0) {
-        e.graphQLErrors.map((graphQLError) => {
-            errors.push(graphQLError)
-        })
-    }
-
-    if (e.networkError) {
-        if (e.networkError.result && e.networkError.result.errors) {
-            e.networkError.result.errors.forEach((err) => errors.push(err))
-        }
-    }
-
-    return { errors }
-}
-
-/**
  * @param {function} callable
  * @param {Object} params
  * @returns {Promise<Object>}
@@ -154,7 +127,21 @@ async function doGqlRequest (callable, params) {
             fetchPolicy: 'no-cache',
         })
     } catch (e) {
-        return gqlCatchedErrorsHandler(e)
+        const errors = []
+e
+        if (e.graphQLErrors && e.graphQLErrors.length > 0) {
+            e.graphQLErrors.map((graphQLError) => {
+                errors.push(graphQLError)
+            })
+        }
+
+        if (e.networkError) {
+            if (e.networkError.result && e.networkError.result.errors) {
+                e.networkError.result.errors.forEach((err) => errors.push(err))
+            }
+        }
+
+        return { errors }
     }
 }
 
