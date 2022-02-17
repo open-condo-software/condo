@@ -46,6 +46,9 @@ const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIEL
 const RESIDENT_BILLING_RECEIPTS_FIELDS =  `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
 
+const BILLING_RECIPIENT_FIELDS = `{ organization { id } tin iec bic context { id } bankAccount name approved meta ${COMMON_FIELDS} }`
+const BillingRecipient = generateGqlQueries('BillingRecipient', BILLING_RECIPIENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -61,5 +64,6 @@ module.exports = {
     BillingReceipt,
     ResidentBillingReceipt,
     RESIDENT_BILLING_RECEIPTS_FIELDS,
+    BillingRecipient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
