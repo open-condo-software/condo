@@ -13,7 +13,7 @@ import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_Q
 import { PASSWORD_IS_TOO_SHORT } from '@condo/domains/user/constants/errors'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { ButtonHeaderActions } from '@condo/domains/common/components/HeaderActions'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
@@ -205,7 +205,7 @@ const ChangePasswordPage: AuthPage = () => {
     )
 }
 
-ChangePasswordPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
+ChangePasswordPage.headerAction = <ButtonHeaderActions descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
 
 ChangePasswordPage.container = AuthLayout
 

@@ -4,7 +4,7 @@ import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography } from 'antd'
 import Head from 'next/head'
 import React from 'react'
-import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { ButtonHeaderActions } from '@condo/domains/common/components/HeaderActions'
 
 const SignInPage: AuthPage = () => {
     const intl = useIntl()
@@ -27,7 +27,7 @@ const SignInPage: AuthPage = () => {
     )
 }
 
-SignInPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'} sbbolButtonDescriptor={{ id: 'LoginBySBBOL' }}/>
+SignInPage.headerAction = <ButtonHeaderActions descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'} sbbolButtonDescriptor={{ id: 'LoginBySBBOL' }}/>
 
 SignInPage.container = AuthLayout
 

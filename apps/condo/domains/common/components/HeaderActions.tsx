@@ -22,7 +22,7 @@ interface ITitleHeaderActionProps {
     descriptor: MessageDescriptor
 }
 
-interface IRightButtonHeaderActionProps {
+interface IRightButtonHeaderActionsProps {
     sbbolButtonDescriptor?: MessageDescriptor
     descriptor: MessageDescriptor
     path: string
@@ -101,7 +101,7 @@ export const TitleHeaderAction: React.FC<ITitleHeaderActionProps> = (props) => {
     )
 }
 
-export const ButtonHeaderAction: React.FC<IRightButtonHeaderActionProps> = (props) => {
+export const ButtonHeaderActions: React.FC<IRightButtonHeaderActionsProps> = (props) => {
     const { descriptor, path } = props
     const sbbolButtonDescriptor = props.sbbolButtonDescriptor || { id: 'LoginBySBBOL' }
     const intl = useIntl()
