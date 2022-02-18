@@ -145,6 +145,10 @@ const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
 `
 
 const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors { primary secondary additional } } classifier { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid isWarranty source { id name type } id dv sender { dv fingerprint } v deletedAt newId createdAt updatedAt }`
+
+// Actually there is no `ResidentTicket` Keystone schema presented.
+// Here we will get a set of declarations of GraphQL mutation query strings for CRUD operations.
+// We have corresponding custom mutations `createResidentTicket` and `updateResidentTicket` for them.
 const ResidentTicket = generateGqlQueries('ResidentTicket', RESIDENT_TICKET_FIELDS)
 
 const TICKET_PLACE_CLASSIFIER_FIELDS = `{ organization { id } name ${COMMON_FIELDS} }`
