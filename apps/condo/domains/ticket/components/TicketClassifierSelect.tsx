@@ -94,7 +94,7 @@ const useTicketClassifierSelectHook = ({
                 >
                     {
                         optionsRef.current.map(classifier => (
-                            <Option value={classifier.id} key={classifier.id} title={classifier.name}>{classifier.name}</Option>
+                            <Option data-cy={'ticket-classifier-option'} value={classifier.id} key={classifier.id} title={classifier.name}>{classifier.name}</Option>
                         ))
                     }
 
@@ -317,7 +317,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                     <Form.Item name={'classifierRule'} rules={validations.classifierRule} noStyle={true}>
                         <Input type='hidden'></Input>
                     </Form.Item>
-                    <Col span={12}>
+                    <Col span={12} data-cy={'ticket-place-select-item'}>
                         <TicketFormItem
                             label={PlaceClassifierLabel}
                             name={'placeClassifier'}
@@ -326,7 +326,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                             <PlaceSelect disabled={disabled} />
                         </TicketFormItem>
                     </Col>
-                    <Col span={12}>
+                    <Col span={12} data-cy={'ticket-category-select-item'}>
                         <TicketFormItem
                             label={CategoryClassifierLabel}
                             name={'categoryClassifier'}
@@ -335,7 +335,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                             <CategorySelect disabled={disabled} />
                         </TicketFormItem>
                     </Col>
-                    <Col span={24}>
+                    <Col span={24} data-cy={'ticket-problem-select-item'}>
                         <TicketFormItem
                             name={'problemClassifier'}
                             label={ProblemClassifierLabel}

@@ -9,6 +9,8 @@ const {
     makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+
 
 module.exports = async (on, config) => {
 
@@ -27,11 +29,27 @@ module.exports = async (on, config) => {
         async 'keystone:createUserWithProperty' () {
             const result = await makeClientWithProperty()
             const client = await makeLoggedInClient(result.userAttrs)
+
+            const cookie = client.getCookie()
+
+            const organizationLink = await OrganizationEmployee.getOne(client, {
+                user: { id: result.userAttrs.id }, isRejected: false, isBlocked: false,
+            })
+
             return {
                 user: result,
                 client,
-                cookie: client.getCookie(),
+                cookie,
+                organizationLinkId: organizationLink.id,
             }
+        },
+
+        testTimings (attributes) {
+            console.log('Test "%s" has finished in %dms',
+                attributes.title, attributes.duration)
+            console.table(attributes.commands)
+
+            return null
         },
     })
 

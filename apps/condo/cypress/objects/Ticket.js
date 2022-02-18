@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-/* eslint-disable no-undef */
 
 const TICKET_CREATE_URL = '/ticket/create/'
 
@@ -12,50 +11,79 @@ class TicketCreate {
         unit-name-input-item
         unit-name-input-option
         ticket-description-input
+        ticket-place-select-item
+        ticket-category-select-item
+        ticket-problem-select-item
+        ticket-classifier-option
+        ticket-submit-btn
 */
 
     visit () {
         cy.visit(TICKET_CREATE_URL)
+        cy.wait(100)
         return this
     }
 
     chooseOrganization () {
-        const field = cy.get('[data-cy=organization-select-item]')
-        field.click()
+        cy.get('[data-cy=organization-select-item]').click()
         return this
     }
 
     clickAndInputAddress (address) {
-        const field = cy.get('[data-cy=property-address-search-input-item] input')
-        field.click({ force: true })
-        field.focus()
-        field.type(address)
+        cy.get('[data-cy=property-address-search-input-item] input')
+            .click({ force: true })
+            .focus()
+            .type(address)
         return this
     }
 
     chooseAddressForTicket () {
-        const field = cy.get('[data-cy=property-address-search-option]')
-        field.click()
+        cy.get('[data-cy=property-address-search-option]')
+            .click()
         return this
     }
 
     clickAndInputUnitName (unitName) {
-        const field = cy.get('[data-cy=unit-name-input-item] .ant-select-selection-search')
-        field.click({ force: true })
-        field.type(unitName)
+        cy.get('[data-cy=unit-name-input-item] .ant-select-selection-search')
+            .click({ force: true })
+            .type(unitName)
         return this
     }
 
     chooseUnitName () {
-        const field = cy.get('[data-cy=unit-name-input-option]')
-        field.first().click()
+        cy.get('[data-cy=unit-name-input-option]')
+            .first()
+            .click()
         return this
     }
 
     clickAndInputDescription (description) {
-        const field = cy.get('[data-cy=ticket-description-input]')
-        field.click()
-        field.type(description)
+        cy.get('[data-cy=ticket-description-input]')
+            .click()
+            .type(description)
+        return this
+    }
+
+    selectProblemWithCategoryClassifier () {
+        cy.get('[data-cy=ticket-place-select-item] .ant-select-selection-search')
+            .click()
+
+        cy.get('[data-cy=ticket-classifier-option]')
+            .first()
+            .click()
+
+        cy.get('[data-cy=ticket-category-select-item] .ant-select-selection-search')
+            .click()
+        cy.wait(100)
+        cy.get('.ant-select-dropdown:not(.ant-select-dropdown-hidden) [data-cy=ticket-classifier-option]')
+            .first()
+            .click()
+        return this
+    }
+
+    clickOnSubmitButton () {
+        cy.get('[data-cy=ticket-submit-btn]')
+            .click()
         return this
     }
 }

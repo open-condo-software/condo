@@ -1,18 +1,17 @@
-/* eslint-disable no-undef */
 import sample from 'lodash/sample'
 import faker from 'faker'
 
 import { TicketCreate } from '../../objects/Ticket'
 
-describe('Ticket user scenario',  function () {
+describe('Ticket create',  function () {
     describe('User', function () {
         before(() => {
-            const createUserWithProperty = cy.task('keystone:createUserWithProperty')
-            createUserWithProperty.then((response) => {
+            cy.task('keystone:createUserWithProperty').then((response) => {
+                cy.log(response)
                 this.userData = response
                 cy.setCookie('locale', 'en')
-                cy.setCookie('keystone.sid', this.userData.cookie.replace('keystone.sid=', ''))
-                cy.setCookie('organizationLinkId', '')
+                cy.setCookie('keystone.sid', response.cookie.replace('keystone.sid=', ''))
+                cy.setCookie('organizationLinkId', response.organizationLinkId)
             })
         })
 
@@ -24,12 +23,14 @@ describe('Ticket user scenario',  function () {
             const ticketCreate = new TicketCreate()
             ticketCreate
                 .visit()
-                .chooseOrganization()
+                // .chooseOrganization()
                 .clickAndInputAddress(propertyAddress)
                 .chooseAddressForTicket()
                 .clickAndInputUnitName(sample(propertyUnits))
                 .chooseUnitName()
-                .clickAndInputDescription(faker.lorem.paragraph())
+                .clickAndInputDescription(faker.lorem.sentence(3))
+                .selectProblemWithCategoryClassifier()
+                .clickOnSubmitButton()
         })
     })
 })

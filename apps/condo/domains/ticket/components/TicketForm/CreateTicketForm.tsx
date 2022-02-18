@@ -37,6 +37,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                                     type='sberDefaultGradient'
                                     loading={isLoading}
                                     disabled={disabledCondition}
+                                    data-cy={'ticket-submit-btn'}
                                 >
                                     {CreateTicketMessage}
                                 </Button>
