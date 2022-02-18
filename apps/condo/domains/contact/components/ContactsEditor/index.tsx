@@ -1,7 +1,7 @@
 import { find, get, debounce } from 'lodash'
 import { Col, Form, FormInstance, Input, Row, Skeleton } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
@@ -149,9 +149,41 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             [fields.phone]: contact.phone,
         })
         setValue(contact)
+        setSelectedContact(contact)
         const isNew = !contact.id
         onChange && onChange(contact, isNew)
     }
+
+    const initialValueIsPresentedInFetchedContacts = fetchedContacts && initialValue && initialValue.name && initialValue.phone && find(fetchedContacts, initialValue)
+
+    const sameAsInitial = (contact) => (
+        initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone
+    )
+
+    const isContactSelected = useCallback((contact, i) => {
+        if (selectedContact) return selectedContact.id === contact.id
+
+        if (!editableFieldsChecked) {
+            if (sameAsInitial(contact)) return true
+
+            if (!initialValue && i === 0 && !selectedContact) {
+                triggerOnChange(contact)
+                return true
+            }
+        }
+
+        return false
+    }, [editableFieldsChecked, initialValue, sameAsInitial, selectedContact, triggerOnChange])
+
+    const contactOptions = useMemo(() => fetchedContacts.map((contact, i) => (
+        <ContactOption
+            key={contact.id}
+            contact={contact}
+            onSelect={handleSelectContact}
+            selected={isContactSelected(contact, i)}
+        />
+    )), [fetchedContacts, handleSelectContact, isContactSelected])
+
 
     if (loading) {
         return (
@@ -163,12 +195,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         console.warn(error)
         throw error
     }
-
-    const initialValueIsPresentedInFetchedContacts = fetchedContacts && initialValue && initialValue.name && initialValue.phone && find(fetchedContacts, initialValue)
-
-    const sameAsInitial = (contact) => (
-        initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone
-    )
 
     return (
         <Row gutter={[40, 25]}>
@@ -186,18 +212,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                         />
                     ) : (
                         <>
-                            {fetchedContacts.map((contact, i) => (
-                                <ContactOption
-                                    key={contact.id}
-                                    contact={contact}
-                                    onSelect={handleSelectContact}
-                                    selected={
-                                        selectedContact
-                                            ? selectedContact.id === contact.id
-                                            : !editableFieldsChecked && (sameAsInitial(contact) || !initialValue && i === 0)
-                                    }
-                                />
-                            ))}
+                            {contactOptions}
                             <>
                                 {(displayEditableContactFields || (initialValue && !initialValueIsPresentedInFetchedContacts)) ? (
                                     <>
