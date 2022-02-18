@@ -39,8 +39,17 @@ describe('UpdateResidentTicketService', () => {
         await catchErrorFrom(async () => {
             await updateResidentTicketByTestClient(userClient, ticket.id, payload)
         }, ({ errors, data }) => {
-            expect(errors).toHaveLength(1)
-            expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}ticket] no ticket was found with this id for this user`)
+            expect(errors).toMatchObject([{
+                message: `Cannot find ticket with id "${ticket.id}" for current user`,
+                path: ['obj'],
+                extensions: {
+                    message: `Cannot find ticket with id "${ticket.id}" for current user`,
+                    mutation: 'updateResidentTicket',
+                    variable: ['id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOT_FOUND',
+                },
+            }])
             expect(data).toEqual({ 'obj': null })
         })
     })
