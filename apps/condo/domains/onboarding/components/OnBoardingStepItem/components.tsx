@@ -38,6 +38,17 @@ export const IconContainer = styled.div<{ type: OnBoardingStepType }>`
     }}
 `
 
+export const StepTitle = styled.div`
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 24px;
+`
+
+export const StepDescription = styled.div`
+  font-size: 14px;
+  line-height: 22px;
+`
+
 export const StepContainer = styled(FocusContainer)<{ type: OnBoardingStepType }>`
   width: 100%;
   display: flex;
