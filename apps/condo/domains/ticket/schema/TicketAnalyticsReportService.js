@@ -38,8 +38,20 @@ const assigneeSingleDataMapper = require('@condo/domains/ticket/utils/serverSche
 const assigneeSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneeSummaryDataMapper')
 const assigneePercentSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneePercentSingleDataMapper')
 const assigneePercentSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneePercentSummaryDataMapper')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { UNKNOWN_GROUP_BY_FILTER } = require('../constants/errors')
 
 const NULLABLE_GROUP_KEYS = ['categoryClassifier', 'executor', 'assignee']
+
+const errors = {
+    UNKNOWN_GROUP_BY_FILTER: {
+        query: 'exportTicketAnalyticsToExcel',
+        variable: ['data', 'groupBy'],
+        code: BAD_USER_INPUT,
+        type: UNKNOWN_GROUP_BY_FILTER,
+        message: 'Unknown groupBy filter {value}',
+    },
+}
 
 const createPropertyRange = async (organizationWhereInput, whereIn) => {
     const gqlLoaderOptions = {
@@ -267,7 +279,12 @@ const getXLSXDataMapper = (groupByToken, isSummary = false) => {
             dataMapper = isSummary ? assigneePercentSummaryDataMapper : assigneePercentSingleDataMapper
             break
         default:
-            throw new Error('Unknown groupBy token ' + groupByToken)
+            throw new GQLError({
+                ...errors.UNKNOWN_GROUP_BY_FILTER,
+                messageInterpolation: {
+                    value: groupByToken,
+                },
+            })
     }
     return dataMapper
 }
@@ -370,7 +387,12 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                         rowColumns = assignee.includes('@') ? assignee.split('@') : []
                         break
                     default:
-                        throw new Error('unsupported filter')
+                        throw new GQLError({
+                            ...errors.UNKNOWN_GROUP_BY_FILTER,
+                            messageInterpolation: {
+                                value: groupByToken,
+                            },
+                        })
                 }
 
                 const tickets = []
@@ -428,7 +450,12 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                                     mapperData['constants']['date'] = filterColumn
                                     break
                                 default:
-                                    throw new Error('Unknown filter ' + groupBy2)
+                                    throw new GQLError({
+                                        ...errors.UNKNOWN_GROUP_BY_FILTER,
+                                        messageInterpolation: {
+                                            value: groupBy2,
+                                        },
+                                    })
                             }
                             const { rows } = mapperInstance(mapperData)
 
