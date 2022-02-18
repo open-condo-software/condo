@@ -128,7 +128,7 @@ async function doGqlRequest (callable, params) {
         })
     } catch (e) {
         const errors = []
-e
+
         if (e.graphQLErrors && e.graphQLErrors.length > 0) {
             e.graphQLErrors.map((graphQLError) => {
                 errors.push(graphQLError)
