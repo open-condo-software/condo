@@ -6,9 +6,27 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Ticket, TicketSource } = require('@condo/domains/ticket/utils/serverSchema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/ticket/access/CreateResidentTicketService')
-const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 const { get } = require('lodash')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
+
+const errors = {
+    PROPERTY_NOT_FOUND: {
+        mutation: 'createResidentTicket',
+        variable: ['data', 'property'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Cannot find Property by specified id',
+    },
+    TICKET_SOURCE_NOT_FOUND: {
+        mutation: 'createResidentTicket',
+        variable: ['data', 'source'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Cannot find TicketSource by specified id',
+    },
+}
 
 const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketService', {
     types: [
@@ -36,17 +54,22 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
         {
             access: access.canCreateResidentTicket,
             schema: 'createResidentTicket(data: ResidentTicketCreateInput): ResidentTicketOutput',
+            doc: {
+                summary: 'Creates a new ticket for resident',
+                description: 'Corresponding resident, to create the ticket for, is fetched from current logged in user',
+                errors,
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 const { dv: newTicketDv, sender: newTicketSender, details, source: SourceRelateToOneInput, property: PropertyRelateToOneInput, unitName } = data
 
                 const { connect: { id: propertyId } } = PropertyRelateToOneInput
                 const [property] = await Property.getAll(context, { id: propertyId })
-                if (!property) throw Error(`${NOT_FOUND_ERROR}property] property not found`)
+                if (!property) throw new GQLError(errors.PROPERTY_NOT_FOUND)
 
                 const { connect: { id: sourceId } } = SourceRelateToOneInput
                 const [source] = await TicketSource.getAll(context, { id: sourceId })
-                if (!source) throw Error(`${NOT_FOUND_ERROR}source] source not found`)
+                if (!source) throw new GQLError(errors.TICKET_SOURCE_NOT_FOUND)
 
                 const organizationId = get(property, ['organization', 'id'])
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)

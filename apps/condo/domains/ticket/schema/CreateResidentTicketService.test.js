@@ -10,7 +10,6 @@ const { UUID_RE } = require('@core/keystone/test.utils')
 const faker = require('faker')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('CreateResidentTicketService', () => {
@@ -53,7 +52,17 @@ describe('CreateResidentTicketService', () => {
             await createResidentTicketByTestClient(userClient, wrongProperty)
         }, ({ errors, data }) => {
             expect(errors).toHaveLength(1)
-            expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}property] property not found`)
+            expect(errors).toMatchObject([{
+                message: 'Cannot find Property by specified id',
+                path: ['obj'],
+                extensions: {
+                    mutation: 'createResidentTicket',
+                    variable: ['data', 'property'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOT_FOUND',
+                    message: 'Cannot find Property by specified id',
+                },
+            }])
             expect(data).toEqual({ 'obj': null })
         })
     })
@@ -70,7 +79,17 @@ describe('CreateResidentTicketService', () => {
             await createResidentTicketByTestClient(userClient, userClient.property, { source: wrongSource })
         }, ({ errors, data }) => {
             expect(errors).toHaveLength(1)
-            expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}source] source not found`)
+            expect(errors).toMatchObject([{
+                message: 'Cannot find TicketSource by specified id',
+                path: ['obj'],
+                extensions: {
+                    mutation: 'createResidentTicket',
+                    variable: ['data', 'source'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOT_FOUND',
+                    message: 'Cannot find TicketSource by specified id',
+                },
+            }])
             expect(data).toEqual({ 'obj': null })
         })
     })
