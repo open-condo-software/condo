@@ -4,7 +4,8 @@ const { TicketStatus, loadTicketsForExcelExport } = require('@condo/domains/tick
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
-const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
@@ -13,6 +14,17 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
+
+const errors = {
+    NOTHING_TO_EXPORT: {
+        query: 'exportTicketsToExcel',
+        variable: ['data', 'property'],
+        code: BAD_USER_INPUT,
+        type: NOTHING_TO_EXPORT,
+        message: 'No tickets found to export',
+        messageForUser: 'api.ticket.exportTicketsToExcel.NOTHING_TO_EXPORT',
+    },
+}
 
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
 const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
@@ -38,7 +50,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
                 if (allTickets.length === 0) {
-                    throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
+                    throw new GQLError(errors.NOTHING_TO_EXPORT, context)
                 }
                 const excelRows = allTickets.map(ticket => {
                     const comments = [...new Set(ticket.TicketComment || [])]
