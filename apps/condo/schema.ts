@@ -30056,7 +30056,7 @@ export type SendMessageToSupportInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
   text: Scalars['String'];
-  email?: Maybe<Scalars['String']>;
+  emailFrom?: Maybe<Scalars['String']>;
   attachments?: Maybe<Array<Maybe<Scalars['Upload']>>>;
   os: Scalars['String'];
   appVersion: Scalars['String'];
