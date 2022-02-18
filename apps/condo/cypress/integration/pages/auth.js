@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-
 import { SignIn, ForgotPassword, Registration }  from '../../objects/Auth'
 import faker from 'faker'
 
@@ -7,8 +5,7 @@ describe('Auth scenarios', () => {
 
     describe('User', () => {
         it('can signin with correct password and phone', () => {
-            const createUser = cy.task('keystone:createUser')
-            createUser.then(([, user]) => {
+            cy.task('keystone:createUser').then(([, user]) => {
                 const signIn = new SignIn()
                 signIn
                     .visit()
@@ -18,8 +15,7 @@ describe('Auth scenarios', () => {
             })
         })
         it('can start password recovery', () => {
-            const createUser = cy.task('keystone:createUser')
-            createUser.then(([, user]) => {
+            cy.task('keystone:createUser').then(([, user]) => {
                 const forgot = new ForgotPassword()
                 forgot
                     .visit()
@@ -45,8 +41,8 @@ describe('Auth scenarios', () => {
                 .clickCheckbox()
                 .startRegistrationClick()
             cy.url().should('contain', 'token=')
-            const getSmsCode = cy.task('keystone:getConfirmPhoneAction', user.phone)
-            getSmsCode.then(([{ smsCode }]) => {
+
+            cy.task('keystone:getConfirmPhoneAction', user.phone).then(([{ smsCode }]) => {
                 // step 2
                 registration.fillSMSCode(smsCode)
                 // step 3
