@@ -103,6 +103,38 @@ describe('TicketAnalyticsReportService', () => {
             expect(groups[0].property).toEqual(client.property.address)
         })
 
+        it('receives error when incorrect groupBy field is passed', async () => {
+            const client = await makeClientWithProperty()
+            await createTestTicket(client, client.organization, client.property)
+            await createTestTicket(client, client.organization, client.property, { isPaid: true })
+            await createTestTicket(client, client.organization, client.property, { isEmergency: true })
+
+            const dateStart = dayjs().startOf('week')
+            const dateEnd = dayjs().endOf('week')
+            const { data, errors } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+                data: {
+                    where: {
+                        organization: { id: client.organization.id },
+                        AND: [
+                            { createdAt_gte: dateStart.toISOString() },
+                            { createdAt_lte: dateEnd.toISOString() },
+                            { property: { id_in: [ client.property.id ] } },
+                            { isPaid: false },
+                            { isEmergency: false },
+                        ],
+                    },
+                    groupBy: ['status', 'asdf'],
+                    nullReplaces: NULL_REPLACES,
+                },
+            })
+            expect(data).toBeUndefined()
+            expect(errors).toMatchObject([{
+                message: 'Variable "$data" got invalid value "asdf" at "data.groupBy[1]"; Value "asdf" does not exist in "TicketAnalyticsGroupBy" enum.',
+            }])
+        })
+
         it('can read TicketAnalyticsReportService with property and categoryClassifier filter', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
