@@ -20,6 +20,8 @@ const NOT_FOUND = 'NOT_FOUND'
 const WRONG_TEXT_FORMAT = '[text:wrongFormat:'
 
 const EMPTY_DATA_EXPORT_ERROR = '[export.empty.data'
+const NOTHING_TO_EXPORT = 'NOTHING_TO_EXPORT'
+
 const NETWORK_ERROR = 'failed to fetch'
 
 // A record with specified set of field values already exists, so, the request violates unique constraints
@@ -48,4 +50,5 @@ module.exports = {
     NETWORK_ERROR,
     WRONG_FORMAT,
     NOT_UNIQUE,
+    NOTHING_TO_EXPORT,
 }

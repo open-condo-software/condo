@@ -35,6 +35,24 @@ describe('ExportTicketService', () => {
             expect(errors).toHaveLength(1)
         })
 
+        it('receives error of tickets for export are not found', async () => {
+            const client = await makeClientWithProperty()
+            const { data: { result }, errors }  = await client.query(EXPORT_TICKETS_TO_EXCEL, {
+                data: { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+            })
+            expect(result).toBeNull()
+            expect(errors).toMatchObject([{
+                message: 'No tickets found to export',
+                path: ['result'],
+                extensions: {
+                    query: 'exportTicketsToExcel',
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOTHING_TO_EXPORT',
+                    message: 'No tickets found to export',
+                },
+            }])
+        })
+
     })
 
     describe('Anonymous', () => {
