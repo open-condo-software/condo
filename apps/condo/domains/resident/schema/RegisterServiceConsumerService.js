@@ -7,11 +7,44 @@ const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/resident/access/RegisterServiceConsumerService')
 const { BillingIntegrationOrganizationContext, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ServiceConsumer, Resident } = require('../utils/serverSchema')
-const { NOT_FOUND_ERROR, REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-
 const get = require('lodash/get')
+
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const { WRONG_FORMAT } = require('../../common/constants/errors')
+
+const errors = {
+    RESIDENT_NOT_FOUND: {
+        mutation: 'registerServiceConsumer',
+        variable: ['data', 'residentId'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Cannot find Resident for current user',
+    },
+    ORGANIZATION_NOT_FOUND: {
+        mutation: 'registerServiceConsumer',
+        variable: ['data', 'organizationId'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Cannot find Organization for current user',
+    },
+    BILLING_ACCOUNT_NOT_FOUND: {
+        mutation: 'registerServiceConsumer',
+        variable: ['data', 'accountNumber'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and organization combination',
+    },
+    ACCOUNT_NUMBER_IS_NOT_SPECIFIED: {
+        mutation: 'registerServiceConsumer',
+        variable: ['data', 'accountNumber'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Argument "accountNumber" is null or empty',
+    },
+}
 
 async function getResidentBillingAccount (context, billingIntegrationContext, accountNumber, unitName) {
     let applicableBillingAccounts = await BillingAccount.getAll(context, {
@@ -43,23 +76,26 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
     mutations: [
         {
-            schemaDoc: 'This mutation creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount`.' +
-                ' To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data',
+            doc: {
+                summary: 'Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount',
+                description: 'To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data',
+                errors,
+            },
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context = {}) => {
                 const { data: { dv, sender, residentId, accountNumber, organizationId, extra } } = args
 
-                if (!accountNumber || accountNumber.length === 0) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}accountNumber] Account number null or empty: ${accountNumber}`) }
+                if (!accountNumber || accountNumber.length === 0) { throw new GQLError(errors.ACCOUNT_NUMBER_IS_NOT_SPECIFIED) }
 
                 const [ resident ] = await Resident.getAll(context, { id: residentId })
                 if (!resident) {
-                    throw new Error(`${NOT_FOUND_ERROR}resident] Resident not found for this user`)
+                    throw new GQLError(errors.RESIDENT_NOT_FOUND)
                 }
 
                 const [ organization ] = await Organization.getAll(context, { id: organizationId })
                 if (!organization) {
-                    throw new Error(`${NOT_FOUND_ERROR}organization] Organization not found for this id`)
+                    throw new GQLError(errors.ORGANIZATION_NOT_FOUND)
                 }
 
                 const unitName = get(resident, 'unitName', null)
@@ -87,7 +123,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!attrs.billingAccount) {
                     const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
                     if (meters.length < 1) {
-                        throw (`${NOT_FOUND_ERROR}accountNumber] Can't find billingAccount and any meters with this accountNumber, unitName and organization combination`)
+                        throw new GQLError(errors.BILLING_ACCOUNT_NOT_FOUND)
                     }
                 }
 

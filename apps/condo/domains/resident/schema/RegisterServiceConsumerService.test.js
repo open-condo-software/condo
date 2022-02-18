@@ -245,8 +245,19 @@ describe('RegisterServiceConsumerService', () => {
 
         await catchErrorFrom(async () => {
             await registerServiceConsumerByTestClient(userClient, payload)
-        }, (e) => {
-            expect(e.errors[0].message).toContain('billingAccount')
+        }, ({ errors }) => {
+            expect(errors).toMatchObject([{
+                message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and organization combination',
+                name: 'GraphQLError',
+                path: ['obj'],
+                extensions: {
+                    mutation: 'registerServiceConsumer',
+                    variable: ['data', 'accountNumber'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOT_FOUND',
+                    message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and organization combination',
+                },
+            }])
         })
     })
 
@@ -273,8 +284,19 @@ describe('RegisterServiceConsumerService', () => {
 
         await catchErrorFrom(async () => {
             await registerServiceConsumerByTestClient(userClient, payloadWithNullishAccountName)
-        }, (e) => {
-            expect(e.errors[0].message).toContain('Account number null or empty')
+        }, ({ errors }) => {
+            expect(errors).toMatchObject([{
+                message: 'Argument "accountNumber" is null or empty',
+                name: 'GraphQLError',
+                path: ['obj'],
+                extensions: {
+                    mutation: 'registerServiceConsumer',
+                    variable: ['data', 'accountNumber'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'WRONG_FORMAT',
+                    message: 'Argument "accountNumber" is null or empty',
+                },
+            }])
         })
     })
 
