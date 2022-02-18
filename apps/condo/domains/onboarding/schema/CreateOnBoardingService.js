@@ -7,6 +7,25 @@ const access = require('@condo/domains/onboarding/access/CreateOnBoardingService
 const { OnBoarding } = require('@condo/domains/onboarding/utils/serverSchema')
 const { OnBoardingStep } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ONBOARDING_TYPES, ONBOARDING_STEPS } = require('@condo/domains/onboarding/constants')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { ROLE_IS_NOT_SUPPORTED } = require('../constants/errors')
+
+const errors = {
+    ROLE_IS_NOT_SUPPORTED_TO_CREATE_ONBOARDING: {
+        mutation: 'createOnBoardingByType',
+        variable: ['data', 'type'],
+        code: BAD_USER_INPUT,
+        type: ROLE_IS_NOT_SUPPORTED,
+        message: 'Role "{type}" is not supported to create OnBoarding for',
+    },
+    ROLE_IS_NOT_SUPPORTED_TO_CREATE_ONBOARDING_STEP: {
+        mutation: 'createOnBoardingByType',
+        variable: ['data', 'type'],
+        code: BAD_USER_INPUT,
+        type: ROLE_IS_NOT_SUPPORTED,
+        message: 'Step transitions are not defined for role "{type}"',
+    },
+}
 
 const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
     types: [
@@ -23,18 +42,32 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
         {
             access: access.canCreateOnBoarding,
             schema: 'createOnBoardingByType(data: CreateOnBoardingInput!): OnBoarding',
+            doc: {
+                summary: 'Creates OnBoarding and set of OnBoardingStep records for specified role and user',
+                errors,
+            },
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { type, dv, sender, userId } = data
 
                 if (!ONBOARDING_TYPES.includes(type)) {
-                    throw new Error(`[error] Cannot create onBoarding for ${type}. Unsupported role.`)
+                    throw new GQLError({
+                        ...errors.ROLE_IS_NOT_SUPPORTED_TO_CREATE_ONBOARDING,
+                        messageInterpolation: {
+                            type,
+                        },
+                    })
                 }
 
                 const onBoardingStepData = ONBOARDING_STEPS[type]
 
                 if (!onBoardingStepData) {
-                    throw new Error(`[error] Cannot create onBoarding for ${type}. StepTransitions is not defined.`)
+                    throw new GQLError({
+                        ...errors.ROLE_IS_NOT_SUPPORTED_TO_CREATE_ONBOARDING_STEP,
+                        messageInterpolation: {
+                            type,
+                        },
+                    })
                 }
 
                 const onBoarding = await OnBoarding.create(context, {
