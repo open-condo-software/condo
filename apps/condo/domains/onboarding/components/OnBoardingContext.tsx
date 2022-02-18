@@ -1,4 +1,4 @@
-import { BankOutlined, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled } from '@ant-design/icons'
+import { BankFilled, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled } from '@ant-design/icons'
 import get from 'lodash/get'
 import Router, { useRouter } from 'next/router'
 import React, { createContext, useContext, useEffect } from 'react'
@@ -41,7 +41,7 @@ export interface IOnBoardingContext {
 }
 
 const onBoardingIcons = {
-    organization: BankOutlined,
+    organization: BankFilled,
     house: HouseIcon,
     user: UserIcon,
     division: DivisionIcon,
