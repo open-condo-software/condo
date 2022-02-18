@@ -22,6 +22,7 @@ const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, 
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { TERMINAL_TICKET_STATUS_IDS } = require('../constants/statusTransitions')
+const {Contact} = require("@condo/domains/contact/utils/serverSchema");
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -291,9 +292,9 @@ const Ticket = new GQLListSchema('Ticket', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
+
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
-            const user = get(context, ['req', 'user'])
             const statusId = get(resolvedData, 'status')
 
             if (statusId) {
@@ -304,17 +305,53 @@ const Ticket = new GQLListSchema('Ticket', {
                 }
             }
 
-            if (operation === 'create' && user && user.type === RESIDENT) {
-                await addClientInfoToResidentTicket(context, resolvedData)
-            }
-
+            const userType = get(context, ['req', 'user', 'type'])
             const newItem = { ...existingItem, ...resolvedData }
             const propertyId = get(newItem, 'property', null)
+
+            if (operation === 'create' && userType === RESIDENT) {
+                await addClientInfoToResidentTicket(context, resolvedData)
+            } else {
+
+                const contact = get(newItem, 'contact')
+                const clientPhone = get(resolvedData, 'clientPhone')
+                const clientEmail = get(resolvedData, 'clientEmail')
+
+                // We have clientPhone within ticket create/update and no connected contact
+                // or updated clientPhone differs from already connected contact's one
+                if (!contact && clientPhone || contact && clientPhone && contact.phone !== clientPhone) {
+                    const clientName = get(newItem, 'clientName')
+                    const organizationId = get(newItem, 'organization', null)
+                    const where = { phone: clientPhone, organization: { id: organizationId }, property: { id: propertyId } }
+                    // check if we already have a contact within property/organization
+                    const contact = await Contact.getOne(context, where)
+
+                    if (contact) {
+                        resolvedData.contact = get(contact, 'id')
+                    } else {
+                        const newContact = await Contact.create(context, {
+                            dv: resolvedData.dv,
+                            sender: resolvedData.sender,
+                            organization: { connect: { id: organizationId } },
+                            property: { connect: { id: propertyId } },
+                            unitName: resolvedData.unitName,
+                            email: clientEmail,
+                            phone: clientPhone,
+                            name: clientName,
+                        })
+
+                        resolvedData.contact = get(newContact, 'id')
+                    }
+                }
+            }
+
             const property = await getByCondition('Property', {
                 id: propertyId,
                 deletedAt: null,
             })
+
             // If property was soft- or hard-deleted = keep existing data = don't modify propertyAddress and propertyAddressMeta
+            // This is also essential for updating propertyAddress of all connected tickets on Property address change
             if (property) {
                 resolvedData.propertyAddress = property.address
                 resolvedData.propertyAddressMeta = property.addressMeta
@@ -326,7 +363,9 @@ const Ticket = new GQLListSchema('Ticket', {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
+
             const { dv } = resolvedData
+
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
                 if (resolvedData.statusUpdatedAt) {

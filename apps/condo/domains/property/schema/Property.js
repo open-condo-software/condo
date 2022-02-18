@@ -308,8 +308,14 @@ const Property = new GQLListSchema('Property', {
             if (isCreatedProperty || isRestoredProperty || isSoftDeleteOperation || isAddressUpdated) {
                 if (isAddressUpdated) {
                     // Change linked tickets "propertyAddress"
-                    const userInfo = { dv: updatedItem.dv, sender: updatedItem.sender }
-                    await manageTicketPropertyAddressChange.delay(updatedItem.id, userInfo)
+                    // NOTE: propertyAddress & propertyAddressMeta will be substituted within
+                    // resolveInput in Ticket schema
+                    const payload = {
+                        dv: updatedItem.dv,
+                        sender: updatedItem.sender,
+                    }
+
+                    await manageTicketPropertyAddressChange.delay(updatedItem.id, payload)
                     // Reconnect residents (if any) to oldest non-deleted property with address = updatedItem.address
                     await manageResidentToPropertyAndOrganizationConnections.delay(updatedItem.address)
                 }

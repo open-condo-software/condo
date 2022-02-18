@@ -52,9 +52,9 @@ async function createTestTicket (client, organization, property, extraAttrs = {}
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!property || !property.id) throw new Error('no property.id')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const details = faker.random.alphaNumeric(10)
-
     const attrs = {
         dv: 1,
         sender,
@@ -67,20 +67,22 @@ async function createTestTicket (client, organization, property, extraAttrs = {}
         ...extraAttrs,
     }
     const obj = await Ticket.create(client, attrs)
+
     return [obj, attrs]
 }
 
 async function updateTestTicket (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
         dv: 1,
         sender,
         ...extraAttrs,
     }
     const obj = await Ticket.update(client, id, attrs)
+
     return [obj, attrs]
 }
 
