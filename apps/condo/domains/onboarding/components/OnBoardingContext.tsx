@@ -23,7 +23,6 @@ import {
     getStepType,
 } from '@condo/domains/onboarding/utils/stepUtils'
 import { OnBoardingStepType } from './OnBoardingStepItem'
-import { DivisionIcon } from '@condo/domains/common/components/icons/DivisionIcon'
 import { ONBOARDING_COMPLETED_PROGRESS } from '@condo/domains/onboarding/constants'
 
 interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
@@ -44,7 +43,7 @@ const onBoardingIcons = {
     organization: BankFilled,
     house: HouseIcon,
     user: UserIcon,
-    division: DivisionIcon,
+    division: WechatFilled,
     chat: WechatFilled,
     billing: ProfileFilled,
     creditCard: CreditCardFilled,
