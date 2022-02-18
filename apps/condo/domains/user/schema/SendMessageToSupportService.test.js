@@ -19,7 +19,7 @@ const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/prop
 const { expectToThrowMutationError } = require('@condo/domains/common/utils/testSchema')
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/errors')
 
-const FORWARDING_EMAILS_FROM = 'doma-test-message-to-support@mailforspam.com'
+const EMAIL_FROM = 'doma-test-message-to-support@mailforspam.com'
 
 describe('SendMessageToSupportService', async () => {
     test('Send message to support: with attachments, with emailFrom', async () => {
@@ -35,8 +35,8 @@ describe('SendMessageToSupportService', async () => {
                 new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/user/test-assets/simple-text-file.txt')),
                 new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/user/test-assets/dino.png')),
             ],
-            text: `Test message from resident to support. This message should be sent from ${FORWARDING_EMAILS_FROM} and contains an attachment.`,
-            email: FORWARDING_EMAILS_FROM, // email passed from mobile application
+            text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM} and contains an attachment.`,
+            emailFrom: EMAIL_FROM, // email passed from mobile application
             appVersion: '0.0.1a',
             lang: RU_LOCALE,
             meta: {},
@@ -55,7 +55,7 @@ describe('SendMessageToSupportService', async () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {
             text: 'Test with wrong email.',
-            email: 'some-wrong_email',
+            emailFrom: 'some-wrong_email',
             os: 'android 13',
             appVersion: '0.0.1a',
             lang: RU_LOCALE,
@@ -73,8 +73,8 @@ describe('SendMessageToSupportService', async () => {
         await createTestResident(adminClient, residentClient.user, residentClient.organization, residentClient.property)
 
         const payload = {
-            text: `Test message from resident to support. This message should be sent from ${FORWARDING_EMAILS_FROM}`,
-            email: FORWARDING_EMAILS_FROM, // email passed from mobile application
+            text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM}`,
+            emailFrom: EMAIL_FROM, // email passed from mobile application
             os: 'android 8',
             appVersion: '0.0.1a',
             lang: RU_LOCALE,
@@ -98,8 +98,8 @@ describe('SendMessageToSupportService', async () => {
         await addResidentAccess(userClient.user)
 
         const payload = {
-            text: `Test message from resident to support. This message should be sent from ${FORWARDING_EMAILS_FROM}. Resident must be attached to two organizations.`,
-            email: FORWARDING_EMAILS_FROM, // email passed from mobile application
+            text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM}. Resident must be attached to two organizations.`,
+            emailFrom: EMAIL_FROM, // email passed from mobile application
             os: 'ios 15.1',
             appVersion: '0.0.1a',
             lang: RU_LOCALE,
