@@ -117,12 +117,12 @@ class GQLError extends ApolloError {
      */
     constructor (fields, context) {
         const extensions = fields
+        extensions.message = template(fields.message)(fields.messageInterpolation)
         if (context) {
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
             const translations = getTranslations(locale)
             const translatedMessage = translations[fields.messageForUser]
             const interpolatedMessageForUser = template(translatedMessage)(fields.messageInterpolation)
-            extensions.message = template(fields.message)(fields.messageInterpolation)
             extensions.messageForUser = interpolatedMessageForUser
         }
         super(fields.message, fields.code, extensions)
