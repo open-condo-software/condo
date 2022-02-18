@@ -49,7 +49,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
 
-    const contactId = useMemo(() => get(initialValues, ['contact', 'id']), [initialValues])
+    const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
 
     const value = useMemo(() => contactId && ({
         id: contactId,
