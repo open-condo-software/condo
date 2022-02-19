@@ -52,7 +52,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
 
     const options = useMemo(() => sortStatusesByType(statuses).map((status) => {
         const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
-        const { secondary: color } = status.colors
+        const { primary: color } = status.colors
 
         return (<Select.Option key={value} value={value} title={label} style={{ color }}>{label}</Select.Option>)
     }), [statuses, ticket])
@@ -61,7 +61,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         updateTicketStatus({ status: value, statusUpdatedAt: new Date() })
     }, [ticket])
 
-    const { primary: color, secondary: backgroundColor } = ticket.status.colors
+    const { primary: backgroundColor, secondary: color } = ticket.status.colors
     const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
 
     return (
