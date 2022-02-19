@@ -2,33 +2,33 @@ const { CANCELED, COMPLETED, DEFERRED, NEW_OR_REOPEND, PROCESSING, CLOSED } = re
 
 const STATUS_SELECT_COLORS = {
     [NEW_OR_REOPEND]: {
-        primary: '#FFFFFF',
-        secondary: '#EB3468',
+        primary: '#EB3468',
+        secondary: '#FFFFFF',
         additional: '#FFFFFF',
     },
     [PROCESSING]: {
-        primary: '#FFFFFF',
-        secondary: '#F08633',
+        primary: '#F08633',
+        secondary: '#FFFFFF',
         additional: '#FFC069',
     },
     [COMPLETED]: {
-        primary: '#FFFFFF',
-        secondary: '#33CE66',
+        primary: '#33CE66',
+        secondary: '#FFFFFF',
         additional: '#95DE64',
     },
     [CLOSED]: {
-        primary: '#FFFFFF',
-        secondary: '#159A41',
+        primary: '#159A41',
+        secondary: '#FFFFFF',
         additional: '#BFBFBF',
     },
     [DEFERRED]: {
-        primary: '#FFFFFF',
-        secondary: '#3786C7',
+        primary: '#3786C7',
+        secondary: '#FFFFFF',
         additional: '#FFA39E',
     },
     [CANCELED]: {
-        primary: '#FFFFFF',
-        secondary: '#B4710D',
+        primary: '#B4710D',
+        secondary: '#FFFFFF',
         additional: '#BFBFBF',
     },
 }
