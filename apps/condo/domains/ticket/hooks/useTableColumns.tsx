@@ -86,7 +86,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const renderStatus = useCallback((status, record) => {
-        const { primary: color, secondary: backgroundColor } = status.colors
+        const { primary: backgroundColor, secondary: color } = status.colors
         const extraProps = { style: { color } }
         // TODO(DOMA-1518) find solution for cases where no status received
         const highlightedContent = getHighlightedContents(search, null, extraProps)(status.name)
