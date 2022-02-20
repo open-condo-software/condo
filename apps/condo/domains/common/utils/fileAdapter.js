@@ -56,12 +56,12 @@ class FileAdapter {
     }
 
     createLocalFileApapter () {
-        if (!this.isConfigValid(conf, [ 'MEDIA_ROOT', 'MEDIA_URL' ])) {
+        if (!this.isConfigValid(conf, [ 'MEDIA_ROOT', 'MEDIA_URL', 'SERVER_URL' ])) {
             return null
         }
         return new LocalFileAdapter({
             src: `${conf.MEDIA_ROOT}/${this.folder}`,
-            path: `${conf.MEDIA_URL}/${this.folder}`,
+            path: `${conf.SERVER_URL}${conf.MEDIA_URL}/${this.folder}`,
         })
     }
 
