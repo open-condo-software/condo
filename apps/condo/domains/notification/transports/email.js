@@ -1,6 +1,5 @@
 const fetch = require('node-fetch')
 const FormData = require('form-data')
-const fs = require('fs')
 const https = require('https')
 const http = require('http')
 
@@ -11,7 +10,6 @@ const { renderTemplate } = require('../templates')
 
 const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CONFIG) : null
 
-const HTTP_REGEXP = /^http/
 const HTTPX_REGEXP = /^http:/
 
 async function prepareMessageToSend (message) {
@@ -57,14 +55,10 @@ async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta 
         const streamsPromises = meta.attachments.map((attachment) => {
             const { publicUrl, mimetype, originalFilename } = attachment
             return new Promise((resolve, reject) => {
-                if (HTTP_REGEXP.test(publicUrl)) {
-                    const httpx = HTTPX_REGEXP.test(publicUrl) ? http : https
-                    httpx.get(publicUrl, (stream) => {
-                        resolve({ originalFilename, mimetype, stream })
-                    })
-                } else {
-                    resolve({ originalFilename, mimetype, stream: fs.createReadStream(publicUrl) })
-                }
+                const httpx = HTTPX_REGEXP.test(publicUrl) ? http : https
+                httpx.get(publicUrl, (stream) => {
+                    resolve({ originalFilename, mimetype, stream })
+                })
             })
         })
         const streamsData = await Promise.all(streamsPromises)

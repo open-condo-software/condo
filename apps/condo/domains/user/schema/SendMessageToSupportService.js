@@ -68,13 +68,8 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                             publicUrl: fileAdapter.publicUrl({ filename }),
                         }
 
-                        if (FileAdapter.isLocal(fileAdapter)) {
-                            // Full path to the file within the same filesystem
-                            ret.publicUrl = `${fileAdapter.src}/${filename}`
-                        } else {
-                            if (fileAdapter.acl && fileAdapter.acl.generateUrl) {
-                                ret.publicUrl = fileAdapter.acl.generateUrl(`${fileAdapter.folder}/${filename}`)
-                            }
+                        if (fileAdapter.acl && fileAdapter.acl.generateUrl) {
+                            ret.publicUrl = fileAdapter.acl.generateUrl(`${fileAdapter.folder}/${filename}`)
                         }
 
                         return ret

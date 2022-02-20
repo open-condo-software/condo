@@ -106,10 +106,6 @@ class FileAdapter {
             throw new Error('Unknown file field adapter. You need to check FILE_FIELD_ADAPTER')
         }
     }
-
-    static isLocal (adapter) {
-        return adapter instanceof LocalFileAdapter
-    }
 }
 
 
