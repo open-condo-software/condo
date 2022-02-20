@@ -112,7 +112,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             statusDisplayName: (field, value) => {
                 const statusIdTo = get(ticketChange, 'statusIdTo')
                 const ticketStatus = ticketStatuses.find(status => status.id === statusIdTo)
-                const ticketStatusColor = get(ticketStatus, ['colors', 'secondary'])
+                const ticketStatusColor = get(ticketStatus, ['colors', 'primary'])
                 const ticketStatusChangeTextStyle = { color: ticketStatusColor }
 
                 return <Typography.Text style={ticketStatusChangeTextStyle}>{value}</Typography.Text>
