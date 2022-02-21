@@ -8,6 +8,12 @@ const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
+/**
+ * Context could be read either by:
+ * 1. Support / Admin
+ * 2. Integration service account
+ * 3. Integration manager from user's organization
+ */
 async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -21,6 +27,15 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
     }
 }
 
+/**
+ * Context could be created by:
+ * 1. Admin
+ * 2. Integration manager from user's organization
+ *
+ * Context could be updated by:
+ * 1. Admin / Support
+ * 2.
+ */
 async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -52,6 +67,18 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }
 
+/**
+ * Payment related fields such as paymetsAllowedFrom or paymentsAllowedTo may ony be created or updated only by:
+ * 1. Admin / Support
+ */
+async function canManagePaymentsRelatedFields ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+
+    if (user.isAdmin || user.isSupport) return true
+    return false
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -59,4 +86,5 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
 module.exports = {
     canReadBillingIntegrationOrganizationContexts,
     canManageBillingIntegrationOrganizationContexts,
+    canManagePaymentsRelatedFields,
 }
