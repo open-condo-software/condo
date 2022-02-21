@@ -30054,7 +30054,7 @@ export type StartPasswordRecoveryOutput = {
 
 export type SendMessageToSupportInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   text: Scalars['String'];
   emailFrom?: Maybe<Scalars['String']>;
   attachments?: Maybe<Array<Maybe<Scalars['Upload']>>>;
