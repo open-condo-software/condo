@@ -94,21 +94,33 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             schemaDoc: 'Datetime from which receipts from this billing are able to be paid for',
             type: DateTimeUtc,
             isRequired: false,
+            access: {
+                create: access.canManagePaymentsRelatedFields,
+                update: access.canManagePaymentsRelatedFields,
+                read: true,
+            },
         },
 
         paymentsAllowedTo: {
             schemaDoc: 'Datetime to which receipts from this billing are able to be paid for',
             type: DateTimeUtc,
             isRequired: false,
+            access: {
+                create: access.canManagePaymentsRelatedFields,
+                update: access.canManagePaymentsRelatedFields,
+                read: true,
+            },
         },
 
         isPaymentsAllowed: {
             schemaDoc: 'A simply alias for paymentsAllowedFrom and paymentsAllowedTo logic: If now date is between these dates, returns true. Othervise returns false',
             type: Virtual,
+            graphQLReturnType: 'Boolean',
             resolver: (item) => {
                 const now = dayjs()
                 const from = dayjs(get(item, 'paymentsAllowedFrom'))
                 const to = dayjs(get(item, 'paymentsAllowedTo'))
+                if (from === null || to === null) { return false }
                 return from < now && now < to
             },
         },
