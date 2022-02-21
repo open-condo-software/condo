@@ -28,7 +28,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
         },
         {
             access: true,
-            type: 'input SendMessageToSupportInput { dv: Int!, sender: JSON!, text: String!, emailFrom: String, attachments: [Upload], os: String!, appVersion: String!, lang: SendMessageToSupportLang!, meta: JSON! }',
+            type: 'input SendMessageToSupportInput { dv: Int!, sender: SenderFieldInput!, text: String!, emailFrom: String, attachments: [Upload], os: String!, appVersion: String!, lang: SendMessageToSupportLang!, meta: JSON! }',
         },
         {
             access: true,
