@@ -98,10 +98,6 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             type: DateTimeUtc,
             isRequired: false,
         },
-
-        // isPaymentsAllowed: {
-        //     schemaDoc: 'Datetime to which receipts from this billing are able to be paid for',
-        // },
     },
     hooks: {
         validateInput: async ({ existingItem, resolvedData, operation, addValidationError }) => {
