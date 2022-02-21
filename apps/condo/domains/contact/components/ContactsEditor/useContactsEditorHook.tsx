@@ -95,7 +95,7 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
 
     return {
         createContact,
-        canCreateContact: !!contactFieldsRef.current.phone && !!contactFieldsRef.current.name,
+        canCreateContact: !!contactFields.phone && !!contactFields.name,
         ContactsEditorComponent,
     }
 }
