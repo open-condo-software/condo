@@ -1,17 +1,22 @@
-import { find, get, debounce } from 'lodash'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Col, Form, FormInstance, Input, Row, Skeleton } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useIntl } from '@core/next/intl'
-import { Labels } from './Labels'
-import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
-import { ContactOption } from './ContactOption'
-import { Button } from '@condo/domains/common/components/Button'
 import styled from '@emotion/styled'
+import { useIntl } from '@core/next/intl'
+
+import find from 'lodash/find'
+import get from 'lodash/get'
+import debounce from 'lodash/debounce'
+import isEmpty from 'lodash/isEmpty'
+
+import { Button } from '@condo/domains/common/components/Button'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
+import { Labels } from './Labels'
+import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
+import { ContactOption } from './ContactOption'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -160,27 +165,30 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone
     )
 
-    const isContactSelected = useCallback((contact, i) => {
+    const isContactSelected = useCallback((contact) => {
         if (selectedContact) return selectedContact.id === contact.id
 
         if (!editableFieldsChecked) {
             if (sameAsInitial(contact)) return true
-
-            if (!initialValue && i === 0 && !selectedContact) {
-                triggerOnChange(contact)
-                return true
-            }
         }
 
         return false
     }, [editableFieldsChecked, initialValue, sameAsInitial, selectedContact, triggerOnChange])
 
-    const contactOptions = useMemo(() => fetchedContacts.map((contact, i) => (
+    useEffect(() => {
+        if (!editableFieldsChecked) {
+            if (!initialValue && !selectedContact && !isEmpty(fetchedContacts)) {
+                triggerOnChange(fetchedContacts[0])
+            }
+        }
+    }, [fetchedContacts, initialValue, editableFieldsChecked])
+
+    const contactOptions = useMemo(() => fetchedContacts.map((contact) => (
         <ContactOption
             key={contact.id}
             contact={contact}
             onSelect={handleSelectContact}
-            selected={isContactSelected(contact, i)}
+            selected={isContactSelected(contact)}
         />
     )), [fetchedContacts, handleSelectContact, isContactSelected])
 
