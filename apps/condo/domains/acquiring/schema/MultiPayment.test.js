@@ -37,6 +37,7 @@ const {
     PAYMENT_ERROR_STATUS,
     MULTIPAYMENT_FROZEN_FIELDS,
     MULTIPAYMENT_WITHDRAWN_STATUS,
+    PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
@@ -642,11 +643,18 @@ describe('MultiPayment', () => {
                     expect(Big(payment.explicitFee).eq(explicitFee)).toBeTruthy()
                     expect(Big(payment.explicitServiceCharge).eq(explicitServiceCharge)).toBeTruthy()
 
-                    // Stage 2. Our acquiring integration service after detecting successful redirect moving MP to WITHDRAWN
+                    // Stage 2. Our acquiring integration service after detecting successful redirect moving MP and P to WITHDRAWN
                     const transactionTime = dayjs().toISOString()
                     const cardNumber = getRandomHiddenCard()
                     const paymentWay = 'CARD'
                     const transactionId = faker.datatype.uuid()
+
+                    payment = await Payment.update(integrationClient, payment.id, {
+                        status: PAYMENT_WITHDRAWN_STATUS,
+                    })
+                    expect(payment).toBeDefined()
+                    expect(payment).toHaveProperty('status', PAYMENT_WITHDRAWN_STATUS)
+
                     multiPayment = await MultiPayment.update(integrationClient, multiPayment.id, {
                         status: MULTIPAYMENT_WITHDRAWN_STATUS,
                         withdrawnAt: transactionTime,
@@ -783,11 +791,20 @@ describe('MultiPayment', () => {
                 expect(multiPayment).toHaveProperty('implicitFee')
                 expect(Big(multiPayment.implicitFee).eq(totalImplicitFee)).toBeTruthy()
 
-                // Stage 2. Our acquiring integration service after detecting successful redirect moving MP to WITHDRAWN
+                // Stage 2. Our acquiring integration service after detecting successful redirect moving MP and P to WITHDRAWN
                 const transactionTime = dayjs().toISOString()
                 const cardNumber = getRandomHiddenCard()
                 const paymentWay = 'CARD'
                 const transactionId = faker.datatype.uuid()
+                for (let i = 0; i < 5; i++) {
+                    const payment = payments[i]
+                    const updatedPayment = await Payment.update(integrationClient, payment.id, {
+                        status: PAYMENT_WITHDRAWN_STATUS,
+                        ...fees[i],
+                    })
+                    expect(updatedPayment).toBeDefined()
+                    expect(updatedPayment).toHaveProperty('status', PAYMENT_WITHDRAWN_STATUS)
+                }
                 multiPayment = await MultiPayment.update(integrationClient, multiPayment.id, {
                     status: MULTIPAYMENT_WITHDRAWN_STATUS,
                     withdrawnAt: transactionTime,
