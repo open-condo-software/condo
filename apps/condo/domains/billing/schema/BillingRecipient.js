@@ -21,7 +21,6 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
 
         importId: IMPORT_ID_FIELD,
         context: INTEGRATION_CONTEXT_FIELD,
-
         organization: ORGANIZATION_OWNED_FIELD,
 
         tin: {
