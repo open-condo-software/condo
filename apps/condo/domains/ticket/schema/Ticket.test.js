@@ -258,21 +258,20 @@ describe('Ticket', () => {
             expect(readTicket.id).toEqual(ticket.id)
         })
 
-        test('resident: can read ticket with a contact whose phone number and address ' +
-            'matches the resident phone number and address', async () => {
+        test('resident: can read ticket with a contact whose phone number and address matches the resident phone number and address', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const unitName = faker.random.alphaNumeric(5)
-            const userAttrs = residentClient.userAttrs
+            const { phone } = residentClient.userAttrs
 
             await createTestResident(admin, residentClient.user, organization, property, {
                 unitName,
             })
             const [contact] = await createTestContact(admin, organization, property, {
-                phone: userAttrs.phone,
+                phone,
                 unitName,
             })
             const [ticket] = await createTestTicket(admin, organization, property, {
@@ -286,10 +285,10 @@ describe('Ticket', () => {
             expect(readTicket.id).toEqual(ticket.id)
         })
 
-        test('resident: cannot read ticket with a contact whose phone number ' +
-            'did not matches the resident phone number', async () => {
+        test('resident: cannot read ticket with a contact whose phone number did not matches the resident phone number', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient1 = await makeClientWithResidentUser()
+            const { phone } = residentClient1.userAttrs
             const residentClient2 = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
@@ -303,7 +302,7 @@ describe('Ticket', () => {
                 unitName,
             })
             const [contact] = await createTestContact(admin, organization, property, {
-                phone: residentClient1.userAttrs.phone,
+                phone,
                 unitName,
             })
             const [ticket] = await createTestTicket(admin, organization, property, {
@@ -364,6 +363,7 @@ describe('Ticket', () => {
         test('resident: user with 2 residents and 2 different contacts can read ticket for each resident', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient1 = await makeClientWithResidentUser()
+            const { phone } = residentClient1.userAttrs
 
             const [organization] = await createTestOrganization(admin)
             const [property1] = await createTestProperty(admin, organization)
@@ -379,11 +379,11 @@ describe('Ticket', () => {
             })
 
             const [contact1] = await createTestContact(admin, organization, property1, {
-                phone: residentClient1.userAttrs.phone,
+                phone,
                 unitName: unitName1,
             })
             const [contact2] = await createTestContact(admin, organization, property2, {
-                phone: residentClient1.userAttrs.phone,
+                phone,
                 unitName: unitName2,
             })
 
@@ -418,13 +418,13 @@ describe('Ticket', () => {
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const unitName = faker.random.alphaNumeric(5)
-            const userAttrs = residentClient.userAttrs
+            const { phone } = residentClient.userAttrs
 
             await createTestResident(admin, residentClient.user, organization, property, {
                 unitName,
             })
             const [contact] = await createTestContact(admin, organization, property, {
-                phone: userAttrs.phone,
+                phone,
                 unitName,
             })
             await createTestTicket(admin, organization, property, {
@@ -451,13 +451,13 @@ describe('Ticket', () => {
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const unitName = faker.random.alphaNumeric(5)
-            const userAttrs = residentClient.userAttrs
+            const { phone } = residentClient.userAttrs
 
             await createTestResident(admin, residentClient.user, organization, property, {
                 unitName,
             })
             const [contact] = await createTestContact(admin, organization, property, {
-                phone: userAttrs.phone,
+                phone: phone,
                 unitName,
             })
             const [ticket] = await createTestTicket(admin, organization, property, {
@@ -487,13 +487,13 @@ describe('Ticket', () => {
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const unitName = faker.random.alphaNumeric(5)
-            const userAttrs = residentClient.userAttrs
+            const { phone } = residentClient.userAttrs
 
             await createTestResident(admin, residentClient.user, organization, property, {
                 unitName,
             })
             const [contact] = await createTestContact(admin, organization, property, {
-                phone: userAttrs.phone,
+                phone: phone,
                 unitName,
             })
             const [ticket] = await createTestTicket(admin, organization, property, {
@@ -523,14 +523,14 @@ describe('Ticket', () => {
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const unitName = faker.random.alphaNumeric(5)
-            const userAttrs = residentClient.userAttrs
+            const { phone } = residentClient.userAttrs
             const newDetails = faker.random.alphaNumeric(5)
 
             await createTestResident(admin, residentClient.user, organization, property, {
                 unitName,
             })
             const [contact] = await createTestContact(admin, organization, property, {
-                phone: userAttrs.phone,
+                phone,
                 unitName,
             })
             const [ticket] = await createTestTicket(admin, organization, property, {
