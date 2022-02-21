@@ -3,15 +3,15 @@
  */
 
 const { Text, Checkbox } = require('@keystonejs/fields')
+
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
-const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
-const access = require('@condo/domains/billing/access/BillingRecipient')
-const { IMPORT_ID_FIELD } = require('@condo/domains/billing/common/schema/fields')
-const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
+const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const access = require('@condo/domains/billing/access/BillingRecipient')
+const { INTEGRATION_CONTEXT_FIELD } = require('@condo/domains/billing/schema/fields/relations')
 
 const BillingRecipient = new GQLListSchema('BillingRecipient', {
     schemaDoc: 'Organization\' billing information: bank account, bic, and so on',
