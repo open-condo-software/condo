@@ -19723,7 +19723,7 @@ export type Payment = {
   context?: Maybe<AcquiringIntegrationContext>;
   /**  Direct link to organization, since acquiring context cannot be defined for some payments  */
   organization?: Maybe<Organization>;
-  /**  Status of payment. Can be: "CREATED", "PROCESSING", "DONE", "ERROR"  */
+  /**  Status of payment. Can be: "CREATED", "PROCESSING", "DONE", "ERROR", "WITHDRAWN"  */
   status?: Maybe<Scalars['String']>;
   /**  Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address  */
   recipientBic?: Maybe<Scalars['String']>;
