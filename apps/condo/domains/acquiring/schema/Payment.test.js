@@ -31,7 +31,15 @@ const {
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { PAYMENT_ERROR_STATUS, PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS, PAYMENT_REQUIRED_FIELDS, PAYMENT_FROZEN_FIELDS } = require('@condo/domains/acquiring/constants/payment')
+const {
+    PAYMENT_ERROR_STATUS,
+    PAYMENT_INIT_STATUS,
+    PAYMENT_DONE_STATUS,
+    PAYMENT_WITHDRAWN_STATUS,
+    PAYMENT_PROCESSING_STATUS,
+    PAYMENT_REQUIRED_FIELDS,
+    PAYMENT_FROZEN_FIELDS,
+} = require('@condo/domains/acquiring/constants/payment')
 const {
     PAYMENT_NO_PAIRED_FROZEN_RECEIPT,
     PAYMENT_NO_PAIRED_RECEIPT,
@@ -442,16 +450,33 @@ describe('Payment', () => {
                 }, PAYMENT_NOT_ALLOWED_TRANSITION)
             })
             describe('Cannot updated payment without specifying required fields', () => {
-                const cases = Object.keys(PAYMENT_REQUIRED_FIELDS).map(status => {
-                    return PAYMENT_REQUIRED_FIELDS[status].map(field => [status, field])
+                const requiredRelations = ['multiPayment', 'context']
+                const transitions = [
+                    [PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS],
+                    [PAYMENT_INIT_STATUS, PAYMENT_DONE_STATUS],
+                    [PAYMENT_INIT_STATUS, PAYMENT_ERROR_STATUS],
+                    [PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS],
+                ]
+                const cases = transitions.map(transition => {
+                    return PAYMENT_REQUIRED_FIELDS[transition[1]].map(field => [transition[1], field, transition[0]])
                 }).flat(1)
-                test.each(cases)('Status: %p,  missing field: %p', async (status, field) => {
-                    const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
+                test.each(cases)('Status: %p, missing field: %p', async (statusTo, field, statusFrom) => {
+                    const { admin, organization, acquiringContext, billingReceipts, client, acquiringIntegration } = await makePayer()
                     const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                    if (statusFrom !== PAYMENT_INIT_STATUS) {
+                        await createTestMultiPayment(admin, [payment], client.user, acquiringIntegration)
+                        const [updatedPayment] = await updateTestPayment(admin, payment.id, {
+                            status: statusFrom,
+                        })
+                        expect(updatedPayment).toBeDefined()
+                    }
+
+                    const fieldValue = requiredRelations.includes(field) ? { disconnectAll: true } : null
+
                     await expectToThrowValidationFailureError(async () => {
                         await updateTestPayment(admin, payment.id, {
-                            status,
-                            [field]: null,
+                            status: statusTo,
+                            [field]: fieldValue,
                         })
                     }, PAYMENT_MISSING_REQUIRED_FIELDS)
                 })
