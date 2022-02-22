@@ -264,7 +264,7 @@ async function renderTemplate (transport, message) {
                 Версия приложения: ${appVersion}
                 Email: ${emailFrom ? emailFrom : 'не указан'}
                 Сообщение: ${text}
-                УК: ${organizationsData.map(({ name, inn }) => `
+                УК: ${organizationsData.length === 0 ? 'нет' : organizationsData.map(({ name, inn }) => `
                   - ${name}. ИНН: ${inn}`).join('')}
             `,
         }
