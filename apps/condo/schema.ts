@@ -40,13 +40,13 @@ export type AcquiringIntegration = {
   sender?: Maybe<SenderField>;
   /**  Name of `acquiring component`, which is set up by developer  */
   name?: Maybe<Scalars['String']>;
-  /**  Short acquiring description, that would be shown on settings card  */
+  /**  Short integration description, that would be shown on settings card  */
   shortDescription?: Maybe<Scalars['String']>;
   /**  Title of confirmation/details page of integration  */
   detailsTitle?: Maybe<Scalars['String']>;
   /**  Text of confirmation/details page of integration written in markdown  */
   detailsText?: Maybe<Scalars['String']>;
-  /**  Indicates whether this integration is hidden inside the CRM  */
+  /**  Indicates whether the integration is hidden inside the CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
   accessRights: Array<AcquiringIntegrationAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
@@ -58,7 +58,7 @@ export type AcquiringIntegration = {
   supportedBillingIntegrations: Array<BillingIntegration>;
   _supportedBillingIntegrationsMeta?: Maybe<_QueryMeta>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
-  explicitFeeDistributionSchema: Array<FeeDistributionField>;
+  explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -449,7 +449,7 @@ export type AcquiringIntegrationContext = {
   /**  The current state of the integration process. Some integration need to store past state here, additional data and etc.  */
   state?: Maybe<Scalars['JSON']>;
   /**  Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored  */
-  implicitFeeDistributionSchema: Array<FeeDistributionField>;
+  implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -820,7 +820,7 @@ export type AcquiringIntegrationHistoryRecord = {
   name?: Maybe<Scalars['String']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
-  detailsText?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['JSON']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
@@ -844,7 +844,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
-  detailsText?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['JSON']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
@@ -873,7 +873,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
-  detailsText?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['JSON']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
@@ -959,24 +959,10 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   detailsTitle_not_ends_with_i?: Maybe<Scalars['String']>;
   detailsTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailsTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsText?: Maybe<Scalars['String']>;
-  detailsText_not?: Maybe<Scalars['String']>;
-  detailsText_contains?: Maybe<Scalars['String']>;
-  detailsText_not_contains?: Maybe<Scalars['String']>;
-  detailsText_starts_with?: Maybe<Scalars['String']>;
-  detailsText_not_starts_with?: Maybe<Scalars['String']>;
-  detailsText_ends_with?: Maybe<Scalars['String']>;
-  detailsText_not_ends_with?: Maybe<Scalars['String']>;
-  detailsText_i?: Maybe<Scalars['String']>;
-  detailsText_not_i?: Maybe<Scalars['String']>;
-  detailsText_contains_i?: Maybe<Scalars['String']>;
-  detailsText_not_contains_i?: Maybe<Scalars['String']>;
-  detailsText_starts_with_i?: Maybe<Scalars['String']>;
-  detailsText_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsText_ends_with_i?: Maybe<Scalars['String']>;
-  detailsText_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsText?: Maybe<Scalars['JSON']>;
+  detailsText_not?: Maybe<Scalars['JSON']>;
+  detailsText_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  detailsText_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
@@ -3434,7 +3420,7 @@ export type BillingIntegrationHistoryRecord = {
   name?: Maybe<Scalars['String']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
-  detailsText?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['JSON']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
@@ -3463,7 +3449,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
-  detailsText?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['JSON']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
@@ -3497,7 +3483,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
-  detailsText?: Maybe<Scalars['String']>;
+  detailsText?: Maybe<Scalars['JSON']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonText?: Maybe<Scalars['String']>;
   detailsInstructionButtonLink?: Maybe<Scalars['String']>;
@@ -3588,24 +3574,10 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   detailsTitle_not_ends_with_i?: Maybe<Scalars['String']>;
   detailsTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailsTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsText?: Maybe<Scalars['String']>;
-  detailsText_not?: Maybe<Scalars['String']>;
-  detailsText_contains?: Maybe<Scalars['String']>;
-  detailsText_not_contains?: Maybe<Scalars['String']>;
-  detailsText_starts_with?: Maybe<Scalars['String']>;
-  detailsText_not_starts_with?: Maybe<Scalars['String']>;
-  detailsText_ends_with?: Maybe<Scalars['String']>;
-  detailsText_not_ends_with?: Maybe<Scalars['String']>;
-  detailsText_i?: Maybe<Scalars['String']>;
-  detailsText_not_i?: Maybe<Scalars['String']>;
-  detailsText_contains_i?: Maybe<Scalars['String']>;
-  detailsText_not_contains_i?: Maybe<Scalars['String']>;
-  detailsText_starts_with_i?: Maybe<Scalars['String']>;
-  detailsText_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsText_ends_with_i?: Maybe<Scalars['String']>;
-  detailsText_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailsText?: Maybe<Scalars['JSON']>;
+  detailsText_not?: Maybe<Scalars['JSON']>;
+  detailsText_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  detailsText_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
   detailsConfirmButtonText_not?: Maybe<Scalars['String']>;
   detailsConfirmButtonText_contains?: Maybe<Scalars['String']>;
@@ -11503,9 +11475,11 @@ export type MultiPayment = {
   sender?: Maybe<SenderField>;
   /**  Total amount of withdraw. amount = amountWithoutExplicitFee + explicitFee  */
   amount?: Maybe<Scalars['String']>;
-  /**  The amount of commission which resident pay on top of amount  */
+  /**  Amount of money which payer pays on top of initial "amount", which counts as fee for total "amount"  */
   explicitFee?: Maybe<Scalars['String']>;
-  /**  The amount of money charged by service (Doma) for the provision of service. Can be explicit or implicit  */
+  /**  Amount of money which payer pays on top of initial "amount", which counts as internal service charge for all payments  */
+  explicitServiceCharge?: Maybe<Scalars['String']>;
+  /**  The amount of money charged by service (Doma) for the provision of service after subtracting from it the shares of all participants in the process. Can be part of explicit fee, implicit fee or explicit service charge  */
   serviceFee?: Maybe<Scalars['String']>;
   /**  Total amount of money charged from recipients of multipayment as fee for transaction  */
   implicitFee?: Maybe<Scalars['String']>;
@@ -11529,7 +11503,7 @@ export type MultiPayment = {
   importId?: Maybe<Scalars['String']>;
   /**  Additional acquiring-specific information  */
   meta?: Maybe<Scalars['JSON']>;
-  /**  Status of multipayment. Can be: "CREATED", "DONE", "PROCESSING", "ERROR"  */
+  /**  Status of multipayment. Can be: "CREATED", "DONE", "PROCESSING", "ERROR", "WITHDRAWN"  */
   status?: Maybe<Scalars['String']>;
   /**  Link to user  */
   user?: Maybe<User>;
@@ -11574,6 +11548,7 @@ export type MultiPaymentCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   explicitFee?: Maybe<Scalars['String']>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   serviceFee?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
   amountWithoutExplicitFee?: Maybe<Scalars['String']>;
@@ -11614,6 +11589,7 @@ export type MultiPaymentHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['JSON']>;
   explicitFee?: Maybe<Scalars['String']>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   serviceFee?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
   amountWithoutExplicitFee?: Maybe<Scalars['String']>;
@@ -11647,6 +11623,7 @@ export type MultiPaymentHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['JSON']>;
   explicitFee?: Maybe<Scalars['String']>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   serviceFee?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
   amountWithoutExplicitFee?: Maybe<Scalars['String']>;
@@ -11685,6 +11662,7 @@ export type MultiPaymentHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['JSON']>;
   explicitFee?: Maybe<Scalars['String']>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   serviceFee?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
   amountWithoutExplicitFee?: Maybe<Scalars['String']>;
@@ -11739,6 +11717,14 @@ export type MultiPaymentHistoryRecordWhereInput = {
   explicitFee_gte?: Maybe<Scalars['String']>;
   explicitFee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
+  explicitServiceCharge_not?: Maybe<Scalars['String']>;
+  explicitServiceCharge_lt?: Maybe<Scalars['String']>;
+  explicitServiceCharge_lte?: Maybe<Scalars['String']>;
+  explicitServiceCharge_gt?: Maybe<Scalars['String']>;
+  explicitServiceCharge_gte?: Maybe<Scalars['String']>;
+  explicitServiceCharge_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  explicitServiceCharge_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   serviceFee?: Maybe<Scalars['String']>;
   serviceFee_not?: Maybe<Scalars['String']>;
   serviceFee_lt?: Maybe<Scalars['String']>;
@@ -12017,6 +12003,7 @@ export type MultiPaymentUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   explicitFee?: Maybe<Scalars['String']>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   serviceFee?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
   amountWithoutExplicitFee?: Maybe<Scalars['String']>;
@@ -12065,6 +12052,14 @@ export type MultiPaymentWhereInput = {
   explicitFee_gte?: Maybe<Scalars['String']>;
   explicitFee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
+  explicitServiceCharge_not?: Maybe<Scalars['String']>;
+  explicitServiceCharge_lt?: Maybe<Scalars['String']>;
+  explicitServiceCharge_lte?: Maybe<Scalars['String']>;
+  explicitServiceCharge_gt?: Maybe<Scalars['String']>;
+  explicitServiceCharge_gte?: Maybe<Scalars['String']>;
+  explicitServiceCharge_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  explicitServiceCharge_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   serviceFee?: Maybe<Scalars['String']>;
   serviceFee_not?: Maybe<Scalars['String']>;
   serviceFee_lt?: Maybe<Scalars['String']>;
@@ -13474,16 +13469,241 @@ export type Mutation = {
   deletePayment?: Maybe<Payment>;
   /**  Delete multiple Payment items by ID.  */
   deletePayments?: Maybe<Array<Maybe<Payment>>>;
+  /**
+   * Registers new user and sends notification
+   *
+   * User will be registered only in case of correct provided token of phone confirmation action. After successful registration, phone confirmation action will be marked as completed and will not be allowed for further usage
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "registerNewUser",
+   *   "variable": [
+   *     "data",
+   *     "confirmPhoneActionToken"
+   *   ],
+   *   "message": "Unable to find confirm phone action"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerNewUser",
+   *   "variable": [
+   *     "data",
+   *     "phone"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Wrong format of provided phone number",
+   *   "correctExample": "+79991234567"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerNewUser",
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Password length is less then {min} characters",
+   *   "messageForUser": "api.user.registerNewUser.PASSWORD_IS_TOO_SHORT",
+   *   "messageInterpolation": {
+   *     "min": 8
+   *   }
+   * }`
+   *
+   * `{
+   *   "mutation": "registerNewUser",
+   *   "variable": [
+   *     "data",
+   *     "phone"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_UNIQUE",
+   *   "message": "User with specified phone already exists"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerNewUser",
+   *   "variable": [
+   *     "data",
+   *     "email"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_UNIQUE",
+   *   "message": "User with specified email already exists"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerNewUser",
+   *   "code": "INTERNAL_ERROR",
+   *   "message": "Unable to create user"
+   * }`
+   */
   registerNewUser?: Maybe<User>;
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
+  /**
+   * Beginning of a multi-step process of a password recovery.
+   * 1. Start recovery and get token to confirm phone number
+   * 2. Confirm phone number
+   * 3. Call `changePasswordWithToken` mutation
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "startPasswordRecovery",
+   *   "variable": [
+   *     "data",
+   *     "phone"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "USER_BY_PHONE_NOT_FOUND",
+   *   "message": "Unable to find user with specified phone"
+   * }`
+   *
+   * `{
+   *   "mutation": "startPasswordRecovery",
+   *   "variable": [
+   *     "data",
+   *     "phone"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "MULTIPLE_USERS_FOUND",
+   *   "message": "Unable to find exact one user to start password recovery"
+   * }`
+   */
   startPasswordRecovery?: Maybe<StartPasswordRecoveryOutput>;
+  /**
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "changePasswordWithToken",
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_IS_TOO_SHORT",
+   *   "message": "Password length is less then {min} characters",
+   *   "messageForUser": "api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT",
+   *   "messageInterpolation": {
+   *     "min": 8
+   *   }
+   * }`
+   *
+   * `{
+   *   "mutation": "changePasswordWithToken",
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "TOKEN_NOT_FOUND",
+   *   "message": "Unable to find non-expired ConfirmPhoneAction by specified token",
+   *   "messageForUser": "api.user.changePasswordWithToken.TOKEN_NOT_FOUND"
+   * }`
+   *
+   * `{
+   *   "mutation": "changePasswordWithToken",
+   *   "variable": [
+   *     "data",
+   *     "phone"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "USER_NOT_FOUND",
+   *   "message": "Unable to find user with specified phone"
+   * }`
+   */
   changePasswordWithToken?: Maybe<ChangePasswordWithTokenOutput>;
   startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
   resendConfirmPhoneActionSms?: Maybe<ResendConfirmPhoneActionSmsOutput>;
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
+  /**
+   * Authenticates resident user for mobile apps
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "signinResidentUser",
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "TOKEN_NOT_FOUND",
+   *   "message": "Unable to find a non-expired confirm phone action, that corresponds to provided token"
+   * }`
+   *
+   * `{
+   *   "code": "INTERNAL_ERROR",
+   *   "mutation": "signinResidentUser",
+   *   "message": "Something went wrong while trying to create a User record"
+   * }`
+   */
   signinResidentUser?: Maybe<SigninResidentUserOutput>;
+  /**
+   * Changes a phone of a resident, that corresponds to confirmed phone number, specified via token
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "mutation": "changePhoneNumberResidentUser",
+   *   "message": "Unable to find a non-expired confirm phone action, that corresponds to provided token",
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ]
+   * }`
+   */
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
+  /**
+   * Authenticates as an another user to be able to see the system, as it does
+   *
+   * You cannot authenticate for another admin or support or whatever kind of a non-client user
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "signinAsUser",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "USER_NOT_FOUND",
+   *   "message": "Could not find a user with a specified id"
+   * }`
+   *
+   * `{
+   *   "mutation": "signinAsUser",
+   *   "code": "FORBIDDEN",
+   *   "message": "You cannot authenticate for an another admin user"
+   * }`
+   *
+   * `{
+   *   "mutation": "signinAsUser",
+   *   "code": "FORBIDDEN",
+   *   "message": "You cannot authenticate for an another support user"
+   * }`
+   */
   signinAsUser?: Maybe<SigninAsUserOutput>;
+  registerNewServiceUser?: Maybe<RegisterNewServiceUserOutput>;
   sendMessageToSupport?: Maybe<SendMessageToSupportOutput>;
   registerNewOrganization?: Maybe<Organization>;
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -16658,6 +16878,11 @@ export type MutationSigninAsUserArgs = {
 };
 
 
+export type MutationRegisterNewServiceUserArgs = {
+  data: RegisterNewServiceUserInput;
+};
+
+
 export type MutationSendMessageToSupportArgs = {
   data: SendMessageToSupportInput;
 };
@@ -19699,10 +19924,14 @@ export type Payment = {
   sender?: Maybe<SenderField>;
   /**  Amount of money from MultiPayment.amountWithOutExplicitFee to pay for billing receipt  */
   amount?: Maybe<Scalars['String']>;
-  /**  Amount of money which payer pays on top of initial "amount"  */
+  /**  Amount of money which payer pays on top of initial "amount", which counts as fee for every service which is not housing and communal services  */
   explicitFee?: Maybe<Scalars['String']>;
+  /**  Amount of money which payer pays on top of initial "amount", which counts as internal service charge for all payments from housing and communal services category  */
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   /**  Amount of money which recipient pays from initial amount for transaction  */
   implicitFee?: Maybe<Scalars['String']>;
+  /**  The amount of money charged by our service for the provision of service after subtracting from it the shares of all participants in the process. Can be part of explicit fee, implicit fee or explicit service charge  */
+  serviceFee?: Maybe<Scalars['String']>;
   /**  Code of currency in ISO-4217 format  */
   currencyCode?: Maybe<Scalars['String']>;
   /**  Time at which money was advanced to recipient's account  */
@@ -19754,7 +19983,9 @@ export type PaymentCreateInput = {
   sender?: Maybe<SenderFieldInput>;
   amount?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
+  serviceFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -19793,7 +20024,9 @@ export type PaymentHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
+  serviceFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -19826,7 +20059,9 @@ export type PaymentHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
+  serviceFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -19864,7 +20099,9 @@ export type PaymentHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
+  serviceFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -19922,6 +20159,14 @@ export type PaymentHistoryRecordWhereInput = {
   explicitFee_gte?: Maybe<Scalars['String']>;
   explicitFee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
+  explicitServiceCharge_not?: Maybe<Scalars['String']>;
+  explicitServiceCharge_lt?: Maybe<Scalars['String']>;
+  explicitServiceCharge_lte?: Maybe<Scalars['String']>;
+  explicitServiceCharge_gt?: Maybe<Scalars['String']>;
+  explicitServiceCharge_gte?: Maybe<Scalars['String']>;
+  explicitServiceCharge_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  explicitServiceCharge_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   implicitFee?: Maybe<Scalars['String']>;
   implicitFee_not?: Maybe<Scalars['String']>;
   implicitFee_lt?: Maybe<Scalars['String']>;
@@ -19930,6 +20175,14 @@ export type PaymentHistoryRecordWhereInput = {
   implicitFee_gte?: Maybe<Scalars['String']>;
   implicitFee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   implicitFee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  serviceFee?: Maybe<Scalars['String']>;
+  serviceFee_not?: Maybe<Scalars['String']>;
+  serviceFee_lt?: Maybe<Scalars['String']>;
+  serviceFee_lte?: Maybe<Scalars['String']>;
+  serviceFee_gt?: Maybe<Scalars['String']>;
+  serviceFee_gte?: Maybe<Scalars['String']>;
+  serviceFee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  serviceFee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   currencyCode?: Maybe<Scalars['String']>;
   currencyCode_not?: Maybe<Scalars['String']>;
   currencyCode_contains?: Maybe<Scalars['String']>;
@@ -20183,7 +20436,9 @@ export type PaymentUpdateInput = {
   sender?: Maybe<SenderFieldInput>;
   amount?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
   implicitFee?: Maybe<Scalars['String']>;
+  serviceFee?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   advancedAt?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
@@ -20238,6 +20493,14 @@ export type PaymentWhereInput = {
   explicitFee_gte?: Maybe<Scalars['String']>;
   explicitFee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  explicitServiceCharge?: Maybe<Scalars['String']>;
+  explicitServiceCharge_not?: Maybe<Scalars['String']>;
+  explicitServiceCharge_lt?: Maybe<Scalars['String']>;
+  explicitServiceCharge_lte?: Maybe<Scalars['String']>;
+  explicitServiceCharge_gt?: Maybe<Scalars['String']>;
+  explicitServiceCharge_gte?: Maybe<Scalars['String']>;
+  explicitServiceCharge_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  explicitServiceCharge_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   implicitFee?: Maybe<Scalars['String']>;
   implicitFee_not?: Maybe<Scalars['String']>;
   implicitFee_lt?: Maybe<Scalars['String']>;
@@ -20246,6 +20509,14 @@ export type PaymentWhereInput = {
   implicitFee_gte?: Maybe<Scalars['String']>;
   implicitFee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   implicitFee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  serviceFee?: Maybe<Scalars['String']>;
+  serviceFee_not?: Maybe<Scalars['String']>;
+  serviceFee_lt?: Maybe<Scalars['String']>;
+  serviceFee_lte?: Maybe<Scalars['String']>;
+  serviceFee_gt?: Maybe<Scalars['String']>;
+  serviceFee_gte?: Maybe<Scalars['String']>;
+  serviceFee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  serviceFee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   currencyCode?: Maybe<Scalars['String']>;
   currencyCode_not?: Maybe<Scalars['String']>;
   currencyCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -21807,6 +22078,26 @@ export type Query = {
   _PaymentsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
+  /**
+   * Tells, whether specified password recovery token is exists and not expired
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "checkPasswordRecoveryToken",
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "TOKEN_NOT_FOUND",
+   *   "message": "Unable to find non-expired token"
+   * }`
+   */
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
@@ -24437,6 +24728,21 @@ export type RegisterNewOrganizationInput = {
   avatar?: Maybe<Scalars['Upload']>;
 };
 
+export type RegisterNewServiceUserInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  name: Scalars['String'];
+  email: Scalars['String'];
+  meta?: Maybe<Scalars['JSON']>;
+};
+
+export type RegisterNewServiceUserOutput = {
+  __typename?: 'RegisterNewServiceUserOutput';
+  id: Scalars['ID'];
+  email: Scalars['String'];
+  password: Scalars['String'];
+};
+
 export type RegisterNewUserInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -25259,6 +25565,29 @@ export type SendMessageToInput = {
   user?: Maybe<UserWhereUniqueInput>;
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
+};
+
+export type SendMessageToSupportInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  text: Scalars['String'];
+  emailFrom?: Maybe<Scalars['String']>;
+  attachments?: Maybe<Array<Maybe<Scalars['Upload']>>>;
+  os: Scalars['String'];
+  appVersion: Scalars['String'];
+  lang: SendMessageToSupportLang;
+  meta: Scalars['JSON'];
+};
+
+export enum SendMessageToSupportLang {
+  Ru = 'ru',
+  En = 'en'
+}
+
+export type SendMessageToSupportOutput = {
+  __typename?: 'SendMessageToSupportOutput';
+  id: Scalars['String'];
+  status: Scalars['String'];
 };
 
 export enum SendMessageType {
@@ -26892,8 +27221,6 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   ShortDescriptionDesc = 'shortDescription_DESC',
   DetailsTitleAsc = 'detailsTitle_ASC',
   DetailsTitleDesc = 'detailsTitle_DESC',
-  DetailsTextAsc = 'detailsText_ASC',
-  DetailsTextDesc = 'detailsText_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
   CanGroupReceiptsAsc = 'canGroupReceipts_ASC',
@@ -27186,8 +27513,6 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   ShortDescriptionDesc = 'shortDescription_DESC',
   DetailsTitleAsc = 'detailsTitle_ASC',
   DetailsTitleDesc = 'detailsTitle_DESC',
-  DetailsTextAsc = 'detailsText_ASC',
-  DetailsTextDesc = 'detailsText_DESC',
   DetailsConfirmButtonTextAsc = 'detailsConfirmButtonText_ASC',
   DetailsConfirmButtonTextDesc = 'detailsConfirmButtonText_DESC',
   DetailsInstructionButtonTextAsc = 'detailsInstructionButtonText_ASC',
@@ -28147,6 +28472,8 @@ export enum SortMultiPaymentHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   ExplicitFeeAsc = 'explicitFee_ASC',
   ExplicitFeeDesc = 'explicitFee_DESC',
+  ExplicitServiceChargeAsc = 'explicitServiceCharge_ASC',
+  ExplicitServiceChargeDesc = 'explicitServiceCharge_DESC',
   ServiceFeeAsc = 'serviceFee_ASC',
   ServiceFeeDesc = 'serviceFee_DESC',
   ImplicitFeeAsc = 'implicitFee_ASC',
@@ -28192,6 +28519,8 @@ export enum SortMultiPaymentsBy {
   DvDesc = 'dv_DESC',
   ExplicitFeeAsc = 'explicitFee_ASC',
   ExplicitFeeDesc = 'explicitFee_DESC',
+  ExplicitServiceChargeAsc = 'explicitServiceCharge_ASC',
+  ExplicitServiceChargeDesc = 'explicitServiceCharge_DESC',
   ServiceFeeAsc = 'serviceFee_ASC',
   ServiceFeeDesc = 'serviceFee_DESC',
   ImplicitFeeAsc = 'implicitFee_ASC',
@@ -28653,8 +28982,12 @@ export enum SortPaymentHistoryRecordsBy {
   AmountDesc = 'amount_DESC',
   ExplicitFeeAsc = 'explicitFee_ASC',
   ExplicitFeeDesc = 'explicitFee_DESC',
+  ExplicitServiceChargeAsc = 'explicitServiceCharge_ASC',
+  ExplicitServiceChargeDesc = 'explicitServiceCharge_DESC',
   ImplicitFeeAsc = 'implicitFee_ASC',
   ImplicitFeeDesc = 'implicitFee_DESC',
+  ServiceFeeAsc = 'serviceFee_ASC',
+  ServiceFeeDesc = 'serviceFee_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
   CurrencyCodeDesc = 'currencyCode_DESC',
   AdvancedAtAsc = 'advancedAt_ASC',
@@ -28696,8 +29029,12 @@ export enum SortPaymentsBy {
   AmountDesc = 'amount_DESC',
   ExplicitFeeAsc = 'explicitFee_ASC',
   ExplicitFeeDesc = 'explicitFee_DESC',
+  ExplicitServiceChargeAsc = 'explicitServiceCharge_ASC',
+  ExplicitServiceChargeDesc = 'explicitServiceCharge_DESC',
   ImplicitFeeAsc = 'implicitFee_ASC',
   ImplicitFeeDesc = 'implicitFee_DESC',
+  ServiceFeeAsc = 'serviceFee_ASC',
+  ServiceFeeDesc = 'serviceFee_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
   CurrencyCodeDesc = 'currencyCode_DESC',
   AdvancedAtAsc = 'advancedAt_ASC',
@@ -30049,29 +30386,6 @@ export type StartPasswordRecoveryInput = {
 
 export type StartPasswordRecoveryOutput = {
   __typename?: 'StartPasswordRecoveryOutput';
-  status: Scalars['String'];
-};
-
-export type SendMessageToSupportInput = {
-  dv: Scalars['Int'];
-  sender: SenderFieldInput;
-  text: Scalars['String'];
-  emailFrom?: Maybe<Scalars['String']>;
-  attachments?: Maybe<Array<Maybe<Scalars['Upload']>>>;
-  os: Scalars['String'];
-  appVersion: Scalars['String'];
-  lang: SendMessageToSupportLang;
-  meta: Scalars['JSON'];
-};
-
-export enum SendMessageToSupportLang {
-  Ru = 'ru',
-  En = 'en'
-}
-
-export type SendMessageToSupportOutput = {
-  __typename?: 'SendMessageToSupportOutput';
-  id: Scalars['String'];
   status: Scalars['String'];
 };
 
@@ -37295,7 +37609,8 @@ export type UserRelateToOneInput = {
 
 export enum UserTypeType {
   Staff = 'staff',
-  Resident = 'resident'
+  Resident = 'resident',
+  Service = 'service'
 }
 
 export type UserUpdateInput = {
