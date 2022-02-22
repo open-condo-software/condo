@@ -23,6 +23,7 @@ interface IGetOptionGroupBySectionType {
 }
 
 export type UnitNameInputOption = LabeledValue & { 'data-unitType': BuildingUnitType, 'data-unitName': string }
+const BASE_UNIT_NAME_INPUT_OPTION_STYLE: React.CSSProperties = { paddingLeft: '12px' }
 
 const getOptionGroupBySectionType: IGetOptionGroupBySectionType = (props) => {
     const { sections, unitType, groupLabel } = props
@@ -49,6 +50,7 @@ const getOptionGroupBySectionType: IGetOptionGroupBySectionType = (props) => {
                 data-unitType={unitType}
                 data-unitName={String(unit.label)}
                 title={String(unit.label)}
+                style={BASE_UNIT_NAME_INPUT_OPTION_STYLE}
             >
                 {unit.label}
             </Select.Option>
