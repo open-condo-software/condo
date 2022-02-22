@@ -29,6 +29,8 @@ const NOT_UNIQUE = 'NOT_UNIQUE'
 // Provided value does not matches specified format. For example not matches regexp, string length requirement etc.
 const WRONG_FORMAT = 'WRONG_FORMAT'
 
+const DV_VERSION_MISMATCH = 'DV_VERSION_MISMATCH'
+
 module.exports = {
     PHONE_WRONG_FORMAT_ERROR,
     EMAIL_WRONG_FORMAT_ERROR,
@@ -41,6 +43,7 @@ module.exports = {
     UNIQUE_ALREADY_EXISTS_ERROR,
     REQUIRED_NO_VALUE_ERROR,
     DV_UNKNOWN_VERSION_ERROR,
+    DV_VERSION_MISMATCH,
     ALREADY_EXISTS_ERROR,
     NOT_FOUND_ERROR,
     NOT_FOUND,

@@ -7,11 +7,32 @@ const access = require('@condo/domains/property/access/CheckPropertyWithAddressE
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const get = require('lodash/get')
 const { addressMetaJsonValidator } = require('../schema/fields/AddressMetaField')
-const { getAddressUpToBuildingFrom, FLAT_WITHOUT_FLAT_TYPE_MESSAGE } = require('../utils/serverSchema/helpers')
+const { getAddressUpToBuildingFrom } = require('../utils/serverSchema/helpers')
 
 const NO_OBJECT_MESSAGE = 'No object specified!'
 const META_INCORRECT_JSON_MESSAGE = 'AddressMeta Json had incorrect format!'
 const DV_VERSION_MISMATCH_MESSAGE = 'Unknown version of addressMeta! Expected "dv" to equal 1'
+
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { FLAT_WITHOUT_FLAT_TYPE } = require('../constants/errors')
+
+const errors = {
+    DV_VERSION_MISMATCH: {
+        query: 'checkPropertyWithAddressExist',
+        variable: ['data', 'addressMeta', 'dv'],
+        code: BAD_USER_INPUT,
+        type: DV_VERSION_MISMATCH,
+        message: 'Version number value {dv} is incorrect',
+    },
+    FLAT_WITHOUT_FLAT_TYPE: {
+        query: 'checkPropertyWithAddressExist',
+        variable: ['data', 'addressMeta', 'flatType'],
+        code: BAD_USER_INPUT,
+        type: FLAT_WITHOUT_FLAT_TYPE,
+        message: 'Flat type is not specified',
+    },
+}
 
 const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyWithAddressExistService', {
     types: [
@@ -38,12 +59,17 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
 
                 const dv = get(addressMeta, 'dv')
                 if (dv !== 1) {
-                    throw new Error(DV_VERSION_MISMATCH_MESSAGE)
+                    throw new GQLError({
+                        ...errors.DV_VERSION_MISMATCH,
+                        messageInterpolation: {
+                            dv,
+                        },
+                    })
                 }
                 const flat = get(addressMeta, ['data', 'flat'])
                 const flatType = get(addressMeta, ['data', 'flat_type'])
                 if (flat && !flatType) {
-                    throw new Error(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
+                    throw new GQLError(errors.FLAT_WITHOUT_FLAT_TYPE)
                 }
 
                 const search = getAddressUpToBuildingFrom(addressMeta)
