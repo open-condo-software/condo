@@ -841,7 +841,7 @@ class MapEdit extends MapView {
             name: label,
             label,
             type: null,
-            unitType: BuildingUnitType.Flat,
+            unitType,
         }
         newUnit.type = BuildingMapEntityType.Unit
         if (!id) {

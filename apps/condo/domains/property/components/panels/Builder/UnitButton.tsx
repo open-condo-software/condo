@@ -130,6 +130,9 @@ const unitTypeCss = (unitType: BuildingUnitType) => css`
     opacity: ${['flat', 'parking'].includes(unitType) ? 1 : .6};
     background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
   }
+  &:focus {
+    background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
+  }
 `
 
 interface CustomButtonProps extends ButtonProps {
