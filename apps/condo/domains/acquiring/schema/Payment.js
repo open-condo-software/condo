@@ -89,7 +89,7 @@ const Payment = new GQLListSchema('Payment', {
 
         serviceFee: {
             ...NON_NEGATIVE_MONEY_FIELD,
-            schemaDoc: 'The amount of money charged by service (Doma) for the provision of service after subtracting from it the shares of all participants in the process. Can be part of explicit fee, implicit fee or explicit service charge',
+            schemaDoc: 'The amount of money charged by our service for the provision of service after subtracting from it the shares of all participants in the process. Can be part of explicit fee, implicit fee or explicit service charge',
             isRequired: false,
         },
 
