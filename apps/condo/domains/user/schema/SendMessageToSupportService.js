@@ -80,12 +80,18 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
 
                 const residents = await Resident.getAll(context, { user: { id: user.id } })
 
-                const organizationsIds = residents.map((resident) => {
-                    return resident.organization.id
-                })
-                const organizations = await Organization.getAll(context, { id_in: organizationsIds })
+                const organizationsIds = residents.reduce((accumulatedData, resident) => {
+                    if (resident.organization && resident.organization.id) {
+                        return [...accumulatedData, resident.organization.id]
+                    }
+                    return accumulatedData
+                }, [])
 
-                const organizationsData = organizations.map(({ name, meta: { inn } }) => ({ name, inn }))
+                let organizationsData = []
+                if (organizationsIds.length > 0) {
+                    const organizations = await Organization.getAll(context, { id_in: organizationsIds })
+                    organizationsData = organizations.map(({ name, meta: { inn } }) => ({ name, inn }))
+                }
 
                 const messageAttrs = {
                     sender,
