@@ -918,6 +918,7 @@
   "errors.import.IncorrectPhonesFormat": "Ни один из телефонов не соответсвует правильному формату",
   "errors.import.InvalidColumnTypes": "Обязательные колонки не были заполнены, или типы данных не соответствует указанным",
   "IncludingFee": "в том числе комиссия",
+  "IncludingServiceCharge": "в том числе сервисный сбор",
   "MultiPayment.status.DONE": "Завершено",
   "MultiPayment.status.PROCESSING": "В обработке",
   "MultiPayment.status.ERROR": "Ошибка",

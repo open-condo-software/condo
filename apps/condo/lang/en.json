@@ -918,6 +918,7 @@
   "errors.import.IncorrectPhonesFormat": "None of the phones are in a valid format",
   "errors.import.InvalidColumnTypes": "Required columns were empty or column's data types did not match required",
   "IncludingFee": "including fee",
+  "IncludingServiceCharge": "including service charge",
   "MultiPayment.status.DONE": "Done",
   "MultiPayment.status.PROCESSING": "Processing",
   "MultiPayment.status.ERROR": "Error",
