@@ -14,7 +14,7 @@ const META_INCORRECT_JSON_MESSAGE = 'AddressMeta Json had incorrect format!'
 const DV_VERSION_MISMATCH_MESSAGE = 'Unknown version of addressMeta! Expected "dv" to equal 1'
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
-const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { FLAT_WITHOUT_FLAT_TYPE } = require('../constants/errors')
 
 const errors = {
@@ -54,7 +54,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                 const { data: inputData } = args
                 // Later we will use "address" without "addressMeta"
                 const { addressMeta } = inputData
-                if (!addressMeta) throw new Error(NO_OBJECT_MESSAGE)
+                // TODO(antonal): get rid of this check, because a JSON structure is declared on GraphQL level and will get validated by Apollo
                 if (!addressMetaJsonValidator(addressMeta)) throw new Error(META_INCORRECT_JSON_MESSAGE)
 
                 const dv = get(addressMeta, 'dv')
