@@ -4,8 +4,6 @@
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { checkPropertyWithAddressExistByTestClient } = require('@condo/domains/property/utils/testSchema')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
-const { DV_VERSION_MISMATCH_MESSAGE } = require('./CheckPropertyWithAddressExistService')
-const { FLAT_WITHOUT_FLAT_TYPE_MESSAGE } = require('../utils/serverSchema/helpers')
 
 describe('CheckPropertyWithAddressExistService', async () => {
     test('user finds result', async () => {
@@ -44,7 +42,17 @@ describe('CheckPropertyWithAddressExistService', async () => {
             await catchErrorFrom(async () => {
                 await checkPropertyWithAddressExistByTestClient(client, payload)
             }, ({ errors }) => {
-                expect(errors[0].message).toEqual(DV_VERSION_MISMATCH_MESSAGE)
+                expect(errors).toMatchObject([{
+                    message: 'Version number value 2 is incorrect',
+                    path: ['result'],
+                    extensions: {
+                        query: 'checkPropertyWithAddressExist',
+                        variable: ['data', 'addressMeta', 'dv'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'DV_VERSION_MISMATCH',
+                        message: 'Version number value 2 is incorrect',
+                    },
+                }])
             })
         })
         test('if flat is specified without flat type', async () => {
@@ -57,7 +65,17 @@ describe('CheckPropertyWithAddressExistService', async () => {
             await catchErrorFrom(async () => {
                 await checkPropertyWithAddressExistByTestClient(client, payload)
             }, ({ errors }) => {
-                expect(errors[0].message).toEqual(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
+                expect(errors).toMatchObject([{
+                    message: 'Flat type is not specified',
+                    path: ['result'],
+                    extensions: {
+                        query: 'checkPropertyWithAddressExist',
+                        variable: ['data', 'addressMeta', 'flatType'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'FLAT_WITHOUT_FLAT_TYPE',
+                        message: 'Flat type is not specified',
+                    },
+                }])
             })
         })
         test('if addressMeta json has invalid format ', async () => {
