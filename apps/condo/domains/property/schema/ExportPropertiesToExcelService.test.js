@@ -5,7 +5,8 @@
 const { makeClient } = require('@core/keystone/test.utils')
 const { exportPropertiesToExcelByTestClient } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 
 // TODO(zuch): remove after tests will have obs configuration in .env
@@ -24,6 +25,26 @@ describe('ExportPropertiesToExcelService', () => {
                 const [{ status, linkToFile }] = await exportPropertiesToExcelByTestClient(client, { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC' })
                 expect(status).toBe('ok')
                 expect(linkToFile).not.toHaveLength(0)
+            }
+        })
+
+        it('throws error when no properties for export exist', async () => {
+            if (isObsConfigured()) {
+                const client = await makeClientWithRegisteredOrganization()
+                await catchErrorFrom(async () => {
+                    await exportPropertiesToExcelByTestClient(client, { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC' })
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'No properties found to export for specified organization',
+                        path: ['result'],
+                        extensions: {
+                            query: 'exportPropertiesToExcel',
+                            code: 'BAD_USER_INPUT',
+                            type: 'NOTHING_TO_EXPORT',
+                            message: 'No properties found to export for specified organization',
+                        },
+                    }])
+                })
             }
         })
 
