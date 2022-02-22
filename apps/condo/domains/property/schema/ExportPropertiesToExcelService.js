@@ -5,11 +5,21 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/property/access/ExportPropertiesToExcelService')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
-const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const dayjs = require('dayjs')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema/')
 
+const errors = {
+    NOTHING_TO_EXPORT: {
+        query: 'exportPropertiesToExcel',
+        code: BAD_USER_INPUT,
+        type: NOTHING_TO_EXPORT,
+        message: 'No properties found to export for specified organization',
+        messageForUser: 'api.property.exportPropertiesToExcel.NOTHING_TO_EXPORT',
+    },
+}
 
 // TODO(zuch): use workers for export
 const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToExcelService', {
@@ -37,7 +47,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
                     sortBy,
                 })
                 if (allProperties.length === 0) {
-                    throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
+                    throw new GQLError(errors.NOTHING_TO_EXPORT, context)
                 }
                 const excelRows = allProperties.map(property => {
                     return {
