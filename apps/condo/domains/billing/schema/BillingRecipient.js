@@ -22,7 +22,7 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
         importId: IMPORT_ID_FIELD,
         context: INTEGRATION_CONTEXT_FIELD,
         organization: ORGANIZATION_OWNED_FIELD,
-
+        
         tin: {
             schemaDoc: 'Tax Identification Number',
             type: Text,
@@ -49,6 +49,12 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
 
         paymentOrder: {
             schemaDoc: 'For what reason is this recipient is able to collect payments.',
+            type: Text,
+            isRequired: false,
+        },
+
+        name: {
+            schemaDoc: 'Billing Recipient name. Usually the juristic name of the organization',
             type: Text,
             isRequired: false,
         },
