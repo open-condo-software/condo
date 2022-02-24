@@ -11476,7 +11476,7 @@ export type MultiPayment = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Total amount of withdraw. amount = amountWithoutExplicitFee + explicitFee  */
+  /**  Total amount of withdraw. amount = amountWithoutExplicitFee + explicitFee + explicitServiceCharge  */
   amount?: Maybe<Scalars['String']>;
   /**  Amount of money which payer pays on top of initial "amount", which counts as fee for total "amount"  */
   explicitFee?: Maybe<Scalars['String']>;
