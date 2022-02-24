@@ -69,9 +69,12 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             schemaDoc: 'Total amount of withdraw. amount = amountWithoutExplicitFee + explicitFee + explicitServiceCharge',
             type: Virtual,
             resolver: (item) => {
-                const explicitFee = get(item, 'explicitFee', 0)
-                const explicitServiceCharge = get(item, 'explicitFee', 0)
-                return Big(item.amountWithoutExplicitFee).plus(Big(explicitFee)).plus(Big(explicitServiceCharge)).toFixed(2)
+                const explicitFee = get(item, 'explicitFee')
+                const explicitServiceCharge = get(item, 'explicitServiceCharge')
+                const floatFee = new Big(explicitFee || '0')
+                const floatCharge = new Big(explicitServiceCharge || '0')
+                const floatAmount = new Big(item.amountWithoutExplicitFee)
+                return floatAmount.plus(floatFee).plus(floatCharge).toString()
             },
         },
 
