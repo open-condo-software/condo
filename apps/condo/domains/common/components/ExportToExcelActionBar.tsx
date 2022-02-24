@@ -6,6 +6,7 @@ import { DocumentNode } from 'graphql'
 import React, { useCallback, useEffect, useState } from 'react'
 import ActionBar from './ActionBar'
 import { Button } from './Button'
+import get from 'lodash/get'
 
 interface IExportToExcelActionBarProps {
     hidden?: boolean
@@ -33,7 +34,8 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         exportToExcelQuery,
         {
             onError: error => {
-                notification.error(error)
+                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser']) || error.message
+                notification.error({ message })
             },
             onCompleted: data => {
                 setDownloadLink(data.result.linkToFile)
