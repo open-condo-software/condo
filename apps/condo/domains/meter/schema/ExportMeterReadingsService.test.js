@@ -10,32 +10,67 @@ const { CALL_METER_READING_SOURCE_ID, COLD_WATER_METER_RESOURCE_ID } = require('
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { EXPORT_METER_READINGS } = require('@condo/domains/meter/gql')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 
 describe('ExportMeterReadingsService', () => {
-    test('Employee with "canManageMeters": can get meter readings export from selected organization', async () => {
-        if (isObsConfigured()) {
-            const client = await makeEmployeeUserClientWithAbilities({
-                canManageMeters: true,
-            })
-            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-            const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-            await createTestMeterReading(client, meter, client.organization, source)
+    describe('Employee with "canManageMeters"', () => {
+        it('returns exported meter readings from selected organization', async () => {
+            if (isObsConfigured()) {
+                const client = await makeEmployeeUserClientWithAbilities({
+                    canManageMeters: true,
+                })
+                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
+                const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+                await createTestMeterReading(client, meter, client.organization, source)
 
-            const { data: { result: { status, linkToFile } } } = await client.query(EXPORT_METER_READINGS, {
-                data: {
-                    where: { organization: { id: client.organization.id } },
-                    sortBy: 'id_ASC',
-                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
-                },
-            })
+                const { data: { result: { status, linkToFile } } } = await client.query(EXPORT_METER_READINGS, {
+                    data: {
+                        where: { organization: { id: client.organization.id } },
+                        sortBy: 'id_ASC',
+                        timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                    },
+                })
 
-            expect(status).toBe('ok')
-            expect(linkToFile).not.toHaveLength(0)
-        }
+                expect(status).toBe('ok')
+                expect(linkToFile).not.toHaveLength(0)
+            }
+        })
+
+        it('throws error when no meter readings are presented for specified organization', async () => {
+            if (isObsConfigured()) {
+                const client = await makeEmployeeUserClientWithAbilities({
+                    canManageMeters: true,
+                })
+                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+                await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
+                await createTestMeter(client, client.organization, client.property, resource, {})
+
+                await catchErrorFrom(async () => {
+                    await client.query(EXPORT_METER_READINGS, {
+                        data: {
+                            where: { organization: { id: client.organization.id } },
+                            sortBy: 'id_ASC',
+                            timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                        },
+                    })
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'Could not found meter readings to export for specified organization',
+                        path: ['result'],
+                        extensions: {
+                            query: 'exportMeterReadings',
+                            code: 'BAD_USER_INPUT',
+                            type: 'NOTHING_TO_EXPORT',
+                            message: 'Could not found meter readings to export for specified organization',
+                        },
+                    }])
+                })
+            }
+        })
     })
- 
+
     test('anonymous: cannot get meter readings export', async () => {
         const anonymous = await makeClient()
 

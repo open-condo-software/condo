@@ -12,10 +12,21 @@ const { createExportFile } = require('@condo/domains/common/utils/createExportFi
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const dayjs = require('dayjs')
 const meterReadingDataMapper = require('../utils/serverSchema/meterReadingDataMapper')
-const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { loadMeterReadingsForExcelExport, loadMetersForExcelExport, MeterResource, MeterReadingSource } = require('../utils/serverSchema')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
+
+const errors = {
+    NOTHING_TO_EXPORT: {
+        query: 'exportMeterReadings',
+        code: BAD_USER_INPUT,
+        type: NOTHING_TO_EXPORT,
+        message: 'Could not found meter readings to export for specified organization',
+        messageForUser: 'api.meter.exportMeterReadings.NOTHING_TO_EXPORT',
+    },
+}
 
 const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsService', {
     types: [
@@ -44,7 +55,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                 const meterReadings = await loadMeterReadingsForExcelExport({ where, sortBy })
 
                 if (meterReadings.length === 0) {
-                    throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
+                    throw new GQLError(errors.NOTHING_TO_EXPORT, context)
                 }
 
                 const meterIds = uniq(meterReadings.map(meterReading => meterReading.meter))
