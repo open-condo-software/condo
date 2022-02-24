@@ -1,8 +1,8 @@
-const { 
-    Ticket, 
-    TicketStatus, 
+const {
+    Ticket,
+    TicketStatus,
     TicketClassifierRule,
-    TicketComment, 
+    TicketComment,
 } = require('@condo/domains/ticket/utils/serverSchema')
 
 const { Property } = require('@condo/domains/property/utils/serverSchema')
@@ -111,16 +111,16 @@ class TicketGenerator {
                 ticket: { connect: { id: ticketId } },
                 user: { connect: { id: this.user.id } },
                 content: faker.lorem.paragraph(),
-            }) 
+            })
         })
     }
 
     async prepareModels (propertyInfo) {
         this.statuses = await TicketStatus.getAll(this.context, { organization_is_null: true })
         this.classifiers = await TicketClassifierRule.getAll(this.context, { })
-        const [property] = await Property.getAll(this.context, { address: propertyInfo.address })
-        if (property){
-            throw new Error('Property already exists [SKIP!]')
+        const [property] = await Property.getAll(this.context, { address: propertyInfo.address, organization: this.organizationId })
+        if (property) {
+            this.property = property
         }
 
         const [organization] = await Organization.getAll(this.context, {
@@ -128,24 +128,25 @@ class TicketGenerator {
         })
         this.organization = organization
 
-        const [user] = await User.getAll(this.context, { name_not_in: ['Admin', 'JustUser'] })
+        const [user] = await User.getAll(this.context, { name_not_in: ['JustUser'] })
         this.user = user
 
         if (!this.organization) {
             throw new Error('Please create user with organization first')
         }
-        const { address, addressMeta, map } = propertyInfo
-        const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-        const newProperty = await Property.create(this.context, {
-            dv: 1,
-            sender,
-            address,
-            type: 'building',
-            organization: { connect: { id: this.organization.id } },
-            addressMeta,
-            map,
-        })
-        this.property = newProperty
+        if (!property) {
+            const { address, addressMeta, map } = propertyInfo
+            const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+            this.property = await Property.create(this.context, {
+                dv: 1,
+                sender,
+                address,
+                type: 'building',
+                organization: { connect: { id: this.organization.id } },
+                addressMeta,
+                map,
+            })
+        }
     }
 
     get unit () {
