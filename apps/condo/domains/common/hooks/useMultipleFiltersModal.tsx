@@ -333,6 +333,7 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
             type={'text'}
             onClick={handleReset}
             size={size}
+            data-cy={'filters-button-reset'}
         >
             <Typography.Text strong type={'secondary'}>
                 {ClearAllFiltersMessage} <CloseOutlined style={CLEAR_ALL_MESSAGE_STYLE} />
@@ -496,6 +497,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             key={'submit'}
             onClick={handleSubmitButtonClick}
             type={'sberPrimary'}
+            data-cy={'filters-button-submit'}
         >
             {ApplyMessage}
         </Button>,
