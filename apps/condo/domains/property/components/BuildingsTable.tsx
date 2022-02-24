@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useLazyQuery } from '@apollo/client'
 import { ColumnsType } from 'antd/lib/table'
 import { Gutter } from 'antd/es/grid/row'
+import get from 'lodash/get'
 
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -77,7 +78,8 @@ export default function BuildingsTable (props: BuildingTableProps) {
         EXPORT_PROPERTIES_TO_EXCEL,
         {
             onError: error => {
-                notification.error(error)
+                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser']) || error.message
+                notification.error({ message })
             },
             onCompleted: data => {
                 setDownloadLink(data.result.linkToFile)
