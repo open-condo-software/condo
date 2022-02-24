@@ -30,9 +30,10 @@ class TicketGenerator {
     ticketsByDay = {}
     context = null
 
-    constructor ({ ticketsByDay = { min: 20, max: 50 } }, propertyIndex = 0) {
+    constructor ({ ticketsByDay = { min: 20, max: 50 } }, propertyIndex = 0, organizationId ) {
         this.ticketsByDay = ticketsByDay
         this.propertyIndex = propertyIndex
+        this.organizationId = organizationId
         this.pg = new Client(process.env.DATABASE_URL)
         this.pg.connect()
     }
@@ -121,10 +122,15 @@ class TicketGenerator {
         if (property){
             throw new Error('Property already exists [SKIP!]')
         }
+
+        const [organization] = await Organization.getAll(this.context, {
+            id: this.organizationId,
+        })
+        this.organization = organization
+
         const [user] = await User.getAll(this.context, { name_not_in: ['Admin', 'JustUser'] })
         this.user = user
-        const [organization] = await Organization.getAll(this.context, {})
-        this.organization = organization
+
         if (!this.organization) {
             throw new Error('Please create user with organization first')
         }
@@ -171,7 +177,12 @@ class TicketGenerator {
 }
 
 const createTickets = async () => {
-    const TicketManager = new TicketGenerator({ ticketsByDay: { min: 20, max: 50 } })
+    const [organizationId] = process.argv.slice(2)
+
+    const TicketManager = new TicketGenerator({
+        ticketsByDay: { min: 20, max: 50 },
+        organizationId,
+    })
     console.time('keystone')
     await TicketManager.connect()
     console.timeEnd('keystone')
