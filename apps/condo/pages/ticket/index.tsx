@@ -68,7 +68,6 @@ export const TicketsPageContent = ({
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
 
     const { isSmall } = useLayoutContext()
-    const { organization } = useOrganization()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -220,6 +219,7 @@ export const TicketsPageContent = ({
                                                                 secondary
                                                                 type={'sberPrimary'}
                                                                 onClick={() => setIsMultipleFiltersModalVisible(true)}
+                                                                data-cy={'ticket-filters-button'}
                                                             >
                                                                 <FilterFilled/>
                                                                 {FiltersButtonLabel}

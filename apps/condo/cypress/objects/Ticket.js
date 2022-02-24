@@ -100,6 +100,9 @@ class TicketView {
         ticket-filter-isPaid
         ticket-filter-isEmergency
         tickets-table
+        ticket-filters-button
+        filters-button-submit
+        filters-button-reset
 */
     visit () {
         cy.visit(TICKET_VIEW_URL)
@@ -141,10 +144,38 @@ class TicketView {
         cy.wait('@getAllTickets')
         cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 1)
 
-
         cy.get('[data-cy=ticket-filter-isEmergency]').click()
         cy.location('search').should('not.contain', 'isEmergency')
         cy.wait('@getAllTickets')
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
+
+        return this
+    }
+
+    clickOnGlobalFiltersButton () {
+        cy.get('[data-cy=ticket-filters-button]').click()
+        cy.wait('@getAllTicketFilterTemplates')
+
+        return this
+    }
+
+    typeAddressSearchInput (propertyAddress) {
+        cy.get('input#property')
+            .click()
+            .type(propertyAddress.slice(0, 5))
+            .type('{downArrow}')
+            .type('{enter}')
+
+        cy.get('[data-cy=filters-button-submit]').click()
+
+        cy.wait('@getAllTickets')
+        cy.location('search').should('contain', 'property')
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
+
+        cy.get('[data-cy=filters-button-reset]').click()
+        cy.wait('@getAllTickets')
+        cy.location('search').should('not.contain', 'property')
+        cy.location('search').should('be.empty')
         cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
 
         return this

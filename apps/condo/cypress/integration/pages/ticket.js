@@ -38,6 +38,7 @@ describe('Ticket create',  function () {
         it('can view and filter tickets with table', () => {
             cy.task('keystone:createTickets', this.userData).then(() => {
                 authUserWithCookies(this.userData)
+                const { address: propertyAddress } = this.userData.property
 
                 const ticketView = new TicketView()
                 ticketView
@@ -45,6 +46,8 @@ describe('Ticket create',  function () {
                     .clickIsWarrantyCheckbox()
                     .clickIsPaidCheckbox()
                     .clickIsEmergencyCheckbox()
+                    .clickOnGlobalFiltersButton()
+                    .typeAddressSearchInput(propertyAddress)
             })
         })
     })
