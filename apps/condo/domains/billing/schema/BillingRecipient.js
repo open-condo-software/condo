@@ -47,6 +47,12 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
             isRequired: true,
         },
 
+        paymentOrder: {
+            schemaDoc: 'For what reason is this recipient is able to collect payments.',
+            type: Text,
+            isRequired: false,
+        },
+
         approved: {
             schemaDoc: 'If set to True, then this billing recipient info is considered allowed and users are allowed to pay for receipts with this recipient',
             type: Checkbox,
