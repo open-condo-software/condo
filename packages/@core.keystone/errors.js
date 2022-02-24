@@ -1,3 +1,5 @@
+const cloneDeep = require('lodash/cloneDeep')
+
 /**
  * Generic error codes, that should be used in custom queries and mutations
  * We kept its set to minimum to not complicate things for third-party developers
@@ -116,7 +118,9 @@ class GQLError extends ApolloError {
      * @see https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors
      */
     constructor (fields, context) {
-        const extensions = fields
+        // We need a clone to avoid modification of original errors declaration, that will cause
+        // second calling of this constructor to work with changed fields
+        const extensions = cloneDeep(fields)
         extensions.message = template(fields.message)(fields.messageInterpolation)
         if (context) {
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
