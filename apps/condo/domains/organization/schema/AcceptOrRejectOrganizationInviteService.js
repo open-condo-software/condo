@@ -15,7 +15,6 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
             // todo(DOMA-2305) Use type instead of ID!
             schema: 'acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
             resolver: async (parent, args, context, info, extra = {}) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { id, data } = args
                 const authedItem = context.authedItem
                 let { isRejected, isAccepted, ...restData } = data
@@ -48,7 +47,6 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
             access: access.canAcceptOrRejectOrganizationInvite,
             schema: 'acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
             resolver: async (parent, args, context, info, extra = {}) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { inviteCode, data } = args
                 let { isRejected, isAccepted, ...restData } = data
                 isRejected = isRejected || false
