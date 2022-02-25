@@ -5,13 +5,12 @@ const {
     acceptOrRejectOrganizationInviteById,
 } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 const faker = require('faker')
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { pick } = require('lodash')
-const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 describe('InviteNewOrganizationEmployeeService', () => {
     describe('inviteNewOrganizationEmployee', () => {
@@ -121,7 +120,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
             })
 
             describe('for Employee with duplicated phone', () => {
-                it('throws ALREADY_EXISTS_ERROR', async () => {
+                it('throws error with type ALREADY_INVITED', async () => {
                     const client = await makeClientWithRegisteredOrganization()
                     const userAttrs = {
                         name: faker.name.firstName(),
@@ -135,14 +134,25 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         email: createTestEmail(),
                     }
 
-                    const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
-
-                    expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+                    await catchErrorFrom(async () => {
+                        await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {})
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'Already invited into the organization',
+                            path: ['obj'],
+                            extensions: {
+                                mutation: 'inviteNewOrganizationEmployee',
+                                code: 'BAD_USER_INPUT',
+                                type: 'ALREADY_INVITED',
+                                message: 'Already invited into the organization',
+                            },
+                        }])
+                    })
                 })
             })
 
             describe('for Employee with duplicated email', () => {
-                it('it throws ALREADY_EXISTS_ERROR', async () => {
+                it('throws error with type ALREADY_INVITED', async () => {
                     const client = await makeClientWithRegisteredOrganization()
                     const userAttrs = {
                         name: faker.name.firstName(),
@@ -156,14 +166,25 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: createTestPhone(),
                     }
 
-                    const { errors } = await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {}, { raw: true })
-
-                    expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+                    await catchErrorFrom(async () => {
+                        await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {})
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'Already invited into the organization',
+                            path: ['obj'],
+                            extensions: {
+                                mutation: 'inviteNewOrganizationEmployee',
+                                code: 'BAD_USER_INPUT',
+                                type: 'ALREADY_INVITED',
+                                message: 'Already invited into the organization',
+                            },
+                        }])
+                    })
                 })
             })
 
             describe('for Employee with duplicated User', () => {
-                it('tries to find user by phone, then by email)', async () => {
+                it('throws error with type ALREADY_INVITED', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
                     const client = await makeClientWithRegisteredOrganization()
@@ -181,8 +202,20 @@ describe('InviteNewOrganizationEmployeeService', () => {
                             ],
                         },
                     }
-                    const { errors } = await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs, { raw: true } )
-                    expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+                    await catchErrorFrom(async () => {
+                        await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs)
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'Already invited into the organization',
+                            path: ['obj'],
+                            extensions: {
+                                mutation: 'inviteNewOrganizationEmployee',
+                                code: 'BAD_USER_INPUT',
+                                type: 'ALREADY_INVITED',
+                                message: 'Already invited into the organization',
+                            },
+                        }])
+                    })
                 })
             })
         })
@@ -200,7 +233,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 }
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await inviteNewOrganizationEmployee(anonymousClient, client.organization, employeeUserAttrs, {}, { raw: true })
+                    await inviteNewOrganizationEmployee(anonymousClient, client.organization, employeeUserAttrs, {})
                 })
             })
         })
@@ -258,7 +291,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
             })
 
             describe('for Employee with accepted invitation', () => {
-                it('throws ALREADY_EXISTS_ERROR', async () => {
+                it('throws error with type ALREADY_ACCEPTED_INVITATION', async () => {
                     const client1 = await makeClientWithRegisteredOrganization()
                     const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -270,9 +303,20 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         isRejected: false,
                     }))
 
-                    const { errors } = await reInviteNewOrganizationEmployee(client1, client1.organization, employee, {}, { raw: true })
-
-                    expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+                    await catchErrorFrom(async () => {
+                        await reInviteNewOrganizationEmployee(client1, client1.organization, employee, {})
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'Corresponding OrganizationEmployee has already accepted invitation',
+                            path: ['obj'],
+                            extensions: {
+                                mutation: 'reInviteOrganizationEmployee',
+                                code: 'BAD_USER_INPUT',
+                                type: 'ALREADY_ACCEPTED_INVITATION',
+                                message: 'Corresponding OrganizationEmployee has already accepted invitation',
+                            },
+                        }])
+                    })
                 })
             })
         })
@@ -364,57 +408,3 @@ describe('InviteNewOrganizationEmployeeService', () => {
 //     })
 // })
 //
-
-// async function getInviteCode (id) {
-//     const admin = await makeLoggedInAdminClient()
-//     const { data, errors } = await admin.query(GET_ORGANIZATION_TO_USER_LINK_CODE_BY_ID_QUERY, { id })
-//     expect(errors).toEqual(undefined)
-//     expect(data.obj.id).toEqual(id)
-//     console.log(data)
-//     return data.obj.code
-// }
-
-// test('user: accept/reject OrganizationToUserLinks by CODE', async () => {
-//     const user = await createUser()
-//     const client = await makeLoggedInClient(user)
-//     const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
-//         data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
-//     })
-//     expect(errors).toEqual(undefined)
-//
-//     // create
-//     const { data: d2 } = await inviteNewOrganizationEmployee(client, data.obj.id, 'x2' + user.email)
-//     expect(d2.obj.user).toBeNull()
-//
-//     const code = await getInviteCode(d2.obj.id)
-//
-//     // accept
-//     const user2 = await createUser()
-//     const member_client = await makeLoggedInClient(user2)
-//     const { data: d3, errors: err3 } = await member_client.mutate(ACCEPT_OR_REJECT_BY_CODE_MUTATION, {
-//         code,
-//         data: {
-//             isAccepted: true,
-//         },
-//     })
-//     expect(err3).toEqual(undefined)
-//     expect(d3.obj).toEqual({
-//         id: d2.obj.id,
-//         isAccepted: true,
-//         isRejected: false,
-//     })
-//
-//     // second time!
-//     const { errors: err4 } = await member_client.mutate(ACCEPT_OR_REJECT_BY_CODE_MUTATION, {
-//         code,
-//         data: {
-//             isAccepted: true,
-//         },
-//     })
-//     expect(err4[0]).toMatchObject({
-//         'data': { 'target': 'acceptOrRejectOrganizationInviteByCode', 'type': 'mutation' },
-//         'message': 'You do not have access to this resource',
-//         'name': 'AccessDeniedError',
-//         'path': ['obj'],
-//     })
-// })
