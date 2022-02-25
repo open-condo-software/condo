@@ -417,12 +417,43 @@ async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBillingRecipient(client, extraAttrs = {}) {
-    // not impl
+async function createTestBillingRecipient(client, context, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!context.id) throw new Error('no context')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const companyName = faker.company.companyName()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        importId: faker.datatype.uuid(),
+        name: companyName,
+        iec: faker.random.alphaNumeric(6),
+        tin: faker.random.alphaNumeric(6),
+        bic: faker.finance.bic(),
+        bankAccount: faker.finance.account(12),
+        paymentOrder: `Payment for service from ${companyName}`,
+        isApproved: false,
+        ...extraAttrs,
+    }
+    const obj = await BillingRecipient.create(client, attrs)
+    return [obj, attrs]
 }
 
 async function updateTestBillingRecipient(client, id, extraAttrs = {}) {
-    // not impl
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingRecipient.update(client, id, attrs)
+    return [obj, attrs]
 }
 
 async function makeClientWithIntegrationAccess () {
