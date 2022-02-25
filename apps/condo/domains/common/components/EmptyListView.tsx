@@ -9,7 +9,8 @@ export interface IEmptyListProps {
     label: string,
     message: string,
     createRoute: string,
-    createLabel: string
+    createLabel: string,
+    image?: string,
 }
 
 export interface IBasicEmptyListProps {
@@ -41,10 +42,10 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({ image, chil
 }
 
 
-export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, createRoute, createLabel }) => {
+export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, createRoute, createLabel, image = null }) => {
     const router = useRouter()
     return (
-        <BasicEmptyListView>
+        <BasicEmptyListView image={image}>
             <Typography.Title level={3}>
                 {label}
             </Typography.Title>
