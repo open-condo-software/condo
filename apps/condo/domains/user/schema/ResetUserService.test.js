@@ -88,6 +88,19 @@ describe('ResetUserService', () => {
         }, 'No user found for this id')
     })
 
+    test('support cant reset admin user', async () => {
+        const supportClient = await makeClientWithSupportUser()
+        const adminClient = await makeLoggedInAdminClient()
+        const userId = adminClient.user.id
+        const payload = {
+            user: { id: userId },
+        }
+
+        await expectToThrowMutationError(async () => {
+            await resetUserByTestClient(supportClient, payload)
+        }, 'Can not reset admin')
+    })
+
     test('user cant reset user', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {
