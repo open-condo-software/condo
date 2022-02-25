@@ -30,7 +30,6 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             access: access.canInviteNewOrganizationEmployee,
             schema: 'inviteNewOrganizationEmployee(data: InviteNewOrganizationEmployeeInput!): OrganizationEmployee',
             resolver: async (parent, args, context) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
                 let { organization, email, phone, role, position, name, specializations, ...restData } = data
                 phone = normalizePhone(phone)
@@ -110,9 +109,6 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             access: access.canInviteNewOrganizationEmployee,
             schema: 'reInviteOrganizationEmployee(data: ReInviteOrganizationEmployeeInput!): OrganizationEmployee',
             resolver: async (parent, args, context) => {
-                if (!context.authedItem.id) {
-                    throw new Error('[error] User is not authenticated')
-                }
                 const { data } = args
                 let { organization, email, sender, phone } = data
                 phone = normalizePhone(phone)

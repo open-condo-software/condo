@@ -9,6 +9,7 @@ const {
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
     REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
 } = require('@condo/domains/organization/gql')
+const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 async function createOrganizationEmployee (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -52,7 +53,7 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     return [data.obj, attrs]
 }
 
-async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
+async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
@@ -68,12 +69,10 @@ async function inviteNewOrganizationEmployee (client, organization, user, extraA
         organization: { id: organization.id },
         ...extraAttrs,
     }
-
     const { data, errors } = await client.mutate(INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION, {
         data: { ...attrs },
     })
-    if (raw) return { data, errors }
-    expect(errors).toEqual(undefined)
+    throwIfError(data, errors)
     return [data.obj, attrs]
 }
 
@@ -96,8 +95,7 @@ async function reInviteNewOrganizationEmployee (client, organization, user, extr
     const { data, errors } = await client.mutate(REINVITE_ORGANIZATION_EMPLOYEE_MUTATION, {
         data: { ...attrs },
     })
-    if (raw) return { data, errors }
-    expect(errors).toEqual(undefined)
+    throwIfError(data, errors)
     return [data.obj, attrs]
 }
 
