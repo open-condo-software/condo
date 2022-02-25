@@ -68,7 +68,7 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
 }
 
 /**
- * Payment related fields such as paymetsAllowedFrom or paymentsAllowedTo may ony be created or updated only by:
+ * Payment related fields such as paymentsAllowedFrom or paymentsAllowedTo may ony be created or updated only by:
  * 1. Admin / Support
  */
 async function canManagePaymentsRelatedFields ({ authentication: { item: user } }) {
