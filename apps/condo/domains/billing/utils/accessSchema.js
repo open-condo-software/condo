@@ -37,10 +37,10 @@ async function canReadBillingEntity (authentication) {
 }
 
 /**
- * Billing entity can be created or updated either by:
+ * Billing entity can be created either by:
  * 1. By admin or support
  * 2. By integration account
- * 3. By integration organization manager
+ * 3. By integration organization manager (TODO (DOMA-2348) Do they need this right?!
  */
 async function canManageBillingEntityWithContext ({ authentication, operation, itemId, originalInput, schemaWithContextName }) {
     const { item: user } = authentication
