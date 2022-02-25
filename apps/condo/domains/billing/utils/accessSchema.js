@@ -16,11 +16,17 @@ async function checkBillingIntegrationAccessRight (userId, integrationId) {
     return !!get(integration, 'id')
 }
 
+/**
+ * Billing entity can be read either by:
+ * 1. By admin or support
+ * 2. By integration account
+ * 3. By integration organization manager
+ */
 async function canReadBillingEntity (authentication) {
     const { item: user } = authentication
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
 
     return {
         OR: [
@@ -30,19 +36,23 @@ async function canReadBillingEntity (authentication) {
     }
 }
 
+/**
+ * Billing entity can be created or updated either by:
+ * 1. By admin or support
+ * 2. By integration account
+ * 3. By integration organization manager
+ */
 async function canManageBillingEntityWithContext ({ authentication, operation, itemId, originalInput, schemaWithContextName }) {
     const { item: user } = authentication
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     let contextId
 
     if (operation === 'create') {
-        // NOTE: can only be created by the organization integration manager
         contextId = get(originalInput, ['context', 'connect', 'id'])
     } else if (operation === 'update') {
-        // NOTE: can update by the organization integration manager OR the integration account
         if (!itemId) return false
         const itemWithContext = await getById(schemaWithContextName, itemId)
         contextId = get(itemWithContext, ['context'])
