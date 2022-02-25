@@ -2,7 +2,7 @@ import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
 
-export const NoBillingStub = (): JSX.Element => {
+const NoBillingStub = (): JSX.Element => {
     const intl = useIntl()
 
     const noBillingLabel = intl.formatMessage({ id: 'pages.condo.payments.noBillingLabel' })
@@ -18,3 +18,5 @@ export const NoBillingStub = (): JSX.Element => {
         />
     )
 }
+
+export default NoBillingStub

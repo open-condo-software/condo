@@ -6,7 +6,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography } from 'antd'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { PaymentsPageContent } from '@condo/domains/billing/components/payments'
+import PaymentsPageContent from '@condo/domains/billing/components/payments/PaymentsPageContent'
 
 const PaymentsPage = () => {
     const intl = useIntl()
