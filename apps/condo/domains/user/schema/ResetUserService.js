@@ -54,6 +54,10 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                     throw new Error(`${NOT_FOUND_ERROR}user] No user found for this id`)
                 }
 
+                if (userEntity.isAdmin) {
+                    throw new Error('Can not reset admin user')
+                }
+
                 await User.update(context, user.id, {
                     phone: null,
                     email: null,
