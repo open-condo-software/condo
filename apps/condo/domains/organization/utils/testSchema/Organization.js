@@ -1,9 +1,11 @@
 const faker = require('faker')
+const { ApolloError } = require('apollo-server-errors')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     OrganizationEmployee,
     REGISTER_NEW_ORGANIZATION_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
+    ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
     REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
 } = require('@condo/domains/organization/gql')
@@ -116,7 +118,30 @@ async function acceptOrRejectOrganizationInviteById (client, invite, extraAttrs 
         data: { ...attrs },
     })
     if (raw) return { data, errors }
-    expect(errors).toEqual(undefined)
+    if (errors && errors.length > 0) {
+        throw new ApolloError('Mutation error', 'INTERNAL_SERVER_ERROR', { data, errors })
+    }
+    return [data.obj, attrs]
+}
+
+async function acceptOrRejectOrganizationInviteByCode (client, inviteCode, extraAttrs = {}, { raw = false } = {}) {
+    if (!client) throw new Error('no client')
+    if (!inviteCode) throw new Error('no inviteCode')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1, sender,
+        ...extraAttrs,
+    }
+
+    const { data, errors } = await client.mutate(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION, {
+        inviteCode,
+        data: { ...attrs },
+    })
+    if (raw) return { data, errors }
+    if (errors && errors.length > 0) {
+        throw new ApolloError('Mutation error', 'INTERNAL_SERVER_ERROR', { data, errors })
+    }
     return [data.obj, attrs]
 }
 
@@ -135,5 +160,6 @@ module.exports = {
     inviteNewOrganizationEmployee,
     reInviteNewOrganizationEmployee,
     acceptOrRejectOrganizationInviteById,
+    acceptOrRejectOrganizationInviteByCode,
     makeClientWithRegisteredOrganization,
 }
