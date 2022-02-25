@@ -146,6 +146,7 @@
   "menu.TicketAnalytics": "Аналитика по заявкам",
   "menu.ContactCenter": "Контакт центр",
   "menu.Meters": "ИПУ",
+  "menu.Payments": "Реестр оплат",
   "MinutesShort": "${minutes} мин.",
   "RolesAndAccess": "Роли и доступы",
   "Subscription": "Подписка на «Дома»",
