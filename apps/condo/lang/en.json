@@ -146,6 +146,7 @@
   "menu.TicketAnalytics": "Ticket analytics",
   "menu.ContactCenter": "Contact Center",
   "menu.Meters": "Meters log",
+  "menu.Payments": "Payments",
   "MinutesShort": "${minutes} min.",
   "RolesAndAccess": "Roles and accesses",
   "Subscription": "Subscription",
