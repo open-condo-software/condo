@@ -14,8 +14,11 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
         {
             access: access.canRegisterNewOrganization,
             schema: 'registerNewOrganization(data: RegisterNewOrganizationInput!): Organization',
+            doc: {
+                summary: 'Registers new Organization for current user',
+                description: 'Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization',
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
                 const extraData = { dv: data.dv, sender: data.sender }
                 const organization = await createOrganization(context, data)
