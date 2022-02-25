@@ -1,16 +1,15 @@
-import { Empty, Space, Typography } from 'antd'
+import { Empty, Space } from 'antd'
 import { useRouter } from 'next/router'
 import { Button } from './Button'
 import { EmptyIcon } from './EmptyIcon'
 import React from 'react'
-import { fontSizes } from '@condo/domains/common/constants/style'
+import styled from '@emotion/styled'
 
 export interface IEmptyListProps {
     label: string,
     message: string,
     createRoute: string,
     createLabel: string,
-    image?: string,
 }
 
 export interface IBasicEmptyListProps {
@@ -18,10 +17,10 @@ export interface IBasicEmptyListProps {
     children?: React.ReactNode
 }
 
-export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({ image, children } ) => {
-    const style = { 
-        display:'flex', 
-        justifyContent: 'center', 
+export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({ image, children }) => {
+    const style = {
+        display: 'flex',
+        justifyContent: 'center',
         alignItems: 'center',
         height: '100%',
         width: '100%',
@@ -29,11 +28,12 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({ image, chil
     return (
         <div style={style}>
             <Empty
-                image={ image ? image : <EmptyIcon />}
+                style={{ maxWidth: '400px' }}
+                image={image ? image : <EmptyIcon/>}
                 imageStyle={{ height: '120px' }}
                 description={
                     <Space direction={'vertical'} size={0}>
-                        { children }
+                        {children}
                     </Space>
                 }
             />
@@ -41,19 +41,31 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({ image, chil
     )
 }
 
+const EmptyListLabel = styled.div`
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  text-align: center;
+  letter-spacing: -0.01em;
+`
 
-export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, createRoute, createLabel, image = null }) => {
+const EmptyListMessage = styled.div`
+  font-size: 16px;
+  line-height: 24px;
+  color: #82879F;
+  text-align: center;
+  letter-spacing: -0.01em;
+  margin: 8px 0 24px 0;
+`
+
+export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, createRoute, createLabel }) => {
     const router = useRouter()
     return (
-        <BasicEmptyListView image={image}>
-            <Typography.Title level={3}>
-                {label}
-            </Typography.Title>
-            <Typography.Text style={{ fontSize: fontSizes.content }}>
-                {message}
-            </Typography.Text>
+        <BasicEmptyListView image="dino/dino-searching.png">
+            <EmptyListLabel>{label}</EmptyListLabel>
+            <EmptyListMessage>{message}</EmptyListMessage>
             <Button
-                type='sberPrimary'
+                type="sberBlack"
                 style={{ marginTop: '16px' }}
                 onClick={() => router.push(createRoute)}
             >
