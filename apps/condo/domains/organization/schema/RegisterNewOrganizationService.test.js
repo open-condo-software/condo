@@ -1,6 +1,6 @@
 const faker = require('faker')
 
-const { makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -9,6 +9,7 @@ const { OrganizationEmployee, OrganizationEmployeeRole } = require('../utils/tes
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.js')
+const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 const EXCLUDE_CHECK_FIELDS = ['name', 'description']
 
@@ -125,6 +126,17 @@ describe('RegisterNewOrganizationService', () => {
             expect(subscription.totalPrice).toBeNull()
             expect(subscription.startAt).toBeDefined()
             expect(subscription.finishAt).toBeDefined()
+        })
+    })
+
+    describe('called by Anonymous', () => {
+        it('throws Authentication error', async () => {
+            const anonymousClient = await makeClient()
+            const name = faker.company.companyName()
+
+            await expectToThrowAuthenticationErrorToObj(async () => {
+                await registerNewOrganization(anonymousClient, { name })
+            })
         })
     })
 })
