@@ -6,11 +6,12 @@ const {
 } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 const faker = require('faker')
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { pick } = require('lodash')
+const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('InviteNewOrganizationEmployeeService', () => {
     describe('inviteNewOrganizationEmployee', () => {
@@ -185,6 +186,24 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 })
             })
         })
+
+        describe('called by Anonymous', () => {
+            it('returns Authentication error', async () => {
+                const anonymousClient = await makeClient()
+                const client = await makeClientWithRegisteredOrganization()
+                const admin = await makeLoggedInAdminClient()
+                const [userAttrs] = await createTestUser(admin)
+                const employeeUserAttrs = {
+                    ...userAttrs,
+                    email: createTestEmail(),
+                    phone: createTestPhone(),
+                }
+
+                await expectToThrowAuthenticationErrorToObj(async () => {
+                    await inviteNewOrganizationEmployee(anonymousClient, client.organization, employeeUserAttrs, {}, { raw: true })
+                })
+            })
+        })
     })
 
     describe('reInviteOrganizationEmployee', () => {
@@ -254,6 +273,22 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     const { errors } = await reInviteNewOrganizationEmployee(client1, client1.organization, employee, {}, { raw: true })
 
                     expect(JSON.stringify(errors)).toContain(ALREADY_EXISTS_ERROR)
+                })
+            })
+        })
+
+        describe('called by Anonymous', () => {
+            it('throws Authentication error', async () => {
+                const anonymousClient = await makeClient()
+                const userAttrs = {
+                    name: faker.name.firstName(),
+                    email: createTestEmail(),
+                    phone: createTestPhone(),
+                }
+                const client = await makeClientWithRegisteredOrganization()
+                await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+                await expectToThrowAuthenticationErrorToObj(async () => {
+                    await reInviteNewOrganizationEmployee(anonymousClient, client.organization, userAttrs)
                 })
             })
         })
