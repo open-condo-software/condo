@@ -7,20 +7,20 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 
 async function canReadServiceSubscriptions ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return {}
+    if (user.deletedAt) return false
+    
+    if (user.isSupport || user.isAdmin) return {}
+
     return {
         organization: queryOrganizationEmployeeFor(user.id),
     }
 }
 
-async function canManageServiceSubscriptions ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageServiceSubscriptions ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    if (operation === 'create') {
-        return (user.isSupport)
-    } else if (operation === 'update') {
-        return (user.isSupport)
-    }
+    if (user.deletedAt) return false
+    if (user.isSupport || user.isAdmin) return true
+
     return false
 }
 

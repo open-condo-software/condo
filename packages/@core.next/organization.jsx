@@ -63,8 +63,15 @@ let extractReqLinkId = (req) => {
 
 const OrganizationProvider = ({ children, initialLinkValue }) => {
     const auth = useAuth()
-    const [linkIdState, setLinkIdState] = useState(initialLinkValue && initialLinkValue.id || getLinkId())
+    const cookieOrganizationEmployee = getLinkId()
+    const [linkIdState, setLinkIdState] = useState(initialLinkValue && initialLinkValue.id || cookieOrganizationEmployee)
     const [link, setLink] = useState(initialLinkValue)
+
+    useEffect(() => {
+        if (!(initialLinkValue && initialLinkValue.id || cookieOrganizationEmployee)) {
+            setLinkIdState(null)
+        }
+    }, [initialLinkValue, cookieOrganizationEmployee])
 
     const { loading: linkLoading, refetch } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY, {
         variables: { id: linkIdState },
@@ -95,11 +102,15 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
     }, [auth.user])
 
     function onError (error) {
-        console.error(error)
-        setCookieLinkId('')
-        setLinkIdState(null)
-        setLink(null)
-        throw error
+        // NOTE: In case, when organization from cookie left from old user, and we don't have access to it
+        // We'll reset cookie without showing explicit error
+        if (error.message.includes('You do not have access to this resource')) {
+            setCookieLinkId('')
+            setLinkIdState(null)
+            setLink(null)
+        } else {
+            throw error
+        }
     }
 
     function handleSelectItem (linkItem) {
@@ -209,4 +220,5 @@ const withOrganization = ({ ssr = false, ...opts } = {}) => PageComponent => {
 export {
     withOrganization,
     useOrganization,
+    setCookieLinkId,
 }

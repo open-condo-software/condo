@@ -9,12 +9,14 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadBillingIntegrationLogs ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return {}
+
     return {
         context: {
             OR: [
                 { organization: { employees_some: { user: { id: user.id }, role: { canManageIntegrations: true }, deletedAt: null, isBlocked: false } } },
-                { integration: { accessRights_some: { user: { id: user.id } } } },
+                { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
             ],
         },
     }
@@ -22,8 +24,11 @@ async function canReadBillingIntegrationLogs ({ authentication: { item: user } }
 
 async function canManageBillingIntegrationLogs ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
+
     let contextId
+
     if (operation === 'create') {
         // NOTE: can create only by the integration account
         contextId = get(originalInput, ['context', 'connect', 'id'])
@@ -33,13 +38,13 @@ async function canManageBillingIntegrationLogs ({ authentication: { item: user }
         const log = await getById('BillingIntegrationLog', itemId)
         if (!log) return false
         contextId = log.context
-    } else {
-        return false
     }
+
     if (!contextId) return false
     const context = await getById('BillingIntegrationOrganizationContext', contextId)
     if (!context) return false
     const { integration: integrationId } = context
+
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }
 

@@ -1,81 +1,87 @@
 /** @jsx jsx */
-import React from 'react'
+import { BuildingUnitType } from '@app/condo/schema'
+import { colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/core'
 import { Button, ButtonProps, Tooltip } from 'antd'
+import React from 'react'
 
 const buttonCss = css`
     display: inline-block;
-    background-color: #F5F5F5;
+    background-color: #FFF;
     border: 1px solid #F5F5F5;
     color: black;
-    font-size: 14px;
-    line-height: 40px;
-    font-weight: bold;
-    border-radius: 5px;
-    margin-top: 2px;
-    margin-right: 2px;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+    border-radius: 8px;
+    margin-top: 8px;
+    margin-right: 8px;
     text-align: center;
-    height: 40px;
-    width: 40px;
-    padding: 0px;
+    height: 44px;
+    width: 44px;
+    padding: 0;
     box-shadow: none;
-
+    
+    &:last-child {
+      margin-right: 0;
+    }
+    
     &:hover {
-        background-color: #F5F5F5;
-        color: black;
-        border-color:  black;
+        color: ${colors.black};
+        border-color: ${colors.inputBorderHover};
     }
     &:focus {
-        background-color: #F5F5F5;
-        color: black;
-        border-color:  #F5F5F5;
+        background-color: ${gradients.sberActionGradient};
+        color: ${colors.white};
+        border-color: transparent;
     }
-
+    
     &:active {
-        background-color: #F5F5F5;
-        color: black;
-        border-color: black;
+        background-color: ${gradients.sberActionGradient};
+        color: ${colors.white};
+        border-color: transparent;
     }
-
+    
     &:disabled, &:disabled:hover {
-        background-color: #F5F5F5;
+        background-color: ${colors.white};
         cursor: default;
+        pointer-events: none;
         color: black;
-        border: 1px solid #F5F5F5;
+        border: transparent;
     }
- `
+`
 
 const buttonSecondaryCss = css`
     display: inline-block;
     background-color: transparent;
-    border: 1px solid transparent;
+    border: 1px solid ${colors.inputBorderHover};
     color: black;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 40px;
-    border-radius: 5px;
-    margin-top: 2px;
-    margin-right: 2px;
+    border-radius: 8px;
+    margin-top: 8px;
+    margin-right: 8px;
     text-align: center;
-    height: 40px;
-    width: 40px;
-    padding: 0px;
+    height: 44px;
+    width: 44px;
+    padding: 0 8px;
     box-shadow: none;
 
     &:hover {
+        color: ${colors.black};
         background-color: transparent;
-        color: black;
-        border-color: black;
+        border-color: ${colors.black};
     }
     &:focus {
-        background-color: transparent;
-        color: black;
+        background: ${gradients.sberActionGradient};
+        color: white;
         border-color: transparent;
     }
 
     &:active {
-        background-color: transparent;
-        color: black;
-        border-color: black;
+        background: ${gradients.sberActionGradient};
+        color: white;
+        border-color: transparent;
     }
 
     &:disabled, &:hover:disabled {
@@ -86,35 +92,31 @@ const buttonSecondaryCss = css`
     }    
 `
 const selectedCss = css`
-    background-color: black;
+    background: ${gradients.sberActionInversed};
     color: white;
-    border-color: black;
-    &:hover {
-        background-color: black;
+    border: none;
+    
+    &:hover, &:focus {
+        background: ${gradients.sberActionGradient};
         color: white;
-        border-color: black;
-    }
-
-    &:focus {
-        background-color: black;
-        color: white;
-        border-color: transparent;
+        border: 1px solid transparent;
     }
 
     &:active {
-        background-color: black;
+        background: ${gradients.sberActionInversed};
         color: white;
-        border-color: black;
-    }    
+        border: 1px solid transparent;
+    }
 `
-const previewCss = css`
-    opacity: 0.3;
+const previewCss = (unitType: BuildingUnitType) => css`
+  opacity: 0.5;
+  background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
 `
 const noninteractiveCss = css`
     cursor: default;
     &:after {
         animation: none !important;
-    }    
+    }
     &:hover, &:focus, &:active {
         background-color: #F5F5F5;
         color: black;
@@ -122,16 +124,35 @@ const noninteractiveCss = css`
     }
 `
 
+const unitTypeCss = (unitType: BuildingUnitType) => css`
+  background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
+  &:hover {
+    opacity: ${['flat', 'parking'].includes(unitType) ? 1 : .6};
+    background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
+  }
+  &:focus {
+    background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
+  }
+`
+
 interface CustomButtonProps extends ButtonProps {
     secondary?: boolean
     selected?: boolean
     noninteractive?: boolean
     preview?: boolean
+    ellipsis?: boolean
+    unitType?: BuildingUnitType
+}
+const TOOLTIP_OVERLAY_STYLE: React.CSSProperties = {
+    background: colors.white,
+    color: colors.black,
+    borderRadius: '12px',
 }
 
-export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, preview, noninteractive, children, ...restProps }) => {
+export const UnitButton: React.FC<CustomButtonProps> = (props) => {
+    const { secondary, selected, preview, noninteractive, ellipsis = true, unitType, children, ...restProps } = props
     const OriginalLabel = children ? children.toString() : ''
-    if (!secondary && OriginalLabel.length > 4) {        
+    if (!secondary && OriginalLabel.length > 4 && ellipsis) {
         let ButtonLabel = OriginalLabel
         if (!isNaN(Number(ButtonLabel))) {
             ButtonLabel = `…${ButtonLabel.substring(ButtonLabel.length - 2)}`
@@ -139,14 +160,20 @@ export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, p
             ButtonLabel = `${ButtonLabel.substring(0, 2)}…`
         }
         return (
-            <Tooltip placement='topLeft' title={OriginalLabel}>
+            <Tooltip
+                placement='topLeft'
+                title={OriginalLabel}
+                color={colors.white}
+                overlayInnerStyle={TOOLTIP_OVERLAY_STYLE}
+            >
                 <Button css={css`
                     ${buttonCss};
                     ${selected ? selectedCss : ''};
                     ${noninteractive ? noninteractiveCss : ''};                    
-                    ${preview ? previewCss : ''};
+                    ${preview ? previewCss(unitType) : ''};
+                    ${unitType ? unitTypeCss(unitType) : ''};
                 `} {...restProps}>{ButtonLabel}</Button>
-            </Tooltip>            
+            </Tooltip>
         )
     } else {
         return (
@@ -154,9 +181,10 @@ export const UnitButton: React.FC<CustomButtonProps> = ({ secondary, selected, p
                 ${secondary ? buttonSecondaryCss : buttonCss};
                 ${selected ? selectedCss : ''};
                 ${noninteractive ? noninteractiveCss : ''};
-                ${preview ? previewCss : ''};
+                ${preview ? previewCss(unitType) : ''};
+                ${unitType ? unitTypeCss(unitType) : ''};
             `} {...restProps}>{children || ' ' }</Button>
         )
     }
-    
+
 }

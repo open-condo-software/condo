@@ -1,3 +1,4 @@
+import isEmpty from 'lodash/isEmpty'
 import React, { CSSProperties } from 'react'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
@@ -184,11 +185,20 @@ export function convertToOptions <T> (objects: T[], labelField: string, valueFie
 }
 
 export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQueryType, sort?: string[], offset?: number): Promise<boolean> {
-    if (!offset && 'offset' in router.query)
+    if (!offset && 'offset' in router.query) {
         router.query['offset'] = '0'
+    }
+
+    const possibleFilters = pickBy(newFilters, (value) => !isEmpty(value))
+    const possibleQueryData = { ...router.query, sort, offset }
+    if (isEmpty(possibleFilters)) {
+        delete possibleQueryData['filters']
+    } else {
+        possibleQueryData['filters'] = JSON.stringify(possibleFilters)
+    }
 
     const query = qs.stringify(
-        { ...router.query, sort, offset, filters: JSON.stringify(pickBy(newFilters)) },
+        possibleQueryData,
         { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
     )
 

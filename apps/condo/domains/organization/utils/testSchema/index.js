@@ -294,6 +294,4 @@ module.exports = {
     makeEmployeeUserClientWithAbilities,
     TokenSet, createTestTokenSet, updateTestTokenSet,
 }
-
-
 /* AUTOGENERATE MARKER <EXPORTS> */

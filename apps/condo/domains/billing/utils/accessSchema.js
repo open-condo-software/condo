@@ -6,28 +6,38 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function checkBillingIntegrationAccessRight (userId, integrationId) {
     if (!userId || !integrationId) return false
+
     const integration = await getByCondition('BillingIntegrationAccessRight', {
         integration: { id: integrationId },
         user: { id: userId },
+        deletedAt: null,
     })
+
     return !!get(integration, 'id')
 }
 
-async function canReadBillingEntity (user) {
+async function canReadBillingEntity (authentication) {
+    const { item: user } = authentication
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return {}
+
     return {
         OR: [
             { context: { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, deletedAt: null, isBlocked: false } } } },
-            { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
+            { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
         ],
     }
 }
 
-async function canManageBillingEntityWithContext ({ user, operation, itemId, originalInput, schemaWithContextName, context }) {
+async function canManageBillingEntityWithContext ({ authentication, operation, itemId, originalInput, schemaWithContextName }) {
+    const { item: user } = authentication
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
+
     let contextId
+
     if (operation === 'create') {
         // NOTE: can only be created by the organization integration manager
         contextId = get(originalInput, ['context', 'connect', 'id'])
@@ -38,11 +48,14 @@ async function canManageBillingEntityWithContext ({ user, operation, itemId, ori
         contextId = get(itemWithContext, ['context'])
         if (!contextId) return false
     }
+
     const organizationContext = await getById('BillingIntegrationOrganizationContext', contextId)
     if (!organizationContext) return false
+
     const { organization: organizationId, integration: integrationId } = organizationContext
-    const canManageIntegrations = await checkOrganizationPermission(context, user.id, organizationId, 'canManageIntegrations')
+    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
     if (canManageIntegrations) return true
+
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }
 

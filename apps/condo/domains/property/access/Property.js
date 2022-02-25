@@ -4,67 +4,57 @@
 const get = require('lodash/get')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { getById } = require('@core/keystone/schema')
+const { getById, find } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { uniq, compact } = require('lodash')
 
 
-async function canReadProperties ({ authentication: { item: user }, context }) {
+async function canReadProperties ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return {}
-    const userId = user.id
+    if (user.deletedAt) return false
+
+    if (user.isSupport || user.isAdmin) return {}
+
     if (user.type === RESIDENT) {
-        const residents = await Resident.getAll(context, { user: { id: userId } })
-        if (residents.length === 0) {
-            return false
+        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+        if (!residents.length) return false
+        const residentProperties = compact(residents.map(resident => get(resident, 'property')))
+
+        return {
+            id_in: uniq(residentProperties),
         }
-        const propertyIds = compact(residents.map(resident => get(resident, ['property', 'id'])))
-        if (propertyIds.length > 0) {
-            return {
-                // We can have multiple residents in different units of the same property for current user,
-                // and ids and be duplicated
-                id_in: uniq(propertyIds),
-            }
-        }
-        return false
     }
+
     return {
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+                queryOrganizationEmployeeFor(user.id),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
             ],
         },
     }
 }
 
-async function canManageProperties ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
+
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        if (!organizationId) {
-            return false
-        }
+        if (!organizationId) return false
 
-        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageProperties')
-    } else if (operation === 'update') {
-        if (!itemId) {
-            return false
-        }
-
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
+    } else if (operation === 'update' && itemId) {
         const property = await getById('Property', itemId)
-        if (!property) {
-            return false
-        }
-
+        if (!property) return false
         const { organization: organizationId } = property
 
-        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageProperties')
-    } 
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageProperties')
+    }
+
     return false
 }
 

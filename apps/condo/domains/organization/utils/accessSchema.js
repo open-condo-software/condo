@@ -1,29 +1,20 @@
-const { OrganizationEmployee, OrganizationEmployeeRole, OrganizationLink } = require('./serverSchema')
-const { getByCondition } = require('@core/keystone/schema')
+const { getByCondition, find } = require('@core/keystone/schema')
 
-async function checkOrganizationPermission (context, userId, organizationId, permission) {
-    if (!context || !userId || !organizationId) return false
-
-    const [employee] = await OrganizationEmployee.getAll(context, {
+async function checkOrganizationPermission (userId, organizationId, permission) {
+    if (!userId || !organizationId) return false
+    const [employee] = await find('OrganizationEmployee', {
         organization: { id: organizationId },
         user: { id: userId },
         deletedAt: null,
+        isBlocked: false,
     })
 
     if (!employee || !employee.role) {
         return false
     }
 
-    if (employee.isBlocked) {
-        return false
-    }
-
-    if (employee.deletedAt !== null) {
-        return false
-    }
-
-    const [employeeRole] = await OrganizationEmployeeRole.getAll(context, {
-        id: employee.role.id,
+    const [employeeRole] = await find('OrganizationEmployeeRole', {
+        id: employee.role,
         organization: { id: organizationId },
     })
 
@@ -31,20 +22,21 @@ async function checkOrganizationPermission (context, userId, organizationId, per
     return employeeRole[permission] || false
 }
 
-async function checkRelatedOrganizationPermission (context, userId, organizationId, permission) {
-    if (!context || !userId || !organizationId) return false
-
-    const [organizationLink] = await OrganizationLink.getAll(context,
-        { from: queryOrganizationEmployeeFor(userId), to: { id: organizationId } })
+async function checkRelatedOrganizationPermission (userId, organizationId, permission) {
+    if (!userId || !organizationId) return false
+    const [organizationLink] = await find('OrganizationLink', {
+        from: queryOrganizationEmployeeFor(userId),
+        to: { id: organizationId },
+    })
     if (!organizationLink) return false
 
-    return checkOrganizationPermission(context, userId, organizationLink.from.id, permission)
+    return checkOrganizationPermission(userId, organizationLink.from, permission)
 }
 
 // TODO(nomerdvadcatpyat): use this function where checkRelatedOrganizationPermission and checkOrganizationPermission used together
-async function checkPermissionInUserOrganizationOrRelatedOrganization (context, userId, organizationId, permission) {
-    const hasPermissionInRelatedOrganization = await checkRelatedOrganizationPermission(context, userId, organizationId, permission)
-    const hasPermissionInUserOrganization = await checkOrganizationPermission(context, userId, organizationId, permission)
+async function checkPermissionInUserOrganizationOrRelatedOrganization (userId, organizationId, permission) {
+    const hasPermissionInRelatedOrganization = await checkRelatedOrganizationPermission(userId, organizationId, permission)
+    const hasPermissionInUserOrganization = await checkOrganizationPermission(userId, organizationId, permission)
     return Boolean(hasPermissionInRelatedOrganization || hasPermissionInUserOrganization)
 }
 

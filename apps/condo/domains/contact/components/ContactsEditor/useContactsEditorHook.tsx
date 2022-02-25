@@ -70,22 +70,32 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
         }
     }
 
+    const organizationRef = useRef(organization)
+    useEffect(() => {
+        organizationRef.current = organization
+    }, [organization])
+
+    const roleRef = useRef(role)
+    useEffect(() => {
+        roleRef.current = role
+    }, [role])
+
     const ContactsEditorComponent: React.FC<IContactEditorProps> = useMemo(() => {
         const ContactsEditorWrapper = (props) => (
             <ContactsEditor
                 {...props}
-                role={role}
-                organization={organization}
+                role={roleRef.current}
+                organization={organizationRef.current}
                 onChange={handleChangeContact}
                 allowLandLine={allowLandLine}
             />
         )
         return ContactsEditorWrapper
-    }, [role, organization])
+    }, [])
 
     return {
         createContact,
-        canCreateContact: !!contactFieldsRef.current.phone && !!contactFieldsRef.current.name,
+        canCreateContact: !!contactFields.phone && !!contactFields.name,
         ContactsEditorComponent,
     }
 }

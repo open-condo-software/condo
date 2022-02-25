@@ -16,7 +16,8 @@ const {
     SMS_TRANSPORT,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     CUSTOMER_IMPORTANT_NOTE_TYPE,
-} = require('./constants')
+    MESSAGE_FORWARDED_TO_SUPPORT,
+} = require('./constants/constants')
 
 async function renderTemplate (transport, message) {
     if (!MESSAGE_TRANSPORTS.includes(transport)) throw new Error('unexpected transport argument')
@@ -107,17 +108,15 @@ async function renderTemplate (transport, message) {
                     text: `
                     Phone: ${userPhone}
                     Password: ${userPassword}
-
-                    Please follow link: ${serverUrl}/auth/signin
+                    -> ${serverUrl}
                 `,
                 }
             } else if (message.lang === RU_LOCALE) {
                 return {
                     text: `
-                    Номер телефона: ${userPhone}
+                    Тел: ${userPhone}
                     Пароль: ${userPassword}
-
-                    Ссылка для авторизации: ${serverUrl}/auth/signin
+                    -> ${serverUrl}
                 `,
                 }
             }
@@ -176,9 +175,9 @@ async function renderTemplate (transport, message) {
                             <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${serverUrl}/ticket/${id}" style="height:40px;v-text-anchor:middle;width:330px;" arcsize="10%" stroke="f" fill="t">
                                 <v:fill type="tile" src="" color="#4CD174" />
                                 <w:anchorlock/>
-                                <center style="color:#ffffff;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;">Перейти в карточку завяки в Doma.ai</center>
+                                <center style="color:#ffffff;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;">Перейти в карточку заявки в Doma.ai</center>
                             </v:roundrect>
-                            <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;border-radius:4px;color:#ffffff;display:inline-block;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">Перейти в карточку завяки в Doma.ai</a></div>
+                            <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;border-radius:4px;color:#ffffff;display:inline-block;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">Перейти в карточку заявки в Doma.ai</a></div>
                         </body>
                     </html>
                 `,
@@ -250,6 +249,23 @@ async function renderTemplate (transport, message) {
             text: `
                 Название: ${get(data, ['organization', 'name'])},
                 ИНН: ${get(data, ['organization', 'meta', 'inn'])},
+            `,
+        }
+    }
+
+    if (message.type === MESSAGE_FORWARDED_TO_SUPPORT) {
+        const { emailFrom, meta } = message
+        const { dv, text, os, appVersion, organizationsData = [] } = meta
+
+        return {
+            subject: 'Обращение из мобильного приложения',
+            text: `
+                Система: ${os}
+                Версия приложения: ${appVersion}
+                Email: ${emailFrom ? emailFrom : 'не указан'}
+                Сообщение: ${text}
+                УК: ${organizationsData.length === 0 ? 'нет' : organizationsData.map(({ name, inn }) => `
+                  - ${name}. ИНН: ${inn}`).join('')}
             `,
         }
     }

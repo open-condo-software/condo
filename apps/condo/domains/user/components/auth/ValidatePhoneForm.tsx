@@ -1,5 +1,4 @@
-import { Col, Form, Row, Space, Typography } from 'antd'
-import MaskedInput from 'antd-mask-input'
+import { Col, Form, Row, Space, Typography, Input } from 'antd'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useMutation } from '@core/next/apollo'
@@ -28,6 +27,8 @@ interface IValidatePhoneFormProps {
     onFinish: () => void
     onReset: () => void
 }
+
+const SMS_CODE_CLEAR_REGEX = /[^0-9]/g
 
 export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidatePhoneFormProps> => {
     const intl = useIntl()
@@ -110,12 +111,13 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
 
     const handleVerifyCode = useCallback(async () => {
         setPhoneValidateError(null)
-        let smsCode = form.getFieldValue('smsCode') || ''
-        smsCode = smsCode.trim()
-        if (smsCode.toString().length < SMS_CODE_LENGTH) {
+        let smsCode = (form.getFieldValue('smsCode') || '').toString()
+        smsCode = smsCode.replace(SMS_CODE_CLEAR_REGEX, '')
+        form.setFieldsValue({ smsCode })
+        if (smsCode.length < SMS_CODE_LENGTH) {
             return
         }
-        if (smsCode.toString().length > SMS_CODE_LENGTH) {
+        if (smsCode.length > SMS_CODE_LENGTH) {
             return setPhoneValidateError(SMSCodeMismatchError)
         }
         try {
@@ -182,10 +184,10 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                             }),
                         ]}
                     >
-                        <MaskedInput
-                            mask='1111'
+                        <Input
                             placeholder=''
-                            placeholderChar=' '
+                            inputMode={'numeric'}
+                            pattern={'[0-9]*'}
                             onChange={handleVerifyCode}
                         />
                     </Form.Item>

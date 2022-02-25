@@ -30,7 +30,11 @@ const {
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowMutationError,
 } = require('@condo/domains/common/utils/testSchema')
-const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
+const {
+    FEE_CALCULATION_PATH,
+    WEB_VIEW_PATH,
+    DIRECT_PAYMENT_PATH,
+} = require('@condo/domains/acquiring/constants/links')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const {
     REGISTER_MP_EMPTY_INPUT,
@@ -53,6 +57,7 @@ const {
     REGISTER_MP_DELETED_BILLING_CONTEXT,
     REGISTER_MP_DELETED_BILLING_INTEGRATION,
     REGISTER_MP_NEGATIVE_TO_PAY,
+    REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS,
 } = require('@condo/domains/acquiring/constants/errors')
 const faker = require('faker')
 const dayjs = require('dayjs')
@@ -66,7 +71,7 @@ describe('RegisterMultiPaymentService', () => {
                 const hostUrl = commonData.acquiringIntegration.hostUrl
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
                 const [result] = await registerMultiPaymentByTestClient(commonData.client, payload)
                 expect(result).toBeDefined()
@@ -74,13 +79,14 @@ describe('RegisterMultiPaymentService', () => {
                 expect(result).toHaveProperty('multiPaymentId')
                 expect(result).toHaveProperty('webViewUrl', `${hostUrl}${WEB_VIEW_PATH.replace('[id]', result.multiPaymentId )}`)
                 expect(result).toHaveProperty('feeCalculationUrl', `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', result.multiPaymentId )}`)
+                expect(result).toHaveProperty('directPaymentUrl', `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', result.multiPaymentId )}`)
             })
         })
         test('Anonymous user', async () => {
             const { serviceConsumer, billingReceipts } = await makePayer()
             const payload = [{
                 consumerId: serviceConsumer.id,
-                receiptsIds: billingReceipts.map(receipt => receipt.id),
+                receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
             }]
             const client = await makeClient()
             await expectToThrowAuthenticationError(async () => {
@@ -91,7 +97,7 @@ describe('RegisterMultiPaymentService', () => {
             const { serviceConsumer, billingReceipts } = await makePayer()
             const payload = [{
                 consumerId: serviceConsumer.id,
-                receiptsIds: billingReceipts.map(receipt => receipt.id),
+                receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
             }]
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -105,7 +111,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { serviceConsumer, billingReceipts, client } = await makePayer()
                 const payload = [{
                     consumerId: serviceConsumer.id,
-                    receiptsIds: billingReceipts.map(receipt => receipt.id),
+                    receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
                 }]
                 await expectToThrowMutationError(async () => {
                     await registerMultiPaymentByTestClient(client, payload, { dv: 2 })
@@ -113,12 +119,12 @@ describe('RegisterMultiPaymentService', () => {
             })
             describe('Should check sender', () => {
                 let consumerId
-                let receiptsIds
+                let receipts
                 let client
                 beforeAll(async () => {
                     const data = await makePayer()
                     consumerId = data.serviceConsumer.id
-                    receiptsIds = data.billingReceipts.map(receipt => receipt.id)
+                    receipts = data.billingReceipts.map(receipt => ({ id: receipt.id }))
                     client = data.client
                 })
                 const cases = [
@@ -131,7 +137,7 @@ describe('RegisterMultiPaymentService', () => {
                     const sender = { dv, fingerprint }
                     const payload = {
                         consumerId,
-                        receiptsIds,
+                        receipts,
                     }
                     await expectToThrowMutationError(async () => {
                         await registerMultiPaymentByTestClient(client, payload, { sender })
@@ -147,7 +153,7 @@ describe('RegisterMultiPaymentService', () => {
                 payload = [
                     {
                         consumerId: serviceConsumer.id,
-                        receiptsIds: [],
+                        receipts: [],
                     },
                 ]
                 await expectToThrowMutationError(async () => {
@@ -161,11 +167,11 @@ describe('RegisterMultiPaymentService', () => {
                 const payload = [
                     {
                         consumerId: serviceConsumer.id,
-                        receiptsIds: [billingReceipts[0].id],
+                        receipts: [{ id: billingReceipts[0].id }],
                     },
                     {
                         consumerId: serviceConsumer.id,
-                        receiptsIds: billingReceipts[1].id,
+                        receipts: [{ id: billingReceipts[1].id }],
                     },
                 ]
                 await expectToThrowMutationError(async () => {
@@ -177,7 +183,7 @@ describe('RegisterMultiPaymentService', () => {
                 const payload = [
                     {
                         consumerId: serviceConsumer.id,
-                        receiptsIds: [billingReceipts[0].id, billingReceipts[0].id],
+                        receipts: [{ id: billingReceipts[0].id }, { id: billingReceipts[0].id }],
                     },
                 ]
                 await expectToThrowMutationError(async () => {
@@ -192,7 +198,7 @@ describe('RegisterMultiPaymentService', () => {
                 const payload = [
                     {
                         consumerId: fakeUuid,
-                        receiptsIds: billingReceipts.map(receipt => receipt.id),
+                        receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
                     },
                 ]
                 await expectToThrowMutationError(async () => {
@@ -203,7 +209,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
                 await updateTestServiceConsumer(commonData.admin, batches[1].serviceConsumer.id, {
                     acquiringIntegrationContext: { disconnectAll: true },
@@ -212,13 +218,26 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, REGISTER_MP_NO_ACQUIRING_CONSUMERS)
             })
+            test('All ServiceConsumers should have BillingAccount', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                const payload = batches.map(batch => ({
+                    consumerId: batch.serviceConsumer.id,
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                }))
+                await updateTestServiceConsumer(commonData.admin, batches[0].serviceConsumer.id, {
+                    billingAccount: { disconnectAll: true },
+                })
+                await expectToThrowMutationError(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS)
+            })
             describe('AcquiringIntegrationContext', () => {
                 test('All should be linked to same AcquiringIntegration', async () => {
                     const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
 
                     const payload = batches.map(batch => ({
                         consumerId: batch.serviceConsumer.id,
-                        receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                        receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                     }))
                     const billings = batches.map(batch => batch.billingIntegration)
                     const [secondAcquiring] = await createTestAcquiringIntegration(commonData.admin, billings)
@@ -239,7 +258,7 @@ describe('RegisterMultiPaymentService', () => {
 
                     const payload = batches.map(batch => ({
                         consumerId: batch.serviceConsumer.id,
-                        receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                        receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                     }))
                     await updateTestAcquiringIntegration(commonData.admin, commonData.acquiringIntegration.id, {
                         canGroupReceipts: false,
@@ -253,7 +272,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { serviceConsumer, client } = await makePayer()
                 const payload = [{
                     consumerId: serviceConsumer.id,
-                    receiptsIds: faker.datatype.uuid(),
+                    receipts: { id: faker.datatype.uuid() },
                 }]
                 await expectToThrowMutationError(async () => {
                     await registerMultiPaymentByTestClient(client, payload)
@@ -263,7 +282,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
                 await updateTestAcquiringIntegration(commonData.admin, commonData.acquiringIntegration.id, {
                     supportedBillingIntegrations: { disconnect: [{ id: batches[1].billingIntegration.id }] },
@@ -276,7 +295,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
                 await updateTestBillingIntegration(commonData.admin, batches[1].billingIntegration.id, {
                     currencyCode: 'USD',
@@ -291,7 +310,7 @@ describe('RegisterMultiPaymentService', () => {
                     const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                     const payload = batches.map(batch => ({
                         consumerId: batch.serviceConsumer.id,
-                        receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                        receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                     }))
                     await updateTestBillingReceipt(commonData.admin, batches[1].billingReceipts[0].id, {
                         toPay,
@@ -306,7 +325,7 @@ describe('RegisterMultiPaymentService', () => {
                 const payload = [
                     {
                         consumerId: batches[0].serviceConsumer.id,
-                        receiptsIds: batches[1].billingReceipts.map(receipt => receipt.id),
+                        receipts: batches[1].billingReceipts.map(receipt => ({ id: receipt.id })),
                     },
                 ]
                 await expectToThrowMutationError(async () => {
@@ -319,7 +338,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(1, 2)
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
                 await updateTestBillingReceipt(commonData.admin, batches[0].billingReceipts[0].id, {
                     deletedAt: dayjs().toISOString(),
@@ -332,7 +351,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
                 await updateTestServiceConsumer(commonData.admin, batches[0].serviceConsumer.id, {
                     deletedAt: dayjs().toISOString(),
@@ -345,7 +364,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
                 await updateTestAcquiringIntegrationContext(commonData.admin, batches[1].acquiringContext.id, {
                     deletedAt: dayjs().toISOString(),
@@ -358,7 +377,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
                 await updateTestAcquiringIntegration(commonData.admin, commonData.acquiringIntegration.id, {
                     deletedAt: dayjs().toISOString(),
@@ -371,7 +390,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
                 await updateTestBillingIntegrationOrganizationContext(commonData.admin, batches[0].billingContext.id, {
                     deletedAt: dayjs().toISOString(),
@@ -384,7 +403,7 @@ describe('RegisterMultiPaymentService', () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
                     consumerId: batch.serviceConsumer.id,
-                    receiptsIds: batch.billingReceipts.map(receipt => receipt.id),
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
                 await updateTestBillingIntegration(commonData.admin, batches[0].billingIntegration.id, {
                     deletedAt: dayjs().toISOString(),

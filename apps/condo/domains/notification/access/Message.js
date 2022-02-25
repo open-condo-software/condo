@@ -6,21 +6,18 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadMessages ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    return {
-        user: { id: user.id },
-    }
+    if (user.deletedAt) return false
+    
+    if (user.isAdmin) return {}
+
+    return { user: { id: user.id } }
 }
 
-async function canManageMessages ({ authentication: { item: user }, operation }) {
+async function canManageMessages ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    if (operation === 'create') {
-        return false
-    } else if (operation === 'update') {
-        return false
-    }
-    return false
+    if (user.deletedAt) return false
+    
+    return !!user.isAdmin
 }
 
 /*

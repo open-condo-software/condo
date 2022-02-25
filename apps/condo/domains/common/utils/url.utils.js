@@ -40,8 +40,17 @@ function extractRootDomain (url) {
     return domain
 }
 
+// Removes the path from the link, leaving the part with subdomains and protocol
+function extractOrigin (url) {
+    const doubleSlashIndex = url.indexOf('//')
+    const startIndex = doubleSlashIndex > 1 ? doubleSlashIndex + 2 : 0
+    const firstSeparator = url.indexOf('/', startIndex)
+    return url.substring(0, firstSeparator > -1 ? firstSeparator : undefined)
+}
+
 module.exports = {
     extractHostname,
     extractRootDomain,
     getQueryParams,
+    extractOrigin,
 }

@@ -1,19 +1,21 @@
-import { Form, Space, Typography } from 'antd'
 import React, { useEffect } from 'react'
+import { Form, Typography } from 'antd'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import BasePropertyForm from '../BasePropertyForm'
 import { Button } from '@condo/domains/common/components/Button'
-import { ErrorsContainer } from '../BasePropertyForm/ErrorsContainer'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
-import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 
 interface IUpdatePropertyForm {
     id: string
 }
+
+const FORM_SUBMIT_BUTTON_STYLES = {
+    marginTop: '60px',
+}
+const FORM_DEPENDENCIES = ['address']
 
 export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const intl = useIntl()
@@ -48,35 +50,27 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <Form.Item noStyle dependencies={['address']}>
-                        {
-                            ({ getFieldsValue }) => {
-                                const { address } = getFieldsValue(['address'])
-                                return (
-                                    <>
-                                        <ActionBar>
-                                            <FormResetButton
-                                                type={'sberPrimary'}
-                                                secondary
-                                            />
-                                            <Space size={12}>
-                                                <Button
-                                                    key='submit'
-                                                    onClick={handleSave}
-                                                    type='sberPrimary'
-                                                    loading={isLoading}
-                                                    disabled={!address}
-                                                >
-                                                    {ApplyChangesLabel}
-                                                </Button>
-                                                <ErrorsContainer address={address} />
-                                            </Space>
-                                        </ActionBar>
-                                    </>
-                                )
+                    <>
+                        <Form.Item noStyle dependencies={FORM_DEPENDENCIES}>
+                            {
+                                ({ getFieldsValue }) => {
+                                    const { address } = getFieldsValue(['address'])
+                                    return (
+                                        <Button
+                                            key='submit'
+                                            onClick={handleSave}
+                                            type='sberDefaultGradient'
+                                            loading={isLoading}
+                                            disabled={!address}
+                                            style={FORM_SUBMIT_BUTTON_STYLES}
+                                        >
+                                            {ApplyChangesLabel}
+                                        </Button>
+                                    )
+                                }
                             }
-                        }
-                    </Form.Item>
+                        </Form.Item>
+                    </>
                 )
             }}
         </BasePropertyForm>

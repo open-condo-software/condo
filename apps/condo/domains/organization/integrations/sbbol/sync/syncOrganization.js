@@ -6,7 +6,7 @@ const { uniqBy } = require('lodash')
 const conf = require('@core/config')
 const { dvSenderFields } = require('../constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants')
+const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const CUSTOMER_EMAIL = conf.NOTIFY_ABOUT_NEW_ORGANIZATION_EMAIL
 
@@ -82,12 +82,12 @@ const createOrganization = async ({ context, user, organizationInfo }) => {
  *
  * @param {KeystoneContext} context
  * @param user
- * @param userInfo
+ * @param userData prepared data at our side for saving user
  * @param organizationInfo
  * @param dvSenderFields
  * @return {Promise<*>}
  */
-const syncOrganization = async ({ context, user, userInfo, organizationInfo, dvSenderFields }) => {
+const syncOrganization = async ({ context, user, userData, organizationInfo, dvSenderFields }) => {
     const importInfo = {
         importId: organizationInfo.importId,
         importRemoteSystem: organizationInfo.importRemoteSystem,
@@ -140,7 +140,7 @@ const syncOrganization = async ({ context, user, userInfo, organizationInfo, dvS
             })
             const { context: adminContext } = context
             await createConfirmedEmployee(adminContext, importedOrganization, {
-                ...userInfo,
+                ...userData,
                 ...user,
             }, allRoles[0], dvSenderFields)
         }

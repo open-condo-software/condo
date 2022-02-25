@@ -1,34 +1,36 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
 
-import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
+import { getAddressRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
-import { createSorterMap, IFilters } from '../utils/helpers'
+import { IFilters } from '../utils/helpers'
 
-export const useTableColumns = (
-    sort: Array<string>,
-    filters: IFilters,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>
-) => {
+export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
 
-    const sorterMap = createSorterMap(sort)
+    const router = useRouter()
+    const { filters, sorters } = parseQuery(router.query)
+    const sorterMap = getSorterMap(sorters)
     const search = getFilteredValue(filters, 'search')
-    const render = getTableCellRenderer(search)
-    const renderAddress = (address, record) => {
-        const { text, unitPrefix } = getAddressDetails(record, ShortFlatNumber)
 
-        return getTableCellRenderer(search, true, unitPrefix)(text)
-    }
+    const renderAddress = useCallback(
+        (_, contact) => getAddressRender(get(contact, 'property'), DeletedMessage, search),
+        [DeletedMessage, search])
+
+    const render = useMemo(() => getTableCellRenderer(search), [search])
 
     return useMemo(() => {
         return [
@@ -40,7 +42,7 @@ export const useTableColumns = (
                 key: 'name',
                 sorter: true,
                 width: '20%',
-                filterDropdown: getTextFilterDropdown(NameMessage, setFiltersApplied),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 filterIcon: getFilterIcon,
                 render,
                 ellipsis: true,
@@ -52,10 +54,22 @@ export const useTableColumns = (
                 dataIndex: ['property', 'address'],
                 key: 'address',
                 sorter: false,
-                width: '45%',
-                filterDropdown: getTextFilterDropdown(AddressMessage, setFiltersApplied),
+                width: '35%',
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
                 render: renderAddress,
+            },
+            {
+                title: UnitMessage,
+                dataIndex: 'unitName',
+                sortOrder: get(sorterMap, 'unitName'),
+                filteredValue: getFilteredValue(filters, 'unitName'),
+                key: 'unitName',
+                sorter: true,
+                width: '15%',
+                render,
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
+                filterIcon: getFilterIcon,
             },
             {
                 title: PhoneMessage,
@@ -65,7 +79,7 @@ export const useTableColumns = (
                 key: 'phone',
                 sorter: true,
                 width: '15%',
-                filterDropdown: getTextFilterDropdown(PhoneMessage, setFiltersApplied),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'phone'),
                 filterIcon: getFilterIcon,
                 render,
             },
@@ -78,10 +92,10 @@ export const useTableColumns = (
                 key: 'email',
                 sorter: true,
                 width: '20%',
-                filterDropdown: getTextFilterDropdown(EmailMessage, setFiltersApplied),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'email'),
                 filterIcon: getFilterIcon,
                 render,
             },
         ]
-    }, [sort, filters])
+    }, [AddressMessage, EmailMessage, NameMessage, PhoneMessage, filterMetas, filters, render, renderAddress, sorterMap])
 }

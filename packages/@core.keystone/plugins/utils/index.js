@@ -1,4 +1,3 @@
-const { HiddenRelationship } = require('./HiddenRelationship')
 const { getType } = require('@keystonejs/utils')
 const { get } = require('lodash')
 
@@ -35,7 +34,6 @@ async function evaluateKeystoneAccessResult (access, operation, args, keystone =
 }
 
 module.exports = {
-    HiddenRelationship,
     composeHook,
     isValidDate,
     evaluateKeystoneAccessResult,

@@ -7,8 +7,8 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 async function canRegisterMultiPayment ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
-    return user.type === RESIDENT
+
+    return user.isAdmin || user.type === RESIDENT
 }
 
 /*

@@ -9,6 +9,7 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
         const validSorts = sortableColumns.reduce((acc, cur) => {
             return [...acc, `${cur}_ASC`, `${cur}_DESC`]
         }, [])
+
         const validMetas = queryMetas
             .filter((meta) => meta && meta.keyword && meta.filters && meta.filters.length > 0)
 
@@ -40,10 +41,12 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
             }
         }
 
-        const sortersToSortBy = (querySorts: SorterColumn | Array<SorterColumn>) => {
+        const sortersToSortBy = (querySorts: SorterColumn | Array<SorterColumn>, defaultSortBy?: string[]) => {
+            const sortBy = defaultSortBy ? defaultSortBy : DEFAULT_SORT_BY
             const sorters = convertSortersToSortBy(querySorts)
                 .filter((sortLine) => validSorts.includes(sortLine))
-            return sorters.length ? sorters : DEFAULT_SORT_BY
+
+            return sorters.length ? sorters : sortBy
         }
 
         return {

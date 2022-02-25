@@ -25,6 +25,14 @@ function generateGQLTestUtils (gql) {
         return data.objs
     }
 
+    async function getOne (context, where, params = {}) {
+        const objs = await getAll(context, where, { first: 2, ...params })
+
+        if (objs.length > 1) throw new Error('getOne() got more than one result, check filters/logic please')
+
+        return objs[0] // will return undefined by default, if objs is empty :)
+    }
+
     async function count (client, where, { raw = false } = {}) {
         checkClient(client)
         const { data, errors } = await client.query(gql.GET_COUNT_OBJS_QUERY, { where: where })
@@ -78,21 +86,40 @@ function generateGQLTestUtils (gql) {
             ...extraAttrs,
         }
         checkClient(client)
-        const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, {
-            id, data: { ...attrs },
-        })
+        const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, { id, data: { ...attrs } })
         if (raw) return { data, errors }
         throwIfError(data, errors)
         return [data.obj, attrs]
     }
 
+    /**
+     * Tries to receive existing item, and updates it on success or creates new one. Updated/created value is returned.
+     * Attention! Be careful with where. Because of getOne, this helper will throw exception, if it gets 1+ items.
+     * @param context
+     * @param where
+     * @param attrs
+     * @returns {Promise<*|null|undefined>}
+     */
+    async function updateOrCreate (context, where, attrs) {
+        const existingItem = await getOne(context, where)
+        const shouldUpdate = Boolean(existingItem && existingItem.id)
+
+        return shouldUpdate
+            ? await update(context, existingItem.id, attrs)
+            : await create(context, attrs)
+    }
+
     return {
         gql,
-        getAll, count,
+        getAll,
+        getOne,
+        count,
         getAllWithMeta,
-        create, update,
+        create,
+        update,
         delete: delete_,
         softDelete,
+        updateOrCreate,
     }
 }
 

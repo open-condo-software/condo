@@ -10,9 +10,10 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const access = require('@condo/domains/meter/access/MeterReading')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-const { getLastBillingAccountMeterReading } = require('../utils/serverSchema')
-const { VALUE_LESS_THAN_PREVIOUS_ERROR } = require('@condo/domains/meter/constants/errors')
-
+const { triggersManager } = require('@core/triggers')
+const get = require('lodash/get')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { addClientInfoToResidentMeterReading } = require('../utils/serverSchema/resolveHelpers')
 
 const MeterReading = new GQLListSchema('MeterReading', {
     schemaDoc: 'Meter reading taken from a client or billing',
@@ -41,65 +42,21 @@ const MeterReading = new GQLListSchema('MeterReading', {
             schemaDoc: 'If the meter is single-tariff, then only this value will be filled in;' +
                 'If multi-tariff, then the value of the first tariff will be in this field',
             type: Decimal,
-            hooks: {
-                validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (operation === 'create') {
-                        const value = Number(resolvedData[fieldPath])
-                        const lastMeterReading = await getLastBillingAccountMeterReading(context, resolvedData)
-
-                        if (lastMeterReading && lastMeterReading.value1 > value)
-                            addFieldValidationError(`${VALUE_LESS_THAN_PREVIOUS_ERROR}value] Meter reading value less than previous`)
-                    }
-                },
-            },
         },
 
         value2: {
             schemaDoc: 'If the meter is multi-tariff, then the value of the second tariff is stored here',
             type: Decimal,
-            hooks: {
-                validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (operation === 'create') {
-                        const value = Number(resolvedData[fieldPath])
-                        const lastMeterReading = await getLastBillingAccountMeterReading(context, resolvedData)
-
-                        if (lastMeterReading && lastMeterReading.value2 > value)
-                            addFieldValidationError(`${VALUE_LESS_THAN_PREVIOUS_ERROR}value] Meter reading value less than previous`)
-                    }
-                },
-            },
         },
 
         value3: {
             schemaDoc: 'If the meter is multi-tariff, then the value of the third tariff is stored here',
             type: Decimal,
-            hooks: {
-                validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (operation === 'create') {
-                        const value = Number(resolvedData[fieldPath])
-                        const lastMeterReading = await getLastBillingAccountMeterReading(context, resolvedData)
-
-                        if (lastMeterReading && lastMeterReading.value3 > value)
-                            addFieldValidationError(`${VALUE_LESS_THAN_PREVIOUS_ERROR}value] Meter reading value less than previous`)
-                    }
-                },
-            },
         },
 
         value4: {
             schemaDoc: 'If the meter is multi-tariff, then the value of the fourth tariff is stored here',
             type: Decimal,
-            hooks: {
-                validateInput: async ({ context, operation, resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (operation === 'create') {
-                        const value = Number(resolvedData[fieldPath])
-                        const lastMeterReading = await getLastBillingAccountMeterReading(context, resolvedData)
-
-                        if (lastMeterReading && lastMeterReading.value4 > value)
-                            addFieldValidationError(`${VALUE_LESS_THAN_PREVIOUS_ERROR}value] Meter reading value less than previous`)
-                    }
-                },
-            },
         },
 
         client: CLIENT_FIELD,
@@ -119,6 +76,16 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
     },
     hooks: {
+        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
+            await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
+            const user = get(context, ['req', 'user'])
+
+            if (operation === 'create' && user.type === RESIDENT) {
+                await addClientInfoToResidentMeterReading(context, resolvedData)
+            }
+
+            return resolvedData
+        },
         validateInput: ({ resolvedData, context, addValidationError }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData

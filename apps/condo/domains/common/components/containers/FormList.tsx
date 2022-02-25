@@ -16,7 +16,7 @@ import {
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import React, { FunctionComponent, useCallback, useState, useRef, CSSProperties } from 'react'
+import React, { useCallback, useState, useRef, CSSProperties, ComponentProps } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
 import { throttle } from 'lodash'
@@ -234,7 +234,7 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     children: IFormWithActionChildren
 }
 
-const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
+const FormWithAction: React.FC<IFormWithAction> = (props) => {
     const intl = useIntl()
     const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
 
@@ -258,6 +258,8 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
         layout = 'vertical',
         validateTrigger,
         style,
+        onFieldsChange,
+        ...formProps
     } = props
 
     const [form] = Form.useForm()
@@ -325,7 +327,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
             OnCompletedMsg,
         })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [action])
 
     function handleSave () {
         // TODO(zuch) Possible bug: If user press save button and form not touched he will stay on edit screen with no response from system
@@ -361,6 +363,7 @@ const FormWithAction: FunctionComponent<IFormWithAction> = (props) => {
             colon={colon}
             scrollToFirstError
             style={style}
+            {...formProps}
         >
             <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
             {children({ handleSave, isLoading, handleSubmit: _handleSubmit, form })}
@@ -376,10 +379,11 @@ interface IBaseModalFormProps<TRecordFormState, TRecordUIState> extends IFormWit
     ModalCancelButtonLabelMsg?: string
     ModalSaveButtonLabelMsg?: string
     modalExtraFooter?: JSX.Element[]
-    modalProps?: ModalProps,
+    modalProps?: ModalProps
+    submitButtonProps?: ComponentProps<typeof Button>
 }
 
-const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
+const BaseModalForm: React.FC<IBaseModalFormProps> = ({
     visible,
     cancelModal,
     ModalTitleMsg = '',
@@ -389,6 +393,7 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
     modalExtraFooter = [],
     children,
     modalProps,
+    submitButtonProps,
     ...props
 }) => {
     const intl = useIntl()
@@ -412,6 +417,7 @@ const BaseModalForm: FunctionComponent<IBaseModalFormProps> = ({
                     handleSaveRef.current()
                 }}
                 type="sberPrimary"
+                {...submitButtonProps}
             >
                 {SaveMessage}
             </Button>,

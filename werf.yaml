@@ -1,13 +1,42 @@
 project: condo
 configVersion: 1
 ---
-image: condo
+image: base
 from: ubuntu:20.04
+shell:
+  beforeInstall:
+  - "export DEBIAN_FRONTEND=noninteractive"
+  - "groupadd -r app --gid=999"
+  - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
+  - "apt update -qq"
+  - "apt install -qq -y curl"
+  - "curl -fsL https://deb.nodesource.com/setup_14.x | bash"
+  - "apt install -qq -y --no-install-recommends
+      g++
+      automake
+      libtool
+      make
+      nodejs
+      python3-pip"
+  - "pip3 install django>=3.0.6 psycopg2-binary>=2.8.5"
+  - "npm install --global yarn"
 
+docker:
+  ENV:
+    LANG: C.UTF-8
+---
+image: condo
+fromImage: base
+fromCacheVersion: "1"
 git:
 - add: /
   to: /app
   stageDependencies:
+    install:
+    - "yarn.lock"
+    - "package.json"
+    - "**/yarn.lock"
+    - "**/package.json"
     setup:
     - "apps/**"
     - "packages/**"
@@ -21,22 +50,9 @@ git:
   group: app
 
 shell:
-  beforeInstall:
-  - "export DEBIAN_FRONTEND=noninteractive"
-  - "groupadd -r app --gid=999"
-  - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
-  - "apt update -qq"
-  - "apt install -qq -y curl"
-  - "curl -fsL https://deb.nodesource.com/setup_14.x | bash"
-  - "apt install -qq -y --no-install-recommends
-      g++
-      automake
-      libtool
-      make
-      nodejs
-      python3-pip"
-  - "pip3 install django>=3.0.6 psycopg2-binary>=2.8.5"
-  - "npm install --global yarn"
+  install:
+  - "cd /app"
+  - "yarn install"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -44,53 +60,45 @@ shell:
   - "echo 'DATABASE_URL=undefined' >> /app/.env"
   - "echo 'WORKER_REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
-  - "yarn install"
+  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+  - "yarn workspace @app/condo next telemetry disable"
   - "yarn workspace @app/condo build"
-  - "yarn cache clean"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
   - "rm -rf /app/.yarn"
-  - "rm -rf /app/.cache"
 
 docker:
   ENV:
     LANG: C.UTF-8
 ---
 image: callcenter
-from: ubuntu:20.04
+fromImage: base
+fromCacheVersion: "1"
 git:
-- add: /
-  to: /app
-  stageDependencies:
-    setup:
-    - apps/**
-    - packages/**
-    - bin/**
-  excludePaths:
-  - .github
-  - .helm
-  - werf.yaml
-  - werf-giterminism.yaml
-  owner: app
-  group: app
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+      setup:
+        - "apps/**"
+        - "packages/**"
+        - "bin/**/*"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
 
 shell:
-  beforeInstall:
-  - "export DEBIAN_FRONTEND=noninteractive"
-  - "groupadd -r app --gid=999"
-  - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
-  - "apt update -qq"
-  - "apt install -qq -y curl"
-  - "curl -fsL https://deb.nodesource.com/setup_14.x | bash"
-  - "apt install -qq -y --no-install-recommends
-      g++
-      automake
-      libtool
-      make
-      nodejs
-      python3-pip"
-  - "pip3 install django>=3.0.6 psycopg2-binary>=2.8.5"
-  - "npm install --global yarn"
+  install:
+    - "cd /app"
+    - "yarn install"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -98,14 +106,111 @@ shell:
   - "echo 'DATABASE_URL=undefined' >> /app/.env"
   - "echo 'WORKER_REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
-  - "yarn install"
+  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+  - "yarn workspace @app/callcenter next telemetry disable"
   - "yarn workspace @app/callcenter build"
-  - "yarn cache clean"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
   - "rm -rf /app/.yarn"
-  - "rm -rf /app/.cache"
 
 docker:
   ENV:
     LANG: C.UTF-8
+---
+image: eps
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+      setup:
+        - "apps/**"
+        - "packages/**"
+        - "bin/**/*"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+
+shell:
+  install:
+    - "cd /app"
+    - "yarn install"
+  setup:
+  - "cd /app"
+  - "echo '# Build time .env config!' >> /app/.env"
+  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+  - "echo 'WORKER_REDIS_URL=undefined' >> /app/.env"
+  - "echo 'NODE_ENV=production' >> /app/.env"
+  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+  - "yarn workspace @app/eps next telemetry disable"
+  - "yarn workspace @app/eps build"
+  - "rm -rf /app/.env"
+  - "rm -rf /app/.config"
+  - "rm -rf /app/.yarn"
+
+docker:
+  ENV:
+    LANG: C.UTF-8
+---
+image: rb
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+      setup:
+        - "apps/**"
+        - "packages/**"
+        - "bin/**/*"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+
+shell:
+  install:
+    - "cd /app"
+    - "yarn install"
+  setup:
+  - "cd /app"
+  - "echo '# Build time .env config!' >> /app/.env"
+  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+  - "echo 'WORKER_REDIS_URL=undefined' >> /app/.env"
+  - "echo 'NODE_ENV=production' >> /app/.env"
+  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+  - "yarn workspace @app/condorb next telemetry disable"
+  - "yarn workspace @app/condorb build"
+  - "rm -rf /app/.env"
+  - "rm -rf /app/.config"
+  - "rm -rf /app/.yarn"
+
+docker:
+  ENV:
+    LANG: C.UTF-8
+---
+image: postgresreview
+from: postgres:13.2
+---
+image: redisreview
+from: redis:6.2

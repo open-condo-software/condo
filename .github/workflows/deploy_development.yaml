@@ -1,0 +1,41 @@
+name: Deploy to Develop
+
+concurrency: deploy_develop.yaml
+
+on:
+  workflow_dispatch:
+    branches:
+      - '*'
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  converge:
+    name: "Deploy to development"
+    runs-on: self-hosted
+    env:
+      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
+      PULL_USER: ${{ secrets.PULL_USER }}
+      PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+      - name: Converge
+        uses: werf/actions/converge@v1.2
+        with:
+          channel: beta
+          env: development
+          kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          WERF_SET_CI_CONDO_URL: "global.ci_condo_url=condo.d.doma.ai"
+          WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=callcenter.d.doma.ai"
+          WERF_SET_CI_EPS_URL: "global.ci_eps_url=eps.d.doma.ai"
+          WERF_SET_CI_RB_URL: "global.ci_rb_url=rb.d.doma.ai"
+          WERF_NAMESPACE: "development"
+          WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"

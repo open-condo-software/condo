@@ -69,10 +69,13 @@ const getVolumeRender = (decimals: number) => {
         const volume = parseFloat(text)
         const scaleRate = Math.pow(10, decimals)
         const roundedVolume = Math.round((volume + Number.EPSILON) * scaleRate) / scaleRate
+        if (roundedVolume === volume) {
+            return (
+                <Tooltip title={text}>{roundedVolume}</Tooltip>
+            )
+        }
         return (
-            <Tooltip title={text}>
-                {roundedVolume}
-            </Tooltip>
+            <Tooltip title={text}>{roundedVolume}…</Tooltip>
         )
     }
 }

@@ -5,14 +5,29 @@
  */
 
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-
+const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { Contact: ContactGQL } = require('@condo/domains/contact/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Contact = generateServerUtils(ContactGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+const loadContactsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const contactsLoader = new GqlWithKnexLoadList({
+        listKey: 'Contact',
+        fields: 'id name phone email unitName createdAt updatedAt',
+        singleRelations: [
+            ['Organization', 'organization', 'name'],
+            ['Property', 'property', 'address'],
+        ],
+        sortBy,
+        where,
+    })
+    return await contactsLoader.load()
+}
+
 module.exports = {
     Contact,
+    loadContactsForExcelExport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import { ColumnsType } from 'antd/es/table/interface'
 import { Table as DefaultTable, TableProps } from 'antd'
 import get from 'lodash/get'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
 import {
     getPageIndexFromOffset,
@@ -10,8 +10,8 @@ import {
     FULL_TO_SHORT_ORDERS_MAP,
     FiltersFromQueryType,
 } from '@condo/domains/common/utils/tables.utils'
-import qs from 'qs'
-import { isEqual } from 'lodash'
+import isEqual from 'lodash/isEqual'
+import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 
 export type TableRecord = any
 
@@ -24,9 +24,11 @@ interface ITableProps extends TableProps<TableRecord> {
     columns: Array<Record<string, unknown>> | ColumnsType<TableRecord>
     onRow?: (record: TableRecord, index?: number) => React.HTMLAttributes<HTMLElement>
     applyQuery?: (queryParams) => Promise<boolean>
+    shouldHidePaginationOnSinglePage?: boolean,
 }
 
-export const DEFAULT_PAGE_SIZE = 10
+export const DEFAULT_PAGE_SIZE = 30
+const TABLE_STYLE = { width: 'auto' }
 
 export const Table: React.FC<ITableProps> = ({
     keyPath,
@@ -37,10 +39,12 @@ export const Table: React.FC<ITableProps> = ({
     pageSize,
     onRow,
     applyQuery,
+    shouldHidePaginationOnSinglePage,
     ...otherTableProps
 }) => {
     const rowsPerPage = pageSize || DEFAULT_PAGE_SIZE
     const rowKey = keyPath || 'id'
+    const hideOnSinglePage = !!shouldHidePaginationOnSinglePage
 
     const router = useRouter()
     const { filters, offset, sorters } = parseQuery(router.query)
@@ -90,7 +94,6 @@ export const Table: React.FC<ITableProps> = ({
 
         const newOffset = shouldResetOffset ? 0 : (current - 1) * rowsPerPage
 
-
         const queryParams = {
             filters: JSON.stringify(newFilters),
             offset: newOffset,
@@ -100,8 +103,9 @@ export const Table: React.FC<ITableProps> = ({
             return applyQuery(queryParams)
         }
         else {
-            const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-            return router.push(router.route + newQuery)
+            // The `queryParams` contains only filters, sort and offset, so we can use `updateQuery`.
+            // In case of additional parameters, we have to use custom code or modify `updateQuery` signature.
+            return updateQuery(router, newFilters, newSorters, newOffset)
         }
     }, 400)
 
@@ -110,6 +114,7 @@ export const Table: React.FC<ITableProps> = ({
             <DefaultTable
                 bordered
                 tableLayout={'fixed'}
+                style={TABLE_STYLE}
                 loading={loading}
                 rowKey={(record) => get(record, rowKey)}
                 dataSource={dataSource}
@@ -122,6 +127,7 @@ export const Table: React.FC<ITableProps> = ({
                     current: currentPageIndex,
                     pageSize: rowsPerPage,
                     position: ['bottomLeft'],
+                    hideOnSinglePage,
                 }}
                 {...otherTableProps}
             />

@@ -11,40 +11,37 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 async function canReadMultiPayments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return {}
-    const userId = user.id
-    // Resident user can get only it's own MultiPayments
+
+    if (user.isSupport || user.isAdmin) return {}
+
     if (user.type === RESIDENT) {
         return {
-            user: { id: userId },
+            user: { id: user.id },
         }
     }
+
     // Acquiring integration account can get only MultiPayments linked to this integration
-    return {
-        integration: { accessRights_some: { user: { id: userId } } },
-    }
+    return { integration: { accessRights_some: { user: { id: user.id } }, deletedAt: null } }
 }
 
 async function canManageMultiPayments ({ authentication: { item: user }, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+
     if (user.isAdmin) return true
     // Can be created only through custom mutation or by admin, can be modified by acquiring integration account
-    if (operation === 'create') {
-        return false
-    } else if (operation === 'update') {
-        if (!itemId) return false
-        // Acquiring integration account can update only it's own multipayment
-        return { integration: { accessRights_some: { user: { id: user.id } } } }
-    }
+    if (operation === 'create') return false
+    // Acquiring integration account can update only it's own multipayment
+    if (operation === 'update' && itemId) return { integration: { accessRights_some: { user: { id: user.id } } } }
+
     return false
 }
 
 async function canReadMultiPaymentsSensitiveData ({ authentication: { item: user }, existingItem }) {
-    if (user.deletedAt) return false
+    if (!user || user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
-    if (await checkAcquiringIntegrationAccessRight(user, existingItem.integration)) return true
-    return false
+
+    return !!(await checkAcquiringIntegrationAccessRight(user.id, existingItem.integration))
 }
 
 /*

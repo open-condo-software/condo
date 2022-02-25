@@ -2,43 +2,48 @@ const { CANCELED, COMPLETED, DEFERRED, NEW_OR_REOPEND, PROCESSING, CLOSED } = re
 
 const STATUS_SELECT_COLORS = {
     [NEW_OR_REOPEND]: {
-        primary: '#FA8C16',
-        secondary: '#FFFB8F',
-        additional: '#FFF566',
+        primary: '#EB3468',
+        secondary: '#FFFFFF',
+        additional: '#FFFFFF',
     },
     [PROCESSING]: {
-        primary: '#AD6800',
-        secondary: '#FFD591',
+        primary: '#F08633',
+        secondary: '#FFFFFF',
         additional: '#FFC069',
     },
     [COMPLETED]: {
-        primary: '#237804',
-        secondary: '#B7EB8F',
+        primary: '#33CE66',
+        secondary: '#FFFFFF',
         additional: '#95DE64',
     },
     [CLOSED]: {
-        primary: '#000000',
-        secondary: '#D9D9D9',
+        primary: '#159A41',
+        secondary: '#FFFFFF',
         additional: '#BFBFBF',
     },
     [DEFERRED]: {
-        primary: '#D4380D',
-        secondary: '#FFCCC7',
+        primary: '#3786C7',
+        secondary: '#FFFFFF',
         additional: '#FFA39E',
     },
     [CANCELED]: {
-        primary: '#595959',
-        secondary: '#D9D9D9',
+        primary: '#B4710D',
+        secondary: '#FFFFFF',
         additional: '#BFBFBF',
     },
 }
 
-const EMERGENCY_TAG_COLOR = {
-    background: '#FFCCC7',
-    text: '#F5222D',
+/**
+ * This is colors of ant's tags
+ * @link https://ant.design/components/tag/
+ */
+const TICKET_TYPE_TAG_COLORS = {
+    emergency: 'red',
+    paid: 'orange',
+    warranty: 'purple',
 }
 
 module.exports = {
-    EMERGENCY_TAG_COLOR,
+    TICKET_TYPE_TAG_COLORS,
     STATUS_SELECT_COLORS,
 }

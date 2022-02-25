@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('../../gql')
 const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -21,6 +22,7 @@ const Property = generateGQLTestUtils(PropertyGQL)
 async function createTestProperty (client, organization, extraAttrs = {}, withFlat = false) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.address.streetAddress(true)
     const { address, addressMeta } = buildFakeAddressAndMeta(withFlat)
@@ -35,6 +37,7 @@ async function createTestProperty (client, organization, extraAttrs = {}, withFl
         ...extraAttrs,
     }
     const obj = await Property.create(client, attrs)
+
     return [obj, attrs]
 }
 
@@ -58,10 +61,17 @@ async function makeClientWithProperty (includeFlat = false) {
     return client
 }
 
-async function makeClientWithResidentUserAndProperty () {
-    const userClient = await makeClientWithProperty()
-    await addResidentAccess(userClient.user)
-    return userClient
+// TODO(DOMA-1699): make create Resident for client. Rewrite tests where this utility is used.
+async function makeClientWithResidentAccessAndProperty () {
+    const clientWithOrganization = await makeClientWithProperty()
+    const client = await makeClientWithResidentUser()
+    const organization = clientWithOrganization.organization
+    const property = clientWithOrganization.property
+
+    client.organization = organization
+    client.property = property
+
+    return client
 }
 
 async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}) {
@@ -93,7 +103,7 @@ module.exports = {
     updateTestProperty,
     makeClientWithProperty,
     checkPropertyWithAddressExistByTestClient,
-    makeClientWithResidentUserAndProperty,
+    makeClientWithResidentAccessAndProperty,
     exportPropertiesToExcelByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

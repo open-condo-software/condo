@@ -28,7 +28,7 @@ interface IUseCreateOrganizationModalFormProps {
 }
 
 const MODAL_VALIDATE_TRIGGERS = ['onBlur', 'onSubmit']
-const FORM_ITEM_STYLES = { width: '50%' }
+const FORM_ITEM_STYLES = { width: '60%' }
 const FETCH_OPTIONS: BaseQueryOptions = { fetchPolicy: 'network-only' }
 const MUTATION_EXTRA_DATA = { country: RUSSIA_COUNTRY }
 
@@ -155,11 +155,11 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
                 {CreateOrganizationModalMsg}
             </Typography.Paragraph>
 
-            <Form.Item name='name' label={NameMsg} rules={validators.name}>
+            <Form.Item name='name' label={NameMsg} rules={validators.name} validateFirst>
                 <Input />
             </Form.Item>
 
-            <Form.Item name='tin' style={FORM_ITEM_STYLES} label={InnMessage} rules={validators.tin}>
+            <Form.Item name='tin' style={FORM_ITEM_STYLES} label={InnMessage} rules={validators.tin} validateFirst>
                 <Input />
             </Form.Item>
         </BaseModalForm>

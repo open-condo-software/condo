@@ -21,6 +21,7 @@ const fieldsObj = {
     classifierRule: 'TicketClassifierRule',
     categoryClassifier: 'TicketCategoryClassifier',
     isEmergency: 'Boolean',
+    isWarranty: 'Boolean',
     isPaid: 'Boolean',
     details: 'String',
     createdAt: 'String',

@@ -7,21 +7,23 @@ const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/ut
 
 async function canReadTicketChanges ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return {}
-    const userId = user.id
+    if (user.deletedAt) return false
+    
+    if (user.isSupport || user.isAdmin) return {}
+
     return {
         ticket: {
             organization: {
                 OR: [
-                    queryOrganizationEmployeeFor(userId),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+                    queryOrganizationEmployeeFor(user.id),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
                 ],
             },
         },
     }
 }
 
-async function canManageTicketChanges ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTicketChanges () {
     return false
 }
 

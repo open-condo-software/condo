@@ -1,117 +1,99 @@
 const { v4: uuid } = require('uuid')
-const {
-    Select, DateTimeUtc, Uuid, DateTime, CalendarDay, Checkbox, Decimal, Float, Text, Integer,
-} = require('@keystonejs/fields')
-const { getType } = require('@keystonejs/utils')
+const { get, isFunction } = require('lodash')
 
-const { Json, Stars } = require('../fields')
-
-const { HiddenRelationship } = require('./utils')
-const { composeHook, isValidDate, evaluateKeystoneAccessResult } = require('./utils')
+const { composeHook, isValidDate } = require('./utils')
+const { plugin } = require('./utils/typing')
+const { GQLListSchema } = require('../schema')
 
 const GQL_TYPE_SUFFIX = 'HistoryRecord'
 
-function createHistoricalList (keystone, access, historicalListKey, historicalFields) {
-    let historicalAccess = access
-    if (access) {
-        historicalAccess = async (args) => {
-            const { operation } = args
-            if (operation === 'read') {
-                return await evaluateKeystoneAccessResult(access, 'read', args, keystone)
-            }
+function createHistoricalList (addSchema, access, historicalListKey, historicalFields) {
+    if (!isFunction(addSchema)) throw new Error('wrong argument addSchema')
+    const historicalList = new GQLListSchema(historicalListKey, {
+        fields: historicalFields,
+        access: {
+            read: ({ authentication: { item: user } }) => !!(get(user, 'isAdmin')),
+            create: () => false,
+            update: false,
+            delete: false,
+        },
+    })
 
-            // only read allowed for history!
-            return false
-        }
-    }
-
-    let historicalList = keystone.getListByKey(historicalListKey)
-    if (!historicalList) {
-        historicalList = keystone.createList(historicalListKey, {
-            fields: historicalFields,
-            access: historicalAccess,
-        })
-    }
+    addSchema(historicalList)
 
     return historicalList
 }
 
-function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFieldTypes) {
-    const defaultMapping = (field) => ({ type: Json })
+function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFieldTypes = []) {
+    if (!listKey) throw new Error('can not prepareHistoryRecordFields without listKey')
+    if (!listFields) throw new Error('can not prepareHistoryRecordFields without listFields')
+    if (!historyField) throw new Error('can not prepareHistoryRecordFields without historyField')
+    const defaultMapping = (field) => ({ type: 'Json' })
     const typeMapping = {
-        Stars: (field) => ({ type: Stars, starCount: field.starCount }),
-        DateTime: (field) => ({ type: DateTime }),
-        DateTimeUtc: (field) => ({ type: DateTimeUtc }),
-        CalendarDay: (field) => ({ type: CalendarDay }),
-        // File: (field) => ({ type: Json }),
-        Password: (field) => ({ type: Text }),
-        // Virtual: (field) => ({ type: Json }),
-        Color: (field) => ({ type: Text }),
-        Checkbox: (field) => ({ type: Checkbox }),
-        Integer: (field) => ({ type: Integer }),
-        Version: (field) => ({ type: Integer }),
-        Float: (field) => ({ type: Float }),
-        Decimal: (field) => ({ type: Decimal }),
-        // LocationGoogle: (field) => ({ type: Json }),
-        Select: (field) => ({ type: Text }),
-        Uuid: (field) => ({ type: Uuid }),
-        Url: (field) => ({ type: Text }),
-        Slug: (field) => ({ type: Text }),
-        Text: (field) => ({ type: Text }),
-        LocalizedText: (field) => ({ type: Text }),
+        Stars: (field) => ({ type: 'Stars', starCount: field.starCount }),
+        DateTime: (field) => ({ type: 'DateTime' }),
+        DateTimeUtc: (field) => ({ type: 'DateTimeUtc' }),
+        CalendarDay: (field) => ({ type: 'CalendarDay' }),
+        // File: (field) => ({ type: 'Json' }),
+        Password: (field) => ({ type: 'Text' }),
+        // Virtual: (field) => ({ type: 'Json' }),
+        Color: (field) => ({ type: 'Text' }),
+        Checkbox: (field) => ({ type: 'Checkbox' }),
+        Integer: (field) => ({ type: 'Integer' }),
+        Version: (field) => ({ type: 'Integer' }),
+        Float: (field) => ({ type: 'Float' }),
+        Decimal: (field) => ({ type: 'Decimal' }),
+        // LocationGoogle: (field) => ({ type: 'Json' }),
+        Select: (field) => ({ type: 'Text' }),
+        Uuid: (field) => ({ type: 'Uuid' }),
+        Url: (field) => ({ type: 'Text' }),
+        Slug: (field) => ({ type: 'Text' }),
+        Text: (field) => ({ type: 'Text' }),
+        LocalizedText: (field) => ({ type: 'Text' }),
+        SignedDecimal: (field) => ({ type: 'Decimal' }),
         AuthedRelationship: (field) => ({
-            type: HiddenRelationship,
+            type: 'HiddenRelationship',
             ref: field.ref,
         }),
         Relationship: (field) => ({
-            type: HiddenRelationship,
+            type: 'HiddenRelationship',
             ref: field.ref,
         }),
     }
     const ignoreTypes = ignoreFieldTypes || []
+    const getFieldType = (field) => get(field, 'type.type', get(field, 'type'))
     const historyFields = Object.fromEntries(
         Object.entries(listFields)
-            .filter(([k, v]) => v.type.type !== 'Relationship' || !v.many)
-            .filter(([k, v]) => !ignoreTypes.includes(v.type.type))
+            .filter(([k, v]) => !(getFieldType(v) === 'Relationship' && v.many))
+            .filter(([k, v]) => !(ignoreTypes.includes(getFieldType(v))))
             .map(([k, v]) => {
-                const newValue = (typeMapping[v.type.type] ? typeMapping[v.type.type] : defaultMapping)(v)
-                if (v.access) {
-                    const type = getType(v.access)
-                    if (type === 'Boolean' || type === 'Function') {
-                        newValue['access'] = {
-                            read: v.access,
-                            create: true,
-                        }
-                    } else if (type === 'Object') {
-                        newValue['access'] = {
-                            read: v.access.read,
-                            create: true,
-                        }
-                    } else {
-                        throw new Error(
-                            `Shorthand access must be specified as either a boolean or a function, received ${type}.`,
-                        )
-                    }
+                const type = getFieldType(v)
+                const newValue = (typeMapping[type] ? typeMapping[type] : defaultMapping)(v)
+                newValue.access = {
+                    read: true,
+                    create: true,
+                    update: false,
+                    delete: false,
                 }
                 return [k, newValue]
             })
             .filter(x => x))
     historyFields['id'] = {
-        type: Uuid,
+        type: 'Uuid',
         defaultValue: () => uuid(),
         isRequired: true,
     }
 
     return {
         ...historyFields,
-        [`${historyField}_date`]: { type: DateTimeUtc, isRequired: true },
+        [`${historyField}_date`]: { type: 'DateTimeUtc', isRequired: true },
         [`${historyField}_action`]: {
-            type: Select,
+            type: 'Select',
             options: 'c, u, d',
             isRequired: true,
         },
         [`${historyField}_id`]: {
-            type: HiddenRelationship,
+            type: 'HiddenRelationship',
             ref: `${listKey}`,
             isRequired: true,
             kmigratorOptions: { null: false, db_index: true },
@@ -151,16 +133,16 @@ function prepareHistoryRecordInput (
     return hist
 }
 
-const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], isStrictMode = true } = {}) => ({ fields = {}, hooks = {}, access, ...rest }, { listKey, keystone }) => {
-    const historicalFields = prepareHistoryRecordFields(listKey, fields, historyField, ignoreFieldTypes)
-    const historicalListKey = `${listKey}${GQL_TYPE_SUFFIX}`
+const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], isStrictMode = true } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName, addSchema }) => {
+    const historicalFields = prepareHistoryRecordFields(schemaName, fields, historyField, ignoreFieldTypes)
+    const historicalListKey = `${schemaName}${GQL_TYPE_SUFFIX}`
     const query = `
       mutation create${historicalListKey} ($data: ${historicalListKey}CreateInput!) {
         obj: create${historicalListKey}(data: $data) { id }
       }
     `
 
-    const historicalList = createHistoricalList(keystone, access, historicalListKey, historicalFields)
+    const historicalList = createHistoricalList(addSchema, access, historicalListKey, historicalFields)
 
     const hook = async (hookArgs) => {
         const hist = prepareHistoryRecordInput(hookArgs, historyField, historicalFields, historicalList)
@@ -174,7 +156,7 @@ const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], 
         })
         if (errors) {
             console.warn(errors)
-            if (isStrictMode) throw new Error('Cant\' create history record')
+            if (isStrictMode) throw new Error('Can\'t create history record')
         }
     }
 
@@ -183,7 +165,7 @@ const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], 
     const originalBeforeDelete = hooks.beforeDelete
     hooks.beforeDelete = composeHook(originalBeforeDelete, hook)
     return { fields, hooks, access, ...rest }
-}
+})
 
 module.exports = {
     historical,

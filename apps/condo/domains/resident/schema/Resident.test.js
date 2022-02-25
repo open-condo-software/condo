@@ -4,21 +4,30 @@
 
 const faker = require('faker')
 const dayjs = require('dayjs')
+const { createTestMeter } = require('@condo/domains/meter/utils/testSchema')
 const { cloneDeep } = require('lodash')
 
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-const { createTestProperty, makeClientWithResidentUserAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, makeClientWithResidentAccessAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
+const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
+const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')
-const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants')
+const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants/constants')
 const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('../../common/utils/testSchema')
+const {
+    catchErrorFrom,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
 const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
@@ -131,23 +140,55 @@ describe('Resident', () => {
             expect(obj.id).toMatch(UUID_RE)
         })
 
-        it('throws error, when trying to connect new resident to property with another address', async () => {
-            const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
+        describe('comparsion of resident and property address', () => {
+            it('throws error, when trying to connect new resident to property with another address', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
 
-            const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
+                const [propertyWithAnotherAddress] = await createTestProperty(userClient, userClient.organization, { map: buildingMapJson })
 
-            const attrs = {
-                address: userClient.property.address,
-                addressMeta: userClient.property.addressMeta,
-            }
+                const attrs = {
+                    address: userClient.property.address,
+                    addressMeta: userClient.property.addressMeta,
+                }
 
-            await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, propertyWithAnotherAddress, attrs)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
-                expect(data).toEqual({ 'obj': null })
+                await catchErrorFrom(async () => {
+                    await createTestResident(adminClient, userClient.user, userClient.organization, propertyWithAnotherAddress, attrs)
+                }, ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
+                    expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
+                    expect(data).toEqual({ 'obj': null })
+                })
+            })
+
+            it('allows to connect new resident to property having the same address in different character case', async () => {
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const { address, addressMeta } = userClient.property
+
+                const extraAttrs = {
+                    address: address.toUpperCase(),
+                    addressMeta: {
+                        ...addressMeta,
+                        value: addressMeta.value.toUpperCase(),
+                    },
+                }
+
+                const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, extraAttrs)
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(1)
+                expect(obj.newId).toEqual(null)
+                expect(obj.deletedAt).toEqual(null)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+                expect(obj.createdAt).toMatch(DATETIME_RE)
+                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expect(obj.user.id).toEqual(userClient.user.id)
+                expect(obj.organization.id).toEqual(userClient.organization.id)
+                expect(obj.property.id).toEqual(userClient.property.id)
             })
         })
     })
@@ -168,8 +209,13 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
-            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
-            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property)
+            const unitName = faker.random.alphaNumeric(8)
+            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property, {
+                unitName,
+            })
             expect(ticket.createdBy.id).toEqual(residentClient.user.id)
         })
 
@@ -177,8 +223,13 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
-            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
-            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property)
+            const unitName = faker.random.alphaNumeric(8)
+            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property, {
+                unitName,
+            })
             const details = faker.lorem.sentence()
             const [updatedTicket] = await updateTestTicket(residentClient, ticket.id, { details })
             expect(updatedTicket.details).toBe(details)
@@ -189,9 +240,14 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
-            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
+            const unitName = faker.random.alphaNumeric(8)
+            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
             const [ticketFile] = await createTestTicketFile(residentClient, userClient.organization)
-            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property)
+            const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property, {
+                unitName,
+            })
             const [updatedTicketFile] = await updateTestTicketFile(residentClient, ticketFile.id, { ticket: { connect: { id: ticket.id } } })
             expect(updatedTicketFile.ticket.id).toEqual(ticket.id)
         })
@@ -317,6 +373,85 @@ describe('Resident', () => {
                 const [obj] = await Resident.getAll(userClient, { id })
                 expect(obj.organizationFeatures).toBeNull()
             })
+
+            it('correctly sets the hasMeters: "true" if meters existing in resident property and unit', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const client = await makeClientWithResidentUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const unitName = faker.random.alphaNumeric(8)
+                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                    unitName,
+                })
+
+                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+                await createTestMeter(adminClient, organization, property, resource, {
+                    unitName,
+                })
+
+                const [obj] = await Resident.getAll(client, { id: resident.id })
+                expect(obj.organizationFeatures.hasMeters).toBe(true)
+            })
+
+            it('correctly sets the hasMeters: "false" if no meters existing in resident property and unit', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const client = await makeClientWithResidentUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const unitName = faker.random.alphaNumeric(8)
+                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                    unitName,
+                })
+
+                const [obj] = await Resident.getAll(client, { id: resident.id })
+                expect(obj.organizationFeatures.hasMeters).toBe(false)
+            })
+
+            it('correctly sets the hasMeters: "false" if resident doesnt have property', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const client = await makeClientWithResidentUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [resident] = await createTestResident(adminClient, client.user, organization, null, {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                })
+                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+                await createTestMeter(adminClient, organization, property, resource)
+
+                const [obj] = await Resident.getAll(client, { id: resident.id })
+                expect(obj.organizationFeatures.hasMeters).toBe(false)
+            })
+
+            it('correctly sets hasMeters: "true" and hasBillingData: "true" is billingData and meters exists in organization', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const client = await makeClientWithResidentUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const unitName = faker.random.alphaNumeric(8)
+
+                const [integration] = await createTestBillingIntegration(adminClient)
+                await createTestBillingIntegrationOrganizationContext(adminClient, organization, integration, {
+                    lastReport: {
+                        period: '2021-09-01',
+                        finishTime: dayjs().toISOString(),
+                        totalReceipts: 3141592,
+                    },
+                })
+
+                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+                await createTestMeter(adminClient, organization, property, resource, {
+                    unitName,
+                })
+
+                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                    unitName,
+                })
+
+                const [obj] = await Resident.getAll(client, { id: resident.id })
+                expect(obj.organizationFeatures.hasBillingData).toBe(true)
+                expect(obj.organizationFeatures.hasMeters).toBe(true)
+            })
         })
 
         describe('paymentCategories', () => {
@@ -339,8 +474,6 @@ describe('Resident', () => {
                 expect(obj.paymentCategories[0].categoryName).toBeDefined()
                 expect(obj.paymentCategories[0].billingName).toEqual(billingIntegration.name)
                 expect(obj.paymentCategories[0].acquiringName).toEqual(acquiringIntegration.name)
-                expect(obj.paymentCategories[1].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
-                expect(obj.paymentCategories[1].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
             })
 
             it('correctly sets the paymentCategories if resident.org has no acquiring', async () => {
@@ -357,8 +490,6 @@ describe('Resident', () => {
                 expect(obj.paymentCategories).toBeDefined()
                 expect(obj.paymentCategories[0].billingName).toEqual(billingIntegration.name)
                 expect(obj.paymentCategories[0].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
-                expect(obj.paymentCategories[1].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
-                expect(obj.paymentCategories[1].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
             })
 
             it('correctly sets the paymentCategories if resident.org has no billing', async () => {
@@ -376,8 +507,6 @@ describe('Resident', () => {
                 expect(obj.paymentCategories).toBeDefined()
                 expect(obj.paymentCategories[0].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
                 expect(obj.paymentCategories[0].acquiringName).toEqual(acquiringIntegration.name)
-                expect(obj.paymentCategories[1].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
-                expect(obj.paymentCategories[1].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
             })
 
             it('correctly sets the paymentCategories if resident has no org', async () => {
@@ -391,8 +520,6 @@ describe('Resident', () => {
                 expect(obj.paymentCategories).toBeDefined()
                 expect(obj.paymentCategories[0].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
                 expect(obj.paymentCategories[0].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
-                expect(obj.paymentCategories[1].billingName).toEqual(DEFAULT_BILLING_INTEGRATION_NAME)
-                expect(obj.paymentCategories[1].acquiringName).toEqual(DEFAULT_ACQUIRING_INTEGRATION_NAME)
             })
         })
     })
@@ -435,7 +562,7 @@ describe('Resident', () => {
         it('cannot be created by anonymous', async () => {
             const userClient = await makeClientWithProperty()
             const anonymous = await makeClient()
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestResident(anonymous, userClient.user, userClient.organization, userClient.property)
             })
         })
@@ -477,7 +604,7 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
             await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await expectToThrowAuthenticationErrorToObjects(async () => {
                 await Resident.getAll(anonymousClient)
             })
         })
@@ -527,11 +654,11 @@ describe('Resident', () => {
         })
 
         it('cannot be updated by other user with type resident', async () => {
-            const userClient = await makeClientWithResidentUserAndProperty()
+            const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            const otherUserClient = await makeClientWithResidentUserAndProperty()
+            const otherUserClient = await makeClientWithResidentAccessAndProperty()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestResident(otherUserClient, obj.id, {})
@@ -565,7 +692,7 @@ describe('Resident', () => {
 
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
+            await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestResident(anonymousClient, obj.id)
             })
         })
@@ -622,22 +749,24 @@ describe('Resident', () => {
         })
 
         it('can be soft-deleted using update operation by current user with type resident', async () => {
-            const userClient = await makeClientWithResidentUserAndProperty()
+            const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            const [objUpdated, attrs] = await Resident.softDelete(userClient, obj.id)
-
-            expect(objUpdated.id).toEqual(obj.id)
-            expect(objUpdated.dv).toEqual(1)
-            expect(objUpdated.sender).toEqual(attrs.sender)
+            // NOTE: USING RAW SINCE WE CANNOT QUERY PROPERTY OF DELETED RESIDENT ANYMORE
+            const { data } = await Resident.softDelete(userClient, obj.id, {}, { raw: true })
+            expect(data).toBeDefined()
+            expect(data).toHaveProperty('obj')
+            const { obj: objUpdated } = data
+            expect(objUpdated).toHaveProperty('id', obj.id)
+            expect(objUpdated).toHaveProperty('dv', 1)
             expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
         })
 
         it('cannot be soft-deleted using update operation by current user with type resident when other fields gets passed as variables', async () => {
-            const userClient = await makeClientWithResidentUserAndProperty()
+            const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
@@ -651,11 +780,11 @@ describe('Resident', () => {
         })
 
         it('cannot be soft-deleted using update operation by other user with type resident', async () => {
-            const userClient = await makeClientWithResidentUserAndProperty()
+            const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
-            const otherUserClient = await makeClientWithResidentUserAndProperty()
+            const otherUserClient = await makeClientWithResidentAccessAndProperty()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Resident.softDelete(otherUserClient, obj.id)

@@ -7,11 +7,12 @@ const buildingEmptyMapJson = {
     'dv': 1,
     'type': 'building',
     'sections': [],
+    'parking': [],
 }
 // JSON from old maps that will be auto repaired after loading
 // floors - didnt have index
 // after moving from json schema to garphql type nulls will be in some unit's names
-// preview field will disable editting 
+// preview field will disable editting
 const autoFixBuildingMapJson = {
     'dv': 1,
     'type': 'building',
@@ -307,6 +308,72 @@ const buildingMapJson = {
             ],
         },
     ],
+    'parking': [
+        {
+            'id': '1',
+            'type': 'section',
+            'index': 1,
+            'name': 'Подъезд №1',
+            'floors': [
+                {
+                    'id': '2',
+                    'type': 'floor',
+                    'index': 2,
+                    'name': '2',
+                    'units': [
+                        {
+                            'id': '5',
+                            'label': '5',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '6',
+                            'label': '6',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '7',
+                            'label': '7',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '8',
+                            'label': '8',
+                            'type': 'unit',
+                        },
+                    ],
+                },
+                {
+                    'id': '1',
+                    'type': 'floor',
+                    'index': 1,
+                    'name': '1',
+                    'units': [
+                        {
+                            'id': '1',
+                            'label': '1',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '2',
+                            'label': '2',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '3',
+                            'label': '3',
+                            'type': 'unit',
+                        },
+                        {
+                            'id': '4',
+                            'label': '4',
+                            'type': 'unit',
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
 }
 
 const buildingAddressMetaJson = {
@@ -358,6 +425,8 @@ const buildingAddressMetaJson = {
     'dv': 1,
 }
 
+const MIN_SECTIONS_TO_SHOW_FILTER = 2
+
 export {
     buildingEmptyMapJson,
     buildingMapJson,
@@ -365,4 +434,5 @@ export {
     notValidBuildingMapJson,
     validHouseTypes,
     autoFixBuildingMapJson,
+    MIN_SECTIONS_TO_SHOW_FILTER,
 }

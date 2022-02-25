@@ -1,22 +1,42 @@
 import { useMemo } from 'react'
+import { MeterReadingWhereInput } from '@app/condo/schema'
+import get from 'lodash/get'
+import { useOrganization } from '@core/next/organization'
+import { useIntl } from '@core/next/intl'
+
 import {
     ComponentType,
     convertToOptions,
     FilterComponentSize,
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
-import { MeterReadingWhereInput } from '@app/condo/schema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { get } from 'lodash'
 import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
+
 import { MeterReadingSource, MeterResource } from '../utils/clientSchema'
-import { useOrganization } from '@core/next/organization'
-import { useIntl } from '@core/next/intl'
 import { IMeterReadingSourceUIState } from '../utils/clientSchema/MeterReadingSource'
 import { IMeterResourceUIState } from '../utils/clientSchema/MeterResource'
+
+const addressFilter = getFilter(['meter', 'property', 'id'], 'array', 'string', 'in')
+const addressStringContainsFilter = getStringContainsFilter(['meter', 'property', 'address'])
+const accountNumberFilter = getStringContainsFilter(['meter', 'accountNumber'])
+const placeFilter = getStringContainsFilter(['meter', 'place'])
+const numberFilter = getStringContainsFilter(['meter', 'number'])
+const unitNameFilter = getFilter(['meter', 'unitName'], 'array', 'string', 'in')
+const unitNameStringContainsFilter = getStringContainsFilter(['meter', 'unitName'])
+const resourceStringContainsFilter = getStringContainsFilter(['meter', 'resource', 'name'])
+const clientNameFilter = getStringContainsFilter('clientName')
+const readingDateRangeFilter = getDayRangeFilter('date')
+const verificationDateRangeFilter = getDayRangeFilter(['meter', 'verificationDate'])
+const installationDateRangeFilter = getDayRangeFilter(['meter', 'installationDate'])
+const commissioningDateRangeFilter = getDayRangeFilter(['meter', 'commissioningDate'])
+const sealingDateRangeFilter = getDayRangeFilter(['meter', 'sealingDate'])
+const controlReadingDateRangeFilter = getDayRangeFilter(['meter', 'controlReadingDate'])
+const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
+const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
 
 export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
@@ -27,7 +47,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const FullNameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
     const ChooseServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.ChooseService' })
-    const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Service' })
+    const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
@@ -42,25 +62,11 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const CommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
     const SealingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.SealingDate' })
     const ControlReadingsDate = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
+    const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
+    const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const addressFilter = getFilter(['meter', 'property', 'id'], 'array', 'string', 'in')
-    const addressStringContainsFilter = getStringContainsFilter(['meter', 'property', 'address'])
-    const accountNumberFilter = getStringContainsFilter(['meter', 'accountNumber'])
-    const placeFilter = getStringContainsFilter(['meter', 'place'])
-    const numberFilter = getStringContainsFilter(['meter', 'number'])
-    const resourceStringContainsFilter = getStringContainsFilter(['meter', 'resource', 'name'])
-    const clientNameFilter = getStringContainsFilter('clientName')
-    const readingDateRangeFilter = getDayRangeFilter('date')
-    const verificationDateRangeFilter = getDayRangeFilter(['meter', 'verificationDate'])
-    const installationDateRangeFilter = getDayRangeFilter(['meter', 'installationDate'])
-    const commissioningDateRangeFilter = getDayRangeFilter(['meter', 'commissioningDate'])
-    const sealingDateRangeFilter = getDayRangeFilter(['meter', 'sealingDate'])
-    const controlReadingDateRangeFilter = getDayRangeFilter(['meter', 'controlReadingDate'])
-    const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
-    const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
 
     const { objs: sources } = MeterReadingSource.useObjects({})
     const sourcesOptions = convertToOptions<IMeterReadingSourceUIState>(sources, 'name', 'id')
@@ -80,6 +86,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: EnterAddressMessage,
+                        infinityScroll: true,
                     },
                     modalFilterComponentWrapper: {
                         label: AddressMessage,
@@ -87,6 +94,21 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     },
                     columnFilterComponentWrapper: {
                         width: '400px',
+                    },
+                },
+            },
+            {
+                keyword: 'unitName',
+                filters: [unitNameFilter],
+                component: {
+                    type: ComponentType.TagsSelect,
+                    props: {
+                        tokenSeparators: [' '],
+                        placeholder: EnterUnitNameLabel,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: UnitMessage,
+                        size: FilterComponentSize.Medium,
                     },
                 },
             },
@@ -273,6 +295,8 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     placeFilter,
                     numberFilter,
                     clientNameFilter,
+                    unitNameStringContainsFilter,
+                    accountNumberFilter,
                 ],
                 combineType: 'OR',
             },

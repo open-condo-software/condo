@@ -3,7 +3,7 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, find } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -11,7 +11,6 @@ const access = require('@condo/domains/contact/access/Contact')
 const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { Contact: ContactAPI } = require('../utils/serverSchema')
 
 /**
  * Composite unique constraint with name `Contact_uniq` is declared in a database-level on following set of columns:
@@ -95,14 +94,18 @@ const Contact = new GQLListSchema('Contact', {
 
     },
     hooks: {
-        validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
-            const { property, unitName, name, phone } = resolvedData
-            const [contact] = await ContactAPI.getAll(context, {
+        validateInput: async ({ resolvedData, operation, existingItem, addValidationError }) => {
+            const newItem = { ...existingItem, ...resolvedData }
+            const { property, unitName, name, phone } = newItem
+            const condition = {
                 property: { id: property },
-                unitName,
                 name,
                 phone,
-            })
+                deletedAt: null,
+            }
+            // IF NO UNITNAME PROVIDED => search would not be cleared, since it's raw GQL-requests
+            if (unitName) condition.unitName = unitName
+            const [contact] = await find('Contact', condition)
             if (operation === 'create') {
                 if (contact) {
                     return addValidationError('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')

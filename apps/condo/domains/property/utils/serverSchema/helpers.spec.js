@@ -72,6 +72,7 @@ describe('helpers', () => {
                         ],
                     },
                 ],
+                'parking': [],
             }
             const mapWithoutNameInUnit = {
                 'dv': 1,
@@ -100,6 +101,72 @@ describe('helpers', () => {
                         ],
                     },
                 ],
+                'parking': [],
+            }
+            const sanitizedMap = normalizePropertyMap(map)
+            expect(sanitizedMap).toStrictEqual(mapWithoutNameInUnit)
+        })
+
+        it('should correctly resolve null values at parking section', () => {
+            const map = {
+                'dv': 1,
+                'type': 'building',
+                'sections': [
+                    {
+                        'id': '5',
+                        'type': 'section',
+                        'index': 1,
+                        'name': '1',
+                        'preview': null,
+                        'floors': [
+                            {
+                                'id': '7',
+                                'type': 'floor',
+                                'index': 1,
+                                'name': '1',
+                                'units': [
+                                    {
+                                        'id': '6',
+                                        'type': 'unit',
+                                        'name': null,
+                                        'label': '1',
+                                        'preview': null,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+                'parking': null,
+            }
+            const mapWithoutNameInUnit = {
+                'dv': 1,
+                'type': 'building',
+                'sections': [
+                    {
+                        'id': '5',
+                        'type': 'section',
+                        'index': 1,
+                        'name': '1',
+                        'preview': null,
+                        'floors': [
+                            {
+                                'id': '7',
+                                'type': 'floor',
+                                'index': 1,
+                                'name': '1',
+                                'units': [
+                                    {
+                                        'id': '6',
+                                        'type': 'unit',
+                                        'label': '1',
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+                'parking': [],
             }
             const sanitizedMap = normalizePropertyMap(map)
             expect(sanitizedMap).toStrictEqual(mapWithoutNameInUnit)

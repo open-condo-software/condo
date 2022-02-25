@@ -9,7 +9,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const MESSAGE_FIELDS = `{ organization { id } user { id email phone } email phone lang type meta status processingMeta deliveredAt ${COMMON_FIELDS} }`
+const MESSAGE_FIELDS = `{ organization { id } user { id email phone } email emailFrom phone lang type meta status processingMeta deliveredAt ${COMMON_FIELDS} }`
 const Message = generateGqlQueries('Message', MESSAGE_FIELDS)
 
 const SEND_MESSAGE = gql`
@@ -23,10 +23,31 @@ const RESEND_MESSAGE = gql`
         result: resendMessage(data: $data) { status id }
     }
 `
+
+const DEVICE_FIELDS = `{deviceId pushToken pushTransport meta owner { id } ${COMMON_FIELDS}}`
+
+const Device = generateGqlQueries('Device', DEVICE_FIELDS)
+
+const SYNC_DEVICE_MUTATION = gql`
+    mutation syncDevice ($data: SyncDeviceInput!) {
+        result: syncDevice(data: $data) ${DEVICE_FIELDS}
+    }
+`
+
+const DISCONNECT_USER_FROM_DEVICE_MUTATION = gql`
+    mutation disconnectUserFromDevice ($data: DisconnectUserFromDeviceInput!) {
+        result: disconnectUserFromDevice(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Message,
-    SEND_MESSAGE, RESEND_MESSAGE,
+    SEND_MESSAGE,
+    RESEND_MESSAGE,
+    Device,
+    SYNC_DEVICE_MUTATION,
+    DISCONNECT_USER_FROM_DEVICE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

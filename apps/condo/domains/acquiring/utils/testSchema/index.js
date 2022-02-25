@@ -30,6 +30,11 @@ const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql'
 const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 
 const dayjs = require('dayjs')
+const Big = require('big.js')
+const { MULTIPAYMENT_DONE_STATUS } = require(
+    '@condo/domains/acquiring/constants/payment')
+const { PAYMENT_DONE_STATUS } = require(
+    '@condo/domains/acquiring/constants/payment')
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -70,6 +75,7 @@ async function createTestAcquiringIntegration (client, billings, extraAttrs = {}
         sender,
         name,
         hostUrl,
+        detailsTitle: name + " INTEGRATION DETAILS",
         supportedBillingIntegrations: { connect: billingsIds },
         explicitFeeDistributionSchema: getRandomFeeDistribution(),
         ...extraAttrs
@@ -182,10 +188,24 @@ async function makeAcquiringContextAndIntegrationManager() {
     }
 }
 
+async function addAcquiringIntegrationAndContext(client, organization, allowedBillingIntegrationIds = []) {
+    if (!organization || !organization.id) {
+        throw ('No organization')
+    }
+
+    const [ acquiringIntegration ] = await createTestAcquiringIntegration(client, allowedBillingIntegrationIds)
+    const [ acquiringIntegrationContext ] = await createTestAcquiringIntegrationContext(client, organization, acquiringIntegration)
+
+    return {
+        acquiringIntegration,
+        acquiringIntegrationContext,
+        client
+    }
+}
+
 async function makeAcquiringContextAndIntegrationAccount() {
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestAcquiringIntegration(admin)
-    const [organization] = await registerNewOrganization(admin)
     const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
     const client = await makeClientWithNewRegisteredAndLoggedInUser()
     await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
@@ -197,18 +217,20 @@ async function makeAcquiringContextAndIntegrationAccount() {
 
 async function createTestMultiPayment (client, payments, user, integration, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!payments || !payments.length) throw new Error('no receipts')
+    if (!payments) throw new Error('no payments')
     if (!user) throw new Error('no user')
     if (!integration) throw new Error('no integration')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const amountWithoutExplicitFee = String(payments.reduce((acc, cur) => acc + parseFloat(cur.amount), 0))
-    const explicitFee = String(Math.floor(Math.random() * 100) / 2)
+    const amountWithoutExplicitFee = payments.reduce((acc, cur) => acc.plus(cur.amount), Big(0)).toString()
+    const explicitFee = payments.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0)).toString()
+    const explicitServiceCharge = payments.reduce((acc, cur) => acc.plus(cur.explicitServiceCharge || '0'), Big(0)).toString()
 
     const attrs = {
         dv: 1,
         sender,
         amountWithoutExplicitFee,
         explicitFee,
+        explicitServiceCharge,
         currencyCode: 'RUB',
         serviceCategory: 'TEST DOCUMENT',
         status: MULTIPAYMENT_INIT_STATUS,
@@ -240,7 +262,9 @@ async function createTestPayment (client, organization, receipt=null, context=nu
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const amount = get(receipt, 'toPay', '100.00')
+    const amount = receipt ? receipt.toPay : String(Math.round(Math.random() * 100000) / 100 + 100)
+    const recipientBic = get(receipt,  ['recipient', 'bic'], faker.datatype.number().toString())
+    const recipientBankAccount = get(receipt,  ['recipient', 'bankAccount'], faker.datatype.number().toString())
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
     const implicitFee = String(Math.floor(Math.random() * 100) / 2)
     const period = dayjs().format('YYYY-MM-01')
@@ -257,10 +281,12 @@ async function createTestPayment (client, organization, receipt=null, context=nu
         advancedAt: dayjs().toISOString(),
         accountNumber: String(faker.datatype.number()),
         receipt: receiptId ? { connect: { id: receipt.id } } : null,
-        frozenReceipt: receiptId ? receipt : null,
+        frozenReceipt: receiptId ? { dv: 1, data: receipt } : null,
         organization: { connect: { id: organization.id } },
         context: contextId ? { connect: {id: contextId} } : null,
         period,
+        recipientBic,
+        recipientBankAccount,
         ...extraAttrs,
     }
     const obj = await Payment.create(client, attrs)
@@ -415,11 +441,53 @@ async function makePayerAndPayments (receiptsAmount = 1) {
     }
 }
 
+/**
+ * Handles simplified payment case: 1 MultiPayment 1 Receipt 1 Payment
+ * As a resident pay for single billing receipt with specified <amount>,
+ * As an integrationClient complete payment
+ *
+ * Currently working with fees is not implemented
+ *
+ * @param {Object} residentClient
+ * @param {Object} integrationClient
+ * @param {string} serviceConsumerId
+ * @param {string} receiptId
+ * @param {Object} extra
+ * @return {Promise<{doneMultiPayment: ({data: *, errors: *}|*)}>}
+ */
+async function completeTestPayment(residentClient, integrationClient, serviceConsumerId, receiptId, extra = {}) {
+    const registerMultiPaymentPayload = {
+        consumerId: serviceConsumerId,
+        receipts: [{id: receiptId}],
+    }
+    const [ { multiPaymentId } ] = await registerMultiPaymentByTestClient(residentClient, registerMultiPaymentPayload)
+
+    // Acquiring integration makes payment and multiPayment done
+    const [ multiPayment ] = await MultiPayment.getAll(integrationClient, { id: multiPaymentId })
+    await updateTestPayment(integrationClient, multiPayment.payments[0].id, {
+        explicitFee: '0.0',
+        advancedAt: dayjs().toISOString(),
+        status: PAYMENT_DONE_STATUS,
+    })
+    const multiPaymentDonePayload = {
+        explicitFee: '0.0',
+        explicitServiceCharge: '0.0',
+        withdrawnAt: dayjs().toISOString(),
+        cardNumber: getRandomHiddenCard(),
+        paymentWay: 'CARD',
+        transactionId: faker.datatype.uuid(),
+        status: MULTIPAYMENT_DONE_STATUS,
+    }
+    const [ doneMultiPayment ] = await updateTestMultiPayment(integrationClient, multiPayment.id, multiPaymentDonePayload)
+
+    return { doneMultiPayment }
+}
+
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
     AcquiringIntegrationContext, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext,
-    MultiPayment, createTestMultiPayment, updateTestMultiPayment,
+    MultiPayment, createTestMultiPayment, updateTestMultiPayment, addAcquiringIntegrationAndContext,
     makeAcquiringContext,
     makeAcquiringContextAndIntegrationAccount,
     makeAcquiringContextAndIntegrationManager,
@@ -428,6 +496,7 @@ module.exports = {
     makePayerAndPayments,
     getRandomHiddenCard,
     registerMultiPaymentByTestClient,
-    makePayerWithMultipleConsumers
+    makePayerWithMultipleConsumers,
+    completeTestPayment
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -1,7 +1,9 @@
 import isEqual from 'lodash/isEqual'
 import cloneDeep from 'lodash/cloneDeep'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
 
-export type TableRow = Array<Record<'value', string | number>>
+export type TableRow = Array<Record<'value', string | number | Date>>
 export type ProcessedRow = {
     row: TableRow
     addons?: { [id: string]: any }
@@ -23,6 +25,7 @@ export type ImporterErrorMessages = {
     tooManyRows: string
     invalidTypes: string
 }
+export type MutationErrorsToMessagesType = { [errorCode: string]: string }
 
 interface IImporter {
     import: (data: Array<TableRow>) => Promise<void>
@@ -32,15 +35,19 @@ interface IImporter {
     break: () => void
 }
 
+// A cell with "custom" column type will be skipped in basic types validation function
+// to allow to implement custom validation in specific importer implementations.
+type ColumnType = 'string' | 'number' | 'date' | 'custom'
+
+export const DATE_PARSING_FORMAT = 'YYYY-MM-DD'
+
 export interface ColumnInfo {
     name: string
-    type: 'string' | 'number'
+    type: ColumnType
     required: boolean
     label: string
 }
 
-const SLEEP_INTERVAL_BEFORE_QUERIES = 300
-export const MAX_TABLE_LENGTH = 500
 
 export class Importer implements IImporter {
     constructor (
@@ -49,8 +56,9 @@ export class Importer implements IImporter {
         private rowValidator: RowValidator,
         private objectCreator: ObjectCreator,
         private errors: ImporterErrorMessages,
-        private sleepInterval: number = SLEEP_INTERVAL_BEFORE_QUERIES,
-        private maxTableLength: number = MAX_TABLE_LENGTH
+        private mutationErrorsToMessages: MutationErrorsToMessagesType,
+        private sleepInterval: number,
+        private maxTableLength: number,
     ) {
         this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
         this.columnsTypes = columnsTemplate.map(column => column.type)
@@ -71,7 +79,7 @@ export class Importer implements IImporter {
     private successProcessingHandler: SuccessProcessingHandler
     private failProcessingHandler: FailProcessingHandler
     private readonly columnsNames: Array<string>
-    private readonly columnsTypes: Array<'string' | 'number'>
+    private readonly columnsTypes: Array<ColumnType>
     private readonly columnsRequired: Array<boolean>
 
     public import (data: Array<TableRow>): Promise<void> {
@@ -130,14 +138,19 @@ export class Importer implements IImporter {
         return isEqual(this.columnsNames, normalizedColumns)
     }
 
-    private isRowValid (row: TableRow): boolean {
+    private parseAndValidateRow (row: TableRow): boolean {
         for (let i = 0; i < row.length; i++) {
+            // Because `typeof` returns 'object' for instances of `Date`, data type is set explicitly
+            const valueType = row[i].value instanceof Date ? 'date' : typeof row[i].value
             if (row[i].value === undefined && this.columnsRequired[i]) {
                 return false
-            }
-            if (typeof row[i].value === 'number' && this.columnsTypes[i] === 'string') {
+            } else if (this.columnsTypes[i] === 'custom') {
+                return true
+            } else if (this.columnsTypes[i] === 'string' && valueType === 'number') {
                 row[i].value = String(row[i].value)
-            } else if (typeof row[i].value !== 'undefined' && typeof row[i].value !== this.columnsTypes[i]) {
+            } else if (this.columnsTypes[i] === 'date' && valueType === 'string') {
+                row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT).toDate()
+            } else if (valueType !== 'undefined' && valueType !== this.columnsTypes[i]) {
                 return false
             }
         }
@@ -158,6 +171,7 @@ export class Importer implements IImporter {
         }
     }
 
+    // TODO: remove `index`, it is not used
     private async createRecord (table, index = 0) {
         if (this.breakImport) {
             return Promise.resolve()
@@ -171,7 +185,7 @@ export class Importer implements IImporter {
 
         const row = table.shift()
 
-        if (!this.isRowValid(row)) {
+        if (!this.parseAndValidateRow(row)) {
             if (this.failProcessingHandler) {
                 this.failProcessingHandler({ row, errors: [this.errors.invalidTypes] })
             }
@@ -182,15 +196,37 @@ export class Importer implements IImporter {
                 return this.rowValidator(normalizedRow)
                     .then(isValid => {
                         if (isValid) {
-                            return this.objectCreator(normalizedRow).then(() => {
-                                if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
-                                    this.failProcessingHandler(normalizedRow)
-                                }
-                                if (this.successProcessingHandler) {
-                                    this.successProcessingHandler(row)
-                                }
-                                return Promise.resolve()
-                            })
+                            return this.objectCreator(normalizedRow)
+                                .then(() => {
+                                    if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
+                                        this.failProcessingHandler(normalizedRow)
+                                    }
+                                    if (this.successProcessingHandler) {
+                                        this.successProcessingHandler(row)
+                                    }
+                                    return Promise.resolve()
+                                })
+                                .catch((e) => {
+                                    const mutationErrors = get(e, 'graphQLErrors')
+                                    normalizedRow.errors = normalizedRow.errors || []
+
+                                    mutationErrors.forEach(mutationError => {
+                                        const mutationErrorMessages = get(mutationError, ['data', 'messages'])
+                                        mutationErrorMessages.forEach(message => {
+                                            const errorCodes = Object.keys(this.mutationErrorsToMessages)
+
+                                            errorCodes.forEach(code => {
+                                                if (message.includes(code)) {
+                                                    normalizedRow.errors.push(this.mutationErrorsToMessages[code])
+                                                }
+                                            })
+                                        })
+                                    })
+                                    if (this.failProcessingHandler) {
+                                        this.failProcessingHandler(normalizedRow)
+                                        return Promise.resolve()
+                                    }
+                                })
                         } else {
                             if (this.failProcessingHandler) {
                                 this.failProcessingHandler(normalizedRow)

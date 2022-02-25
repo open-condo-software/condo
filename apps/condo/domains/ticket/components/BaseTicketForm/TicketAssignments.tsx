@@ -8,6 +8,8 @@ import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSear
 import { searchEmployeeUser } from '../../utils/clientSchema/search'
 import React, { useState } from 'react'
 import { Rule } from 'rc-field-form/lib/interface'
+import { TicketFormItem } from './index'
+import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 
 type TicketAssignmentsProps = {
     validations: { [key: string]: Rule[] },
@@ -17,7 +19,6 @@ type TicketAssignmentsProps = {
     autoAssign: boolean,
     categoryClassifier: string,
     form: FormInstance
-    searchEmployeesAgainDependencies?: any[]
 }
 
 const TicketAssignments = ({
@@ -28,7 +29,6 @@ const TicketAssignments = ({
     autoAssign,
     categoryClassifier,
     form,
-    searchEmployeesAgainDependencies,
 }: TicketAssignmentsProps) => {
     const intl = useIntl()
     const TicketAssignmentTitle = intl.formatMessage({ id: 'TicketAssignment' })
@@ -39,6 +39,8 @@ const TicketAssignments = ({
     const ExecutorsOnThisDivisionLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnThisDivision' })
     const ExecutorsOnOtherDivisionsLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnOtherDivisions' })
     const OtherExecutors = intl.formatMessage({ id: 'ticket.assignments.executor.Other' })
+
+    const { isSmall } = useLayoutContext()
 
     const [divisions, setDivisions] = useState([])
 
@@ -145,57 +147,59 @@ const TicketAssignments = ({
 
     return (
         <Col span={24}>
-            <Row justify={'space-between'} gutter={[0, 24]}>
+            <Row gutter={[0, 8]}>
                 <Col span={24}>
-                    <Typography.Title level={5} style={{ margin: '0' }}>{TicketAssignmentTitle}</Typography.Title>
+                    <Typography.Title level={3}>{TicketAssignmentTitle}</Typography.Title>
                 </Col>
-                {autoAssign && propertyId && (
-                    <Col span={24}>
-                        <AutoAssignerByDivisions
-                            organizationId={organizationId}
-                            propertyId={propertyId}
-                            categoryClassifier={categoryClassifier}
-                            onDivisionsFound={setDivisions}
-                            form={form}
-                        />
-                    </Col>
-                )}
-                <Col span={11}>
-                    <Form.Item
-                        name={'executor'}
-                        rules={validations.executor}
-                        label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
-                    >
-                        <GraphQlSearchInput
-                            allowClear={false}
-                            showArrow={false}
-                            disabled={disableUserInteraction}
-                            formatLabel={formatUserFieldLabel}
-                            renderOptions={renderOptionGroups}
-                            search={searchEmployeeUser(organizationId, ({ role }) => (
-                                get(role, 'canBeAssignedAsExecutor', false)
-                            ))}
-                            searchAgainDependencies={searchEmployeesAgainDependencies}
-                        />
-                    </Form.Item>
-                </Col>
-                <Col span={11}>
-                    <Form.Item
-                        name={'assignee'}
-                        rules={validations.assignee}
-                        label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
-                    >
-                        <GraphQlSearchInput
-                            formatLabel={formatUserFieldLabel}
-                            allowClear={false}
-                            showArrow={false}
-                            disabled={disableUserInteraction}
-                            search={searchEmployeeUser(organizationId, ({ role }) => (
-                                get(role, 'canBeAssignedAsResponsible', false)
-                            ))}
-                            searchAgainDependencies={searchEmployeesAgainDependencies}
-                        />
-                    </Form.Item>
+                <Col span={isSmall ? 24 : 18}>
+                    <Row justify={'space-between'}>
+                        {autoAssign && propertyId && (
+                            <Col span={24}>
+                                <AutoAssignerByDivisions
+                                    organizationId={organizationId}
+                                    propertyId={propertyId}
+                                    categoryClassifier={categoryClassifier}
+                                    onDivisionsFound={setDivisions}
+                                    form={form}
+                                />
+                            </Col>
+                        )}
+                        <Col span={11}>
+                            <TicketFormItem
+                                name={'executor'}
+                                rules={validations.executor}
+                                label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
+                            >
+                                <GraphQlSearchInput
+                                    allowClear={false}
+                                    showArrow={false}
+                                    disabled={disableUserInteraction}
+                                    formatLabel={formatUserFieldLabel}
+                                    renderOptions={renderOptionGroups}
+                                    search={searchEmployeeUser(organizationId, ({ role }) => (
+                                        get(role, 'canBeAssignedAsExecutor', false)
+                                    ))}
+                                />
+                            </TicketFormItem>
+                        </Col>
+                        <Col span={11}>
+                            <TicketFormItem
+                                name={'assignee'}
+                                rules={validations.assignee}
+                                label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
+                            >
+                                <GraphQlSearchInput
+                                    formatLabel={formatUserFieldLabel}
+                                    allowClear={false}
+                                    showArrow={false}
+                                    disabled={disableUserInteraction}
+                                    search={searchEmployeeUser(organizationId, ({ role }) => (
+                                        get(role, 'canBeAssignedAsResponsible', false)
+                                    ))}
+                                />
+                            </TicketFormItem>
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
         </Col>

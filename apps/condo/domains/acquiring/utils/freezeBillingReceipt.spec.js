@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const { freezeBillingReceipt } = require('./freezeBillingReceipt')
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
 const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')

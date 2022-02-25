@@ -25,6 +25,7 @@ const {
 const {
     createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')
+const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 
 describe('AcquiringIntegrationContext', () => {
     describe('CRUD tests', () => {
@@ -66,20 +67,56 @@ describe('AcquiringIntegrationContext', () => {
                     expect(context).toHaveProperty(['organization', 'id'], organization.id)
                     expect(context).toHaveProperty(['integration', 'id'], integration.id)
                 })
-                test('if it\'s integration account, and organization was created by it', async () => {
-                    const admin = await makeLoggedInAdminClient()
+                describe('Acquiring integration', () => {
+                    test('if it\'s integration account, and organization was created by it', async () => {
+                        const admin = await makeLoggedInAdminClient()
 
-                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [billingIntegration] = await createTestBillingIntegration(admin)
-                    const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
-                    await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
+                        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                        const [billingIntegration] = await createTestBillingIntegration(admin)
+                        const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+                        await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
 
-                    const [organization] = await registerNewOrganization(client)
+                        const [organization] = await registerNewOrganization(client)
 
-                    const [context] = await createTestAcquiringIntegrationContext(client, organization, integration)
-                    expect(context).toBeDefined()
-                    expect(context).toHaveProperty(['organization', 'id'], organization.id)
-                    expect(context).toHaveProperty(['integration', 'id'], integration.id)
+                        const [context] = await createTestAcquiringIntegrationContext(client, organization, integration)
+                        expect(context).toBeDefined()
+                        expect(context).toHaveProperty(['organization', 'id'], organization.id)
+                        expect(context).toHaveProperty(['integration', 'id'], integration.id)
+                    })
+                    // TODO(DOMA-1700): Add more precise tests after refactoring
+                    describe('Can create context if organization doesn\'t have active context', () => {
+                        test('No active context', async () => {
+                            const admin = await makeLoggedInAdminClient()
+
+                            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                            const [billingIntegration] = await createTestBillingIntegration(admin)
+                            const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+                            await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
+
+                            const [organization] = await registerNewOrganization(admin)
+
+                            const [context] = await createTestAcquiringIntegrationContext(client, organization, integration)
+                            expect(context).toBeDefined()
+                            expect(context).toHaveProperty(['organization', 'id'], organization.id)
+                            expect(context).toHaveProperty(['integration', 'id'], integration.id)
+                        })
+                        test('Already have active context', async () => {
+                            const admin = await makeLoggedInAdminClient()
+
+                            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                            const [billingIntegration] = await createTestBillingIntegration(admin)
+                            const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+                            const [secondIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+                            await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
+
+                            const [organization] = await registerNewOrganization(admin)
+
+                            await createTestAcquiringIntegrationContext(admin, organization, secondIntegration)
+                            await expectToThrowValidationFailureError(async () => {
+                                await createTestAcquiringIntegrationContext(client, organization, integration)
+                            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+                        })
+                    })
                 })
                 test('can\'t in other cases', async () => {
                     const admin = await makeLoggedInAdminClient()

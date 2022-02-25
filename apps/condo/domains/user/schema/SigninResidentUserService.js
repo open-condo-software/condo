@@ -4,11 +4,29 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/SigninResidentUserService')
-const {
-    CONFIRM_PHONE_ACTION_EXPIRED,
-} = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
 const { getRandomString } = require('@core/keystone/test.utils')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
+const { TOKEN_NOT_FOUND } = require('../constants/errors')
+
+/**
+ * List of possible errors, that this custom schema can throw
+ * They will be rendered in documentation section in GraphiQL for this custom schema
+ */
+const errors = {
+    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
+        mutation: 'signinResidentUser',
+        variable: ['data', 'token'],
+        code: BAD_USER_INPUT,
+        type: TOKEN_NOT_FOUND,
+        message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
+    },
+    UNABLE_TO_CREATE_USER: {
+        code: INTERNAL_ERROR,
+        mutation: 'signinResidentUser',
+        message: 'Something went wrong while trying to create a User record',
+    },
+}
 
 const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService', {
     types: [
@@ -26,6 +44,10 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
         {
             access: access.canSigninResidentUser,
             schema: 'signinResidentUser(data: SigninResidentUserInput!): SigninResidentUserOutput',
+            doc: {
+                summary: 'Authenticates resident user for mobile apps',
+                errors,
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { dv, sender, token } } = args
                 const userData = {
@@ -43,7 +65,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                     }
                 )
                 if (!action) {
-                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] Unable to find confirm phone action`)
+                    throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION)
                 }
                 userData.phone = action.phone
                 userData.type = 'resident'
@@ -66,8 +88,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                         variables: { data: userData },
                     })
                     if (createErrors) {
-                        const msg = '[error] Unable to create user'
-                        throw new Error(msg)
+                        throw new GQLError(errors.UNABLE_TO_CREATE_USER)
                     }
                     user = createdUser
                 }

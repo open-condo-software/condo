@@ -6,6 +6,7 @@ async function checkAcquiringIntegrationAccessRight (userId, integrationId) {
     const integration = await getByCondition('AcquiringIntegrationAccessRight', {
         integration: { id: integrationId },
         user: { id: userId },
+        deletedAt: null,
     })
     return !!get(integration, 'id')
 }

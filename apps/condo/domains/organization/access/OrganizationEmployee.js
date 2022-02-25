@@ -8,29 +8,39 @@ const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrgani
 
 async function canReadOrganizationEmployees ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return {}
-    const userId = user.id
+    if (user.deletedAt) return false
+    
+    if (user.isSupport || user.isAdmin) return {}
+
     return {
-        organization: {
-            OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
-            ],
-        },
+        OR: [
+            { user: { id: user.id } },
+            {
+                organization: {
+                    OR: [
+                        queryOrganizationEmployeeFor(user.id),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    ],
+                },
+            },
+        ],
     }
 }
 
 async function canManageOrganizationEmployees ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
+    if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
+
     if (operation === 'create') {
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             organization: { id: originalInput.organization.connect.id },
             user: { id: user.id },
             deletedAt: null,
+            isBlocked: false,
         })
 
-        if (!employeeForUser || employeeForUser.isBlocked) {
+        if (!employeeForUser) {
             return false
         }
 
@@ -39,10 +49,10 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
             organization: { id: employeeForUser.organization },
         })
 
-        return employeeRole && employeeRole.canManageEmployees
+        return !!(employeeRole && employeeRole.canManageEmployees)
     }
-    if (operation === 'update' || operation === 'delete') {
-        if (!itemId) return false
+
+    if (operation === 'update' && itemId) {
         const employeeToEdit = await getById('OrganizationEmployee', itemId)
 
         if (!employeeToEdit || !employeeToEdit.organization) return false
@@ -51,13 +61,10 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
             organization: { id: employeeToEdit.organization },
             user: { id: user.id },
             deletedAt: null,
+            isBlocked: false,
         })
 
         if (!employeeForUser || !employeeForUser.role) {
-            return false
-        }
-
-        if (employeeForUser.isBlocked) {
             return false
         }
 
@@ -66,8 +73,10 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
             organization: { id: employeeToEdit.organization },
         })
         if (!employeeRole) return false
+
         return employeeRole.canManageEmployees
     }
+
     return false
 }
 

@@ -12,34 +12,43 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
 
     return (
-        <Form.Item noStyle dependencies={['property']}>
+        <Form.Item noStyle shouldUpdate>
             {
                 ({ getFieldsValue }) => {
-                    const { property } = getFieldsValue(['property'])
+                    const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
 
                     return (
-                        <ActionBar>
+                        <ActionBar isFormActionBar>
                             <FormResetButton
-                                type='sberPrimary'
+                                type='sberDefaultGradient'
                                 secondary
                             />
                             <Space size={12}>
                                 <Button
                                     key='submit'
                                     onClick={handleSave}
-                                    type='sberPrimary'
+                                    type='sberDefaultGradient'
                                     loading={isLoading}
                                     disabled={!property}
                                 >
                                     {ApplyChangesMessage}
                                 </Button>
-                                <ErrorsContainer property={property} />
+                                <ErrorsContainer
+                                    isVisible={disabledCondition}
+                                    property={property}
+                                    details={details}
+                                    placeClassifier={placeClassifier}
+                                    categoryClassifier={categoryClassifier}
+                                    deadline={deadline}
+                                />
                             </Space>
                         </ActionBar>
                     )
@@ -54,13 +63,13 @@ interface IUpdateTicketForm {
 }
 
 export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
-    const { push } = useRouter()
+    const { replace } = useRouter()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { obj, loading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     const { organization, link } = useOrganization()
-    
+
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({}, () => null)
     const updateAction = (value) => action(value, obj)
@@ -70,7 +79,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
         refetchFiles()
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-        
+
     if (error || loading) {
         return (
             <>
@@ -88,7 +97,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             role={link.role}
             files={files}
             afterActionCompleted={(ticket) => {
-                push(`/ticket/${ticket.id}`)
+                replace(`/ticket/${ticket.id}`)
             }}
         >
             {({ handleSave, isLoading }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading}/>}

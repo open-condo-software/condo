@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { MultiPayment as MultiPaymentGQL } from '@condo/domains/acquiring/gql'
 import { MultiPayment, MultiPaymentUpdateInput, QueryAllMultiPaymentsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'amount', 'explicitFee', 'serviceFee', 'implicitFee', 'amountWithoutExplicitFee', 'currencyCode', 'withdrawnAt', 'cardNumber', 'serviceCategory', 'paymentWay', 'payerEmail', 'transactionId', 'meta', 'status']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'amount', 'explicitFee', 'explicitServiceCharge', 'serviceFee', 'implicitFee', 'amountWithoutExplicitFee', 'currencyCode', 'withdrawnAt', 'cardNumber', 'serviceCategory', 'paymentWay', 'payerEmail', 'transactionId', 'meta', 'status']
 const RELATIONS = ['user', 'integration', 'payments']
 
 export interface IMultiPaymentUIState extends MultiPayment {

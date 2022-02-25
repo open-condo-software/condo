@@ -3,7 +3,7 @@ import React from 'react'
 import { css, jsx } from '@emotion/core'
 import { green } from '@ant-design/colors'
 import { Button as DefaultButton, ButtonProps } from 'antd'
-import { colors, gradients } from '../constants/style'
+import { colors, gradients, transitions } from '../constants/style'
 
 const buttonCss = (color) => {
     // Ant returns an array of hue-separated colors, check them out here
@@ -118,8 +118,6 @@ const buttonGradientCss = css`
       border-radius: 8px;
       color: ${colors.defaultWhite[5]};
       box-shadow: none;
-      padding: 12px 18px;
-      height: auto;
       font-weight: 700;
       transition: none;
       outline: none;
@@ -144,7 +142,67 @@ const buttonGradientCss = css`
         }
       }
     `
+const buttonDefaultGradientCss = (secondary = false) => {
+    const border = secondary ? `1px solid ${colors.inputBorderHover}` : '1px solid transparent'
+    return  css`
+      background: ${secondary ? 'transparent' : colors.black};
+      border-radius: 8px;
+      color: ${secondary ? colors.black : colors.defaultWhite[5]};
+      box-shadow: none;
+      font-weight: 700;
+      outline: none;
+      border: ${border};
+      transition: ${transitions.allDefault};
+      
+      & span {
+        position: relative;
+        z-index: 1;
+      }
+      
+      &:before {
+        border-radius: inherit;
+        background: ${gradients.sberActionInversed};
+        content: '';
+        display: block;
+        position: absolute;
+        top: -1px;
+        left: 0;
+        right: 0;
+        height: inherit;
+        width: inherit;
+        color: black;
+        opacity: 0;
+        border: none;
+        padding: inherit;
+      }
 
+      &:hover, &:focus {
+        color: ${colors.defaultWhite[5]};
+        border: 1px solid transparent;
+      }
+      &:hover:not(:disabled):before,
+      &:focus:not(:disabled):before {
+        opacity: 1;
+      }
+
+      &:active {
+        color: ${colors.defaultWhite[5]};
+        border: 1px solid transparent;
+      }
+      &:active:before {
+        background: ${gradients.sberActionInversed};
+        opacity: 1;
+      }
+
+      &:disabled, &:hover:disabled {
+        color: ${colors.inputBorderHover};
+        background: ${secondary ? 'transparent' : '#E6E8F1'};
+        & {
+          opacity: 70%;
+        }
+      }
+    `
+}
 const buttonGhostCss = css`
   & {
     color: ${green[5]};
@@ -165,36 +223,72 @@ const buttonGhostCss = css`
   }
 `
 
+const sberDangerGhost = css`
+  color: ${colors.sberDangerRed};
+  font-weight: bold;
+  border-color: ${colors.sberDangerRed};
+  background-color: transparent;
+  
+  &:hover, &:focus {
+    border-color: unset;
+    color: ${colors.white};
+    background-color: ${colors.sberDangerRed};
+  }
+
+  &:disabled, &:hover:disabled {
+    color: ${colors.inputBorderHover};
+    background: transparent;
+    & {
+      opacity: 70%;
+    }
+  }
+`
+
+const sberBlackCss = css`
+  color: ${colors.black};
+  font-weight: 600;
+  border-color: ${colors.inputBorderHover};
+  background-color: transparent;
+  
+  &:hover, &:focus {
+    border-color: transparent;
+    color: white;
+    background-color: ${colors.black};
+  }
+`
+
 export interface CustomButtonProps extends Omit<ButtonProps, 'type'>{
-    type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction' | ButtonProps['type'],
+    type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction'
+    | 'sberDangerGhost' | 'sberDefaultGradient' | 'sberBlack' | ButtonProps['type'],
     secondary?: boolean
 }
 
+const SKIP_BUTTON_TYPES_FOR_DEFAULT = [
+    'sberDefault', 'sberGradient', 'sberDefaultGradient', 'sberPrimary', 'sberAction', 'sberDanger',
+    'sberDangerGhost', 'sberGrey', 'inlineLink', 'sberBlack', 'ghost',
+]
+
+const BUTTON_TYPE_STYLES = {
+    sberGradient: buttonGradientCss,
+    inlineLink: buttonLinkCss,
+    ghost: buttonGhostCss,
+    sberDangerGhost: sberDangerGhost,
+    sberBlack: sberBlackCss,
+}
+
 export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restProps }) => {
-    if (
-        type !== 'sberDefault' &&
-        type !== 'sberGradient' &&
-        type !== 'sberPrimary' &&
-        type !== 'sberAction' &&
-        type !== 'sberDanger' &&
-        type !== 'sberGrey' &&
-        type !== 'inlineLink' &&
-        type !== 'ghost'
-    ) {
-        return <DefaultButton {...{ ...restProps, type }}/>
-    } else {
-        let buttonStyles
-
-        if (type === 'sberGradient') {
-            buttonStyles = buttonGradientCss
-        } else if (type === 'inlineLink') {
-            buttonStyles = buttonLinkCss
-        } else if (type === 'ghost') {
-            buttonStyles = buttonGhostCss
-        } else {
-            buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
-        }
-
-        return <DefaultButton css={buttonStyles} {...restProps}/>
+    if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
+        return <DefaultButton {...restProps} type={type as ButtonProps['type']}/>
     }
+
+    let buttonStyles
+    if (BUTTON_TYPE_STYLES[type]) {
+        buttonStyles = BUTTON_TYPE_STYLES[type]
+    } else if (type === 'sberDefaultGradient') {
+        buttonStyles = buttonDefaultGradientCss(secondary)
+    } else {
+        buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
+    }
+
+    return <DefaultButton css={buttonStyles} {...restProps}/>
 }

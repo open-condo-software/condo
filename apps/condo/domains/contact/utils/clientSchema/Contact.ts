@@ -62,6 +62,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
 } = generateReactHooks<Contact, ContactUpdateInput, IContactFormState, IContactUIState, QueryAllContactsArgs>(ContactGQL, { convertToGQLInput, convertToUIState })
 
 export {
@@ -70,5 +71,6 @@ export {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
     convertToUIFormState,
 }

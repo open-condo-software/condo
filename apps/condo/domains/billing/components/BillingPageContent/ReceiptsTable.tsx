@@ -71,9 +71,25 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
 
     const currencyCode = get(context, ['integration', 'currencyCode'], 'RUB')
 
-    const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetail'], false)
-    const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
-    const hasServicesDetail = get(context, ['integration', 'dataFormat', 'hasServicesDetail'], false)
+    let hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)
+    let hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
+    let hasServicesDetails = get(context, ['integration', 'dataFormat', 'hasServicesDetails'], false)
+
+    const integrationOptionName = get(context, 'integrationOption')
+    if (integrationOptionName) {
+        const integrationOptions = get(context, ['integration', 'availableOptions', 'options'], [])
+            .filter(option => option.name === integrationOptionName)
+        if (integrationOptions.length) {
+            const [integrationOption] = integrationOptions
+            const dataFormat = get(integrationOption, 'dataFormat')
+            if (dataFormat) {
+                hasToPayDetails = dataFormat.hasToPayDetails
+                hasServices = dataFormat.hasServices
+                hasServicesDetails = dataFormat.hasServicesDetails
+            }
+        }
+    }
+
     const mainTableColumns = useReceiptTableColumns(hasToPayDetails, currencyCode)
 
     const [modalIsVisible, setModalIsVisible] = useState(false)
@@ -153,7 +169,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                 visible={modalIsVisible}
                 onOk={hideServiceModal}
                 onCancel={hideServiceModal}
-                isDetailed={hasServicesDetail}
+                isDetailed={hasServicesDetails}
                 currencyCode={currencyCode}
             />
         </>

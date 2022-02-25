@@ -5,15 +5,15 @@
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/resident/access/RegisterServiceConsumerService')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { BillingIntegrationOrganizationContext, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ServiceConsumer, Resident } = require('../utils/serverSchema')
 const { NOT_FOUND_ERROR, REQUIRED_NO_VALUE_ERROR } = require('@condo/domains/common/constants/errors')
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const get = require('lodash/get')
 
 async function getResidentBillingAccount (context, billingIntegrationContext, accountNumber, unitName) {
-
     let applicableBillingAccounts = await BillingAccount.getAll(context, {
         context: { id: billingIntegrationContext.id },
         unitName: unitName,
@@ -21,13 +21,11 @@ async function getResidentBillingAccount (context, billingIntegrationContext, ac
     if (!Array.isArray(applicableBillingAccounts)) {
         return [] // No accounts are found for this user
     }
-
     applicableBillingAccounts = applicableBillingAccounts.filter(
         (billingAccount) => {
             return accountNumber === billingAccount.number || accountNumber === billingAccount.globalId
         }
     )
-
     return applicableBillingAccounts
 }
 
@@ -35,17 +33,22 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
     types: [
         {
             access: true,
-            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, tin: String! }',
+            type: 'input RegisterServiceConsumerInputExtra { paymentCategory: String }',  
+        },
+        {
+            access: true,
+            type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, organizationId: ID!, extra: RegisterServiceConsumerInputExtra }',
         },
     ],
 
     mutations: [
         {
-            schemaDoc: 'This mutation tries to create service consumer',
+            schemaDoc: 'This mutation creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount`.' +
+                ' To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data',
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context = {}) => {
-                const { data: { dv, sender, residentId, accountNumber, tin } } = args
+                const { data: { dv, sender, residentId, accountNumber, organizationId, extra } } = args
 
                 if (!accountNumber || accountNumber.length === 0) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}accountNumber] Account number null or empty: ${accountNumber}`) }
 
@@ -54,51 +57,38 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     throw new Error(`${NOT_FOUND_ERROR}resident] Resident not found for this user`)
                 }
 
-                if (!tin) { throw new Error(`${REQUIRED_NO_VALUE_ERROR}tin] tin null or empty: ${tin}`) }
-
-                // Todo (DOMA-1604) add filtering by tin
-                // Right now we don't actaully use tin for getting an organization, but get organization from resident. Reasons:
-                // 1. We can't optimally filter on tin: (DOMA-1604)
-                // 2. Right now it's okay to get organiation from resident. We would need to get organization by tin when we add new Acquiring
-                // const [ organization ] = await Organization.getAll(context, { meta_in: { tin: tin } })
-                const [ organization ] = await Organization.getAll(context, { id: get(resident, ['organization', 'id']) })
+                const [ organization ] = await Organization.getAll(context, { id: organizationId })
                 if (!organization) {
-                    throw new Error(`${NOT_FOUND_ERROR}organization] Organization is not found by this tin: ${tin}`)
+                    throw new Error(`${NOT_FOUND_ERROR}organization] Organization not found for this id`)
                 }
 
-                const unitName = get(resident, ['unitName'])
+                const unitName = get(resident, 'unitName', null)
 
-                let paymentFeatureAttrs = {}
+                const paymentCategory = get(extra, 'paymentCategory', null)
 
-                const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id } })
-                if (billingIntegrationContext) {
-
-                    const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id } })
-                    const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
-
-                    paymentFeatureAttrs = { billingAccount: billingAccount
-                        ? { connect: { id: billingAccount.id } }
-                        : null,
-                    billingIntegrationContext: billingIntegrationContext
-                        ? { connect: { id: billingIntegrationContext.id } }
-                        : null,
-                    acquiringIntegrationContext: acquiringIntegrationContext
-                        ? { connect: { id: acquiringIntegrationContext.id } }
-                        : null,
-                    }
-                }
-
-                const requiredAttrs = {
+                const attrs = {
                     dv,
                     sender,
                     resident: { connect: { id: residentId } },
                     accountNumber: accountNumber,
                     organization: { connect: { id: organization.id } },
+                    paymentCategory: paymentCategory,
                 }
 
-                const attrs = {
-                    ...requiredAttrs,
-                    ...paymentFeatureAttrs,
+                const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
+                if (billingIntegrationContext) {
+
+                    const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
+                    const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
+                    attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
+                    attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
+                    attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
+                }
+                if (!attrs.billingAccount) {
+                    const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
+                    if (meters.length < 1) {
+                        throw (`${NOT_FOUND_ERROR}accountNumber] Can't find billingAccount and any meters with this accountNumber, unitName and organization combination`)
+                    }
                 }
 
                 const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {

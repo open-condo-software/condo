@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { CSSProperties, useEffect, useState } from 'react'
 import Head from 'next/head'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -7,7 +7,7 @@ import { BillingIntegration, BillingIntegrationOrganizationContext } from '@cond
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Typography, Col, Row, Space, Modal, Alert, Tooltip } from 'antd'
+import { Typography, Col, Row, Space, Modal, Alert, Tooltip, Radio } from 'antd'
 const ReactMarkdown = require('react-markdown')
 const gfm = require('remark-gfm')
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -18,7 +18,7 @@ import Link from 'next/link'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import Error from 'next/error'
-import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
+import { Gutter } from 'antd/es/grid/row'
 
 
 const SETTINGS_PAGE_ROUTE = '/settings/'
@@ -27,6 +27,14 @@ const ButtonWrap = styled.div`
    width: fit-content;
    cursor: ${({ disabled }: { disabled: boolean }) => disabled ? 'not-allowed' : 'pointer'};
  `
+
+const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
+const DESCRIPTION_TEXT_STYLE = { fontSize: 16 }
+const PAGE_HEADER_STYLE = { margin: '0 30' }
+const PAGE_HEADER_TITLE_STYLE = { margin: 0 }
+const NO_CHANGE_ALERT_STYLE = { width: 'fit-content' }
+const RADIO_GROUP_CONTAINER_STYLE = { paddingBottom: 20 }
+const BUTTONS_SPACE_STYLE: CSSProperties = { width: '100%', flexWrap: 'wrap' }
 
 const BillingIntegrationDetailsPage = () => {
     const intl = useIntl()
@@ -77,6 +85,24 @@ const BillingIntegrationDetailsPage = () => {
     }, {
         fetchPolicy: 'network-only',
     })
+    const options = get(integration, ['availableOptions', 'options'])
+    const optionsTitle = get(integration, ['availableOptions', 'title'])
+    let defaultOption = get(options, ['0', 'name'], null)
+    if (currentContext && integration) {
+        defaultOption = get(currentContext, ['integration', 'id']) === get(integration, 'id')
+            ? get(currentContext, 'integrationOption')
+            : null
+    }
+    const [option, setOption] = useState(defaultOption)
+
+    useEffect(() => {
+        setOption(defaultOption)
+    }, [defaultOption])
+
+    const handleOptionChange = (e) => {
+        setOption(e.target.value)
+    }
+
 
     const createContextAction = BillingIntegrationOrganizationContext.useCreate({
         integration: String(integrationId),
@@ -96,7 +122,10 @@ const BillingIntegrationDetailsPage = () => {
             okText: ContinueMessage,
             cancelText: CancelMessage,
             onOk () {
-                return createContextAction({ status: get(integration, 'contextDefaultStatus') })
+                return createContextAction({
+                    status: get(integration, 'contextDefaultStatus'),
+                    integrationOption: option,
+                })
             },
         })
     }
@@ -111,6 +140,10 @@ const BillingIntegrationDetailsPage = () => {
         )
     }
 
+    if (!integration) {
+        return <Error statusCode={404}/>
+    }
+
     const pageTitle = get(integration, 'detailsTitle')
     const markDownText = get(integration, 'detailsText')
     const startButtonMessage = get(integration, 'detailsConfirmButtonText') || DefaultStartButtonMessage
@@ -119,6 +152,8 @@ const BillingIntegrationDetailsPage = () => {
 
     const disabledIntegration = !!currentContext
     const shouldNotifyWithAlert = !!currentContext && currentContext.integration.id !== integrationId
+    const isHiddenIntegration = get(integration, 'isHidden', false)
+
     return (
         <>
             <Head>
@@ -131,12 +166,12 @@ const BillingIntegrationDetailsPage = () => {
                             ? (
                                 <>
                                     <PageHeader
-                                        title={<Typography.Title style={{ margin: 0 }}>{pageTitle}</Typography.Title>}
-                                        style={{ marginTop: 30 }}
+                                        title={<Typography.Title style={PAGE_HEADER_TITLE_STYLE}>{pageTitle}</Typography.Title>}
+                                        style={PAGE_HEADER_STYLE}
                                     />
                                     <PageContent>
                                         <Col span={20}>
-                                            <Row gutter={[0, 50]}>
+                                            <Row gutter={ROW_GUTTER}>
                                                 {
                                                     shouldNotifyWithAlert && (
                                                         <Col span={24}>
@@ -144,22 +179,70 @@ const BillingIntegrationDetailsPage = () => {
                                                                 message={AnotherContextAlreadyCreatedMessage}
                                                                 type={'warning'}
                                                                 showIcon
-                                                                style={{ width: 'fit-content' }}
+                                                                style={NO_CHANGE_ALERT_STYLE}
                                                             />
                                                         </Col>
                                                     )
                                                 }
                                                 {
                                                     markDownText && (
-                                                        <Col span={24} style={{ fontSize: 16 }}>
+                                                        <Col span={24} style={DESCRIPTION_TEXT_STYLE}>
                                                             <ReactMarkdown remarkPlugins={[gfm]}>
                                                                 {markDownText}
                                                             </ReactMarkdown>
                                                         </Col>
                                                     )
                                                 }
+                                                {
+                                                    options && optionsTitle && (
+                                                        <>
+                                                            <Col span={24}>
+                                                                <Typography.Title level={4}>
+                                                                    {optionsTitle}
+                                                                </Typography.Title>
+                                                            </Col>
+                                                            <Col span={24} style={RADIO_GROUP_CONTAINER_STYLE}>
+                                                                <Tooltip
+                                                                    title={ContextAlreadyCreatedMessage}
+                                                                    visible={!disabledIntegration ? false : undefined}
+                                                                >
+                                                                    <Radio.Group onChange={handleOptionChange} value={option} disabled={disabledIntegration}>
+                                                                        <Space direction={'vertical'} size={22}>
+                                                                            {options.map(integrationOption => {
+                                                                                return (
+                                                                                    <Radio value={integrationOption.name} key={integrationOption.name}>
+                                                                                        {get(integrationOption, 'displayName') || integrationOption.name}
+                                                                                        {
+                                                                                            integrationOption.descriptionDetails && (
+                                                                                                <>
+                                                                                                    &nbsp;
+                                                                                                    <Typography.Text type={'secondary'}>
+                                                                                                        (
+                                                                                                        <Link href={integrationOption.descriptionDetails.url}>
+                                                                                                            <a target='_blank'>
+                                                                                                                <Typography.Text type={'secondary'}>
+                                                                                                                    {integrationOption.descriptionDetails.urlText}
+                                                                                                                </Typography.Text>
+                                                                                                            </a>
+                                                                                                        </Link>
+                                                                                                        )
+                                                                                                    </Typography.Text>
+                                                                                                </>
+                                                                                            )
+
+                                                                                        }
+                                                                                    </Radio>
+                                                                                )
+                                                                            })}
+                                                                        </Space>
+                                                                    </Radio.Group>
+                                                                </Tooltip>
+                                                            </Col>
+                                                        </>
+                                                    )
+                                                }
                                                 <Col span={24}>
-                                                    <Space size={20} style={{ width: '100%', flexWrap: 'wrap' }}>
+                                                    <Space size={20} style={BUTTONS_SPACE_STYLE}>
                                                         <Tooltip
                                                             title={ContextAlreadyCreatedMessage}
                                                             visible={!disabledIntegration ? false : undefined}
@@ -168,7 +251,7 @@ const BillingIntegrationDetailsPage = () => {
                                                                 <Button
                                                                     type='sberPrimary'
                                                                     onClick={showConfirmModal}
-                                                                    disabled={disabledIntegration}
+                                                                    disabled={disabledIntegration || isHiddenIntegration}
                                                                     style={{ pointerEvents: disabledIntegration ? 'none' : 'auto' }}
                                                                 >
                                                                     {startButtonMessage}

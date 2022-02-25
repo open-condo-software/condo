@@ -6,18 +6,18 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadConfirmPhoneActions ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+
     if (user.isAdmin) return {}
+
     return false
 }
 
-async function canManageConfirmPhoneActions ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageConfirmPhoneActions ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
-    if (operation === 'create') {
-        return false
-    } else if (operation === 'update') {
-        return false
-    }
+
     return false
 }
 

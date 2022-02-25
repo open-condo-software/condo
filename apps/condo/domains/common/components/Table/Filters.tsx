@@ -1,5 +1,6 @@
-import React, { ComponentProps, CSSProperties } from 'react'
+import React, { ComponentProps, CSSProperties, useCallback, useState } from 'react'
 import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
 import dayjs from 'dayjs'
 import { Checkbox, Input, Select } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
@@ -24,16 +25,23 @@ export const getFilterValue: FilterValueType = (path, filters) => get(filters, p
 
 export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        const [value, setValue] = useState('')
+        const handleClear = useCallback(() => {
+            setValue('')
+            isFunction(clearFilters) && clearFilters()
+        }, [clearFilters])
+
         return (
             <FilterContainer
-                clearFilters={clearFilters}
+                clearFilters={handleClear}
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
                 <Input
                     placeholder={placeholder}
-                    value={selectedKeys}
+                    value={value}
                     onChange={e => {
+                        setValue(e.target.value)
                         setSelectedKeys(e.target.value)
                         confirm({ closeDropdown: false })
                     }}
@@ -80,6 +88,7 @@ export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Selec
                     showArrow
                     style={DROPDOWN_SELECT_STYLE}
                     value={selectedKeys}
+                    optionFilterProp={'label'}
                     onChange={(e) => {
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })
@@ -96,7 +105,7 @@ const GRAPHQL_SEARCH_INPUT_STYLE: CSSProperties = { width: '100%' }
 export const getGQLSelectFilterDropdown = (
     props: ComponentProps<typeof GraphQlSearchInput>,
     search: (client: ApolloClient<Record<string, unknown>>, queryArguments: string) => Promise<Array<Record<string, unknown>>>,
-    mode?: 'multiple' | 'tag',
+    mode?: ComponentProps<typeof GraphQlSearchInput>['mode'],
     containerStyles?: CSSProperties
 ) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
@@ -141,7 +150,8 @@ export const getDateFilterDropdown = (containerStyles?: CSSProperties) => {
         return (
             <FilterContainer clearFilters={clearFilters}
                 style={containerStyles}
-                showClearButton={selectedKeys && selectedKeys.length > 0}>
+                showClearButton={selectedKeys && selectedKeys.length > 0}
+            >
                 <DatePicker {...pickerProps}/>
             </FilterContainer>
         )

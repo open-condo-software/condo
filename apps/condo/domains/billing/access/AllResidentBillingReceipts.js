@@ -6,6 +6,8 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canGetAllResidentBillingReceipts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+
     return true
 }
 

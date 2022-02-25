@@ -17,6 +17,9 @@ const { User: UserGQL } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
+const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
+const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
+const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -33,6 +36,44 @@ async function signinAsUser (context, data) {
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to signinAsUser',
         dataPath: 'result',
+    })
+}
+
+async function registerNewServiceUser (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_NEW_SERVICE_USER_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerNewUserService',
+        dataPath: 'obj',
+    })
+}
+
+async function resetUser (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: RESET_USER_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to resetUser',
+        dataPath: 'obj',
+    })
+}
+
+async function sendMessageToSupport (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SEND_MESSAGE_TO_SUPPORT_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendMessageToSupport',
+        dataPath: 'obj',
     })
 }
 
@@ -75,5 +116,8 @@ module.exports = {
     ForgotPasswordAction,
     updateEmployeesRelatedToUser,
     signinAsUser,
+    registerNewServiceUser,
+    sendMessageToSupport,
+    resetUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

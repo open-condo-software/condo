@@ -39,7 +39,13 @@ class SberCloudObsAcl {
         const  { CommonMsg: { Status } } = result
         return Status < 300
     }
-    // createSignedUrlSync is executed without request to obs, so there is no need to cache result
+
+    /**
+     * createSignedUrlSync is executed without request to obs, so there is no need to cache result
+     * @param {string} filename should starts from the folder if exists (`${adapter.folder}/${filename}`)
+     * @param {number} ttl
+     * @returns {string}
+     */
     generateUrl (filename, ttl = 300) { // obs default
         const { SignedUrl } = this.s3.createSignedUrlSync({
             Method: 'GET',

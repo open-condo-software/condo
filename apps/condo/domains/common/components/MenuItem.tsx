@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
+import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { colors } from '../constants/style'
 import { transitions } from '@condo/domains/common/constants/style'
 import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
@@ -18,7 +19,7 @@ interface IMenuItemWrapperProps {
     labelFontSize?: string
 }
 
-const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
+const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
   cursor: pointer;
   padding: ${props => props.padding ? props.padding : '12px 0'};
   display: flex;
@@ -58,7 +59,6 @@ const MenuItemWrapper = styled.span<IMenuItemWrapperProps>`
 
   &.disabled {
     opacity: 0.4;
-    pointer-events: none;
   }
 `
 
@@ -70,10 +70,37 @@ interface IMenuItemProps {
     hideInMenu?: boolean
     menuItemWrapperProps?: IMenuItemWrapperProps
     isCollapsed?: boolean
+
+    toolTipDecorator? (params: INoOrganizationToolTipWrapper): JSX.Element
 }
 
+const makeLink = (content: JSX.Element, path: string) => {
+    return (
+        <Link href={path}>
+            <a>
+                {content}
+            </a>
+        </Link>
+    )
+}
+
+const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
+    <Tooltip title={Message} placement={'right'} color={colors.black} textColor={colors.white}>
+        {content}
+    </Tooltip>
+)
+
 export const MenuItem: React.FC<IMenuItemProps> = (props) => {
-    const { path, icon, label, hideInMenu, disabled, menuItemWrapperProps, isCollapsed } = props
+    const {
+        path,
+        icon,
+        label,
+        hideInMenu,
+        disabled,
+        menuItemWrapperProps,
+        isCollapsed,
+        toolTipDecorator = null,
+    } = props
     const { route } = useRouter()
     const intl = useIntl()
 
@@ -94,36 +121,31 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         'disabled': disabled,
     })
 
-    if (isCollapsed) {
-        return (
-            <Link href={path}>
-                <a>
-                    <MenuItemWrapper className={menuItemClassNames} isCollapsed {...menuItemWrapperProps}>
-                        <Tooltip title={Message} placement={'right'} color={colors.black} textColor={colors.white}>
-                            <IconWrapper className='icon'>
-                                <ClientRenderedIcon icon={icon}/>
-                            </IconWrapper>
-                        </Tooltip>
-                    </MenuItemWrapper>
-                </a>
-            </Link>
+    const linkContent = isCollapsed
+        ? (
+            <IconWrapper className="icon">
+                <ClientRenderedIcon icon={icon}/>
+            </IconWrapper>
         )
-    }
+        : (
+            <Space size={14}>
+                <IconWrapper className="icon">
+                    <ClientRenderedIcon icon={icon}/>
+                </IconWrapper>
+                <Typography.Text className="label">
+                    {Message}
+                </Typography.Text>
+            </Space>
+        )
 
-    return (
-        <Link href={path}>
-            <a>
-                <MenuItemWrapper className={menuItemClassNames} {...menuItemWrapperProps}>
-                    <Space size={14}>
-                        <IconWrapper className='icon'>
-                            <ClientRenderedIcon icon={icon}/>
-                        </IconWrapper>
-                        <Typography.Text className='label'>
-                            {Message}
-                        </Typography.Text>
-                    </Space>
-                </MenuItemWrapper>
-            </a>
-        </Link>
+    const menuItem = (
+        <MenuItemWrapper className={menuItemClassNames} isCollapsed={isCollapsed} {...menuItemWrapperProps}>
+            {(isCollapsed && !disabled) ? addToolTipForCollapsedMenu(linkContent, Message) : linkContent}
+        </MenuItemWrapper>
+
     )
+
+    const nextjsLink = disabled ? menuItem : makeLink(menuItem, path)
+
+    return toolTipDecorator ? toolTipDecorator({ element: nextjsLink, placement: 'right' }) : nextjsLink
 }

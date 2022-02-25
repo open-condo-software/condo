@@ -1,6 +1,6 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants')
+const { SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')

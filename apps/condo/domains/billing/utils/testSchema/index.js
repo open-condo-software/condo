@@ -3,10 +3,12 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const faker = require('faker')
+
 const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
-const faker = require('faker')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganization } = require("@condo/domains/organization/utils/testSchema");
@@ -53,6 +55,7 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
         name,
         detailsTitle,
         currencyCode,
+        isHidden: true,
         ...extraAttrs,
     }
     const obj = await BillingIntegration.create(client, attrs)
@@ -374,7 +377,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         raw: { foo: faker.lorem.words() },
         period: '2021-12-01',
         importId: faker.random.alphaNumeric(8),
-        toPay: faker.datatype.number().toString(),
+        toPay: (faker.datatype.number() + 50).toString(),
         recipient: {
             name: faker.random.boolean ? faker.vehicle.manufacturer() : undefined,
             tin: faker.datatype.number().toString(),
@@ -419,25 +422,6 @@ async function updateTestBillingReceipt (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBillingOrganization (client, context, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!context || !context.id) throw new Error('no context.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        context: { connect: { id: context.id } },
-        tin: faker.random.alphaNumeric(4),
-        bic: faker.random.alphaNumeric(6),
-        iec: faker.random.alphaNumeric(6),
-        checkNumber: faker.random.alphaNumeric(16),
-        ...extraAttrs,
-    }
-    const obj = await BillingOrganization.create(client, attrs)
-    return [obj, attrs]
-}
-
 async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -473,7 +457,22 @@ async function makeClientWithIntegrationAccess () {
  * Simplifies creating series of instances
  */
 
-async function createContextWithOrganizationAndIntegrationAsAdmin() {
+async function addBillingIntegrationAndContext(client, organization) {
+    if (!organization || !organization.id) {
+        throw new Error('No organization')
+    }
+
+    const [ billingIntegration ] = await createTestBillingIntegration(client)
+    const [ billingIntegrationContext ] = await createTestBillingIntegrationOrganizationContext(client, organization, billingIntegration)
+
+    return {
+        billingIntegration,
+        billingIntegrationContext,
+        client
+    }
+}
+
+async function makeContextWithOrganizationAndIntegrationAsAdmin() {
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestBillingIntegration(admin)
     const [organization] = await registerNewOrganization(admin)
@@ -482,7 +481,7 @@ async function createContextWithOrganizationAndIntegrationAsAdmin() {
     return { context, integration, organization }
 }
 
-async function createOrganizationIntegrationManager() {
+async function makeOrganizationIntegrationManager() {
     const admin = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(admin)
     const [integration] = await createTestBillingIntegration(admin)
@@ -504,6 +503,24 @@ async function createReceiptsReader(organization) {
     return client
 }
 
+async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs, billingPropertyArgs, billingAccountAttrs }) {
+    const integrationClient = await makeClientWithIntegrationAccess()
+    const integration = integrationClient.integration
+
+    const client = await makeClientWithProperty()
+
+    const [ context ] = await createTestBillingIntegrationOrganizationContext(client, client.organization, integration, billingIntegrationContextArgs)
+    const [ property ] = await createTestBillingProperty(integrationClient, context, billingPropertyArgs)
+    const [ account ] = await createTestBillingAccount(integrationClient, context, property, billingAccountAttrs)
+
+    client.billingIntegration = integration
+    client.billingIntegrationContext = context
+    client.billingProperty = property
+    client.billingAccount = account
+
+    return { organizationClient: client, integrationClient: integrationClient }
+}
+
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
@@ -516,11 +533,12 @@ module.exports = {
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
     BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
-    makeContextWithOrganizationAndIntegrationAsAdmin: createContextWithOrganizationAndIntegrationAsAdmin,
-    makeOrganizationIntegrationManager: createOrganizationIntegrationManager,
-    BillingOrganization, createTestBillingOrganization, updateTestBillingOrganization,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    makeOrganizationIntegrationManager, addBillingIntegrationAndContext,
+    BillingOrganization, updateTestBillingOrganization,
     ResidentBillingReceipt,
     createReceiptsReader,
+    makeClientWithPropertyAndBilling
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

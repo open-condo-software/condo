@@ -1,39 +1,60 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { get } = require('lodash')
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { find } = require('@core/keystone/schema')
 
-const userIsAuthenticated = ({ authentication: { item: user } }) => Boolean(user && user.id)
+const userIsAuthenticated = (args) => {
+    const { authentication: { item: user } } = args
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
-const userIsAdmin = ({ authentication: { item: user } }) => Boolean(user && user.isAdmin)
+    return Boolean(user.id)
+}
 
-const userIsThisItem = ({ existingItem, authentication: { item: user } }) => {
-    if (!user || !existingItem) {
+const userIsAdmin = (args) => {
+    const { authentication: { item: user } } = args
+
+    return Boolean(userIsAuthenticated(args) && user.isAdmin)
+}
+
+const userIsThisItem = (args) => {
+    const { existingItem, authentication: { item: user } } = args
+
+    if (!userIsAuthenticated(args) || !existingItem || !existingItem.id) {
         return false
     }
+
     return existingItem.id === user.id
 }
 
-const userIsOwner = ({ existingItem, authentication: { item: user } }) => {
-    if (!user || !existingItem || !existingItem.user) {
+const userIsOwner = (args) => {
+    const { existingItem, authentication: { item: user } } = args
+
+    if (!userIsAuthenticated(args) || !existingItem || !existingItem.user) {
         return false
     }
+
     return existingItem.user.id === user.id
 }
 
 const userIsAdminOrOwner = auth => {
     const isAdmin = userIsAdmin(auth)
     const isOwner = userIsOwner(auth)
+
     return Boolean(isAdmin || isOwner)
 }
 
 const userIsAdminOrIsThisItem = auth => {
     const isAdmin = userIsAdmin(auth)
     const isThisItem = userIsThisItem(auth)
+
     return Boolean(isAdmin || isThisItem)
 }
 
-const canReadOnlyActive = ({ authentication: { item: user } }) => {
-    if (!user) return throwAuthenticationError()
+const canReadOnlyActive = (args) => {
+    const { authentication: { item: user } } = args
+    if (!userIsAuthenticated(args)) return false
     if (user.isAdmin) return {}
 
     // Approximately; users.filter(user => user.isActive === true);
@@ -42,41 +63,64 @@ const canReadOnlyActive = ({ authentication: { item: user } }) => {
     }
 }
 
-const userIsNotResidentUser = ({ authentication: { item: user } }) => {
-    if (!user) return false
-    if (user.type === RESIDENT) return false
-    return true
+const userIsNotResidentUser = (args) => {
+    const { authentication: { item: user } } = args
+    if (!userIsAuthenticated(args)) return false
+
+    return user.type !== RESIDENT
 }
 
-const canReadOnlyIfInUsers = ({ authentication: { item: user } }) => {
-    if (!user) return throwAuthenticationError()
+const canReadOnlyIfUserIsActiveOrganizationEmployee = async (args) => {
+    const { existingItem, authentication: { item: user } } = args
+    if (!userIsAuthenticated(args)) return false
+
+    if (user.isAdmin || user.isSupport)
+        return true
+    
+    if (!userIsNotResidentUser(args))
+        return false
+
+    const userId = get(user, 'id')
+    const existingItemId = get(existingItem, 'id', null)
+
+    const availableOrganizations = await find('Organization', {
+        id: existingItemId,
+        OR: [
+            queryOrganizationEmployeeFor(userId),
+            queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+        ],
+        deletedAt: null,
+    })
+
+    return availableOrganizations.length > 0
+}
+
+const canReadOnlyIfInUsers = (args) => {
+    const { authentication: { item: user } } = args
+    if (!userIsAuthenticated(args)) return throwAuthenticationError()
     if (user.isAdmin) return {}
+
     return {
         users_some: { id: user.id },
     }
 }
 
-const readOnlyField = {
-    read: true,
-    create: false,
-    update: false,
-}
-
 const isSoftDelete = (originalInput) => {
     // TODO(antonal): extract validations of `originalInput` to separate module and user ajv to validate JSON-schema
-    const isJustSoftDelete = (
+    const isJustSoftDelete = Boolean(
         Object.keys(originalInput).length === 3 &&
         get(originalInput, 'deletedAt') &&
         get(originalInput, 'dv') &&
         get(originalInput, 'sender')
     )
-    const isSoftDeleteWithMerge = (
+    const isSoftDeleteWithMerge = Boolean(
         Object.keys(originalInput).length === 4 &&
         get(originalInput, 'deletedAt') &&
         get(originalInput, 'newId') &&
         get(originalInput, 'dv') &&
         get(originalInput, 'sender')
     )
+
     return isJustSoftDelete || isSoftDeleteWithMerge
 }
 
@@ -90,7 +134,7 @@ module.exports = {
     userIsAdminOrIsThisItem,
     canReadOnlyActive,
     canReadOnlyIfInUsers,
-    readOnlyField,
     isSoftDelete,
     userIsNotResidentUser,
+    canReadOnlyIfUserIsActiveOrganizationEmployee,
 }

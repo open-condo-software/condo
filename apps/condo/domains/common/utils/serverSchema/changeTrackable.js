@@ -1,4 +1,4 @@
-const { keys, transform, pick, pickBy, omit, difference } = require('lodash')
+const { keys, transform, pick, pickBy, omit, difference, isEqual } = require('lodash')
 const { Text, Uuid } = require('@keystonejs/fields')
 const { Relationship } = require('@keystonejs/fields')
 const { Json, LocalizedText } = require('@core/keystone/fields')
@@ -275,9 +275,12 @@ const buildDataToStoreChangeFrom = async (args) => {
     await Promise.all(keys(fields).map(async (key) => {
         const field = fields[key]
         if (isScalar(field)) {
-            if (existingItem[key] !== updatedItem[key]) {
-                data[`${ key }From`] = existingItem[key]
-                data[`${ key }To`] = updatedItem[key]
+            const convertedExistingValue = convertScalarValueToInput(existingItem[key])
+            const convertedUpdatedValue = convertScalarValueToInput(updatedItem[key])
+
+            if (!isEqual(convertedExistingValue, convertedUpdatedValue)) {
+                data[`${ key }From`] = convertedExistingValue
+                data[`${ key }To`] = convertScalarValueToInput(updatedItem[key])
             }
         } else if (isRelationSingle(field)) {
             if (existingItem[key] !== updatedItem[key]) {
@@ -309,6 +312,19 @@ const buildDataToStoreChangeFrom = async (args) => {
         }
     }))
     return data
+}
+
+/**
+ * In some cases we cannot just pass a value of existing item into input values set.
+ * For example, a `Datetime` Keystone fields accepts `String`, but not a `Date`, as it comes
+ * from a GraphQL query result.
+ * @param value - value of Keystone instance field
+ */
+const convertScalarValueToInput = (value) => {
+    if (value instanceof Date) {
+        return value.toISOString()
+    }
+    return value
 }
 
 const isFieldChanged = (fieldsChanges, fieldKey) => (
@@ -375,7 +391,8 @@ const mapScalars = (acc, value, key) => {
 }
 
 const mapScalar = (field) => (
-    pick(field, ['schemaDoc', 'type'])
+    // Fields `options` and `dataType` needs for Keystone fields of type `Select`
+    pick(field, ['schemaDoc', 'type', 'options', 'dataType'])
 )
 
 const localizedTrackableFields = new Map([['status', TicketStatus.schema.fields.name.template]])

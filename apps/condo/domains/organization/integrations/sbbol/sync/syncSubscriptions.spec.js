@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const { syncSubscriptions } = require('./syncSubscriptions')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
@@ -71,10 +75,10 @@ describe('syncSubscriptions', () => {
 
             const trialSubscriptionAfterSync = find(subscriptions, { type: SUBSCRIPTION_TYPE.DEFAULT })
             expect(dayjs(trialSubscriptionAfterSync.finishAt).isBefore(dayjs(initialDefaultTrialSubscription.finishAt))).toBeTruthy()
-            expect(dayjs(trialSubscriptionAfterSync.finishAt).isSame(today, 'minute')).toBeTruthy()
+            expect(dayjs(trialSubscriptionAfterSync.finishAt).diff(today, 'minute')).toEqual(0)
 
             const sbbolSubscriptionAfterSync = find(subscriptions, { type: SUBSCRIPTION_TYPE.SBBOL })
-            expect(dayjs(sbbolSubscriptionAfterSync.startAt).isSame(today, 'minute')).toBeTruthy()
+            expect(dayjs(sbbolSubscriptionAfterSync.startAt).diff(today, 'minute')).toEqual(0)
             expect(dayjs(sbbolSubscriptionAfterSync.finishAt).diff(dayjs(sbbolSubscriptionAfterSync.startAt), 'day')).toEqual(SUBSCRIPTION_TRIAL_PERIOD_DAYS)
         })
     })
@@ -144,7 +148,7 @@ describe('syncSubscriptions', () => {
             }, { sortBy: ['updatedAt_DESC'] })
 
             expect(currentSbbolSubscription.id).toEqual(changedSbbolSubscription.id)
-            expect(dayjs(changedSbbolSubscription.finishAt).isSame(today, 'minute')).toBeTruthy()
+            expect(dayjs(changedSbbolSubscription.finishAt).diff(today, 'minute')).toEqual(0)
         })
     })
 

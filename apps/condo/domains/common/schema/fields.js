@@ -1,11 +1,13 @@
 const { Relationship, Select, Integer, Text } = require('@keystonejs/fields')
 const { Decimal } = require('@keystonejs/fields')
+const { Json, SignedDecimal } = require('@core/keystone/fields')
+
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { Json } = require('@core/keystone/fields')
 const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
-const { ADDRESS_META_FIELD_GRAPHQL_TYPES } = require('@condo/domains/property/schema/fields/AddressMetaField')
+const { ADDRESS_META_FIELD_GRAPHQL_TYPES, ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
+
 const { ISO_CODES } = require('../constants/currencies')
 
 const DV_FIELD = {
@@ -49,6 +51,7 @@ const ADDRESS_META_FIELD = {
     type: Json,
     extendGraphQLTypes: [ADDRESS_META_FIELD_GRAPHQL_TYPES],
     graphQLReturnType: 'AddressMetaField',
+    graphQLAdminFragment: `{ ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }`,
     isRequired: true,
     kmigratorOptions: { null: false },
     hooks: {
@@ -131,6 +134,18 @@ const MONEY_AMOUNT_FIELD = {
     },
 }
 
+const POSITIVE_MONEY_AMOUNT_FIELD = {
+    ...MONEY_AMOUNT_FIELD,
+    type: SignedDecimal,
+    template: 'positive',
+}
+
+const NON_NEGATIVE_MONEY_FIELD = {
+    ...MONEY_AMOUNT_FIELD,
+    type: SignedDecimal,
+    template: 'non-negative',
+}
+
 const CURRENCY_CODE_FIELD = {
     schemaDoc: 'Code of currency in ISO-4217 format',
     isRequired: true,
@@ -139,6 +154,12 @@ const CURRENCY_CODE_FIELD = {
     options: ISO_CODES,
 }
 
+// TODO(DOMA-1766) add constrains with this field! + context
+const IMPORT_ID_FIELD = {
+    schemaDoc: 'Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs',
+    type: Text,
+    isRequired: false,
+}
 
 module.exports = {
     DV_FIELD,
@@ -152,4 +173,7 @@ module.exports = {
     CLIENT_PHONE_LANDLINE_FIELD,
     MONEY_AMOUNT_FIELD,
     CURRENCY_CODE_FIELD,
+    POSITIVE_MONEY_AMOUNT_FIELD,
+    NON_NEGATIVE_MONEY_FIELD,
+    IMPORT_ID_FIELD,
 }

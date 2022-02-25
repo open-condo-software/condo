@@ -1,12 +1,14 @@
 /** @jsx jsx */
 
 import { Affix, Space } from 'antd'
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { css, jsx } from '@emotion/core'
 
 const actionBar = css`
     position: relative;
     padding: 24px;
+    box-sizing: border-box;
+    left: -24px;
     transition: box-shadow 0.6s ease-out;
 
     .ant-affix & {
@@ -16,13 +18,14 @@ const actionBar = css`
     }
 `
 interface IActionBarProps {
-    fullscreen?: boolean;
-    hidden?: boolean;
+    hidden?: boolean
+    style?: CSSProperties
+    isFormActionBar?: boolean
 }
 
 const ActionBar: React.FC<IActionBarProps> = (props) => {
-    const { children, fullscreen = true, hidden } = props
-    const barWidthStyle = { width: fullscreen ? '100%' : 'unset' }
+    const { children, hidden } = props
+    const barWidthStyle = { width: props.isFormActionBar ? '100%' : 'calc(100% + 48px)' }
 
     if (hidden) {
         return null
@@ -30,7 +33,7 @@ const ActionBar: React.FC<IActionBarProps> = (props) => {
 
     return (
         <Affix offsetBottom={48} style={barWidthStyle}>
-            <Space wrap={true} size={[40, 24]} css={actionBar} style={barWidthStyle}>
+            <Space wrap={true} size={[24, 24]} css={actionBar} style={barWidthStyle}>
                 { children }
             </Space>
         </Affix>

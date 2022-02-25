@@ -1,14 +1,18 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
-import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert } from 'antd'
-import { get } from 'lodash'
-import React, { useEffect, useRef, useState } from 'react'
+import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, FormItemProps } from 'antd'
+import get from 'lodash/get'
+import styled from '@emotion/styled'
+import { useRouter } from 'next/router'
+import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
+import isEmpty from 'lodash/isEmpty'
+
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { useTicketValidations } from './useTicketValidations'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
@@ -20,17 +24,26 @@ import Prompt from '@condo/domains/common/components/Prompt'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
-import { TicketAssignments } from './TicketAssignments'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
-import { useRouter } from 'next/router'
+import { colors } from '@condo/domains/common/constants/style'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { USER_TYPES } from '@condo/domains/user/constants/common'
+import { RESIDENT } from '@condo/domains/user/constants/common'
+
+import { TicketDeadlineField } from './TicketDeadlineField'
+import { useTicketValidations } from './useTicketValidations'
+import { TicketAssignments } from './TicketAssignments'
 
 const { TabPane } = Tabs
 
-export const LAYOUT = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
-}
+const ContactsInfoFocusContainer = styled(FocusContainer)`
+  position: relative;
+  left: ${({ padding }) => padding ? padding : '24px'};
+  box-sizing: border-box;
+  width: 100%;
+  background: ${colors.backgroundLightGrey};
+`
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const intl = useIntl()
@@ -38,20 +51,22 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
 
+    const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
+
+    const value = useMemo(() => contactId && ({
+        id: contactId,
+        name: get(initialValues, 'clientName'),
+        phone: get(initialValues, 'clientPhone'),
+    }), [contactId, initialValues])
+
     return (
         <Col span={24}>
-            <Form.Item shouldUpdate noStyle>
+            <TicketFormItem shouldUpdate noStyle>
                 {({ getFieldsValue }) => {
                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
 
-                    const value = {
-                        id: get(initialValues, ['contact', 'id']),
-                        name: get(initialValues, 'clientName'),
-                        phone: get(initialValues, 'clientPhone'),
-                    }
-
                     return (
-                        <FocusContainer className={!property && 'disabled'}>
+                        <ContactsInfoFocusContainer className={!property && 'disabled'}>
                             <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
                                 <TabPane tab={TicketFromResidentMessage} key="1">
                                     <ContactsEditorComponent
@@ -78,22 +93,32 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                                     disabled
                                 />
                             </Tabs>
-                        </FocusContainer>
+                        </ContactsInfoFocusContainer>
                     )
                 }}
-            </Form.Item>
+            </TicketFormItem>
         </Col>
     )
 }
 
+const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%' }
+const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
+
+export const TicketFormItem: React.FC<FormItemProps> = (props) => (
+    <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
+)
+
 export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
-    const TicketInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketInfo' })
-    const AttachedFilesLabel = intl.formatMessage({ id: 'component.uploadlist.AttachedFilesLabel' })
+    const TicketDeadlineLabel = intl.formatMessage({ id: 'TicketDeadline' })
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
+    const WarrantyLabel = intl.formatMessage({ id: 'Warranty' })
     const PaidLabel = intl.formatMessage({ id: 'Paid' })
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
+    const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
+
+    const { isSmall } = useLayoutContext()
 
     const { ClassifiersEditorComponent } = useTicketThreeLevelsClassifierHook({ initialValues })
 
@@ -101,50 +126,82 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
 
     return (
-        <>
-            <Col span={24}>
-                <Row gutter={[0, 24]}>
-                    <Col span={24}>
-                        <Typography.Title level={5} style={{ margin: '0' }}>{TicketInfoTitle}</Typography.Title>
-                    </Col>
-                    <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
-                    <Col span={24}>
-                        <Row>
-                            <Col span={6}>
-                                <Form.Item name={'isEmergency'} valuePropName='checked'>
-                                    <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
-                                </Form.Item>
-                            </Col>
-                            <Col span={6}>
-                                <Form.Item name={'isPaid'} valuePropName='checked'>
-                                    <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item name={'details'} rules={validations.details} label={DescriptionLabel}>
-                            <InputWithCounter
-                                InputComponent={Input.TextArea}
-                                currentLength={currentDetailsLength}
-                                autoSize={true}
-                                maxLength={500}
-                                onChange={e => setCurrentDetailsLength(e.target.value.length)}
-                                placeholder={DescriptionPlaceholder}
-                                disabled={disableUserInteraction}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col flex={0}>
-                        <Form.Item
-                            label={AttachedFilesLabel}
-                        >
-                            <UploadComponent/>
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Col>
-        </>
+        <Col span={24}>
+            <Row gutter={[0, 60]}>
+                <Col span={24}>
+                    <Row gutter={[0, 24]}>
+                        <Col span={24}>
+                            <Typography.Title level={3}>{DescriptionLabel}</Typography.Title>
+                        </Col>
+                        <Col span={isSmall ? 24 : 20}>
+                            <Row>
+                                <Col span={24}>
+                                    <TicketFormItem name={'details'} rules={validations.details}>
+                                        <InputWithCounter
+                                            InputComponent={Input.TextArea}
+                                            currentLength={currentDetailsLength}
+                                            maxLength={500}
+                                            onChange={e => setCurrentDetailsLength(e.target.value.length)}
+                                            placeholder={DescriptionPlaceholder}
+                                            disabled={disableUserInteraction}
+                                            style={INPUT_WITH_COUNTER_STYLE}
+                                        />
+                                    </TicketFormItem>
+                                </Col>
+                                <Col span={24}>
+                                    <TicketFormItem>
+                                        <UploadComponent/>
+                                    </TicketFormItem>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col span={24}>
+                    <Row gutter={[0, 24]}>
+                        <Col span={24}>
+                            <Row gutter={[0, 10]}>
+                                <Col span={24}>
+                                    <Typography.Title level={3}>{ClassifierLabel}</Typography.Title>
+                                </Col>
+                                <Col span={isSmall ? 24 : 18}>
+                                    <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col span={24}>
+                            <Row gutter={[40, 0]}>
+                                <Col span={24} lg={4}>
+                                    <Form.Item name={'isEmergency'} valuePropName='checked'>
+                                        <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24} lg={4}>
+                                    <Form.Item name={'isPaid'} valuePropName='checked'>
+                                        <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24} lg={4}>
+                                    <Form.Item name={'isWarranty'} valuePropName='checked'>
+                                        <Checkbox disabled={disableUserInteraction}>{WarrantyLabel}</Checkbox>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col span={isSmall ? 24 : 18}>
+                    <Row gutter={[0, 10]}>
+                        <Col span={24}>
+                            <Typography.Title level={3}>{TicketDeadlineLabel}</Typography.Title>
+                        </Col>
+                        <Col span={24}>
+                            <TicketDeadlineField initialValues={initialValues} />
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
+        </Col>
     )
 }
 
@@ -164,39 +221,57 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
-    const UserInfoTitle = intl.formatMessage({ id: 'ClientInfo' })
+    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
+
+    const { isSmall } = useLayoutContext()
 
     const router = useRouter()
 
     const { action: _action, initialValues, organization, role, afterActionCompleted, files, autoAssign } = props
     const validations = useTicketValidations()
-    const [selectedPropertyId, setSelectedPropertyId] = useState(get(initialValues, 'property'))
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
     const selectPropertyIdRef = useRef(selectedPropertyId)
 
-    const { loading: organizationPropertiesLoading, objs: organizationProperties } = Property.useObjects({
-        where: {
-            organization: {
-                id: organization ? organization.id : null,
-            },
-            deletedAt: null,
+    const propertyWhereQuery: PropertyWhereInput = {
+        organization: {
+            id: organization ? organization.id : null,
         },
-    })
+        deletedAt: null,
+
+    }
+    if (selectedPropertyId) {
+        propertyWhereQuery['id_in'] = [selectedPropertyId]
+    }
+
+    const { loading: organizationPropertiesLoading, objs: organizationProperties, refetch } = Property.useObjects({
+        where: propertyWhereQuery,
+        first: 1,
+        skip: 0,
+    } )
 
     const property = organizationProperties.find(property => property.id === selectedPropertyId)
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitType>(get(initialValues, 'unitType', BuildingUnitType.Flat))
     const selectedUnitNameRef = useRef(selectedUnitName)
+    const selectedUnitTypeRef = useRef<BuildingUnitType>(selectedUnitType)
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
+        refetch()
     }, [selectedPropertyId])
 
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
     }, [selectedUnitName])
+
+    useEffect(() => {
+        selectedUnitTypeRef.current = selectedUnitType
+    }, [selectedUnitType])
 
     const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
         Model: TicketFile,
@@ -217,8 +292,22 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         canCreateContactRef.current = canCreateContact
     }, [canCreateContact])
 
+    const addressValidation = useCallback((_, value) => {
+        const searchValueLength = get(value, 'length', 0)
+        if (searchValueLength === 0) {
+            return Promise.resolve()
+        }
+
+        return selectedPropertyId !== undefined
+            ? Promise.resolve()
+            : Promise.reject(AddressNotSelected)
+    }, [selectedPropertyId])
+
+    const PROPERTY_VALIDATION_RULES = [...validations.property, { validator: addressValidation }]
+
     const action = async (variables, ...args) => {
         const { details, ...otherVariables } = variables
+        const deadline = get(variables, 'deadline')
         let createdContact
 
         if (role.canManageContacts && canCreateContactRef.current) {
@@ -229,6 +318,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             ...otherVariables,
             details: normalizeText(details),
             contact: get(createdContact, 'id') || variables.contact,
+            deadline: deadline && deadline.startOf('day'),
         }, ...args)
 
         await syncModifiedFiles(result.id)
@@ -236,20 +326,22 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         if (afterActionCompleted) {
             return afterActionCompleted(result)
         }
-
         return result
     }
+
+    const initialCanReadByResidentValue = useMemo(() => get(initialValues, 'canReadByResident', true), [initialValues])
+    const isResidentTicket = useMemo(() => get(initialValues, ['createdBy', 'type']) === RESIDENT, [initialValues])
 
     return (
         <>
             <FormWithAction
-                {...LAYOUT}
                 action={action}
                 initialValues={initialValues}
                 validateTrigger={['onBlur', 'onSubmit']}
                 formValuesToMutationDataPreprocessor={(values) => {
                     values.property = selectPropertyIdRef.current
                     values.unitName = selectedUnitNameRef.current
+                    values.unitType = selectedUnitTypeRef.current
                     return values
                 }}
             >
@@ -264,17 +356,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 {PromptHelpMessage}
                             </Typography.Paragraph>
                         </Prompt>
-                        <Col lg={13} md={24}>
-                            <Row gutter={[0, 40]}>
+                        <Col lg={17} md={24}>
+                            <Row gutter={[0, 60]}>
                                 <Col span={24}>
-                                    <Row justify={'space-between'} gutter={[0, 15]}>
-                                        <Col span={24}>
-                                            <Typography.Title level={5}
-                                                style={{ margin: '0' }}>{UserInfoTitle}</Typography.Title>
-                                        </Col>
+                                    <Row gutter={[0, 6]}>
                                         {
-                                            !organizationPropertiesLoading && organizationProperties.length === 0 ? (
-                                                <Col span={24}>
+                                            !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
+                                                <Col span={isSmall ? 24 : 20}>
                                                     <Alert
                                                         showIcon
                                                         type='warning'
@@ -294,9 +382,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 </Col>
                                             ) : null
                                         }
-                                        <Col span={24}>
-                                            <Form.Item name={'property'} label={AddressLabel}
-                                                rules={validations.property}>
+                                        <Col span={isSmall ? 24 : 20}>
+                                            <TicketFormItem
+                                                name={'property'}
+                                                label={AddressLabel}
+                                                rules={PROPERTY_VALIDATION_RULES}
+                                            >
                                                 <PropertyAddressSearchInput
                                                     organization={organization}
                                                     autoFocus={true}
@@ -308,16 +399,20 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                         })
                                                         setSelectedPropertyId(option.key)
                                                     }}
+                                                    onClear={() => {
+                                                        setSelectedPropertyId(null)
+                                                    }}
                                                     placeholder={AddressPlaceholder}
                                                     notFoundContent={AddressNotFoundContent}
                                                 />
-                                            </Form.Item>
+                                            </TicketFormItem>
                                         </Col>
                                         {selectedPropertyId && (
                                             <UnitInfo
                                                 property={property}
                                                 loading={organizationPropertiesLoading}
                                                 setSelectedUnitName={setSelectedUnitName}
+                                                setSelectedUnitType={setSelectedUnitType}
                                                 form={form}
                                             />
                                         )}
@@ -329,19 +424,20 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                     initialValues={initialValues}
                                     selectedPropertyId={selectedPropertyId}
                                 />
-                                <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
-                                    {
-                                        ({ getFieldsValue }) => {
-                                            const {
-                                                property,
-                                                categoryClassifier,
-                                            } = getFieldsValue(['property', 'categoryClassifier'])
-                                            const disableUserInteraction = !property
+                                <Col span={24}>
+                                    <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
+                                        {
+                                            ({ getFieldsValue }) => {
+                                                const {
+                                                    property,
+                                                    categoryClassifier,
+                                                } = getFieldsValue(['property', 'categoryClassifier'])
 
-                                            return (
-                                                <Col span={24}>
-                                                    <FrontLayerContainer showLayer={disableUserInteraction}>
-                                                        <Row gutter={[0, 40]}>
+                                                const disableUserInteraction = !property
+
+                                                return (
+                                                    <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
+                                                        <Row gutter={[0, 60]}>
                                                             <TicketInfo
                                                                 form={form}
                                                                 UploadComponent={UploadComponent}
@@ -359,13 +455,22 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 categoryClassifier={categoryClassifier}
                                                                 form={form}
                                                             />
+                                                            {
+                                                                !isResidentTicket && (
+                                                                    <Col span={24}>
+                                                                        <Form.Item name={'canReadByResident'} valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                            <Checkbox disabled={disableUserInteraction}>{CanReadByResidentMessage}</Checkbox>
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                )
+                                                            }
                                                         </Row>
                                                     </FrontLayerContainer>
-                                                </Col>
-                                            )
+                                                )
+                                            }
                                         }
-                                    }
-                                </Form.Item>
+                                    </Form.Item>
+                                </Col>
                             </Row>
                         </Col>
                         {props.children({ handleSave, isLoading, form })}

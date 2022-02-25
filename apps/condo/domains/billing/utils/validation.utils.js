@@ -36,27 +36,6 @@ function validateReport ({ resolvedData, fieldPath, addFieldValidationError }) {
     }
 }
 
-const DATA_FORMAT_SCHEMA = {
-    type: 'object',
-    properties: {
-        hasToPayDetail: { type: 'boolean' },    // True if billingReceipt has toPay detailization: e.g debt, recalculation fields
-        hasServices: { type: 'boolean' },       // True if billingReceipt has services object: e.g cold water service
-        hasServicesDetail: { type: 'boolean' }, // True if billingReceipt's services has detail: e.g debt and recalculation for cold water service
-    },
-    required: ['hasToPayDetail', 'hasServices', 'hasServicesDetail'],
-    additionalProperties: false,
-}
-
-const jsonDataFormatValidator = ajv.compile(DATA_FORMAT_SCHEMA)
-
-function validateDataFormat ({ resolvedData, fieldPath, addFieldValidationError }) {
-    if (!jsonDataFormatValidator(resolvedData[fieldPath])) {
-        return jsonDataFormatValidator.errors.forEach((error) => {
-            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
-        })
-    }
-}
-
 // Refs https://gist.github.com/Fluidbyte/2973986 Native delimiter refs https://www.texastech.edu/offices/treasury/currency-conversion.php
 const CURRENCY_DISPLAY_INFO_SCHEMA = {
     type: 'object',
@@ -82,6 +61,5 @@ function validateCurrencyDisplayInfo ({ resolvedData, fieldPath, addFieldValidat
 module.exports = {
     validatePeriod: validatePeriod,
     validateReport: validateReport,
-    validateDataFormat: validateDataFormat,
     validateCurrencyDisplayInfo: validateCurrencyDisplayInfo,
 }

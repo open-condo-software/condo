@@ -27,8 +27,15 @@ const getAddressUpToBuildingFrom = (addressMeta) => {
  * @param {BuildingMap} map
  * @return {BuildingMap}
  */
-const normalizePropertyMap = ({ sections, ...restMapProps }) => ({
+const normalizePropertyMap = ({ sections, parking, ...restMapProps }) => ({
     ...restMapProps,
+    parking: !isNull(parking) ? parking.map(({ floors, ...restSectionProps }) => ({
+        ...restSectionProps,
+        floors: floors.map(({ units, ...restFloorProps }) => ({
+            ...restFloorProps,
+            units: units.map(unit => omitBy(unit, isNull)),
+        })),
+    })) : [],
     sections: sections.map(({ floors, ...restSectionProps }) => ({
         ...restSectionProps,
         floors: floors.map(({ units, ...restFloorProps }) => ({

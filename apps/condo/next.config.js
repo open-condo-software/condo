@@ -7,6 +7,7 @@ const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
 const withTM = require('next-transpile-modules')(['@core/next', '@core/keystone', 'rc-table', '@condo/domains'])
+const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
 
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
@@ -43,5 +44,13 @@ module.exports = withTM(withLess(withCSS({
                 permanent: false,
             },
         ]
+    },
+    webpack: (config) => {
+        const plugins = config.plugins
+
+        // NOTE: Replace Moment.js with Day.js in antd project
+        config.plugins = [ ...plugins, new AntdDayjsWebpackPlugin() ]
+
+        return config
     },
 })))

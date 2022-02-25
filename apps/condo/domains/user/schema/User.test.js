@@ -5,12 +5,24 @@
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { User, UserAdmin, createTestUser, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects,  expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    User,
+    UserAdmin,
+    createTestUser,
+    updateTestUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeLoggedInClient,
+    createTestLandlineNumber,
+    createTestPhone,
+    createTestEmail,
+    makeClientWithResidentUser,
+} = require('@condo/domains/user/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
-
+const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION', async () => {
@@ -84,14 +96,14 @@ describe('User', () => {
 
     test('user: read User', async () => {
         const admin = await makeLoggedInAdminClient()
-        await createTestUser(admin)
+        const [anotherUser] = await createTestUser(admin)
 
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const { data } = await UserAdmin.getAll(client, {}, { raw: true, sortBy: ['updatedAt_DESC'] })
         expect(data.objs).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ id: client.user.id, email: client.userAttrs.email }),
-                expect.objectContaining({ email: null }),
+                expect.objectContaining({ id: client.user.id, email: client.userAttrs.email, phone: client.userAttrs.phone }),
+                expect.objectContaining({ id: anotherUser.id, email: null, phone: null }),
             ]),
         )
         expect(data.objs.length >= 1).toBeTruthy()
@@ -99,12 +111,76 @@ describe('User', () => {
 
     test('anonymous: read User', async () => {
         const client = await makeClient()
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
+        await expectToThrowAuthenticationErrorToObjects(async () => {
             await User.getAll(client)
         })
     })
 
-    test('user: update User', async () => {
+    test('user: update self User', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = {}
+        const [obj, attrs] = await updateTestUser(client, client.user.id, payload)
+        expect(obj.updatedBy).toMatchObject({ id: client.user.id })
+        expect(obj.sender).toMatchObject(attrs.sender)
+        expect(obj.v).toBeGreaterThan(client.user.v)
+    })
+
+    test('user: update self User phone should fail', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = { phone: createTestPhone() }
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestUser(client, client.user.id, payload)
+        })
+    })
+
+    // TODO(pahaz): !!! remove this test in the FUTURE
+    test('user: update self resident phone should ok', async () => {
+        const client = await makeClientWithResidentUser()
+        const payload = { phone: client.userAttrs.phone }
+        await updateTestUser(client, client.user.id, payload)
+
+        const objs = await UserAdmin.getAll(client, { id: client.user.id })
+        expect(objs[0]).toEqual(expect.objectContaining({ phone: client.userAttrs.phone }))
+    })
+
+    // TODO(pahaz): !!! unskip!
+    test.skip('user: update self User email should fail', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = { email: createTestEmail() }
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestUser(client, client.user.id, payload)
+        })
+    })
+
+    test('user: update self User name', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = { name: createTestEmail() }
+        const [obj] = await updateTestUser(client, client.user.id, payload)
+        expect(obj.name).toEqual(payload.name)
+    })
+
+    test('user: update self User isAdmin should fail', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = { isAdmin: true }
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestUser(client, client.user.id, payload)
+        })
+    })
+
+    test('user: update self User password', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const password = getRandomString()
+        const payload = { password }
+        const [obj, attrs] = await updateTestUser(client, client.user.id, payload)
+        expect(obj.updatedBy).toMatchObject({ id: client.user.id })
+        expect(obj.sender).toMatchObject(attrs.sender)
+        expect(obj.v).toBeGreaterThan(client.user.v)
+
+        const client2 = await makeLoggedInClient({ phone: client.userAttrs.phone, password })
+        expect(client2.user.id).toEqual(client.user.id)
+    })
+
+    test('user: update another User should fail', async () => {
         const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestUser(admin)
 
@@ -151,9 +227,8 @@ describe('User', () => {
         const { data, errors } = await User.count(client, {}, { raw: true })
         expect(data).toEqual({ meta: { count: null } })
         expect(errors[0]).toMatchObject({
-            'data': { 'target': '_allUsersMeta', 'type': 'query' },
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
+            'message': 'No or incorrect authentication credentials',
+            'name': 'AuthenticationError',
             'path': ['meta', 'count'],
         })
     })
@@ -176,6 +251,22 @@ describe('User utils', () => {
         expect(userAttrs.password).toBeTruthy()
     })
 
+    test('createUser() with landline phone number', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const phone = createTestLandlineNumber()
+
+        const { data, errors } = await createTestUser(admin, { phone }, { raw: true })
+
+        expect(data).toEqual({ 'obj': null })
+        expect(errors).toMatchObject([{
+            message: 'You attempted to perform an invalid mutation',
+            name: 'ValidationFailureError',
+            path: ['obj'],
+            data: {
+                messages: [ '[format:phone] invalid format' ],
+            },
+        }])
+    })
 })
 
 describe('User fields', () => {
@@ -195,5 +286,63 @@ describe('User fields', () => {
             await makeLoggedInClient(userAttrs)
         }
         await expect(checkAuthByUpperCaseEmail).rejects.toThrow(WRONG_EMAIL_ERROR)
+    })
+})
+
+const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy updatedBy createdAt updatedAt'
+const HISTORY_FIELDS = 'history_id history_action history_date'
+const USER_HISTORY_FIELDS = `{ ${HISTORY_FIELDS} name avatar meta type isPhoneVerified isEmailVerified importId importRemoteSystem ${COMMON_FIELDS} }`
+const UserHistoryAdminGQL = generateGqlQueries('UserHistoryRecord', USER_HISTORY_FIELDS)
+const UserHistoryAdmin = generateGQLTestUtils(UserHistoryAdminGQL)
+
+describe('UserHistoryRecord', () => {
+    test('create/update action generate history records', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const name = getRandomString()
+
+        const [user] = await createTestUser(admin)
+        await User.update(admin, user.id, { name })
+
+        const objs = await UserHistoryAdmin.getAll(admin, { history_id: user.id }, { sortBy: ['history_date_ASC'] })
+        expect(objs).toMatchObject([
+            {
+                history_id: user.id,
+                history_action: 'c',
+                name: user.name,
+                avatar: user.avatar,
+                meta: user.meta,
+                type: user.type,
+                isPhoneVerified: user.isPhoneVerified,
+                isEmailVerified: user.isEmailVerified,
+                importId: user.importId,
+                importRemoteSystem: user.importRemoteSystem,
+                dv: 1,
+                sender: user.sender,
+                v: 1,
+                deletedAt: null,
+                newId: null,
+                createdBy: admin.user.id,
+                updatedBy: admin.user.id,
+            },
+            {
+                history_id: user.id,
+                history_action: 'u',
+                name,
+                avatar: user.avatar,
+                meta: user.meta,
+                type: user.type,
+                isPhoneVerified: user.isPhoneVerified,
+                isEmailVerified: user.isEmailVerified,
+                importId: user.importId,
+                importRemoteSystem: user.importRemoteSystem,
+                dv: 1,
+                sender: user.sender,
+                v: 2,
+                deletedAt: null,
+                newId: null,
+                createdBy: admin.user.id,
+                updatedBy: admin.user.id,
+            },
+        ])
     })
 })

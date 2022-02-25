@@ -1,5 +1,5 @@
+import React from 'react'
 import { BuildingPanelView } from './Builder/BuildingPanelView'
-import { BuildingPanelEdit } from './Builder/BuildingPanelEdit'
 import { ResidentPanelEdit, ResidentPanelView } from './ResidentPanel'
 import { BuildingMap } from '@app/condo/schema'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
@@ -18,6 +18,12 @@ interface IPropertyPanels {
     mapValidationError?: string
 }
 
+const FOCUS_CONTAINER_STYLE: React.CSSProperties = {
+    margin: 'initial',
+    marginTop: '40px',
+    marginBottom: '60px',
+    padding: 0,
+}
 
 export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, mode, map, updateMap, handleSave, address }) => {
     const intl = useIntl()
@@ -26,24 +32,14 @@ export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, 
     return (
         <Tabs defaultActiveKey='1'>
             <TabPane tab={BuildingTabTitle} key='1'>
-                <FocusContainer style={{ margin: 'initial', marginTop: '40px' }}>
-                    {
-                        mode === 'view'
-                            ? <BuildingPanelView
-                                map={map as BuildingMap}
-                            />
-                            : <BuildingPanelEdit
-                                mapValidationError={mapValidationError}
-                                handleSave={handleSave}
-                                map={map as BuildingMap}
-                                updateMap={updateMap}
-                                address={address}
-                            />
-                    }
+                <FocusContainer style={FOCUS_CONTAINER_STYLE}>
+                    <BuildingPanelView
+                        map={map}
+                    />
                 </FocusContainer>
             </TabPane>
-            <TabPane tab={ResidentsTabTitle} key='2'>
-                <FocusContainer style={{ margin: 'initial', marginTop: '40px' }}>
+            <TabPane tab={ResidentsTabTitle} key='2' disabled>
+                <FocusContainer style={FOCUS_CONTAINER_STYLE}>
                     {
                         mode === 'view' ? <ResidentPanelView /> : <ResidentPanelEdit />
                     }

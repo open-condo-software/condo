@@ -5,6 +5,7 @@ import ruRU from 'antd/lib/locale/ru_RU'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
+import Head from 'next/head'
 import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled } from '@ant-design/icons'
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
@@ -31,14 +32,17 @@ import { LayoutContextProvider } from '@condo/domains/common/components/LayoutCo
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import {
     BILLING_RECEIPT_SERVICE_FIELD_NAME,
-} from '@condo/domains/billing/constants'
+} from '@condo/domains/billing/constants/constants'
 import { MeterLog } from '@condo/domains/common/components/icons/MeterLogIcon'
 import {
     SubscriptionProvider,
     useServiceSubscriptionContext,
 } from '@condo/domains/subscription/components/SubscriptionContext'
 import dayjs from 'dayjs'
-import { useEndTrialSubscriptionReminderPopup } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import {
+    useEndTrialSubscriptionReminderPopup,
+} from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -51,6 +55,12 @@ const ANT_LOCALES = {
     en: enUS,
 }
 
+interface IMenuItemData {
+    path: string,
+    icon: React.FC,
+    label: string,
+}
+
 const ANT_DEFAULT_LOCALE = enUS
 
 const MenuItems: React.FC = () => {
@@ -59,6 +69,37 @@ const MenuItems: React.FC = () => {
     const hasSubscriptionFeature = hasFeature('subscription')
     const disabled = !link || (hasSubscriptionFeature && isExpired)
     const { isCollapsed } = useLayoutContext()
+    const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
+
+    const menuItemsData: IMenuItemData[] = [{
+        path: 'reports',
+        icon: BarChartIcon,
+        label: 'menu.Analytics',
+    }, {
+        path: 'ticket',
+        icon: ThunderboltFilled,
+        label: 'menu.ControlRoom',
+    }, {
+        path: 'property',
+        icon: HomeFilled,
+        label: 'menu.Property',
+    }, {
+        path: 'contact',
+        icon: UserIcon,
+        label: 'menu.Contacts',
+    }, {
+        path: 'employee',
+        icon: UserIcon,
+        label: 'menu.Employees',
+    }, {
+        path: 'meter',
+        icon: MeterLog,
+        label: 'menu.Meters',
+    }, {
+        path: 'billing',
+        icon: ApiFilled,
+        label: 'menu.Billing',
+    }]
 
     return (
         <>
@@ -73,56 +114,19 @@ const MenuItems: React.FC = () => {
                 </OnBoardingProgressIconContainer>
             </FocusElement>
             <div>
+                {menuItemsData.map((menuItemData) => (
+                    <MenuItem
+                        key={`menu-item-${menuItemData.path}`}
+                        path={`/${menuItemData.path}`}
+                        icon={menuItemData.icon}
+                        label={menuItemData.label}
+                        disabled={disabled}
+                        isCollapsed={isCollapsed}
+                        toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                    />
+                ))}
                 <MenuItem
-                    path={'/reports'}
-                    icon={BarChartIcon}
-                    label={'menu.Analytics'}
-                    disabled={disabled}
-                    isCollapsed={isCollapsed}
-                />
-                <MenuItem
-                    path={'/ticket'}
-                    icon={ThunderboltFilled}
-                    label={'menu.ControlRoom'}
-                    disabled={disabled}
-                    isCollapsed={isCollapsed}
-                />
-                <MenuItem
-                    path={'/property'}
-                    icon={HomeFilled}
-                    label={'menu.Property'}
-                    disabled={disabled}
-                    isCollapsed={isCollapsed}
-                />
-                <MenuItem
-                    path={'/contact'}
-                    icon={UserIcon}
-                    label={'menu.Contacts'}
-                    disabled={disabled}
-                    isCollapsed={isCollapsed}
-                />
-                <MenuItem
-                    path={'/employee'}
-                    icon={UserIcon}
-                    label={'menu.Employees'}
-                    disabled={disabled}
-                    isCollapsed={isCollapsed}
-                />
-                <MenuItem
-                    path={'/meter'}
-                    icon={MeterLog}
-                    label={'menu.Meters'}
-                    disabled={disabled}
-                    isCollapsed={isCollapsed}
-                />
-                <MenuItem
-                    path={'/billing'}
-                    icon={ApiFilled}
-                    label={'menu.Billing'}
-                    disabled={disabled}
-                    isCollapsed={isCollapsed}
-                />
-                <MenuItem
+                    key="menu-item-settings"
                     path={'/settings'}
                     icon={SettingFilled}
                     label={'menu.Settings'}
@@ -149,31 +153,39 @@ const MyApp = ({ Component, pageProps }) => {
     } = useEndTrialSubscriptionReminderPopup()
 
     return (
-        <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
-            <CacheProvider value={cache}>
-                <GlobalStyle/>
-                <FocusContextProvider>
-                    <OnBoardingProvider>
-                        <SubscriptionProvider>
-                            <LayoutContextProvider>
-                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                    <RequiredAccess>
-                                        <Component {...pageProps} />
-                                        {
-                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                <EndTrialSubscriptionReminderPopup/>
-                                            )
-                                        }
-                                    </RequiredAccess>
-                                </LayoutComponent>
-                            </LayoutContextProvider>
-                        </SubscriptionProvider>
-                    </OnBoardingProvider>
-                </FocusContextProvider>
-                <GoogleAnalytics/>
-                <BehaviorRecorder engine="plerdy"/>
-            </CacheProvider>
-        </ConfigProvider>
+        <>
+            <Head>
+                <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+                />
+            </Head>
+            <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
+                <CacheProvider value={cache}>
+                    <GlobalStyle/>
+                    <FocusContextProvider>
+                        <OnBoardingProvider>
+                            <SubscriptionProvider>
+                                <LayoutContextProvider>
+                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                        <RequiredAccess>
+                                            <Component {...pageProps} />
+                                            {
+                                                isEndTrialSubscriptionReminderPopupVisible && (
+                                                    <EndTrialSubscriptionReminderPopup/>
+                                                )
+                                            }
+                                        </RequiredAccess>
+                                    </LayoutComponent>
+                                </LayoutContextProvider>
+                            </SubscriptionProvider>
+                        </OnBoardingProvider>
+                    </FocusContextProvider>
+                    <GoogleAnalytics/>
+                    <BehaviorRecorder engine="plerdy"/>
+                </CacheProvider>
+            </ConfigProvider>
+        </>
     )
 }
 
@@ -227,8 +239,8 @@ export default (
                 withOrganization({
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(MyApp)
-            )
-        )
+                })(MyApp),
+            ),
+        ),
     )
 )

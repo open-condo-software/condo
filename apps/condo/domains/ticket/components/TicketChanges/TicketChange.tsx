@@ -1,16 +1,17 @@
 import React  from 'react'
 import { Row, Col, Typography, Tooltip } from 'antd'
-import { has } from 'lodash'
+import { get, has } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { formatDate } from '../../utils/helpers'
+import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { green } from '@ant-design/colors'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { FormattedMessage } from 'react-intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import dayjs from 'dayjs'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -28,18 +29,19 @@ enum TicketChangeFieldMessageType {
 }
 
 export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
-    const intl = useIntl()
     const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
     const { isSmall } = useLayoutContext()
+
+    const formattedDate = dayjs(ticketChange.createdAt).format('DD.MM.YY')
+    const formattedTime = dayjs(ticketChange.createdAt).format('HH:mm')
 
     return (
         <Row gutter={[12, 12]}>
             <Col xs={24} lg={6}>
-                {
-                    isSmall
-                        ? <Typography.Text disabled>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
-                        : <Typography.Text style={{ fontSize: fontSizes.content }}>{formatDate(intl, ticketChange.createdAt)}</Typography.Text>
-                }
+                <Typography.Text style={isSmall && { fontSize: fontSizes.content }} disabled={isSmall}>
+                    {formattedDate}
+                    <Typography.Text type={'secondary'}>, {formattedTime}</Typography.Text>
+                </Typography.Text>
             </Col>
             <Col xs={24} lg={18}>
                 {changedFieldMessages.map(({ field, message }) => (
@@ -64,27 +66,39 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const ExecutorMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.executor' })
     const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.address' })
+    const DeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deadline' })
+    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident' })
 
     const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
+    const IsWarrantyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
 
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
+    const { objs: ticketStatuses } = TicketStatus.useObjects({})
+
     const fields = [
+        ['canReadByResident', CanReadByResidentMessage, { change: 'pages.condo.ticket.TicketChanges.canReadByResident.change' }],
         ['clientPhone', ClientPhoneMessage],
         ['details', DetailsMessage, { change: 'pages.condo.ticket.TicketChanges.details.change' }],
         ['clientName', ClientNameMessage],
         ['isPaid', IsPaidMessage],
         ['isEmergency', IsEmergencyMessage],
+        ['isWarranty', IsWarrantyMessage],
         ['statusDisplayName', StatusDisplayNameMessage, { change: 'pages.condo.ticket.TicketChanges.status.change' }],
         ['propertyDisplayName', AddressMessage],
         ['assigneeDisplayName', AssigneeMessage],
         ['executorDisplayName', ExecutorMessage],
         ['classifierDisplayName', ClassifierMessage],
         ['placeClassifierDisplayName', ClassifierMessage],
+        ['deadline', DeadlineMessage],
     ]
 
     const BooleanToString = {
+        canReadByResident: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.false' }),
+        },
         isPaid: {
             'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
             'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
@@ -93,10 +107,25 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.true' }),
             'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.false' }),
         },
+        isWarranty: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isWarranty.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isWarranty.false' }),
+        },
     }
 
     const formatField = (field, value, type: TicketChangeFieldMessageType) => {
         const formatterFor = {
+            statusDisplayName: (field, value) => {
+                const statusIdTo = get(ticketChange, 'statusIdTo')
+                const ticketStatus = ticketStatuses.find(status => status.id === statusIdTo)
+                const ticketStatusColor = get(ticketStatus, ['colors', 'primary'])
+                const ticketStatusChangeTextStyle = { color: ticketStatusColor }
+
+                return <Typography.Text style={ticketStatusChangeTextStyle}>{value}</Typography.Text>
+            },
+            deadline: (field, value) => {
+                return <Typography.Text>{dayjs(value).format('DD MMMM YYYY')}</Typography.Text>
+            },
             clientPhone: (field, value) => (
                 <PhoneLink value={value} />
             ),
@@ -140,7 +169,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     problemClassifierToDisplay = ticketChange['problemClassifierDisplayNameTo']
                 }
 
-                return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay} → ${problemClassifierToDisplay}`
+                return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay}${problemClassifierToDisplay ? ` → ${problemClassifierToDisplay}` : ''}`
             },
         }
         return has(formatterFor, field)
@@ -151,6 +180,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const formatDiffMessage = (field, message, ticketChange, customMessages: ITicketChangeFieldMessages = {}) => {
         if (typeof ticketChange[`${field}To`] === 'boolean') {
             const valueTo = BooleanToString[field][ticketChange[`${field}To`]]
+
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -248,7 +278,7 @@ const Diff = styled.p`
             color: black;
         }
     }
-    &.details, &.isEmergency, &.isPaid, &.classifierDisplayName {
+    &.details, &.isEmergency, &.isPaid, &.isWarranty, &.classifierDisplayName {
         del, ins {
             color: black;
             span {

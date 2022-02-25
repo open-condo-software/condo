@@ -17,3 +17,6 @@
 [submodule "apps/registry_import_billing"]
 	path = apps/registry_import_billing
 	url = https://github.com/open-condo-software/registry-import-billing
+[submodule "apps/condorb"]
+	path = apps/condorb
+	url = ../condorb.git

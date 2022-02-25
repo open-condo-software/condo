@@ -58,6 +58,17 @@
                                                 ],
                                                 "title": "type",
                                                 "type": "string"
+                                            },
+                                            "unitType": {
+                                                "enum": [
+                                                    "flat",
+                                                    "parking",
+                                                    "apartment",
+                                                    "commercial",
+                                                    "warehouse"
+                                                ],
+                                                "title": "unitType",
+                                                "type": "string"
                                             }
                                         },
                                         "required": [
@@ -113,6 +124,119 @@
                 "type": "object"
             },
             "title": "sections",
+            "type": "array"
+        },
+        "parking": {
+            "items": {
+                "additionalProperties": true,
+                "properties": {
+                    "floors": {
+                        "items": {
+                            "additionalProperties": true,
+                            "properties": {
+                                "id": {
+                                    "title": "id",
+                                    "type": "string"
+                                },
+                                "index": {
+                                    "title": "index",
+                                    "type": "number"
+                                },
+                                "name": {
+                                    "title": "name",
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "enum": [
+                                        "floor"
+                                    ],
+                                    "title": "type",
+                                    "type": "string"
+                                },
+                                "units": {
+                                    "items": {
+                                        "additionalProperties": true,
+                                        "properties": {
+                                            "id": {
+                                                "title": "id",
+                                                "type": "string"
+                                            },
+                                            "label": {
+                                                "title": "label",
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "title": "name",
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "enum": [
+                                                    "unit"
+                                                ],
+                                                "title": "type",
+                                                "type": "string"
+                                            },
+                                            "unitType": {
+                                                "enum": [
+                                                    "parking"
+                                                ],
+                                                "title": "unitType",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "label",
+                                            "type"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "title": "units",
+                                    "type": "array"
+                                }
+                            },
+                            "required": [
+                                "id",
+                                "index",
+                                "name",
+                                "type",
+                                "units"
+                            ],
+                            "type": "object"
+                        },
+                        "title": "floors",
+                        "type": "array"
+                    },
+                    "id": {
+                        "title": "id",
+                        "type": "string"
+                    },
+                    "index": {
+                        "title": "index",
+                        "type": "number"
+                    },
+                    "name": {
+                        "title": "name",
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum": [
+                            "section"
+                        ],
+                        "title": "type",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "floors",
+                    "id",
+                    "index",
+                    "name",
+                    "type"
+                ],
+                "type": "object"
+            },
+            "title": "parking",
             "type": "array"
         },
         "type": {

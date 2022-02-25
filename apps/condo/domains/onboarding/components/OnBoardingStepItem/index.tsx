@@ -1,7 +1,7 @@
-import { Space, Typography } from 'antd'
-import React, { useCallback } from 'react'
+import { Space } from 'antd'
+import React from 'react'
 import { colors } from '@condo/domains/common/constants/style'
-import { ActivateStepIcon, IconContainer, StepContainer } from './components'
+import { ActivateStepIcon, IconContainer, StepContainer, StepTitle, StepDescription } from './components'
 
 export enum OnBoardingStepType {
     DEFAULT = 'Default',
@@ -34,8 +34,8 @@ export const OnBoardingStepItem: React.FC<IOnBoardingStep> = (props) => {
                     <StepIcon/>
                 </IconContainer>
                 <Space direction={'vertical'} size={4}>
-                    <Typography.Title level={5}>{title}</Typography.Title>
-                    <Typography.Text>{description}</Typography.Text>
+                    <StepTitle>{title}</StepTitle>
+                    <StepDescription>{description}</StepDescription>
                 </Space>
             </Space>
             <ActivateStepIcon />

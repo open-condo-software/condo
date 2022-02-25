@@ -1,11 +1,10 @@
 /** @jsx jsx */
 import React, { useEffect, useRef, useState } from 'react'
 import {
-    PageContent,
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
-import { Col, Radio, Row, Tabs, Typography } from 'antd'
+import { Col, Radio, Row, RowProps, Tabs, Typography } from 'antd'
 import Head from 'next/head'
 import { jsx } from '@emotion/core'
 import { useIntl } from '@core/next/intl'
@@ -30,6 +29,7 @@ import { useTableColumns as useDivisionsTableColumns } from '@condo/domains/divi
 import { ColumnsType } from 'antd/lib/table'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useTableFilters as useDivisionTableFilters } from '@condo/domains/division/hooks/useTableFilters'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 
 type PropertiesType = 'buildings' | 'divisions'
@@ -60,6 +60,8 @@ type PropertiesContentProps = {
 
     tab?: PropertiesType
 }
+
+const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 
 export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const intl = useIntl()
@@ -97,8 +99,8 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageContent>
-                    <Row gutter={[0, 40]} align={'top'}>
+                <TablePageContent>
+                    <Row gutter={PAGE_ROW_GUTTER} align={'top'}>
                         <Col lg={6} xs={24}>
                             <Typography.Title>
                                 {PageTitleMessage}
@@ -160,7 +162,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                         }
                     </Row>
                     {viewMode === 'map' && <PropertiesMap properties={properties} />}
-                </PageContent>
+                </TablePageContent>
             </PageWrapper>
         </>
     )

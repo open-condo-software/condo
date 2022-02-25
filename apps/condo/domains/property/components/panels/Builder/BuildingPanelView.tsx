@@ -1,23 +1,23 @@
+import React, { useState, useCallback, useMemo } from 'react'
+import { useIntl } from '@core/next/intl'
+import { Col, Row, RowProps } from 'antd'
+import { useRouter } from 'next/router'
+import cloneDeep from 'lodash/cloneDeep'
+import get from 'lodash/get'
 import {
     EmptyBuildingBlock,
     EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
+    MapSectionContainer, BuildingViewModeSelect, UnitTypeLegendItem,
 } from './BuildingPanelCommon'
-import { Col, Row } from 'antd'
-import React, { useEffect, useState } from 'react'
-import cloneDeep from 'lodash/cloneDeep'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import { MapView } from './MapConstructor'
-import { BuildingMap } from '@app/condo/schema'
+import { MapView, MapViewMode } from './MapConstructor'
+import { BuildingMap, BuildingUnitType } from '@app/condo/schema'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
-import { useRouter } from 'next/router'
-import { EditFilled } from '@ant-design/icons'
 import ScrollContainer from 'react-indiana-drag-scroll'
-import Link from 'next/link'
-import { Button } from '@condo/domains/common/components/Button'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
-import get from 'lodash/get'
+import { AddressTopTextContainer } from './BuildingPanelEdit'
 
 interface IBuildingPanelViewProps {
     map: BuildingMap
@@ -29,90 +29,153 @@ export const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map }) =>
     // TODO(zuch): Ask for a better solution
     const refresh = () => setMap(cloneDeep(Map))
     return (
-        <PropertyMapView Builder={Map} refresh={refresh} />
+        <PropertyMapView builder={Map} refresh={refresh} />
     )
 }
 
 interface IPropertyMapViewProps {
-    Builder: MapView
+    builder: MapView
     refresh(): void
 }
 
-export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refresh }) => {
+const CHESS_ROW_STYLE: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    textAlign: 'center',
+}
+const CHESS_COL_STYLE: React.CSSProperties = {
+    paddingTop: '60px',
+    paddingBottom: '60px',
+}
+const CHESS_SCROLL_HOLDER_STYLE: React.CSSProperties = {
+    whiteSpace: 'nowrap',
+    position: 'static',
+    paddingBottom: '10px',
+}
+const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
+    paddingBottom: '20px',
+    width: '100%',
+    overflowY: 'hidden',
+}
+const UNIT_BUTTON_SECTION_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px' }
+const FLOOR_CONTAINER_STYLE: React.CSSProperties = { display: 'block' }
+const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { paddingLeft: '8px' }
+const FULLSCREEN_HEADER_STYLE: React.CSSProperties = { marginBottom: '28px', alignItems: 'center' }
+const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
+
+export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh }) => {
+    const intl = useIntl()
+    const ParkingTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
+    const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+
     const { query: { id } } = useRouter()
     const { obj: property } = useObject({ where: { id: id as string } })
 
     const [isFullscreen, setFullscreen] = useState(false)
 
-    const toggleFullscreen = () => {
-        localStorage && localStorage.setItem('isFullscreen', String(!isFullscreen))
+    const toggleFullscreen = useCallback(() => {
         setFullscreen(!isFullscreen)
-    }
+    }, [isFullscreen])
 
-    useEffect(() => {
-        setFullscreen(localStorage && localStorage.getItem('isFullscreen') === 'true')
-    }, [])
+    const onViewModeChange = useCallback((option) => {
+        builder.viewMode = option.target.value
+        refresh()
+    }, [builder, refresh])
+
+    const unitTypeOptions = builder.getUnitTypeOptions()
+
+    const UnitTypeOptionsLegend = useMemo(() => <Row
+        gutter={UNIT_TYPE_ROW_GUTTER}
+        style={UNIT_TYPE_ROW_STYLE}
+        hidden={builder.viewMode === MapViewMode.parking}
+    >
+        {unitTypeOptions
+            .filter(unitType => unitType !== BuildingUnitType.Flat)
+            .map((unitType, unitTypeKey) => (
+                <Col key={unitTypeKey} flex={0}>
+                    <UnitTypeLegendItem unitType={unitType}>
+                        {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                    </UnitTypeLegendItem>
+                </Col>
+            ))}
+    </Row>, [builder.viewMode, unitTypeOptions])
+
+    const showViewModeSelect = !builder.isEmptySections && !builder.isEmptyParking
 
     return (
         <FullscreenWrapper mode={'view'} className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
-                <Row>
-                    <Col flex={0} style={{ marginTop: '10px' }}><b>{get(property, 'address')}</b></Col>
-                    <Col style={{ marginLeft: 'auto',  marginRight: '36px' }}>
-                        <Link href={`/property/${get(property, 'id')}/update`}>
-                            <span>
-                                <Button
-                                    color={'green'}
-                                    type={'sberPrimary'}
-                                    secondary
-                                    icon={<EditFilled />}
-                                    size={'large'}
+                <Row justify='end' style={FULLSCREEN_HEADER_STYLE} hidden={!showViewModeSelect}>
+                    {
+                        isFullscreen ? (
+                            <Col flex={1}>
+                                <AddressTopTextContainer>{get(property, 'address')}</AddressTopTextContainer>
+                            </Col>
+                        ) : (
+                            <Col flex={1}>
+                                {UnitTypeOptionsLegend}
+                            </Col>
+                        )
+                    }
+                    {
+                        showViewModeSelect && (
+                            <Col flex={0}>
+                                <BuildingViewModeSelect
+                                    value={builder.viewMode}
+                                    onChange={onViewModeChange}
+
                                 />
-                            </span>
-                        </Link>
-                    </Col>
+                            </Col>
+                        )
+                    }
                 </Row>
+                {isFullscreen && UnitTypeOptionsLegend}
             </FullscreenHeader>
-            <Row align='bottom' style={{ width: '100%', textAlign: 'center' }} >
+            <Row align='middle' style={CHESS_ROW_STYLE}>
                 {
-                    Builder.isEmpty ?
-                        <Col span={24} style={{ paddingTop: '60px', paddingBottom: '60px' }}>
+                    builder.isEmpty ?
+                        <Col span={24} style={CHESS_COL_STYLE}>
                             <EmptyBuildingBlock />
                         </Col>
                         :
-                        <Col span={24} style={{ whiteSpace: 'nowrap', position: 'static' }}>
+                        <Col span={24} style={CHESS_SCROLL_HOLDER_STYLE}>
                             <ScrollContainer
                                 className="scroll-container"
-                                style={{ paddingTop: '16px', width: '100%', overflowY: 'hidden' }}
+                                style={CHESS_SCROLL_CONTAINER_STYLE}
                                 vertical={false}
                                 horizontal={true}
                                 hideScrollbars={false}
                                 nativeMobileScroll={true}
                             >
                                 {
-                                    Builder.visibleSections.length > 0 ? <BuildingAxisY floors={Builder.possibleChosenFloors} /> : null
+                                    builder.viewMode === MapViewMode.section
+                                        ? !builder.isEmptySections && (
+                                            <BuildingAxisY floors={builder.possibleChosenFloors} />
+                                        )
+                                        : !builder.isEmptyParking && (
+                                            <BuildingAxisY floors={builder.possibleChosenParkingFloors} />
+                                        )
                                 }
                                 {
-                                    Builder.sections.map(section => {
-                                        return (
-                                            <div key={section.id}
-                                                style={{
-                                                    display: Builder.isSectionVisible(section.id) ? 'inline-block' : 'none',
-                                                    marginRight: '12px',
-                                                    textAlign: 'center',
-                                                }}
-                                            >{
-                                                    Builder.possibleChosenFloors.map(floorIndex => {
+                                    builder.viewMode === MapViewMode.section
+                                        ? builder.sections.map(section => (
+                                            <MapSectionContainer
+                                                key={section.id}
+                                                visible={builder.isSectionVisible(section.id)}
+                                            >
+                                                {
+                                                    builder.possibleChosenFloors.map(floorIndex => {
                                                         const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                         if (floorInfo && floorInfo.units.length) {
                                                             return (
-                                                                <div key={floorInfo.id} style={{ display: 'block' }}>
+                                                                <div key={floorInfo.id} style={FLOOR_CONTAINER_STYLE}>
                                                                     {
                                                                         floorInfo.units.map(unit => {
                                                                             return (
                                                                                 <UnitButton
                                                                                     key={unit.id}
                                                                                     noninteractive
+                                                                                    unitType={unit.unitType}
                                                                                 >{unit.label}</UnitButton>
                                                                             )
                                                                         })
@@ -128,20 +191,57 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ Builder, refr
                                                 }
                                                 <UnitButton
                                                     secondary
-                                                    style={{ width: '100%', marginTop: '8px' }}
+                                                    style={UNIT_BUTTON_SECTION_STYLE}
                                                     disabled
-                                                >{section.name}</UnitButton>
-                                            </div>
-                                        )
-                                    })
+                                                >{SectionNamePrefixTitle} {section.name}</UnitButton>
+                                            </MapSectionContainer>
+                                        ))
+                                        : builder.parking.map(parkingSection => (
+                                            <MapSectionContainer
+                                                key={parkingSection.id}
+                                                visible={builder.isParkingSectionVisible(parkingSection.id)}
+                                            >
+                                                {
+                                                    builder.possibleChosenParkingFloors.map(floorIndex => {
+                                                        const floorInfo = parkingSection.floors.find(floor => floor.index === floorIndex)
+                                                        if (floorInfo && floorInfo.units.length) {
+                                                            return (
+                                                                <div key={floorInfo.id} style={FLOOR_CONTAINER_STYLE}>
+                                                                    {
+                                                                        floorInfo.units.map(unit => {
+                                                                            return (
+                                                                                <UnitButton
+                                                                                    key={unit.id}
+                                                                                    noninteractive
+                                                                                >{unit.label}</UnitButton>
+                                                                            )
+                                                                        })
+                                                                    }
+                                                                </div>
+                                                            )
+                                                        } else {
+                                                            return (
+                                                                <EmptyFloor key={`empty_${parkingSection.id}_${floorIndex}`} />
+                                                            )
+                                                        }
+                                                    })
+                                                }
+                                                <UnitButton
+                                                    secondary
+                                                    style={UNIT_BUTTON_SECTION_STYLE}
+                                                    disabled
+                                                >{ParkingTitlePrefix} {parkingSection.name}</UnitButton>
+                                            </MapSectionContainer>
+                                        ))
                                 }
                             </ScrollContainer>
                             {
                                 <BuildingChooseSections
-                                    Builder={Builder}
+                                    builder={builder}
                                     refresh={refresh}
                                     toggleFullscreen={toggleFullscreen}
                                     isFullscreen={isFullscreen}
+                                    mode="view"
                                 />
                             }
                         </Col>

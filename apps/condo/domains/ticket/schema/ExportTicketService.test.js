@@ -6,7 +6,7 @@ const { EXPORT_TICKETS_TO_EXCEL } = require('@condo/domains/ticket/gql')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const isObsConfigured = require('@condo/domains/ticket/utils/testSchema/isObsConfigured')
+const isObsConfigured = require('@condo/domains/common/utils/testSchema/isObsConfigured')
 
 describe('ExportTicketService', () => {
     describe('User', () => {

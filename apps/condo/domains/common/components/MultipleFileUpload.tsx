@@ -2,7 +2,7 @@ import React, { useState, useEffect, useReducer, useMemo, useRef } from 'react'
 import { Upload } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { useIntl } from '@core/next/intl'
-import { UploadOutlined, DeleteFilled } from '@ant-design/icons'
+import { EditOutlined, DeleteFilled, EditFilled } from '@ant-design/icons'
 
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
@@ -203,13 +203,14 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     }
     return (
         <div className={'upload-control-wrapper'}>
-            <Upload { ...options }  >
+            <Upload { ...options } >
                 <Button
-                    type={'sberGrey'}
+                    type={'sberDefaultGradient'}
                     secondary
-                    icon={<UploadOutlined />}
-                    size={'middle'}
-                >{AddFileLabel}</Button>
+                    icon={<EditFilled />}
+                >
+                    {AddFileLabel}
+                </Button>
             </Upload>
         </div>
     )

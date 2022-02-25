@@ -13,7 +13,16 @@ const ESCAPABLE_SYMBOLS_REGEX = /[-[\]{}()*+?.,\\/^$|#\s]/g
 const ESCAPE_WITH = '\\$&'
 
 // ESCAPES SPECIAL REGEX CHARACTERS OF STRING TO ENABLE ITS USAGE INSIDE REGEX
-const getEscaped = (text) => text.replace(ESCAPABLE_SYMBOLS_REGEX, ESCAPE_WITH)
+const getEscaped = (text) => String(text).replace(ESCAPABLE_SYMBOLS_REGEX, ESCAPE_WITH)
+
+/**
+ * Compares two strings, trimmed and lower cased according to locale
+ * @param str1
+ * @param str2
+ * @param lang
+ * @returns {boolean}
+ */
+const compareStrI = (str1, str2, lang = 'ru') => str1.trim().toLocaleLowerCase(lang) === str2.trim().toLocaleLowerCase(lang)
 
 module.exports = {
     getEscaped,
@@ -21,4 +30,5 @@ module.exports = {
     ESCAPABLE_SYMBOLS_REGEX,
     SPACE_SYMBOL_LABLES,
     SPACE_SYMBOLS,
+    compareStrI,
 }

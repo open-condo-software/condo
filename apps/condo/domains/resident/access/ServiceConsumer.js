@@ -1,41 +1,48 @@
 
-const { ServiceConsumer, Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { getByCondition } = require('@core/keystone/schema')
+const { isSoftDelete } = require('@core/keystone/access')
 
 async function canReadServiceConsumers ({ authentication: { item: user } }) {
-    if (!user) return false
-    if (user.isAdmin || user.isSupport) return {}
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    
+    if (user.isSupport || user.isAdmin) return {}
+
     if (user.type === RESIDENT) {
-        return {
-            resident: { user: { id: user.id } },
-        }
+        return { resident: { user: { id: user.id }, deletedAt: null } }
     }
+
     return false
 }
 
-async function canManageServiceConsumers ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
-    if (!user) return false
-    if (user.isAdmin || user.isSupport) return true
+async function canManageServiceConsumers ({ authentication: { item: user }, originalInput, operation, itemId }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isSupport || user.isAdmin) return true
+
     if (user.type === RESIDENT) {
-        if (operation === 'update') {
-            const [serviceConsumer] = await ServiceConsumer.getAll(context, { id: itemId })
+        if (operation === 'update' && itemId) {
+            const serviceConsumer = await getByCondition('ServiceConsumer', {
+                id: itemId,
+                deletedAt: null,
+            })
             if (!serviceConsumer) return false
-            const [resident] = await Resident.getAll(context, { id: serviceConsumer.resident.id })
-            const isOwnBillingAccount = resident.user.id === user.id
 
-            let isSoftDeleteOperation = true
+            const resident = await getByCondition('Resident', {
+                id: serviceConsumer.resident,
+                deletedAt: null,
+            })
+            if (!resident) return false
+            if (resident.user !== user.id) return false
 
-            const SAFE_FIELDS = ['dv', 'sender', 'deletedAt']
-            for (let prop in originalInput) {
-                if (!originalInput.hasOwnProperty(prop)) { continue }
-                if ( !SAFE_FIELDS.includes(prop) && !prop.startsWith('_') ) {
-                    isSoftDeleteOperation = false
-                }
-            }
-
-            return isOwnBillingAccount && isSoftDeleteOperation
+            return isSoftDelete(originalInput)
         }
+
+        return false
     }
+
     return false
 }
 

@@ -5,13 +5,20 @@
  */
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { MESSAGE_TYPES } = require('../../constants')
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
-const { Message: MessageGQL } = require('@condo/domains/notification/gql')
-/* AUTOGENERATE MARKER <IMPORT> */
+const {
+    Message: MessageGQL,
+    SEND_MESSAGE,
+    RESEND_MESSAGE,
+    Device: DeviceGQL,
+    SYNC_DEVICE_MUTATION,
+} = require('@condo/domains/notification/gql')
 
-const { SEND_MESSAGE, RESEND_MESSAGE } = require('../../gql')
+const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
+
+const { DISCONNECT_USER_FROM_DEVICE_MUTATION } = require('@condo/domains/notification/gql')
+/* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
 
@@ -46,9 +53,55 @@ async function resendMessage (context, data) {
     })
 }
 
+const Device = generateServerUtils(DeviceGQL)
+
+/**
+ * Connects a device that could be sent push notifications with user and/or pushToken
+ * Should be called for:
+ * 1. Registration of a device: required fields deviceId, optional fields: pushToken + pushTransport, user, meta
+ * 2. Connection of a device to current authorized user: required fields: deviceId
+ * 3. Update pushToken value: required field: deviceId, pushToken + pushTransport (pushTransport should always follow pushToken, in order to select proper push transport)
+ * 4. Update meta value: required field: deviceId, meta
+ * @param context
+ * @param data
+ * @returns {Promise<*>}
+ */
+async function syncDevice (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    if (!data.deviceId) throw new Error('no data.deviceId')
+
+    return await execGqlWithoutAccess(context, {
+        query: SYNC_DEVICE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to syncDevice',
+        dataPath: 'obj',
+    })
+}
+
+async function disconnectUserFromDevice (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    if (!data.deviceId) throw new Error('no data.deviceId')
+
+    return await execGqlWithoutAccess(context, {
+        query: DISCONNECT_USER_FROM_DEVICE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to disconnectUserFromDevice',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    Message, sendMessage, resendMessage,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    Message,
+    sendMessage,
+    resendMessage,
+    Device,
+    syncDevice,
+    disconnectUserFromDevice,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

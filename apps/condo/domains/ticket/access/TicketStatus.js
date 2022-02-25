@@ -6,19 +6,16 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadTicketStatuses ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return true
+    if (user.deletedAt) return false
+
     return {}
 }
 
-async function canManageTicketStatuses ({ authentication: { item: user }, operation }) {
+async function canManageTicketStatuses ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    if (operation === 'create') {
-        return false
-    } else if (operation === 'update') {
-        return false
-    }
-    return false
+    if (user.deletedAt) return false
+
+    return !!user.isAdmin
 }
 
 /*

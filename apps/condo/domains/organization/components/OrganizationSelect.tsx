@@ -1,53 +1,75 @@
 /** @jsx jsx */
-import { Select } from 'antd'
+import React, { useRef, useEffect } from 'react'
+import { Select, SelectProps } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import React, { useRef } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useAuth } from '@core/next/auth'
 import get from 'lodash/get'
 import { css, jsx } from '@emotion/core'
 import { useIntl } from '@core/next/intl'
-import { colors } from '@condo/domains/common/constants/style'
+import { colors, gradients } from '@condo/domains/common/constants/style'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
-import { useEffect } from 'react'
 
 const blackSelectCss = css`
   width: 200px;
-  color: ${colors.white};
-  &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border: 1px solid ${colors.black};
-    border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+
+  &.ant-select .ant-select-selector {
+    background: ${colors.white};
   }
-  &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    border-color: ${colors.sberGrey[6]};
-    background-color: ${colors.black};
-    color: ${colors.white};
+
+  &.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    height: 40px;
   }
-  &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    background-color: ${colors.black};
+
+  &.ant-select-single:not(.ant-select-customize-input) .ant-select-selection-item {
+    line-height: 38px;
+    transition: none;
   }
-  & .ant-select-arrow{
-    color: ${colors.white};
+  
+  & .ant-select-arrow {
+    color: ${colors.black};
   }
+
   &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector,
-  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector{
-    border-color: ${colors.sberGrey[6]};
-    box-shadow: 0 0 0 1px ${colors.sberGrey[6]};
+  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+  &.ant-select.ant-select-single.ant-select-open .ant-select-selector,
+  &.ant-select.ant-select-single.ant-select-focused .ant-select-selector {
+    background: ${gradients.sberActionGradient};
+    border: 1px solid transparent;
+    box-shadow: none;
   }
-  &.ant-select-single.ant-select-open .ant-select-selection-item{
+  &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selection-item,
+  &.ant-select:not(.ant-select-disabled):hover .ant-select-selection-item,
+  &.ant-select.ant-select-single.ant-select-open .ant-select-selection-item {
     color: ${colors.white};
   }
-  & .ant-select-item-option-selected:not(.ant-select-item-option-disabled){
-      background: ${colors.white};
+  &.ant-select:not(.ant-select-disabled):hover .ant-select-arrow,
+  &.ant-select.ant-select-single.ant-select-open .ant-select-arrow {
+    color: ${colors.white};
+  }
+
+  &.ant-select:not(.ant-select-disabled):active .ant-select-selector {
+    background: ${gradients.sberActionInversed};
+    border: 1px solid transparent;
+  }
+
+  &.ant-select.ant-select-single.ant-select-open .ant-select-selector {
+    background: ${gradients.sberActionGradient};
+    border: 1px solid transparent;
   }
 `
+
 // TODO(zuch): can't use emotion css here
 const optionStyle: React.CSSProperties = {
     fontSize: '14px',
     lineHeight: '20px',
     backgroundColor: colors.white,
 }
+
+const ORGANIZATION_SELECT_SHOW_ACTIONS: SelectProps<string>['showAction'] = ['focus', 'click']
 
 export const OrganizationSelect: React.FC = () => {
     const intl = useIntl()
@@ -66,8 +88,14 @@ export const OrganizationSelect: React.FC = () => {
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({})
 
     const options = React.useMemo(() => {
-        return userOrganizations.filter(link => link.isAccepted).map((organization) => {
-            const { value, label } = OrganizationEmployee.convertGQLItemToFormSelectState(organization)
+        return userOrganizations.filter(link => link.isAccepted).map((employee) => {
+            const organizationOption = OrganizationEmployee.convertGQLItemToFormSelectState(employee)
+
+            if (!organizationOption)
+                return false
+
+            const { value, label } = organizationOption
+
             return (<Select.Option style={optionStyle} key={value} value={value} title={label}>{label}</Select.Option>)
         })
     }, [userOrganizations])
@@ -101,7 +129,7 @@ export const OrganizationSelect: React.FC = () => {
                         ref={selectRef}
                         css={blackSelectCss}
                         size={'middle'}
-                        showAction={['focus', 'click' ]}
+                        showAction={ORGANIZATION_SELECT_SHOW_ACTIONS}
                         dropdownRender={menu => (
                             <div>
                                 {menu}

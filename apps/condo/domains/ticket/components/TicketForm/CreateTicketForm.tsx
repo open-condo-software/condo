@@ -1,14 +1,18 @@
-import { Form, Space } from 'antd'
-import React from 'react'
-import { useOrganization } from '@core/next/organization'
-import { useRouter } from 'next/router'
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Button } from '@condo/domains/common/components/Button'
+import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
+import { ErrorsContainer } from '@condo/domains/ticket/components/BaseTicketForm/ErrorsContainer'
+import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
+import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
-import { BaseTicketForm } from '../BaseTicketForm'
-import { Button } from '@condo/domains/common/components/Button'
-import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import ActionBar from '@condo/domains/common/components/ActionBar'
+import { useOrganization } from '@core/next/organization'
+import { Form, Space } from 'antd'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo } from 'react'
+import { useApolloClient } from '@core/next/apollo'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
@@ -18,24 +22,32 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
 
     return (
-        <Form.Item noStyle dependencies={['property']}>
+        <Form.Item noStyle shouldUpdate>
             {
                 ({ getFieldsValue }) => {
-                    const { property } = getFieldsValue(['property'])
+                    const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
 
                     return (
-                        <ActionBar>
+                        <ActionBar isFormActionBar>
                             <Space size={12}>
                                 <Button
                                     key='submit'
                                     onClick={handleSave}
-                                    type='sberPrimary'
+                                    type='sberDefaultGradient'
                                     loading={isLoading}
-                                    disabled={!property}
+                                    disabled={disabledCondition}
                                 >
                                     {CreateTicketMessage}
                                 </Button>
-                                <ErrorsContainer property={property}/>
+                                <ErrorsContainer
+                                    isVisible={disabledCondition}
+                                    property={property}
+                                    details={details}
+                                    placeClassifier={placeClassifier}
+                                    categoryClassifier={categoryClassifier}
+                                    deadline={deadline}
+                                />
                             </Space>
                         </ActionBar>
                     )
@@ -49,25 +61,29 @@ export const CreateTicketForm: React.FC = () => {
     const { organization, link } = useOrganization()
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
+    const client = useApolloClient()
+    const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
 
     const action = Ticket.useCreate(
         {
-            organization: organization.id,
             status: OPEN_STATUS,
             source: DEFAULT_TICKET_SOURCE_CALL_ID,
         },
-        () => {
-            router.push('/ticket/')
+        (ticket) => {
+            addTicketToQueryCacheForTicketCardList(ticket)
+            router.push('/ticket')
         })
 
-    const initialValues = {
+    const createAction = useCallback((attrs) => action({ ...attrs, organization }), [organization])
+
+    const initialValues = useMemo(() => ({
         assignee: auth.user.id,
         executor: auth.user.id,
-    }
+    }), [auth.user.id])
 
-    return (
+    const MemoizedBaseTicketForm = useCallback(() => (
         <BaseTicketForm
-            action={action}
+            action={createAction}
             initialValues={initialValues}
             organization={organization}
             role={link.role}
@@ -75,5 +91,7 @@ export const CreateTicketForm: React.FC = () => {
         >
             {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
         </BaseTicketForm>
-    )
+    ), [createAction, initialValues, link.role, organization])
+
+    return <MemoizedBaseTicketForm />
 }

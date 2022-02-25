@@ -10,7 +10,7 @@ const { createItems } = require('@keystonejs/server-side-graphql-client')
 const conf = require('@core/config')
 const { registerTasks } = require('@core/keystone/tasks')
 const { prepareDefaultKeystoneConfig, getAdapter } = require('@core/keystone/setup.utils')
-const { registerSchemas } = require('@core/keystone/schema')
+const { registerSchemas } = require('@core/keystone/KSv5v6/v5/registerSchema')
 const express = require('express')
 const bodyParser = require('body-parser')
 const nextCookie = require('next-cookies')
@@ -19,6 +19,8 @@ const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatte
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { OIDCMiddleware } = require('@condo/domains/user/oidc')
+const { schemaDocPreprocessor } = require('@core/keystone/preprocessors/schemaDoc')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -77,11 +79,13 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/meter/schema'),
         require('@condo/domains/subscription/schema'),
         require('@condo/domains/acquiring/schema'),
-    ])
+    ], [schemaDocPreprocessor])
 
     registerTasks([
         require('@condo/domains/notification/tasks'),
         require('@condo/domains/organization/tasks'),
+        require('@condo/domains/ticket/tasks'),
+        require('@condo/domains/resident/tasks'),
     ])
 
     registerTriggers([
@@ -106,7 +110,7 @@ class SberBuisnessOnlineMiddleware {
         const app = express()
         // TODO(zuch): find a way to remove bind
         app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
-        app.get('/api/sbbol/auth/callback',  Auth.completeAuth.bind(Auth))
+        app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
         return app
     }
 }
@@ -126,6 +130,7 @@ class CustomBodyParserMiddleware {
 module.exports = {
     keystone,
     apps: [
+        new OIDCMiddleware(),
         new CustomBodyParserMiddleware(),
         new GraphQLApp({
             apollo: {
@@ -141,17 +146,28 @@ module.exports = {
             adminPath: '/admin',
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
             authStrategy,
+            hooks: require.resolve('@app/condo/admin-ui'),
         }),
         conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
     ].filter(identity),
+
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
+        const requestIdHeaderName = 'X-Request-Id'
+        app.use(function reqId (req, res, next) {
+            req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = v4()
+            res.setHeader(requestIdHeaderName, req['id'])
+            next()
+        })
+
+        app.get('/.well-known/change-password', function (req, res) {
+            res.redirect('/auth/forgot')
+        })
+
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
             const cookies = nextCookie({ req })
-            let isSenderValid = true
-
-            isSenderValid = hasValidJsonStructure(
+            const isSenderValid = hasValidJsonStructure(
                 {
                     resolvedData: { sender: cookies['sender'] },
                     fieldPath: 'sender',

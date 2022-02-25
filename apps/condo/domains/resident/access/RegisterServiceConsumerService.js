@@ -5,10 +5,10 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canRegisterServiceConsumer ({ authentication: { item: user } }) {
-    if (!user) throwAuthenticationError()
-    if (user.type === RESIDENT) return true
-    if (user.isAdmin) return true
-    return false
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+
+    return user.isAdmin || user.type === RESIDENT
 }
 
 /*

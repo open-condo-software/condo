@@ -1,5 +1,4 @@
-import React, { useMemo } from 'react'
-import get from 'lodash/get'
+import React, { useCallback, useMemo } from 'react'
 import isEmpty from 'lodash/isEmpty'
 import { ColumnType, FilterValue } from 'antd/es/table/interface'
 import { useRouter } from 'next/router'
@@ -10,11 +9,15 @@ import { DivisionWhereInput } from '@app/condo/schema'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
-import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
+import {
+    renderHighlightedPart,
+} from '@condo/domains/common/components/Table/Renders'
 import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 
 import { Division } from '../utils/clientSchema'
+import { getAddressRender } from '../utils/clientSchema/Renders'
 
 export interface ITableColumn {
     title: string,
@@ -35,9 +38,16 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
     const BuildingsTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
     const ForemanTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Foreman' })
     const TechniciansTitleMessage  = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Technicians' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
+
+    const search = getFilteredValue(filters, 'search')
+
+    const renderAddress = useCallback(
+        (properties) => properties.map((property) => getAddressRender(property, DeletedMessage, search)),
+        [search])
 
     return useMemo(() => {
         type ColumnTypes = [
@@ -46,9 +56,6 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
             ColumnType<Division.IDivisionUIState['responsible']>,
             ColumnType<Division.IDivisionUIState['executors']>,
         ]
-
-        let search = get(filters, 'search')
-        search = Array.isArray(search) ? null : search
 
         const render = (text, isArray = false) => {
             let result = text
@@ -82,7 +89,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
                 ellipsis: true,
                 dataIndex: 'properties',
                 key: 'properties',
-                render: (properties) => properties.map((property) => render(property.address, true)),
+                render: renderAddress,
                 width: '35%',
             },
             {

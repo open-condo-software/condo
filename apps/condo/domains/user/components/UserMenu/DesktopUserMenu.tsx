@@ -24,12 +24,7 @@ function goToUserProfile () {
 
 function formatUserName (name) {
     const splittedName = name.split(' ')
-
-    if (splittedName.length > 1) {
-        return splittedName[0] + '...'
-    } else {
-        return name
-    }
+    return splittedName[0]
 }
 
 export const StyledMenu = styled(Menu)`

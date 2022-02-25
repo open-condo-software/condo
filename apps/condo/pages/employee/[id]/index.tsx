@@ -43,7 +43,7 @@ const ReInviteActionAlert = ({ employee }) => {
                 {EmployeeDidntEnteredMessage}&nbsp;
                 <EmployeeInviteRetryButton employee={employee}/>
             </>
-        }/>
+        } />
     )
 }
 
@@ -298,7 +298,9 @@ export const EmployeeInfoPage = () => {
 
 EmployeeInfoPage.headerAction = <ReturnBackHeaderAction
     descriptor={{ id: 'pages.condo.employee.PageTitle' }}
-    path={'/employee/'}/>
+    path={'/employee/'}
+    useBrowserHistory={false}
+/>
 EmployeeInfoPage.requiredAccess = OrganizationRequired
 
 export default EmployeeInfoPage

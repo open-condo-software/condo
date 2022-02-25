@@ -6,14 +6,16 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadBillingIntegrations ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+
     return {}
 }
 
-async function canManageBillingIntegrations ({ authentication: { item: user }, operation }) {
+async function canManageBillingIntegrations ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    if (user.isSupport) return true
-    return false
+    if (user.deletedAt) return false
+
+    return !!(user.isSupport || user.isAdmin)
 }
 
 /*

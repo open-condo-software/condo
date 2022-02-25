@@ -1,16 +1,13 @@
 import React, { useCallback, useState } from 'react'
 import { OptionProps } from 'antd/lib/mentions'
-import { AutoComplete, Col, Radio, Select, Input } from 'antd'
-import { green, grey } from '@ant-design/colors'
-import { get, pick } from 'lodash'
-import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
-import { MinusCircleFilled } from '@ant-design/icons'
+import { AutoComplete, Col, Radio } from 'antd'
+import { colors } from '@condo/domains/common/constants/style'
+import { get } from 'lodash'
+import { MinusCircleOutlined } from '@ant-design/icons'
 import { Contact as TContact } from '@condo/domains/contact/schema'
 import { ContactValue } from './index'
-import { PhoneInput } from '../../../common/components/PhoneInput'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useIntl } from '@core/next/intl'
-
-const { TextArea } = Input
 
 /**
  * Prevent crash of `String.match`, when providing a regular expression string value,
@@ -23,7 +20,7 @@ const { TextArea } = Input
  * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
  */
 function escapeRegex (string) {
-    return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+    return String(string).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
 interface IContactSyncedAutocompleteFieldsProps {
@@ -50,13 +47,6 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
     const [contactsByPhone, setContactsByPhone] = useState([])
     const [contactsByName, setContactsByName] = useState([])
 
-    const searchContactBy = useCallback(
-        (field) => async (query) => {
-            return contacts.filter(c => c[field].match(escapeRegex(query)))
-        },
-        []
-    )
-
     const searchContactByPhone = useCallback((query) => {
         setContactsByPhone(contacts.filter(c => c.phone.match(escapeRegex(query))))
     }, [])
@@ -80,20 +70,6 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
     const setValueAndTriggerOnChange = (contact) => {
         setValue(contact)
         onChange(contact)
-    }
-
-    const renderOption = (field) => (item) => {
-        return (
-            <Select.Option
-                style={{ textAlign: 'left', color: grey[6] }}
-                key={item.id}
-                value={item[field]}
-                title={item[field]}
-                item={pick(item, ['id', 'name', 'phone'])}
-            >
-                {item[field]}
-            </Select.Option>
-        )
     }
 
     const handleClearContact = () => {
@@ -132,13 +108,13 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
 
             </Col>
             <Col span={10}>
-                <BaseSearchInput
+                <AutoComplete
+                    allowClear
                     placeholder={NamePlaceholder}
                     value={get(value, 'name')}
-                    loadOptionsOnFocus={false}
-                    search={searchContactBy('name')}
-                    renderOption={renderOption('name')}
+                    options={renderOptionsBy('name', contactsByName)}
                     onSelect={handleSelectContact}
+                    onSearch={searchContactByName}
                     onChange={handleChangeContact('name')}
                     onClear={handleClearContact}
                     style={{ width: '100%' }}
@@ -155,9 +131,9 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
             </Col>
             <Col span={2}>
                 {displayMinusButton && (
-                    <MinusCircleFilled
+                    <MinusCircleOutlined
                         style={{
-                            color: green[6],
+                            color: colors.black,
                             fontSize: '21px',
                             marginTop: '9px',
                             marginLeft: '-4px',
@@ -174,6 +150,7 @@ ContactSyncedAutocompleteFields.defaultProps = {
     displayMinusButton: false,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onClickMinusButton: () => {},
+    contacts: [],
 }
 
 export {

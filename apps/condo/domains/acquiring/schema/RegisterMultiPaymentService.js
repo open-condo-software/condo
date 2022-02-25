@@ -26,9 +26,14 @@ const {
     REGISTER_MP_DELETED_BILLING_CONTEXT,
     REGISTER_MP_DELETED_BILLING_INTEGRATION,
     REGISTER_MP_NEGATIVE_TO_PAY,
+    REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS,
 } = require('@condo/domains/acquiring/constants/errors')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
-const { FEE_CALCULATION_PATH, WEB_VIEW_PATH } = require('@condo/domains/acquiring/constants/links')
+const {
+    FEE_CALCULATION_PATH,
+    WEB_VIEW_PATH,
+    DIRECT_PAYMENT_PATH,
+} = require('@condo/domains/acquiring/constants/links')
 const { JSON_STRUCTURE_FIELDS_CONSTRAINTS } = require('@condo/domains/common/utils/validation.utils')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { find } = require('@core/keystone/schema')
@@ -53,7 +58,11 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
     types: [
         {
             access: true,
-            type: 'input RegisterMultiPaymentServiceConsumerInput { consumerId: String!, receiptsIds: [String!]! }',
+            type: 'input RegisterMultiPaymentReceiptInfoInput { id: String! }',
+        },
+        {
+            access: true,
+            type: 'input RegisterMultiPaymentServiceConsumerInput { consumerId: String!, receipts: [RegisterMultiPaymentReceiptInfoInput!]! }',
         },
         {
             access: true,
@@ -61,7 +70,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: true,
-            type: 'type RegisterMultiPaymentOutput { dv: Int!, multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String! }',
+            type: 'type RegisterMultiPaymentOutput { dv: Int!, multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String!, directPaymentUrl: String! }',
         },
     ],
     
@@ -89,7 +98,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (!get(groupedReceipts, 'length')) {
                     throw new Error(REGISTER_MP_EMPTY_INPUT)
                 }
-                if (groupedReceipts.some(group => !get(group, ['receiptsIds', 'length']))) {
+                if (groupedReceipts.some(group => !get(group, ['receipts', 'length']))) {
                     throw new Error(REGISTER_MP_EMPTY_RECEIPTS)
                 }
 
@@ -99,7 +108,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (consumersIds.length !== uniqueConsumerIds.size) {
                     throw new Error(REGISTER_MP_CONSUMERS_DUPLICATE)
                 }
-                const receiptsIds = groupedReceipts.flatMap(group => group.receiptsIds)
+                const receiptsIds = groupedReceipts
+                    .flatMap(group => group.receipts)
+                    .map(receiptInfo => receiptInfo.id)
                 const uniqueReceiptsIds = new Set(receiptsIds)
                 if (receiptsIds.length !== uniqueReceiptsIds.size) {
                     throw new Error(REGISTER_MP_RECEIPTS_DUPLICATE)
@@ -123,6 +134,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     .map(consumer => consumer.id)
                 if (contextMissingConsumers.length) {
                     throw new Error(`${REGISTER_MP_NO_ACQUIRING_CONSUMERS} (${contextMissingConsumers.join(', ')})`)
+                }
+
+                const accountMissingConsumers = consumers
+                    .filter(consumer =>  !get(consumer, 'billingAccount'))
+                    .map(consumer => consumer.id)
+                if (accountMissingConsumers.length) {
+                    throw new Error(`${REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS} (${accountMissingConsumers.join(', ')})`)
                 }
 
                 const consumersByIds = Object.assign({}, ...consumers.map(obj => ({ [obj.id]: obj })))
@@ -184,12 +202,12 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 const receiptsByIds = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
                 groupedReceipts.forEach(group => {
-                    group.receiptsIds.forEach(receiptId => {
-                        const receipt = receiptsByIds[receiptId]
+                    group.receipts.forEach(receiptInfo => {
+                        const receipt = receiptsByIds[receiptInfo.id]
                         const billingAccount = receipt.account
                         const consumer = consumersByIds[group.consumerId]
                         if (billingAccount !== consumer.billingAccount) {
-                            throw new Error(`${REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH} (ReceiptId: ${receiptId}, ConsumerId: ${group.consumerId})`)
+                            throw new Error(`${REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH} (ReceiptId: ${receiptInfo.id}, ConsumerId: ${group.consumerId})`)
                         }
                     })
                 })
@@ -236,8 +254,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 for (const group of groupedReceipts) {
                     const serviceConsumer = consumersByIds[group.consumerId]
                     const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
-                    for (const receiptId of group.receiptsIds) {
-                        const receipt = receiptsByIds[receiptId]
+                    for (const receiptInfo of group.receipts) {
+                        const receipt = receiptsByIds[receiptInfo.id]
                         const frozenReceipt = await freezeBillingReceipt(receipt)
                         const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
                         const payment = await Payment.create(context, {
@@ -247,10 +265,12 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             currencyCode,
                             accountNumber: billingAccountNumber,
                             period: receipt.period,
-                            receipt: { connect: { id: receiptId } },
+                            receipt: { connect: { id: receiptInfo.id } },
                             frozenReceipt,
                             context: { connect: { id: acquiringContext.id } },
                             organization: { connect: { id: acquiringContext.organization } },
+                            recipientBic: receipt.recipient.bic,
+                            recipientBankAccount: receipt.recipient.bankAccount,
                         })
                         payments.push(payment)
                     }
@@ -277,6 +297,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     multiPaymentId: multiPayment.id,
                     webViewUrl: `${acquiringIntegration.hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPayment.id)}`,
                     feeCalculationUrl: `${acquiringIntegration.hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPayment.id)}`,
+                    directPaymentUrl: `${acquiringIntegration.hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', multiPayment.id)}`,
                 }
             },
         },

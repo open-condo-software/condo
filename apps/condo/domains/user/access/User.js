@@ -5,23 +5,19 @@ const access = require('@core/keystone/access')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadUsers ({ authentication: { item: user } }) {
-    if (!user || !user.id) return false
-    if (user.isAdmin) return true
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
 
     return true
 }
 
 async function canManageUsers ({ authentication: { item: user }, operation, itemId }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return true
+    if (user.deletedAt) return false
+    if (user.isSupport || user.isAdmin) return true
 
-    if (operation === 'update') {
-        return Boolean(itemId === user.id)
-    }
-
-    if (operation === 'create') {
-        return false
-    }
+    if (operation === 'create') return false
+    if (operation === 'update') return itemId === user.id
 
     return false
 }
@@ -32,8 +28,22 @@ const readByAnyUpdateByAdminField = {
     update: access.userIsAdmin,
 }
 
-const canAccessToEmailField = access.userIsAdminOrIsThisItem
-const canAccessToPhoneField = access.userIsAdminOrIsThisItem
+const canAccessToEmailField = {
+    read: access.userIsAdminOrIsThisItem,
+    create: access.userIsAdmin,
+    // TODO(pahaz): !!! change it to access.userIsAdmin
+    update: access.userIsAdminOrIsThisItem,
+}
+const canAccessToPhoneField = {
+    read: access.userIsAdminOrIsThisItem,
+    create: access.userIsAdmin,
+    // TODO(pahaz): !!! change it to access.userIsAdmin
+    update: ({ authentication: { item: user, listKey }, existingItem, originalInput }) => {
+        if (!access.userIsAuthenticated({ authentication: { item: user, listKey } })) return false
+        const updateByResidentToTheSamePhone = Boolean(existingItem && user.type === 'resident' && existingItem.id === user.id && originalInput.phone === existingItem.phone)
+        return Boolean(user && user.isAdmin) || updateByResidentToTheSamePhone
+    },
+}
 const canAccessToPasswordField = {
     // 3. Only admins can see if a password is set. No-one can read their own or other user's passwords.
     read: access.userIsAdmin,
@@ -50,9 +60,8 @@ const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
 const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
 const canAccessToImportField = readByAnyUpdateByAdminField
 
-
 const canAccessToStaffUserField = {
-    read: access.userIsNotResidentUser,
+    read: access.canReadOnlyIfUserIsActiveOrganizationEmployee,
     create: access.userIsNotResidentUser,
     update: access.userIsNotResidentUser,
 }

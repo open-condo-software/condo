@@ -18,7 +18,6 @@ const {
     INVALID_RU_TIN_12,
     SOME_RANDOM_LETTERS,
 } = require('@condo/domains/organization/utils/tin.utils.spec')
-const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -27,12 +26,12 @@ const {
     Organization,
     createTestOrganization,
     updateTestOrganization,
-    OrganizationEmployee,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 
 const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
 const { createTestOrganizationEmployee } = require('../utils/testSchema')
+
 
 describe('Organization', () => {
     // Despite just registered user can create Organization from UI, calling `Organization.create`
@@ -65,6 +64,8 @@ describe('Organization', () => {
 
         expect(objs).toHaveLength(1)
         expect(objs[0].id).toEqual(client.organization.id)
+        expect(objs[0].name).toEqual(client.organization.name)
+        expect(objs[0].description).toEqual(client.organization.description)
     })
 
     test('anonymous: read Organization', async () => {
@@ -262,7 +263,7 @@ describe('Organization', () => {
         expect(obj.updatedAt).toMatch(DATETIME_RE)
     })
 
-    test('user: deleted user dont have access to update organization', async () => {
+    test('user: deleted employee dont have access to update organization', async () => {
         const admin = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(admin)
         const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -273,11 +274,7 @@ describe('Organization', () => {
         const [obj] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
         await updateTestOrganization(userClient, organization.id, { name: 'name2' })
-        await updateTestOrganizationEmployee(userClient, obj.id, { deletedAt: 'true' })
-
-        const objs = await OrganizationEmployee.getAll(userClient)
-
-        expect(objs).toHaveLength(0)
+        await updateTestOrganizationEmployee(admin, obj.id, { deletedAt: 'true' })
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await updateTestOrganization(userClient, organization.id, { name: 'name3' })
@@ -310,6 +307,7 @@ describe('Organization', () => {
 
 describe('organization TIN: various cases',  () => {
     test('admin: create Organization with valid 10 digits RU INN and RU country code ', async () => {
+        // TODO(DOMA-1897): Create organization by ordinary user, not admin to respect real flow.
         const admin = await makeLoggedInAdminClient()
         const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: VALID_RU_TIN_10 }, country: RUSSIA_COUNTRY })
 
@@ -326,7 +324,7 @@ describe('organization TIN: various cases',  () => {
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
         expect(organizationData).toHaveLength(1)
-        expect(organizationData[0].tin).toEqual(null)
+        expect(organizationData[0].tin).toEqual(VALID_RU_TIN_12)
     })
 
     test('admin: create Organization with invalid 10 digits RU INN and RU country code ', async () => {

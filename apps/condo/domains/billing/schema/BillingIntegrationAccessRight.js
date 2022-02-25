@@ -4,7 +4,7 @@
 
 const { Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
-const { uuided, historical, tracked } = require('@core/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationAccessRight')
 
@@ -34,7 +34,7 @@ const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAcces
         },
 
     },
-    plugins: [uuided(), tracked(), historical()],
+    plugins: [uuided(), tracked(), historical(), versioned(), softDeleted()],
     access: {
         read: access.canReadBillingIntegrationAccessRights,
         create: access.canManageBillingIntegrationAccessRights,

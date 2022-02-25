@@ -5,23 +5,25 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketAnalyticsReport ({ authentication: { item: user }, args }) {
+async function canReadTicketAnalyticsReport ({ authentication: { item: user }, args: { data: { where } } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
-    const organizationId = get(args, 'data.where.organization.id', false)
-    if (!organizationId) {
-        return false
-    }
+
+    const organizationId = get(where, ['organization', 'id'], false)
+    if (!organizationId) return false
+
     return await checkUserBelongsToOrganization(user.id, organizationId)
 }
 
-async function canReadExportTicketAnalyticsToExcel ({ authentication: { item: user }, args }) {
+async function canReadExportTicketAnalyticsToExcel ({ authentication: { item: user }, args: { data: { where } } }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
-    const organizationId = get(args, 'data.where.organization.id', false)
-    if (!organizationId) {
-        return false
-    }
+
+    const organizationId = get(where, ['organization', 'id'], false)
+    if (!organizationId) return false
+
     return await checkUserBelongsToOrganization(user.id, organizationId)
 }
 

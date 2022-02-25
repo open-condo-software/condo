@@ -18,7 +18,7 @@ const CreateTicketPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]}>
+                    <Row gutter={[0, 20]}>
                         <Col span={24}>
                             <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                         </Col>
@@ -30,7 +30,7 @@ const CreateTicketPage = () => {
     )
 }
 
-CreateTicketPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket/'} />
+CreateTicketPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket'} />
 CreateTicketPage.requiredAccess = OrganizationRequired
 
 export default CreateTicketPage

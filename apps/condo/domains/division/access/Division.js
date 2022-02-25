@@ -5,44 +5,43 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkOrganizationPermission, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
-const { Division } = require('../utils/serverSchema')
+const { getById } = require('@core/keystone/schema')
 
 async function canReadDivisions ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return {}
-    const userId = user.id
+    if (user.deletedAt) return false
+
+    if (user.isSupport || user.isAdmin) return {}
 
     return {
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+                queryOrganizationEmployeeFor(user.id),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
             ],
         },
     }
 }
 
-async function canManageDivisions ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageDivisions ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    
     if (user.isAdmin) return true
 
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        if (!organizationId) {
-            return false
-        }
-        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageDivisions')
-    } else if (operation === 'update') {
-        const [division] = await Division.getAll(context, { id: itemId })
-        if (!division) {
-            return false
-        }
-        const organizationId = division.organization.id
-        if (!organizationId) {
-            return false
-        }
-        return await checkOrganizationPermission(context, user.id, organizationId, 'canManageDivisions')
+
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageDivisions')
     }
+
+    if (operation === 'update') {
+        const division = await getById('Division', itemId)
+        if (!division) return false
+
+        return await checkOrganizationPermission(user.id, division.organization, 'canManageDivisions')
+    }
+
     return false
 }
 

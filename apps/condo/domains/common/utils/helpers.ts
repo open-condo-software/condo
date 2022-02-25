@@ -1,9 +1,9 @@
 import { ParsedUrlQuery } from 'querystring'
 import get from 'lodash/get'
 
-import { IRecordWithId, RecordWithAddressDetails } from '../types'
+import { IRecordWithId } from '../types'
 import { FilterValue } from 'antd/es/table/interface'
-import { IFilters } from '../../ticket/utils/helpers'
+import { Property } from '@app/condo/schema'
 
 const DEFAULT_WIDTH_PRECISION = 2
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
@@ -34,18 +34,49 @@ export const preciseFloor = (x: number, precision: number = DEFAULT_WIDTH_PRECIS
     return Math.floor(x * Math.pow(10, precision)) / 100
 }
 
+type ObjectWithAddressInfo = Pick<Property, 'address' | 'addressMeta'>
 /**
- * Tries to extract address details from a record
- * @param record
- * @param ShortFlatNumber
+ * Tries to extract address details from a property (or any object, containing address and addressMeta, like ticket)
+ * @param property
  */
-export const getAddressDetails = (record: RecordWithAddressDetails, ShortFlatNumber?: string) => {
-    const property = get(record, 'property')
-    const unitName = get(record, 'unitName')
-    const text = get(property, 'address')
-    const unitPrefix = unitName ? `${ShortFlatNumber} ${unitName}` : ''
+export const getAddressDetails = (property: ObjectWithAddressInfo) => {
+    const addressMeta = get(property, ['addressMeta', 'data'])
 
-    return { text, unitPrefix }
+    const streetWithType = get(addressMeta, 'street_with_type')
+
+    const houseType = get(addressMeta, 'house_type')
+    const houseName = get(addressMeta, 'house')
+
+    const blockType = get(addressMeta, 'block_type')
+    const blockName = get(addressMeta, 'block')
+
+    const regionType = get(addressMeta, 'region_type_full')
+    const regionName = get(addressMeta, 'region')
+    const regionWithType = get(addressMeta, 'region_with_type')
+    const regionNamePosition = regionWithType && regionWithType.split(' ')[0] === regionName ? 0 : 1
+    const regionWithFullType = regionNamePosition === 0 ? `${regionName} ${regionType}` : `${regionType} ${regionName}`
+
+    const cityWithType = get(addressMeta, 'city_with_type')
+    const cityName = get(addressMeta, 'city')
+
+    const settlementPart = get(addressMeta, 'settlement_with_type')
+
+    const block = blockType ? ` ${blockType} ${blockName}` : ''
+    const settlement = streetWithType ? streetWithType : settlementPart
+    const streetPart = settlement && `${settlement}, ${houseType} ${houseName}${block}`
+    const regionPart = regionName && regionName !== cityName && regionWithFullType
+    const cityPart = cityWithType && cityWithType
+
+    const areaWithType = get(addressMeta, 'area_with_type')
+    const areaPart = areaWithType && areaWithType !== cityPart && areaWithType
+
+    const regionLine = regionPart ? `\n${regionPart}` : ''
+    const areaLine = areaPart ? `${regionLine ? ',' : ''}\n${areaPart}` : ''
+    const cityLine = cityPart ? `${regionLine ? ',' : ''}\n${cityPart}` : ''
+    const settlementLine = settlementPart ? `,\n${settlementPart}` : ''
+    const renderPostfix = regionLine + areaLine + settlementLine + cityLine
+
+    return { streetPart, areaPart, settlementPart, regionPart, cityPart, renderPostfix }
 }
 
 /**

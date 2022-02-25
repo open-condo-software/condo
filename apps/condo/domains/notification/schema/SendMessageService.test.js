@@ -1,13 +1,15 @@
 const faker = require('faker')
 const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
-const { JSON_UNKNOWN_ATTR_NAME_ERROR } = require('@condo/domains/notification/constants')
+const {
+    MESSAGE_SENDING_STATUS,
+    MESSAGE_RESENDING_STATUS,
+    MESSAGE_DELIVERED_STATUS,
+    JSON_UNKNOWN_ATTR_NAME_ERROR,
+} = require('@condo/domains/notification/constants/constants')
 
 const { sendMessageByTestClient, resendMessageByTestClient, Message, createTestMessage } = require('../utils/testSchema')
-const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_DELIVERED_STATUS } = require('../constants')
 
-const sleep = async (time) => (new Promise((resolve => {
-    setTimeout(resolve, time)
-})))
+const { sleep } = require('@condo/domains/common/utils/sleep')
 
 describe('SendMessageService.sendMessage', () => {
     test('admin: use send message', async () => {
@@ -22,7 +24,9 @@ describe('SendMessageService.sendMessage', () => {
         const admin = await makeLoggedInAdminClient()
 
         const [data, attrs] = await sendMessageByTestClient(admin)
-        await sleep(1000) // wait for worker delivery
+
+        // give worker some time
+        await sleep(1000)
 
         const messages = await Message.getAll(admin, { id: data.id })
         const message = messages[0]

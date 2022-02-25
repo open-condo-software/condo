@@ -4,6 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const { makeClientWithResidentUser } = require(
+    '@condo/domains/user/utils/testSchema')
+const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
+const { makeClient } = require('@core/keystone/test.utils')
 const { get } = require('lodash')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
@@ -15,7 +19,7 @@ const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident
 const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const { makeClientWithResidentUserAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const Resident = generateGQLTestUtils(ResidentGQL)
@@ -133,7 +137,7 @@ async function registerServiceConsumerByTestClient (client, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithServiceConsumer() {
-    const client = await makeClientWithResidentUserAndProperty()
+    const client = await makeClientWithResidentAccessAndProperty()
     const adminClient = await makeLoggedInAdminClient()
 
     const [resident] = await createTestResident(adminClient, client.user, client.organization, client.property)
@@ -145,9 +149,23 @@ async function makeClientWithServiceConsumer() {
     return client
 }
 
+/**
+ * Creates a user with type resident and resident entity.
+ * If you want to create only user with type resident use makeClientWithResidentUser
+ */
+async function makeClientWithResident() {
+    const client = await makeClientWithResidentUser()
+    const [ resident, residentAttrs ] = await registerResidentByTestClient(client)
+
+    client.resident = resident
+    client.residentAttrs = residentAttrs
+
+    return client
+}
+
 module.exports = {
     Resident, createTestResident, updateTestResident,
-    registerResidentByTestClient,
+    registerResidentByTestClient, makeClientWithResident,
     ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
     makeClientWithServiceConsumer,
     registerServiceConsumerByTestClient

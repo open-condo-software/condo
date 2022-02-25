@@ -12,21 +12,25 @@ const get = require('lodash/get')
 async function canReadAcquiringIntegrationContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return {}
+
+    if (user.isSupport || user.isAdmin) return {}
+
     return {
         OR: [
             { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, isBlocked: false, deletedAt: null } } },
-            { integration: { accessRights_some: { user: { id: user.id } } } },
+            { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
         ],
     }
 }
 
-async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+
     if (user.isAdmin) return true
-    let organizationId
-    let integrationId
+
+    let organizationId, integrationId
+
     if (operation === 'create') {
         // get ids from input on create
         organizationId = get(originalInput, ['organization', 'connect', 'id'])
@@ -41,8 +45,10 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
         organizationId = organization
         integrationId = integration
     }
-    const canManageIntegrations = await checkOrganizationPermission(context, user.id, organizationId, 'canManageIntegrations')
+
+    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
     if (canManageIntegrations && operation === 'create') return true
+
     return await checkAcquiringIntegrationAccessRight(user.id, integrationId)
 }
 

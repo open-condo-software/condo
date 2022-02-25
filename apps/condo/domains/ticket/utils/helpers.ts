@@ -2,7 +2,7 @@ import get from 'lodash/get'
 import groupBy from 'lodash/groupBy'
 import dayjs, { Dayjs } from 'dayjs'
 import { ParsedUrlQuery } from 'querystring'
-import { FilterValue, SortOrder } from 'antd/es/table/interface'
+import { SortOrder } from 'antd/es/table/interface'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
 import { EChartsOption, EChartsReactProps } from 'echarts-for-react'
@@ -54,24 +54,6 @@ export const getTicketTitleMessage = (intl, ticket) => {
     return `${intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })} № ${ticket.number}`
 }
 
-export const getTicketFormattedLastStatusUpdate = (intl, ticket) => {
-    if (!ticket) {
-        return
-    }
-
-    const { createdAt, statusUpdatedAt } = ticket
-    const ticketLastUpdateDate = statusUpdatedAt || createdAt
-
-    if (ticketLastUpdateDate) {
-        let duration = dayjs.duration(dayjs(ticketLastUpdateDate).diff(dayjs()))
-        if (Math.abs(duration.asSeconds()) < 60) return intl.formatMessage({ id: 'LessThanMinuteAgo' })
-        const locale = get(LOCALES, intl.locale)
-        if (locale) duration = duration.locale(locale)
-        return duration.humanize(true)
-    }
-    return ''
-}
-
 export const getTicketPdfName = (intl, ticket) => {
     return `${intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })}_${ticket.number}.pdf`
 }
@@ -81,14 +63,7 @@ export const getTicketLabel = (intl, ticket) => {
         return
     }
 
-    const { createdAt, statusUpdatedAt } = ticket
-    const ticketLastUpdateDate = statusUpdatedAt || createdAt
-    const formattedDate = intl.formatDate(dayjs(ticketLastUpdateDate).valueOf(), {
-        day: 'numeric',
-        month: 'short',
-    })
-
-    return `${get(ticket, ['status', 'name'])} ${intl.formatMessage({ id: 'From' })} ${formattedDate}`
+    return get(ticket, ['status', 'name'])
 }
 
 export const sortStatusesByType = (statuses: Array<TicketStatus>) => {
@@ -447,6 +422,7 @@ export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, ma
     if (ticketType !== 'all') {
         AND.push(...[
             { isEmergency: ticketType === 'emergency' },
+            { isWarranty: ticketType === 'warranty' },
             { isPaid: ticketType === 'paid' },
         ])
     }
@@ -598,4 +574,30 @@ export const getChartOptions: IGetChartOptions = ({
     }
 
     return { option, opts }
+}
+
+export enum TicketDeadlineType {
+    MORE_THAN_DAY,
+    LESS_THAN_DAY,
+    OVERDUE,
+}
+
+export function getDeadlineType (deadline: Dayjs): TicketDeadlineType {
+    const today = dayjs().startOf('day')
+    const tomorrow = today.add(1, 'day')
+    const isLessThanOneDay = deadline.isBefore(tomorrow) || deadline.isSame(tomorrow)
+
+    if (isLessThanOneDay) {
+        return (deadline.isBefore(today) || deadline.isSame(today)) ? TicketDeadlineType.OVERDUE : TicketDeadlineType.LESS_THAN_DAY
+    }
+
+    return TicketDeadlineType.MORE_THAN_DAY
+}
+
+export function getHumanizeDeadlineDateDifference (deadline: Dayjs) {
+    const diff = deadline.diff(dayjs().startOf('day'), 'day')
+    const moreThanDayDiff = dayjs.duration(diff, 'days').humanize()
+    const overdueDiff = dayjs.duration(diff, 'days').subtract(1, 'day').humanize()
+
+    return { moreThanDayDiff, overdueDiff }
 }

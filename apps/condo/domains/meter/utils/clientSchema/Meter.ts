@@ -39,6 +39,7 @@ export interface IMeterFormState {
     nextVerificationDate?: string
     controlReadingsDate?: string
     sealingDate?: string
+    deletedAt?: string
 }
 
 function convertToUIFormState (state: IMeterUIState): IMeterFormState | undefined {

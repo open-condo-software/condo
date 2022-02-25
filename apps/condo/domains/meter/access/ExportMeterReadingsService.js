@@ -4,27 +4,25 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkOrganizationPermission, checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { find } = require('@core/keystone/schema')
 
-async function canExportMeterReadings ({ args: { data: { where } }, authentication: { item: user }, context }) {
-    if (!user)
-        return throwAuthenticationError()
+async function canExportMeterReadings ({ args: { data: { where } }, authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
-    const organizationId = get(where, 'organization.id')
-    if (!organizationId) {
-        const organizationFromWhere = get(where, 'organization')
-        const [relatedFromOrganization] = await Organization.getAll(context, organizationFromWhere)
-        if (!relatedFromOrganization) {
-            return false
-        }
-        const canManageRelatedOrganizationTickets = await checkRelatedOrganizationPermission(context, user.id, relatedFromOrganization.id, 'canManageMeters')
-        if (canManageRelatedOrganizationTickets) {
-            return true
-        }
-        return false
+
+    const organizationId = get(where, ['organization', 'id'])
+
+    if (organizationId) {
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageMeters')
+    } else {
+        const organizationWhere = get(where, 'organization')
+        if (!organizationWhere) return false
+        const [relatedFromOrganization] = await find('Organization', organizationWhere)
+        if (!relatedFromOrganization) return false
+
+        return await checkRelatedOrganizationPermission(user.id, relatedFromOrganization.id, 'canManageMeters')
     }
-    const hasAccess = await checkOrganizationPermission(context, user.id, organizationId, 'canManageMeters')
-    return hasAccess
 }
 
 /*

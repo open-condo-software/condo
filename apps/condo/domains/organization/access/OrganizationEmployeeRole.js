@@ -3,19 +3,21 @@
  */
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { getByCondition } = require('@core/keystone/schema')
-const { throwAuthenticationError } = require('../../common/utils/apolloErrorFormatter')
+const { getByCondition, getById } = require('@core/keystone/schema')
+const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const get = require('lodash/get')
 
 async function canReadOrganizationEmployeeRoles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return {}
+    if (user.deletedAt) return false
 
-    const userId = user.id
+    if (user.isSupport || user.isAdmin) return {}
+
     return {
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(userId),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(userId),
+                queryOrganizationEmployeeFor(user.id),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
             ],
         },
     }
@@ -23,32 +25,33 @@ async function canReadOrganizationEmployeeRoles ({ authentication: { item: user 
 
 async function canManageOrganizationEmployeeRoles ({ authentication: { item: user }, operation, originalInput }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
     if (user.isAdmin) return true
+
     if (operation === 'create') {
+        const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+
         // `GraphQLWhere` type cannot be used in case of `create` operation,
         // because we will get an error:
         // > Expected a Boolean for OrganizationEmployeeRole.access.create(), but got Object
         // In https://www.keystonejs.com/api/access-control#list-level-access-control it states:
         // > For `create` operations, an `AccessDeniedError` is returned if the operation is set to / returns `false`
         // Actually, here we repeating the same logic, as declared for another operations
-        const employeeForUser = await getByCondition('OrganizationEmployee', {
-            organization: { id: originalInput.organization.connect.id },
+        const userEmployee = await getByCondition('OrganizationEmployee', {
+            organization: { id: organizationId },
             user: { id: user.id },
             deletedAt: null,
+            isBlocked: false,
         })
+        if (!userEmployee) return false
 
-        if (employeeForUser.isBlocked) {
-            return false
-        }
-
-        const employeeRole = await getByCondition('OrganizationEmployeeRole', {
-            id: employeeForUser.role,
-        })
+        const employeeRole = await getById('OrganizationEmployeeRole', userEmployee.role)
         if (!employeeRole) return false
+
         return employeeRole.canManageRoles
     }
+
     return {
-        // user is inside employee list
         organization: { employees_some: { user: { id: user.id }, role: { canManageRoles: true }, isBlocked: false } },
     }
 }

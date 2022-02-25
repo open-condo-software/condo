@@ -1,14 +1,15 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import React, { useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Col, Form, Input, notification, Row, Typography } from 'antd'
-import React, { useCallback } from 'react'
+import isEmpty from 'lodash/isEmpty'
+import dayjs from 'dayjs'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { PropertyPanels } from '../panels'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { AddressMetaField } from '@app/condo/schema'
 import { useState } from 'react'
@@ -29,33 +30,52 @@ interface IPropertyFormProps {
     address?: string
 }
 
+const INPUT_LAYOUT_PROPS = {
+    style: {
+        paddingBottom: '24px',
+    },
+}
+const FORM_WITH_ACTION_STYLES = {
+    width: '100%',
+}
+const PROPERTY_FULLSCREEN_ROW_GUTTER = [0, 40]
+const PROPERTY_ROW_GUTTER = [50, 40]
+
+const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
+
+
 const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
+    const AddressTitle = intl.formatMessage({ id: 'pages.condo.property.form.AddressTitle' })
     const NameMsg = intl.formatMessage({ id: 'pages.condo.property.form.field.Name' })
+    const AreaTitle = intl.formatMessage({ id: 'pages.condo.property.form.AreaTitle' })
+    const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
     const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
-    const SameUnitNamesErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
     const SamePropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SamePropertyErrorMsg' })
-
-    const { addressApi } = useAddressApi()
-
-    const { action, initialValues } = props
+    const WrongYearErrorMsg = intl.formatMessage({ id: 'pages.condo.property.form.YearValidationError' })
 
     const { isSmall } = useLayoutContext()
-    const [mapValidationError, setMapValidationError] = useState<string | null>(null)
+    const { addressApi } = useAddressApi()
+    const { action, initialValues } = props
+
     const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
     const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
         const isAddressFieldTouched = form.isFieldsTouched(['address'])
+        const yearOfConstruction = formData.yearOfConstruction && !isEmpty(formData.yearOfConstruction)
+            ? dayjs().year(formData.yearOfConstruction).format('YYYY-MM-DD')
+            : null
+        // TODO (DOMA-1725) Replace it with better parsing
+        const area = formData.area ? formData.area.replace(',', '.') : null
 
         if (isAddressFieldTouched) {
             try {
                 const addressMeta = addressApi.getAddressMeta(formData.address)
-
-                return { ...formData, addressMeta: { dv: 1, ...addressMeta } }
+                return { ...formData, addressMeta: { dv: 1, ...addressMeta }, yearOfConstruction, area }
             } catch (e) {
                 notification.error({
                     message: ServerErrorMsg,
@@ -71,10 +91,9 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         // It seems, like we cannot control it.
         // So, these fields should be cleaned, because it will result to incorrect input into update-mutation
         const cleanedFormData = omitRecursively(formData, '__typename')
-        return cleanedFormData
+        return { ...cleanedFormData, yearOfConstruction, area }
     }, [initialValues])
-
-    const { requiredValidator } = useValidations()
+    const { requiredValidator, numberValidator, maxLengthValidator } = useValidations()
     const addressValidator = {
         validator () {
             if (!addressValidatorError) {
@@ -83,8 +102,22 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
             return Promise.reject(addressValidatorError)
         },
     }
+    const yearOfConstructionValidator = {
+        validator (_, val) {
+            if (val === null) {
+                return Promise.resolve()
+            }
+            const receivedDate = dayjs().year(val)
+            if (val.length === 0 || val.length === 4 && receivedDate.isValid() && receivedDate.isBefore(dayjs().add(1, 'day'))) {
+                return Promise.resolve()
+            }
+            return Promise.reject(WrongYearErrorMsg)
+        },
+    }
     const validations = {
         address: [requiredValidator, addressValidator],
+        area: [numberValidator, maxLengthValidator(12)],
+        yearOfConstruction: [yearOfConstructionValidator],
     }
 
     const ErrorToFormFieldMsgMapping = {
@@ -99,10 +132,10 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
             <FormWithAction
                 action={action}
                 initialValues={initialValues}
-                validateTrigger={['onBlur', 'onSubmit']}
+                validateTrigger={FORM_WITH_ACTION_VALIDATION_TRIGGERS}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
-                style={{ width: '100%' }}
+                style={FORM_WITH_ACTION_STYLES}
             >
                 {({ handleSave, isLoading, form }) => {
                     return (
@@ -116,14 +149,16 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     {PromptHelpMessage}
                                 </Typography.Paragraph>
                             </Prompt>
-                            <Row gutter={[0, 40]}>
-                                <Col xs={24} lg={7}>
+                            <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
+                                <Col xs={24} lg={11}>
                                     <Form.Item
                                         name="address"
                                         label={AddressLabel}
                                         rules={validations.address}
+                                        {...INPUT_LAYOUT_PROPS}
                                     >
                                         <AddressSuggestionsSearchInput
+                                            placeholder={AddressTitle}
                                             onSelect={(_, option) => {
                                                 const address = JSON.parse(option.key) as AddressMetaField
                                                 if (!validHouseTypes.includes(address.data.house_type_full)) {
@@ -132,64 +167,44 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                                 else if (AddressValidationErrorMsg) setAddressValidatorError(null)
                                             }} />
                                     </Form.Item>
+                                    <Form.Item
+                                        name="map"
+                                        hidden
+                                    >
+                                        <Input />
+                                    </Form.Item>
                                 </Col>
-                                <Col xs={24} lg={7} offset={isSmall ? 0 : 1}>
+                            </Row>
+                            <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
+                                <Col xs={24} lg={11}>
                                     <Form.Item
                                         name="name"
                                         label={NameMsg}
+                                        {...INPUT_LAYOUT_PROPS}
                                     >
                                         <Input allowClear={true}/>
                                     </Form.Item>
                                 </Col>
-                                <Col span={24} >
+                            </Row>
+                            <Row gutter={PROPERTY_ROW_GUTTER}>
+                                <Col span={isSmall ? 12 : 4} >
                                     <Form.Item
-                                        hidden
-                                        name='map'
-                                        rules={[
-                                            {
-                                                validator (rule, value) {
-                                                    const unitLabels = value?.sections
-                                                        ?.map((section) => section.floors
-                                                            ?.map(floor => floor.units
-                                                                ?.map(unit => unit.label)
-                                                            )
-                                                        )
-                                                        .flat(2)
-
-                                                    if (unitLabels && unitLabels.length !== new Set(unitLabels).size) {
-                                                        setMapValidationError(SameUnitNamesErrorMsg)
-                                                        return Promise.reject()
-                                                    }
-
-                                                    setMapValidationError(null)
-                                                    return Promise.resolve()
-                                                },
-                                            },
-                                        ]}
+                                        name="area"
+                                        label={AreaTitle}
+                                        rules={validations.area}
                                     >
                                         <Input />
                                     </Form.Item>
-                                    <Form.Item
-                                        shouldUpdate={true}
-                                        onBlur={() => setMapValidationError(null)}
-                                    >
-                                        {
-                                            ({ getFieldsValue, setFieldsValue }) => {
-                                                const { map } = getFieldsValue(['map'])
-                                                return (
-                                                    <PropertyPanels
-                                                        mapValidationError={mapValidationError}
-                                                        mode='edit'
-                                                        map={map}
-                                                        handleSave={handleSave}
-                                                        updateMap={map => setFieldsValue({ map })}
-                                                        address={props.address}
-                                                    />
-                                                )
-                                            }
-                                        }
-                                    </Form.Item>
                                 </Col>
+                                <Col span={isSmall ? 12 : 4} >
+                                    <Form.Item
+                                        name="yearOfConstruction"
+                                        label={YearOfConstructionTitle}
+                                        rules={validations.yearOfConstruction}
+                                    ><Input /></Form.Item>
+                                </Col>
+                            </Row>
+                            <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col span={24}>
                                     {props.children({ handleSave, isLoading, form })}
                                 </Col>

@@ -10,17 +10,18 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
+
     return {
         OR: [
             { context: { organization: { employees_some: { user: { id: user.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } },
-            { context: { integration: { accessRights_some: { user: { id: user.id } } } } },
+            { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
         ],
     }
 }
 
-async function canManageBillingReceipts ({ authentication: { item: user }, operation, originalInput, listKey, itemId, context }) {
+async function canManageBillingReceipts ({ authentication, operation, originalInput, listKey, itemId, context }) {
     return await canManageBillingEntityWithContext({
-        user,
+        authentication,
         operation,
         itemId,
         originalInput,

@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { useCallback } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
 import { Select, SelectProps, Typography } from 'antd'
 
@@ -18,6 +18,8 @@ import { colors } from '@condo/domains/common/constants/style'
 type IAddressSearchInput = SelectProps<string> & {
     organization: Organization
 }
+
+const SELECT_OPTION_STYLE: CSSProperties = { direction: 'rtl', textAlign: 'left', color: grey[6] }
 
 export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props) => {
     // TODO(Dimitree):remove ts ignore after useOrganizationTypo
@@ -38,28 +40,29 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     )
 
     const searchAddress = useCallback(
-        (query) => {
+        (query, skip) => {
             const where = {
                 address_contains_i: query,
                 organization: { id: organizationId },
             }
 
-            return searchProperty(client, where, 'unitsCount_DESC')
+            return searchProperty(client, where, 'address_ASC', 10, skip)
         },
-        [],
+        [client, organizationId],
     )
 
     /**
      * TODO(DOMA-1513) replace HighLighter with apps/condo/domains/common/components/TextHighlighter.tsx and renderHighlightedPart
      */
     const renderOption = useCallback(
-        (dataItem, searchValue) => {
+        (dataItem, searchValue, index) => {
             return (
                 <Select.Option
-                    style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
+                    style={SELECT_OPTION_STYLE}
                     key={dataItem.value}
                     value={dataItem.text}
                     title={dataItem.text}
+                    id={index}
                 >
                     {
                         searchValue === dataItem.text
@@ -88,13 +91,16 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
         [],
     )
 
-    return (
+    const MemoizedBaseSearchInput = useCallback(() => (
         <BaseSearchInput
             {...props}
             id={'propertyAddressSearchInput'}
             search={searchAddress}
             renderOption={renderOption}
             initialValueGetter={initialValueGetter}
+            infinityScroll
         />
-    )
+    ), [organizationId])
+
+    return <MemoizedBaseSearchInput />
 }

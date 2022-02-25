@@ -17,6 +17,7 @@ const { Json } = require('@core/keystone/fields')
 const { OVERLAPPING_ERROR } = require('../constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { pushSubscriptionActivationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
 
 
 const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
@@ -178,6 +179,11 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             })
             if (overlappedSubscriptionsCount > 0) {
                 return addValidationError(`${OVERLAPPING_ERROR} subscription for current organization overlaps already existing by its time period`)
+            }
+        },
+        afterChange: ({ operation, updatedItem }) => {
+            if (operation === 'create' && updatedItem.isTrial === false && updatedItem.sbbolOfferAccept){
+                pushSubscriptionActivationToSalesCRM(updatedItem.sbbolOfferAccept.payerInn, updatedItem.startAt, updatedItem.finishAt)
             }
         },
     },

@@ -1,10 +1,10 @@
+import React, { useCallback } from 'react'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import { EditFilled } from '@ant-design/icons'
-import { Affix, Col, Row, Space, Typography } from 'antd'
+import { Col, Row, Space, Typography } from 'antd'
 import Head from 'next/head'
 import Link from 'next/link'
-import React from 'react'
 import { useRouter } from 'next/router'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -15,9 +15,10 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
-import  { TicketCard } from '@condo/domains/common/components/TicketCard/TicketCard'
+import  { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { canManageContacts } from '@condo/domains/organization/permissions'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 
 const FieldPairRow = (props) => {
     const {
@@ -38,7 +39,7 @@ const FieldPairRow = (props) => {
     )
 }
 
-export const ContactPageContent = ({ organization, contact, isContactEditable }) => {
+export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
     const intl = useIntl()
     const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
@@ -47,7 +48,11 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const UnitShortMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
 
+    const contactId = get(contact, 'id', null)
     const contactName = get(contact, 'name')
     const contactEmail = get(contact, 'email', '')
     const contactUnitName = get(contact, 'unitName')
@@ -55,6 +60,12 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
 
     const { isSmall } = useLayoutContext()
+
+    const deleteCallback = useCallback(() => {
+        return new Promise((resolve) => {
+            resolve(softDeleteAction({}, contact))
+        })
+    }, [softDeleteAction, contact])
 
     return (
         <>
@@ -114,21 +125,21 @@ export const ContactPageContent = ({ organization, contact, isContactEditable })
                                                         {UpdateMessage}
                                                     </Button>
                                                 </Link>
+                                                <DeleteButtonWithConfirmModal
+                                                    title={ConfirmDeleteTitle}
+                                                    message={ConfirmDeleteMessage}
+                                                    okButtonLabel={ConfirmDeleteButtonLabel}
+                                                    action={deleteCallback}
+                                                />
                                             </Space>
                                         </Col>
                                     )}
                                 </Row>
                             </Col>
                             <Col xs={24} lg={8} offset={isSmall ? 0 : 1}>
-                                <Affix offsetTop={40}>
-                                    <TicketCard
-                                        organizationId={String(organization.id)}
-                                        contactId={String(get(contact, 'id'))}
-                                        contactName={contactName}
-                                        address={get(contact, ['property', 'address'])}
-                                        unitName={contactUnitName}
-                                    />
-                                </Affix>
+                                <TicketCardList
+                                    contactId={contactId}
+                                />
                             </Col>
                         </Row>
                     </Col>
@@ -146,7 +157,7 @@ const ContactInfoPage = () => {
     const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
 
-    const { query } = useRouter()
+    const { query, push } = useRouter()
     const contactId = get(query, 'id', '')
 
     const { organization, link } = useOrganization()
@@ -164,6 +175,10 @@ const ContactInfoPage = () => {
         },
     })
 
+    const handleDeleteAction = Contact.useSoftDelete({
+        organization, phone: get(contact, 'phone'), name: get(contact, 'name'),
+    }, () => push('/contact/'))
+
     if (error || loading) {
         return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
     }
@@ -175,9 +190,9 @@ const ContactInfoPage = () => {
 
     return (
         <ContactPageContent
-            organization={organization}
             contact={contact}
             isContactEditable={isContactEditable}
+            softDeleteAction={handleDeleteAction}
         />
     )
 }

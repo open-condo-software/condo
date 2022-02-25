@@ -1,14 +1,22 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const access = require('@condo/domains/notification/access/SendMessageService')
-const { MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS } = require('../constants')
 
 const { JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { ALPHANUMERIC_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { Message } = require('@condo/domains/notification/utils/serverSchema')
 
-const { MESSAGE_TYPES } = require('../constants')
-const { JSON_UNKNOWN_ATTR_NAME_ERROR, JSON_SUSPICIOUS_ATTR_NAME_ERROR, JSON_NO_REQUIRED_ATTR_ERROR, MESSAGE_META } = require('../constants')
+const { Message } = require('@condo/domains/notification/utils/serverSchema')
+const access = require('@condo/domains/notification/access/SendMessageService')
+
+const {
+    JSON_UNKNOWN_ATTR_NAME_ERROR,
+    JSON_SUSPICIOUS_ATTR_NAME_ERROR,
+    JSON_NO_REQUIRED_ATTR_ERROR,
+    MESSAGE_TYPES,
+    MESSAGE_META,
+    MESSAGE_SENDING_STATUS,
+    MESSAGE_RESENDING_STATUS,
+} = require('../constants/constants')
+
 const { deliveryMessage } = require('../tasks')
 
 async function checkSendMessageMeta (type, meta) {
@@ -42,7 +50,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput }',
+            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, emailFrom: String, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput }',
         },
         {
             access: true,
@@ -64,12 +72,14 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(pahaz): think about sending emails with attachments
                 const { data } = args
-                const { dv, sender, to, type, meta, lang } = data
+                const { dv, sender, to, emailFrom, type, meta, lang } = data
                 if (!to.user && !to.email && !to.phone) throw new Error('invalid send to input')
+
+                if (emailFrom && !to.email) throw new Error('You can not use emailFrom without to.email')
 
                 await checkSendMessageMeta(type, meta)
 
-                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang }
+                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang, emailFrom }
 
                 // TODO(pahaz): add email/phone validation
                 if (to.email) messageAttrs.email = to.email

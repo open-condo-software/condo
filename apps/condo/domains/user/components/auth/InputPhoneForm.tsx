@@ -7,7 +7,7 @@ import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Row, Typography } from 'antd'
+import { Col, Form, Row, Typography, Checkbox } from 'antd'
 import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
@@ -30,12 +30,14 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
     const intl = useIntl()
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const RegisterHelpMessage = intl.formatMessage({ id: 'pages.auth.reset.RegisterHelp' })
-    const UserAgreementFileName = intl.formatMessage({ id: 'pages.auth.register.info.UserAgreementFileName' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
+
+    const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
+    const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
 
     const { isSmall } = useLayoutContext()
     const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
@@ -84,6 +86,11 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
         })
     }, [intl, form, handleReCaptchaVerify])
 
+    const [agreed, setAgreed] = useState(false)
+    const handleToggleAgreed = useCallback(() => {
+        setAgreed(prevState => !prevState)
+    }, [setAgreed])
+
     return (
         <Form
             {...FORM_LAYOUT}
@@ -123,16 +130,23 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                             </Form.Item>
                         </Col>
                         <Col span={24}>
-                            <FormattedMessage
-                                id='pages.auth.register.info.UserAgreement'
-                                values={{
-                                    link: (
-                                        <Button type={'inlineLink'} size={'small'} target='_blank' href={'/policy.pdf'} rel='noreferrer'>
-                                            {UserAgreementFileName}
-                                        </Button>
-                                    ),
-                                }}
-                            />
+                            <Checkbox checked={agreed} onChange={handleToggleAgreed}>
+                                <FormattedMessage
+                                    id='pages.auth.register.info.PersonalDataProcessingConsent'
+                                    values={{
+                                        consentLink: (
+                                            <Button type={'inlineLink'} size={'small'} target='_blank' href={'/pdpc.pdf'} rel='noreferrer'>
+                                                {ConsentContent}
+                                            </Button>
+                                        ),
+                                        privacyPolicyLink: (
+                                            <Button type={'inlineLink'} size={'small'} target='_blank' href={'/policy.pdf'} rel='noreferrer'>
+                                                {PrivacyPolicyContent}
+                                            </Button>
+                                        ),
+                                    }}
+                                />
+                            </Checkbox>
                         </Col>
                     </Row>
                 </Col>
@@ -145,6 +159,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                 htmlType='submit'
                                 loading={isLoading}
                                 block={isSmall}
+                                disabled={!agreed}
                             >
                                 {RegisterMsg}
                             </Button>
@@ -156,6 +171,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                 icon={<SberIconWithoutLabel/>}
                                 href={'/api/sbbol/auth'}
                                 block={isSmall}
+                                disabled={!agreed}
                             >
                                 {SberIdRegisterMsg}
                             </Button>

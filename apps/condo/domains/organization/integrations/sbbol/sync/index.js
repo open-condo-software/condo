@@ -52,7 +52,7 @@ const { syncTokens } = require('./syncTokens')
 /**
  * Creates or updates user, organization, subscription, tokens from SBBOL callback data
  * @param keystone
- * @param {UserInfo} userInfo
+ * @param {UserInfo} userInfo data from OAuth client about user
  * @param {TokenSet} tokenSet
  * @return {Promise<void>}
  */
@@ -94,7 +94,7 @@ const sync = async ({ keystone, userInfo, tokenSet }) => {
     }
 
     const user = await syncUser({ context, userInfo: userData })
-    const organization = await syncOrganization({ context, user, userInfo, organizationInfo })
+    const organization = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
     await syncTokens({ context, tokenInfoFromOAuth: tokenSet, organization, user })
 
     await syncSubscriptions()

@@ -1,19 +1,23 @@
 import React from 'react'
 import { Typography } from 'antd'
+import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isBoolean from 'lodash/isBoolean'
 import { FilterValue } from 'antd/es/table/interface'
 
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
 
 import { LOCALES } from '../../constants/locale'
-import { QueryArgType } from '../../utils/tables.utils'
 import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
 import { ELLIPSIS_ROWS } from '../../constants/style'
 
 import { EmptyTableCell } from './EmptyTableCell'
+import { Property } from '@app/condo/schema'
+import { getAddressDetails } from '../../utils/helpers'
+import { EllipsisConfig } from 'antd/es/typography/Base'
 
 type RenderReturnType = string | React.ReactNode
 
@@ -21,8 +25,8 @@ const DEFAULT_CURRENCY_SEPARATOR = '.'
 const DEFAULT_CURRENCY_CODE = 'RUB'
 const ELLIPSIS_SETTINGS = { rows: ELLIPSIS_ROWS, expandable: false }
 const ELLIPSIS_STYLES = { marginBottom: 0 }
-const DATE_FORMAT_LONG = 'DD MMM YYYY'
-const DATE_FORMAT_SHORT = 'DD MMM'
+const DATE_FORMAT = 'DD.MM.YYYY'
+const TIME_FORMAT = 'HH:mm'
 
 /**
  * Marks text according to marked flag
@@ -45,25 +49,36 @@ export const renderHighlightedPart: TTextHighlighterRenderPartFN = (
 /**
  * Type for getHighlightedContents fn
  */
-type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string, extraProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement | string
+type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string, extraProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps, extraTitle?: string) => (text?: string) => React.ReactElement | string
 
 /**
  * Returned function renders provided text with highlighted parts according to search value
  * @param search
  * @param postfix
+ * @param extraProps
+ * @param extraPostfixProps
+ * @param extraTitle
  */
-export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps) => (text) => {
+export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps, extraPostfixProps = {}, extraTitle) => (text) => {
     // Sometimes we can receive null/undefined as text
     const renderText = text ? String(text) : ''
+    const title = extraTitle ? extraTitle : `${text} ${postfix || ''}`
+
+    const getPostfix = () => (
+        <Typography.Text title={title} {...extraPostfixProps}>
+            {postfix}
+        </Typography.Text>
+    )
 
     return (
         <TextHighlighter
             text={renderText}
             search={String(search)}
             renderPart={renderHighlightedPart}
+            title={title}
             {...extraProps}
         >
-            {postfix && ` ${postfix}`}
+            {postfix && getPostfix()}
         </TextHighlighter>
     )
 }
@@ -72,7 +87,7 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
 /**
  * Type for getTableCellRenderer fn
  */
-type TTableCellRendererFN =  (search?: FilterValue | string, ellipsis?: boolean, postfix?: string, extraHighlighterProps?: Partial<TTextHighlighterProps>) => (text?: string) => React.ReactElement
+type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean | EllipsisConfig, postfix?: string, extraHighlighterProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps, extraTitle?: string) => (text?: string) => React.ReactElement
 
 /**
  * Returned function renders provided text as a cell with highlighted search and multi row ellipsis (if requested)
@@ -80,24 +95,36 @@ type TTableCellRendererFN =  (search?: FilterValue | string, ellipsis?: boolean,
  * @param search
  * @param ellipsis
  * @param postfix
+ * @param extraHighlighterProps
+ * @param extraPostfixProps
+ * @param extraTitle
  * @return cell contents renderer fn
  */
 export const getTableCellRenderer: TTableCellRendererFN = (
     search,
     ellipsis = false,
     postfix = '',
-    extraHighlighterProps
+    extraHighlighterProps,
+    extraPostfixProps,
+    extraTitle,
 ) =>
     (text) => {
-        const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps)(text)
+        const title = extraTitle ? extraTitle : `${text} ${postfix || ''}`
+        const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps, extraPostfixProps, title)(text)
 
-        if (!ellipsis) return <EmptyTableCell>{highlightedContent}</EmptyTableCell>
+        if (!ellipsis) return <EmptyTableCell>{text && highlightedContent}</EmptyTableCell>
+
+        const ellipsisConfig = isBoolean(ellipsis) ? ELLIPSIS_SETTINGS : ellipsis
 
         return (
             <EmptyTableCell>
-                <Typography.Paragraph ellipsis={ELLIPSIS_SETTINGS} title={`${text} ${postfix || ''}`} style={ELLIPSIS_STYLES}>
-                    {highlightedContent}
-                </Typography.Paragraph>
+                {
+                    text && (
+                        <Typography.Paragraph ellipsis={ellipsisConfig} title={title} style={ELLIPSIS_STYLES}>
+                            {highlightedContent}
+                        </Typography.Paragraph>
+                    )
+                }
             </EmptyTableCell>
         )
     }
@@ -111,36 +138,32 @@ export const renderCellWithHighlightedContents = (search?: FilterValue | string,
     <EmptyTableCell>{getHighlightedContents(search)(text)}</EmptyTableCell>
 )
 
-export const getDateRender = (intl, search?: string, short?: boolean) => {
+const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
+
+export const getAddressRender = (property: Property, DeletedMessage?: string, search?: FilterValue | string) => {
+    const isDeleted = !!get(property, 'deletedAt')
+    const { streetPart, renderPostfix } = getAddressDetails(property)
+    const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
+    const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
+    const postfix = renderPostfix + ' ' + deletedMessage
+
+    return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetPart)
+}
+
+export const getDateRender = (intl, search?: FilterValue | string) => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
 
         const locale = get(LOCALES, intl.locale)
         const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
-        const dateFormat = short ? DATE_FORMAT_SHORT : DATE_FORMAT_LONG
+        const text = `${date.format(DATE_FORMAT)}`
+        const postfix = `\n${date.format(TIME_FORMAT)}`
 
-        return renderCellWithHighlightedContents(search, date.format(dateFormat))
+        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
     }
 }
 
-export const getAddressRender = (search?: QueryArgType, unitPrefix?: string) => {
-    return function render (text: string): RenderReturnType {
-        if (isEmpty(search)) return `${text} ${unitPrefix}`
-
-        return (
-            <>
-                <TextHighlighter
-                    text={text}
-                    search={String(search)}
-                    renderPart={renderHighlightedPart}
-                />
-                {unitPrefix ? ` ${unitPrefix}` : ''}
-            </>
-        )
-    }
-}
-
-export const getTextRender = (search?: string) => {
+export const getTextRender = (search?: FilterValue | string) => {
     return function render (text: string): RenderReturnType {
         return renderCellWithHighlightedContents(search, text)
     }

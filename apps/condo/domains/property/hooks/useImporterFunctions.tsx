@@ -19,12 +19,13 @@ const createPropertyUnitsMap = (units, sections, floors) => {
         dv: 1,
         type: BuildingMapEntityType.Building,
         sections: [],
+        parking: [],
     }
 
     const mapEditor = new MapEdit(propertyUnitsMap)
 
     for (let currentSection = 0; currentSection < sections; currentSection++) {
-        const name = `№${currentSection + 1}`
+        const name = `${currentSection + 1}`
         mapEditor.addSection({
             name,
             unitsOnFloor,

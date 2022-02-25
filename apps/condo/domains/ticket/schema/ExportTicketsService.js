@@ -12,6 +12,8 @@ const timezone = require('dayjs/plugin/timezone')
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
+
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
 const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
     types: [
@@ -39,6 +41,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
                 }
                 const excelRows = allTickets.map(ticket => {
+                    const comments = [...new Set(ticket.TicketComment || [])]
                     return {
                         number: ticket.number,
                         organization: ticket.organization,
@@ -50,6 +53,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         clientPhone: ticket.clientPhone,
                         details: ticket.details,
                         isEmergency: ticket.isEmergency ? 'X' : '',
+                        isWarranty: ticket.isWarranty ? 'X' : '',
                         isPaid: ticket.isPaid ? 'X' : '',
                         classifier: ticket.classifier || '',
                         place: ticket.placeClassifier || '',
@@ -63,7 +67,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         operator: ticket.operator || ticket.createdBy || '',
                         executor: ticket.executor || '',
                         assignee: ticket.assignee || '',
-                        comments: ticket.TicketComment.join('\n'),
+                        comments: comments.map(comment => comment.split(':').pop()).join(TICKET_COMMENTS_SEPARATOR),
                         source: ticket.source || '',
                     }
                 })

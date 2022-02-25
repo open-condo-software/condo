@@ -52,6 +52,14 @@ function generateServerUtils (gql) {
         })
     }
 
+    async function getOne (context, where, params = {}) {
+        const objs = await getAll(context, where, { first: 2, ...params })
+
+        if (objs.length > 1) throw new Error('getOne() got more than one result, check filters/logic please')
+
+        return objs[0] // will return undefined by default, if objs is empty :)
+    }
+
     async function count (context, where, { sortBy, first, skip } = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
@@ -99,10 +107,31 @@ function generateServerUtils (gql) {
         })
     }
 
+    /**
+     * Tries to receive existing item, and updates it on success or creates new one. Updated/created value is returned.
+     * Attention! Be careful with where. Because of getOne, this helper will throw exception, if it gets 1+ items.
+     * @param context
+     * @param where
+     * @param attrs
+     * @returns {Promise<*|null|undefined>}
+     */
+    async function updateOrCreate (context, where, attrs) {
+        const existingItem = await getOne(context, where)
+        const shouldUpdate = Boolean(existingItem && existingItem.id)
+
+        return shouldUpdate
+            ? await update(context, existingItem.id, attrs)
+            : await create(context, attrs)
+    }
+
     return {
         gql,
-        getAll, count,
-        create, update,
+        getAll,
+        getOne,
+        count,
+        create,
+        update,
+        updateOrCreate,
         delete: delete_,
     }
 }

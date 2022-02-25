@@ -28,7 +28,7 @@ export const SignInForm = (): React.ReactElement => {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
-    const LoginBySbbolMessage = intl.formatMessage({ id: 'LoginBySBBOL' })
+
 
     const { isSmall } = useLayoutContext()
     const [form] = Form.useForm()
@@ -123,32 +123,21 @@ export const SignInForm = (): React.ReactElement => {
                                         {SignInMsg}
                                     </Button>
                                 </Col >
-                                <Col xs={24} lg={14} offset={isSmall ? 0 : 3}>
-                                    <Button
-                                        key='submit'
-                                        type='sberAction'
-                                        icon={<SberIconWithoutLabel/>}
-                                        href={'/api/sbbol/auth'}
-                                        block={isSmall}
-                                    >
-                                        {LoginBySbbolMessage}
-                                    </Button>
+                                <Col xs={24} lg={14} offset={isSmall ? 0 : 3} style={{ textAlign: 'right' }}>
+                                    <Typography.Paragraph type='secondary' style={{ marginTop: '10px' }}>
+                                        <FormattedMessage
+                                            id='pages.auth.signin.ResetPasswordLink'
+                                            values={{
+                                                link: (
+                                                    <Button type={'inlineLink'} size={'small'} onClick={() => Router.push('/auth/forgot')}>
+                                                        {ResetMsg}
+                                                    </Button>
+                                                ),
+                                            }}
+                                        />
+                                    </Typography.Paragraph>
                                 </Col>
                             </Row>
-                        </Col>
-                        <Col lg={14} xs={24}>
-                            <Typography.Text type='secondary'>
-                                <FormattedMessage
-                                    id='pages.auth.signin.ResetPasswordLink'
-                                    values={{
-                                        link: (
-                                            <Button type={'inlineLink'} size={'small'} onClick={() => Router.push('/auth/forgot')}>
-                                                {ResetMsg}
-                                            </Button>
-                                        ),
-                                    }}
-                                />
-                            </Typography.Text>
                         </Col>
                     </Row>
                 </Col>

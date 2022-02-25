@@ -17,15 +17,18 @@ import {
     getStringContainsFilter,
     getTicketAttributesFilter,
 } from '@condo/domains/common/utils/tables.utils'
+import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 
-import { TicketSource, TicketStatus } from '../utils/clientSchema'
+import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
 import { useModalFilterClassifiers } from './useModalFilterClassifiers'
 import { ITicketSourceUIState } from '../utils/clientSchema/TicketSource'
 import { ITicketStatusUIState } from '../utils/clientSchema/TicketStatus'
+import { ITicketCategoryClassifierUIState } from '../utils/clientSchema/TicketCategoryClassifier'
 
 const filterNumber = getNumberFilter('number')
-const filterDateRange = getDayRangeFilter('createdAt')
+const filterCreatedAtRange = getDayRangeFilter('createdAt')
+const filterDeadlineRange = getDayRangeFilter('deadline')
 const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
@@ -35,7 +38,7 @@ const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
-const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid'])
+const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty'])
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
 const filterFloor = getFilter('floorName', 'array', 'string', 'in')
@@ -44,13 +47,16 @@ const filterPlaceClassifier = getFilter(['placeClassifier', 'id'], 'array', 'str
 const filterCategoryClassifier = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
+const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
 
 export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
+    const WarrantyMessage = intl.formatMessage({ id: 'Warranty' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
-    const DateMessage = intl.formatMessage({ id: 'Date' })
+    const DateMessage = intl.formatMessage({ id: 'CreatedDate' })
+    const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
     const StatusMessage =  intl.formatMessage({ id: 'Status' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
@@ -81,7 +87,13 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const { objs: sources } = TicketSource.useObjects({})
     const sourceOptions = convertToOptions<ITicketSourceUIState>(sources, 'name', 'id')
 
-    const attributeOptions = [{ label: PaidMessage, value: 'isPaid' }, { label: EmergencyMessage, value: 'isEmergency' }]
+    const attributeOptions = [
+        { label: PaidMessage, value: 'isPaid' },
+        { label: EmergencyMessage, value: 'isEmergency' },
+        { label: WarrantyMessage, value: 'isWarranty' },
+    ]
+    const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
+    const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -152,6 +164,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: EnterAddressMessage,
+                        infinityScroll: true,
                     },
                     modalFilterComponentWrapper: {
                         label: AddressMessage,
@@ -164,7 +177,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
             },
             {
                 keyword: 'createdAt',
-                filters: [filterDateRange],
+                filters: [filterCreatedAtRange],
                 component: {
                     type: ComponentType.DateRange,
                     props: {
@@ -280,6 +293,11 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         label: CategoryClassifierLabel,
                         size: FilterComponentSize.Medium,
                     },
+                    getComponentFilterDropdown: getSelectFilterDropdown({
+                        options: categoryClassifiersOptions,
+                        placeholder: CategoryClassifierLabel,
+                        mode: 'multiple',
+                    }),
                 },
             },
             {
@@ -331,6 +349,21 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 },
             },
             {
+                keyword: 'deadline',
+                filters: [filterDeadlineRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                        disabledDate: () => false,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: CompleteBeforeMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
                 keyword: 'executor',
                 filters: [filterExecutor],
                 component: {
@@ -369,7 +402,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 },
             },
             {
-                keyword: 'author',
+                keyword: 'createdBy',
                 filters: [filterTicketAuthor],
                 component: {
                     type: ComponentType.GQLSelect,
@@ -384,6 +417,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         size: FilterComponentSize.Medium,
                     },
                 },
+            },
+            {
+                keyword: 'contact',
+                filters: [filterTicketContact],
             },
         ]
     }, [statuses, sources])

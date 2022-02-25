@@ -4,21 +4,17 @@ import { css, jsx } from '@emotion/core'
 import DatePicker from './DatePicker'
 import dayjs, { Dayjs } from 'dayjs'
 import { DownOutlined, MinusOutlined } from '@ant-design/icons'
-import { colors } from '../../constants/style'
+import { fontSizes } from '@condo/domains/common/constants/style'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
 
 const rangePickerCss = css`
-  & {
-    background-color: ${colors.lightGrey[4]};
-    padding: 8px 12px 8px;
-  }
   &.ant-picker-focused {
     border-color: unset;
     box-shadow: unset;
   }
   & input {
-    color: ${colors.lightGrey[9]};
     text-align: center;
+    font-size: ${fontSizes.content};
   }
 `
 

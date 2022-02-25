@@ -1,10 +1,13 @@
 const Ajv = require('ajv')
 const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
-const { BILLING_RECEIPT_RECIPIENT_FIELD_NAME, BILLING_RECEIPT_RECIPIENT_INPUT_NAME } = require('@condo/domains/billing/constants')
+const { BILLING_RECEIPT_RECIPIENT_FIELD_NAME, BILLING_RECEIPT_RECIPIENT_INPUT_NAME } = require('@condo/domains/billing/constants/constants')
 const { Json } = require('@core/keystone/fields')
 
 const RecipientFields = {
     name: 'String',
+    bankName: 'String',
+    territoryCode: 'String',
+    offsettingAccount: 'String',
     tin: 'String!',
     iec: 'String!',
     bic: 'String!',

@@ -10,21 +10,26 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return true
+    if (user.deletedAt) return false
+    if (user.isSupport || user.isAdmin) return true
+
     return {
         OR: [
             { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false } } },
-            { integration: { accessRights_some: { user: { id: user.id } } } },
+            { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
         ],
     }
 }
 
-async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    
     if (user.isAdmin) return true
     if (user.isSupport && !get(originalInput, ['organization', 'connect', 'id'])) return true
-    let organizationId
-    let integrationId
+
+    let organizationId, integrationId
+
     if (operation === 'create') {
         // NOTE: can only be created by the organization integration manager
         organizationId = get(originalInput, ['organization', 'connect', 'id'])
@@ -39,9 +44,11 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
         organizationId = organization
         integrationId = integration
     }
+
     if (!organizationId || !integrationId) return false
-    const canManageIntegrations = await checkOrganizationPermission(context, user.id, organizationId, 'canManageIntegrations')
+    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
     if (canManageIntegrations) return true
+
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }
 

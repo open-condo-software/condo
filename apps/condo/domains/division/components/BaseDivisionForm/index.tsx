@@ -63,8 +63,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
     }
 
     const organizationId = get(props.organization, 'id')
-
-
+    
     const action = (variables) => {
         props.action(variables)
             .then(result => {
@@ -109,6 +108,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                                 search={searchOrganizationProperty(organizationId)}
                                 showArrow={false}
                                 mode="multiple"
+                                infinityScroll
                                 initialValue={get(props, ['initialValues', 'properties'], [])}
                             />
                         </Form.Item>

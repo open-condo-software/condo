@@ -6,19 +6,16 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 
 async function canReadTicketCategoryClassifiers ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin || user.isSupport) return {}
+    if (user.deletedAt) return false
+
     return {}
 }
 
-async function canManageTicketCategoryClassifiers ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTicketCategoryClassifiers ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
-    if (user.isAdmin) return true
-    if (operation === 'create') {
-        return user.isSupport
-    } else if (operation === 'update') {
-        return user.isSupport
-    }
-    return false
+    if (user.deletedAt) return false
+
+    return !!(user.isSupport || user.isAdmin)
 }
 
 /*

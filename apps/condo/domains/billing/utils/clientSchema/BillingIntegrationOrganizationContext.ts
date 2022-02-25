@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { BillingIntegrationOrganizationContext as BillingIntegrationOrganizationContextGQL } from '@condo/domains/billing/gql'
 import { BillingIntegrationOrganizationContext, BillingIntegrationOrganizationContextUpdateInput, QueryAllBillingIntegrationOrganizationContextsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'integration', 'organization', 'settings', 'state', 'status', 'lastReport']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'integration', 'organization', 'settings', 'state', 'status', 'lastReport', 'integrationOption']
 const RELATIONS = ['integration', 'organization']
 
 export interface IBillingIntegrationOrganizationContextUIState extends BillingIntegrationOrganizationContext {
@@ -28,6 +28,7 @@ export interface IBillingIntegrationOrganizationContextFormState {
     integration?: string
     organization?: string
     status?: string
+    integrationOption?: string,
 }
 
 function convertToUIFormState (state: IBillingIntegrationOrganizationContextUIState): IBillingIntegrationOrganizationContextFormState | undefined {

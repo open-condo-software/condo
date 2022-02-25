@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
-import { Select, Input, Col, Form } from 'antd'
+import { Select, Input, Col, Form, Row } from 'antd'
 const { Option } = Select
 import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 import { uniqBy, isEmpty, find, pick, get } from 'lodash'
 import { ClassifiersQueryLocal, ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
+import { Gutter } from 'antd/es/grid/row'
+import { TicketFormItem } from './BaseTicketForm'
 
 interface Options {
     id: string
@@ -45,6 +47,9 @@ const useTicketClassifierSelectHook = ({
     onSearch,
     initialValue,
 }: ITicketClassifierSelectHookInput): ITicketClassifierSelectHookOutput => {
+    const intl = useIntl()
+    const SelectMessage = intl.formatMessage({ id: 'Select' })
+
     const [classifiers, setClassifiersFromRules] = useState<Options[]>([])
     const [searchClassifiers, setSearchClassifiers] = useState<Options[]>([])
     const classifiersRef = useRef<HTMLSelectElement>(null)
@@ -85,6 +90,7 @@ const useTicketClassifierSelectHook = ({
                     ref={classifiersRef}
                     value={selectedRef.current}
                     showAction={['focus', 'click']}
+                    placeholder={SelectMessage}
                 >
                     {
                         optionsRef.current.map(classifier => (
@@ -108,6 +114,8 @@ const useTicketClassifierSelectHook = ({
         ref: classifiersRef,
     }
 }
+
+const CLASSIFIER_ROW_GUTTER: [Gutter, Gutter] = [40, 10]
 
 export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     classifierRule,
@@ -305,26 +313,37 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         const ClassifiersEditorWrapper: React.FC<{ form, disabled }> = ({ form, disabled }) => {
             ticketForm.current = form
             return (
-                <>
+                <Row gutter={CLASSIFIER_ROW_GUTTER}>
                     <Form.Item name={'classifierRule'} rules={validations.classifierRule} noStyle={true}>
                         <Input type='hidden'></Input>
                     </Form.Item>
-                    <Col span={12} style={{ paddingRight: '20px' }}>
-                        <Form.Item label={PlaceClassifierLabel} name={'placeClassifier'} rules={validations.placeClassifier}>
+                    <Col span={12}>
+                        <TicketFormItem
+                            label={PlaceClassifierLabel}
+                            name={'placeClassifier'}
+                            rules={validations.placeClassifier}
+                        >
                             <PlaceSelect disabled={disabled} />
-                        </Form.Item>
+                        </TicketFormItem>
                     </Col>
-                    <Col span={12} style={{ paddingLeft: '20px' }}>
-                        <Form.Item label={CategoryClassifierLabel} name={'categoryClassifier'} rules={validations.categoryClassifier}>
+                    <Col span={12}>
+                        <TicketFormItem
+                            label={CategoryClassifierLabel}
+                            name={'categoryClassifier'}
+                            rules={validations.categoryClassifier}
+                        >
                             <CategorySelect disabled={disabled} />
-                        </Form.Item>
+                        </TicketFormItem>
                     </Col>
                     <Col span={24}>
-                        <Form.Item name={'problemClassifier'}  label={ProblemClassifierLabel}>
+                        <TicketFormItem
+                            name={'problemClassifier'}
+                            label={ProblemClassifierLabel}
+                        >
                             <ProblemSelect disabled={disabled} />
-                        </Form.Item>
+                        </TicketFormItem>
                     </Col>
-                </>
+                </Row>
             )
         }
         return ClassifiersEditorWrapper

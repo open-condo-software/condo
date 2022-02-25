@@ -3,14 +3,14 @@
  */
 
 import { pick, get } from 'lodash'
-
+import dayjs from 'dayjs'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { Property as PropertyGQL } from '@condo/domains/property/gql'
 import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '@condo/domains/property/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount', 'uninhabitedUnitsCount', 'yearOfConstruction', 'area']
 const RELATIONS = ['organization']
 import { BuildingMap, AddressMetaField } from '@app/condo/schema'
 
@@ -21,8 +21,11 @@ export interface IPropertyUIState extends Property {
     name?: string
     ticketsInWork: string
     ticketsClosed: string
-    unitsCount: string
+    unitsCount: number
+    uninhabitedUnitsCount: number
     map?: BuildingMap
+    area?: number
+    yearOfConstruction?: string
 }
 
 function convertToUIState (item: Property): IPropertyUIState {
@@ -38,6 +41,8 @@ export interface IPropertyFormState {
     name?: string
     address?: string
     map?: BuildingMap
+    area?: number
+    yearOfConstruction?: string
     // address: string,
     // TODO(codegen): write IPropertyUIFormState or extends it from
 }
@@ -48,6 +53,9 @@ function convertToUIFormState (state: IPropertyUIState): IPropertyFormState | un
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
         result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        if (attr === 'yearOfConstruction' && state[attr] !== null) {
+            result[attr] = dayjs(state[attr]).format('YYYY')
+        }
     }
     return result as IPropertyFormState
 }
