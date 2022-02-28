@@ -29,19 +29,18 @@ module.exports = async (on, config) => {
         async 'keystone:createUserWithProperty' () {
             const result = await makeClientWithProperty()
             const client = await makeLoggedInClient(result.userAttrs)
-
             const cookie = client.getCookie()
 
             const organizationLink = await OrganizationEmployee.getOne(client, {
                 user: { id: result.userAttrs.id }, isRejected: false, isBlocked: false,
             })
-
-            return {
-                user: result,
-                client,
+            const user = Object.assign({}, result.user)
+            return Object.assign({}, {
+                user,
+                property: result.property,
                 cookie,
                 organizationLinkId: organizationLink.id,
-            }
+            })
         },
 
         testTimings (attributes) {
