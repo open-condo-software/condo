@@ -17,8 +17,7 @@ async function canReadBillingRecipients ({ authentication }) {
     return await canReadBillingEntity(authentication)
 }
 
-async function canManageBillingRecipients ({ authentication, operation, originalInput, itemId, listKey, context }) {
-    const { item: user } = authentication
+async function canManageBillingRecipients ({ authentication: { item: user }, operation, originalInput, itemId, listKey }) {
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
