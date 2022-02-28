@@ -121,7 +121,8 @@ class GQLError extends ApolloError {
         // We need a clone to avoid modification of original errors declaration, that will cause
         // second calling of this constructor to work with changed fields
         const extensions = cloneDeep(fields)
-        extensions.message = template(fields.message)(fields.messageInterpolation)
+        const message = template(fields.message)(fields.messageInterpolation)
+        extensions.message = message
         if (context) {
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
             const translations = getTranslations(locale)
@@ -129,7 +130,7 @@ class GQLError extends ApolloError {
             const interpolatedMessageForUser = template(translatedMessage)(fields.messageInterpolation)
             extensions.messageForUser = interpolatedMessageForUser
         }
-        super(fields.message, fields.code, extensions)
+        super(message, fields.code, extensions)
         Object.defineProperty(this, 'name', { value: 'GraphQLError' })
     }
 }
