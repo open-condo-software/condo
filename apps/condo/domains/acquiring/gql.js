@@ -15,7 +15,7 @@ const AcquiringIntegration = generateGqlQueries('AcquiringIntegration', ACQUIRIN
 const ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ user { id } integration { id } ${COMMON_FIELDS} }`
 const AcquiringIntegrationAccessRight = generateGqlQueries('AcquiringIntegrationAccessRight', ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
-const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ integration { id name } organization { id } state settings ${COMMON_FIELDS} }`
+const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ integration { id name } organization { id } state paymentsAllowedFrom paymentsAllowedTo isPaymentsAllowed settings ${COMMON_FIELDS} }`
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
 const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } ${COMMON_FIELDS} }`

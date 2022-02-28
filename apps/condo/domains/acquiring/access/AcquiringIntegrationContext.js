@@ -9,6 +9,12 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { getById } = require('@core/keystone/schema')
 const get = require('lodash/get')
 
+/**
+ * Acquiring integration context may only be read:
+ * 1. Admin / support
+ * 2. Organization integration manager
+ * 3. Integration service account
+ */
 async function canReadAcquiringIntegrationContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -23,6 +29,17 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
     }
 }
 
+/**
+ * Acquiring integration context may only be created by:
+ * 1. Admin
+ * 2. Organization integration manager
+ * 3. Integration service user
+ *
+ * Acquiring integration context may only be updated by:
+ * 1. Admin / support
+ * 2. Organization integration manager
+ * 3. Integration service user
+ */
 async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -37,6 +54,8 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
         integrationId = get(originalInput, ['integration', 'connect', 'id'])
         if (!organizationId || !integrationId) return false
     } else if (operation === 'update') {
+        // support can update context
+        if (user.isSupport) return true
         // getting ids from existing object
         if (!itemId) return false
         const context = await getById('AcquiringIntegrationContext', itemId)
@@ -52,6 +71,18 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
     return await checkAcquiringIntegrationAccessRight(user.id, integrationId)
 }
 
+/**
+ * Sensitive fields such as paymentsAllowedFrom or paymentsAllowedTo may ony be created or updated only by:
+ * 1. Admin / Support
+ */
+async function canManageSensitiveFields ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+
+    if (user.isAdmin || user.isSupport) return true
+    return false
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -59,4 +90,5 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
 module.exports = {
     canReadAcquiringIntegrationContexts,
     canManageAcquiringIntegrationContexts,
+    canManageSensitiveFields,
 }
