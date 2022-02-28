@@ -7,7 +7,9 @@ const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient } =
 const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowUserInputError } = require('@condo/domains/common/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { createTestOrganizationLink, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationLink, createTestOrganizationWithAccessToAnotherOrganization,
+    createTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
 const faker = require('faker')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -18,7 +20,8 @@ const { updateTestOrganizationEmployee } = require('@condo/domains/organization/
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const dayjs = require('dayjs')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
 
 describe('Ticket', () => {
     describe('Crud', () => {
@@ -653,6 +656,30 @@ describe('Ticket', () => {
             const readTickets = await Ticket.getAll(userClient, { id_in: [ticketInOtherProperty.id, ticketInOtherUnit.id] })
 
             expect(readTickets).toHaveLength(0)
+        })
+
+        test('employee in division: can read only his division ticket', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                isDivisionLimitedVisibility: true,
+            })
+            const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {})
+            const [division] = await createTestDivision(admin, organization, employee, {
+                properties: {
+                    connect: [
+                        { id: property.id },
+                    ],
+                },
+            })
+            const [ticket] = await createTestTicket(admin, organization, property)
+
+            const tickets = await Ticket.getAll(client)
+
+            expect(tickets).toHaveLength(1)
         })
 
         test('anonymous: create Ticket', async () => {
