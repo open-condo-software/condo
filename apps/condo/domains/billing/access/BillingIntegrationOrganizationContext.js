@@ -34,7 +34,8 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
  *
  * Context could be updated by:
  * 1. Admin / Support
- * 2.
+ * 2. Integration manager from user's organization
+ * 3. Integration service
  */
 async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
