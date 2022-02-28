@@ -53,11 +53,11 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
 
                 const user = get(context, ['req', 'user'])
 
-                const [contact] = await Contact.getAll(context, {
+                let [contact] = await Contact.getAll(context, {
                     phone: user.phone, organization: { id: organizationId }, property: { id: propertyId },
                 })
                 if (!contact) {
-                    await Contact.create(context, {
+                    contact = await Contact.create(context, {
                         dv: newTicketDv,
                         sender: newTicketSender,
                         organization: { connect: { id: organizationId } },
@@ -68,12 +68,12 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                         name: user.name,
                     })
                 }
-
                 return await Ticket.create(context, {
                     dv: newTicketDv,
                     sender: newTicketSender,
                     organization: { connect: { id: organizationId } },
                     client: { connect: { id: user.id } },
+                    contact: { connect: { id: contact.id } },
                     property: PropertyRelateToOneInput,
                     clientName: user.name,
                     clientPhone: user.phone,
