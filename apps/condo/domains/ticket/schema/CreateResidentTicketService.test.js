@@ -12,6 +12,11 @@ const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { ResidentTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+
+const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
+const Ticket = generateGQLTestUtils(TicketGQL)
 
 describe('CreateResidentTicketService', () => {
 
@@ -26,7 +31,7 @@ describe('CreateResidentTicketService', () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
         const unitName = faker.random.alphaNumeric(10)
 
-        const [ticket] =  await createResidentTicketByTestClient(userClient, userClient.property, { unitName })
+        const [ticket] = await createResidentTicketByTestClient(userClient, userClient.property, { unitName })
         expect(ticket.id).toMatch(UUID_RE)
         expect(ticket.unitName).toEqual(unitName)
     })
@@ -75,7 +80,6 @@ describe('CreateResidentTicketService', () => {
         })
     })
 
-
     test('resident: create contact when create resident ticket without contact', async () => {
         const admin = await makeLoggedInAdminClient()
         const userClient = await makeClientWithResidentAccessAndProperty()
@@ -89,6 +93,23 @@ describe('CreateResidentTicketService', () => {
             phone: userClient.phone,
         })
         expect(contact.id).toMatch(UUID_RE)
+    })
+    test('resident: created ticket has contact', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const userClient = await makeClientWithResidentAccessAndProperty()
+        const [residentTicket] = await createResidentTicketByTestClient(userClient, userClient.property)
+        const [ticket] = await Ticket.getAll(admin, {
+            id: residentTicket.id,
+        })
+        const [contact] = await Contact.getAll(admin, {
+            property: { id: userClient.property.id },
+            organization: { id: userClient.organization.id },
+            name: userClient.name,
+            email: userClient.email,
+            phone: userClient.phone,
+        })
+
+        expect(contact.id).toMatch(ticket.contact.id)
     })
 
     test('resident: do not create contact when create resident ticket with contact with same data', async () => {
