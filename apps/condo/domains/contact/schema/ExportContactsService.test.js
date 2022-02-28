@@ -5,7 +5,6 @@ const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { EXPORT_CONTACTS_TO_EXCEL } = require('@condo/domains/contact/gql')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 
 describe('ExportContactsService', () => {
     describe('User', () => {
@@ -42,6 +41,31 @@ describe('ExportContactsService', () => {
 
             expect(result).toBeNull()
             expect(errors).toHaveLength(1)
+        })
+
+
+        it('gets error with type NOTHING_TO_EXPORT if no contacts found', async () => {
+            const client = await makeClientWithProperty()
+
+            const variables = {
+                data: {
+                    where: { organization: { id: client.organization.id } },
+                    sortBy: 'id_ASC',
+                },
+            }
+            const { data: { result }, errors } = await client.query(EXPORT_CONTACTS_TO_EXCEL, variables)
+
+            expect(result).toBeNull()
+            expect(errors).toMatchObject([{
+                message: 'No contacts found to export',
+                path: ['result'],
+                extensions: {
+                    query: 'exportContactsToExcel',
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOTHING_TO_EXPORT',
+                    message: 'No contacts found to export',
+                },
+            }])
         })
 
     })
