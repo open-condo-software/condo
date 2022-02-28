@@ -46,7 +46,7 @@ async function canManageBillingEntityWithContext ({ authentication, operation, i
     const { item: user } = authentication
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
+    if (user.isAdmin) return true
 
     let contextId
 
