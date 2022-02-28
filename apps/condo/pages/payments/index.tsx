@@ -1,12 +1,12 @@
-import React from 'react'
-import Head from 'next/head'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { useIntl } from '@core/next/intl'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { Typography } from 'antd'
-import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import PaymentsPageContent from '@condo/domains/billing/components/payments/PaymentsPageContent'
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { useIntl } from '@core/next/intl'
+import { Typography } from 'antd'
+import Head from 'next/head'
+import React from 'react'
 
 const PaymentsPage = () => {
     const intl = useIntl()
