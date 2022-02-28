@@ -68,18 +68,6 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
     return await checkBillingIntegrationAccessRight(user.id, integrationId)
 }
 
-/**
- * Payment related fields such as paymentsAllowedFrom or paymentsAllowedTo may ony be created or updated only by:
- * 1. Admin / Support
- */
-async function canManagePaymentsRelatedFields ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-
-    if (user.isAdmin || user.isSupport) return true
-    return false
-}
-
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -87,5 +75,4 @@ async function canManagePaymentsRelatedFields ({ authentication: { item: user } 
 module.exports = {
     canReadBillingIntegrationOrganizationContexts,
     canManageBillingIntegrationOrganizationContexts,
-    canManagePaymentsRelatedFields,
 }
