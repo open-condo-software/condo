@@ -12,9 +12,7 @@ const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { ResidentTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const Ticket = generateGQLTestUtils(TicketGQL)
 
