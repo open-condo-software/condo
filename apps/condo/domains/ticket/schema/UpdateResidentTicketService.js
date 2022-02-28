@@ -42,12 +42,14 @@ const UpdateResidentTicketService = new GQLCustomSchema('UpdateResidentTicketSer
 
                 if (!user.isAdmin) {
                     const [residentTicket] = await Ticket.getAll(context, { id: ticketId, client: { id: user.id } })
-                    if (!residentTicket) throw new GQLError({
-                        ...errors.TICKET_NOT_FOUND,
-                        messageInterpolation: {
-                            ticketId,
-                        },
-                    }, context)
+                    if (!residentTicket) {
+                        throw new GQLError({
+                            ...errors.TICKET_NOT_FOUND,
+                            messageInterpolation: {
+                                ticketId,
+                            },
+                        }, context)
+                    }
                 }
 
                 return await Ticket.update(context, ticketId, {
