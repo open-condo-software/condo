@@ -67,29 +67,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         services: SERVICES_FIELD,
 
-        //
-        // NOTE on recipient and newRecipient fields:
-        //
-        // We are going to migrate from using JSON recipient field to another model.
-        // We can't do it outright in 1 step because we have billing and acquiring integrations and their developers need some time to migrate their systems
-        // Instead we are going to migrate like this:
-        //
-        // 1. Add paymentsRecipient (just a new name for receipient) field which is RELATION to BillingRecipient instead of plain JSON
-        // 2. Add onUpdate hook and special script that does create or update newRecipient from data in JSON recipient
-        // 3. Leave it like this for 1-2 months, so other developers have some time to implement changes
-        // 4. Remove old recipient field
-        //
-
         recipient: RECIPIENT_FIELD,
 
-        paymentsRecipient: {
-            schemaDoc: 'Receiver of the payment',
-            type: Relationship,
-            ref: 'BillingRecipient',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
