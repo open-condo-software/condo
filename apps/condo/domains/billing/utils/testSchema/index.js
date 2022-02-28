@@ -434,7 +434,7 @@ async function createTestBillingRecipient(client, context, extraAttrs = {}) {
         tin: faker.random.alphaNumeric(6),
         bic: faker.finance.bic(),
         bankAccount: faker.finance.account(12),
-        paymentOrder: `Payment for service from ${companyName}`,
+        purpose: `Payment for service from ${companyName}`,
         isApproved: false,
         ...extraAttrs,
     }

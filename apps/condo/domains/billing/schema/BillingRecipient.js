@@ -45,7 +45,7 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
             isRequired: true,
         },
 
-        paymentOrder: {
+        purpose: {
             schemaDoc: 'For what reason is this recipient is able to collect payments.',
             type: Text,
             isRequired: false,
