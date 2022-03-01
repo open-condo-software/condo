@@ -13,6 +13,9 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
+import { WelcomePopup } from '../domains/onboarding/components/WelcomePopup'
+import { useOrganization } from '@core/next/organization'
+import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/common'
 
 interface IOnBoardingIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -24,16 +27,17 @@ const GUTTER_BODY: [Gutter, Gutter] = [0, 0]
 
 const OnBoardingPage: IOnBoardingIndexPage = () => {
     const intl = useIntl()
-    const router = useRouter()
     const Title = intl.formatMessage({ id: 'onboarding.title' })
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
+
+    const router = useRouter()
     const { onBoardingSteps = [], onBoarding, refetchOnBoarding } = useOnBoardingContext()
+    const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
+    const { organization } = useOrganization()
     const {
         ServiceSubscriptionWelcomePopup,
         isServiceSubscriptionWelcomePopupVisible,
     } = useServiceSubscriptionWelcomePopup()
-
-    const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
 
     useEffect(() => {
         refetchOnBoarding()
@@ -50,6 +54,8 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
             return leftStep.order > rightStep.order ? 1 : -1
         })
     }, [onBoardingSteps])
+
+    const organizationImportRemoteSystem = get(organization, 'importRemoteSystem')
 
     return (
         <>
@@ -118,6 +124,10 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                     <ServiceSubscriptionWelcomePopup/>
                 )
             }
+            {
+                organizationImportRemoteSystem === SBBOL_IMPORT_NAME
+            }
+            <WelcomePopup />
         </>
     )
 }
