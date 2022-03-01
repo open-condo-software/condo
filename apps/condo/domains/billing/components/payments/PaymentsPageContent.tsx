@@ -54,7 +54,7 @@ const PaymentsPageContent = (): JSX.Element => {
         return <NoBillingStub/>
     }
 
-    return <PaymentsTable/>
+    return <PaymentsTable billingContext={billingContext}/>
 }
 
 export default PaymentsPageContent
