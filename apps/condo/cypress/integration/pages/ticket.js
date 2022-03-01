@@ -1,17 +1,20 @@
 import sample from 'lodash/sample'
 import faker from 'faker'
 
-import { TicketCreate } from '../../objects/Ticket'
+import { TicketCreate, TicketView } from '../../objects/Ticket'
+
+const authUserWithCookies = (userData) => {
+    cy.setCookie('locale', 'en')
+    cy.setCookie('keystone.sid', userData.cookie.replace('keystone.sid=', ''))
+    cy.setCookie('organizationLinkId', userData.organizationLinkId)
+}
 
 describe('Ticket create',  function () {
     describe('User', function () {
         before(() => {
             cy.task('keystone:createUserWithProperty').then((response) => {
                 this.userData = response
-
-                cy.setCookie('locale', 'en')
-                cy.setCookie('keystone.sid', response.cookie.replace('keystone.sid=', ''))
-                cy.setCookie('organizationLinkId', response.organizationLinkId)
+                authUserWithCookies(response)
             })
         })
 
@@ -30,6 +33,19 @@ describe('Ticket create',  function () {
                 .clickAndInputDescription(faker.lorem.sentence(3))
                 .selectProblemWithCategoryClassifier()
                 .clickOnSubmitButton()
+        })
+
+        it('can view and filter tickets with table', () => {
+            cy.task('keystone:createTickets', this.userData).then(() => {
+                authUserWithCookies(this.userData)
+
+                const ticketView = new TicketView()
+                ticketView
+                    .visit()
+                    .clickIsWarrantyCheckbox()
+                    .clickIsPaidCheckbox()
+                    .clickIsEmergencyCheckbox()
+            })
         })
     })
 })

@@ -3,10 +3,6 @@ import './commands'
 let commands = []
 let testAttributes
 
-// Cypress.on('test:before:run', () => {
-//     commands.length = 0
-// })
-
 Cypress.on('test:after:run', (attributes) => {
     console.log('Test "%s" has finished in %dms', attributes.title, attributes.duration)
     console.table(commands)
@@ -37,7 +33,20 @@ Cypress.on('command:end', (c) => {
     lastCommand.elapsed = lastCommand.endedAt - lastCommand.started
 })
 
+Cypress.on('uncaught:exception', (err) => {
+    if (err.message.toLowerCase().includes('resizeobserver loop limit exceeded')) {
+        return false
+    }
+})
+
 const sendTestTimings = () => {
+    cy.viewport('macbook-13')
+    cy.intercept('POST', '/admin/api', (req) =>
+        new Promise((resolve, reject) => {
+            req.alias = req.body.operationName
+            resolve()
+        })
+    )
     if (!testAttributes) {
         return
     }
@@ -50,4 +59,3 @@ const sendTestTimings = () => {
 beforeEach(sendTestTimings)
 
 after(sendTestTimings)
-

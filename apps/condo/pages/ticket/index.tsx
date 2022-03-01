@@ -177,6 +177,7 @@ export const TicketsPageContent = ({
                                                                         onChange={handleEmergencyChange}
                                                                         checked={emergency}
                                                                         style={CHECKBOX_STYLE}
+                                                                        data-cy={'ticket-filter-isEmergency'}
                                                                     >
                                                                         {EmergenciesLabel}
                                                                     </Checkbox>
@@ -186,6 +187,7 @@ export const TicketsPageContent = ({
                                                                         onChange={handlePaidChange}
                                                                         checked={paid}
                                                                         style={CHECKBOX_STYLE}
+                                                                        data-cy={'ticket-filter-isPaid'}
                                                                     >
                                                                         {PaidLabel}
                                                                     </Checkbox>
@@ -195,6 +197,7 @@ export const TicketsPageContent = ({
                                                                         onChange={handleWarrantyChange}
                                                                         checked={warranty}
                                                                         style={CHECKBOX_STYLE}
+                                                                        data-cy={'ticket-filter-isWarranty'}
                                                                     >
                                                                         {WarrantiesLabel}
                                                                     </Checkbox>
@@ -237,6 +240,7 @@ export const TicketsPageContent = ({
                                             columns={tableColumns}
                                             onRow={handleRowAction}
                                             components={tableComponents}
+                                            data-cy={'tickets-table'}
                                         />
                                     </Col>
                                     <ExportToExcelActionBar
