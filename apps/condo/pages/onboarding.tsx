@@ -31,7 +31,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
 
     const router = useRouter()
-    const { onBoardingSteps = [], onBoarding, refetchOnBoarding } = useOnBoardingContext()
+    const { onBoardingSteps = [], onBoarding, refetchOnBoarding, isLoading } = useOnBoardingContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
     const { organization } = useOrganization()
     const {
@@ -56,6 +56,8 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
     }, [onBoardingSteps])
 
     const organizationImportRemoteSystem = get(organization, 'importRemoteSystem')
+    const [createOrganizationStep, ...otherSteps] = sortedOnBoardingSteps
+    const isAnySbbolOnBoardingStepCompleted = otherSteps.find(step => step.completed)
 
     return (
         <>
@@ -125,9 +127,10 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                 )
             }
             {
-                organizationImportRemoteSystem === SBBOL_IMPORT_NAME
+                !isLoading && organizationImportRemoteSystem === SBBOL_IMPORT_NAME && !isAnySbbolOnBoardingStepCompleted && (
+                    <WelcomePopup />
+                )
             }
-            <WelcomePopup />
         </>
     )
 }
