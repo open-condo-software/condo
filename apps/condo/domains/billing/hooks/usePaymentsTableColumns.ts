@@ -13,6 +13,10 @@ export const usePaymentsTableColumns = (currencyCode: string) => {
     const addressTitle = intl.formatMessage({ id: 'field.Address' })
     const dateTitle = intl.formatMessage({ id: 'Date' })
     const accountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
+    const unitNameTitle = intl.formatMessage({ id: 'field.FlatNumber' })
+    const typeTitle = intl.formatMessage({ id: 'PaymentType' })
+    const transactionTitle = intl.formatMessage({ id: 'Transaction' })
+    const paymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
 
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
@@ -48,22 +52,22 @@ export const usePaymentsTableColumns = (currencyCode: string) => {
                 render: getTextRender(search),
             },
             unitName: {
-                title: 'unitName',
+                title: unitNameTitle,
                 key: 'unitName',
                 dataIndex: ['frozenReceipt', 'data', 'account', 'unitName'],
             },
             type: {
-                title: 'Type',
+                title: typeTitle,
                 key: 'type',
                 dataIndex: ['context', 'integration', 'name'],
             },
             transaction: {
-                title: 'Transaction',
+                title: transactionTitle,
                 key: 'transaction',
                 dataIndex: ['multiPayment', 'transactionId'],
             },
             amount: {
-                title: 'Amount',
+                title: paymentAmountTitle,
                 key: 'amount',
                 dataIndex: 'amount',
                 render: getMoneyRender(String(search), intl, currencyCode),
@@ -72,8 +76,6 @@ export const usePaymentsTableColumns = (currencyCode: string) => {
 
         return Object.values(columns)
     }, [
-        addressTitle,
-        accountTitle,
         filters,
         sorterMap,
         currencyCode,
