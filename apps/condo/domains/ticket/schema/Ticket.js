@@ -334,23 +334,23 @@ const Ticket = new GQLListSchema('Ticket', {
                 resolvedData.propertyAddress = property.address
                 resolvedData.propertyAddressMeta = property.addressMeta
             }
-            if (resolvedData.clientPhone) {
-                let [contact] = await Contact.getAll(context, {
-                    phone: resolvedData.clientPhone, organization: { id: resolvedData.organization }, property: { id: resolvedData.property },
-                })
-                if (!contact) {
-                    contact = await Contact.create(context, {
-                        dv: resolvedData.dv,
-                        sender: resolvedData.sender,
-                        organization: { connect: { id: resolvedData.organization } },
-                        property: { connect: { id: resolvedData.property } },
-                        unitName: resolvedData.unitName,
-                        email: resolvedData.clientEmail,
-                        phone: resolvedData.clientPhone,
-                        name: resolvedData.clientName,
+            if (!resolvedData.contact) {
+                if (resolvedData.clientPhone) {
+                    let [contact] = await Contact.getAll(context, {
+                        phone: resolvedData.clientPhone, organization: { id: resolvedData.organization }, property: { id: resolvedData.property },
                     })
-                }
-                if (!resolvedData.contact) {
+                    if (!contact) {
+                        contact = await Contact.create(context, {
+                            dv: resolvedData.dv,
+                            sender: resolvedData.sender,
+                            organization: { connect: { id: resolvedData.organization } },
+                            property: { connect: { id: resolvedData.property } },
+                            unitName: resolvedData.unitName,
+                            email: resolvedData.clientEmail,
+                            phone: resolvedData.clientPhone,
+                            name: resolvedData.clientName,
+                        })
+                    }
                     resolvedData.contact = contact.id
                 }
             }
