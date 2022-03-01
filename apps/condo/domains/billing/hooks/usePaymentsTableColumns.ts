@@ -31,13 +31,14 @@ export const usePaymentsTableColumns = (currencyCode: string) => {
                 key: 'advancedAt',
                 dataIndex: ['advancedAt'],
                 sorter: true,
-                width: '15%',
+                width: '112px',
                 render: getDateRender(intl, String(search)),
             },
             account: {
                 title: accountTitle,
                 key: 'accountNumber',
                 dataIndex: 'accountNumber',
+                width: '120px',
                 render: getTextRender(String(search)),
             },
             address: {
@@ -46,7 +47,6 @@ export const usePaymentsTableColumns = (currencyCode: string) => {
                 dataIndex: ['frozenReceipt', 'data', 'property', 'address'],
                 sorter: false,
                 filteredValue: get(filters, 'address'),
-                width: '50%',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(addressTitle),
                 render: getTextRender(search),
@@ -55,6 +55,7 @@ export const usePaymentsTableColumns = (currencyCode: string) => {
                 title: unitNameTitle,
                 key: 'unitName',
                 dataIndex: ['frozenReceipt', 'data', 'account', 'unitName'],
+                width: '128px',
             },
             type: {
                 title: typeTitle,
@@ -71,6 +72,7 @@ export const usePaymentsTableColumns = (currencyCode: string) => {
                 key: 'amount',
                 dataIndex: 'amount',
                 render: getMoneyRender(String(search), intl, currencyCode),
+                width: '144px',
             },
         }
 
