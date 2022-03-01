@@ -36,7 +36,7 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
  * 3. Integration service user
  *
  * Acquiring integration context may only be updated by:
- * 1. Admin / support
+ * 1. Admin
  * 2. Organization integration manager
  * 3. Integration service user
  */
@@ -54,8 +54,6 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
         integrationId = get(originalInput, ['integration', 'connect', 'id'])
         if (!organizationId || !integrationId) return false
     } else if (operation === 'update') {
-        // support can update context
-        if (user.isSupport) return true
         // getting ids from existing object
         if (!itemId) return false
         const context = await getById('AcquiringIntegrationContext', itemId)
