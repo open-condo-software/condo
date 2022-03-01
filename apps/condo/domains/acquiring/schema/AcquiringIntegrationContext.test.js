@@ -408,47 +408,4 @@ describe('AcquiringIntegrationContext', () => {
             })
         })
     })
-    describe('Virtual Fields', function () {
-        test('isPayable should give correct positive results', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [organization] = await registerNewOrganization(admin)
-            const [billingIntegration] = await createTestBillingIntegration(admin)
-            const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
-            const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
-
-            const support = await makeClientWithSupportUser()
-
-            // Correct values
-            const nowMinusWeek = dayjs().add(-7, 'day').toISOString()
-            const nowPlusWeek = dayjs().add(7, 'day').toISOString()
-
-            const payload = { paymentsAllowedFrom: nowMinusWeek, paymentsAllowedTo: nowPlusWeek }
-            const [updatedObj] = await updateTestAcquiringIntegrationContext(support, context.id, payload)
-
-            expect(updatedObj.isPaymentsAllowed).toEqual(true)
-        })
-
-        test('isPayable should give correct negative results', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [organization] = await registerNewOrganization(admin)
-            const [billingIntegration] = await createTestBillingIntegration(admin)
-            const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
-            const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
-
-            const support = await makeClientWithSupportUser()
-
-            // Incorrect values
-            const nowMinusYear = dayjs().add(-1, 'year').toISOString()
-            const nowMinusWeek = dayjs().add(-7, 'days').toISOString()
-            const payloadIncorrect = { paymentsAllowedFrom: nowMinusYear, paymentsAllowedTo: nowMinusWeek }
-            const [updatedObjIncorrect] = await updateTestAcquiringIntegrationContext(support, context.id, payloadIncorrect)
-
-            // Nullish values
-            const payloadNullish = { paymentsAllowedFrom: null, paymentsAllowedTo: null }
-            const [updatedObjNullish] = await updateTestAcquiringIntegrationContext(support, context.id, payloadNullish)
-
-            expect(updatedObjIncorrect.isPaymentsAllowed).toEqual(false)
-            expect(updatedObjNullish.isPaymentsAllowed).toEqual(false)
-        })
-    })
 })

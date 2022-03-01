@@ -4024,12 +4024,6 @@ export type BillingIntegrationOrganizationContext = {
   lastReport?: Maybe<Scalars['JSON']>;
   /**  Name of billing integration option, if it has more than 1 variants. Example: registry format. Using "name" as unique identifier inside single billing  */
   integrationOption?: Maybe<Scalars['String']>;
-  /**  Datetime from which receipts from this billing are able to be paid for  */
-  paymentsAllowedFrom?: Maybe<Scalars['String']>;
-  /**  Datetime to which receipts from this billing are able to be paid for  */
-  paymentsAllowedTo?: Maybe<Scalars['String']>;
-  /**  A simply alias for paymentsAllowedFrom and paymentsAllowedTo logic: If now date is between these dates, returns true. Othervise returns false  */
-  isPaymentsAllowed?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -4050,8 +4044,6 @@ export type BillingIntegrationOrganizationContextCreateInput = {
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
   integrationOption?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom?: Maybe<Scalars['String']>;
-  paymentsAllowedTo?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4081,9 +4073,6 @@ export type BillingIntegrationOrganizationContextHistoryRecord = {
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
   integrationOption?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom?: Maybe<Scalars['String']>;
-  paymentsAllowedTo?: Maybe<Scalars['String']>;
-  isPaymentsAllowed?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -4107,9 +4096,6 @@ export type BillingIntegrationOrganizationContextHistoryRecordCreateInput = {
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
   integrationOption?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom?: Maybe<Scalars['String']>;
-  paymentsAllowedTo?: Maybe<Scalars['String']>;
-  isPaymentsAllowed?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4138,9 +4124,6 @@ export type BillingIntegrationOrganizationContextHistoryRecordUpdateInput = {
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
   integrationOption?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom?: Maybe<Scalars['String']>;
-  paymentsAllowedTo?: Maybe<Scalars['String']>;
-  isPaymentsAllowed?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4224,26 +4207,6 @@ export type BillingIntegrationOrganizationContextHistoryRecordWhereInput = {
   integrationOption_not_ends_with_i?: Maybe<Scalars['String']>;
   integrationOption_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   integrationOption_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentsAllowedFrom?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_not?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_lt?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_lte?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_gt?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_gte?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentsAllowedFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentsAllowedTo?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_not?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_lt?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_lte?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_gt?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_gte?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentsAllowedTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isPaymentsAllowed?: Maybe<Scalars['JSON']>;
-  isPaymentsAllowed_not?: Maybe<Scalars['JSON']>;
-  isPaymentsAllowed_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  isPaymentsAllowed_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -4340,8 +4303,6 @@ export type BillingIntegrationOrganizationContextUpdateInput = {
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
   integrationOption?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom?: Maybe<Scalars['String']>;
-  paymentsAllowedTo?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4404,22 +4365,6 @@ export type BillingIntegrationOrganizationContextWhereInput = {
   integrationOption_not_ends_with_i?: Maybe<Scalars['String']>;
   integrationOption_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   integrationOption_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentsAllowedFrom?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_not?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_lt?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_lte?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_gt?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_gte?: Maybe<Scalars['String']>;
-  paymentsAllowedFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentsAllowedFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentsAllowedTo?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_not?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_lt?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_lte?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_gt?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_gte?: Maybe<Scalars['String']>;
-  paymentsAllowedTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  paymentsAllowedTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -28421,10 +28366,6 @@ export enum SortBillingIntegrationOrganizationContextHistoryRecordsBy {
   StatusDesc = 'status_DESC',
   IntegrationOptionAsc = 'integrationOption_ASC',
   IntegrationOptionDesc = 'integrationOption_DESC',
-  PaymentsAllowedFromAsc = 'paymentsAllowedFrom_ASC',
-  PaymentsAllowedFromDesc = 'paymentsAllowedFrom_DESC',
-  PaymentsAllowedToAsc = 'paymentsAllowedTo_ASC',
-  PaymentsAllowedToDesc = 'paymentsAllowedTo_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -28452,10 +28393,6 @@ export enum SortBillingIntegrationOrganizationContextsBy {
   StatusDesc = 'status_DESC',
   IntegrationOptionAsc = 'integrationOption_ASC',
   IntegrationOptionDesc = 'integrationOption_DESC',
-  PaymentsAllowedFromAsc = 'paymentsAllowedFrom_ASC',
-  PaymentsAllowedFromDesc = 'paymentsAllowedFrom_DESC',
-  PaymentsAllowedToAsc = 'paymentsAllowedTo_ASC',
-  PaymentsAllowedToDesc = 'paymentsAllowedTo_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

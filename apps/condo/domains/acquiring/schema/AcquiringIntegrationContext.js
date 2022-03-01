@@ -57,41 +57,6 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             },
         },
 
-        paymentsAllowedFrom: {
-            schemaDoc: 'Datetime from which you are allowed to pay from this acquiring',
-            type: DateTimeUtc,
-            isRequired: false,
-            access: {
-                create: access.canManageSensitiveFields,
-                update: access.canManageSensitiveFields,
-                read: true,
-            },
-        },
-
-        paymentsAllowedTo: {
-            schemaDoc: 'Datetime to which you are allowed to pay from this acquiring',
-            type: DateTimeUtc,
-            isRequired: false,
-            access: {
-                create: access.canManageSensitiveFields,
-                update: access.canManageSensitiveFields,
-                read: true,
-            },
-        },
-
-        isPaymentsAllowed: {
-            schemaDoc: 'Alias for (paymentsAllowedFrom < datetime.now() < paymentsAllowedTo)',
-            type: Virtual,
-            graphQLReturnType: 'Boolean',
-            resolver: (item) => {
-                const now = dayjs()
-                const from = dayjs(get(item, 'paymentsAllowedFrom'))
-                const to = dayjs(get(item, 'paymentsAllowedTo'))
-                if (from === null || to === null) { return false }
-                return from < now && now < to
-            },
-        },
-
         implicitFeeDistributionSchema: {
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
             isRequired: false,
