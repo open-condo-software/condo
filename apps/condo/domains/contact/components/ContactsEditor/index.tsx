@@ -175,13 +175,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         return false
     }, [editableFieldsChecked, initialValue, sameAsInitial, selectedContact, triggerOnChange])
 
-    useEffect(() => {
-        if (!editableFieldsChecked) {
-            if (!initialValue && !selectedContact && !isEmpty(fetchedContacts)) {
-                triggerOnChange(fetchedContacts[0])
-            }
-        }
-    }, [fetchedContacts, initialValue, editableFieldsChecked])
 
     const contactOptions = useMemo(() => fetchedContacts.map((contact) => (
         <ContactOption
