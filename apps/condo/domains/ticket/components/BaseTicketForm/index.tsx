@@ -53,7 +53,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
 
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
 
-    const value = useMemo(() => ({
+    const value = useMemo(() => contactId && ({
         id: contactId,
         name: get(initialValues, 'clientName'),
         phone: get(initialValues, 'clientPhone'),
