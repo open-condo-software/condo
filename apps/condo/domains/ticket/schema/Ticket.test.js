@@ -284,6 +284,26 @@ describe('Ticket', () => {
 
             expect(readTicket.id).toEqual(ticket.id)
         })
+        test('resident: ticket with phone and without contact data, creates with contact', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone: clientPhone } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(residentClient, organization, property, {
+                unitName,
+                clientPhone,
+            })
+
+            const [readTicket] = await Ticket.getAll(admin, { id: ticket.id })
+            expect(readTicket.contact.name).toEqual(residentClient.userAttrs.name)
+        })
 
         test('resident: cannot read ticket with a contact whose phone number did not matches the resident phone number', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -853,7 +873,6 @@ describe('Ticket', () => {
             const tickets = await Ticket.getAll(clientFrom)
             expect(tickets).toHaveLength(0)
         })
-
 
         test('deleted user: cannot read "to" tickets', async () => {
             const admin = await makeLoggedInAdminClient()
