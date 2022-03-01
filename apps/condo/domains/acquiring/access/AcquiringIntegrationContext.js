@@ -77,5 +77,4 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
 module.exports = {
     canReadAcquiringIntegrationContexts,
     canManageAcquiringIntegrationContexts,
-    canManageSensitiveFields,
 }
