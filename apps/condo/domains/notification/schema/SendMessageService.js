@@ -112,6 +112,11 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         {
             access: access.canSendMessage,
             schema: 'sendMessage(data: SendMessageInput!): SendMessageOutput',
+            doc: {
+                summary: 'Sends message of specified type to specified contact',
+                description: `Each message type has specific set of required fields: \n\n\`${JSON.stringify(MESSAGE_META, null, '\t')}\``,
+                errors,
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(pahaz): think about sending emails with attachments
                 const { data } = args
