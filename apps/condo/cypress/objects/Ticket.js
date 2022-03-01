@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
-const TICKET_CREATE_URL = '/ticket/create/'
+const TICKET_CREATE_URL = '/ticket/create'
+const TICKET_VIEW_URL = '/ticket'
 
 class TicketCreate {
 /*
@@ -20,7 +20,7 @@ class TicketCreate {
 
     visit () {
         cy.visit(TICKET_CREATE_URL)
-        cy.wait(100)
+        cy.wait('@getAllContacts')
         return this
     }
 
@@ -33,7 +33,7 @@ class TicketCreate {
         cy.get('[data-cy=property-address-search-input-item] input')
             .click({ force: true })
             .focus()
-            .type(address)
+            .type(address.slice(0, 5))
         return this
     }
 
@@ -71,10 +71,12 @@ class TicketCreate {
         cy.get('[data-cy=ticket-classifier-option]')
             .first()
             .click()
+        cy.wait('@getAllDivisions')
+        cy.get('[data-cy=ticket-place-select-item] .ant-select-selection-search').should('not.have.class', '.ant-select-open')
 
         cy.get('[data-cy=ticket-category-select-item] .ant-select-selection-search')
             .click()
-        cy.wait(100)
+            .type('{downArrow}')
         cy.get('.ant-select-dropdown:not(.ant-select-dropdown-hidden) [data-cy=ticket-classifier-option]')
             .first()
             .click()
@@ -84,10 +86,72 @@ class TicketCreate {
     clickOnSubmitButton () {
         cy.get('[data-cy=ticket-submit-btn]')
             .click()
+
+        cy.location('pathname').should('not.eq', TICKET_CREATE_URL)
+        cy.location('pathname').should('contain', TICKET_VIEW_URL)
+        return this
+    }
+}
+
+class TicketView {
+/*
+    Elements:
+        ticket-filter-isWarranty
+        ticket-filter-isPaid
+        ticket-filter-isEmergency
+        tickets-table
+*/
+    visit () {
+        cy.visit(TICKET_VIEW_URL)
+        cy.wait('@getAllTickets')
+        return this
+    }
+
+    clickIsWarrantyCheckbox () {
+        cy.get('[data-cy=ticket-filter-isWarranty]').click()
+        cy.location('search').should('contain', 'isWarranty')
+        cy.wait('@getAllTickets')
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 1)
+
+        cy.get('[data-cy=ticket-filter-isWarranty]').click()
+        cy.location('search').should('not.contain', 'isWarranty')
+        cy.wait('@getAllTickets')
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
+
+        return this
+    }
+
+    clickIsPaidCheckbox () {
+        cy.get('[data-cy=ticket-filter-isPaid]').click()
+        cy.location('search').should('contain', 'isPaid')
+        cy.wait('@getAllTickets')
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 1)
+
+        cy.get('[data-cy=ticket-filter-isPaid]').click()
+        cy.location('search').should('not.contain', 'isPaid')
+        cy.wait('@getAllTickets')
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
+
+        return this
+    }
+
+    clickIsEmergencyCheckbox () {
+        cy.get('[data-cy=ticket-filter-isEmergency]').click()
+        cy.location('search').should('contain', 'isEmergency')
+        cy.wait('@getAllTickets')
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 1)
+
+
+        cy.get('[data-cy=ticket-filter-isEmergency]').click()
+        cy.location('search').should('not.contain', 'isEmergency')
+        cy.wait('@getAllTickets')
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
+
         return this
     }
 }
 
 export {
     TicketCreate,
+    TicketView,
 }
