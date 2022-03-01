@@ -69,17 +69,6 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
     return await checkAcquiringIntegrationAccessRight(user.id, integrationId)
 }
 
-/**
- * Sensitive fields such as paymentsAllowedFrom or paymentsAllowedTo may ony be created or updated only by:
- * 1. Admin / Support
- */
-async function canManageSensitiveFields ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-
-    if (user.isAdmin || user.isSupport) return true
-    return false
-}
 
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
