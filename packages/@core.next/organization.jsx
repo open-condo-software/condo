@@ -20,6 +20,7 @@ const organizationToUserFragment = `
       avatar {
         publicUrl
       }
+      importRemoteSystem
     }
     user {
       id
