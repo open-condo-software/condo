@@ -6,30 +6,35 @@ import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { Container } from './Layout'
 import { MoneyBlock } from './MoneyBlock'
+import { MessageDescriptor } from '@formatjs/intl/src/types'
 
-type PaymentInfo = {
-    amountWithoutExplicitFee: string,
-    currencyCode: string,
-    explicitFee?: string,
-    explicitServiceCharge?: string,
+export type BlockType = {
+    descriptor: MessageDescriptor,
+    amount: string,
+    hideOnZero?: boolean,
 }
 
 
 interface PayConfirmScreenProps {
     onConfirm: React.MouseEventHandler<HTMLElement>
-    paymentInfo: PaymentInfo,
+    currencyCode: string,
+    parts: Array<BlockType>,
 }
 
 const PayConfirmScreen: React.FC<PayConfirmScreenProps> = ({
     onConfirm,
-    paymentInfo: { amountWithoutExplicitFee, currencyCode, explicitFee, explicitServiceCharge },
+    currencyCode,
+    parts,
 }) => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.paymentConfirm.PageTitle' })
     const PayLabel = intl.formatMessage({ id: 'pay' })
     const VerifyAmountMessage = intl.formatMessage({ id: 'pages.paymentConfirm.VerifyPaymentAmount' })
 
-    const totalAmount = Big(amountWithoutExplicitFee).plus(explicitFee || '0').plus(explicitServiceCharge || '0').toString()
+    const totalAmount = parts
+        .reduce((acc, cur) => acc.plus(cur.amount), Big(0))
+        .toString()
+
     const formattedTotal = intl.formatNumber(totalAmount, {
         style: 'currency',
         currency: currencyCode,
@@ -50,22 +55,17 @@ const PayConfirmScreen: React.FC<PayConfirmScreenProps> = ({
                     </Col>
                     <Col span={24}>
                         <Space size={24} direction={'vertical'}>
-                            <MoneyBlock
-                                titleDescriptor={{ id: 'pay' }}
-                                amount={amountWithoutExplicitFee}
-                                currencyCode={currencyCode}
-                            />
-                            <MoneyBlock
-                                titleDescriptor={{ id: 'ServiceCharge' }}
-                                amount={explicitServiceCharge || '0'}
-                                currencyCode={currencyCode}
-                            />
-                            <MoneyBlock
-                                titleDescriptor={{ id: 'Fee' }}
-                                amount={explicitFee || '0'}
-                                currencyCode={currencyCode}
-                                hideOnZero
-                            />
+                            {
+                                parts.map((part, index) => {
+                                    return <MoneyBlock
+                                        key={index}
+                                        titleDescriptor={part.descriptor}
+                                        amount={part.amount}
+                                        currencyCode={currencyCode}
+                                        hideOnZero={part.hideOnZero || false}
+                                    />
+                                })
+                            }
                         </Space>
                     </Col>
                 </Row>
