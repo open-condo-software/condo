@@ -10,6 +10,7 @@ import { useIntl } from '@core/next/intl'
 import { Col, Row, Skeleton, Space, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
+import some from 'lodash/some'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
@@ -57,7 +58,6 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
 
     const organizationImportRemoteSystem = get(organization, 'importRemoteSystem')
     const [createOrganizationStep, ...otherSteps] = sortedOnBoardingSteps
-    const isAnySbbolOnBoardingStepCompleted = otherSteps.find(step => step.completed)
 
     return (
         <>
@@ -127,7 +127,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                 )
             }
             {
-                !isLoading && organizationImportRemoteSystem === SBBOL_IMPORT_NAME && !isAnySbbolOnBoardingStepCompleted && (
+                !isLoading && organizationImportRemoteSystem === SBBOL_IMPORT_NAME && !some(otherSteps, 'completed') && (
                     <WelcomePopup />
                 )
             }
