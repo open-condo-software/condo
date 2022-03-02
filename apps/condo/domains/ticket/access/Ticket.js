@@ -85,8 +85,8 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
                             organization: { id_in: organizationsIdsWithEmployeeInDivision },
                             OR: [
                                 { property: { id_in: divisionsPropertiesIds } },
-                                { executor: { id_in: divisionVisibleLimitedEmployeesIds } },
-                                { assignee: { id_in: divisionVisibleLimitedEmployeesIds } },
+                                { executor: { id: user.id } },
+                                { assignee: { id: user.id } },
                             ],
                             deletedAt: null,
                         },
