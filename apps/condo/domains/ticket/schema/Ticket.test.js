@@ -698,6 +698,30 @@ describe('Ticket', () => {
             expect(readTicketFromDivision2.id).toBeDefined()
         })
 
+        test('employee with division limited role: can read tickets where he is assignee or executor', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                isDivisionLimitedVisibility: true,
+            })
+            await createTestOrganizationEmployee(admin, organization, client.user, role, {})
+
+            const [ticket1] = await createTestTicket(admin, organization, property, { assignee: { connect: { id: client.user.id } } })
+            const [ticket2] = await createTestTicket(admin, organization, property, { executor: { connect: { id: client.user.id } } })
+
+            const tickets = await Ticket.getAll(client)
+            expect(tickets).toHaveLength(2)
+
+            const [readTicketFromDivision1] = await Ticket.getAll(client, { id: ticket1.id })
+            expect(readTicketFromDivision1.id).toBeDefined()
+
+            const [readTicketFromDivision2] = await Ticket.getAll(client, { id: ticket2.id })
+            expect(readTicketFromDivision2.id).toBeDefined()
+        })
+
         test('employee: can read all organization tickets if in other organization he has division limited role', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
