@@ -35,3 +35,6 @@ ignore.*
 .vscode
 .werf_secret_key
 /bin/werf
+
+**/cypress/videos/**
+**/cypress/screenshots/**
