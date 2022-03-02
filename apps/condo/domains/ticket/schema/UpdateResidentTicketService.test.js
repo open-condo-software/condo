@@ -10,7 +10,7 @@ const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
+const { NOT_FOUND_ERROR, NOT_FOUND } = require('@condo/domains/common/constants/errors')
  
 describe('UpdateResidentTicketService', () => {
     test('resident: can update ticket', async () => {
@@ -95,8 +95,16 @@ describe('UpdateResidentTicketService', () => {
         await catchErrorFrom(async () => {
             await updateResidentTicketByTestClient(client, ticket.id, payload)
         }, ({ errors, data }) => {
-            expect(errors).toHaveLength(1)
-            expect(errors[0].message).toEqual(`${NOT_FOUND_ERROR}ticket] no ticket was found with this id for this user`)
+            expect(errors).toMatchObject([{
+                message: `Cannot find ticket with id "${ticket.id}" for current user`,
+                path: ['obj'],
+                extensions: {
+                    mutation: 'updateResidentTicket',
+                    variable: ['id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOT_FOUND',
+                },
+            }])
         })
     })
 
