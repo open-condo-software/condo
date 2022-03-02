@@ -74,7 +74,6 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
                                     queryOrganizationEmployeeFor(user.id),
                                     queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
                                 ],
-                                deletedAt: null,
                             },
                         },
                     ],
@@ -88,7 +87,6 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
                                 { executor: { id: user.id } },
                                 { assignee: { id: user.id } },
                             ],
-                            deletedAt: null,
                         },
                     ],
                 },
@@ -102,7 +100,6 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
                 queryOrganizationEmployeeFor(user.id),
                 queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
             ],
-            deletedAt: null,
         },
     }
 }

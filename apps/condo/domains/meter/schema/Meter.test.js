@@ -584,11 +584,11 @@ describe('Meter', () => {
             const meters = await Meter.getAll(client)
             expect(meters).toHaveLength(2)
 
-            const [readTicketFromDivision1] = await Meter.getAll(client, { id: meterFromDivision1.id })
-            expect(readTicketFromDivision1.id).toBeDefined()
+            const [readMeterFromDivision1] = await Meter.getAll(client, { id: meterFromDivision1.id })
+            expect(readMeterFromDivision1.id).toBeDefined()
 
-            const [readTicketFromDivision2] = await Meter.getAll(client, { id: meterFromDivision2.id })
-            expect(readTicketFromDivision2.id).toBeDefined()
+            const [readMeterFromDivision2] = await Meter.getAll(client, { id: meterFromDivision2.id })
+            expect(readMeterFromDivision2.id).toBeDefined()
         })
 
         test('employee: can read all organization meters if in other organization he has division limited role', async () => {

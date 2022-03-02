@@ -48,7 +48,6 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
         const divisionsPropertiesIds = uniq(flatten(employeeDivisions.map(division => division.properties))
             .map(property => property.id))
 
-
         return {
             OR: [
                 {
@@ -60,7 +59,6 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
                                     queryOrganizationEmployeeFor(user.id),
                                     queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
                                 ],
-                                deletedAt: null,
                             },
                         },
                     ],
@@ -70,7 +68,6 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
                         {
                             organization: { id_in: organizationsIdsWithEmployeeInDivision },
                             property: { id_in: divisionsPropertiesIds },
-                            deletedAt: null,
                         },
                     ],
                 },
