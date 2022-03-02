@@ -1,4 +1,3 @@
-import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getDateRender, getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@core/next/intl'
@@ -6,7 +5,7 @@ import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
-export const usePaymentsTableColumns = (currencyCode: string) => {
+export function usePaymentsTableColumns<T> (currencyCode: string) {
     const intl = useIntl()
     const router = useRouter()
 
@@ -45,11 +44,8 @@ export const usePaymentsTableColumns = (currencyCode: string) => {
                 title: addressTitle,
                 key: 'address',
                 dataIndex: ['frozenReceipt', 'data', 'property', 'address'],
-                sorter: false,
-                filteredValue: get(filters, 'address'),
-                filterIcon: getFilterIcon,
-                filterDropdown: getTextFilterDropdown(addressTitle),
-                render: getTextRender(search),
+                sorter: true,
+                render: getTextRender(String(search)),
             },
             unitName: {
                 title: unitNameTitle,
