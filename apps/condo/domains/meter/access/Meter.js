@@ -9,8 +9,12 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { get } = require('lodash')
 const { getByCondition } = require('@core/keystone/schema')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { Division } = require('@condo/domains/division/utils/serverSchema')
+const uniq = require('lodash/uniq')
+const flatten = require('lodash/flatten')
 
-async function canReadMeters ({ authentication: { item: user } }) {
+async function canReadMeters ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
@@ -23,6 +27,56 @@ async function canReadMeters ({ authentication: { item: user } }) {
             id_in: availableMetersIds,
             deletedAt: null,
         }
+    }
+
+    const divisionVisibleLimitedEmployees = await OrganizationEmployee.getAll(context, {
+        user: { id: user.id },
+        role: { isDivisionLimitedVisibility: true },
+        deletedAt: null,
+        isBlocked: false,
+    })
+
+    if (divisionVisibleLimitedEmployees.length > 0) {
+        const organizationsIdsWithEmployeeInDivision = divisionVisibleLimitedEmployees.map(employee => employee.organization.id)
+        const divisionVisibleLimitedEmployeesIds = divisionVisibleLimitedEmployees.map(employee => employee.id)
+        const employeeDivisions = await Division.getAll(context, {
+            OR: [
+                { responsible: { id_in: divisionVisibleLimitedEmployeesIds } },
+                { executors_some: { id_in: divisionVisibleLimitedEmployeesIds } },
+            ],
+        })
+        const divisionsPropertiesIds = uniq(flatten(employeeDivisions.map(division => division.properties))
+            .map(property => property.id))
+
+
+        return {
+            OR: [
+                {
+                    AND: [
+                        {
+                            organization: {
+                                id_not_in: organizationsIdsWithEmployeeInDivision,
+                                OR: [
+                                    queryOrganizationEmployeeFor(user.id),
+                                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                                ],
+                                deletedAt: null,
+                            },
+                        },
+                    ],
+                },
+                {
+                    AND: [
+                        {
+                            organization: { id_in: organizationsIdsWithEmployeeInDivision },
+                            property: { id_in: divisionsPropertiesIds },
+                            deletedAt: null,
+                        },
+                    ],
+                },
+            ],
+        }
+
     }
 
     return {
