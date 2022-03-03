@@ -36,14 +36,14 @@ const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverS
 const {
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult,
-    expectToThrowMutationError,
+    expectToThrowMutationError, catchErrorFrom,
 } = require('@condo/domains/common/utils/testSchema')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
     DIRECT_PAYMENT_PATH,
 } = require('@condo/domains/acquiring/constants/links')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { DV_UNKNOWN_VERSION_ERROR, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const {
     REGISTER_MP_EMPTY_INPUT,
     REGISTER_MP_EMPTY_RECEIPTS,
@@ -119,9 +119,21 @@ describe('RegisterMultiPaymentService', () => {
                     consumerId: serviceConsumer.id,
                     receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
                 }]
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(client, payload, { dv: 2 })
-                }, DV_UNKNOWN_VERSION_ERROR)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'Wrong value for data version number',
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'dv'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'DV_VERSION_MISMATCH',
+                            message: 'Wrong value for data version number',
+                        },
+                    }])
+                })
             })
             describe('Should check sender', () => {
                 let consumerId
