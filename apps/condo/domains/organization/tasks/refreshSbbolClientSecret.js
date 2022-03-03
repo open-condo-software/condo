@@ -1,7 +1,7 @@
 const conf = require('@core/config')
 const faker = require('faker')
 const { createCronTask } = require('@core/keystone/tasks')
-const { SbbolCredentials } = require('@condo/domains/organization/integrations/sbbol/SbbolCredentials')
+const { SbbolCredentialsHelper } = require('@condo/domains/organization/integrations/sbbol/SbbolCredentialsHelper')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 
@@ -10,7 +10,7 @@ const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CO
  * Previously we were comparing current time with `clientSecretExpiresAt` and decided, whether change is needed.
  */
 const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1 * * *', async () => {
-    const credentialsManager = new SbbolCredentials()
+    const credentialsManager = new SbbolCredentialsHelper()
     await credentialsManager.connect()
 
     // Assume, that we have once logged in using SBBOl and got a `TokenSet` record for our organization
