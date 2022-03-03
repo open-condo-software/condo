@@ -108,8 +108,9 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
  */
 const syncSubscriptions = async (date = null) => {
     if (!date) date = dayjs().format('YYYY-MM-DD')
+    const { keystone: context } = await getSchemaCtx('ServiceSubscription')
 
-    const fintechApi = await initSbbolFintechApi()
+    const fintechApi = await initSbbolFintechApi(context)
     if (!fintechApi) return
 
     logger.info({ message: 'Checking, whether the user have ServiceSubscription items' })

@@ -15,7 +15,7 @@ const { SbbolOauth2Api } = require('./oauth2')
 const sync = require('./sync')
 const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
 const { dvSenderFields } = require('./constants')
-const { getOrganizationAccessToken } = require('./accessToken')
+const { getOrganizationAccessToken } = require('./utils')
 
 const DEVELOPER_EMAIL = conf.DEVELOPER_EMAIL
 

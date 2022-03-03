@@ -10,8 +10,7 @@
 const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { values } = require('lodash')
-const { SbbolCredentialsHelper } = require('@condo/domains/organization/integrations/sbbol/SbbolCredentialsHelper')
-
+const { changeClientSecret, refreshAllTokens } = require('@condo/domains/organization/integrations/sbbol/utils')
 
 const COMMAND = {
     REFRESH_ALL_TOKENS: 'refresh-all-tokens',
@@ -32,11 +31,10 @@ const workerJob = async () => {
     await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
     await keystone.connect()
 
-    const credentialsManager = new SbbolCredentialsHelper()
-    await credentialsManager.connect()
+    const context = await keystone.createContext({ skipAccessControl: true })
 
     if (command === COMMAND.REFRESH_ALL_TOKENS) {
-        await credentialsManager.refreshAllTokens()
+        await refreshAllTokens(context)
     }
 
     if (command === COMMAND.CHANGE_CLIENT_SECRET) {
@@ -51,7 +49,7 @@ const workerJob = async () => {
             throw new Error('New clientSecret should be specified as a third argument of the command')
         }
 
-        await credentialsManager.changeClientSecret({ clientId, currentClientSecret, newClientSecret })
+        await changeClientSecret(context, { clientId, currentClientSecret, newClientSecret })
     }
 }
 

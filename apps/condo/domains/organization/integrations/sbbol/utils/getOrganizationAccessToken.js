@@ -1,22 +1,20 @@
-const { getSchemaCtx } = require('@core/keystone/schema')
-const { TokenSet } = require('@condo/domains/organization/utils/serverSchema')
-const { SBBOL_IMPORT_NAME } = require('./common')
 const dayjs = require('dayjs')
-const { SbbolOauth2Api } = require('./oauth2')
-const { REFRESH_TOKEN_TTL } = require('./constants')
+const { TokenSet } = require('@condo/domains/organization/utils/serverSchema')
+const { SBBOL_IMPORT_NAME } = require('../common')
+const { SbbolOauth2Api } = require('../oauth2')
+const { REFRESH_TOKEN_TTL } = require('../constants')
 
 /**
  * First tries to obtain non-expired access token from `TokenSet` schema locally,
  * then asks OAuth2 SBBOL API to refresh it.
  *
+ * @param context - Keystone context with `skipAccessControl: true`
  * @param organizationImportId `hashOrgId` param from SBBOL `UserInfo` object
  * @return {Promise<string|*>}
  */
-async function getOrganizationAccessToken (organizationImportId) {
-    const { keystone } = await getSchemaCtx('TokenSet')
-    const adminContext = await keystone.createContext({ skipAccessControl: true })
+async function getOrganizationAccessToken (context, organizationImportId) {
     // TODO(pahaz): need to be fixed! it's looks so strange.
-    const [tokenSet] = await TokenSet.getAll(adminContext, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } }, { sortBy: ['createdAt_DESC'] })
+    const [tokenSet] = await TokenSet.getAll(context, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } }, { sortBy: ['createdAt_DESC'] })
     const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
     if (!tokenSet) {
         throw new Error(`[tokens:expired] record from TokenSet was not found for organization ${organizationImportId}. ${instructionsMessage}`)
@@ -31,7 +29,7 @@ async function getOrganizationAccessToken (organizationImportId) {
             clientSecret: tokenSet.clientSecret,
         })
         const { access_token, refresh_token, expires_at } = await oauth2.refreshToken(tokenSet.refreshToken)
-        await TokenSet.update(adminContext, tokenSet.id, {
+        await TokenSet.update(context, tokenSet.id, {
             accessToken: access_token,
             refreshToken: refresh_token,
             accessTokenExpiresAt: new Date(Number(expires_at) * 1000).toISOString(),
