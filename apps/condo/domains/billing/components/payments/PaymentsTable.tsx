@@ -82,14 +82,14 @@ const PaymentsTable = ({ billingContext }): JSX.Element => {
     return (
         <>
             <Row gutter={[0, 40]}>
-                <Col span={6}>
+                <Col xs={24} sm={12} lg={8}>
                     <Input
                         placeholder={SearchPlaceholder}
                         value={search}
                         onChange={(e) => handleSearchChange(e.target.value)}
                     />
                 </Col>
-                <Col offset={1}>
+                <Col xs={24} sm={{ span: 11, offset: 1 }} lg={{ span: 5, offset: 1 }}>
                     <DateRangePicker
                         value={dateRange}
                         onChange={(range) => setDateRange(range)}
