@@ -7,6 +7,8 @@
  * @example Change client secret for clientId `1234` that have an old client secret `a1b2c3d4` to new value of `asdf12345`
  * yarn node apps/condo/bin/sbbol/credentials.js change-client-secret 1234 a1b2c3d4 asdf12345
  */
+const path = require('path')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { values } = require('lodash')
 const { SbbolCredentials } = require('@condo/domains/organization/integrations/sbbol/SbbolCredentials')
 
@@ -23,10 +25,15 @@ const workerJob = async () => {
         throw new Error('Wrong command.')
     }
 
+    const resolved = path.resolve('apps/condo/index.js')
+    const { distDir, keystone, apps } = require(resolved)
+    const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+    // we need only apollo
+    await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
+    await keystone.connect()
+
     const credentialsManager = new SbbolCredentials()
-    await credentialsManager.connect({
-        condoEntryPoint: 'apps/condo/index.js',
-    })
+    await credentialsManager.connect()
 
     if (command === COMMAND.REFRESH_ALL_TOKENS) {
         await credentialsManager.refreshAllTokens()

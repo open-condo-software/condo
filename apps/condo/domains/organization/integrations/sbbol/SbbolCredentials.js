@@ -1,12 +1,11 @@
-const path = require('path')
 const querystring = require('querystring')
 const conf = require('@core/config')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { getOrganizationAccessToken } = require('./accessToken')
 const { SbbolRequestApi } = require('./SbbolRequestApi')
 const { Organization, TokenSet } = require('@condo/domains/organization/utils/serverSchema')
 const { SBBOL_IMPORT_NAME } = require('./common')
 const dayjs = require('dayjs')
+const { getSchemaCtx } = require('@core/keystone/schema')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
@@ -20,13 +19,8 @@ class SbbolCredentials {
      * @param condoEntryPoint path to entrypoint file relative to current directory
      * @return {Promise<void>}
      */
-    async connect ({ condoEntryPoint }) {
-        const resolved = path.resolve(condoEntryPoint)
-        const { distDir, keystone, apps } = require(resolved)
-        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
-        // we need only apollo
-        await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
-        await keystone.connect()
+    async connect () {
+        const { keystone } = await getSchemaCtx('Organization')
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
