@@ -14,7 +14,7 @@ const NoAcquiringStub = (): JSX.Element => {
         <EmptyListView
             label={noAcquiringLabel}
             message={noAcquiringMessage}
-            createRoute={'/'}
+            createRoute={'/settings?tab=acquiring'}
             createLabel={createAcquiringLabel}
         />
     )
