@@ -23,9 +23,9 @@ import dayjs, { Dayjs } from 'dayjs'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React from 'react'
-import { useDateRangeSearch } from '../../../common/hooks/useDateRangeSearch'
+import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 
-const addressFilter = getStringContainsFilter(['frozenReceipt', 'data', 'property', 'address'])
+const addressFilter = getStringContainsFilter(['receipt', 'property', 'address'])
 const accountFilter = getStringContainsFilter(['accountNumber'])
 const typeFilter = getStringContainsFilter(['context', 'integration', 'name'])
 const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionId'])
