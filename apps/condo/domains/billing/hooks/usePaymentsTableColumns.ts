@@ -69,6 +69,7 @@ export function usePaymentsTableColumns<T> (currencyCode: string) {
                 dataIndex: 'amount',
                 render: getMoneyRender(String(search), intl, currencyCode),
                 width: '144px',
+                sorter: true,
             },
         }
 
