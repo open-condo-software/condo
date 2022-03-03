@@ -10,7 +10,7 @@
 const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { values } = require('lodash')
-const { SbbolCredentials } = require('@condo/domains/organization/integrations/sbbol/SbbolCredentials')
+const { SbbolCredentialsHelper } = require('@condo/domains/organization/integrations/sbbol/SbbolCredentialsHelper')
 
 
 const COMMAND = {
@@ -32,7 +32,7 @@ const workerJob = async () => {
     await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
     await keystone.connect()
 
-    const credentialsManager = new SbbolCredentials()
+    const credentialsManager = new SbbolCredentialsHelper()
     await credentialsManager.connect()
 
     if (command === COMMAND.REFRESH_ALL_TOKENS) {
