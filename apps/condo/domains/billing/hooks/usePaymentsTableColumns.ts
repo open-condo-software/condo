@@ -52,16 +52,19 @@ export function usePaymentsTableColumns<T> (currencyCode: string) {
                 key: 'unitName',
                 dataIndex: ['frozenReceipt', 'data', 'account', 'unitName'],
                 width: '128px',
+                render: getTextRender(String(search)),
             },
             type: {
                 title: typeTitle,
                 key: 'type',
                 dataIndex: ['context', 'integration', 'name'],
+                render: getTextRender(String(search)),
             },
             transaction: {
                 title: transactionTitle,
                 key: 'transaction',
                 dataIndex: ['multiPayment', 'transactionId'],
+                render: getTextRender(String(search)),
             },
             amount: {
                 title: paymentAmountTitle,
