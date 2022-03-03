@@ -89,7 +89,7 @@ const PaymentsTable = ({ billingContext }): JSX.Element => {
                         onChange={(e) => handleSearchChange(e.target.value)}
                     />
                 </Col>
-                <Col xs={24} sm={{ span: 11, offset: 1 }} lg={{ span: 5, offset: 1 }}>
+                <Col xs={24} sm={{ span: 11, offset: 1 }} lg={{ span: 7, offset: 1 }}>
                     <DateRangePicker
                         value={dateRange}
                         onChange={(range) => setDateRange(range)}
