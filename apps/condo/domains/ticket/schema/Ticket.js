@@ -334,6 +334,18 @@ const Ticket = new GQLListSchema('Ticket', {
                 resolvedData.propertyAddressMeta = property.addressMeta
             }
 
+            if (resolvedData.contact) {
+                if (!resolvedData.clientName){
+                    resolvedData.clientName = resolvedData.contact.name
+                }
+                if (!resolvedData.clientEmail){
+                    resolvedData.clientEmail = resolvedData.contact.email
+                }
+                if (!resolvedData.clientPhone){
+                    resolvedData.clientPhone = resolvedData.contact.phone
+                }
+            }
+
             return resolvedData
         },
         validateInput: async ({ resolvedData, existingItem, addValidationError, context }) => {
