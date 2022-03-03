@@ -53,7 +53,7 @@ const syncSbbolSubscriptionPaymentRequestStateFor = async (payment, fintechApi) 
 const syncSbbolSubscriptionPaymentRequestsState = async () => {
     const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
 
-    const fintechApi = await initSbbolFintechApi()
+    const fintechApi = await initSbbolFintechApi(context)
     if (!fintechApi) return
 
     const { CREATED, PROCESSING, STOPPED } = SUBSCRIPTION_PAYMENT_STATUS
