@@ -11,9 +11,7 @@ const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CO
  */
 const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1 * * *', async () => {
     const credentialsManager = new SbbolCredentials()
-    await credentialsManager.connect({
-        condoEntryPoint: './index.js',
-    })
+    await credentialsManager.connect()
 
     // Assume, that we have once logged in using SBBOl and got a `TokenSet` record for our organization
     const { tokenSet } = await credentialsManager.getAccessToken()
