@@ -10,7 +10,7 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
-class SbbolCredentials {
+class SbbolCredentialsHelper {
 
     context = null
 
@@ -91,5 +91,5 @@ class SbbolCredentials {
 }
 
 module.exports = {
-    SbbolCredentials,
+    SbbolCredentialsHelper,
 }
