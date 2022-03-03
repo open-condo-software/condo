@@ -27,9 +27,11 @@ import { useDateRangeSearch } from '../../../common/hooks/useDateRangeSearch'
 
 const addressFilter = getStringContainsFilter(['frozenReceipt', 'data', 'property', 'address'])
 const accountFilter = getStringContainsFilter(['accountNumber'])
+const typeFilter = getStringContainsFilter(['context', 'integration', 'name'])
+const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionId'])
 const dateFilter = getDayRangeFilter(['advancedAt'])
 
-const SORTABLE_PROPERTIES = ['amount', 'organization', 'updatedAt']
+const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
 const PaymentsTable = ({ billingContext }): JSX.Element => {
@@ -41,8 +43,12 @@ const PaymentsTable = ({ billingContext }): JSX.Element => {
     const organizationId = get(userOrganization, ['organization', 'id'], '')
     const { filters, sorters, offset } = parseQuery(router.query)
     const queryMetas: Array<QueryMeta<PaymentWhereInput>> = [
-        { keyword: 'dateRange', filters: [dateFilter], combineType: 'OR' },
-        { keyword: 'search', filters: [addressFilter, accountFilter], combineType: 'OR' },
+        { keyword: 'dateRange', filters: [dateFilter] },
+        {
+            keyword: 'search',
+            filters: [addressFilter, accountFilter, typeFilter, transactionFilter],
+            combineType: 'OR',
+        },
     ]
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
