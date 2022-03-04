@@ -1,5 +1,6 @@
 import { Col, Form, Input, Row } from 'antd'
 import styled from '@emotion/styled'
+import get from "lodash/get";
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useEffect, useRef, useState } from 'react'
 import { useOrganization } from '@core/next/organization'
@@ -10,7 +11,7 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { ErrorsContainer } from '@condo/domains/contact/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { UnitNameInput } from '@condo/domains/user/components/UnitNameInput'
+import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -65,11 +66,17 @@ export const CreateContactForm: React.FC = () => {
 
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
     const selectedPropertyIdRef = useRef(selectedPropertyId)
+    const [selectedUnitName, setSelectedUnitName] = useState(null)
+    const selectedUnitNameRef = useRef(selectedUnitName)
     const { loading, obj: property } = Property.useObject({ where:{ id: selectedPropertyId ? selectedPropertyId : null } })
 
     useEffect(() => {
         selectedPropertyIdRef.current = selectedPropertyId
     }, [selectedPropertyId])
+
+    useEffect(() => {
+        selectedUnitNameRef.current = selectedUnitName
+    }, [selectedUnitName])
 
     // @ts-ignore
     const action = Contact.useCreate({
@@ -85,6 +92,7 @@ export const CreateContactForm: React.FC = () => {
             colon={false}
             formValuesToMutationDataPreprocessor={(values) => {
                 values.property = selectedPropertyIdRef.current
+                values.unitName = selectedUnitNameRef.current
                 return values
             }}
         >
@@ -134,6 +142,14 @@ export const CreateContactForm: React.FC = () => {
                                                 property={property}
                                                 allowClear={false}
                                                 loading={loading}
+                                                onChange={(_, option: UnitNameInputOption) => {
+                                                    if (!option) {
+                                                        setSelectedUnitName(null)
+                                                    } else {
+                                                        const unitName = get(option, 'data-unitName')
+                                                        setSelectedUnitName(unitName)
+                                                    }
+                                                }}
                                             />
                                         </Form.Item>
                                     </Col>
