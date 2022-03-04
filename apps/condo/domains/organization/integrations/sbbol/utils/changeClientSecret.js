@@ -11,7 +11,7 @@ const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 async function changeClientSecret (context, { clientId, currentClientSecret, newClientSecret }) {
     // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
     // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-    const { accessToken, tokenSet } = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+    const { accessToken, tokenSet } = await getOrganizationAccessToken(context, SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
 
     const requestApi = new SbbolRequestApi({
         accessToken,
