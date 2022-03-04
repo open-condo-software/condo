@@ -28,7 +28,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
     types: [
         {
             access: true,
-            type: 'input ExportContactsToExcelInput { where: ContactWhereInput!, sortBy: [SortContactsBy!] }',
+            type: 'input ExportContactsToExcelInput { dv: Int!, sender: SenderFieldInput!, where: ContactWhereInput!, sortBy: [SortContactsBy!] }',
         },
         {
             access: true,

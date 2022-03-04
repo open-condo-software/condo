@@ -8797,6 +8797,8 @@ export type DivisionsUpdateInput = {
 };
 
 export type ExportContactsToExcelInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
   where: ContactWhereInput;
   sortBy?: Maybe<Array<SortContactsBy>>;
 };
@@ -8850,6 +8852,8 @@ export type ExportTicketAnalyticsToExcelTranslates = {
 };
 
 export type ExportTicketsToExcelInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
   where: TicketWhereInput;
   sortBy?: Maybe<Array<SortTicketsBy>>;
   timeZone: Scalars['String'];

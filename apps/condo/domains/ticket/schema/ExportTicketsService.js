@@ -31,7 +31,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
     types: [
         {
             access: true,
-            type: 'input ExportTicketsToExcelInput { where: TicketWhereInput!, sortBy: [SortTicketsBy!], timeZone: String! }',
+            type: 'input ExportTicketsToExcelInput { dv: Int!, sender: SenderFieldInput!, where: TicketWhereInput!, sortBy: [SortTicketsBy!], timeZone: String! }',
         },
         {
             access: true,
