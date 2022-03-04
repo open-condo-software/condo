@@ -32,6 +32,7 @@ const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionI
 const dateFilter = getDayRangeFilter(['advancedAt'])
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
+const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
 const PaymentsTable = ({ billingContext }): JSX.Element => {
@@ -53,7 +54,13 @@ const PaymentsTable = ({ billingContext }): JSX.Element => {
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
 
-    const searchPaymentsQuery = { ...filtersToWhere(filters), organization: { id: organizationId } }
+    const searchPaymentsQuery: any = {
+        ...filtersToWhere(filters),
+        organization: { id: organizationId },
+        deletedAt: null,
+    }
+
+    const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
 
     const {
         loading,
@@ -62,7 +69,7 @@ const PaymentsTable = ({ billingContext }): JSX.Element => {
         error,
     } = Payment.useObjects({
         where: searchPaymentsQuery,
-        sortBy: sortersToSortBy(sorters) as SortPaymentsBy[],
+        sortBy: sortBy as SortPaymentsBy[],
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
