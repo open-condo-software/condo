@@ -284,7 +284,88 @@ describe('Ticket', () => {
 
             expect(readTicket.id).toEqual(ticket.id)
         })
+        test('resident: if no client data but with contact data, client data fills from contact', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
 
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone,
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+            })
+
+            const [readTicket] = await Ticket.getAll(residentClient, { id: ticket.id })
+
+            expect(readTicket.clientPhone).toEqual(contact.phone)
+            expect(readTicket.clientEmail).toEqual(contact.email)
+            expect(readTicket.clientName).toEqual(contact.name)
+        })
+        test('admin: if client data and contact data sended, client data not overwritted', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone, email, name } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [anotherContact] = await createTestContact(admin, organization, property)
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: anotherContact.id } },
+                canReadByResident: true,
+                clientName: name,
+                clientPhone: phone,
+                clientEmail: email,
+            })
+
+            const [readTicket] = await Ticket.getAll(admin, { id: ticket.id })
+
+            expect(readTicket.clientPhone).toEqual(phone)
+            expect(readTicket.clientEmail).toEqual(email)
+            expect(readTicket.clientName).toEqual(name)
+        })
+        test('admin: if client data sended without contact data, client data not overwritted', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone, email, name } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                canReadByResident: true,
+                clientName: name,
+                clientPhone: phone,
+                clientEmail: email,
+            })
+
+            const [readTicket] = await Ticket.getAll(admin, { id: ticket.id })
+
+            expect(readTicket.clientPhone).toEqual(phone)
+            expect(readTicket.clientEmail).toEqual(email)
+            expect(readTicket.clientName).toEqual(name)
+        })
         test('resident: cannot read ticket with a contact whose phone number did not matches the resident phone number', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient1 = await makeClientWithResidentUser()
