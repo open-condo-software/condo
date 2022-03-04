@@ -38,6 +38,7 @@ export const TicketDeadlineField = ({ initialValues }) => {
                     name={'deadline'}
                     required
                     initialValue={INITIAL_DEADLINE_VALUE}
+                    data-cy={'ticket-deadline-item'}
                 >
                     <DatePicker
                         format='DD MMMM YYYY'

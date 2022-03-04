@@ -119,7 +119,7 @@ class TicketView {
         cy.get('[data-cy=ticket-filter-isWarranty]').click()
         cy.location('search').should('not.contain', 'isWarranty')
         cy.wait('@getAllTickets')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 3)
 
         return this
     }
@@ -133,7 +133,7 @@ class TicketView {
         cy.get('[data-cy=ticket-filter-isPaid]').click()
         cy.location('search').should('not.contain', 'isPaid')
         cy.wait('@getAllTickets')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 3)
 
         return this
     }
@@ -147,7 +147,7 @@ class TicketView {
         cy.get('[data-cy=ticket-filter-isEmergency]').click()
         cy.location('search').should('not.contain', 'isEmergency')
         cy.wait('@getAllTickets')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 3)
 
         return this
     }
@@ -170,19 +170,84 @@ class TicketView {
 
         cy.wait('@getAllTickets')
         cy.location('search').should('contain', 'property')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 3)
 
         cy.get('[data-cy=filters-button-reset]').click()
         cy.wait('@getAllTickets')
         cy.location('search').should('not.contain', 'property')
         cy.location('search').should('be.empty')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 4)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 3)
 
         return this
     }
 }
 
+class TicketEdit {
+/*
+    Elements:
+        tickets-table
+        ticket-status-select
+        ticket-update-link
+        ticket-deadline-item
+ */
+    visit () {
+        cy.visit(TICKET_VIEW_URL)
+        cy.wait('@getAllTicketClassifierRules')
+
+        cy.get('[data-cy=tickets-table] tbody tr').first().trigger('click')
+        cy.location('pathname').should('not.eq', TICKET_VIEW_URL)
+
+        return this
+    }
+
+    changeTicketStatus () {
+        cy.wait('@getAllTicketComments')
+        cy.wait('@getAllTickets')
+        cy.wait('@getAllTicketClassifierRules')
+        cy.wait('@getAllTicketFiles')
+        cy.wait('@getAllTicketStatuses')
+
+        cy.get('[data-cy=ticket-status-select]')
+            .click()
+
+        cy.get('.ant-select-dropdown.ant-select-dropdown-placement-bottomLeft')
+            .should('not.have.class', 'ant-select-dropdown-hidden')
+        cy.get('.ant-select-dropdown.ant-select-dropdown-placement-bottomLeft .ant-select-item').first().click()
+
+        return this
+    }
+
+    clickUpdateTicketLink () {
+        cy.get('[data-cy=ticket-update-link]').click()
+        cy.location('pathname').should('contain', '/update')
+
+        return this
+    }
+
+    clickProblemClassifier () {
+        cy.get('[data-cy=ticket-place-select-item] .ant-select-selection-search')
+            .click()
+
+        cy.get('[data-cy=ticket-classifier-option]')
+            .first()
+            .click()
+        cy.wait('@getAllDivisions')
+        cy.get('[data-cy=ticket-place-select-item] .ant-select-selection-search').should('not.have.class', '.ant-select-open')
+
+        cy.get('[data-cy=ticket-category-select-item] .ant-select-selection-search')
+            .click()
+            .type('{downArrow}')
+        cy.get('.ant-select-dropdown:not(.ant-select-dropdown-hidden) [data-cy=ticket-classifier-option]')
+            .first()
+            .click()
+        return this
+    }
+
+
+}
+
 export {
     TicketCreate,
     TicketView,
+    TicketEdit,
 }

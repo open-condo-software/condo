@@ -1,7 +1,7 @@
 import sample from 'lodash/sample'
 import faker from 'faker'
 
-import { TicketCreate, TicketView } from '../../objects/Ticket'
+import { TicketCreate, TicketView, TicketEdit } from '../../objects/Ticket'
 
 const authUserWithCookies = (userData) => {
     cy.setCookie('locale', 'en')
@@ -11,14 +11,14 @@ const authUserWithCookies = (userData) => {
 
 describe('Ticket create',  function () {
     describe('User', function () {
-        before(() => {
+        beforeEach(() => {
             cy.task('keystone:createUserWithProperty').then((response) => {
                 this.userData = response
                 authUserWithCookies(response)
             })
         })
 
-        it('can create ticket',  () => {
+        it.skip('can create ticket',  () => {
             const { address: propertyAddress, map: propertyMap } = this.userData.property
             const propertyUnits = propertyMap.sections
                 .map(section => section.floors.map(floor => floor.units.map(unit => unit.label))).flat(2)
@@ -35,9 +35,8 @@ describe('Ticket create',  function () {
                 .clickOnSubmitButton()
         })
 
-        it('can view and filter tickets with table', () => {
+        it.skip('can view and filter tickets with table', () => {
             cy.task('keystone:createTickets', this.userData).then(() => {
-                authUserWithCookies(this.userData)
                 const { address: propertyAddress } = this.userData.property
 
                 const ticketView = new TicketView()
@@ -48,6 +47,17 @@ describe('Ticket create',  function () {
                     .clickIsEmergencyCheckbox()
                     .clickOnGlobalFiltersButton()
                     .typeAddressSearchInput(propertyAddress)
+            })
+        })
+
+        it('can view and edit ticket', () => {
+            cy.task('keystone:createTickets', this.userData).then(() => {
+                const ticketEdit = new TicketEdit()
+                ticketEdit
+                    .visit()
+                    .changeTicketStatus()
+                    .clickUpdateTicketLink()
+                    .clickProblemClassifier()
             })
         })
     })
