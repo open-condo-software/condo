@@ -14,10 +14,11 @@ interface IExportToExcelActionBarProps {
     searchObjectsQuery: string
     exportToExcelQuery: DocumentNode
     useTimeZone?: boolean
+    disabled?: boolean
 }
 
 export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (props) => {
-    const { searchObjectsQuery, sortBy, exportToExcelQuery, hidden = false, useTimeZone = true } = props
+    const { searchObjectsQuery, sortBy, exportToExcelQuery, hidden = false, useTimeZone = true, disabled = false } = props
 
     const intl = useIntl()
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
@@ -82,6 +83,7 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
                             icon={<DatabaseFilled/>}
                             loading={isXlsLoading}
                             onClick={handleExportToExcel}
+                            disabled={disabled}
                         >
                             {ExportAsExcelLabel}
                         </Button>
