@@ -113,9 +113,10 @@ const PaymentsTable = ({ billingContext }): JSX.Element => {
             </Row>
             <ExportToExcelActionBar
                 hidden={isSmall}
-                searchObjectsQuery={search}
-                sortBy={'amount'}
+                searchObjectsQuery={searchPaymentsQuery}
+                sortBy={sortBy}
                 exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
+                disabled={count < 1}
             />
         </>
     )

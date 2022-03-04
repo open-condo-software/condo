@@ -8821,6 +8821,20 @@ export type ExportMeterReadingsOutput = {
   linkToFile: Scalars['String'];
 };
 
+export type ExportPaymentsToExcelInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  where: PaymentWhereInput;
+  sortBy?: Maybe<Array<SortPaymentsBy>>;
+  timeZone: Scalars['String'];
+};
+
+export type ExportPaymentsToExcelOutput = {
+  __typename?: 'ExportPaymentsToExcelOutput';
+  status: Scalars['String'];
+  linkToFile: Scalars['String'];
+};
+
 export type ExportPropertiesToExcelInput = {
   where: PropertyWhereInput;
   sortBy?: Maybe<Array<SortPropertiesBy>>;
@@ -23465,6 +23479,7 @@ export type Query = {
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
+  exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
@@ -26058,6 +26073,11 @@ export type QueryAllResidentBillingReceiptsArgs = {
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
   sortBy?: Maybe<Array<SortResidentBillingReceiptsBy>>;
+};
+
+
+export type QueryExportPaymentsToExcelArgs = {
+  data: ExportPaymentsToExcelInput;
 };
 
 
