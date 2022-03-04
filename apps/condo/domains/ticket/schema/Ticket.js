@@ -23,6 +23,7 @@ const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { TERMINAL_TICKET_STATUS_IDS } = require('../constants/statusTransitions')
 const { UNIT_TYPES, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -335,14 +336,17 @@ const Ticket = new GQLListSchema('Ticket', {
             }
 
             if (resolvedData.contact) {
+                const [contact] = await Contact.getAll(context, {
+                    id: resolvedData.contact,
+                })
                 if (!resolvedData.clientName){
-                    resolvedData.clientName = resolvedData.contact.name
+                    resolvedData.clientName = contact.name
                 }
                 if (!resolvedData.clientEmail){
-                    resolvedData.clientEmail = resolvedData.contact.email
+                    resolvedData.clientEmail = contact.email
                 }
                 if (!resolvedData.clientPhone){
-                    resolvedData.clientPhone = resolvedData.contact.phone
+                    resolvedData.clientPhone = contact.phone
                 }
             }
 
