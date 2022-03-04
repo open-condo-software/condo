@@ -50,7 +50,6 @@ module.exports = async (on, config) => {
             await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true })
             await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true })
             await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true })
-
             return null
         },
 
