@@ -3,6 +3,9 @@ const { TokenSet } = require('@condo/domains/organization/utils/serverSchema')
 const { SBBOL_IMPORT_NAME } = require('../common')
 const { SbbolOauth2Api } = require('../oauth2')
 const { REFRESH_TOKEN_TTL } = require('../constants')
+const conf = require('@core/config')
+
+const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 
 /**
  * First tries to obtain non-expired access token from `TokenSet` schema locally,
@@ -14,10 +17,19 @@ const { REFRESH_TOKEN_TTL } = require('../constants')
  */
 async function getOrganizationAccessToken (context, organizationImportId) {
     // TODO(pahaz): need to be fixed! it's looks so strange.
-    const [tokenSet] = await TokenSet.getAll(context, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } }, { sortBy: ['createdAt_DESC'] })
+    let tokenSet
+    const [foundTokenSet] = await TokenSet.getAll(context, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } }, { sortBy: ['createdAt_DESC'] })
+    tokenSet = foundTokenSet
     const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
     if (!tokenSet) {
         throw new Error(`[tokens:expired] record from TokenSet was not found for organization ${organizationImportId}. ${instructionsMessage}`)
+    }
+    // Store `clientSecret` in `TokenSet` record for our partner organization, if it was not stored yet.
+    if (!tokenSet.clientSecret) {
+        const updatedTokenSet = await TokenSet.update(context, tokenSet.id, {
+            clientSecret: SBBOL_AUTH_CONFIG.client_secret,
+        })
+        tokenSet = updatedTokenSet
     }
     const isRefreshTokenExpired = dayjs(dayjs()).isAfter(tokenSet.refreshTokenExpiresAt)
     if (isRefreshTokenExpired) {
