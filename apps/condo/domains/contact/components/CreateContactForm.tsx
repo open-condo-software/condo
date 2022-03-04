@@ -1,6 +1,6 @@
 import { Col, Form, Input, Row } from 'antd'
 import styled from '@emotion/styled'
-import get from "lodash/get";
+import get from 'lodash/get'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useEffect, useRef, useState } from 'react'
 import { useOrganization } from '@core/next/organization'
