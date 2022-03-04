@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Payment as PaymentGQL } from '@condo/domains/acquiring/gql'
 import { Payment, PaymentUpdateInput, QueryAllPaymentsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'amount', 'currencyCode', 'explicitFee', 'explicitServiceCharge', 'implicitFee', 'advancedAt', 'accountNumber', 'purpose', 'frozenReceipt', 'status', 'period', 'recipientBic', 'recipientBankAccount', 'context', 'multiPayment']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'amount', 'currencyCode', 'explicitFee', 'explicitServiceCharge', 'implicitFee', 'advancedAt', 'accountNumber', 'purpose', 'frozenReceipt', 'status', 'period', 'recipientBic', 'recipientBankAccount', 'context', 'multiPayment', 'receipt']
 const RELATIONS = ['receipt', 'multiPayment', 'context', 'organization']
 
 export interface IPaymentUIState extends Payment {
