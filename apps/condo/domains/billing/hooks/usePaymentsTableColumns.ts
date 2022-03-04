@@ -43,14 +43,14 @@ export function usePaymentsTableColumns<T> (currencyCode: string) {
             address: {
                 title: addressTitle,
                 key: 'address',
-                dataIndex: ['frozenReceipt', 'data', 'property', 'address'],
+                dataIndex: ['receipt', 'property', 'address'],
                 sorter: true,
                 render: getTextRender(String(search)),
             },
             unitName: {
                 title: unitNameTitle,
                 key: 'unitName',
-                dataIndex: ['frozenReceipt', 'data', 'account', 'unitName'],
+                dataIndex: ['receipt', 'account', 'unitName'],
                 width: '128px',
                 render: getTextRender(String(search)),
             },
