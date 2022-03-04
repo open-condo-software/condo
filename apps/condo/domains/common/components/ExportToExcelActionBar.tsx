@@ -11,7 +11,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 interface IExportToExcelActionBarProps {
     hidden?: boolean
-    sortBy: string
+    sortBy: string | string[]
     searchObjectsQuery: string
     exportToExcelQuery: DocumentNode
     useTimeZone?: boolean
