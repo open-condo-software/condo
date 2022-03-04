@@ -54,6 +54,12 @@ const UNIT_TYPE_COLOR_SET = {
     commercial: '#EB34684D',
 }
 
+const WELCOME_POPUP_BACKGROUND_COLORS = {
+    firstStep: '#E4EFFF',
+    secondStep: '#FFEDE3',
+    thirdStep: '#FFE5EC',
+}
+
 const colors = {
     sberDefault: generateCustomColorPalette(sberBlue, sberSecondaryBlue),
     sberPrimary: generateCustomColorPalette(sberGreen, sberSecondaryGreen),
@@ -199,6 +205,7 @@ module.exports = {
     transitions,
     CHART_COLOR_SET,
     UNIT_TYPE_COLOR_SET,
+    WELCOME_POPUP_BACKGROUND_COLORS,
     DEFAULT_BORDER_WIDTH,
     DEFAULT_STRONG_TEXT_FONT_WEIGHT,
     DEFAULT_BORDER_RADIUS,
