@@ -26,10 +26,9 @@ async function getOrganizationAccessToken (context, organizationImportId) {
     }
     // Store `clientSecret` in `TokenSet` record for our partner organization, if it was not stored yet.
     if (!tokenSet.clientSecret) {
-        const updatedTokenSet = await TokenSet.update(context, tokenSet.id, {
+        tokenSet = await TokenSet.update(context, tokenSet.id, {
             clientSecret: SBBOL_AUTH_CONFIG.client_secret,
         })
-        tokenSet = updatedTokenSet
     }
     const isRefreshTokenExpired = dayjs(dayjs()).isAfter(tokenSet.refreshTokenExpiresAt)
     if (isRefreshTokenExpired) {
