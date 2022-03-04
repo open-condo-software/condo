@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import ActionBar from './ActionBar'
 import { Button } from './Button'
 import get from 'lodash/get'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 interface IExportToExcelActionBarProps {
     hidden?: boolean
@@ -48,7 +49,13 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         setDownloadLink(null)
     }, [searchObjectsQuery, sortBy, exportToExcelQuery, timeZone])
 
-    const variablesData = { where: searchObjectsQuery, sortBy: sortBy, timeZone: undefined }
+    const variablesData = {
+        dv: 1,
+        sender: getClientSideSenderInfo(),
+        where: searchObjectsQuery,
+        sortBy: sortBy,
+        timeZone: undefined,
+    }
     const deps = [exportToExcel, searchObjectsQuery, sortBy]
 
     if (useTimeZone) {
