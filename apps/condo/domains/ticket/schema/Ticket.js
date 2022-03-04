@@ -339,13 +339,13 @@ const Ticket = new GQLListSchema('Ticket', {
                 const [contact] = await Contact.getAll(context, {
                     id: resolvedData.contact,
                 })
-                if (!resolvedData.clientName){
+                if (!resolvedData.clientName) {
                     resolvedData.clientName = contact.name
                 }
-                if (!resolvedData.clientEmail){
+                if (!resolvedData.clientEmail) {
                     resolvedData.clientEmail = contact.email
                 }
-                if (!resolvedData.clientPhone){
+                if (!resolvedData.clientPhone) {
                     resolvedData.clientPhone = contact.phone
                 }
             }
