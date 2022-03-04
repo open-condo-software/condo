@@ -3,7 +3,7 @@ import { css, jsx } from '@emotion/core'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Col, Image, Row, Typography, Modal } from 'antd'
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
-import { fontSizes, colors } from '@condo/domains/common/constants/style'
+import { fontSizes, colors, WELCOME_POPUP_BACKGROUND_COLORS } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
 import { useIntl } from '@core/next/intl'
 
@@ -126,19 +126,19 @@ export function WelcomePopup () {
 
     const stepToContent: WelcomePopupStep[] = useMemo(() => ([
         {
-            imageBackgroundColor: '#E4EFFF',
+            imageBackgroundColor: WELCOME_POPUP_BACKGROUND_COLORS.firstStep,
             images: [{ src: '/welcomePopupStep1.png', style: { maxHeight: '236px' } }],
             title: Step1Title,
             text: Step1Text,
         },
         {
-            imageBackgroundColor: '#FFEDE3',
+            imageBackgroundColor: WELCOME_POPUP_BACKGROUND_COLORS.secondStep,
             images: [{ src: '/welcomePopupStep2_1.png', style: { maxHeight: '257px' } }, { src: '/welcomePopupStep2_2.png', style: { maxHeight: '202px', position: 'relative', bottom: '8px' } }],
             title: Step2Title,
             text: Step2Text,
         },
         {
-            imageBackgroundColor: '#FFE5EC',
+            imageBackgroundColor: WELCOME_POPUP_BACKGROUND_COLORS.thirdStep,
             images: [{ src: '/welcomePopupStep3.png', style: { maxHeight: '202px' } }],
             title: Step3Title,
             text: Step3Text,
