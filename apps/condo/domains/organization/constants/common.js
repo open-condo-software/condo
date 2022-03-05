@@ -84,7 +84,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsExecutor': true,
         'canReadPayments': false,
         'canReadBillingReceipts': false,
-        'isDivisionLimitedVisibility': true,
+        'isDivisionLimitedVisibility': false,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -105,7 +105,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsExecutor': true,
         'canReadPayments': false,
         'canReadBillingReceipts': false,
-        'isDivisionLimitedVisibility': true,
+        'isDivisionLimitedVisibility': false,
     },
 }
 module.exports = {
