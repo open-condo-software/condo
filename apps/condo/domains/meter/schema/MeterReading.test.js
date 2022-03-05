@@ -57,7 +57,6 @@ const {
     updateTestServiceConsumer,
 } = require('@condo/domains/resident/utils/testSchema')
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
-const { Meter } = require('../utils/testSchema')
 
 describe('MeterReading', () => {
     describe('Create', () => {
@@ -220,7 +219,7 @@ describe('MeterReading', () => {
             const [meterReadingFromDivision1] = await createTestMeterReading(admin, meterFromDivision1, organization, source)
             const [meterFromDivision2] = await createTestMeter(admin, organization, propertyInDivision2, resource, {})
             const [meterReadingFromDivision2] = await createTestMeterReading(admin, meterFromDivision2, organization, source)
-            const [meterOutOfDivision] = await createTestMeter(admin, organization, propertyInDivision2, resource, {})
+            const [meterOutOfDivision] = await createTestMeter(admin, organization, propertyOutOfDivision, resource, {})
             await createTestMeterReading(admin, meterOutOfDivision, organization, source)
 
             const meterReadings = await MeterReading.getAll(client)
