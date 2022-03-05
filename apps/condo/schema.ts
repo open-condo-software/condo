@@ -14352,20 +14352,470 @@ export type Mutation = {
   registerNewServiceUser?: Maybe<RegisterNewServiceUserOutput>;
   sendMessageToSupport?: Maybe<SendMessageToSupportOutput>;
   resetUser: ResetUserOutput;
+  /**
+   * Registers new Organization for current user
+   *
+   * Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization
+   */
   registerNewOrganization?: Maybe<Organization>;
+  /**
+   * Invites staff-user into specified Organization
+   *
+   * For corresponding User record it creates a new OrganizationEmployee and sends message with notification about invitation
+   * It tries to find already existing User with type "staff" first by phone, then by email.
+   * If User is not found, it will be registered.
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "inviteNewOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "ALREADY_INVITED",
+   *   "message": "Already invited into the organization",
+   *   "messageForUser": "api.inviteNewOrganizationEmployee.ALREADY_INVITED"
+   * }`
+   *
+   * `{
+   *   "mutation": "inviteNewOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Wrong phone format"
+   * }`
+   *
+   * `{
+   *   "mutation": "inviteNewOrganizationEmployee",
+   *   "code": "INTERNAL_ERROR",
+   *   "type": "",
+   *   "message": "Unable to register user"
+   * }`
+   */
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
+  /**
+   * Tries to send notification message again to already invited user
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "reInviteOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Wrong phone format"
+   * }`
+   *
+   * `{
+   *   "mutation": "reInviteOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Could not find Organization by specified search criteria"
+   * }`
+   *
+   * `{
+   *   "mutation": "reInviteOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Could not find User by specified phone or email"
+   * }`
+   *
+   * `{
+   *   "mutation": "reInviteOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Could not find OrganizationEmployee that has not accepted invitation for found User"
+   * }`
+   *
+   * `{
+   *   "mutation": "reInviteOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "ALREADY_ACCEPTED_INVITATION",
+   *   "message": "Corresponding OrganizationEmployee has already accepted invitation"
+   * }`
+   */
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   shareTicket?: Maybe<ShareTicketOutput>;
+  /**
+   * Creates a new ticket for resident
+   *
+   * Corresponding resident, to create the ticket for, is fetched from current logged in user
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "createResidentTicket",
+   *   "variable": [
+   *     "data",
+   *     "property"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find Property by specified id"
+   * }`
+   *
+   * `{
+   *   "mutation": "createResidentTicket",
+   *   "variable": [
+   *     "data",
+   *     "source"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find TicketSource by specified id"
+   * }`
+   */
   createResidentTicket?: Maybe<ResidentTicketOutput>;
+  /**
+   * Updates ticket with specified id for resident, corresponding to current logged in user
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "updateResidentTicket",
+   *   "variable": [
+   *     "id"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find ticket with id \"{ticketId}\" for current user",
+   *   "messageForUser": "api.ticket.updateResidentTicket.TICKET_NOT_FOUND"
+   * }`
+   */
   updateResidentTicket?: Maybe<ResidentTicketOutput>;
+  /**
+   * Sends message of specified type to specified contact
+   *
+   * Each message type has specific set of required fields:
+   *
+   * `{
+   * 	"INVITE_NEW_EMPLOYEE": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"inviteCode": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userName": {
+   * 			"defaultValue": "USERNAME",
+   * 			"required": false
+   * 		},
+   * 		"userEmail": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		},
+   * 		"userPhone": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		},
+   * 		"organizationName": {
+   * 			"defaultValue": "ORGANIZATION",
+   * 			"required": false
+   * 		}
+   * 	},
+   * 	"SHARE_TICKET": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"ticketNumber": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"date": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"id": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"details": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"DIRTY_INVITE_NEW_EMPLOYEE": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"organizationName": {
+   * 			"defaultValue": "ORGANIZATION",
+   * 			"required": false
+   * 		}
+   * 	},
+   * 	"REGISTER_NEW_USER": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userPhone": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		},
+   * 		"userPassword": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		}
+   * 	},
+   * 	"RESET_PASSWORD": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"token": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userName": {
+   * 			"defaultValue": "USERNAME",
+   * 			"required": false
+   * 		},
+   * 		"userEmail": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		}
+   * 	},
+   * 	"SMS_VERIFY": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"smsCode": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"DEVELOPER_IMPORTANT_NOTE_TYPE": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"type": {
+   * 			"defaultValue": "UNKNOWN",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"CUSTOMER_IMPORTANT_NOTE_TYPE": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"type": {
+   * 			"defaultValue": "UNKNOWN",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"MESSAGE_FORWARDED_TO_SUPPORT": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"text": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		},
+   * 		"os": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		},
+   * 		"appVersion": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		},
+   * 		"organizationsData": {
+   * 			"defaultValue": [],
+   * 			"isRequired": false
+   * 		},
+   * 		"attachments": {
+   * 			"defaultValue": [],
+   * 			"isRequired": false
+   * 		}
+   * 	}
+   * }`
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data",
+   *     "to",
+   *     "email"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUIRED",
+   *   "message": "You can not use emailFrom without to.email"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUIRED",
+   *   "message": "You should provide either \"user\" or \"email\" or \"phone\" attribute"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data",
+   *     "meta"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "UNKNOWN_ATTRIBUTE",
+   *   "message": "Unknown attribute \"{attr}\" provided to \"meta\" variable"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data",
+   *     "meta"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUIRED",
+   *   "message": "Missing value for required \"meta.{attr}\" attribute"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data",
+   *     "meta"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_VALUE",
+   *   "message": "Unknown value \"{type}\" provided for message type"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data",
+   *     "meta",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
+   * }`
+   */
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   syncDevice?: Maybe<Device>;
   disconnectUserFromDevice?: Maybe<DisconnectUserFromDeviceOutput>;
   registerResident?: Maybe<Resident>;
+  /**
+   * Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
+   *
+   * To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "residentId"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find Resident for current user"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "organizationId"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find Organization for current user"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "accountNumber"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "accountNumber"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Argument \"accountNumber\" is null or empty"
+   * }`
+   */
   registerServiceConsumer?: Maybe<ServiceConsumer>;
+  /**
+   * Creates OnBoarding and set of OnBoardingStep records for specified role and user
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "createOnBoardingByType",
+   *   "variable": [
+   *     "data",
+   *     "type"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "ROLE_IS_NOT_SUPPORTED",
+   *   "message": "Role \"{type}\" is not supported to create OnBoarding for"
+   * }`
+   *
+   * `{
+   *   "mutation": "createOnBoardingByType",
+   *   "variable": [
+   *     "data",
+   *     "type"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "ROLE_IS_NOT_SUPPORTED",
+   *   "message": "Step transitions are not defined for role \"{type}\""
+   * }`
+   */
   createOnBoardingByType?: Maybe<OnBoarding>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
@@ -25653,6 +26103,7 @@ export type ResidentBillingReceiptOutput = {
   period: Scalars['String'];
   toPay: Scalars['String'];
   paid: Scalars['String'];
+  fee: Scalars['String'];
   printableNumber?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   services?: Maybe<Array<BillingReceiptServiceField>>;

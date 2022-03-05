@@ -58,6 +58,11 @@ const MULTIPAYMENT_INCONSISTENT_SERVICE_FEE = '[multiPayment:payments:serviceFee
 const MULTIPAYMENT_NON_INIT_PAYMENTS = `[multiPayment:payments:status:not:initial] MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_INIT_STATUS}".`
 const MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP = '[multiPayment:payments:multiPayment:not:null] Some of payments are already linked to multipayments.'
 
+const FEE_DISTRIBUTION_UNSUPPORTED_FORMULA = '[feeDistribution:wrong:formula'
+const FEE_DISTRIBUTION_INCOMPLETE_FORMULA = '[feeDistribution:missing:recipient'
+const FEE_TOTAL_SUM_FAILED = '[feeDistribution:total:check:failed'
+const FEE_TOTAL_FAILED = '[feeDistribution:fee:check:failed'
+
 module.exports = {
     REGISTER_MP_EMPTY_INPUT,
     REGISTER_MP_EMPTY_RECEIPTS,
@@ -116,4 +121,8 @@ module.exports = {
     MULTIPAYMENT_INCONSISTENT_SERVICE_FEE,
     MULTIPAYMENT_SERVICE_FEE_MISMATCH,
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
+    FEE_DISTRIBUTION_UNSUPPORTED_FORMULA,
+    FEE_DISTRIBUTION_INCOMPLETE_FORMULA,
+    FEE_TOTAL_SUM_FAILED,
+    FEE_TOTAL_FAILED,
 }
