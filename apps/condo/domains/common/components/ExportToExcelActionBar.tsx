@@ -85,7 +85,7 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
                         </Button>
                         :
                         <Button
-                            type={'sberPrimary'}
+                            type={'sberBlack'}
                             secondary
                             icon={<DatabaseFilled/>}
                             loading={isXlsLoading}
