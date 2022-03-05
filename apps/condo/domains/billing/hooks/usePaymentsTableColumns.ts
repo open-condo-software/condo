@@ -5,7 +5,7 @@ import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
-export function usePaymentsTableColumns<T> (currencyCode: string) {
+export function usePaymentsTableColumns (currencyCode: string): Record<string, unknown>[] {
     const intl = useIntl()
     const router = useRouter()
 
