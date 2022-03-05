@@ -51,17 +51,28 @@ function getRandomHiddenCard() {
     return `${prefix}********${suffix}`
 }
 
-function getRandomFeeDistribution() {
-    const border = Math.random() * 6
+function getRandomExplicitFeeDistribution () {
     const result = []
-    for (let i = 0; i < border; i++) {
-        result.push({
-            recipient: faker.company.companyName(),
-            percent: String(Math.round(Math.random() * 99 + 1) / 100)
-        })
-    }
+    result.push({
+        recipient: 'acquiring',
+        percent: faker.random.arrayElement(['0.4', '0.5', '0.6']),
+    })
+    result.push({
+        recipient: faker.random.arrayElement(['commission', 'service']),
+        percent: faker.random.arrayElement(['0.4', '0.5', '0.6']),
+    })
     return result
 }
+
+function getRandomImplicitFeeDistribution () {
+    const result = []
+    result.push({
+        recipient: 'organization',
+        percent: faker.random.arrayElement(['0', '1.2', '1.7']),
+    })
+    return result
+}
+
 
 async function createTestAcquiringIntegration (client, billings, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -77,7 +88,7 @@ async function createTestAcquiringIntegration (client, billings, extraAttrs = {}
         hostUrl,
         detailsTitle: name + " INTEGRATION DETAILS",
         supportedBillingIntegrations: { connect: billingsIds },
-        explicitFeeDistributionSchema: getRandomFeeDistribution(),
+        explicitFeeDistributionSchema: getRandomExplicitFeeDistribution(),
         ...extraAttrs
     }
     const obj = await AcquiringIntegration.create(client, attrs)
@@ -144,6 +155,7 @@ async function createTestAcquiringIntegrationContext (client, organization, inte
         settings,
         state,
         ...extraAttrs,
+        implicitFeeDistributionSchema: getRandomImplicitFeeDistribution(),
     }
     const obj = await AcquiringIntegrationContext.create(client, attrs)
     return [obj, attrs]

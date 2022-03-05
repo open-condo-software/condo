@@ -270,7 +270,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                                 explicitFee: '0',
                             } : {
                                 explicitServiceCharge: '0',
-                                explicitFee: explicitFee,
+                                explicitFee: String(explicitFee),
                             },
                             implicitFee: String(implicitFee),
                             serviceFee: String(fromReceiptAmountFee),
