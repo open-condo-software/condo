@@ -38,6 +38,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                                     type='sberDefaultGradient'
                                     loading={isLoading}
                                     disabled={!property}
+                                    data-cy={'ticket-apply-changes-button'}
                                 >
                                     {ApplyChangesMessage}
                                 </Button>

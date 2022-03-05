@@ -189,6 +189,8 @@ class TicketEdit {
         ticket-status-select
         ticket-update-link
         ticket-deadline-item
+        ticket-assignee-item
+        ticket-apply-changes-button
  */
     visit () {
         cy.visit(TICKET_VIEW_URL)
@@ -243,7 +245,28 @@ class TicketEdit {
         return this
     }
 
+    clickTicketDeadline () {
+        cy.get('[data-cy=ticket-deadline-item]').click()
+        cy.get('.ant-picker-today-btn').click()
 
+        return this
+    }
+
+    clickAssigneeInput () {
+        cy.get('[data-cy=ticket-assignee-item] input')
+            .click()
+            .type('{downArrow}')
+            .type('{enter}')
+
+        return this
+    }
+
+    clickApplyChanges () {
+        cy.get('[data-cy=ticket-apply-changes-button]').click()
+        cy.location('pathname').should('not.contain', '/update')
+
+        return this
+    }
 }
 
 export {
