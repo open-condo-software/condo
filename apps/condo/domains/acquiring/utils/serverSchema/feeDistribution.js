@@ -71,7 +71,7 @@ class FeeDistribution extends Logger {
     }
 
     validateDistribution (toPay) {
-        const { summa, initialSum, recipientSum, explicitFee, implicitFee, fromTotalAmountFee, fromReceiptAmountFee } = toPay
+        const { summa, recipientSum, explicitFee, implicitFee, fromTotalAmountFee, fromReceiptAmountFee } = toPay
         const payDifference = Number(summa.minus(recipientSum).minus(explicitFee).minus(implicitFee).toFixed(2))
         if (payDifference !== 0) {
             this.error(`${FEE_TOTAL_SUM_FAILED}]`, toPay)
@@ -128,7 +128,7 @@ const getAcquiringIntegrationContextFormula = async (context, acquiringContextId
     const formula = Object.fromEntries(
         explicitFeeDistributionSchema
             .concat(implicitFeeDistributionSchema)
-            .map(({recipient, percent}) => ([recipient, percent]))
+            .map(({ recipient, percent }) => ([recipient, percent]))
     )
     return formula
 }

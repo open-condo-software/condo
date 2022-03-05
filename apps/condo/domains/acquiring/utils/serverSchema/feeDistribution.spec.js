@@ -7,8 +7,6 @@ const Big = require('big.js')
 const {
     FEE_DISTRIBUTION_UNSUPPORTED_FORMULA,
     FEE_DISTRIBUTION_INCOMPLETE_FORMULA,
-    FEE_TOTAL_SUM_FAILED,
-    FEE_TOTAL_FAILED,
 } = require('@condo/domains/acquiring/constants/errors.js')
 
 describe('FeeDistribution calculation cases', () => {
@@ -17,6 +15,7 @@ describe('FeeDistribution calculation cases', () => {
         it('checks that mixed fee formula can not be used', async () => {
             const mixedFeeFormula = { organization: 1.2, acquiring: 0.9, service: 0.7 }
             const calculator = new FeeDistribution(mixedFeeFormula)
+            let thrownError
             try {
                 calculator.validateFormula()
             } catch (e) {
@@ -28,6 +27,7 @@ describe('FeeDistribution calculation cases', () => {
         it('needs to have service or commission recipient', async () => {
             const incompleteFeeFormula = { organization: 1.2, acquiring: 0.9 }
             const calculator = new FeeDistribution(incompleteFeeFormula)
+            let thrownError
             try {
                 calculator.validateFormula()
             } catch (e) {
@@ -93,7 +93,11 @@ describe('FeeDistribution calculation cases', () => {
         it('works on 100000000 ₽', () => {
             const implicitFeeFormula = { organization: 1.6, acquiring: 0.9, service: 0.7 }
             const calculator = new FeeDistribution(implicitFeeFormula)
-            const { check: { payDifference, commissionDifference }, summa, recipientSum } = calculator.calculate(Big(100000000))
+            const {
+                check: { payDifference, commissionDifference },
+                summa,
+                recipientSum,
+            } = calculator.calculate(Big(100000000))
             expect(payDifference).toEqual(0)
             expect(commissionDifference).toEqual(0)
             expect(summa).toEqual(100000000)
