@@ -5530,6 +5530,8 @@ export type BillingReceipt = {
   services?: Maybe<Array<BillingReceiptServiceField>>;
   /**  Billing account recipient. Should contain all meta information to identify the organization  */
   recipient?: Maybe<BillingReceiptsRecipientField>;
+  /**  Integration context  */
+  receiver?: Maybe<BillingRecipient>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -5554,6 +5556,7 @@ export type BillingReceiptCreateInput = {
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
+  receiver?: Maybe<BillingRecipientRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5587,6 +5590,7 @@ export type BillingReceiptHistoryRecord = {
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
+  receiver?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -5614,6 +5618,7 @@ export type BillingReceiptHistoryRecordCreateInput = {
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
+  receiver?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5646,6 +5651,7 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
+  receiver?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5753,6 +5759,10 @@ export type BillingReceiptHistoryRecordWhereInput = {
   recipient_not?: Maybe<Scalars['JSON']>;
   recipient_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   recipient_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  receiver?: Maybe<Scalars['String']>;
+  receiver_not?: Maybe<Scalars['String']>;
+  receiver_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  receiver_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -5912,6 +5922,7 @@ export type BillingReceiptUpdateInput = {
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
+  receiver?: Maybe<BillingRecipientRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6010,6 +6021,8 @@ export type BillingReceiptWhereInput = {
   recipient_not?: Maybe<BillingReceiptsRecipientFieldInput>;
   recipient_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
   recipient_not_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
+  receiver?: Maybe<BillingRecipientWhereInput>;
+  receiver_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -6479,6 +6492,13 @@ export type BillingRecipientHistoryRecordsCreateInput = {
 export type BillingRecipientHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<BillingRecipientHistoryRecordUpdateInput>;
+};
+
+export type BillingRecipientRelateToOneInput = {
+  create?: Maybe<BillingRecipientCreateInput>;
+  connect?: Maybe<BillingRecipientWhereUniqueInput>;
+  disconnect?: Maybe<BillingRecipientWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
 export type BillingRecipientUpdateInput = {
@@ -29008,6 +29028,8 @@ export enum SortBillingReceiptHistoryRecordsBy {
   PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
+  ReceiverAsc = 'receiver_ASC',
+  ReceiverDesc = 'receiver_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
