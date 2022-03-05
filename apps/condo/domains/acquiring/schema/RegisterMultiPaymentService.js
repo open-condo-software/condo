@@ -76,7 +76,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
             type: 'type RegisterMultiPaymentOutput { dv: Int!, multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String!, directPaymentUrl: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canRegisterMultiPayment,
@@ -267,10 +267,10 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         const paymentCommissionFields = {
                             ...type === 'service' ? {
                                 explicitServiceCharge: String(explicitFee),
-                                explicitFee: '0'
+                                explicitFee: '0',
                             } : {
                                 explicitServiceCharge: '0',
-                                explicitFee: explicitFee
+                                explicitFee: explicitFee,
                             },
                             implicitFee: String(implicitFee),
                             serviceFee: String(fromReceiptAmountFee),
@@ -330,7 +330,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
             },
         },
     ],
-    
+
 })
 
 module.exports = {
