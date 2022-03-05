@@ -1,46 +1,20 @@
 const pino = require('pino')
 const falsey = require('falsey')
-const condoLogger = pino({ name: 'condo', enabled: falsey(process.env.DISABLE_LOGGING)  })
+const appLogger = pino({ name: process.env.LOGGER_NAME || 'condo', enabled: falsey(process.env.DISABLE_LOGGING)  })
 
 class Logger {
 
     colors = { debug: '\x1b[32m', info: '\x1b[0m', error: '\x1b[31m', reset: '\x1b[0m' }
 
     constructor (name, level = 'debug') {
-        this.logger = condoLogger.child({ module: name })
+        this.logger = appLogger.child({ module: name })
         this.logger.level = level
     }
 
-    setColor (type) {
-        process.stdout.write(this.colors[type])
-    }
-
-    resetColor () {
-        process.stdout.write(this.colors.reset)
-    }
-
     printLog (message, params = {}, type) {
-        this.setColor(type)
-        this.logger[type]({ message, ...params })
-        this.resetColor()
-    }
-
-    debug (message, params = {}) {
-        this.printLog(message, params, 'debug')
-    }
-
-    setColor (type) {
         process.stdout.write(this.colors[type])
-    }
-
-    resetColor () {
-        process.stdout.write(this.colors.reset)
-    }
-
-    printLog (message, params = {}, type) {
-        this.setColor(type)
         this.logger[type]({ message, ...params })
-        this.resetColor()
+        process.stdout.write(this.colors.reset)
     }
 
     debug (message, params = {}) {
@@ -57,6 +31,6 @@ class Logger {
 }
 
 module.exports = {
-    condoLogger,
+    appLogger,
     Logger,
 }
