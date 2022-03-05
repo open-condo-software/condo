@@ -10,7 +10,7 @@ const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEm
 const { get } = require('lodash')
 const { getByCondition } = require('@core/keystone/schema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { Division } = require('@condo/domains/division/utils/serverSchema')
+const { Division, getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
 const uniq = require('lodash/uniq')
 const flatten = require('lodash/flatten')
 
@@ -29,24 +29,10 @@ async function canReadMeters ({ authentication: { item: user }, context }) {
         }
     }
 
-    const divisionVisibleLimitedEmployees = await OrganizationEmployee.getAll(context, {
-        user: { id: user.id },
-        role: { isDivisionLimitedVisibility: true },
-        deletedAt: null,
-        isBlocked: false,
-    })
+    const userDivisionsInfo = await getUserDivisionsInfo(context, user.id)
 
-    if (divisionVisibleLimitedEmployees.length > 0) {
-        const organizationsIdsWithEmployeeInDivision = divisionVisibleLimitedEmployees.map(employee => employee.organization.id)
-        const divisionVisibleLimitedEmployeesIds = divisionVisibleLimitedEmployees.map(employee => employee.id)
-        const employeeDivisions = await Division.getAll(context, {
-            OR: [
-                { responsible: { id_in: divisionVisibleLimitedEmployeesIds } },
-                { executors_some: { id_in: divisionVisibleLimitedEmployeesIds } },
-            ],
-        })
-        const divisionsPropertiesIds = uniq(flatten(employeeDivisions.map(division => division.properties))
-            .map(property => property.id))
+    if (userDivisionsInfo) {
+        const { organizationsIdsWithEmployeeInDivision, divisionsPropertiesIds } = userDivisionsInfo
 
         return {
             OR: [
