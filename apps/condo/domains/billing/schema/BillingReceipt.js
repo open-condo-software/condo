@@ -113,14 +113,20 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 return
             }
 
+            let contextId
             let recipient
             if (operation === 'create') {
                 recipient = get(resolvedData, 'recipient')
+                contextId = get(resolvedData, 'context')
             }
             if (operation === 'update') {
                 recipient = get(resolvedData, 'recipient')
                 if (!recipient) {
                     recipient = get(existingItem, 'recipient')
+                }
+                contextId = get(resolvedData, 'context')
+                if (!contextId) {
+                    contextId = get(existingItem, 'context')
                 }
             }
 
@@ -137,7 +143,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 const createdRecipient = await BillingRecipient.create(context, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: fingerprint },
-                    context: { connect: { id: get(resolvedData, 'context') } },
+                    context: { connect: { id: contextId } },
                     tin: get(recipient, 'tin'),
                     iec: get(recipient, 'iec'),
                     bic: get(recipient, 'bic'),
