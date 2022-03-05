@@ -7,12 +7,14 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import {
     getDayRangeFilter,
     getPageIndexFromOffset,
     getStringContainsFilter,
+    getTableScrollConfig,
     parseQuery,
     QueryMeta,
 } from '@condo/domains/common/utils/tables.utils'
@@ -23,7 +25,6 @@ import dayjs, { Dayjs } from 'dayjs'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React from 'react'
-import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 
 const addressFilter = getStringContainsFilter(['receipt', 'property', 'address'])
 const accountFilter = getStringContainsFilter(['accountNumber'])
@@ -108,6 +109,7 @@ const PaymentsTable = ({ billingContext }): JSX.Element => {
                         dataSource={objs}
                         totalRows={count}
                         columns={tableColumns}
+                        scroll={getTableScrollConfig(isSmall)}
                     />
                 </Col>
             </Row>
