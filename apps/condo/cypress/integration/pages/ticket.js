@@ -18,7 +18,7 @@ describe('Ticket create',  function () {
             })
         })
 
-        it.skip('can create ticket',  () => {
+        it('can create ticket',  () => {
             const { address: propertyAddress, map: propertyMap } = this.userData.property
             const propertyUnits = propertyMap.sections
                 .map(section => section.floors.map(floor => floor.units.map(unit => unit.label))).flat(2)
@@ -35,7 +35,7 @@ describe('Ticket create',  function () {
                 .clickOnSubmitButton()
         })
 
-        it.skip('can view and filter tickets with table', () => {
+        it('can view and filter tickets with table', () => {
             cy.task('keystone:createTickets', this.userData).then(() => {
                 const { address: propertyAddress } = this.userData.property
 
@@ -58,6 +58,9 @@ describe('Ticket create',  function () {
                     .changeTicketStatus()
                     .clickUpdateTicketLink()
                     .clickProblemClassifier()
+                    .clickTicketDeadline()
+                    .clickAssigneeInput()
+                    .clickApplyChanges()
             })
         })
     })

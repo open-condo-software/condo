@@ -183,6 +183,7 @@ const TicketAssignments = ({
                         </Col>
                         <Col span={11}>
                             <TicketFormItem
+                                data-cy={'ticket-assignee-item'}
                                 name={'assignee'}
                                 rules={validations.assignee}
                                 label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
