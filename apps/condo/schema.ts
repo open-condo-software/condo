@@ -26103,7 +26103,7 @@ export type ResidentBillingReceiptOutput = {
   period: Scalars['String'];
   toPay: Scalars['String'];
   paid: Scalars['String'];
-  fee: Scalars['String'];
+  explicitFee: Scalars['String'];
   printableNumber?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   services?: Maybe<Array<BillingReceiptServiceField>>;
