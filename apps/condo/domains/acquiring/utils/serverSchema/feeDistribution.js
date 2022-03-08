@@ -22,8 +22,8 @@ const { Logger } = require('@condo/domains/common/utils/logger.js')
 const {
     FEE_DISTRIBUTION_UNSUPPORTED_FORMULA,
     FEE_DISTRIBUTION_INCOMPLETE_FORMULA,
-    FEE_TOTAL_SUM_FAILED,
-    FEE_TOTAL_FAILED,
+    FEE_TOTAL_SUM_CHECK_FAILED,
+    FEE_TOTAL_COMMISSION_CHECK_FAILED,
 } = require('@condo/domains/acquiring/constants/errors.js')
 const {
     AcquiringIntegrationContext: AcquiringIntegrationContextApi,
@@ -35,7 +35,7 @@ const Big = require('big.js')
 class FeeDistribution extends Logger {
 
     formula = {}
-    type = 'unknown' // cam be service or commission
+    type = 'unknown' // can be service or commission
 
     constructor (initialFormula) {
         super('acquiring-commission')
@@ -74,11 +74,11 @@ class FeeDistribution extends Logger {
         const { summa, recipientSum, explicitFee, implicitFee, fromTotalAmountFee, fromReceiptAmountFee } = toPay
         const payDifference = Number(summa.minus(recipientSum).minus(explicitFee).minus(implicitFee).toFixed(2))
         if (payDifference !== 0) {
-            this.error(`${FEE_TOTAL_SUM_FAILED}]`, toPay)
+            this.error(`${FEE_TOTAL_SUM_CHECK_FAILED}]`, toPay)
         }
         const commissionDifference = Math.abs(Number(explicitFee.plus(implicitFee).minus(fromReceiptAmountFee).minus(fromTotalAmountFee)))
         if (commissionDifference !== 0) {
-            this.error(`${FEE_TOTAL_FAILED}]`, toPay)
+            this.error(`${FEE_TOTAL_COMMISSION_CHECK_FAILED}]`, toPay)
         }
         return {
             payDifference,
@@ -125,12 +125,11 @@ class FeeDistribution extends Logger {
 
 const getAcquiringIntegrationContextFormula = async (context, acquiringContextId) => {
     const [{ integration: { explicitFeeDistributionSchema },  implicitFeeDistributionSchema } ] = await AcquiringIntegrationContextApi.getAll(context, { id: acquiringContextId })
-    const formula = Object.fromEntries(
+    return Object.fromEntries(
         explicitFeeDistributionSchema
             .concat(implicitFeeDistributionSchema)
             .map(({ recipient, percent }) => ([recipient, percent]))
     )
-    return formula
 }
 
 module.exports = {
