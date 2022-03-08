@@ -60,8 +60,8 @@ const MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP = '[multiPayment:payments:multiPayme
 
 const FEE_DISTRIBUTION_UNSUPPORTED_FORMULA = '[feeDistribution:wrong:formula'
 const FEE_DISTRIBUTION_INCOMPLETE_FORMULA = '[feeDistribution:missing:recipient'
-const FEE_TOTAL_SUM_FAILED = '[feeDistribution:total:check:failed'
-const FEE_TOTAL_FAILED = '[feeDistribution:fee:check:failed'
+const FEE_TOTAL_SUM_CHECK_FAILED = '[feeDistribution:total:check:failed'
+const FEE_TOTAL_COMMISSION_CHECK_FAILED = '[feeDistribution:fee:check:failed'
 
 module.exports = {
     REGISTER_MP_EMPTY_INPUT,
@@ -123,6 +123,6 @@ module.exports = {
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
     FEE_DISTRIBUTION_UNSUPPORTED_FORMULA,
     FEE_DISTRIBUTION_INCOMPLETE_FORMULA,
-    FEE_TOTAL_SUM_FAILED,
-    FEE_TOTAL_FAILED,
+    FEE_TOTAL_SUM_CHECK_FAILED,
+    FEE_TOTAL_COMMISSION_CHECK_FAILED,
 }
