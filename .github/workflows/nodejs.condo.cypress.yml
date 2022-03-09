@@ -49,7 +49,7 @@ jobs:
         run: |
           set -x
           cp .env.example .env
-          export NODE_ENV=test
+          export NODE_ENV=development
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
           export NOTIFICATION__DISABLE_LOGGING=true
           export WORKER_CONCURRENCY=50
@@ -60,6 +60,8 @@ jobs:
           bash ./.github/workflows/waitForLocalhostApiReady.sh
           
           yarn workspace @app/condo cypress run
+          
+          killall node || echo 'no node processes'
 
         env:
           DATABASE_URL: ${{ matrix.database }}
