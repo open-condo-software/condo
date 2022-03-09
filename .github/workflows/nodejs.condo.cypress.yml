@@ -45,7 +45,7 @@ jobs:
 
           yarn workspace @app/condo build
 
-      - name: start & run tests
+      - name: run production mode
         run: |
           set -x
           cp .env.example .env
@@ -56,13 +56,13 @@ jobs:
 
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
 
-          yarn workspace @app/condo dev &
-          bash ./.github/workflows/waitForLocalhostApiReady.sh
-          
-          yarn workspace @app/condo cypress run
-          
-          killall node || echo 'no node processes'
+          yarn workspace @app/condo start          
 
+      - name: run cypress
+        run: |
+          bash ./.github/workflows/waitForLocalhostApiReady.sh
+
+          yarn workspace @app/condo cypress run
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
