@@ -1,0 +1,67 @@
+name: RUN CYPRESS TESTS
+
+on:
+  workflow_dispatch:
+    branches:
+      - '*'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docker compose up databases
+        run: |
+          cp .env.example .env
+          docker-compose up -d postgresdb redis
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: install packages
+        run: |
+          yarn
+          pip3 install django
+          pip3 install psycopg2-binary
+
+      - name: build
+        run: |
+          set -x
+          echo '# Build time .env config!' > .env
+          echo 'COOKIE_SECRET=undefined' >> .env
+          echo 'DATABASE_URL=undefined' >> .env
+          echo 'WORKER_REDIS_URL=undefined' >> .env
+          echo 'NODE_ENV=production' >> .env
+
+          yarn workspace @app/condo build
+
+      - name: start & run tests
+        run: |
+          set -x
+          cp .env.example .env
+          export NODE_ENV=test
+          export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
+          export NOTIFICATION__DISABLE_LOGGING=true
+          export WORKER_CONCURRENCY=50
+
+          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
+
+          yarn workspace @app/condo start &
+          bash ./.github/workflows/waitForLocalhostApiReady.sh
+          
+          yarn workspace @app/condo cypress run
+
+        env:
+          DATABASE_URL: ${{ matrix.database }}
+          NODE_ENV: development
+          DISABLE_LOGGING: true
