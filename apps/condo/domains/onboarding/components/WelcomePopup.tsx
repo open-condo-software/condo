@@ -103,8 +103,6 @@ type WelcomePopupImage = {
 type WelcomePopupStep = {
     imageBackgroundColor: string
     images: WelcomePopupImage[]
-    title: string
-    text: string
 }
 
 const IMAGE_COL_STYLES = { display: 'flex', alignItems: 'end' }
@@ -112,12 +110,6 @@ const BODY_TEXT_STYLES = { fontSize: fontSizes.content, lineHeight: '24px', lett
 
 export function WelcomePopup () {
     const intl = useIntl()
-    const Step1Title = intl.formatMessage({ id: 'WelcomePopup.step1.title' })
-    const Step1Text = intl.formatMessage({ id: 'WelcomePopup.step1.text' })
-    const Step2Title = intl.formatMessage({ id: 'WelcomePopup.step2.title' })
-    const Step2Text = intl.formatMessage({ id: 'WelcomePopup.step2.text' })
-    const Step3Title = intl.formatMessage({ id: 'WelcomePopup.step3.title' })
-    const Step3Text = intl.formatMessage({ id: 'WelcomePopup.step3.text' })
 
     const [step, setStep] = useState(0)
     const [visible, setVisible] = useState(true)
@@ -128,22 +120,16 @@ export function WelcomePopup () {
         {
             imageBackgroundColor: WELCOME_POPUP_BACKGROUND_COLORS.firstStep,
             images: [{ src: '/welcomePopupStep1.png', style: { maxHeight: '236px' } }],
-            title: Step1Title,
-            text: Step1Text,
         },
         {
             imageBackgroundColor: WELCOME_POPUP_BACKGROUND_COLORS.secondStep,
             images: [{ src: '/welcomePopupStep2_1.png', style: { maxHeight: '257px' } }, { src: '/welcomePopupStep2_2.png', style: { maxHeight: '202px', position: 'relative', bottom: '8px' } }],
-            title: Step2Title,
-            text: Step2Text,
         },
         {
             imageBackgroundColor: WELCOME_POPUP_BACKGROUND_COLORS.thirdStep,
             images: [{ src: '/welcomePopupStep3.png', style: { maxHeight: '202px' } }],
-            title: Step3Title,
-            text: Step3Text,
         },
-    ]), [Step1Text, Step1Title, Step2Text, Step2Title, Step3Text, Step3Title])
+    ]), [])
 
     const stepImages = useMemo(() => stepToContent[step].images.map(image => (
         <Col key={image.src} style={IMAGE_COL_STYLES}>
@@ -176,12 +162,12 @@ export function WelcomePopup () {
                     <Row gutter={[0, 12]}>
                         <Col>
                             <Typography.Title level={5}>
-                                {stepToContent[step].title}
+                                {intl.formatMessage({ id: `WelcomePopup.step${step + 1}.title` })}
                             </Typography.Title>
                         </Col>
                         <Col>
                             <Typography.Paragraph style={BODY_TEXT_STYLES}>
-                                {stepToContent[step].text}
+                                {intl.formatMessage({ id: `WelcomePopup.step${step + 1}.text` })}
                             </Typography.Paragraph>
                         </Col>
                     </Row>
