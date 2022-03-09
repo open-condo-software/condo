@@ -1,14 +1,17 @@
 name: RUN CYPRESS TESTS
 
 on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
   workflow_dispatch:
     branches:
       - '*'
-  pull_request:
-    branches: [ master ]
 
 jobs:
   test:
+
     runs-on: ubuntu-latest
 
     strategy:
@@ -18,6 +21,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Docker compose up databases
         run: |
           cp .env.example .env
@@ -34,35 +38,45 @@ jobs:
           pip3 install django
           pip3 install psycopg2-binary
 
-      - name: build
+      - name: run build
         run: |
           set -x
           echo '# Build time .env config!' > .env
           echo 'COOKIE_SECRET=undefined' >> .env
-          echo 'DATABASE_URL=undefined' >> .env
+          echo 'DATABASE_URL=${{ matrix.database }}' >> .env
           echo 'WORKER_REDIS_URL=undefined' >> .env
-          echo 'NODE_ENV=production' >> .env
+          echo 'NODE_ENV=development' >> .env
+          export NODE_ENV=development
 
           yarn workspace @app/condo build
 
-      - name: run production mode
+      - name: start server in production mode
         run: |
           set -x
           cp .env.example .env
-          export NODE_ENV=development
+          echo 'NODE_ENV=test' >> .env
+          export NODE_ENV=test
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
           export NOTIFICATION__DISABLE_LOGGING=true
           export WORKER_CONCURRENCY=50
 
-          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
+          yarn workspace @app/condo migrate
+          
+          yarn workspace @app/condo node ./bin/generate-initial-data.js
 
-          yarn workspace @app/condo start          
-
-      - name: run cypress
-        run: |
+          yarn workspace @app/condo start &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
 
-          yarn workspace @app/condo cypress run
+          # check migrations
+          yarn workspace @app/condo makemigrations --check &> /dev/null
+
+      - name: run cypress tests
+        run: |
+          yarn workspace @app/condo cypress run --headless
+
+          kill $(jobs -p) || echo 'background worker and dev server is already killed!'
+          killall node || echo 'no node processes'
+
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
