@@ -9,7 +9,7 @@ import { useRouter } from 'next/router'
 import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
 import isEmpty from 'lodash/isEmpty'
 
-import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
+import { convertToGQLInput, ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
@@ -342,6 +342,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                     values.property = selectPropertyIdRef.current
                     values.unitName = selectedUnitNameRef.current
                     values.unitType = selectedUnitTypeRef.current
+
                     return values
                 }}
             >

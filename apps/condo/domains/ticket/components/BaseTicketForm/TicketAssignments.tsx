@@ -171,7 +171,6 @@ const TicketAssignments = ({
                                 label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
                             >
                                 <GraphQlSearchInput
-                                    allowClear={false}
                                     showArrow={false}
                                     disabled={disableUserInteraction}
                                     formatLabel={formatUserFieldLabel}
@@ -190,7 +189,6 @@ const TicketAssignments = ({
                             >
                                 <GraphQlSearchInput
                                     formatLabel={formatUserFieldLabel}
-                                    allowClear={false}
                                     showArrow={false}
                                     disabled={disableUserInteraction}
                                     search={searchEmployeeUser(organizationId, ({ role }) => (

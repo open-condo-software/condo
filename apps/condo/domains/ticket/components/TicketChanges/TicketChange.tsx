@@ -88,7 +88,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['statusDisplayName', StatusDisplayNameMessage, { change: 'pages.condo.ticket.TicketChanges.status.change' }],
         ['propertyDisplayName', AddressMessage],
         ['assigneeDisplayName', AssigneeMessage],
-        ['executorDisplayName', ExecutorMessage],
+        ['executorDisplayName', ExecutorMessage, { add: 'pages.condo.ticket.TicketChanges.executor.add', remove: 'pages.condo.ticket.TicketChanges.executor.remove' }],
         ['classifierDisplayName', ClassifierMessage],
         ['placeClassifierDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
@@ -199,7 +199,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         const valueFrom = formatField(field, ticketChange[`${field}From`], TicketChangeFieldMessageType.From)
         const valueTo = formatField(field, ticketChange[`${field}To`], TicketChangeFieldMessageType.To)
 
-        if (valueFrom && valueTo) {
+        if (ticketChange[`${field}From`] && ticketChange[`${field}To`]) {
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -214,7 +214,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     />
                 </>
             )
-        } else if (valueTo) { // only "to" part
+        } else if (ticketChange[`${field}To`]) { // only "to" part
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -228,7 +228,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     />
                 </>
             )
-        } else if (valueFrom) {
+        } else if (ticketChange[`${field}From`]) {
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -247,7 +247,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     // Omit what was not changed
     const changedFields = fields.filter(([field]) => (
-        ticketChange[`${field}From`] !== null && ticketChange[`${field}To`] !== null
+        ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
     ))
 
     return changedFields.map(([field, message, changeMessage]) => ({
