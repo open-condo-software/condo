@@ -43,6 +43,8 @@ const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
 const BillingRecipient = generateGQLTestUtils(BillingRecipientGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -221,6 +223,7 @@ async function createTestBillingAccount (client, context, property, extraAttrs =
         raw: { foo: faker.lorem.words() },
         number: faker.random.alphaNumeric(),
         unitName: faker.random.alphaNumeric(),
+        unitType: FLAT_UNIT_TYPE,
         meta: {
             dv: 1,
             test: 123,

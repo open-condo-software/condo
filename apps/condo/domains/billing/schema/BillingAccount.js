@@ -6,7 +6,7 @@ const { Text } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
+const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingAccount')
 const { DV_UNKNOWN_VERSION_ERROR, JSON_EXPECT_OBJECT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
@@ -48,6 +48,11 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         unitName: {
             schemaDoc: 'Flat number / door number of an apartment building (property)',
             type: Text,
+            isRequired: true,
+        },
+
+        unitType: {
+            ...UNIT_TYPE_FIELD,
             isRequired: true,
         },
 
