@@ -475,6 +475,8 @@
   "pages.condo.ticket.TicketChanges.statusDisplayName": "ticket status",
   "pages.condo.ticket.TicketChanges.assignee": "assignee",
   "pages.condo.ticket.TicketChanges.executor": "executor",
+  "pages.condo.ticket.TicketChanges.executor.add": "added {field}. Now it is «{to}»",
+  "pages.condo.ticket.TicketChanges.executor.remove": "removed {field}. It was «{from}»",
   "pages.condo.ticket.TicketChanges.classifier": "classifier",
   "pages.condo.ticket.TicketChanges.address": "address",
   "pages.condo.ticket.TicketChanges.deadline": "deadline",
