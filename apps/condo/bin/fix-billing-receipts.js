@@ -1,0 +1,80 @@
+/**
+ * Creates and links billing recipients for all billing receipts
+ *
+ * Usage:
+ *      yarn workspace @app/condo fix-billing-receipts
+ */
+
+const { get } = require('lodash')
+
+const path = require('path')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { BillingReceipt, BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
+
+
+async function main () {
+    const resolved = path.resolve('../index.js')
+    const { distDir, keystone, apps } = require(resolved)
+    const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+    // we need only apollo
+    await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
+    await keystone.connect()
+
+
+    const adminContext = await keystone.createContext({ skipAccessControl: true })
+
+    const allBillingReceipts = await loadListByChunks({
+        context: adminContext,
+        list: BillingReceipt,
+        chunkSize: 50,
+        limit: 100000000,
+    })
+
+    console.debug(`Going to process ${allBillingReceipts.length} items`)
+
+    for ( let i = 0; i < allBillingReceipts.length; ++i) {
+
+        const receipt = allBillingReceipts[i]
+
+        const receiptId = get(receipt, 'id')
+        const recipient = get(receipt, 'recipient')
+        const contextId = get(receipt, ['context', 'id'])
+
+        let receiverId
+        const sameRecipient = await BillingRecipient.getOne(adminContext, {
+            tin: get(recipient, 'tin'),
+            iec: get(recipient, 'iec'),
+            bic: get(recipient, 'bic'),
+            bankAccount: get(recipient, 'bankAccount'),
+        })
+        if (sameRecipient) {
+            receiverId = sameRecipient.id
+        } else {
+            const createdRecipient = await BillingRecipient.create(adminContext, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'fix-billing-receipts.js' },
+                context: { connect: { id: contextId } },
+                tin: get(recipient, 'tin'),
+                iec: get(recipient, 'iec'),
+                bic: get(recipient, 'bic'),
+                bankAccount: get(recipient, 'bankAccount'),
+            })
+            receiverId = createdRecipient.id
+        }
+
+        await BillingReceipt.update(adminContext, receiptId, {
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'fix-billing-receipts.js' },
+            receiver: { connect: { id: receiverId } },
+        })
+
+        console.debug(`Processed ${i + 1} from ${allBillingReceipts.length}`)
+    }
+}
+
+main().catch((e) => {
+    console.error(e)
+    process.exit(1)
+})
