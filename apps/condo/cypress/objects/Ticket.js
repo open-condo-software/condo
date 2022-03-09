@@ -187,6 +187,7 @@ class TicketEdit {
     Elements:
         tickets-table
         ticket-status-select
+        ticket-status-select-option
         ticket-update-link
         ticket-deadline-item
         ticket-assignee-item
@@ -211,10 +212,7 @@ class TicketEdit {
 
         cy.get('[data-cy=ticket-status-select]')
             .click()
-
-        cy.get('.ant-select-dropdown.ant-select-dropdown-placement-bottomLeft')
-            .should('not.have.class', 'ant-select-dropdown-hidden')
-        cy.get('.ant-select-dropdown.ant-select-dropdown-placement-bottomLeft .ant-select-item').first().click()
+        cy.get('[data-cy=ticket-status-select-option]').first().click()
 
         return this
     }

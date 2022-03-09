@@ -54,7 +54,17 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
         const { primary: color } = status.colors
 
-        return (<Select.Option key={value} value={value} title={label} style={{ color }}>{label}</Select.Option>)
+        return (
+            <Select.Option
+                key={value}
+                value={value}
+                title={label}
+                style={{ color }}
+                data-cy={'ticket-status-select-option'}
+            >
+                {label}
+            </Select.Option>
+        )
     }), [statuses, ticket])
 
     const handleChange = useCallback(({ value }) => {
