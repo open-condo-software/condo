@@ -56,7 +56,7 @@ jobs:
 
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
 
-          yarn workspace @app/condo start &
+          yarn workspace @app/condo dev &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
           
           yarn workspace @app/condo cypress run

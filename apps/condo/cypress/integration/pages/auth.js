@@ -4,16 +4,6 @@ import faker from 'faker'
 describe('Auth scenarios', () => {
 
     describe('User', () => {
-        it('can signin with correct password and phone', () => {
-            cy.task('keystone:createUser').then(([, user]) => {
-                const signIn = new SignIn()
-                signIn
-                    .visit()
-                    .fillPhone(user.phone)
-                    .fillPassword(user.password)
-                    .signinClick()
-            })
-        })
         it('can start password recovery', () => {
             cy.task('keystone:createUser').then(([, user]) => {
                 const forgot = new ForgotPassword()
@@ -22,6 +12,16 @@ describe('Auth scenarios', () => {
                     .fillPhone(user.phone)
                     .startPasswordRecoveryClick()
                     .checkSuccess()
+            })
+        })
+        it('can signin with correct password and phone', () => {
+            cy.task('keystone:createUser').then(([, user]) => {
+                const signIn = new SignIn()
+                signIn
+                    .visit()
+                    .fillPhone(user.phone)
+                    .fillPassword(user.password)
+                    .signinClick()
             })
         })
     })

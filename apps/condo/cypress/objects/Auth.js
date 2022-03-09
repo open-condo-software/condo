@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-/* eslint-disable no-undef */
 
 const SIGNIN_URL = '/auth/signin/'
 const FORGOT_PASSWORD_URL = '/auth/forgot'
@@ -18,22 +17,22 @@ class SignIn {
     }
 
     fillPhone (value) {
-        const field = cy.get('[data-cy=signin-phone-item] input')
-        field.clear()
-        field.type(value)
+        cy.get('[data-cy=signin-phone-item] input')
+            .clear()
+            .type(value)
         return this
     }
 
     fillPassword (value) {
-        const field = cy.get('[data-cy=signin-password-item] input')
-        field.clear()
-        field.type(value)
+        cy.get('[data-cy=signin-password-item] input')
+            .clear()
+            .type(value)
         return this
     }
 
     signinClick () {
-        const button = cy.get('[data-cy=signin-button]')
-        button.click()
+        cy.get('[data-cy=signin-button]')
+            .click()
         return this
     }
 }
@@ -51,17 +50,16 @@ class ForgotPassword {
     }
 
     fillPhone (value) {
-        cy.wait(500)
-        const field = cy.get('[data-cy=forgot-phone-item] input')
-        field.clear()
-        field.type(value)
+        cy.waitForCaptcha()
+        cy.get('[data-cy=forgot-phone-item] input')
+            .clear()
+            .type(value)
         return this
     }
 
     startPasswordRecoveryClick () {
-        const button = cy.get('[data-cy=forgot-button]')
         // This combination can be moved to custom click command, or we can override click
-        button
+        cy.get('[data-cy=forgot-button]')
             .trigger('mouseover')
             .trigger('click')
         return this
@@ -96,63 +94,63 @@ class Registration {
     }
 
     fillPhone (value) {
-        const field = cy.get('[data-cy=register-phone-item] input')
-        field.clear()
-        field.type(value)
+        cy.get('[data-cy=register-phone-item] input')
+            .clear()
+            .type(value)
         return this
     }
 
     clickCheckbox () {
-        const field = cy.get('[data-cy=register-personal-data-checkbox]')
-        field.click()
+        cy.get('[data-cy=register-personal-data-checkbox]')
+            .click()
         return this
     }
 
     fillSMSCode (value) {
-        const field = cy.get('[data-cy=register-smscode-item] input')
-        field.clear()
-        field.type(value)
+        cy.get('[data-cy=register-smscode-item] input')
+            .clear()
+            .type(value)
         return this
     }
 
     fillName (value) {
-        const field = cy.get('[data-cy=register-name-item] input')
-        field.clear()
-        field.type(value)
+        cy.get('[data-cy=register-name-item] input')
+            .clear()
+            .type(value)
         return this
     }
 
     fillEmail (value) {
-        const field = cy.get('[data-cy=register-email-item] input')
-        field.clear()
-        field.type(value)
+        cy.get('[data-cy=register-email-item] input')
+            .clear()
+            .type(value)
         return this
     }
 
     fillPassword (value) {
-        const field = cy.get('[data-cy=register-password-item] input')
-        field.clear()
-        field.type(value)
+        cy.get('[data-cy=register-password-item] input')
+            .clear()
+            .type(value)
         return this
     }
 
     fillConfirmPassword (value) {
-        const field = cy.get('[data-cy=register-confirmpassword-item] input')
-        field.clear()
-        field.type(value)
+        cy.get('[data-cy=register-confirmpassword-item] input')
+            .clear()
+            .type(value)
         return this
     }
 
     startRegistrationClick () {
         cy.waitForCaptcha()
-        const button = cy.get('[data-cy=register-button]')
-        button.click()
+        cy.get('[data-cy=register-button]')
+            .click()
         return this
     }
 
     completeRegistrationClick () {
-        const button = cy.get('[data-cy=registercomplete-button]')
-        button.click()
+        cy.get('[data-cy=registercomplete-button]')
+            .click()
         return this
     }
 }
