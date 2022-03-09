@@ -103,33 +103,25 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             }
         },
         beforeChange: async ({
-            operation,
             existingItem,
             resolvedData,
             context,
         }) => {
             const { sender: { fingerprint } } = resolvedData
 
+            // Handle cases when we do not need to search for BillingRecipient
+            // receiver is explicitly set
             if ('receiver' in resolvedData) {
                 return
             }
+            // receiver is in existing item and not being updated
+            if (existingItem && 'receiver' in existingItem && !('receiver' in resolvedData)) {
+                return
+            }
 
-            let contextId
-            let recipient
-            if (operation === 'create') {
-                recipient = get(resolvedData, 'recipient')
-                contextId = get(resolvedData, 'context')
-            }
-            if (operation === 'update') {
-                recipient = get(resolvedData, 'recipient')
-                if (!recipient) {
-                    recipient = get(existingItem, 'recipient')
-                }
-                contextId = get(resolvedData, 'context')
-                if (!contextId) {
-                    contextId = get(existingItem, 'context')
-                }
-            }
+            const newItem = { ...existingItem, ...resolvedData }
+            const contextId = get(newItem, 'context')
+            const recipient = get(newItem, 'recipient')
 
             let receiverId
             const sameRecipient = await BillingRecipient.getOne(context, {
@@ -145,7 +137,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                     dv: 1,
                     sender: { dv: 1, fingerprint: fingerprint },
                     context: { connect: { id: contextId } },
-                    name: get(recipient, 'name'),
+                    name: get(recipient, 'name', null),
                     tin: get(recipient, 'tin'),
                     iec: get(recipient, 'iec'),
                     bic: get(recipient, 'bic'),
