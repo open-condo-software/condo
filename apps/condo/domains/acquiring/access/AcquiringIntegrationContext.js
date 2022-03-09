@@ -54,6 +54,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
         integrationId = get(originalInput, ['integration', 'connect', 'id'])
         if (!organizationId || !integrationId) return false
     } else if (operation === 'update') {
+        if (user.isSupport) return true
         // getting ids from existing object
         if (!itemId) return false
         const context = await getById('AcquiringIntegrationContext', itemId)
