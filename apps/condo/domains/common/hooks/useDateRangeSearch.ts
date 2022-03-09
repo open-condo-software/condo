@@ -1,39 +1,39 @@
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import dayjs from 'dayjs'
-import { debounce, get } from 'lodash'
+import { get, debounce, isArray } from 'lodash'
 import { useRouter } from 'next/router'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 
-const DATE_FORMAT_FOR_QUERY = 'YYYY-MM-DD'
+type DayJSRangeType = [dayjs.Dayjs, dayjs.Dayjs]
 
 export const useDateRangeSearch = <F> (
     filterKey: string,
     loading: boolean,
-    defaultValue: [dayjs.Dayjs, dayjs.Dayjs] = [null, null]
-): [[dayjs.Dayjs, dayjs.Dayjs], (search: [dayjs.Dayjs, dayjs.Dayjs]) => void] => {
+): [null | DayJSRangeType, (search: DayJSRangeType) => void] => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
-    const searchValueFromQuery = get(filtersFromQuery, filterKey)
-    const [search, setSearch] = useState(searchValueFromQuery || defaultValue)
+    const searchValueFromQuery = get(filtersFromQuery, filterKey, null)
+    const dateRange: DayJSRangeType = isArray(searchValueFromQuery)
+        ? [dayjs(searchValueFromQuery[0]), dayjs(searchValueFromQuery[1])]
+        : null
 
     const searchChange = useCallback(
         debounce(
-            async (searchString: [dayjs.Dayjs, dayjs.Dayjs]) => {
+            async (searchString) => {
                 await updateQuery(router, {
                     ...filtersFromQuery,
-                    [filterKey]: searchString.map((x) => x.format(DATE_FORMAT_FOR_QUERY)),
+                    [filterKey]: searchString,
                 })
             },
-            400
+            400,
         ),
-        [loading, filtersFromQuery]
+        [loading, searchValueFromQuery],
     )
 
-    const handleSearchChange = (value: [dayjs.Dayjs, dayjs.Dayjs]): void => {
-        setSearch(value)
+    const handleSearchChange = (value: DayJSRangeType): void => {
         searchChange(value)
     }
 
-    return [search.map((x) => dayjs(x)) || searchValueFromQuery, handleSearchChange]
+    return [dateRange, handleSearchChange]
 }
