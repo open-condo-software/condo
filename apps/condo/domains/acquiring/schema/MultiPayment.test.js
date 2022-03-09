@@ -746,50 +746,20 @@ describe('MultiPayment', () => {
                 expect(payments).toBeDefined()
                 expect(payments).toHaveLength(5)
 
-                // Payment 1 - implicitFee
-                // Payment 2 - explicitServiceCharge
-                // Payment 3 - explicitFee
-                // Payment 4 - implicitFee / explicitServiceCharge
-                // Payment 5 - implicitFee / explicitFee
-                const fees = [
-                    { implicitFee: '10', explicitFee: '0' },
-                    { implicitFee: '0', explicitServiceCharge: '50' },
-                    { implicitFee: '0', explicitFee: '30' },
-                    { implicitFee: '20', explicitServiceCharge: '100' },
-                    { implicitFee: '5', explicitFee: '20' },
-                ]
                 for (let i = 0; i < 5; i++) {
                     const payment = payments[i]
                     const updatedPayment = await Payment.update(integrationClient, payment.id, {
                         status: PAYMENT_PROCESSING_STATUS,
-                        ...fees[i],
                     })
                     expect(updatedPayment).toBeDefined()
                     expect(updatedPayment).toHaveProperty('status', PAYMENT_PROCESSING_STATUS)
-                    expect(updatedPayment).toHaveProperty('implicitFee')
-                    expect(Big(updatedPayment.implicitFee).eq(fees[i].implicitFee)).toBeTruthy()
-                    expect(updatedPayment).toHaveProperty('explicitFee')
-                    expect(Big(updatedPayment.explicitFee).eq(fees[i].explicitFee || '0')).toBeTruthy()
-                    expect(updatedPayment).toHaveProperty('explicitServiceCharge')
-                    expect(Big(updatedPayment.explicitServiceCharge).eq(fees[i].explicitServiceCharge || '0')).toBeTruthy()
                 }
-                const totalImplicitFee = fees.reduce((acc, cur) => acc.plus(cur.implicitFee || '0'), Big(0)).toString()
-                const totalExplicitFee = fees.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0)).toString()
-                const totalExplicitServiceCharge = fees.reduce((acc, cur) => acc.plus(cur.explicitServiceCharge || '0'), Big(0)).toString()
+
                 let multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
                     status: MULTIPAYMENT_PROCESSING_STATUS,
-                    explicitServiceCharge: totalExplicitServiceCharge,
-                    explicitFee: totalExplicitFee,
-                    implicitFee: totalImplicitFee,
                 })
                 expect(multiPayment).toBeDefined()
                 expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_PROCESSING_STATUS)
-                expect(multiPayment).toHaveProperty('explicitFee')
-                expect(Big(multiPayment.explicitFee).eq(totalExplicitFee)).toBeTruthy()
-                expect(multiPayment).toHaveProperty('explicitServiceCharge')
-                expect(Big(multiPayment.explicitServiceCharge).eq(totalExplicitServiceCharge)).toBeTruthy()
-                expect(multiPayment).toHaveProperty('implicitFee')
-                expect(Big(multiPayment.implicitFee).eq(totalImplicitFee)).toBeTruthy()
 
                 // Stage 2. Our acquiring integration service after detecting successful redirect moving MP and P to WITHDRAWN
                 const transactionTime = dayjs().toISOString()
@@ -800,7 +770,6 @@ describe('MultiPayment', () => {
                     const payment = payments[i]
                     const updatedPayment = await Payment.update(integrationClient, payment.id, {
                         status: PAYMENT_WITHDRAWN_STATUS,
-                        ...fees[i],
                     })
                     expect(updatedPayment).toBeDefined()
                     expect(updatedPayment).toHaveProperty('status', PAYMENT_WITHDRAWN_STATUS)
