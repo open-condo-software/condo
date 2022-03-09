@@ -38,6 +38,7 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
  * Acquiring integration context may only be updated by:
  * 1. Admin
  * 2. Integration service user
+ * 3. Support (See field access, support can update only a small set of fields)
  */
 async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
