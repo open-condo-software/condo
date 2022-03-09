@@ -51,17 +51,23 @@ async function main () {
         })
         if (sameRecipient) {
             receiverId = sameRecipient.id
+            console.debug(`Going to link | ${i + 1} from ${allBillingReceipts.length}`)
         } else {
             const createdRecipient = await BillingRecipient.create(adminContext, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'fix-billing-receipts.js' },
                 context: { connect: { id: contextId } },
+                name: get(recipient, 'name'),
                 tin: get(recipient, 'tin'),
                 iec: get(recipient, 'iec'),
                 bic: get(recipient, 'bic'),
                 bankAccount: get(recipient, 'bankAccount'),
+                meta: {
+                    ...recipient,
+                },
             })
             receiverId = createdRecipient.id
+            console.debug(`Going to create | ${i + 1} from ${allBillingReceipts.length}`)
         }
 
         await BillingReceipt.update(adminContext, receiptId, {
@@ -69,8 +75,6 @@ async function main () {
             sender: { dv: 1, fingerprint: 'fix-billing-receipts.js' },
             receiver: { connect: { id: receiverId } },
         })
-
-        console.debug(`Processed ${i + 1} from ${allBillingReceipts.length}`)
     }
 }
 

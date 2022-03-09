@@ -145,6 +145,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                     dv: 1,
                     sender: { dv: 1, fingerprint: fingerprint },
                     context: { connect: { id: contextId } },
+                    name: get(recipient, 'name'),
                     tin: get(recipient, 'tin'),
                     iec: get(recipient, 'iec'),
                     bic: get(recipient, 'bic'),
