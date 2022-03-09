@@ -69,6 +69,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         assignee: ticket.assignee || '',
                         comments: comments.map(comment => comment.split(':').pop()).join(TICKET_COMMENTS_SEPARATOR),
                         source: ticket.source || '',
+                        deadline: ticket.deadline ? formatDate(ticket.deadline) : '',
                     }
                 })
                 const linkToFile = await createExportFile({
