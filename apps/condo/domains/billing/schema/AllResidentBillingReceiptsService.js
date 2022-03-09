@@ -50,7 +50,6 @@ const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     serviceConsumer: 'ServiceConsumer',
 }
 
-
 const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResidentBillingReceiptsService', {
     types: [
         {
@@ -97,10 +96,17 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 if (!Array.isArray(serviceConsumers) || !serviceConsumers.length) {
                     return []
                 }
+
+
                 const processedReceipts = []
                 for (const serviceConsumer of serviceConsumers) {
 
-                    const receiptsQuery = { ...receiptsWhere, ...{ account: { id: serviceConsumer.billingAccount } }, deletedAt: null }
+                    const receiptsQuery = {
+                        ...receiptsWhere,
+                        ...{ account: { id: serviceConsumer.billingAccount } },
+                        ...{ receiver: { isApproved: true } },
+                        deletedAt: null,
+                    }
                     const receiptsForConsumer = await BillingReceipt.getAll(
                         context,
                         receiptsQuery,
@@ -108,19 +114,33 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                             sortBy, first, skip,
                         }
                     )
-                    receiptsForConsumer.forEach(receipt => processedReceipts.push({
-                        id: receipt.id,
-                        dv: receipt.dv,
-                        recipient: receipt.recipient,
-                        receiver: receipt.receiver,
-                        period: receipt.period,
-                        toPay: receipt.toPay,
-                        toPayDetails: receipt.toPayDetails,
-                        services: receipt.services,
-                        printableNumber: receipt.printableNumber,
-                        serviceConsumer: serviceConsumer,
-                        currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
-                    }))
+
+                    for (const receiptForConsumer of receiptsForConsumer) {
+
+                        const receiptOrganizationId = get(receiptForConsumer, ['organization', 'id'])
+                        const acquiringIntegrationContext = await find('AcquiringIntegrationContext', {
+                            organization: { id: receiptOrganizationId },
+                            deletedAt: false,
+                        })
+
+                        if (get(acquiringIntegrationContext, 'isPaymentsAllowed')) {
+                            processedReceipts.push(
+                                {
+                                    id: receiptForConsumer.id,
+                                    dv: receiptForConsumer.dv,
+                                    recipient: receiptForConsumer.recipient,
+                                    receiver: receiptForConsumer.receiver,
+                                    period: receiptForConsumer.period,
+                                    toPay: receiptForConsumer.toPay,
+                                    toPayDetails: receiptForConsumer.toPayDetails,
+                                    services: receiptForConsumer.services,
+                                    printableNumber: receiptForConsumer.printableNumber,
+                                    serviceConsumer: serviceConsumer,
+                                    currencyCode: get(receiptForConsumer, ['context', 'integration', 'currencyCode'], null),
+                                }
+                            )
+                        }
+                    }
                 }
 
                 //
