@@ -52,7 +52,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 },
             },
         },
- 
+
         printableNumber: {
             schemaDoc: 'A number to print on the payment document.',
             type: Text,
@@ -73,13 +73,14 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         recipient: RECIPIENT_FIELD,
 
+        // TODO @toplenboren (Doma-2241) make this not null!
         receiver: {
             schemaDoc: 'Integration context',
             type: Relationship,
             ref: 'BillingRecipient',
             isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
     },
