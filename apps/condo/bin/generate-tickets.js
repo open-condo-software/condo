@@ -97,6 +97,7 @@ class TicketGenerator {
             organization: { connect: { id: this.organization.id } },
             property:  { connect: { id: this.property.id } },
             status: { connect: { id: this.status.id } },
+            deadline: faker.date.between(dayjs().subtract(2, 'week').toISOString(), dayjs().subtract(2, 'week').toISOString()).toISOString(),
         }
         const result = await Ticket.create(this.context, data)
         await this.setCreatedAt(result.id, timeStamp)
