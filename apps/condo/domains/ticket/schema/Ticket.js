@@ -310,12 +310,6 @@ const Ticket = new GQLListSchema('Ticket', {
             const user = get(context, ['req', 'user'])
             const statusId = get(resolvedData, 'status')
 
-            console.log(resolvedData, 'resolvedData')
-
-            // if (!resolvedData.executor) {
-            //     resolvedData.executor = null
-            // }
-
             if (statusId) {
                 addOrderToTicket(resolvedData, statusId)
 
