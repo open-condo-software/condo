@@ -342,7 +342,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                     values.property = selectPropertyIdRef.current
                     values.unitName = selectedUnitNameRef.current
                     values.unitType = selectedUnitTypeRef.current
-
                     return values
                 }}
             >
