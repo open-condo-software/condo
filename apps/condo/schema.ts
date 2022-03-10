@@ -22312,6 +22312,19 @@ export enum PropertyTypeType {
   Village = 'village'
 }
 
+export type PropertyUnitTypeInfo = {
+  __typename?: 'PropertyUnitTypeInfo';
+  type: BuildingUnitType;
+  label: Scalars['String'];
+  prefix: Scalars['String'];
+  showNumber: Scalars['Boolean'];
+};
+
+export type PropertyUnitTypesOutput = {
+  __typename?: 'PropertyUnitTypesOutput';
+  unitTypes: Array<Maybe<PropertyUnitTypeInfo>>;
+};
+
 export type PropertyUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
@@ -23331,6 +23344,7 @@ export type Query = {
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
+  propertyUnitTypes?: Maybe<PropertyUnitTypesOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;

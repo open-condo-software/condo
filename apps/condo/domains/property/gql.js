@@ -93,6 +93,12 @@ const EXPORT_PROPERTIES_TO_EXCEL =  gql`
     }
 `
 
+const GET_PROPERTY_UNIT_TYPES = gql`
+    query propertyUnitTypes {
+        result: propertyUnitTypes { unitTypes { type label prefix showNumber } }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -103,5 +109,6 @@ module.exports = {
     CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
     EXPORT_PROPERTIES_TO_EXCEL,
     PROPERTY_MAP_JSON_FIELDS,
+    GET_PROPERTY_UNIT_TYPES,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }
