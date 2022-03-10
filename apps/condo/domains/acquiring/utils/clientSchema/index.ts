@@ -8,4 +8,5 @@ export * as AcquiringIntegrationAccessRight from './AcquiringIntegrationAccessRi
 export * as AcquiringIntegrationContext from './AcquiringIntegrationContext'
 export * as MultiPayment from './MultiPayment'
 export * as Payment from './Payment'
+export * as PaymentsFilterTemplate from './PaymentsFilterTemplate'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

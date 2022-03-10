@@ -41,6 +41,7 @@ const {
 } = require('@condo/domains/acquiring/constants/payment')
 
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
+const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -48,6 +49,7 @@ const AcquiringIntegrationAccessRight = generateGQLTestUtils(AcquiringIntegratio
 const AcquiringIntegrationContext = generateGQLTestUtils(AcquiringIntegrationContextGQL)
 const MultiPayment = generateGQLTestUtils(MultiPaymentGQL)
 const Payment = generateGQLTestUtils(PaymentGQL)
+const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 function getRandomHiddenCard() {
@@ -338,6 +340,40 @@ async function registerMultiPaymentByTestClient(client, groupedReceipts, extraAt
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function createTestPaymentsFilterTemplate (client, employee, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!employee || !employee.id) throw new Error('no employee.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const name = faker.random.alphaNumeric(5)
+    const fields = { address: [faker.datatype.uuid()] }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        employee: { connect: { id: employee.id } },
+        name,
+        fields,
+        ...extraAttrs,
+    }
+    const obj = await PaymentsFilterTemplate.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPaymentsFilterTemplate (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PaymentsFilterTemplate.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate bunch of entities for working with MultiPayments
@@ -539,6 +575,9 @@ module.exports = {
     getRandomHiddenCard,
     registerMultiPaymentByTestClient,
     makePayerWithMultipleConsumers,
-    completeTestPayment
+    completeTestPayment,
+    PaymentsFilterTemplate,
+    createTestPaymentsFilterTemplate,
+    updateTestPaymentsFilterTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

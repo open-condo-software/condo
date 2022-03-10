@@ -9,6 +9,7 @@ const { AcquiringIntegrationContext } = require('./AcquiringIntegrationContext')
 const { MultiPayment } = require('./MultiPayment')
 const { Payment } = require('./Payment')
 const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
+const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -18,5 +19,6 @@ module.exports = {
     MultiPayment,
     Payment,
     RegisterMultiPaymentService,
+    PaymentsFilterTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
