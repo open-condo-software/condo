@@ -45,6 +45,24 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
             isRequired: true,
         },
 
+        bankName: {
+            schemaDoc: 'Bank name',
+            type: Text,
+            isRequired: false,
+        },
+
+        offsettingAccount: {
+            schemaDoc: 'Bank account',
+            type: Text,
+            isRequired: false,
+        },
+
+        territoryCode: {
+            schemaDoc: 'Location code (Classifier of Territories of Municipal Units - OKTMO)',
+            type: Text,
+            isRequired: false,
+        },
+
         purpose: {
             schemaDoc: 'For what reason is this recipient is able to collect payments.',
             type: Text,

@@ -129,7 +129,9 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 iec: get(recipient, 'iec'),
                 bic: get(recipient, 'bic'),
                 bankAccount: get(recipient, 'bankAccount'),
+                deletedAt: null, // TODO(zuch): DOMA-2395 Move deletedAt filter to getOne
             })
+            const { bankName = '', territoryCode = '', offsettingAccount = '' } = recipient
             if (sameRecipient) {
                 receiverId = sameRecipient.id
             } else {
@@ -142,6 +144,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                     iec: get(recipient, 'iec'),
                     bic: get(recipient, 'bic'),
                     bankAccount: get(recipient, 'bankAccount'),
+                    bankName, territoryCode, offsettingAccount,
                 })
                 receiverId = createdRecipient.id
             }
