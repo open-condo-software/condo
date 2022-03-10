@@ -1,0 +1,48 @@
+const Ajv = require('ajv')
+const { Json } = require('@core/keystone/fields')
+
+const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
+
+const PAYMENTS_FILTER_TYPE_NAME = 'PaymentsFilter'
+
+const PaymentsFilterFields = {
+    advancedAt: '[String]',
+    accountNumber: 'String',
+    address: '[String]',
+    type: '[String]',
+}
+
+const PAYMENTS_FILTER_TYPE = `
+    type ${PAYMENTS_FILTER_TYPE_NAME} {
+        ${render(PaymentsFilterFields)}
+    }
+`
+
+const getPaymentsFilterSchemaValueType = (value) => value.startsWith('[') ? { type: 'array', items: { type: 'string' } } : { type: 'string' }
+
+const PaymentsFilterSchema = {
+    type: 'object',
+    properties: Object.assign({},
+        ...Object.keys(PaymentsFilterFields).map((field) => ({ [field]: { ...getPaymentsFilterSchemaValueType(PaymentsFilterFields[field]) } })),
+    ),
+    additionalProperties: false,
+}
+
+const ajv = new Ajv()
+const PaymentsFilterValidator = ajv.compile(PaymentsFilterSchema)
+const validatePaymentsFilter = getValidator(PaymentsFilterValidator)
+
+const PAYMENTS_FILTER_FIELD = {
+    schemaDoc: 'Filter that match the given template',
+    type: Json,
+    extendGraphQLTypes: [PAYMENTS_FILTER_TYPE],
+    graphQLReturnType: PAYMENTS_FILTER_TYPE_NAME,
+    isRequired: true,
+    hooks: {
+        validateInput: validatePaymentsFilter,
+    },
+}
+
+module.exports = {
+    PAYMENTS_FILTER_FIELD,
+}

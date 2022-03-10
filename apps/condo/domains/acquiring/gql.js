@@ -21,7 +21,7 @@ const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationCont
 const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } ${COMMON_FIELDS} }`
 const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 
-const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt receipt { id property { address } account { unitName } } multiPayment { id transactionId } context { id integration { id name } } status ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount }`
+const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt receipt { id property { id address } account { unitName } } multiPayment { id transactionId } context { id integration { id name } } status ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
 
 const REGISTER_MULTI_PAYMENT_MUTATION = gql`
@@ -29,6 +29,9 @@ const REGISTER_MULTI_PAYMENT_MUTATION = gql`
         result: registerMultiPayment(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl }
     }
 `
+
+const PAYMENTS_FILTER_TEMPLATE_FIELDS = `{ name employee { id } ${COMMON_FIELDS} }`
+const PaymentsFilterTemplate = generateGqlQueries('PaymentsFilterTemplate', PAYMENTS_FILTER_TEMPLATE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -46,6 +49,6 @@ module.exports = {
     Payment,
     REGISTER_MULTI_PAYMENT_MUTATION,
     EXPORT_PAYMENTS_TO_EXCEL,
-
+    PaymentsFilterTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

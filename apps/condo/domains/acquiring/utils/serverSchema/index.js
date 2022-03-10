@@ -12,6 +12,7 @@ const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require(
 const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
+const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -32,6 +33,7 @@ async function registerMultiPayment (context, data) {
     })
 }
 
+const PaymentsFilterTemplate = generateServerUtils(PaymentsFilterTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -41,5 +43,6 @@ module.exports = {
     MultiPayment,
     Payment,
     registerMultiPayment,
+    PaymentsFilterTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
