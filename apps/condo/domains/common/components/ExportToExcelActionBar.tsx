@@ -12,7 +12,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 interface IExportToExcelActionBarProps {
     hidden?: boolean
     sortBy: string | string[]
-    searchObjectsQuery: string
+    searchObjectsQuery: string | Record<string, unknown>
     exportToExcelQuery: DocumentNode
     useTimeZone?: boolean
     disabled?: boolean
