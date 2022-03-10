@@ -196,10 +196,12 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             )
         }
 
-        const valueFrom = formatField(field, ticketChange[`${field}From`], TicketChangeFieldMessageType.From)
-        const valueTo = formatField(field, ticketChange[`${field}To`], TicketChangeFieldMessageType.To)
+        const valueFrom = ticketChange[`${field}From`]
+        const valueTo = ticketChange[`${field}To`]
+        const formattedValueFrom = formatField(field, valueFrom, TicketChangeFieldMessageType.From)
+        const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
 
-        if (ticketChange[`${field}From`] && ticketChange[`${field}To`]) {
+        if (valueFrom && valueTo) {
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -208,13 +210,13 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                         id={ customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.change' }
                         values={{
                             field: message,
-                            from: valueFrom,
-                            to: valueTo,
+                            from: formattedValueFrom,
+                            to: formattedValueTo,
                         }}
                     />
                 </>
             )
-        } else if (ticketChange[`${field}To`]) { // only "to" part
+        } else if (valueTo) { // only "to" part
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -223,12 +225,12 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                         id={ customMessages.add ? customMessages.add : 'pages.condo.ticket.TicketChanges.add' }
                         values={{
                             field: message,
-                            to: valueTo,
+                            to: formattedValueTo,
                         }}
                     />
                 </>
             )
-        } else if (ticketChange[`${field}From`]) {
+        } else if (valueFrom) {
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -237,7 +239,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                         id={ customMessages.remove ? customMessages.remove : 'pages.condo.ticket.TicketChanges.remove' }
                         values={{
                             field: message,
-                            from: valueFrom,
+                            from: formattedValueFrom,
                         }}
                     />
                 </>
