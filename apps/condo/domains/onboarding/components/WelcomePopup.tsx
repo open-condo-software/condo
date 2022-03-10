@@ -11,7 +11,12 @@ const modalCss = css`
   .ant-modal-content {
     padding: 0;
   }
-  
+
+  .ant-image-img {
+    width: auto;
+    max-width: 100%;
+  }
+
   .ant-modal-header {
     border-bottom: none;
     padding: 40px;
@@ -25,6 +30,11 @@ const modalCss = css`
   
   .ant-modal-body {
     padding: 0 40px 20px 40px;
+    
+    .ant-col {
+      display: flex;
+      align-items: flex-end;
+    }
   }
 
   .ant-modal-footer {
@@ -105,7 +115,6 @@ type WelcomePopupStep = {
     images: WelcomePopupImage[]
 }
 
-const IMAGE_COL_STYLES = { display: 'flex', alignItems: 'end' }
 const BODY_TEXT_STYLES = { fontSize: fontSizes.content, lineHeight: '24px', letterSpacing: '-0.01em' }
 
 export function WelcomePopup () {
@@ -132,7 +141,7 @@ export function WelcomePopup () {
     ]), [])
 
     const stepImages = useMemo(() => stepToContent[step].images.map(image => (
-        <Col key={image.src} style={IMAGE_COL_STYLES}>
+        <Col key={image.src}>
             <Image style={image.style} src={image.src} preview={false}/>
         </Col>
     )), [step, stepToContent])
