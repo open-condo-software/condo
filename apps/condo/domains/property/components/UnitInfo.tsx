@@ -66,7 +66,7 @@ export const UnitInfo: IUnitInfo = (props) => {
             const sections = get(property, ['map', unitDestination], [])
             const { sectionName, floorName } = getSectionAndFloorByUnit(unitName, sections, unitType)
 
-            return form.setFieldsValue({ sectionName, floorName, unitType })
+            return form.setFieldsValue({ sectionName, floorName, unitType, unitName })
         }
 
         form.setFieldsValue({ sectionName: null, floorName: null, unitType })

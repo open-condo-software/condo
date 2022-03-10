@@ -119,11 +119,11 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
  */
 const syncPaymentRequestsForSubscriptions = async () => {
     logger.info({ message: 'Start', function: 'syncPaymentRequestsForSubscriptions' })
+    const { keystone: context } = await getSchemaCtx('ServiceSubscription')
 
-    const fintechApi = await initSbbolFintechApi()
+    const fintechApi = await initSbbolFintechApi(context)
     if (!fintechApi) return
 
-    const { keystone: context } = await getSchemaCtx('ServiceSubscription')
     const today = dayjs()
     // By product case it is supposed to automatically renew expired paid SBBOL-subscription, not only trial.
     // That's why `isTrial` is missing in `where` conditions.

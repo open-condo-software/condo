@@ -1541,6 +1541,8 @@ export type BillingAccount = {
   number?: Maybe<Scalars['String']>;
   /**  Flat number / door number of an apartment building (property)  */
   unitName?: Maybe<Scalars['String']>;
+  /**  Type of unit, such as parking lot or flat  */
+  unitType?: Maybe<Scalars['String']>;
   /**  Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `property unit number`, `floor`, `entrance`, `is parking`  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -1563,6 +1565,7 @@ export type BillingAccountCreateInput = {
   globalId?: Maybe<Scalars['String']>;
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1593,6 +1596,7 @@ export type BillingAccountHistoryRecord = {
   globalId?: Maybe<Scalars['String']>;
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -1617,6 +1621,7 @@ export type BillingAccountHistoryRecordCreateInput = {
   globalId?: Maybe<Scalars['String']>;
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1646,6 +1651,7 @@ export type BillingAccountHistoryRecordUpdateInput = {
   globalId?: Maybe<Scalars['String']>;
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1758,6 +1764,24 @@ export type BillingAccountHistoryRecordWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_contains?: Maybe<Scalars['String']>;
+  unitType_not_contains?: Maybe<Scalars['String']>;
+  unitType_starts_with?: Maybe<Scalars['String']>;
+  unitType_not_starts_with?: Maybe<Scalars['String']>;
+  unitType_ends_with?: Maybe<Scalars['String']>;
+  unitType_not_ends_with?: Maybe<Scalars['String']>;
+  unitType_i?: Maybe<Scalars['String']>;
+  unitType_not_i?: Maybe<Scalars['String']>;
+  unitType_contains_i?: Maybe<Scalars['String']>;
+  unitType_not_contains_i?: Maybe<Scalars['String']>;
+  unitType_starts_with_i?: Maybe<Scalars['String']>;
+  unitType_not_starts_with_i?: Maybe<Scalars['String']>;
+  unitType_ends_with_i?: Maybe<Scalars['String']>;
+  unitType_not_ends_with_i?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -2839,6 +2863,7 @@ export type BillingAccountUpdateInput = {
   globalId?: Maybe<Scalars['String']>;
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2944,6 +2969,10 @@ export type BillingAccountWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -5530,6 +5559,8 @@ export type BillingReceipt = {
   services?: Maybe<Array<BillingReceiptServiceField>>;
   /**  Billing account recipient. Should contain all meta information to identify the organization  */
   recipient?: Maybe<BillingReceiptsRecipientField>;
+  /**  Integration context  */
+  receiver?: Maybe<BillingRecipient>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -5554,6 +5585,7 @@ export type BillingReceiptCreateInput = {
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
+  receiver?: Maybe<BillingRecipientRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5587,6 +5619,7 @@ export type BillingReceiptHistoryRecord = {
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
+  receiver?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -5614,6 +5647,7 @@ export type BillingReceiptHistoryRecordCreateInput = {
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
+  receiver?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5646,6 +5680,7 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
+  receiver?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5753,6 +5788,10 @@ export type BillingReceiptHistoryRecordWhereInput = {
   recipient_not?: Maybe<Scalars['JSON']>;
   recipient_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   recipient_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  receiver?: Maybe<Scalars['String']>;
+  receiver_not?: Maybe<Scalars['String']>;
+  receiver_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  receiver_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -5912,6 +5951,7 @@ export type BillingReceiptUpdateInput = {
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
+  receiver?: Maybe<BillingRecipientRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6010,6 +6050,8 @@ export type BillingReceiptWhereInput = {
   recipient_not?: Maybe<BillingReceiptsRecipientFieldInput>;
   recipient_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
   recipient_not_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
+  receiver?: Maybe<BillingRecipientWhereInput>;
+  receiver_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -6119,6 +6161,12 @@ export type BillingRecipient = {
   bic?: Maybe<Scalars['String']>;
   /**  Number of bank account of this recipient  */
   bankAccount?: Maybe<Scalars['String']>;
+  /**  Bank name  */
+  bankName?: Maybe<Scalars['String']>;
+  /**  Bank account  */
+  offsettingAccount?: Maybe<Scalars['String']>;
+  /**  Location code (Classifier of Territories of Municipal Units - OKTMO)  */
+  territoryCode?: Maybe<Scalars['String']>;
   /**  For what reason is this recipient is able to collect payments.  */
   purpose?: Maybe<Scalars['String']>;
   /**  Billing Recipient name. Usually the juristic name of the organization  */
@@ -6146,6 +6194,9 @@ export type BillingRecipientCreateInput = {
   iec?: Maybe<Scalars['String']>;
   bic?: Maybe<Scalars['String']>;
   bankAccount?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
@@ -6178,6 +6229,9 @@ export type BillingRecipientHistoryRecord = {
   iec?: Maybe<Scalars['String']>;
   bic?: Maybe<Scalars['String']>;
   bankAccount?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
@@ -6204,6 +6258,9 @@ export type BillingRecipientHistoryRecordCreateInput = {
   iec?: Maybe<Scalars['String']>;
   bic?: Maybe<Scalars['String']>;
   bankAccount?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
@@ -6235,6 +6292,9 @@ export type BillingRecipientHistoryRecordUpdateInput = {
   iec?: Maybe<Scalars['String']>;
   bic?: Maybe<Scalars['String']>;
   bankAccount?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
@@ -6360,6 +6420,60 @@ export type BillingRecipientHistoryRecordWhereInput = {
   bankAccount_not_ends_with_i?: Maybe<Scalars['String']>;
   bankAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   bankAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  bankName?: Maybe<Scalars['String']>;
+  bankName_not?: Maybe<Scalars['String']>;
+  bankName_contains?: Maybe<Scalars['String']>;
+  bankName_not_contains?: Maybe<Scalars['String']>;
+  bankName_starts_with?: Maybe<Scalars['String']>;
+  bankName_not_starts_with?: Maybe<Scalars['String']>;
+  bankName_ends_with?: Maybe<Scalars['String']>;
+  bankName_not_ends_with?: Maybe<Scalars['String']>;
+  bankName_i?: Maybe<Scalars['String']>;
+  bankName_not_i?: Maybe<Scalars['String']>;
+  bankName_contains_i?: Maybe<Scalars['String']>;
+  bankName_not_contains_i?: Maybe<Scalars['String']>;
+  bankName_starts_with_i?: Maybe<Scalars['String']>;
+  bankName_not_starts_with_i?: Maybe<Scalars['String']>;
+  bankName_ends_with_i?: Maybe<Scalars['String']>;
+  bankName_not_ends_with_i?: Maybe<Scalars['String']>;
+  bankName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  bankName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  offsettingAccount_not?: Maybe<Scalars['String']>;
+  offsettingAccount_contains?: Maybe<Scalars['String']>;
+  offsettingAccount_not_contains?: Maybe<Scalars['String']>;
+  offsettingAccount_starts_with?: Maybe<Scalars['String']>;
+  offsettingAccount_not_starts_with?: Maybe<Scalars['String']>;
+  offsettingAccount_ends_with?: Maybe<Scalars['String']>;
+  offsettingAccount_not_ends_with?: Maybe<Scalars['String']>;
+  offsettingAccount_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_i?: Maybe<Scalars['String']>;
+  offsettingAccount_contains_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_contains_i?: Maybe<Scalars['String']>;
+  offsettingAccount_starts_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_starts_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_ends_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_ends_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  offsettingAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  territoryCode?: Maybe<Scalars['String']>;
+  territoryCode_not?: Maybe<Scalars['String']>;
+  territoryCode_contains?: Maybe<Scalars['String']>;
+  territoryCode_not_contains?: Maybe<Scalars['String']>;
+  territoryCode_starts_with?: Maybe<Scalars['String']>;
+  territoryCode_not_starts_with?: Maybe<Scalars['String']>;
+  territoryCode_ends_with?: Maybe<Scalars['String']>;
+  territoryCode_not_ends_with?: Maybe<Scalars['String']>;
+  territoryCode_i?: Maybe<Scalars['String']>;
+  territoryCode_not_i?: Maybe<Scalars['String']>;
+  territoryCode_contains_i?: Maybe<Scalars['String']>;
+  territoryCode_not_contains_i?: Maybe<Scalars['String']>;
+  territoryCode_starts_with_i?: Maybe<Scalars['String']>;
+  territoryCode_not_starts_with_i?: Maybe<Scalars['String']>;
+  territoryCode_ends_with_i?: Maybe<Scalars['String']>;
+  territoryCode_not_ends_with_i?: Maybe<Scalars['String']>;
+  territoryCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  territoryCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   purpose?: Maybe<Scalars['String']>;
   purpose_not?: Maybe<Scalars['String']>;
   purpose_contains?: Maybe<Scalars['String']>;
@@ -6481,6 +6595,13 @@ export type BillingRecipientHistoryRecordsUpdateInput = {
   data?: Maybe<BillingRecipientHistoryRecordUpdateInput>;
 };
 
+export type BillingRecipientRelateToOneInput = {
+  create?: Maybe<BillingRecipientCreateInput>;
+  connect?: Maybe<BillingRecipientWhereUniqueInput>;
+  disconnect?: Maybe<BillingRecipientWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type BillingRecipientUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
@@ -6490,6 +6611,9 @@ export type BillingRecipientUpdateInput = {
   iec?: Maybe<Scalars['String']>;
   bic?: Maybe<Scalars['String']>;
   bankAccount?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
@@ -6610,6 +6734,60 @@ export type BillingRecipientWhereInput = {
   bankAccount_not_ends_with_i?: Maybe<Scalars['String']>;
   bankAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   bankAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  bankName?: Maybe<Scalars['String']>;
+  bankName_not?: Maybe<Scalars['String']>;
+  bankName_contains?: Maybe<Scalars['String']>;
+  bankName_not_contains?: Maybe<Scalars['String']>;
+  bankName_starts_with?: Maybe<Scalars['String']>;
+  bankName_not_starts_with?: Maybe<Scalars['String']>;
+  bankName_ends_with?: Maybe<Scalars['String']>;
+  bankName_not_ends_with?: Maybe<Scalars['String']>;
+  bankName_i?: Maybe<Scalars['String']>;
+  bankName_not_i?: Maybe<Scalars['String']>;
+  bankName_contains_i?: Maybe<Scalars['String']>;
+  bankName_not_contains_i?: Maybe<Scalars['String']>;
+  bankName_starts_with_i?: Maybe<Scalars['String']>;
+  bankName_not_starts_with_i?: Maybe<Scalars['String']>;
+  bankName_ends_with_i?: Maybe<Scalars['String']>;
+  bankName_not_ends_with_i?: Maybe<Scalars['String']>;
+  bankName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  bankName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  offsettingAccount_not?: Maybe<Scalars['String']>;
+  offsettingAccount_contains?: Maybe<Scalars['String']>;
+  offsettingAccount_not_contains?: Maybe<Scalars['String']>;
+  offsettingAccount_starts_with?: Maybe<Scalars['String']>;
+  offsettingAccount_not_starts_with?: Maybe<Scalars['String']>;
+  offsettingAccount_ends_with?: Maybe<Scalars['String']>;
+  offsettingAccount_not_ends_with?: Maybe<Scalars['String']>;
+  offsettingAccount_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_i?: Maybe<Scalars['String']>;
+  offsettingAccount_contains_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_contains_i?: Maybe<Scalars['String']>;
+  offsettingAccount_starts_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_starts_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_ends_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_ends_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  offsettingAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  territoryCode?: Maybe<Scalars['String']>;
+  territoryCode_not?: Maybe<Scalars['String']>;
+  territoryCode_contains?: Maybe<Scalars['String']>;
+  territoryCode_not_contains?: Maybe<Scalars['String']>;
+  territoryCode_starts_with?: Maybe<Scalars['String']>;
+  territoryCode_not_starts_with?: Maybe<Scalars['String']>;
+  territoryCode_ends_with?: Maybe<Scalars['String']>;
+  territoryCode_not_ends_with?: Maybe<Scalars['String']>;
+  territoryCode_i?: Maybe<Scalars['String']>;
+  territoryCode_not_i?: Maybe<Scalars['String']>;
+  territoryCode_contains_i?: Maybe<Scalars['String']>;
+  territoryCode_not_contains_i?: Maybe<Scalars['String']>;
+  territoryCode_starts_with_i?: Maybe<Scalars['String']>;
+  territoryCode_not_starts_with_i?: Maybe<Scalars['String']>;
+  territoryCode_ends_with_i?: Maybe<Scalars['String']>;
+  territoryCode_not_ends_with_i?: Maybe<Scalars['String']>;
+  territoryCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  territoryCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   purpose?: Maybe<Scalars['String']>;
   purpose_not?: Maybe<Scalars['String']>;
   purpose_contains?: Maybe<Scalars['String']>;
@@ -14352,20 +14530,470 @@ export type Mutation = {
   registerNewServiceUser?: Maybe<RegisterNewServiceUserOutput>;
   sendMessageToSupport?: Maybe<SendMessageToSupportOutput>;
   resetUser: ResetUserOutput;
+  /**
+   * Registers new Organization for current user
+   *
+   * Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization
+   */
   registerNewOrganization?: Maybe<Organization>;
+  /**
+   * Invites staff-user into specified Organization
+   *
+   * For corresponding User record it creates a new OrganizationEmployee and sends message with notification about invitation
+   * It tries to find already existing User with type "staff" first by phone, then by email.
+   * If User is not found, it will be registered.
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "inviteNewOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "ALREADY_INVITED",
+   *   "message": "Already invited into the organization",
+   *   "messageForUser": "api.inviteNewOrganizationEmployee.ALREADY_INVITED"
+   * }`
+   *
+   * `{
+   *   "mutation": "inviteNewOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Wrong phone format"
+   * }`
+   *
+   * `{
+   *   "mutation": "inviteNewOrganizationEmployee",
+   *   "code": "INTERNAL_ERROR",
+   *   "type": "",
+   *   "message": "Unable to register user"
+   * }`
+   */
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
+  /**
+   * Tries to send notification message again to already invited user
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "reInviteOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Wrong phone format"
+   * }`
+   *
+   * `{
+   *   "mutation": "reInviteOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Could not find Organization by specified search criteria"
+   * }`
+   *
+   * `{
+   *   "mutation": "reInviteOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Could not find User by specified phone or email"
+   * }`
+   *
+   * `{
+   *   "mutation": "reInviteOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Could not find OrganizationEmployee that has not accepted invitation for found User"
+   * }`
+   *
+   * `{
+   *   "mutation": "reInviteOrganizationEmployee",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "ALREADY_ACCEPTED_INVITATION",
+   *   "message": "Corresponding OrganizationEmployee has already accepted invitation"
+   * }`
+   */
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   shareTicket?: Maybe<ShareTicketOutput>;
+  /**
+   * Creates a new ticket for resident
+   *
+   * Corresponding resident, to create the ticket for, is fetched from current logged in user
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "createResidentTicket",
+   *   "variable": [
+   *     "data",
+   *     "property"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find Property by specified id"
+   * }`
+   *
+   * `{
+   *   "mutation": "createResidentTicket",
+   *   "variable": [
+   *     "data",
+   *     "source"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find TicketSource by specified id"
+   * }`
+   */
   createResidentTicket?: Maybe<ResidentTicketOutput>;
+  /**
+   * Updates ticket with specified id for resident, corresponding to current logged in user
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "updateResidentTicket",
+   *   "variable": [
+   *     "id"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find ticket with id \"{ticketId}\" for current user",
+   *   "messageForUser": "api.ticket.updateResidentTicket.TICKET_NOT_FOUND"
+   * }`
+   */
   updateResidentTicket?: Maybe<ResidentTicketOutput>;
+  /**
+   * Sends message of specified type to specified contact
+   *
+   * Each message type has specific set of required fields:
+   *
+   * `{
+   * 	"INVITE_NEW_EMPLOYEE": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"inviteCode": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userName": {
+   * 			"defaultValue": "USERNAME",
+   * 			"required": false
+   * 		},
+   * 		"userEmail": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		},
+   * 		"userPhone": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		},
+   * 		"organizationName": {
+   * 			"defaultValue": "ORGANIZATION",
+   * 			"required": false
+   * 		}
+   * 	},
+   * 	"SHARE_TICKET": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"ticketNumber": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"date": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"id": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"details": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"DIRTY_INVITE_NEW_EMPLOYEE": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"organizationName": {
+   * 			"defaultValue": "ORGANIZATION",
+   * 			"required": false
+   * 		}
+   * 	},
+   * 	"REGISTER_NEW_USER": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userPhone": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		},
+   * 		"userPassword": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		}
+   * 	},
+   * 	"RESET_PASSWORD": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"token": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userName": {
+   * 			"defaultValue": "USERNAME",
+   * 			"required": false
+   * 		},
+   * 		"userEmail": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		}
+   * 	},
+   * 	"SMS_VERIFY": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"smsCode": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"DEVELOPER_IMPORTANT_NOTE_TYPE": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"type": {
+   * 			"defaultValue": "UNKNOWN",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"CUSTOMER_IMPORTANT_NOTE_TYPE": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"type": {
+   * 			"defaultValue": "UNKNOWN",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"MESSAGE_FORWARDED_TO_SUPPORT": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"text": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		},
+   * 		"os": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		},
+   * 		"appVersion": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		},
+   * 		"organizationsData": {
+   * 			"defaultValue": [],
+   * 			"isRequired": false
+   * 		},
+   * 		"attachments": {
+   * 			"defaultValue": [],
+   * 			"isRequired": false
+   * 		}
+   * 	}
+   * }`
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data",
+   *     "to",
+   *     "email"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUIRED",
+   *   "message": "You can not use emailFrom without to.email"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUIRED",
+   *   "message": "You should provide either \"user\" or \"email\" or \"phone\" attribute"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data",
+   *     "meta"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "UNKNOWN_ATTRIBUTE",
+   *   "message": "Unknown attribute \"{attr}\" provided to \"meta\" variable"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data",
+   *     "meta"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUIRED",
+   *   "message": "Missing value for required \"meta.{attr}\" attribute"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data",
+   *     "meta"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_VALUE",
+   *   "message": "Unknown value \"{type}\" provided for message type"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendMessage",
+   *   "variable": [
+   *     "data",
+   *     "meta",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
+   * }`
+   */
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
   syncDevice?: Maybe<Device>;
   disconnectUserFromDevice?: Maybe<DisconnectUserFromDeviceOutput>;
   registerResident?: Maybe<Resident>;
+  /**
+   * Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
+   *
+   * To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "residentId"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find Resident for current user"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "organizationId"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Cannot find Organization for current user"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "accountNumber"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination"
+   * }`
+   *
+   * `{
+   *   "mutation": "registerServiceConsumer",
+   *   "variable": [
+   *     "data",
+   *     "accountNumber"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Argument \"accountNumber\" is null or empty"
+   * }`
+   */
   registerServiceConsumer?: Maybe<ServiceConsumer>;
+  /**
+   * Creates OnBoarding and set of OnBoardingStep records for specified role and user
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "createOnBoardingByType",
+   *   "variable": [
+   *     "data",
+   *     "type"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "ROLE_IS_NOT_SUPPORTED",
+   *   "message": "Role \"{type}\" is not supported to create OnBoarding for"
+   * }`
+   *
+   * `{
+   *   "mutation": "createOnBoardingByType",
+   *   "variable": [
+   *     "data",
+   *     "type"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "ROLE_IS_NOT_SUPPORTED",
+   *   "message": "Step transitions are not defined for role \"{type}\""
+   * }`
+   */
   createOnBoardingByType?: Maybe<OnBoarding>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
@@ -25653,6 +26281,7 @@ export type ResidentBillingReceiptOutput = {
   period: Scalars['String'];
   toPay: Scalars['String'];
   paid: Scalars['String'];
+  explicitFee: Scalars['String'];
   printableNumber?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   services?: Maybe<Array<BillingReceiptServiceField>>;
@@ -28082,6 +28711,8 @@ export enum SortBillingAccountHistoryRecordsBy {
   NumberDesc = 'number_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -28241,6 +28872,8 @@ export enum SortBillingAccountsBy {
   NumberDesc = 'number_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -28590,6 +29223,8 @@ export enum SortBillingReceiptsBy {
   PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
+  ReceiverAsc = 'receiver_ASC',
+  ReceiverDesc = 'receiver_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -28619,6 +29254,12 @@ export enum SortBillingRecipientHistoryRecordsBy {
   BicDesc = 'bic_DESC',
   BankAccountAsc = 'bankAccount_ASC',
   BankAccountDesc = 'bankAccount_DESC',
+  BankNameAsc = 'bankName_ASC',
+  BankNameDesc = 'bankName_DESC',
+  OffsettingAccountAsc = 'offsettingAccount_ASC',
+  OffsettingAccountDesc = 'offsettingAccount_DESC',
+  TerritoryCodeAsc = 'territoryCode_ASC',
+  TerritoryCodeDesc = 'territoryCode_DESC',
   PurposeAsc = 'purpose_ASC',
   PurposeDesc = 'purpose_DESC',
   NameAsc = 'name_ASC',
@@ -28656,6 +29297,12 @@ export enum SortBillingRecipientsBy {
   BicDesc = 'bic_DESC',
   BankAccountAsc = 'bankAccount_ASC',
   BankAccountDesc = 'bankAccount_DESC',
+  BankNameAsc = 'bankName_ASC',
+  BankNameDesc = 'bankName_DESC',
+  OffsettingAccountAsc = 'offsettingAccount_ASC',
+  OffsettingAccountDesc = 'offsettingAccount_DESC',
+  TerritoryCodeAsc = 'territoryCode_ASC',
+  TerritoryCodeDesc = 'territoryCode_DESC',
   PurposeAsc = 'purpose_ASC',
   PurposeDesc = 'purpose_DESC',
   NameAsc = 'name_ASC',
@@ -31112,6 +31759,10 @@ export enum SortTokenSetHistoryRecordsBy {
   RefreshTokenDesc = 'refreshToken_DESC',
   RefreshTokenExpiresAtAsc = 'refreshTokenExpiresAt_ASC',
   RefreshTokenExpiresAtDesc = 'refreshTokenExpiresAt_DESC',
+  ClientSecretAsc = 'clientSecret_ASC',
+  ClientSecretDesc = 'clientSecret_DESC',
+  ClientSecretExpiresAtAsc = 'clientSecretExpiresAt_ASC',
+  ClientSecretExpiresAtDesc = 'clientSecretExpiresAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -31145,6 +31796,10 @@ export enum SortTokenSetsBy {
   RefreshTokenDesc = 'refreshToken_DESC',
   RefreshTokenExpiresAtAsc = 'refreshTokenExpiresAt_ASC',
   RefreshTokenExpiresAtDesc = 'refreshTokenExpiresAt_DESC',
+  ClientSecretAsc = 'clientSecret_ASC',
+  ClientSecretDesc = 'clientSecret_DESC',
+  ClientSecretExpiresAtAsc = 'clientSecretExpiresAt_ASC',
+  ClientSecretExpiresAtDesc = 'clientSecretExpiresAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -37653,6 +38308,10 @@ export type TokenSet = {
   refreshToken?: Maybe<Scalars['String']>;
   /**  Time when we will completly lost control over organization  */
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  /**  Should be known only to application and authorization SBBOL server. It will be presented only in record for our Organization, that an will be an author of requests to SBBOL API in server-server integration. "Our" organization is a record of Organization, created from data, received from SBBOL after successful authorization in application using SBBOL with credentials of SBBOL-account, that represents our company as a partner of SBBOL. So, logically, this field will be initialized only for one record.  */
+  clientSecret?: Maybe<Scalars['String']>;
+  /**  After specified datetime a client secret will be invalid and should be changed. There is a scheduled job for that  */
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -37673,6 +38332,8 @@ export type TokenSetCreateInput = {
   accessTokenExpiresAt?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37702,6 +38363,8 @@ export type TokenSetHistoryRecord = {
   accessTokenExpiresAt?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -37725,6 +38388,8 @@ export type TokenSetHistoryRecordCreateInput = {
   accessTokenExpiresAt?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37753,6 +38418,8 @@ export type TokenSetHistoryRecordUpdateInput = {
   accessTokenExpiresAt?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37858,6 +38525,32 @@ export type TokenSetHistoryRecordWhereInput = {
   refreshTokenExpiresAt_gte?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   refreshTokenExpiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecret_not?: Maybe<Scalars['String']>;
+  clientSecret_contains?: Maybe<Scalars['String']>;
+  clientSecret_not_contains?: Maybe<Scalars['String']>;
+  clientSecret_starts_with?: Maybe<Scalars['String']>;
+  clientSecret_not_starts_with?: Maybe<Scalars['String']>;
+  clientSecret_ends_with?: Maybe<Scalars['String']>;
+  clientSecret_not_ends_with?: Maybe<Scalars['String']>;
+  clientSecret_i?: Maybe<Scalars['String']>;
+  clientSecret_not_i?: Maybe<Scalars['String']>;
+  clientSecret_contains_i?: Maybe<Scalars['String']>;
+  clientSecret_not_contains_i?: Maybe<Scalars['String']>;
+  clientSecret_starts_with_i?: Maybe<Scalars['String']>;
+  clientSecret_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientSecret_ends_with_i?: Maybe<Scalars['String']>;
+  clientSecret_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientSecret_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecret_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_not?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_lt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_lte?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_gt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_gte?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecretExpiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -37947,6 +38640,8 @@ export type TokenSetUpdateInput = {
   accessTokenExpiresAt?: Maybe<Scalars['String']>;
   refreshToken?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt?: Maybe<Scalars['String']>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38045,6 +38740,32 @@ export type TokenSetWhereInput = {
   refreshTokenExpiresAt_gte?: Maybe<Scalars['String']>;
   refreshTokenExpiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   refreshTokenExpiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecret?: Maybe<Scalars['String']>;
+  clientSecret_not?: Maybe<Scalars['String']>;
+  clientSecret_contains?: Maybe<Scalars['String']>;
+  clientSecret_not_contains?: Maybe<Scalars['String']>;
+  clientSecret_starts_with?: Maybe<Scalars['String']>;
+  clientSecret_not_starts_with?: Maybe<Scalars['String']>;
+  clientSecret_ends_with?: Maybe<Scalars['String']>;
+  clientSecret_not_ends_with?: Maybe<Scalars['String']>;
+  clientSecret_i?: Maybe<Scalars['String']>;
+  clientSecret_not_i?: Maybe<Scalars['String']>;
+  clientSecret_contains_i?: Maybe<Scalars['String']>;
+  clientSecret_not_contains_i?: Maybe<Scalars['String']>;
+  clientSecret_starts_with_i?: Maybe<Scalars['String']>;
+  clientSecret_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientSecret_ends_with_i?: Maybe<Scalars['String']>;
+  clientSecret_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientSecret_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecret_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecretExpiresAt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_not?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_lt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_lte?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_gt?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_gte?: Maybe<Scalars['String']>;
+  clientSecretExpiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientSecretExpiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

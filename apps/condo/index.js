@@ -105,7 +105,7 @@ if (!IS_BUILD_PHASE) {
 }
 
 class SberBuisnessOnlineMiddleware {
-    prepareMiddleware () {
+    async prepareMiddleware () {
         const Auth = new SbbolRoutes()
         const app = express()
         // TODO(zuch): find a way to remove bind

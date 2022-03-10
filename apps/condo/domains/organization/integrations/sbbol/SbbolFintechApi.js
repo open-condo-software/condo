@@ -1,6 +1,6 @@
 const { SbbolRequestApi } = require('./SbbolRequestApi')
 const { logger: baseLogger } = require('./common')
-const { getOrganizationAccessToken } = require('./accessToken')
+const { getOrganizationAccessToken } = require('./utils')
 const conf = require('@core/config')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
@@ -236,12 +236,13 @@ class SbbolFintechApi extends SbbolRequestApi {
  * NOTE: Constructor of `SbbolFintechApi` cannot be used, because it must be async, which is not allowed by ES6
  * @return {null|SbbolFintechApi}
  */
-const initSbbolFintechApi = async () => {
+const initSbbolFintechApi = async (context) => {
     let accessToken
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        accessToken = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+        const result = await getOrganizationAccessToken(context, SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+        accessToken = result.accessToken
     } catch (e) {
         logger.error({
             message: 'Failed to obtain organization access token from SBBOL',

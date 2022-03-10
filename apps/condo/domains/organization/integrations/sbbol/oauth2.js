@@ -14,16 +14,16 @@ const JWT_ALG = 'gost34.10-2012'
 const logger = baseLogger.child({ module: 'oauth2' })
 
 class SbbolOauth2Api {
-    constructor () {
-        this.createClient()
+    constructor ({ clientSecret }) {
+        this.createClient(clientSecret)
     }
 
-    createClient () {
+    createClient (clientSecret) {
         this.enableDebugMode()
         this.createIssuer()
         const client = new this.issuer.Client({
             client_id: String(SBBOL_AUTH_CONFIG.client_id),
-            client_secret: SBBOL_AUTH_CONFIG.client_secret,
+            client_secret: clientSecret,
             redirect_uris: [this.redirectUrl],
             response_types: ['code'],
             authorization_signed_response_alg: JWT_ALG,

@@ -9,6 +9,7 @@ const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES, ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const { ISO_CODES } = require('../constants/currencies')
+const { UNIT_TYPES, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const DV_FIELD = {
     type: Integer,
@@ -161,6 +162,15 @@ const IMPORT_ID_FIELD = {
     isRequired: false,
 }
 
+const UNIT_TYPE_FIELD = {
+    schemaDoc: 'Type of unit, such as parking lot or flat',
+    type: Select,
+    options: UNIT_TYPES,
+    dataType: 'string',
+    isRequired: false,
+    defaultValue: FLAT_UNIT_TYPE,
+}
+
 module.exports = {
     DV_FIELD,
     SENDER_FIELD,
@@ -176,4 +186,5 @@ module.exports = {
     POSITIVE_MONEY_AMOUNT_FIELD,
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
+    UNIT_TYPE_FIELD,
 }
