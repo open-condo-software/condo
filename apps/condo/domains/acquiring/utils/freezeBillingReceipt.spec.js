@@ -33,7 +33,14 @@ describe('freezeBillingReceipt', () => {
         expect(data).toHaveProperty('toPayDetails')
         expect(data).toHaveProperty('services')
         expect(data).toHaveProperty('recipient')
-        
+
+        expect(data).toHaveProperty('receiver')
+        const { receiver } = data
+        expect(receiver).toHaveProperty('id')
+        expect(receiver).toHaveProperty('tin')
+        expect(receiver).toHaveProperty('iec')
+        expect(receiver).toHaveProperty('bankAccount')
+
         expect(data).toHaveProperty('property')
         const { property } = data
         expect(property).toHaveProperty('id')
