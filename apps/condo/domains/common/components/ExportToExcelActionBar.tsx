@@ -19,7 +19,14 @@ interface IExportToExcelActionBarProps {
 }
 
 export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (props) => {
-    const { searchObjectsQuery, sortBy, exportToExcelQuery, hidden = false, useTimeZone = true, disabled = false } = props
+    const {
+        searchObjectsQuery,
+        sortBy,
+        exportToExcelQuery,
+        hidden = false,
+        useTimeZone = true,
+        disabled = false,
+    } = props
 
     const intl = useIntl()
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
