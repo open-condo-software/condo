@@ -6161,6 +6161,12 @@ export type BillingRecipient = {
   bic?: Maybe<Scalars['String']>;
   /**  Number of bank account of this recipient  */
   bankAccount?: Maybe<Scalars['String']>;
+  /**  Bank name  */
+  bankName?: Maybe<Scalars['String']>;
+  /**  Bank account  */
+  offsettingAccount?: Maybe<Scalars['String']>;
+  /**  Location code (Classifier of Territories of Municipal Units - OKTMO)  */
+  territoryCode?: Maybe<Scalars['String']>;
   /**  For what reason is this recipient is able to collect payments.  */
   purpose?: Maybe<Scalars['String']>;
   /**  Billing Recipient name. Usually the juristic name of the organization  */
@@ -6188,6 +6194,9 @@ export type BillingRecipientCreateInput = {
   iec?: Maybe<Scalars['String']>;
   bic?: Maybe<Scalars['String']>;
   bankAccount?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
@@ -6220,6 +6229,9 @@ export type BillingRecipientHistoryRecord = {
   iec?: Maybe<Scalars['String']>;
   bic?: Maybe<Scalars['String']>;
   bankAccount?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
@@ -6246,6 +6258,9 @@ export type BillingRecipientHistoryRecordCreateInput = {
   iec?: Maybe<Scalars['String']>;
   bic?: Maybe<Scalars['String']>;
   bankAccount?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
@@ -6277,6 +6292,9 @@ export type BillingRecipientHistoryRecordUpdateInput = {
   iec?: Maybe<Scalars['String']>;
   bic?: Maybe<Scalars['String']>;
   bankAccount?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
@@ -6402,6 +6420,60 @@ export type BillingRecipientHistoryRecordWhereInput = {
   bankAccount_not_ends_with_i?: Maybe<Scalars['String']>;
   bankAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   bankAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  bankName?: Maybe<Scalars['String']>;
+  bankName_not?: Maybe<Scalars['String']>;
+  bankName_contains?: Maybe<Scalars['String']>;
+  bankName_not_contains?: Maybe<Scalars['String']>;
+  bankName_starts_with?: Maybe<Scalars['String']>;
+  bankName_not_starts_with?: Maybe<Scalars['String']>;
+  bankName_ends_with?: Maybe<Scalars['String']>;
+  bankName_not_ends_with?: Maybe<Scalars['String']>;
+  bankName_i?: Maybe<Scalars['String']>;
+  bankName_not_i?: Maybe<Scalars['String']>;
+  bankName_contains_i?: Maybe<Scalars['String']>;
+  bankName_not_contains_i?: Maybe<Scalars['String']>;
+  bankName_starts_with_i?: Maybe<Scalars['String']>;
+  bankName_not_starts_with_i?: Maybe<Scalars['String']>;
+  bankName_ends_with_i?: Maybe<Scalars['String']>;
+  bankName_not_ends_with_i?: Maybe<Scalars['String']>;
+  bankName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  bankName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  offsettingAccount_not?: Maybe<Scalars['String']>;
+  offsettingAccount_contains?: Maybe<Scalars['String']>;
+  offsettingAccount_not_contains?: Maybe<Scalars['String']>;
+  offsettingAccount_starts_with?: Maybe<Scalars['String']>;
+  offsettingAccount_not_starts_with?: Maybe<Scalars['String']>;
+  offsettingAccount_ends_with?: Maybe<Scalars['String']>;
+  offsettingAccount_not_ends_with?: Maybe<Scalars['String']>;
+  offsettingAccount_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_i?: Maybe<Scalars['String']>;
+  offsettingAccount_contains_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_contains_i?: Maybe<Scalars['String']>;
+  offsettingAccount_starts_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_starts_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_ends_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_ends_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  offsettingAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  territoryCode?: Maybe<Scalars['String']>;
+  territoryCode_not?: Maybe<Scalars['String']>;
+  territoryCode_contains?: Maybe<Scalars['String']>;
+  territoryCode_not_contains?: Maybe<Scalars['String']>;
+  territoryCode_starts_with?: Maybe<Scalars['String']>;
+  territoryCode_not_starts_with?: Maybe<Scalars['String']>;
+  territoryCode_ends_with?: Maybe<Scalars['String']>;
+  territoryCode_not_ends_with?: Maybe<Scalars['String']>;
+  territoryCode_i?: Maybe<Scalars['String']>;
+  territoryCode_not_i?: Maybe<Scalars['String']>;
+  territoryCode_contains_i?: Maybe<Scalars['String']>;
+  territoryCode_not_contains_i?: Maybe<Scalars['String']>;
+  territoryCode_starts_with_i?: Maybe<Scalars['String']>;
+  territoryCode_not_starts_with_i?: Maybe<Scalars['String']>;
+  territoryCode_ends_with_i?: Maybe<Scalars['String']>;
+  territoryCode_not_ends_with_i?: Maybe<Scalars['String']>;
+  territoryCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  territoryCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   purpose?: Maybe<Scalars['String']>;
   purpose_not?: Maybe<Scalars['String']>;
   purpose_contains?: Maybe<Scalars['String']>;
@@ -6539,6 +6611,9 @@ export type BillingRecipientUpdateInput = {
   iec?: Maybe<Scalars['String']>;
   bic?: Maybe<Scalars['String']>;
   bankAccount?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isApproved?: Maybe<Scalars['Boolean']>;
@@ -6659,6 +6734,60 @@ export type BillingRecipientWhereInput = {
   bankAccount_not_ends_with_i?: Maybe<Scalars['String']>;
   bankAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   bankAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  bankName?: Maybe<Scalars['String']>;
+  bankName_not?: Maybe<Scalars['String']>;
+  bankName_contains?: Maybe<Scalars['String']>;
+  bankName_not_contains?: Maybe<Scalars['String']>;
+  bankName_starts_with?: Maybe<Scalars['String']>;
+  bankName_not_starts_with?: Maybe<Scalars['String']>;
+  bankName_ends_with?: Maybe<Scalars['String']>;
+  bankName_not_ends_with?: Maybe<Scalars['String']>;
+  bankName_i?: Maybe<Scalars['String']>;
+  bankName_not_i?: Maybe<Scalars['String']>;
+  bankName_contains_i?: Maybe<Scalars['String']>;
+  bankName_not_contains_i?: Maybe<Scalars['String']>;
+  bankName_starts_with_i?: Maybe<Scalars['String']>;
+  bankName_not_starts_with_i?: Maybe<Scalars['String']>;
+  bankName_ends_with_i?: Maybe<Scalars['String']>;
+  bankName_not_ends_with_i?: Maybe<Scalars['String']>;
+  bankName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  bankName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  offsettingAccount_not?: Maybe<Scalars['String']>;
+  offsettingAccount_contains?: Maybe<Scalars['String']>;
+  offsettingAccount_not_contains?: Maybe<Scalars['String']>;
+  offsettingAccount_starts_with?: Maybe<Scalars['String']>;
+  offsettingAccount_not_starts_with?: Maybe<Scalars['String']>;
+  offsettingAccount_ends_with?: Maybe<Scalars['String']>;
+  offsettingAccount_not_ends_with?: Maybe<Scalars['String']>;
+  offsettingAccount_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_i?: Maybe<Scalars['String']>;
+  offsettingAccount_contains_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_contains_i?: Maybe<Scalars['String']>;
+  offsettingAccount_starts_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_starts_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_ends_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_not_ends_with_i?: Maybe<Scalars['String']>;
+  offsettingAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  offsettingAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  territoryCode?: Maybe<Scalars['String']>;
+  territoryCode_not?: Maybe<Scalars['String']>;
+  territoryCode_contains?: Maybe<Scalars['String']>;
+  territoryCode_not_contains?: Maybe<Scalars['String']>;
+  territoryCode_starts_with?: Maybe<Scalars['String']>;
+  territoryCode_not_starts_with?: Maybe<Scalars['String']>;
+  territoryCode_ends_with?: Maybe<Scalars['String']>;
+  territoryCode_not_ends_with?: Maybe<Scalars['String']>;
+  territoryCode_i?: Maybe<Scalars['String']>;
+  territoryCode_not_i?: Maybe<Scalars['String']>;
+  territoryCode_contains_i?: Maybe<Scalars['String']>;
+  territoryCode_not_contains_i?: Maybe<Scalars['String']>;
+  territoryCode_starts_with_i?: Maybe<Scalars['String']>;
+  territoryCode_not_starts_with_i?: Maybe<Scalars['String']>;
+  territoryCode_ends_with_i?: Maybe<Scalars['String']>;
+  territoryCode_not_ends_with_i?: Maybe<Scalars['String']>;
+  territoryCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  territoryCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   purpose?: Maybe<Scalars['String']>;
   purpose_not?: Maybe<Scalars['String']>;
   purpose_contains?: Maybe<Scalars['String']>;
@@ -29125,6 +29254,12 @@ export enum SortBillingRecipientHistoryRecordsBy {
   BicDesc = 'bic_DESC',
   BankAccountAsc = 'bankAccount_ASC',
   BankAccountDesc = 'bankAccount_DESC',
+  BankNameAsc = 'bankName_ASC',
+  BankNameDesc = 'bankName_DESC',
+  OffsettingAccountAsc = 'offsettingAccount_ASC',
+  OffsettingAccountDesc = 'offsettingAccount_DESC',
+  TerritoryCodeAsc = 'territoryCode_ASC',
+  TerritoryCodeDesc = 'territoryCode_DESC',
   PurposeAsc = 'purpose_ASC',
   PurposeDesc = 'purpose_DESC',
   NameAsc = 'name_ASC',
@@ -29162,6 +29297,12 @@ export enum SortBillingRecipientsBy {
   BicDesc = 'bic_DESC',
   BankAccountAsc = 'bankAccount_ASC',
   BankAccountDesc = 'bankAccount_DESC',
+  BankNameAsc = 'bankName_ASC',
+  BankNameDesc = 'bankName_DESC',
+  OffsettingAccountAsc = 'offsettingAccount_ASC',
+  OffsettingAccountDesc = 'offsettingAccount_DESC',
+  TerritoryCodeAsc = 'territoryCode_ASC',
+  TerritoryCodeDesc = 'territoryCode_DESC',
   PurposeAsc = 'purpose_ASC',
   PurposeDesc = 'purpose_DESC',
   NameAsc = 'name_ASC',
