@@ -99,13 +99,14 @@ test('getCookie test util', async () => {
 })
 
 test('oidc', async () => {
+    const uri = 'https://jwt.io/'
     const clientId = getRandomString()
     const clientSecret = getRandomString()
     await createClient({
         // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
         client_id: clientId,
         client_secret: clientSecret,
-        redirect_uris: ['https://jwt.io/'], // using jwt.io as redirect_uri to show the ID Token contents
+        redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
         response_types: ['code id_token', 'code', 'id_token'],
         grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
         token_endpoint_auth_method: 'client_secret_basic',
@@ -120,7 +121,7 @@ test('oidc', async () => {
     const serverSideOidcClient = new oidcIssuer.Client({
         client_id: clientId,
         client_secret: clientSecret,
-        redirect_uris: ['https://jwt.io/'], // using jwt.io as redirect_uri to show the ID Token contents
+        redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
         response_types: ['code id_token'],
         token_endpoint_auth_method: 'client_secret_basic',
     })
@@ -138,14 +139,14 @@ test('oidc', async () => {
 
     const redirectTo = `${c.serverUrl}${'/oidc' + res1.data.redirectTo.split('/oidc')[1]}`
 
-    const res2 = await request(redirectTo, res1.cookie) // redirect to jwt.io
+    const res2 = await request(redirectTo, res1.cookie) // redirect to uri
     expect(res2.status).toBe(200)
     expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig', '_session', '_session.sig', '_session.legacy', '_session.legacy.sig'])
 
     // 3) callback to server side ( callback with code to oidc app site; server get the access and cann use it )
 
-    const params = serverSideOidcClient.callbackParams(res2.url.replace('https://jwt.io/#', 'https://jwt.io/?'))
-    const tokenSet = await serverSideOidcClient.callback('https://jwt.io/', { code: params.code }, { nonce })
+    const params = serverSideOidcClient.callbackParams(res2.url.replace(`${uri}#`, `${uri}?`))
+    const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
     expect(tokenSet.access_token).toHaveLength(43) // important to be 43!
     expect(tokenSet.id_token.length > 10).toBeTruthy()
 
