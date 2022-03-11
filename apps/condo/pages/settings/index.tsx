@@ -26,14 +26,12 @@ const SettingsPage = () => {
     const AcquiringTitle = intl.formatMessage({ id: 'menu.Acquiring' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
-    const hasAcquiringFeature = hasFeature('acquiring')
 
     const router = useRouter()
     const { tab } = parseQuery(router.query)
 
     const availableTabs = useMemo(() => {
         const result = ['billing']
-        if (hasAcquiringFeature) result.push('acquiring')
         if (hasSubscriptionFeature) result.push('subscription')
         return result
     }, [hasSubscriptionFeature])
@@ -80,16 +78,12 @@ const SettingsPage = () => {
                                 >
                                     <BillingChooser/>
                                 </Tabs.TabPane>
-                                {
-                                    hasAcquiringFeature && (
-                                        <Tabs.TabPane
-                                            key={'acquiring'}
-                                            tab={AcquiringTitle}
-                                        >
-                                            <AcquiringChooser/>
-                                        </Tabs.TabPane>
-                                    )
-                                }
+                                <Tabs.TabPane
+                                    key={'acquiring'}
+                                    tab={AcquiringTitle}
+                                >
+                                    <AcquiringChooser/>
+                                </Tabs.TabPane>
                                 <Tabs.TabPane
                                     key="rolesAndAccess"
                                     tab={(
