@@ -105,5 +105,4 @@ export {
     useDelete,
     convertToUIFormState,
     extractAttributes,
-    convertToGQLInput,
 }
