@@ -7,7 +7,7 @@ const Big = require('big.js')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
-const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
     BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
@@ -19,7 +19,7 @@ const { GQLCustomSchema, find } = require('@core/keystone/schema')
 
 
 /**
- * Sums all DONE payments for billingReceipt for <organization> with <accountNumber> and <period>
+ * Sums all DONE or WITHDRAWN payments for billingReceipt for <organization> with <accountNumber> and <period>
  * @param context {Object}
  * @param organizationId {string}
  * @param accountNumber {string}
@@ -33,7 +33,7 @@ const getPaymentsSum = async (context, organizationId, accountNumber, period, bi
         organization: { id: organizationId },
         accountNumber: accountNumber,
         period: period,
-        status: PAYMENT_DONE_STATUS,
+        status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
         recipientBic: bic,
         recipientBankAccount: bankAccount,
     })
