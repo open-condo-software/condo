@@ -12,7 +12,7 @@ const GET_ALL_BILLING_PROPERTIES_BY_VALUE_QUERY = gql`
 `
 
 const GET_ALL_ACQUIRING_INTEGRATION_CONTEXTS_BY_VALUE_QUERY = gql`
-    query selectAcquiringIntegrationContexts ($where: AcquiringIntegrationContextWhereInput, $orderBy: String, $first: Int, $skip: Int) {
+    query selectAcquiringIntegrationContext ($where: AcquiringIntegrationContextWhereInput, $orderBy: String, $first: Int, $skip: Int) {
         objs: allAcquiringIntegrationContexts(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
             id
             integration {
@@ -64,7 +64,7 @@ export function searchBillingProperty (billingContext: BillingIntegrationOrganiz
     }
 }
 
-export function searchAcquiringIntegration (organizationId: string): any {
+export function searchAcquiringIntegration (organizationId: string) {
     if (!organizationId) {
         return
     }
