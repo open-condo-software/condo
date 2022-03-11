@@ -38,7 +38,7 @@ async function canManagePaymentsFilterTemplates ({ authentication: { item: user 
         return true
     } else if (operation === 'update') {
         if (!itemId) return false
-        const templateToEdit = await getById('TicketFilterTemplate', itemId)
+        const templateToEdit = await getById('PaymentsFilterTemplate', itemId)
 
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             id: templateToEdit.employee,
