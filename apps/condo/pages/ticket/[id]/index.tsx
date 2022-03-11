@@ -314,8 +314,8 @@ const TicketContent = ({ ticket }) => {
                                         <Typography.Link style={TICKET_CARD_LINK_STYLE}>
                                             <TicketUserInfoField
                                                 user={{
-                                                    name: get(ticket, 'clientName'),
-                                                    phone: get(ticket, 'clientPhone'),
+                                                    name: get(ticket, ['contact', 'name']),
+                                                    phone: get(ticket, ['contact', 'phone']),
                                                 }}
                                             />
                                         </Typography.Link>
@@ -413,7 +413,6 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const HoursShortMessage = intl.formatMessage({ id: 'HoursShort' })
     const MinutesShortMessage = intl.formatMessage({ id: 'MinutesShort' })
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
-    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.CanReadByResident' })
     const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
 
     const router = useRouter()
