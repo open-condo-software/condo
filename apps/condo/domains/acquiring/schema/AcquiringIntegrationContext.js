@@ -33,6 +33,9 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            access: {
+                update: false,
+            },
         },
 
         settings: {
@@ -55,28 +58,21 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     hasValidJsonStructure(args, true, 1, {})
                 },
             },
+            access: {
+
+            }
         },
 
         paymentsAllowedFrom: {
             schemaDoc: 'Datetime from which you are allowed to pay from this acquiring',
             type: DateTimeUtc,
             isRequired: false,
-            access: {
-                create: true,
-                update: true,
-                read: true,
-            },
         },
         
         paymentsAllowedTo: {
             schemaDoc: 'Datetime to which you are allowed to pay from this acquiring',
             type: DateTimeUtc,
             isRequired: false,
-            access: {
-                create: true,
-                update: true,
-                read: true,
-            },
         },
         
         isPaymentsAllowed: {
