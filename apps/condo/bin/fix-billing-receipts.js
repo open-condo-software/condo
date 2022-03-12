@@ -2,7 +2,7 @@
  * Creates and links billing recipients for all billing receipts
  *
  * Usage:
- *      yarn workspace @app/condo fix-billing-receipts
+ *      yarn workspace @app/condo node bin/fix-billing-receipts
  */
 
 const { get } = require('lodash')
@@ -37,6 +37,11 @@ async function main () {
     for ( let i = 0; i < allBillingReceipts.length; ++i) {
 
         const receipt = allBillingReceipts[i]
+
+        // Skip if receipt is softDeleted
+        if (receipt.deletedAt) {
+            continue
+        }
 
         const receiptId = get(receipt, 'id')
         const recipient = get(receipt, 'recipient')
