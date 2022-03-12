@@ -6,7 +6,9 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { useIntl } from '@core/next/intl'
 import { Typography } from 'antd'
 import Head from 'next/head'
-import React from 'react'
+import React, { CSSProperties } from 'react'
+
+const PAGE_HEADER_TITLE_STYLES: CSSProperties = { margin: 0 }
 
 const PaymentsPage = () => {
     const intl = useIntl()
@@ -20,7 +22,9 @@ const PaymentsPage = () => {
                 </title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{TheTitle}</Typography.Title>}/>
+                <PageHeader
+                    title={<Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{TheTitle}</Typography.Title>}
+                />
                 <TablePageContent>
                     <PaymentsPageContent/>
                 </TablePageContent>

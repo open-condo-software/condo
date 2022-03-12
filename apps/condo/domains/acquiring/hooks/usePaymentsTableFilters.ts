@@ -3,6 +3,7 @@ import { searchAcquiringIntegration, searchBillingProperty } from '@condo/domain
 import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@core/next/intl'
+import { get } from 'lodash'
 import { useMemo } from 'react'
 
 const addressFilter = getStringContainsFilter(['receipt', 'property', 'address'])
@@ -96,5 +97,5 @@ export function usePaymentsTableFilters (
                 },
             },
         ]
-    }, [])
+    }, [get(billingContext, 'id', null), organizationId])
 }
