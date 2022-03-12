@@ -31,10 +31,15 @@ const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 
 const dayjs = require('dayjs')
 const Big = require('big.js')
-const { MULTIPAYMENT_DONE_STATUS } = require(
-    '@condo/domains/acquiring/constants/payment')
-const { PAYMENT_DONE_STATUS } = require(
-    '@condo/domains/acquiring/constants/payment')
+const {
+    MULTIPAYMENT_DONE_STATUS,
+    PAYMENT_DONE_STATUS,
+    PAYMENT_PROCESSING_STATUS,
+    MULTIPAYMENT_PROCESSING_STATUS,
+    PAYMENT_WITHDRAWN_STATUS,
+    MULTIPAYMENT_WITHDRAWN_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
+
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -458,42 +463,67 @@ async function makePayerAndPayments (receiptsAmount = 1) {
  * As a resident pay for single billing receipt with specified <amount>,
  * As an integrationClient complete payment
  *
- * Currently working with fees is not implemented
+ * Currently fees are not implemented
  *
  * @param {Object} residentClient
  * @param {Object} integrationClient
  * @param {string} serviceConsumerId
  * @param {string} receiptId
  * @param {Object} extra
+ * @param {string} targetStatus "DONE" or "WITHDRAWN" - a status, which should be set on completed payment
  * @return {Promise<{doneMultiPayment: ({data: *, errors: *}|*)}>}
  */
-async function completeTestPayment(residentClient, integrationClient, serviceConsumerId, receiptId, extra = {}) {
+async function completeTestPayment(residentClient, integrationClient, serviceConsumerId, receiptId, extra = {}, targetStatus = "DONE") {
     const registerMultiPaymentPayload = {
         consumerId: serviceConsumerId,
         receipts: [{id: receiptId}],
     }
     const [ { multiPaymentId } ] = await registerMultiPaymentByTestClient(residentClient, registerMultiPaymentPayload)
-
-    // Acquiring integration makes payment and multiPayment done
     const [ multiPayment ] = await MultiPayment.getAll(integrationClient, { id: multiPaymentId })
-    await updateTestPayment(integrationClient, multiPayment.payments[0].id, {
-        explicitFee: '0.0',
-        advancedAt: dayjs().toISOString(),
-        status: PAYMENT_DONE_STATUS,
-    })
-    const multiPaymentDonePayload = {
-        explicitFee: '0.0',
-        explicitServiceCharge: '0.0',
-        withdrawnAt: dayjs().toISOString(),
-        cardNumber: getRandomHiddenCard(),
-        paymentWay: 'CARD',
-        transactionId: faker.datatype.uuid(),
-        status: MULTIPAYMENT_DONE_STATUS,
-    }
-    const [ doneMultiPayment ] = await updateTestMultiPayment(integrationClient, multiPayment.id, multiPaymentDonePayload)
 
-    return { doneMultiPayment }
+    if (targetStatus === 'DONE') {
+        await updateTestPayment(integrationClient, multiPayment.payments[0].id, {
+            explicitFee: '0.0',
+            advancedAt: dayjs().toISOString(),
+            status: PAYMENT_DONE_STATUS,
+        })
+        const multiPaymentDonePayload = {
+            explicitFee: '0.0',
+            explicitServiceCharge: '0.0',
+            withdrawnAt: dayjs().toISOString(),
+            cardNumber: getRandomHiddenCard(),
+            paymentWay: 'CARD',
+            transactionId: faker.datatype.uuid(),
+            status: MULTIPAYMENT_DONE_STATUS,
+        }
+        const [ doneMultiPayment ] = await updateTestMultiPayment(integrationClient, multiPayment.id, multiPaymentDonePayload)
+        return { doneMultiPayment }
+    }
+    else if (targetStatus === 'WITHDRAWN') {
+        await updateTestPayment(integrationClient, multiPayment.payments[0].id, {
+            explicitFee: '0.0',
+            status: PAYMENT_PROCESSING_STATUS,
+        })
+        await updateTestMultiPayment(integrationClient, multiPayment.id, {
+            explicitFee: '0.0',
+            explicitServiceCharge: '0.0',
+            status: MULTIPAYMENT_PROCESSING_STATUS,
+        })
+        await updateTestPayment(integrationClient, multiPayment.payments[0].id, {
+            advancedAt: dayjs().toISOString(),
+            status: PAYMENT_WITHDRAWN_STATUS,
+        })
+        const [ withdrawnMultiPayment ] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
+            withdrawnAt: dayjs().toISOString(),
+            cardNumber: getRandomHiddenCard(),
+            paymentWay: 'CARD',
+            transactionId: faker.datatype.uuid(),
+            status: MULTIPAYMENT_WITHDRAWN_STATUS,
+        })
+        return { withdrawnMultiPayment }
+    }
 }
+
 
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
