@@ -31,7 +31,7 @@ const SettingsPage = () => {
     const { tab } = parseQuery(router.query)
 
     const availableTabs = useMemo(() => {
-        const result = ['billing']
+        const result = ['billing', 'acquiring']
         if (hasSubscriptionFeature) result.push('subscription')
         return result
     }, [hasSubscriptionFeature])
