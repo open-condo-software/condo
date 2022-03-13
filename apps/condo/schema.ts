@@ -23939,7 +23939,6 @@ export type Query = {
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
-  exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   exportTicketsToExcel?: Maybe<ExportTicketsToExcelOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
@@ -23947,6 +23946,7 @@ export type Query = {
   allResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
+  exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -26586,11 +26586,6 @@ export type QueryAllResidentBillingReceiptsArgs = {
 };
 
 
-export type QueryExportPaymentsToExcelArgs = {
-  data: ExportPaymentsToExcelInput;
-};
-
-
 export type QueryTicketReportWidgetDataArgs = {
   data: TicketReportWidgetInput;
 };
@@ -26626,6 +26621,11 @@ export type QueryExportContactsToExcelArgs = {
 
 export type QueryExportMeterReadingsArgs = {
   data: ExportMeterReadingsInput;
+};
+
+
+export type QueryExportPaymentsToExcelArgs = {
+  data: ExportPaymentsToExcelInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {

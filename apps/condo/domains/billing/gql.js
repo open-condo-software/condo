@@ -5,7 +5,6 @@
  */
 
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
-const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const BILLING_INTEGRATION_DATA_FORMAT_FIELDS = '{ hasToPayDetails hasServices hasServicesDetails }'
@@ -50,12 +49,6 @@ const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESI
 const BILLING_RECIPIENT_FIELDS = `{ context { id } importId tin iec bic bankAccount purpose isApproved meta name ${COMMON_FIELDS} }`
 const BillingRecipient = generateGqlQueries('BillingRecipient', BILLING_RECIPIENT_FIELDS)
 
-const EXPORT_PAYMENTS_TO_EXCEL_MUTATION = gql`
-    query exportPaymentsToExcel ($data: ExportPaymentsToExcelInput!) {
-        result: exportPaymentsToExcel(data: $data) { status, linkToFile }
-    }
-`
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -72,6 +65,5 @@ module.exports = {
     ResidentBillingReceipt,
     RESIDENT_BILLING_RECEIPTS_FIELDS,
     BillingRecipient,
-    EXPORT_PAYMENTS_TO_EXCEL_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
