@@ -25,7 +25,7 @@ import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
@@ -120,8 +120,8 @@ export const MetersPageContent = ({
                             ) :
                             (
                                 <Row gutter={METERS_PAGE_CONTENT_ROW_GUTTERS} align={'middle'} justify={'center'}>
-                                    <Col span={23}>
-                                        <FocusContainer padding={'16px'}>
+                                    <Col span={24}>
+                                        <TableFiltersContainer>
                                             <Row justify={'space-between'} gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
                                                 <Col xs={24} lg={7}>
                                                     <Input
@@ -167,7 +167,7 @@ export const MetersPageContent = ({
                                                     </Row>
                                                 </Col>
                                             </Row>
-                                        </FocusContainer>
+                                        </TableFiltersContainer>
                                     </Col>
                                     <Col span={24}>
                                         <Table
