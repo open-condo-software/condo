@@ -7,7 +7,7 @@ import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { Button } from '@condo/domains/common/components/Button'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -99,8 +99,8 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     return (
         <>
             <Row gutter={ROW_GUTTER} align="middle" justify="center">
-                <Col span={23}>
-                    <FocusContainer padding="16px">
+                <Col span={24}>
+                    <TableFiltersContainer>
                         <Row>
                             <Col xs={24} sm={12} lg={8} flex="auto">
                                 <Input
@@ -142,7 +142,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                 </Row>
                             </Col>
                         </Row>
-                    </FocusContainer>
+                    </TableFiltersContainer>
                 </Col>
 
                 <Col span={24}>
