@@ -7,10 +7,10 @@ import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { Button } from '@condo/domains/common/components/Button'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -30,6 +30,7 @@ const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
+const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 
 interface IPaymentsTableProps {
     billingContext: BillingIntegrationOrganizationContext,
@@ -101,26 +102,31 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
             <Row gutter={ROW_GUTTER} align="middle" justify="center">
                 <Col span={24}>
                     <TableFiltersContainer>
-                        <Row>
-                            <Col xs={24} sm={12} lg={8} flex="auto">
-                                <Input
-                                    placeholder={searchPlaceholder}
-                                    value={search}
-                                    onChange={(e) => {
-                                        handleSearchChange(e.target.value)
-                                    }}
-                                />
+                        <Row justify="end" gutter={TAP_BAR_ROW_GUTTER}>
+                            <Col flex="auto">
+                                <Row gutter={TAP_BAR_ROW_GUTTER}>
+                                    <Col xs={24} sm={12} lg={8}>
+                                        <Input
+                                            placeholder={searchPlaceholder}
+                                            value={search}
+                                            onChange={(e) => {
+                                                handleSearchChange(e.target.value)
+                                            }}
+                                        />
+                                    </Col>
+                                    <Col xs={24} sm={{ span: 11, offset: 1 }} lg={{ span: 11, offset: 1 }}>
+                                        <DateRangePicker
+                                            value={dateRange}
+                                            onChange={(range) => {
+                                                setDateRange(range)
+                                            }}
+                                        />
+                                    </Col>
+                                </Row>
                             </Col>
-                            <Col xs={24} sm={{ span: 11, offset: 1 }} lg={{ span: 7, offset: 1 }}>
-                                <DateRangePicker
-                                    value={dateRange}
-                                    onChange={(range) => {
-                                        setDateRange(range)
-                                    }}
-                                />
-                            </Col>
-                            <Col>
-                                <Row justify={'end'} align={'middle'}>
+
+                            <Col offset={1}>
+                                <Row justify="end" align="middle">
                                     {
                                         appliedFiltersCount > 0 && (
                                             <Col>
@@ -131,7 +137,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                     <Col>
                                         <Button
                                             secondary
-                                            type={'sberPrimary'}
+                                            type="sberPrimary"
                                             onClick={() => setIsMultipleFiltersModalVisible(true)}
                                         >
                                             <FilterFilled/>
