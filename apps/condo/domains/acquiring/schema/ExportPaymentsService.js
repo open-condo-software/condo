@@ -3,7 +3,7 @@
  */
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const access = require('@condo/domains/billing/access/ExportPaymentsService')
+const access = require('@condo/domains/acquiring/access/ExportPaymentsService')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const dayjs = require('dayjs')
@@ -55,7 +55,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
 
                 const linkToFile = await createExportFile({
                     fileName: `payments_${dayjs().format('DD_MM')}.xlsx`,
-                    templatePath: './domains/billing/templates/PaymentsExportTemplate.xlsx',
+                    templatePath: './domains/acquiring/templates/PaymentsExportTemplate.xlsx',
                     replaces: { objs: excelRows },
                     meta: {
                         listkey: 'Payment',

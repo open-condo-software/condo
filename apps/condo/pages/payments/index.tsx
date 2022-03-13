@@ -1,4 +1,4 @@
-import PaymentsPageContent from '@condo/domains/billing/components/payments/PaymentsPageContent'
+import PaymentsPageContent from '@condo/domains/acquiring/components/payments/PaymentsPageContent'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
