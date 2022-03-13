@@ -24,7 +24,7 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { FiltersTooltip, useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 
@@ -152,8 +152,8 @@ export const TicketsPageContent = ({
                                 createLabel={CreateTicket}/>
                             : (
                                 <Row gutter={ROW_GUTTER} align={'middle'} justify={'center'}>
-                                    <Col span={23}>
-                                        <FocusContainer padding={'16px'}>
+                                    <Col span={24}>
+                                        <TableFiltersContainer>
                                             <Row justify={'end'} gutter={TAP_BAR_ROW_GUTTER}>
                                                 <Col flex={'auto'}>
                                                     <Row
@@ -226,7 +226,7 @@ export const TicketsPageContent = ({
                                                     </Row>
                                                 </Col>
                                             </Row>
-                                        </FocusContainer>
+                                        </TableFiltersContainer>
                                     </Col>
                                     <Col span={24}>
                                         <Table
