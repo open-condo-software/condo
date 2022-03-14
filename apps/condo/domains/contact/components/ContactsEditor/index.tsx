@@ -1,17 +1,22 @@
-import { find, get, debounce } from 'lodash'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Col, Form, FormInstance, Input, Row, Skeleton } from 'antd'
-import { PlusCircleFilled } from '@ant-design/icons'
-import React, { useEffect, useState } from 'react'
-import { useIntl } from '@core/next/intl'
-import { Labels } from './Labels'
-import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
-import { ContactOption } from './ContactOption'
-import { Button } from '@condo/domains/common/components/Button'
-import { green } from '@ant-design/colors'
+import { PlusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
+import { useIntl } from '@core/next/intl'
+
+import find from 'lodash/find'
+import get from 'lodash/get'
+import debounce from 'lodash/debounce'
+import isEmpty from 'lodash/isEmpty'
+
+import { Button } from '@condo/domains/common/components/Button'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
+import { colors } from '@condo/domains/common/constants/style'
+import { Labels } from './Labels'
+import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
+import { ContactOption } from './ContactOption'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -149,9 +154,37 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             [fields.phone]: contact.phone,
         })
         setValue(contact)
+        setSelectedContact(contact)
         const isNew = !contact.id
         onChange && onChange(contact, isNew)
     }
+
+    const initialValueIsPresentedInFetchedContacts = fetchedContacts && initialValue && initialValue.name && initialValue.phone && find(fetchedContacts, initialValue)
+
+    const sameAsInitial = (contact) => (
+        initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone
+    )
+
+    const isContactSelected = useCallback((contact) => {
+        if (selectedContact) return selectedContact.id === contact.id
+
+        if (!editableFieldsChecked) {
+            if (sameAsInitial(contact)) return true
+        }
+
+        return false
+    }, [editableFieldsChecked, initialValue, sameAsInitial, selectedContact, triggerOnChange])
+
+
+    const contactOptions = useMemo(() => fetchedContacts.map((contact) => (
+        <ContactOption
+            key={contact.id}
+            contact={contact}
+            onSelect={handleSelectContact}
+            selected={isContactSelected(contact)}
+        />
+    )), [fetchedContacts, handleSelectContact, isContactSelected])
+
 
     if (loading) {
         return (
@@ -163,12 +196,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         console.warn(error)
         throw error
     }
-
-    const initialValueIsPresentedInFetchedContacts = fetchedContacts && initialValue && initialValue.name && initialValue.phone && find(fetchedContacts, initialValue)
-
-    const sameAsInitial = (contact) => (
-        initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone
-    )
 
     return (
         <Row gutter={[40, 25]}>
@@ -186,18 +213,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                         />
                     ) : (
                         <>
-                            {fetchedContacts.map((contact, i) => (
-                                <ContactOption
-                                    key={contact.id}
-                                    contact={contact}
-                                    onSelect={handleSelectContact}
-                                    selected={
-                                        selectedContact
-                                            ? selectedContact.id === contact.id
-                                            : !editableFieldsChecked && (sameAsInitial(contact) || !initialValue && i === 0)
-                                    }
-                                />
-                            ))}
+                            {contactOptions}
                             <>
                                 {(displayEditableContactFields || (initialValue && !initialValueIsPresentedInFetchedContacts)) ? (
                                     <>
@@ -226,12 +242,12 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                         <Button
                                             type="link"
                                             style={{
-                                                color: green[6],
+                                                color: colors.black,
                                                 paddingLeft: '5px',
                                             }}
                                             onClick={handleClickOnPlusButton}
-                                            icon={<PlusCircleFilled style={{
-                                                color: green[6],
+                                            icon={<PlusCircleOutlined style={{
+                                                color: colors.black,
                                                 fontSize: 21,
                                                 position: 'relative',
                                                 top: '2px',

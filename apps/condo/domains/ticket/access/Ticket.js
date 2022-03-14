@@ -14,7 +14,7 @@ const { getById, find } = require('@core/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
-async function canReadTickets ({ authentication: { item: user } }) {
+async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -22,14 +22,22 @@ async function canReadTickets ({ authentication: { item: user } }) {
 
     if (user.type === RESIDENT) {
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+
+        if (isEmpty(residents)) return false
+
         const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
+        const residentAddressOrStatement = residents.map(resident =>
+            ({ AND: [{ canReadByResident: true, contact: { phone: user.phone } }, { property: { id: resident.property } }, { unitName: resident.unitName }] }))
 
         return {
             organization: {
                 id_in: uniq(organizationsIds),
                 deletedAt: null,
             },
-            createdBy: { id: user.id },
+            OR: [
+                { createdBy: { id: user.id } },
+                ...residentAddressOrStatement,
+            ],
         }
     }
 

@@ -4,7 +4,27 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@{{app}}/domains/{{ domain }}/access/{{name}}')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
+const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
+/**
+ * List of possible errors, that this custom schema can throw
+ * They will be rendered in documentation section in GraphiQL for this custom schema
+ */
+const errors = {
+    NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY: {
+        {%- if type == "mutations" -%}
+        mutation: '{{ convertFirstLetterToLower(name.replace("Service", "")) }}',
+        {%- else %}
+        query: '{{ convertFirstLetterToLower(name.replace("Service", "")) }}',
+        {%- endif %}
+        variable: ['data', 'someVar'], // TODO(codegen): Provide path to a query/mutation variable, whose value caused this error. Remove this property, if variables are not relevant to this error
+        code: BAD_USER_INPUT, // TODO(codegen): use one of the basic codes, declared in '@core/keystone/errors'
+        type: NOT_FOUND, // TODO(codegen): use value from `constants/errors.js` either from 'common' or current domain
+        message: 'Describe what happened for developer',
+        messageForUser: 'api.user.{{ convertFirstLetterToLower(name.replace("Service", "")) }}.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO(codegen): localized message for user, use translation files
+    },
+}
 
 const {{ name }} = new GQLCustomSchema('{{ name }}', {
     types: [
@@ -27,6 +47,8 @@ const {{ name }} = new GQLCustomSchema('{{ name }}', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(codegen): write {{ name }} logic!
                 const { data } = args
+                // TODO: throw errors in a following way
+                // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
                 return {
                     id: null,
                 }
@@ -41,6 +63,9 @@ const {{ name }} = new GQLCustomSchema('{{ name }}', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 // TODO(codegen): write logic here
+
+                // TODO: throw errors in a following way
+                // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
             },
         },
     ],

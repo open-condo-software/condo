@@ -17,6 +17,7 @@ import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketMo
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { Ticket, TicketChange, TicketComment, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import {
     getDeadlineType, getHumanizeDeadlineDateDifference,
@@ -30,8 +31,7 @@ import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import styled from '@emotion/styled'
-import { Affix, Breadcrumb, Col, Row, Space, Tag, Typography } from 'antd'
+import { Affix, Breadcrumb, Col, Row, Space, Typography } from 'antd'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
 import UploadList from 'antd/lib/upload/UploadList/index'
 import { compact, get, isEmpty } from 'lodash'
@@ -42,6 +42,8 @@ import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import dayjs from 'dayjs'
 import { BaseType } from 'antd/lib/typography/Base'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { RESIDENT } from '@condo/domains/user/constants/common'
+import { FormattedMessage } from 'react-intl'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -136,15 +138,6 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
     )
 }
 
-const TicketTag = styled(Tag)`
-  &.ant-tag {
-    border-radius: 100px;
-  }
-  
-  font-size: ${fontSizes.label};
-  line-height: 24px;
-`
-
 const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
 const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
 
@@ -158,17 +151,17 @@ const TicketContent = ({ ticket }) => {
     const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const Deadline = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
-    const ToCompleteMessage = intl.formatMessage({ id: 'ticket.deadline.ToComplete' })
-    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
-    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
+    const ToCompleteMessage = intl.formatMessage({ id: 'ticket.deadline.ToComplete' }).toLowerCase()
+    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' }).toLowerCase()
+    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' }).toLowerCase()
+    const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` })
 
     const propertyWasDeleted = !(ticket.property)
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
-    const ticketUnit = ticket.unitName ? `${ShortFlatNumber} ${ticket.unitName}` : ''
+    const ticketUnit = ticket.unitName ? `${UnitTypePrefix.toLowerCase()} ${ticket.unitName}` : ''
     const ticketSectionAndFloor = ticket.sectionName && ticket.floorName
         ? `(${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName})`
         : ''
@@ -321,8 +314,8 @@ const TicketContent = ({ ticket }) => {
                                         <Typography.Link style={TICKET_CARD_LINK_STYLE}>
                                             <TicketUserInfoField
                                                 user={{
-                                                    name: get(ticket, 'clientName'),
-                                                    phone: get(ticket, 'clientPhone'),
+                                                    name: get(ticket, ['contact', 'name']),
+                                                    phone: get(ticket, ['contact', 'phone']),
                                                 }}
                                             />
                                         </Typography.Link>
@@ -420,6 +413,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const HoursShortMessage = intl.formatMessage({ id: 'HoursShort' })
     const MinutesShortMessage = intl.formatMessage({ id: 'MinutesShort' })
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
+    const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
@@ -482,6 +476,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const ticketStatusType = get(ticket, ['status', 'type'])
     const disabledEditButton = useMemo(() => ticketStatusType === CLOSED_STATUS_TYPE, [ticketStatusType])
     const statusUpdatedAt = get(ticket, 'statusUpdatedAt')
+    const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
+    const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
 
     const getTimeSinceCreation = useCallback(() => {
         const diffInMinutes = dayjs().diff(dayjs(statusUpdatedAt), 'minutes')
@@ -542,8 +538,26 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                         </Col>
                                                         <Col span={24}>
                                                             <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                                {SourceMessage} — {get(ticket, ['source', 'name'])}
+                                                                {SourceMessage} — {get(ticket, ['source', 'name'], '').toLowerCase()}
                                                             </Typography.Text>
+                                                        </Col>
+                                                        <Col span={24}>
+                                                            {
+                                                                !isResidentTicket && !canReadByResident && (
+                                                                    <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                                                        <FormattedMessage
+                                                                            id={'pages.condo.ticket.title.CanReadByResident'}
+                                                                            values={{
+                                                                                canReadByResident: (
+                                                                                    <Typography.Text type={'danger'}>
+                                                                                        {ResidentCannotReadTicketMessage}
+                                                                                    </Typography.Text>
+                                                                                ),
+                                                                            }}
+                                                                        />
+                                                                    </Typography.Text>
+                                                                )
+                                                            }
                                                         </Col>
                                                     </Row>
                                                 </Col>
@@ -582,7 +596,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     </Space>
                                 </Col>
                                 <TicketContent ticket={ticket}/>
-                                <ActionBar style={!isSmall && { left: '-24px' }}>
+                                <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
                                             disabled={disabledEditButton}

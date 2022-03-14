@@ -1,12 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, FormItemProps } from 'antd'
 import get from 'lodash/get'
 import styled from '@emotion/styled'
 import { useRouter } from 'next/router'
-import { PropertyWhereInput } from '@app/condo/schema'
+import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
 import isEmpty from 'lodash/isEmpty'
 
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -27,17 +27,15 @@ import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { USER_TYPES } from '@condo/domains/user/constants/common'
+import { RESIDENT } from '@condo/domains/user/constants/common'
 
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
 
 const { TabPane } = Tabs
-
-export const LAYOUT = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
-}
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
   position: relative;
@@ -53,17 +51,19 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
 
+    const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
+
+    const value = useMemo(() => contactId && ({
+        id: contactId,
+        name: get(initialValues, 'clientName'),
+        phone: get(initialValues, 'clientPhone'),
+    }), [contactId, initialValues])
+
     return (
         <Col span={24}>
             <TicketFormItem shouldUpdate noStyle>
                 {({ getFieldsValue }) => {
                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
-
-                    const value = {
-                        id: get(initialValues, ['contact', 'id']),
-                        name: get(initialValues, 'clientName'),
-                        phone: get(initialValues, 'clientPhone'),
-                    }
 
                     return (
                         <ContactsInfoFocusContainer className={!property && 'disabled'}>
@@ -102,7 +102,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
 }
 
 const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%' }
-const FORM_FILED_COL_PROPS = { style: { width: '100%' } }
+const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 
 export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
@@ -118,6 +118,8 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
     const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
 
+    const { isSmall } = useLayoutContext()
+
     const { ClassifiersEditorComponent } = useTicketThreeLevelsClassifierHook({ initialValues })
 
     const details = get(initialValues, 'details')
@@ -129,59 +131,69 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Typography.Title level={4}>{DescriptionLabel}</Typography.Title>
+                            <Typography.Title level={3}>{DescriptionLabel}</Typography.Title>
                         </Col>
-                        <Col span={24}>
-                            <TicketFormItem name={'details'} rules={validations.details}>
-                                <InputWithCounter
-                                    InputComponent={Input.TextArea}
-                                    currentLength={currentDetailsLength}
-                                    maxLength={500}
-                                    onChange={e => setCurrentDetailsLength(e.target.value.length)}
-                                    placeholder={DescriptionPlaceholder}
-                                    disabled={disableUserInteraction}
-                                    style={INPUT_WITH_COUNTER_STYLE}
-                                />
-                            </TicketFormItem>
-                            <TicketFormItem>
-                                <UploadComponent/>
-                            </TicketFormItem>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={24}>
-                    <Row gutter={[0, 24]}>
-                        <Col span={24}>
-                            <Typography.Title level={4}>{ClassifierLabel}</Typography.Title>
-                        </Col>
-                        <Col span={24}>
-                            <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={24}>
-                    <Row>
-                        <Col span={24} lg={4}>
-                            <Form.Item name={'isEmergency'} valuePropName='checked'>
-                                <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
-                            </Form.Item>
-                        </Col>
-                        <Col span={24} lg={4}>
-                            <Form.Item name={'isPaid'} valuePropName='checked'>
-                                <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
-                            </Form.Item>
-                        </Col>
-                        <Col span={24} lg={4}>
-                            <Form.Item name={'isWarranty'} valuePropName='checked'>
-                                <Checkbox disabled={disableUserInteraction}>{WarrantyLabel}</Checkbox>
-                            </Form.Item>
+                        <Col span={isSmall ? 24 : 20}>
+                            <Row>
+                                <Col span={24}>
+                                    <TicketFormItem name={'details'} rules={validations.details}>
+                                        <InputWithCounter
+                                            InputComponent={Input.TextArea}
+                                            currentLength={currentDetailsLength}
+                                            maxLength={500}
+                                            onChange={e => setCurrentDetailsLength(e.target.value.length)}
+                                            placeholder={DescriptionPlaceholder}
+                                            disabled={disableUserInteraction}
+                                            style={INPUT_WITH_COUNTER_STYLE}
+                                        />
+                                    </TicketFormItem>
+                                </Col>
+                                <Col span={24}>
+                                    <TicketFormItem>
+                                        <UploadComponent/>
+                                    </TicketFormItem>
+                                </Col>
+                            </Row>
                         </Col>
                     </Row>
                 </Col>
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Typography.Title level={4}>{TicketDeadlineLabel}</Typography.Title>
+                            <Row gutter={[0, 10]}>
+                                <Col span={24}>
+                                    <Typography.Title level={3}>{ClassifierLabel}</Typography.Title>
+                                </Col>
+                                <Col span={isSmall ? 24 : 18}>
+                                    <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col span={24}>
+                            <Row gutter={[40, 0]}>
+                                <Col span={24} lg={4}>
+                                    <Form.Item name={'isEmergency'} valuePropName='checked'>
+                                        <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24} lg={4}>
+                                    <Form.Item name={'isPaid'} valuePropName='checked'>
+                                        <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24} lg={4}>
+                                    <Form.Item name={'isWarranty'} valuePropName='checked'>
+                                        <Checkbox disabled={disableUserInteraction}>{WarrantyLabel}</Checkbox>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col span={isSmall ? 24 : 18}>
+                    <Row gutter={[0, 10]}>
+                        <Col span={24}>
+                            <Typography.Title level={3}>{TicketDeadlineLabel}</Typography.Title>
                         </Col>
                         <Col span={24}>
                             <TicketDeadlineField initialValues={initialValues} />
@@ -213,7 +225,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
-    const UserInfoTitle = intl.formatMessage({ id: 'ClientInfo' })
+    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
+
+    const { isSmall } = useLayoutContext()
 
     const router = useRouter()
 
@@ -242,7 +256,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const property = organizationProperties.find(property => property.id === selectedPropertyId)
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitType>(get(initialValues, 'unitType', BuildingUnitType.Flat))
     const selectedUnitNameRef = useRef(selectedUnitName)
+    const selectedUnitTypeRef = useRef<BuildingUnitType>(selectedUnitType)
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -252,6 +268,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
     }, [selectedUnitName])
+
+    useEffect(() => {
+        selectedUnitTypeRef.current = selectedUnitType
+    }, [selectedUnitType])
 
     const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
         Model: TicketFile,
@@ -309,6 +329,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         return result
     }
 
+    const initialCanReadByResidentValue = useMemo(() => get(initialValues, 'canReadByResident', true), [initialValues])
+    const isResidentTicket = useMemo(() => get(initialValues, ['createdBy', 'type']) === RESIDENT, [initialValues])
+
     return (
         <>
             <FormWithAction
@@ -318,6 +341,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 formValuesToMutationDataPreprocessor={(values) => {
                     values.property = selectPropertyIdRef.current
                     values.unitName = selectedUnitNameRef.current
+                    values.unitType = selectedUnitTypeRef.current
                     return values
                 }}
             >
@@ -332,82 +356,74 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 {PromptHelpMessage}
                             </Typography.Paragraph>
                         </Prompt>
-                        <Col lg={18} md={24}>
+                        <Col lg={17} md={24}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
-                                    <Row gutter={[0, 40]}>
-                                        <Col span={24}>
-                                            <Row gutter={[0, 15]}>
-                                                <Col span={24}>
-                                                    <Typography.Title level={4}>
-                                                        {UserInfoTitle}
-                                                    </Typography.Title>
-                                                </Col>
-                                                {
-                                                    !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
-                                                        <Col span={24}>
-                                                            <Alert
-                                                                showIcon
-                                                                type='warning'
-                                                                message={
-                                                                    <>
-                                                                        {NoPropertiesMessage}&nbsp;
-                                                                        <Button
-                                                                            type={'inlineLink'}
-                                                                            size={'small'}
-                                                                            onClick={() => router.push('/property/create')}
-                                                                        >
-                                                                            {AddMessage}
-                                                                        </Button>
-                                                                    </>
-                                                                }
-                                                            />
-                                                        </Col>
-                                                    ) : null
-                                                }
-                                                <Col span={24}>
-                                                    <TicketFormItem
-                                                        name={'property'}
-                                                        label={AddressLabel}
-                                                        rules={PROPERTY_VALIDATION_RULES}
-                                                    >
-                                                        <PropertyAddressSearchInput
-                                                            organization={organization}
-                                                            autoFocus={true}
-                                                            onSelect={(_, option) => {
-                                                                form.setFieldsValue({
-                                                                    unitName: null,
-                                                                    sectionName: null,
-                                                                    floorName: null,
-                                                                })
-                                                                setSelectedPropertyId(option.key)
-                                                            }}
-                                                            onClear={() => {
-                                                                setSelectedPropertyId(null)
-                                                            }}
-                                                            placeholder={AddressPlaceholder}
-                                                            notFoundContent={AddressNotFoundContent}
-                                                        />
-                                                    </TicketFormItem>
-                                                </Col>
-                                                {selectedPropertyId && (
-                                                    <UnitInfo
-                                                        property={property}
-                                                        loading={organizationPropertiesLoading}
-                                                        setSelectedUnitName={setSelectedUnitName}
-                                                        form={form}
+                                    <Row gutter={[0, 6]}>
+                                        {
+                                            !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
+                                                <Col span={isSmall ? 24 : 20}>
+                                                    <Alert
+                                                        showIcon
+                                                        type='warning'
+                                                        message={
+                                                            <>
+                                                                {NoPropertiesMessage}&nbsp;
+                                                                <Button
+                                                                    type={'inlineLink'}
+                                                                    size={'small'}
+                                                                    onClick={() => router.push('/property/create')}
+                                                                >
+                                                                    {AddMessage}
+                                                                </Button>
+                                                            </>
+                                                        }
                                                     />
-                                                )}
-                                            </Row>
+                                                </Col>
+                                            ) : null
+                                        }
+                                        <Col span={isSmall ? 24 : 20}>
+                                            <TicketFormItem
+                                                name={'property'}
+                                                label={AddressLabel}
+                                                rules={PROPERTY_VALIDATION_RULES}
+                                            >
+                                                <PropertyAddressSearchInput
+                                                    organization={organization}
+                                                    autoFocus={true}
+                                                    onSelect={(_, option) => {
+                                                        form.setFieldsValue({
+                                                            unitName: null,
+                                                            sectionName: null,
+                                                            floorName: null,
+                                                        })
+                                                        setSelectedPropertyId(option.key)
+                                                    }}
+                                                    onClear={() => {
+                                                        setSelectedPropertyId(null)
+                                                    }}
+                                                    placeholder={AddressPlaceholder}
+                                                    notFoundContent={AddressNotFoundContent}
+                                                />
+                                            </TicketFormItem>
                                         </Col>
-                                        <ContactsInfo
-                                            ContactsEditorComponent={ContactsEditorComponent}
-                                            form={form}
-                                            initialValues={initialValues}
-                                            selectedPropertyId={selectedPropertyId}
-                                        />
+                                        {selectedPropertyId && (
+                                            <UnitInfo
+                                                property={property}
+                                                loading={organizationPropertiesLoading}
+                                                setSelectedUnitName={setSelectedUnitName}
+                                                setSelectedUnitType={setSelectedUnitType}
+                                                form={form}
+                                            />
+                                        )}
                                     </Row>
                                 </Col>
+                                <ContactsInfo
+                                    ContactsEditorComponent={ContactsEditorComponent}
+                                    form={form}
+                                    initialValues={initialValues}
+                                    selectedPropertyId={selectedPropertyId}
+                                />
                                 <Col span={24}>
                                     <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
                                         {
@@ -439,6 +455,15 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 categoryClassifier={categoryClassifier}
                                                                 form={form}
                                                             />
+                                                            {
+                                                                !isResidentTicket && (
+                                                                    <Col span={24}>
+                                                                        <Form.Item name={'canReadByResident'} valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                            <Checkbox disabled={disableUserInteraction}>{CanReadByResidentMessage}</Checkbox>
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                )
+                                                            }
                                                         </Row>
                                                     </FrontLayerContainer>
                                                 )
@@ -455,3 +480,4 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         </>
     )
 }
+

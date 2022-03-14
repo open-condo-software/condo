@@ -17,6 +17,8 @@ const { createTestOrganizationEmployeeRole } = require('@condo/domains/organizat
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const dayjs = require('dayjs')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('Ticket', () => {
     describe('Crud', () => {
@@ -59,6 +61,7 @@ describe('Ticket', () => {
             expect(obj.operator).toEqual(null)
             expect(obj.assignee).toEqual(null)
             expect(obj.executor).toEqual(null)
+            expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
             expect(obj.watchers).toEqual([])
         })
 
@@ -253,6 +256,375 @@ describe('Ticket', () => {
             const [readTicket] = await Ticket.getAll(userClient, { id: ticket.id })
 
             expect(readTicket.id).toEqual(ticket.id)
+        })
+
+        test('resident: can read ticket with a contact whose phone number and address matches the resident phone number and address', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone,
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+            })
+
+            const [readTicket] = await Ticket.getAll(residentClient, { id: ticket.id })
+
+            expect(readTicket.id).toEqual(ticket.id)
+        })
+        test('resident: if no client data but with contact data, client data fills from contact', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone,
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+            })
+
+            const [readTicket] = await Ticket.getAll(residentClient, { id: ticket.id })
+
+            expect(readTicket.clientPhone).toEqual(contact.phone)
+            expect(readTicket.clientEmail).toEqual(contact.email)
+            expect(readTicket.clientName).toEqual(contact.name)
+        })
+        test('admin: if client data and contact data sended, client data not overwritted', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone, email, name } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [anotherContact] = await createTestContact(admin, organization, property)
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: anotherContact.id } },
+                canReadByResident: true,
+                clientName: name,
+                clientPhone: phone,
+                clientEmail: email,
+            })
+
+            const [readTicket] = await Ticket.getAll(admin, { id: ticket.id })
+
+            expect(readTicket.clientPhone).toEqual(phone)
+            expect(readTicket.clientEmail).toEqual(email)
+            expect(readTicket.clientName).toEqual(name)
+        })
+        test('admin: if client data sended without contact data, client data not overwritted', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone, email, name } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                canReadByResident: true,
+                clientName: name,
+                clientPhone: phone,
+                clientEmail: email,
+            })
+
+            const [readTicket] = await Ticket.getAll(admin, { id: ticket.id })
+
+            expect(readTicket.clientPhone).toEqual(phone)
+            expect(readTicket.clientEmail).toEqual(email)
+            expect(readTicket.clientName).toEqual(name)
+        })
+        test('resident: cannot read ticket with a contact whose phone number did not matches the resident phone number', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient1 = await makeClientWithResidentUser()
+            const { phone } = residentClient1.userAttrs
+            const residentClient2 = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, residentClient1.user, organization, property, {
+                unitName,
+            })
+            await createTestResident(admin, residentClient2.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone,
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+            })
+
+            const [readTicket] = await Ticket.getAll(residentClient1, { })
+            expect(readTicket.id).toEqual(ticket.id)
+
+            const tickets = await Ticket.getAll(residentClient2, {})
+            expect(tickets).toHaveLength(0)
+        })
+
+        test('resident: cannot read ticket with a contact whose property or unitName ' +
+            'did not matches the resident property or unitName', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentWithTicketClient = await makeClientWithResidentUser()
+            const residentFromAnotherPropertyClient = await makeClientWithResidentUser()
+            const residentFromAnotherUnitClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property1] = await createTestProperty(admin, organization)
+            const [property2] = await createTestProperty(admin, organization)
+            const unitName1 = faker.random.alphaNumeric(5)
+            const unitName2 = faker.random.alphaNumeric(5)
+
+            const [residentWithTicket] = await createTestResident(admin, residentWithTicketClient.user, organization, property1, {
+                unitName: unitName1,
+            })
+            const [residentFromAnotherProperty] = await createTestResident(admin, residentFromAnotherPropertyClient.user, organization, property2, {
+                unitName: unitName1,
+            })
+            const [residentFromAnotherUnit] = await createTestResident(admin, residentFromAnotherUnitClient.user, organization, property1, {
+                unitName: unitName2,
+            })
+            const [contact] = await createTestContact(admin, organization, property1, {
+                phone: residentWithTicketClient.userAttrs.phone,
+                unitName: unitName1,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property1, {
+                unitName: unitName1,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+            })
+
+            const [ticketForResidentWithTicket] = await Ticket.getAll(residentWithTicketClient, { })
+            expect(ticketForResidentWithTicket.id).toEqual(ticket.id)
+
+            const ticketsForResidentFromAnotherProperty = await Ticket.getAll(residentFromAnotherPropertyClient, { })
+            expect(ticketsForResidentFromAnotherProperty).toHaveLength(0)
+
+            const ticketsForResidentFromAnotherUnit = await Ticket.getAll(residentFromAnotherUnitClient, { })
+            expect(ticketsForResidentFromAnotherUnit).toHaveLength(0)
+        })
+
+        test('resident: user with 2 residents and 2 different contacts can read ticket for each resident', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient1 = await makeClientWithResidentUser()
+            const { phone } = residentClient1.userAttrs
+
+            const [organization] = await createTestOrganization(admin)
+            const [property1] = await createTestProperty(admin, organization)
+            const [property2] = await createTestProperty(admin, organization)
+            const unitName1 = faker.random.alphaNumeric(5)
+            const unitName2 = faker.random.alphaNumeric(5)
+
+            const [resident1] = await createTestResident(admin, residentClient1.user, organization, property1, {
+                unitName: unitName1,
+            })
+            const [resident2] = await createTestResident(admin, residentClient1.user, organization, property2, {
+                unitName: unitName2,
+            })
+
+            const [contact1] = await createTestContact(admin, organization, property1, {
+                phone,
+                unitName: unitName1,
+            })
+            const [contact2] = await createTestContact(admin, organization, property2, {
+                phone,
+                unitName: unitName2,
+            })
+
+            const [ticket1] = await createTestTicket(admin, organization, property1, {
+                unitName: unitName1,
+                contact: { connect: { id: contact1.id } },
+                canReadByResident: true,
+            })
+
+            const [ticket2] = await createTestTicket(admin, organization, property2, {
+                unitName: unitName2,
+                contact: { connect: { id: contact2.id } },
+                canReadByResident: true,
+            })
+
+            const [wrongContactTicket] = await createTestTicket(admin, organization, property1, {
+                unitName: unitName2,
+                contact: { connect: { id: contact1.id } },
+                canReadByResident: true,
+            })
+
+            const tickets = await Ticket.getAll(residentClient1, { }, { sortBy: 'createdAt_ASC' })
+            expect(tickets).toHaveLength(2)
+            expect(tickets[0].id).toMatch(ticket1.id)
+            expect(tickets[1].id).toMatch(ticket2.id)
+        })
+
+        test('resident: cannot read ticket from crm with "canReadByResident": false', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone,
+                unitName,
+            })
+            await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: false,
+            })
+            const [visibleTicket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+            })
+
+            const tickets = await Ticket.getAll(residentClient, {})
+
+            expect(tickets).toHaveLength(1)
+            expect(tickets[0].id).toEqual(visibleTicket.id)
+        })
+
+        test('resident: can read ticket from crm if first it was hidden to him then it became showed', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone: phone,
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: false,
+            })
+
+            const tickets = await Ticket.getAll(residentClient, {})
+
+            expect(tickets).toHaveLength(0)
+
+            await updateTestTicket(admin, ticket.id, {
+                canReadByResident: true,
+            })
+
+            const ticketsAfterShowedTicketToResident = await Ticket.getAll(residentClient, {})
+
+            expect(ticketsAfterShowedTicketToResident).toHaveLength(1)
+            expect(ticketsAfterShowedTicketToResident[0].id).toEqual(ticket.id)
+        })
+
+        test('resident: cannot read ticket from crm if first it was showed to him then it became hidden', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone } = residentClient.userAttrs
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone: phone,
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+            })
+
+            const tickets = await Ticket.getAll(residentClient, {})
+
+            expect(tickets).toHaveLength(1)
+            expect(tickets[0].id).toEqual(ticket.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                canReadByResident: false,
+            })
+
+            const ticketsAfterHiddenTicketToResident = await Ticket.getAll(residentClient, {})
+
+            expect(ticketsAfterHiddenTicketToResident).toHaveLength(0)
+        })
+
+        test('resident: cannot update ticket from crm', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone } = residentClient.userAttrs
+            const newDetails = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone,
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestTicket(residentClient, ticket.id, {
+                    details: newDetails,
+                })
+            })
         })
 
         test('resident: cannot read not his Tickets', async () => {

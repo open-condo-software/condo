@@ -43,10 +43,13 @@ const {
     MULTIPAYMENT_UNDONE_PAYMENTS,
     MULTIPAYMENT_EXPLICIT_FEE_MISMATCH,
     MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE,
+    MULTIPAYMENT_INCONSISTENT_SERVICE_FEE,
     MULTIPAYMENT_IMPLICIT_FEE_MISMATCH,
+    MULTIPAYMENT_SERVICE_FEE_MISMATCH,
     MULTIPAYMENT_DELETED_PAYMENTS,
     MULTIPAYMENT_NON_INIT_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
+    MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
 } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -63,25 +66,33 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         sender: SENDER_FIELD,
 
         amount: {
-            schemaDoc: 'Total amount of withdraw. amount = amountWithoutExplicitFee + explicitFee',
+            schemaDoc: 'Total amount of withdraw. amount = amountWithoutExplicitFee + explicitFee + explicitServiceCharge',
             type: Virtual,
             resolver: (item) => {
                 const explicitFee = get(item, 'explicitFee')
+                const explicitServiceCharge = get(item, 'explicitServiceCharge')
                 const floatFee = new Big(explicitFee || '0')
+                const floatCharge = new Big(explicitServiceCharge || '0')
                 const floatAmount = new Big(item.amountWithoutExplicitFee)
-                return floatAmount.plus(floatFee).toString()
+                return floatAmount.plus(floatFee).plus(floatCharge).toString()
             },
         },
 
         explicitFee: {
             ...NON_NEGATIVE_MONEY_FIELD,
-            schemaDoc: 'The amount of commission which resident pay on top of amount',
+            schemaDoc: 'Amount of money which payer pays on top of initial "amount", which counts as fee for total "amount"',
+            isRequired: false,
+        },
+
+        explicitServiceCharge: {
+            ...NON_NEGATIVE_MONEY_FIELD,
+            schemaDoc: 'Amount of money which payer pays on top of initial "amount", which counts as internal service charge for all payments',
             isRequired: false,
         },
 
         serviceFee: {
             ...NON_NEGATIVE_MONEY_FIELD,
-            schemaDoc: 'The amount of money charged by service (Doma) for the provision of service. Can be explicit or implicit',
+            schemaDoc: 'The amount of money charged by service (Doma) for the provision of service after subtracting from it the shares of all participants in the process. Can be part of explicit fee, implicit fee or explicit service charge',
             isRequired: false,
         },
 
@@ -316,18 +327,36 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     if (undonePayments.length) {
                         addValidationError(`${MULTIPAYMENT_UNDONE_PAYMENTS} Undone payments ids: ${undonePayments.join(', ')}`)
                     }
-                    const totalFee = payments.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0))
-                    if (!newItem.explicitFee || !totalFee.eq(newItem.explicitFee)) {
+
+                    const totalExplicitFee = payments.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0))
+                    if (!newItem.explicitFee || !totalExplicitFee.eq(newItem.explicitFee)) {
                         addValidationError(`${MULTIPAYMENT_EXPLICIT_FEE_MISMATCH}`)
                     }
+
+                    const totalExplicitServiceCharge = payments.reduce((acc, cur) => acc.plus(cur.explicitServiceCharge || '0'), Big(0))
+                    if (!newItem.explicitFee || !totalExplicitServiceCharge.eq(newItem.explicitServiceCharge)) {
+                        addValidationError(MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH)
+                    }
+
                     const paymentsWithImplicitFee = payments.filter(payment => payment.implicitFee)
                     if (paymentsWithImplicitFee.length !== payments.length && paymentsWithImplicitFee.length !== 0) {
                         addValidationError(MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE)
                     }
                     if (paymentsWithImplicitFee.length === payments.length) {
                         const totalImplicitFee = payments.reduce((acc, cur) => acc.plus(cur.implicitFee), Big(0))
-                        if (!newItem.explicitFee || !totalImplicitFee.eq(newItem.explicitFee)) {
+                        if (!newItem.implicitFee || !totalImplicitFee.eq(newItem.implicitFee)) {
                             addValidationError(MULTIPAYMENT_IMPLICIT_FEE_MISMATCH)
+                        }
+                    }
+
+                    const paymentsWithServiceFee = payments.filter(payment => payment.serviceFee)
+                    if (paymentsWithServiceFee.length !== payments.length && paymentsWithServiceFee.length !== 0) {
+                        addValidationError(MULTIPAYMENT_INCONSISTENT_SERVICE_FEE)
+                    }
+                    if (paymentsWithServiceFee.length === payments.length) {
+                        const totalServiceFee = payments.reduce((acc, cur) => acc.plus(cur.serviceFee), Big(0))
+                        if (!newItem.serviceFee || !totalServiceFee.eq(newItem.serviceFee)) {
+                            addValidationError(MULTIPAYMENT_SERVICE_FEE_MISMATCH)
                         }
                     }
                 }

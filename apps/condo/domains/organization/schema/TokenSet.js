@@ -63,6 +63,18 @@ const TokenSet = new GQLListSchema('TokenSet', {
             isRequired: true,
         },
 
+        clientSecret: {
+            schemaDoc: 'Should be known only to application and authorization SBBOL server. It will be presented only in record for our Organization, that an will be an author of requests to SBBOL API in server-server integration. "Our" organization is a record of Organization, created from data, received from SBBOL after successful authorization in application using SBBOL with credentials of SBBOL-account, that represents our company as a partner of SBBOL. So, logically, this field will be initialized only for one record.',
+            type: Text,
+            isRequired: false,
+        },
+
+        clientSecretExpiresAt: {
+            schemaDoc: 'After specified datetime a client secret will be invalid and should be changed. There is a scheduled job for that',
+            type: DateTimeUtc,
+            isRequired: false,
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

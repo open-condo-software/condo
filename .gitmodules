@@ -17,3 +17,6 @@
 [submodule "apps/condorb"]
 	path = apps/condorb
 	url = ../condorb.git
+[submodule "apps/registry"]
+	path = apps/registry
+	url = git@github.com:open-condo-software/condo-registry-import-billing.git

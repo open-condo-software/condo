@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@2gis/mapgl": "^1.12.0",
+    "@apollo/client": "^3.3.14",
     "@condo/domains": "link:./domains",
     "@emotion/core": "^10.1.1",
     "@emotion/styled": "^10.0.27",
@@ -40,6 +41,7 @@
     "@keystonejs/fields-wysiwyg-tinymce": "^5.4.0",
     "@keystonejs/file-adapters": "^7.1.0",
     "@keystonejs/keystone": "^19.3.1",
+    "@keystonejs/fields-markdown": "^5.3.2",
     "@keystonejs/list-plugins": "^8.1.0",
     "@keystonejs/server-side-graphql-client": "^2.1.0",
     "@keystonejs/utils": "^6.1.0",
@@ -113,6 +115,7 @@
     "antd-dayjs-webpack-plugin": "^1.0.6",
     "babel-jest": "^26.6.3",
     "cross-env": "^7.0.3",
+    "form-data": "^4.0.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.6.3",
     "jest-watch-typeahead": "^0.6.1",

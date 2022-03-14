@@ -5,7 +5,10 @@ const WRONG_PHONE_ERROR = '[passwordAuth:identity:notFound'
 const AUTH_BY_PASSWORD_FAILED_ERROR = '[passwordAuth:failure'
 
 const MULTIPLE_ACCOUNTS_MATCHES = '[resetPassword:identity:multipleFound'
-const RESET_TOKEN_NOT_FOUND = '[resetPassword:token:notFound'
+const TOKEN_NOT_FOUND = 'TOKEN_NOT_FOUND'
+const USER_NOT_FOUND = 'USER_NOT_FOUND'
+
+const PASSWORD_IS_TOO_SHORT = 'PASSWORD_IS_TOO_SHORT'
 const TOKEN_EXPIRED_ERROR = '[resetPassword:token:expired'
 
 const MIN_PASSWORD_LENGTH_ERROR = '[register:password:minLength'
@@ -28,9 +31,6 @@ const CAPTCHA_CHECK_FAILED = '[security:captcha:failed'
 const SMS_FOR_IP_DAY_LIMIT_REACHED = '[security:sms:for:ip:day:limit'
 const SMS_FOR_PHONE_DAY_LIMIT_REACHED = '[security:sms:for:phone:day:limit'
 
-const SIGNIN_AS_USER_NOT_FOUND = '[signin:as:user:not:found'
-const SIGNIN_AS_USER_DENIED = '[signin:as:user:denied'
-
 module.exports = {
     WRONG_PASSWORD_ERROR,
     EMPTY_PASSWORD_ERROR,
@@ -44,7 +44,9 @@ module.exports = {
     EMAIL_WRONG_FORMAT_ERROR,
     PHONE_WRONG_FORMAT_ERROR,
     PHONE_IS_REQUIRED_ERROR,
-    RESET_TOKEN_NOT_FOUND,
+    TOKEN_NOT_FOUND,
+    USER_NOT_FOUND,
+    PASSWORD_IS_TOO_SHORT,
     TOKEN_EXPIRED_ERROR,
     MIN_PASSWORD_LENGTH_ERROR,
     CONFIRM_PHONE_ACTION_EXPIRED,
@@ -55,6 +57,4 @@ module.exports = {
     CAPTCHA_CHECK_FAILED,
     SMS_FOR_IP_DAY_LIMIT_REACHED,
     SMS_FOR_PHONE_DAY_LIMIT_REACHED,
-    SIGNIN_AS_USER_NOT_FOUND,
-    SIGNIN_AS_USER_DENIED,
 }

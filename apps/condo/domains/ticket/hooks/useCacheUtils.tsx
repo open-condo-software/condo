@@ -1,4 +1,5 @@
 import { ApolloCache } from '@apollo/client/cache'
+import get from 'lodash/get'
 import { generateQueryVariables } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { ITicketUIState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -13,9 +14,10 @@ type TicketCacheUtilsHook = (cache: ApolloCache<unknown>) => {
 
 export const useCacheUtils: TicketCacheUtilsHook = (cache) => {
     function addTicketToQueryCacheForTicketCardList (ticket) {
+        const ticketContactId = get(ticket, ['contact', 'id'], null)
         const queryData = {
             query: TicketGQL.GET_ALL_OBJS_WITH_COUNT_QUERY,
-            variables: generateQueryVariables(ticket.organization.id, ticket.clientPhone),
+            variables: generateQueryVariables(ticketContactId),
         }
 
         const cachedData: ICachedData = cache.readQuery(queryData)

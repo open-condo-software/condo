@@ -1,36 +1,79 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
-
-const { JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { ALPHANUMERIC_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/notification/access/SendMessageService')
-
 const {
-    JSON_UNKNOWN_ATTR_NAME_ERROR,
-    JSON_SUSPICIOUS_ATTR_NAME_ERROR,
-    JSON_NO_REQUIRED_ATTR_ERROR,
     MESSAGE_TYPES,
     MESSAGE_META,
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
 } = require('../constants/constants')
-
 const { deliveryMessage } = require('../tasks')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+
+const errors = {
+    EMAIL_FROM_REQUIRED: {
+        mutation: 'sendMessage',
+        variable: ['data', 'to', 'email'],
+        code: BAD_USER_INPUT,
+        type: REQUIRED,
+        message: 'You can not use emailFrom without to.email',
+    },
+    USER_OR_EMAIL_OR_PHONE_REQUIRED: {
+        mutation: 'sendMessage',
+        variable: ['data'],
+        code: BAD_USER_INPUT,
+        type: REQUIRED,
+        message: 'You should provide either "user" or "email" or "phone" attribute',
+    },
+    UNKNOWN_META_ATTRIBUTE: {
+        mutation: 'sendMessage',
+        variable: ['data', 'meta'],
+        code: BAD_USER_INPUT,
+        type: UNKNOWN_ATTRIBUTE,
+        message: 'Unknown attribute "{attr}" provided to "meta" variable',
+    },
+    MISSING_VALUE_FOR_REQUIRED_META_ATTRIBUTE: {
+        mutation: 'sendMessage',
+        variable: ['data', 'meta'],
+        code: BAD_USER_INPUT,
+        type: REQUIRED,
+        message: 'Missing value for required "meta.{attr}" attribute',
+    },
+    UNKNOWN_MESSAGE_TYPE: {
+        mutation: 'sendMessage',
+        variable: ['data', 'meta'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'Unknown value "{type}" provided for message type',
+    },
+    DV_VERSION_MISMATCH: {
+        mutation: 'sendMessage',
+        variable: ['data', 'meta', 'dv'],
+        code: BAD_USER_INPUT,
+        type: DV_VERSION_MISMATCH,
+        message: 'Wrong value for data version number',
+    },
+}
 
 async function checkSendMessageMeta (type, meta) {
-    if (meta.dv !== 1) throw new Error(`${JSON_UNKNOWN_VERSION_ERROR}meta] Unknown \`dv\` attr inside JSON Object`)
+    if (meta.dv !== 1) throw new GQLError(errors.DV_VERSION_MISMATCH)
     const schema = MESSAGE_META[type]
-    if (!schema) throw new Error('unsupported type or internal error')
+    if (!schema) {
+        throw new GQLError({ ...errors.UNKNOWN_MESSAGE_TYPE, messageInterpolation: { type } })
+    }
     for (const attr of Object.keys(schema)) {
         const value = meta[attr]
         const { required } = schema[attr]
-        if (required && !value) throw new Error(`${JSON_NO_REQUIRED_ATTR_ERROR}meta] no ${attr} value`)
+        if (required && !value) {
+            throw new GQLError({ ...errors.MISSING_VALUE_FOR_REQUIRED_META_ATTRIBUTE, messageInterpolation: { attr } })
+        }
     }
     for (const attr of Object.keys(meta)) {
-        if (!ALPHANUMERIC_REGEXP.test(attr)) throw new Error(`${JSON_SUSPICIOUS_ATTR_NAME_ERROR}meta] unsupported attr name charset`)
-        if (!schema[attr]) throw new Error(`${JSON_UNKNOWN_ATTR_NAME_ERROR}meta] ${attr} is redundant or unknown`)
+        if (!schema[attr]) {
+            throw new GQLError({ ...errors.UNKNOWN_META_ATTRIBUTE, messageInterpolation: { attr } })
+        }
     }
 }
 
@@ -50,7 +93,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput }',
+            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, emailFrom: String, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput }',
         },
         {
             access: true,
@@ -69,15 +112,22 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         {
             access: access.canSendMessage,
             schema: 'sendMessage(data: SendMessageInput!): SendMessageOutput',
+            doc: {
+                summary: 'Sends message of specified type to specified contact',
+                description: `Each message type has specific set of required fields: \n\n\`${JSON.stringify(MESSAGE_META, null, '\t')}\``,
+                errors,
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(pahaz): think about sending emails with attachments
                 const { data } = args
-                const { dv, sender, to, type, meta, lang } = data
-                if (!to.user && !to.email && !to.phone) throw new Error('invalid send to input')
+                const { dv, sender, to, emailFrom, type, meta, lang } = data
+                if (!to.user && !to.email && !to.phone) throw new GQLError(errors.USER_OR_EMAIL_OR_PHONE_REQUIRED)
+
+                if (emailFrom && !to.email) throw new GQLError(errors.EMAIL_FROM_REQUIRED)
 
                 await checkSendMessageMeta(type, meta)
 
-                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang }
+                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang, emailFrom }
 
                 // TODO(pahaz): add email/phone validation
                 if (to.email) messageAttrs.email = to.email

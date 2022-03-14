@@ -21,6 +21,7 @@ const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
+const { schemaDocPreprocessor } = require('@core/keystone/preprocessors/schemaDoc')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -79,7 +80,7 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/meter/schema'),
         require('@condo/domains/subscription/schema'),
         require('@condo/domains/acquiring/schema'),
-    ])
+    ], [schemaDocPreprocessor])
 
     registerTasks([
         require('@condo/domains/notification/tasks'),
@@ -105,7 +106,7 @@ if (!IS_BUILD_PHASE) {
 }
 
 class SberBuisnessOnlineMiddleware {
-    prepareMiddleware () {
+    async prepareMiddleware () {
         const Auth = new SbbolRoutes()
         const app = express()
         // TODO(zuch): find a way to remove bind
@@ -159,6 +160,10 @@ module.exports = {
             req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = v4()
             res.setHeader(requestIdHeaderName, req['id'])
             next()
+        })
+
+        app.get('/.well-known/change-password', function (req, res) {
+            res.redirect('/auth/forgot')
         })
 
         app.use('/admin/', (req, res, next) => {

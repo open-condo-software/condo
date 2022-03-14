@@ -11,7 +11,7 @@ import { WRONG_PHONE_ERROR, TOO_MANY_REQUESTS } from '@condo/domains/user/consta
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { SMS_CODE_TTL } from '@condo/domains/user/constants/common'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
-import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { ButtonHeaderActions } from '@condo/domains/common/components/HeaderActions'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
@@ -183,7 +183,7 @@ const ResetPage: AuthPage = () => {
     )
 }
 
-ResetPage.headerAction = <ButtonHeaderAction descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
+ResetPage.headerAction = <ButtonHeaderActions descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'}/>
 
 ResetPage.container = AuthLayout
 

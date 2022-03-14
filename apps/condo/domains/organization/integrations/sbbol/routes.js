@@ -4,6 +4,9 @@ const { generators } = require('openid-client') // certified openid client will 
 const { getSchemaCtx } = require('@core/keystone/schema')
 const conf = require('@core/config')
 
+const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
+const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
+
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 
@@ -12,6 +15,7 @@ const { SbbolOauth2Api } = require('./oauth2')
 const sync = require('./sync')
 const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
 const { dvSenderFields } = require('./constants')
+const { getOrganizationAccessToken } = require('./utils')
 
 const DEVELOPER_EMAIL = conf.DEVELOPER_EMAIL
 
@@ -28,19 +32,42 @@ async function sendToDeveloper (type, data) {
     }
 }
 
-class SbbolRoutes {
-    constructor () {
-        this.helper = new SbbolOauth2Api()
+/**
+ * Each route handler here in each application instance needs an instance of `SbbolOauth2Api` with actual
+ * client secret. This covers a case, when a client secret will get periodically updated.
+ * @return {Promise<SbbolOauth2Api>}
+ */
+async function initializeSbbolAuthApi () {
+    let tokenSet
+    try {
+        const result = await getOrganizationAccessToken(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+        tokenSet = result.tokenSet
+    } catch (e) {
+        if (!e.message.match('[tokens:expired]')) {
+            throw e
+        }
     }
 
+    // In case when we we have not logged in using partner account in SBBOL, take the value from environment
+    const clientSecret = tokenSet && tokenSet.clientSecret ? tokenSet.clientSecret : SBBOL_AUTH_CONFIG.client_secret
+
+    return new SbbolOauth2Api({
+        clientSecret,
+    })
+}
+
+class SbbolRoutes {
+
     async startAuth (req, res, next) {
+        const sbbolAuthApi = await initializeSbbolAuthApi()
+
         // nonce: to prevent several callbacks from same request
         // state: to validate user browser on callback
         const checks = { nonce: generators.nonce(), state: generators.state() }
         req.session[SBBOL_SESSION_KEY] = checks
         await req.session.save()
         try {
-            const redirectUrl = this.helper.authorizationUrlWithParams(checks)
+            const redirectUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
             return res.redirect(redirectUrl)
         } catch (error) {
             return next(error)
@@ -48,15 +75,17 @@ class SbbolRoutes {
     }
 
     async completeAuth (req, res, next) {
+        const sbbolAuthApi = await initializeSbbolAuthApi()
         try {
             if (!isObject(req.session[SBBOL_SESSION_KEY])) {
                 return res.status(400).send('ERROR: Invalid nonce and state')
             }
 
-            const tokenSet = await this.helper.completeAuth(req, req.session[SBBOL_SESSION_KEY])
+            // This is NOT a `TokenSet` record from our schema
+            const tokenSet = await sbbolAuthApi.completeAuth(req, req.session[SBBOL_SESSION_KEY])
             const { keystone } = await getSchemaCtx('User')
             const { access_token } = tokenSet
-            const userInfo = await this.helper.fetchUserInfo(access_token)
+            const userInfo = await sbbolAuthApi.fetchUserInfo(access_token)
             const errors = getSbbolUserInfoErrors(userInfo)
             if (errors.length) {
                 await sendToDeveloper('SBBOL_INVALID_USERINFO', { userInfo, errors })

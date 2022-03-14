@@ -1,12 +1,12 @@
 import React from 'react'
 import { css, Global } from '@emotion/core'
-import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT } from '@condo/domains/common/constants/style'
+import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT, gradients } from '@condo/domains/common/constants/style'
 
 export default function GlobalStyle () {
     return (
         <Global
             styles={css`
-              $@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
+              @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
               body {
                 max-width: 100%;
                 overflow-x: hidden;
@@ -27,8 +27,59 @@ export default function GlobalStyle () {
               .ant-radio-wrapper {
                 white-space: inherit;
               }
+              .ant-radio-inner::after {
+                background: ${gradients.sberActionGradient};
+              }
+              .ant-radio-checked .ant-radio-inner {
+                border-color: ${colors.inputBorderGrey};
+                
+                &::after {
+                  border-color: ${colors.inputBorderGrey};
+                }
+              }
+              
               .ant-checkbox-wrapper {
                 white-space: inherit;
+                
+                span {
+                  position: relative;
+                  bottom: 4px;
+                }
+              }
+              
+              .ant-checkbox {
+                width: 24px;
+                height: 24px;
+              }
+              
+              .ant-checkbox-inner {
+                  width: 24px;
+                  height: 24px;
+              }
+
+              .ant-form-item input[type="checkbox"] {
+                width: 24px;
+                height: 24px;
+              }  
+              
+              .ant-checkbox-inner::after {
+                left: 36%;
+                width: 7.714px;
+                height: 12.143px;
+              }
+              
+              .ant-checkbox-checked {
+                .ant-checkbox-inner {
+                  background: ${gradients.sberActionGradient};
+                  border: none;
+                }
+              
+                .ant-checkbox-inner::after {
+                  border: 3px solid #fff;
+                  border-top: 0;
+                  border-left: 0;
+                  transform: rotate(45deg) scale(1) translate(-75%, -50%);
+                }
               }
 
               .ant-list-item-action > li:last-child {
@@ -56,9 +107,11 @@ export default function GlobalStyle () {
 
               .react-tel-input .ant-input {
                 background-color: ${colors.whiteTranslucent} !important;
+                width: 100%;
               }
 
-              .ant-input-affix-wrapper input {
+              .ant-input-affix-wrapper input, .ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused {
+                border-color: ${colors.black};
                 box-shadow: none !important;
               }
 
@@ -79,11 +132,7 @@ export default function GlobalStyle () {
               .ant-checkbox-inner {
                 border-radius: 4px;
               }
-
-              .ant-checkbox-checked .ant-checkbox-inner::after {
-                transform: rotate(45deg) scale(1) translate(-75%, -50%);
-              }
-
+              
               .ant-checkbox-input:focus:not(:checked) + .ant-checkbox-inner {
                 background-color: ${colors.ultraLightGrey};
               }
@@ -145,6 +194,12 @@ export default function GlobalStyle () {
               
               .ant-table-row-expand-icon-spaced {
                 display: none;
+              }
+              
+              h1.ant-typography {
+                font-weight: 700;
+                line-height: 46px;
+                letter-spacing: -0.01em;
               }
               
               a.ant-typography[disabled], 
@@ -257,7 +312,7 @@ const uploadControlCss = css`
   }
   .upload-control-wrapper .ant-upload.ant-upload-select {
     order:1;
-    margin-top:20px;
+    margin-top:5px;
   }
   .upload-control-wrapper .ant-upload-list-item-card-actions .anticon.anticon-delete {
     font-size:18px;

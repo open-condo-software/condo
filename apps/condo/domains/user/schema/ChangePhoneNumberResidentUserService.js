@@ -4,11 +4,23 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/ChangePhoneNumberResidentUserService')
-const {
-    CONFIRM_PHONE_ACTION_EXPIRED,
-} = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
+/**
+ * List of possible errors, that this custom schema can throw
+ * They will be rendered in documentation section in GraphiQL for this custom schema
+ */
+const errors = {
+    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        mutation: 'changePhoneNumberResidentUser',
+        message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
+        variable: ['data', 'token'],
+    },
+}
 
 const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNumberResidentUserService', {
     types: [
@@ -26,6 +38,10 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
         {
             access: access.canChangePhoneNumberResidentUser,
             schema: 'changePhoneNumberResidentUser(data: ChangePhoneNumberResidentUserInput!): ChangePhoneNumberResidentUserOutput',
+            doc: {
+                summary: 'Changes a phone of a resident, that corresponds to confirmed phone number, specified via token',
+                errors,
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { token } } = args
                 const userId = context.authedItem.id
@@ -38,7 +54,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                     }
                 )
                 if (!action) {
-                    throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] Unable to find confirm phone action`)
+                    throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION)
                 }
                 const { phone: newPhone } = action
                 await User.update(context, userId, { phone: newPhone })

@@ -136,11 +136,12 @@ const Property = new GQLListSchema('Property', {
                     const getTotalUnitsCount = (map) => {
                         return get(map, 'sections', [])
                             .map((section) => get(section, 'floors', [])
-                                .map(floor => get(floor, 'units', []).length)
-                            )
-                            .flat()
-                            .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
-
+                                .map(floor => get(floor, 'units', [])))
+                            .flat(2).filter(unit => {
+                                const unitType = get(unit, 'unitType', 'flat')
+                                // unitType may be null with old property data, so all these units used to be 'flat' type by default
+                                return !isEmpty(unitType) ? unitType === 'flat' : isEmpty(unitType)
+                            }).length
                     }
 
                     let unitsCount = 0
@@ -171,7 +172,7 @@ const Property = new GQLListSchema('Property', {
             },
         },
         uninhabitedUnitsCount: {
-            schemaDoc: 'A number of non-residential units. Number of parking places for unit.unitType = parking',
+            schemaDoc: 'A number of non-residential units. Number of parking places for unit.unitType = parking, apartment, commercial & warehouse',
             type: Integer,
             isRequired: true,
             defaultValue: 0,
@@ -180,13 +181,22 @@ const Property = new GQLListSchema('Property', {
                     let uninhabitedUnitsCount = 0
                     const getUninhabitedUnitsCount = (map) => {
                         const parkingSection = get(map, 'parking', [])
-                        return !isEmpty(parkingSection)
-                            ? parkingSection.map((section) => get(section, 'floors', [])
+                        const parkingUnitsCount = !isEmpty(parkingSection) ? parkingSection
+                            .map((section) => get(section, 'floors', [])
                                 .map(floor => get(floor, 'units', []).length)
                             )
-                                .flat()
-                                .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0)
-                            : 0
+                            .flat()
+                            .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0) : 0
+
+                        const sectionUnitsCount = get(map, 'sections', [])
+                            .map((section) => get(section, 'floors', [])
+                                .map(floor => get(floor, 'units', [])))
+                            .flat(2).filter(unit => {
+                                const unitType = get(unit, 'unitType', 'flat')
+                                return !isEmpty(unitType) ? unitType !== 'flat' : !isEmpty(unitType)
+                            }).length
+
+                        return parkingUnitsCount + sectionUnitsCount
                     }
 
                     if (operation === 'create') {

@@ -28,7 +28,7 @@
  * ```
  */
 const conf = require('@core/config')
-const { getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/accessToken')
+const { getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/utils')
 const { SbbolCryptoApi } = require('@condo/domains/organization/integrations/sbbol/SbbolCryptoApi')
 const { logger: baseLogger } = require('@condo/domains/organization/integrations/sbbol/common')
 const path = require('path')
@@ -58,12 +58,12 @@ const validateAndGetCommand = () => {
     }
 }
 
-const getAccessTokenFor = async (hashOrgId) => {
+const getAccessTokenFor = async (context, hashOrgId) => {
     let accessToken
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        accessToken = await getOrganizationAccessToken(hashOrgId)
+        accessToken = await getOrganizationAccessToken(context, hashOrgId)
     } catch (e) {
         logger.error({
             message: 'Failed to obtain organization access token from SBBOL',
@@ -85,7 +85,9 @@ async function main () {
     await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
     await keystone.connect()
 
-    const accessToken = await getAccessTokenFor(SBBOL_CSR_REQUEST_DATA.service_organization_hashOrgId)
+    const context = await keystone.createContext({ skipAccessControl: true })
+
+    const accessToken = await getAccessTokenFor(context, SBBOL_CSR_REQUEST_DATA.service_organization_hashOrgId)
 
     const cryptoApi = new SbbolCryptoApi({
         accessToken,
@@ -103,7 +105,7 @@ async function main () {
 
     if (cryptoInfo && command === COMMAND.POST_CSR) {
         // Use id of different ogranization, to that SBBOL support specifically granted rights to post CSR
-        const accessTokenForCSR = await getAccessTokenFor(SBBOL_CSR_REQUEST_DATA.service_organization_hashOrgId)
+        const accessTokenForCSR = await getAccessTokenFor(context, SBBOL_CSR_REQUEST_DATA.service_organization_hashOrgId)
 
         const cryptoApiForCSR = new SbbolCryptoApi({
             accessToken: accessTokenForCSR,

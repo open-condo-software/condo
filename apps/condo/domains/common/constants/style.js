@@ -46,6 +46,20 @@ const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[
     magenta[7], yellow[5], lime[7], blue[8], cyan[5], yellow[6],
     purple[7], lime[8], red[6]]
 
+const UNIT_TYPE_COLOR_SET = {
+    flat: white,
+    parking: white,
+    apartment: '#CBE2F6',
+    warehouse: '#F086334D',
+    commercial: '#EB34684D',
+}
+
+const WELCOME_POPUP_BACKGROUND_COLORS = {
+    firstStep: '#E4EFFF',
+    secondStep: '#FFEDE3',
+    thirdStep: '#FFE5EC',
+}
+
 const colors = {
     sberDefault: generateCustomColorPalette(sberBlue, sberSecondaryBlue),
     sberPrimary: generateCustomColorPalette(sberGreen, sberSecondaryGreen),
@@ -130,7 +144,8 @@ const antGlobalVariables = {
     '@black': black,
     '@heading-color': black,
     '@form-item-label-height': '22px',
-    '@label-color': grey[2],
+    '@label-color': textSecondary,
+    '@form-vertical-label-padding': '0 0 4px',
     '@input-border-color': inputBorderGrey,
     '@input-bg': whiteTranslucent,
     '@input-hover-border-color': inputBorderHover,
@@ -189,6 +204,8 @@ module.exports = {
     shadows,
     transitions,
     CHART_COLOR_SET,
+    UNIT_TYPE_COLOR_SET,
+    WELCOME_POPUP_BACKGROUND_COLORS,
     DEFAULT_BORDER_WIDTH,
     DEFAULT_STRONG_TEXT_FONT_WEIGHT,
     DEFAULT_BORDER_RADIUS,

@@ -3,16 +3,73 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
+const { WRONG_FORMAT, NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { createOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
 const guards = require('../utils/serverSchema/guards')
-const { ALREADY_EXISTS_ERROR, NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const get = require('lodash/get')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { getById } = require('@core/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
+const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED } = require('../constants/errors')
+
+const errors = {
+    inviteNewOrganizationEmployee: {
+        ALREADY_INVITED: {
+            mutation: 'inviteNewOrganizationEmployee',
+            code: BAD_USER_INPUT,
+            type: ALREADY_INVITED,
+            message: 'Already invited into the organization',
+            messageForUser: 'api.inviteNewOrganizationEmployee.ALREADY_INVITED',
+        },
+        WRONG_PHONE_FORMAT: {
+            mutation: 'inviteNewOrganizationEmployee',
+            code: BAD_USER_INPUT,
+            type: WRONG_FORMAT,
+            message: 'Wrong phone format',
+        },
+        UNABLE_TO_REGISTER_USER: {
+            mutation: 'inviteNewOrganizationEmployee',
+            code: INTERNAL_ERROR,
+            type: '',
+            message: 'Unable to register user',
+        },
+    },
+    reInviteOrganizationEmployee: {
+        WRONG_PHONE_FORMAT: {
+            mutation: 'reInviteOrganizationEmployee',
+            code: BAD_USER_INPUT,
+            type: WRONG_FORMAT,
+            message: 'Wrong phone format',
+        },
+        ORGANIZATION_NOT_FOUND: {
+            mutation: 'reInviteOrganizationEmployee',
+            code: BAD_USER_INPUT,
+            type: NOT_FOUND,
+            message: 'Could not find Organization by specified search criteria',
+        },
+        USER_NOT_FOUND: {
+            mutation: 'reInviteOrganizationEmployee',
+            code: BAD_USER_INPUT,
+            type: NOT_FOUND,
+            message: 'Could not find User by specified phone or email',
+        },
+        EMPLOYEE_NOT_FOUND: {
+            mutation: 'reInviteOrganizationEmployee',
+            code: BAD_USER_INPUT,
+            type: NOT_FOUND,
+            message: 'Could not find OrganizationEmployee that has not accepted invitation for found User',
+        },
+        ALREADY_ACCEPTED_INVITATION: {
+            mutation: 'reInviteOrganizationEmployee',
+            code: BAD_USER_INPUT,
+            type: ALREADY_ACCEPTED_INVITATION,
+            message: 'Corresponding OrganizationEmployee has already accepted invitation',
+        },
+    },
+}
 
 const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrganizationEmployeeService', {
     types: [
@@ -29,20 +86,27 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
         {
             access: access.canInviteNewOrganizationEmployee,
             schema: 'inviteNewOrganizationEmployee(data: InviteNewOrganizationEmployeeInput!): OrganizationEmployee',
+            doc: {
+                summary: 'Invites staff-user into specified Organization',
+                description: [
+                    'For corresponding User record it creates a new OrganizationEmployee and sends message with notification about invitation',
+                    'It tries to find already existing User with type "staff" first by phone, then by email.',
+                    'If User is not found, it will be registered.',
+                ].join('\n'),
+                errors: errors.inviteNewOrganizationEmployee,
+            },
             resolver: async (parent, args, context) => {
-                if (!context.authedItem.id) throw new Error('[error] User is not authenticated')
                 const { data } = args
                 let { organization, email, phone, role, position, name, specializations, ...restData } = data
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
-                if (!phone) throw new Error(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
+                if (!phone) throw new GQLError(errors.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT)
                 const userOrganization = await Organization.getOne(context, { id: organization.id })
                 let user = await guards.checkStaffUserExistency(context, email, phone)
                 const existedEmployee = await guards.checkEmployeeExistency(context, userOrganization, email, phone, user)
 
                 if (existedEmployee) {
-                    const msg = `${ALREADY_EXISTS_ERROR}employee unique] User is already invited in the organization`
-                    throw new Error(msg)
+                    throw new GQLError(errors.inviteNewOrganizationEmployee.ALREADY_INVITED)
                 }
 
                 if (!user) {
@@ -66,8 +130,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     })
 
                     if (registerErrors) {
-                        const msg = '[error] Unable to register user'
-                        throw new Error(msg)
+                        throw new GQLError(errors.UNABLE_TO_REGISTER_USER)
                     }
 
                     user = registerData.user
@@ -109,39 +172,37 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
         {
             access: access.canInviteNewOrganizationEmployee,
             schema: 'reInviteOrganizationEmployee(data: ReInviteOrganizationEmployeeInput!): OrganizationEmployee',
+            doc: {
+                summary: 'Tries to send notification message again to already invited user',
+                errors: errors.reInviteOrganizationEmployee,
+            },
             resolver: async (parent, args, context) => {
-                if (!context.authedItem.id) {
-                    throw new Error('[error] User is not authenticated')
-                }
                 const { data } = args
                 let { organization, email, sender, phone } = data
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
                 if (!phone) {
-                    throw new Error(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
+                    throw new GQLError(errors.reInviteOrganizationEmployee.WRONG_PHONE_FORMAT)
                 }
 
                 const [employeeOrganization] = await Organization.getAll(context, { id: organization.id })
 
                 if (!employeeOrganization) {
-                    throw new Error('No organization found for OrganizationEmployeeRole')
+                    throw new GQLError(errors.reInviteOrganizationEmployee.ORGANIZATION_NOT_FOUND)
                 }
 
                 const existedUser = await guards.checkStaffUserExistency(context, email, phone)
                 if (!existedUser) {
-                    const msg = `${NOT_FOUND_ERROR}user undef] There is no user for employee`
-                    throw new Error(msg)
+                    throw new GQLError(errors.reInviteOrganizationEmployee.USER_NOT_FOUND)
                 }
 
                 const existedEmployee = await guards.checkEmployeeExistency(context, organization, email, phone, existedUser)
                 if (!existedEmployee) {
-                    const msg = `${NOT_FOUND_ERROR}employee undef] There is no employee found invited to organization`
-                    throw new Error(msg)
+                    throw new GQLError(errors.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND)
                 }
 
                 if (get(existedEmployee, 'isAccepted')) {
-                    const msg = `${ALREADY_EXISTS_ERROR}employee unique] User is already accepted organization invitation`
-                    throw new Error(msg)
+                    throw new GQLError(errors.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION)
                 }
 
                 const organizationCountry = get(employeeOrganization, 'country', 'en')

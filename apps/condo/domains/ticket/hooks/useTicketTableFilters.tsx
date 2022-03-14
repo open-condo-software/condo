@@ -47,6 +47,7 @@ const filterPlaceClassifier = getFilter(['placeClassifier', 'id'], 'array', 'str
 const filterCategoryClassifier = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
+const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
 
 export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
@@ -416,6 +417,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         size: FilterComponentSize.Medium,
                     },
                 },
+            },
+            {
+                keyword: 'contact',
+                filters: [filterTicketContact],
             },
         ]
     }, [statuses, sources])

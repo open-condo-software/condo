@@ -38,10 +38,13 @@ const { JSON_STRUCTURE_FIELDS_CONSTRAINTS } = require('@condo/domains/common/uti
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { find } = require('@core/keystone/schema')
 const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
+const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
 const get = require('lodash/get')
 const Big = require('big.js')
 const validate = require('validate.js')
+
+
 
 const SENDER_FIELD_CONSTRAINTS = {
     ...JSON_STRUCTURE_FIELDS_CONSTRAINTS,
@@ -73,7 +76,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
             type: 'type RegisterMultiPaymentOutput { dv: Int!, multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String!, directPaymentUrl: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canRegisterMultiPayment,
@@ -254,10 +257,24 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 for (const group of groupedReceipts) {
                     const serviceConsumer = consumersByIds[group.consumerId]
                     const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
+                    const formula = await getAcquiringIntegrationContextFormula(context, serviceConsumer.acquiringIntegrationContext)
+                    const feeCalculator = new FeeDistribution(formula)
                     for (const receiptInfo of group.receipts) {
                         const receipt = receiptsByIds[receiptInfo.id]
                         const frozenReceipt = await freezeBillingReceipt(receipt)
                         const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
+                        const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(receipt.toPay)
+                        const paymentCommissionFields = {
+                            ...type === 'service' ? {
+                                explicitServiceCharge: String(explicitFee),
+                                explicitFee: '0',
+                            } : {
+                                explicitServiceCharge: '0',
+                                explicitFee: String(explicitFee),
+                            },
+                            implicitFee: String(implicitFee),
+                            serviceFee: String(fromReceiptAmountFee),
+                        }
                         const payment = await Payment.create(context, {
                             dv: 1,
                             sender,
@@ -271,19 +288,31 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             organization: { connect: { id: acquiringContext.organization } },
                             recipientBic: receipt.recipient.bic,
                             recipientBankAccount: receipt.recipient.bankAccount,
+                            ...paymentCommissionFields,
                         })
-                        payments.push(payment)
+                        payments.push({ ...payment, serviceFee: paymentCommissionFields.serviceFee })
                     }
                 }
-
                 const paymentIds = payments.map(payment => ({ id: payment.id }))
                 const totalAmount = payments.reduce((acc, cur) => {
-                    return acc.plus(cur.amount)
-                }, Big('0.0'))
+                    return {
+                        amountWithoutExplicitFee: acc.amountWithoutExplicitFee.plus(Big(cur.amount)),
+                        explicitFee: acc.explicitFee.plus(Big(cur.explicitFee)),
+                        explicitServiceCharge: acc.explicitServiceCharge.plus(Big(cur.explicitServiceCharge)),
+                        serviceFee: acc.serviceFee.plus(Big(cur.serviceFee)),
+                        implicitFee: acc.implicitFee.plus(Big(cur.implicitFee)),
+                    }
+                }, {
+                    amountWithoutExplicitFee: Big('0.0'),
+                    explicitFee: Big('0.0'),
+                    explicitServiceCharge: Big('0.0'),
+                    serviceFee: Big('0.0'),
+                    implicitFee: Big('0.0'),
+                })
                 const multiPayment = await MultiPayment.create(context, {
                     dv: 1,
                     sender,
-                    amountWithoutExplicitFee: totalAmount.toString(),
+                    ...Object.fromEntries(Object.entries(totalAmount).map(([key, value]) => ([key, value.toFixed(2)]))),
                     currencyCode,
                     user: { connect: { id: context.authedItem.id } },
                     integration: { connect: { id: acquiringIntegration.id } },
@@ -291,7 +320,6 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     // TODO(DOMA-1574): add correct category
                     serviceCategory: DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
                 })
-
                 return {
                     dv: 1,
                     multiPaymentId: multiPayment.id,
@@ -302,7 +330,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
             },
         },
     ],
-    
+
 })
 
 module.exports = {

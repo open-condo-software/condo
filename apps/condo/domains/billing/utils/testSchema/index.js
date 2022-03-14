@@ -4,7 +4,6 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-
 const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
@@ -26,6 +25,7 @@ const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
+const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -40,7 +40,10 @@ const BillingAccountMeterReading = generateGQLTestUtils(BillingAccountMeterReadi
 const BillingReceipt = generateGQLTestUtils(BillingReceiptGQL)
 const BillingOrganization = generateGQLTestUtils(BillingOrganizationGQL)
 const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
+const BillingRecipient = generateGQLTestUtils(BillingRecipientGQL)
 /* AUTOGENERATE MARKER <CONST> */
+
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -178,8 +181,6 @@ async function createTestBillingProperty (client, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestBillingProperty logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -201,8 +202,6 @@ async function updateTestBillingProperty (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestBillingProperty logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -216,8 +215,6 @@ async function createTestBillingAccount (client, context, property, extraAttrs =
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestBillingAccount logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -226,6 +223,7 @@ async function createTestBillingAccount (client, context, property, extraAttrs =
         raw: { foo: faker.lorem.words() },
         number: faker.random.alphaNumeric(),
         unitName: faker.random.alphaNumeric(),
+        unitType: FLAT_UNIT_TYPE,
         meta: {
             dv: 1,
             test: 123,
@@ -241,8 +239,6 @@ async function updateTestBillingAccount (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestBillingAccount logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -255,8 +251,6 @@ async function updateTestBillingAccount (client, id, extraAttrs = {}) {
 async function createTestBillingMeterResource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestBillingMeterResource logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -273,8 +267,6 @@ async function updateTestBillingMeterResource (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestBillingMeterResource logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -287,8 +279,6 @@ async function updateTestBillingMeterResource (client, id, extraAttrs = {}) {
 async function createTestBillingAccountMeter (client, context, property, account, resource, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestBillingAccountMeter logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -312,8 +302,6 @@ async function updateTestBillingAccountMeter (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestBillingAccountMeter logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -326,8 +314,6 @@ async function updateTestBillingAccountMeter (client, id, extraAttrs = {}) {
 async function createTestBillingAccountMeterReading (client, context, property, account, meter, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestBillingAccountMeterReading logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -353,8 +339,6 @@ async function updateTestBillingAccountMeterReading (client, id, extraAttrs = {}
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestBillingAccountMeterReading logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -377,7 +361,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         raw: { foo: faker.lorem.words() },
         period: '2021-12-01',
         importId: faker.random.alphaNumeric(8),
-        toPay: faker.datatype.number().toString(),
+        toPay: (faker.datatype.number() + 50).toString(),
         recipient: {
             name: faker.random.boolean ? faker.vehicle.manufacturer() : undefined,
             tin: faker.datatype.number().toString(),
@@ -433,6 +417,45 @@ async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await BillingOrganization.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestBillingRecipient(client, context, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!context.id) throw new Error('no context')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const companyName = faker.company.companyName()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        importId: faker.datatype.uuid(),
+        name: companyName,
+        iec: faker.random.alphaNumeric(6),
+        tin: faker.random.alphaNumeric(6),
+        bic: faker.finance.bic(),
+        bankAccount: faker.finance.account(12),
+        purpose: `Payment for service from ${companyName}`,
+        isApproved: false,
+        ...extraAttrs,
+    }
+    const obj = await BillingRecipient.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingRecipient(client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingRecipient.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -538,7 +561,8 @@ module.exports = {
     BillingOrganization, updateTestBillingOrganization,
     ResidentBillingReceipt,
     createReceiptsReader,
-    makeClientWithPropertyAndBilling
+    makeClientWithPropertyAndBilling,
+    BillingRecipient, createTestBillingRecipient, updateTestBillingRecipient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

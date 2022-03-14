@@ -1,10 +1,8 @@
-const { PASSWORD_TOO_SHORT, RESET_TOKEN_NOT_FOUND } = require('@condo/domains/user/constants/errors')
 const { MIN_PASSWORD_LENGTH, RESIDENT } = require('@condo/domains/user/constants/common')
 const { makeLoggedInClient, createTestConfirmPhoneAction, ConfirmPhoneAction } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { User, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser } = require('@condo/domains/user/utils/testSchema')
 const { START_PASSWORD_RECOVERY_MUTATION, CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN, COMPLETE_CONFIRM_PHONE_MUTATION } = require('@condo/domains/user/gql')
-
 const faker = require('faker')
 
 const captcha = () => {
@@ -46,9 +44,19 @@ describe('ForgotPasswordAction Service', () => {
             const password = `new_${userAttrs.password}`
 
             await updateTestForgotPasswordAction(admin, id, { expiresAt: new Date(Date.now()).toISOString() })
-            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(result.errors).toHaveLength(1)
-            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(errors).toHaveLength(1)
+            expect(errors).toMatchObject([{
+                message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'token'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
+                },
+            }])
         })
 
         it('cannot change password to a shorter one', async () =>  {
@@ -58,9 +66,18 @@ describe('ForgotPasswordAction Service', () => {
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             const password = userAttrs.password.slice(0, MIN_PASSWORD_LENGTH - 1)
-            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(result.errors).toHaveLength(1)
-            expect(result.errors[0].message).toEqual(`${PASSWORD_TOO_SHORT}] Password is too short`)
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(errors).toHaveLength(1)
+            expect(errors).toMatchObject([{
+                message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'password'],
+                    code: 'BAD_USER_INPUT',
+                },
+            }])
         })
 
         it('can check token expired status', async () => {
@@ -79,9 +96,18 @@ describe('ForgotPasswordAction Service', () => {
             const client = await makeLoggedInClient(userAttrs)
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
-            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '' } })
-            expect(result.errors).toHaveLength(1)
-            expect(result.errors[0].message).toEqual(`${PASSWORD_TOO_SHORT}] Password is too short`)
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '' } })
+            expect(errors).toHaveLength(1)
+            expect(errors).toMatchObject([{
+                message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'password'],
+                    code: 'BAD_USER_INPUT',
+                },
+            }])
         })
     })
     describe('Anonymous', () => {
@@ -116,11 +142,23 @@ describe('ForgotPasswordAction Service', () => {
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             const password = `new_${userAttrs.password}`
-            let result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(result.data.result).toEqual({ status: 'ok', phone:  userAttrs.phone })
-            result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
 
-            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+            const { data: { result } } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(result).toEqual({ status: 'ok', phone:  userAttrs.phone })
+
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+
+            expect(errors).toMatchObject([{
+                message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'token'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
+                },
+            }])
         })
 
         it('cannot change password with expired token', async () => {
@@ -132,9 +170,19 @@ describe('ForgotPasswordAction Service', () => {
             const password = `new_${userAttrs.password}`
 
             await updateTestForgotPasswordAction(admin, id, { expiresAt: new Date(Date.now()).toISOString() })
-            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(result.errors).toHaveLength(1)
-            expect(result.errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(errors).toHaveLength(1)
+            expect(errors).toMatchObject([{
+                message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'token'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
+                },
+            }])
         })
 
         it('cannot change password to a shorter one', async () => {
@@ -144,9 +192,18 @@ describe('ForgotPasswordAction Service', () => {
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             const password = userAttrs.password.slice(0, MIN_PASSWORD_LENGTH - 1)
-            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(result.errors).toHaveLength(1)
-            expect(result.errors[0].message).toEqual(`${PASSWORD_TOO_SHORT}] Password is too short`)
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(errors).toHaveLength(1)
+            expect(errors).toMatchObject([{
+                message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'password'],
+                    code: 'BAD_USER_INPUT',
+                },
+            }])
         })
 
         it('can check token expired status', async () => {
@@ -165,9 +222,18 @@ describe('ForgotPasswordAction Service', () => {
             const client = await makeClient()
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
-            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '' } })
-            expect(result.errors).toHaveLength(1)
-            expect(result.errors[0].message).toEqual(`${PASSWORD_TOO_SHORT}] Password is too short`)
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '' } })
+            expect(errors).toHaveLength(1)
+            expect(errors).toMatchObject([{
+                message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'password'],
+                    code: 'BAD_USER_INPUT',
+                },
+            }])
         })
         
         it('can change password with ConfirmPhoneAction', async () => {
@@ -201,9 +267,19 @@ describe('ForgotPasswordAction Service', () => {
             })
 
             const password = `new_${userAttrs.password}`
-            const { data, errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
-            expect(data.result).toBeNull()
+            const { data: { result }, errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            expect(result).toBeNull()
+            expect(errors).toMatchObject([{
+                message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'token'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'TOKEN_NOT_FOUND',
+                },
+            }])
         })
 
         it('cannot change when action token already completed', async () => {
@@ -223,7 +299,16 @@ describe('ForgotPasswordAction Service', () => {
             expect(data.result).toEqual({ status: 'ok',  phone:  userAttrs.phone })
 
             const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+            expect(errors).toMatchObject([{
+                message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'token'],
+                    code: 'BAD_USER_INPUT',
+                },
+            }])
         })
 
         it('cannot change when action token expired', async () => {
@@ -250,7 +335,16 @@ describe('ForgotPasswordAction Service', () => {
             
             const password = `new_${userAttrs.password}`
             const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(errors[0].message).toEqual(`${RESET_TOKEN_NOT_FOUND}] Unable to find valid token`)
+            expect(errors).toMatchObject([{
+                message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'token'],
+                    code: 'BAD_USER_INPUT',
+                },
+            }])
         })
 
         it('does change only staff member password', async () => {

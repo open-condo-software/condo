@@ -1,5 +1,6 @@
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
+import { colors } from '@condo/domains/common/constants/style'
 import {
     getTicketLabel,
     sortStatusesByType,
@@ -20,8 +21,6 @@ const StyledSelect = styled(Select)<IStyledSelect>`
   width: 100%;
   font-weight: 700;
   border-radius: 8px;
-  padding: 0 8px;
-  box-sizing: border-box;
   color: ${({ color }) => color};
   background-color: ${({ backgroundColor }) => backgroundColor};
 
@@ -29,6 +28,14 @@ const StyledSelect = styled(Select)<IStyledSelect>`
     .ant-select-selection-item {
       color: ${({ color }) => color};
     }
+  }
+  
+  .ant-select-arrow svg {
+    fill: ${({ color }) => color};
+  }
+  
+  &.ant-select-open .ant-select-selector .ant-select-selection-item {
+    color: ${({ color }) => color};
   }
 `
 
@@ -54,7 +61,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         updateTicketStatus({ status: value, statusUpdatedAt: new Date() })
     }, [ticket])
 
-    const { primary: color, secondary: backgroundColor } = ticket.status.colors
+    const { primary: backgroundColor, secondary: color } = ticket.status.colors
     const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
 
     return (

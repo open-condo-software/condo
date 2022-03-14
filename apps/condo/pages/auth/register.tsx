@@ -10,7 +10,7 @@ import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useContext, useEffect, useState } from 'react'
-import { ButtonHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { ButtonHeaderActions } from '@condo/domains/common/components/HeaderActions'
 import { useMutation } from '@core/next/apollo'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -110,7 +110,7 @@ const RegisterPage: AuthPage = () => {
 }
 
 RegisterPage.headerAction = (
-    <ButtonHeaderAction
+    <ButtonHeaderActions
         descriptor={{ id: 'pages.auth.AlreadyRegistered' }}
         path={'/auth/signin'}
     />

@@ -1,14 +1,12 @@
 import React, { useCallback, useState } from 'react'
 import { OptionProps } from 'antd/lib/mentions'
-import isString from 'lodash/isString'
-import { AutoComplete, Col, Radio, Select } from 'antd'
-import { green, grey } from '@ant-design/colors'
-import { get, pick } from 'lodash'
-import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
-import { MinusCircleFilled } from '@ant-design/icons'
+import { AutoComplete, Col, Radio } from 'antd'
+import { colors } from '@condo/domains/common/constants/style'
+import { get } from 'lodash'
+import { MinusCircleOutlined } from '@ant-design/icons'
 import { Contact as TContact } from '@condo/domains/contact/schema'
 import { ContactValue } from './index'
-import { PhoneInput } from '../../../common/components/PhoneInput'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useIntl } from '@core/next/intl'
 
 /**
@@ -133,9 +131,9 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
             </Col>
             <Col span={2}>
                 {displayMinusButton && (
-                    <MinusCircleFilled
+                    <MinusCircleOutlined
                         style={{
-                            color: green[6],
+                            color: colors.black,
                             fontSize: '21px',
                             marginTop: '9px',
                             marginLeft: '-4px',

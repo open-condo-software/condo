@@ -7,6 +7,7 @@
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('./schema/fields/AddressMetaField')
 const { gql } = require('graphql-tag')
+const { PARKING_UNIT_TYPE, FLAT_UNIT_TYPE, WAREHOUSE_UNIT_TYPE, COMMERCIAL_UNIT_TYPE, APARTMENT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const PROPERTY_MAP_SECTION_FIELDS = 'id type index name preview floors { id type index name units { id type unitType name label preview } }'
@@ -24,8 +25,11 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
     }
 
     enum BuildingUnitType {
-        parking
-        flat
+        ${PARKING_UNIT_TYPE}
+        ${FLAT_UNIT_TYPE}
+        ${APARTMENT_UNIT_TYPE}
+        ${COMMERCIAL_UNIT_TYPE}
+        ${WAREHOUSE_UNIT_TYPE}
     }
 
     type BuildingUnit {

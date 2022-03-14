@@ -23,7 +23,7 @@ export const IconContainer = styled.div<{ type: OnBoardingStepType }>`
   flex-direction: row;
   transition: ${transitions.easeInOut};
   color: ${colors.black};
-  font-size: 16px;
+  font-size: 24px;
 
   ${({ type }) => {
         if (type === OnBoardingStepType.COMPLETED) {
@@ -36,6 +36,17 @@ export const IconContainer = styled.div<{ type: OnBoardingStepType }>`
 
         return (`border: 2px solid ${colors.sberGrey[3]};`)
     }}
+`
+
+export const StepTitle = styled.div`
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 24px;
+`
+
+export const StepDescription = styled.div`
+  font-size: 14px;
+  line-height: 22px;
 `
 
 export const StepContainer = styled(FocusContainer)<{ type: OnBoardingStepType }>`

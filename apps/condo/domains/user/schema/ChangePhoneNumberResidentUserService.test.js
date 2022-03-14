@@ -2,9 +2,6 @@
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@core/keystone/test.utils')
 const { CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser, createTestConfirmPhoneAction, User: UserTestUtils } = require('@condo/domains/user/utils/testSchema')
-const {
-    CONFIRM_PHONE_ACTION_EXPIRED,
-} = require('@condo/domains/user/constants/errors')
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
 
 describe('ChangePhoneNumberResidentUserService', () => {
@@ -55,8 +52,19 @@ describe('ChangePhoneNumberResidentUserService', () => {
                     sender: { dv: 1, fingerprint: 'tests' },
                     token: token.token,
                 }
-                const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
-                expect(error.message).toContain(CONFIRM_PHONE_ACTION_EXPIRED)
+                const { errors } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
+                expect(errors).toMatchObject([{
+                    message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
+                    name: 'GraphQLError',
+                    path: ['result'],
+                    extensions: {
+                        mutation: 'changePhoneNumberResidentUser',
+                        message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
+                        variable: ['data', 'token'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'NOT_FOUND',
+                    },
+                }])
             })
             it('can not change phone with used token', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -68,8 +76,19 @@ describe('ChangePhoneNumberResidentUserService', () => {
                     sender: { dv: 1, fingerprint: 'tests' },
                     token: token.token,
                 }
-                const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
-                expect(error.message).toContain(CONFIRM_PHONE_ACTION_EXPIRED)
+                const { errors } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
+                expect(errors).toMatchObject([{
+                    message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
+                    name: 'GraphQLError',
+                    path: ['result'],
+                    extensions: {
+                        mutation: 'changePhoneNumberResidentUser',
+                        message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
+                        variable: ['data', 'token'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'NOT_FOUND',
+                    },
+                }])
             })
         })
         describe('Staff', () => {

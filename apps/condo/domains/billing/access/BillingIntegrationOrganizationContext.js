@@ -8,6 +8,12 @@ const { getById } = require('@core/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
+/**
+ * Context could be read either by:
+ * 1. Support / Admin
+ * 2. Integration service account
+ * 3. Integration manager from user's organization
+ */
 async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -21,6 +27,16 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
     }
 }
 
+/**
+ * Context could be created by:
+ * 1. Admin
+ * 2. Integration manager from user's organization
+ *
+ * Context could be updated by:
+ * 1. Admin / Support
+ * 2. Integration manager from user's organization
+ * 3. Integration service
+ */
 async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false

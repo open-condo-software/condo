@@ -1,11 +1,9 @@
 const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
-const { WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
 const { gql } = require('graphql-tag')
 
 describe('Auth by phone and password', () => {
-
     // We need to check that token is also returned for mobile phones. It's the same as SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION
     const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION_WITH_TOKEN = gql`
         mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
@@ -33,8 +31,18 @@ describe('Auth by phone and password', () => {
         const [, userAttrs] = await createTestUser(admin)
         const { phone, password } = userAttrs
         const client = await makeClient()
-        const res1 = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password: password + Math.random() })
-        expect(JSON.stringify(res1.errors)).toContain(WRONG_PASSWORD_ERROR)
+        const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password: password + Math.random() })
+        expect(errors).toMatchObject([{
+            message: 'Wrong password',
+            name: 'GraphQLError',
+            path: ['obj'],
+            extensions: {
+                mutation: 'authenticateUserWithPhoneAndPassword',
+                message: 'Wrong password',
+                code: 'FORBIDDEN',
+                variable: ['data', 'password'],
+            },
+        }])
     })
 
     test('not valid phone', async () => {
@@ -42,8 +50,17 @@ describe('Auth by phone and password', () => {
         const [, userAttrs] = await createTestUser(admin)
         const { phone, password } = userAttrs
         const client = await makeClient()
-        const res1 = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone: phone + Math.random(), password })
-        expect(JSON.stringify(res1.errors)).toContain(WRONG_EMAIL_ERROR)
+        const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone: phone + Math.random(), password })
+        expect(errors).toMatchObject([{
+            message: 'Wrong format of provided phone number',
+            name: 'GraphQLError',
+            path: ['obj'],
+            extensions: {
+                mutation: 'authenticateUserWithPhoneAndPassword',
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_FORMAT',
+                variable: ['data', 'phone'],
+            },
+        }])
     })
-
 })

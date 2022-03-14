@@ -10,8 +10,9 @@ import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { Form, Space } from 'antd'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useApolloClient } from '@core/next/apollo'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
@@ -28,7 +29,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                     const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
 
                     return (
-                        <ActionBar>
+                        <ActionBar isFormActionBar>
                             <Space size={12}>
                                 <Button
                                     key='submit'
@@ -75,10 +76,10 @@ export const CreateTicketForm: React.FC = () => {
 
     const createAction = useCallback((attrs) => action({ ...attrs, organization }), [organization])
 
-    const initialValues = {
+    const initialValues = useMemo(() => ({
         assignee: auth.user.id,
         executor: auth.user.id,
-    }
+    }), [auth.user.id])
 
     const MemoizedBaseTicketForm = useCallback(() => (
         <BaseTicketForm

@@ -1,5 +1,8 @@
 const PROPERTY_WITH_SAME_ADDRESS_EXIST = '[unique:alreadyExists:address]'
 
+const FLAT_WITHOUT_FLAT_TYPE = 'FLAT_WITHOUT_FLAT_TYPE'
+
 module.exports = {
     PROPERTY_WITH_SAME_ADDRESS_EXIST,
+    FLAT_WITHOUT_FLAT_TYPE,
 }

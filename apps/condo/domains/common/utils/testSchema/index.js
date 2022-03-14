@@ -235,3 +235,7 @@ export const expectToThrowAuthenticationErrorToObj = async (testFunc) => {
 export const expectToThrowAuthenticationErrorToObjects = async (testFunc) => {
     return await expectToThrowAuthenticationError(testFunc, 'objs')
 }
+
+export const expectToThrowAuthenticationErrorToResult = async (testFunc) => {
+    return await expectToThrowAuthenticationError(testFunc, 'result')
+}

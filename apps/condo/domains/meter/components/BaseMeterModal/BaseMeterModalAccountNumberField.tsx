@@ -9,7 +9,7 @@ import { useIntl } from '@core/next/intl'
 import { Meter } from '../../utils/clientSchema'
 import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
-const AccountNumberFormItem = ({ children, initialValues }) => {
+const AccountNumberFormItem = ({ children, initialValues, rules }) => {
     const intl = useIntl()
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumber' })
 
@@ -17,6 +17,7 @@ const AccountNumberFormItem = ({ children, initialValues }) => {
         <BaseMeterModalFormItem
             label={AccountNumberMessage}
             required
+            rules={rules}
             name={'accountNumber'}
             initialValue={initialValues.accountNumber}
         >
@@ -31,12 +32,12 @@ const HORIZONTAL_GUTTER: [Gutter, Gutter] = [20, 0]
 const VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
 const RADIO_GROUP_STYLE = { width: '100%' }
 
-const AccountNumberSelect = ({ accountNumbers }) => {
+const AccountNumberSelect = ({ accountNumbers, rules }) => {
     const intl = useIntl()
     const ChooseAccountNumberMessage = intl.formatMessage({ id: 'meter.modal.ChooseAccountNumber' })
     const CreateAccountNumber = intl.formatMessage({ id: 'meter.modal.CreateAccountNumber' })
 
-    const [value, setValue] = useState()
+    const [value, setValue] = useState(CHOOSE_ACCOUNT_RADIO_VALUE)
     const handleChange = useCallback((e) => {
         setValue(e.target.value)
     }, [])
@@ -62,7 +63,7 @@ const AccountNumberSelect = ({ accountNumbers }) => {
                 </Radio.Group>
             </Col>
             <Col span={24}>
-                <AccountNumberFormItem initialValues={{}}>
+                <AccountNumberFormItem initialValues={{}} rules={rules}>
                     {
                         value === CHOOSE_ACCOUNT_RADIO_VALUE ? <Select options={accountNumberOptions} /> : <Input />
                     }
@@ -72,7 +73,7 @@ const AccountNumberSelect = ({ accountNumbers }) => {
     )
 }
 
-const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName }) => {
+const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName, rules }) => {
     const { objs: meters } = Meter.useObjects({
         where: {
             property: { id: propertyId },
@@ -83,16 +84,16 @@ const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName }) 
 
     if (isEmpty(unitAccountNumbers)) {
         return (
-            <AccountNumberFormItem initialValues={initialValues}>
+            <AccountNumberFormItem initialValues={initialValues} rules={rules}>
                 <Input />
             </AccountNumberFormItem>
         )
     }
 
-    return <AccountNumberSelect accountNumbers={unitAccountNumbers} />
+    return <AccountNumberSelect accountNumbers={unitAccountNumbers} rules={rules} />
 }
 
-export const BaseMeterModalAccountNumberField = ({ initialValues }) => {
+export const BaseMeterModalAccountNumberField = ({ initialValues, rules }) => {
     const propertyId = initialValues.propertyId
     const unitName = initialValues.unitName
 
@@ -102,12 +103,13 @@ export const BaseMeterModalAccountNumberField = ({ initialValues }) => {
                 initialValues={initialValues}
                 propertyId={propertyId}
                 unitName={unitName}
+                rules={rules}
             />
         )
     }
 
     return (
-        <AccountNumberFormItem initialValues={initialValues}>
+        <AccountNumberFormItem initialValues={initialValues} rules={rules}>
             <Input />
         </AccountNumberFormItem>
     )

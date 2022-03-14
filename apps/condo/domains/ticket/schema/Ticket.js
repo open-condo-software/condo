@@ -9,7 +9,17 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const get = require('lodash/get')
 const { addClientInfoToResidentTicket, addOrderToTicket } = require('../utils/serverSchema/resolveHelpers')
 
-const { SENDER_FIELD, DV_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CONTACT_FIELD, CLIENT_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
+const {
+    SENDER_FIELD,
+    DV_FIELD,
+    CLIENT_PHONE_LANDLINE_FIELD,
+    CLIENT_EMAIL_FIELD,
+    CLIENT_NAME_FIELD,
+    CONTACT_FIELD,
+    CLIENT_FIELD,
+    ADDRESS_META_FIELD,
+    UNIT_TYPE_FIELD,
+} = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
 const { triggersManager } = require('@core/triggers')
@@ -22,6 +32,7 @@ const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, 
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { TERMINAL_TICKET_STATUS_IDS } = require('../constants/statusTransitions')
+const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -201,6 +212,12 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
+        canReadByResident: {
+            schemaDoc: 'Determines if a resident in the mobile app can see the ticket created in crm',
+            type: Checkbox,
+            defaultValue: false,
+            isRequired: true,
+        },
         meta: {
             schemaDoc: 'Extra analytics not related to remote system',
             type: Json,
@@ -274,7 +291,7 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Flat number / door number of an apartment building (property). You need to take from Property.map',
             type: Text,
         },
-
+        unitType: UNIT_TYPE_FIELD,
         source: {
             schemaDoc: 'Ticket source channel/system. Examples: call, email, visit, ...',
             type: Relationship,
@@ -318,6 +335,21 @@ const Ticket = new GQLListSchema('Ticket', {
             if (property) {
                 resolvedData.propertyAddress = property.address
                 resolvedData.propertyAddressMeta = property.addressMeta
+            }
+
+            if (resolvedData.contact) {
+                const [contact] = await Contact.getAll(context, {
+                    id: resolvedData.contact,
+                })
+                if (!resolvedData.clientName) {
+                    resolvedData.clientName = contact.name
+                }
+                if (!resolvedData.clientEmail) {
+                    resolvedData.clientEmail = contact.email
+                }
+                if (!resolvedData.clientPhone) {
+                    resolvedData.clientPhone = contact.phone
+                }
             }
 
             return resolvedData

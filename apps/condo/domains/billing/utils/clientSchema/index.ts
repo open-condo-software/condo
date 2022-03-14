@@ -13,4 +13,5 @@ export * as BillingMeterResource from './BillingMeterResource'
 export * as BillingAccountMeter from './BillingAccountMeter'
 export * as BillingAccountMeterReading from './BillingAccountMeterReading'
 export * as BillingReceipt from './BillingReceipt'
+export * as BillingRecipient from './BillingRecipient'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

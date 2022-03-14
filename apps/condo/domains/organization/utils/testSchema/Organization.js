@@ -1,12 +1,15 @@
 const faker = require('faker')
+const { ApolloError } = require('apollo-server-errors')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     OrganizationEmployee,
     REGISTER_NEW_ORGANIZATION_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
+    ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
     REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
 } = require('@condo/domains/organization/gql')
+const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 async function createOrganizationEmployee (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -23,7 +26,7 @@ async function createOrganizationEmployee (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerNewOrganization (client, extraAttrs = {}, { raw = false } = {}) {
+async function registerNewOrganization (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const country = 'ru'
@@ -45,12 +48,11 @@ async function registerNewOrganization (client, extraAttrs = {}, { raw = false }
     const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
         data: { ...attrs },
     })
-    if (raw) return { data, errors }
-    expect(errors).toEqual(undefined)
+    throwIfError(data, errors)
     return [data.obj, attrs]
 }
 
-async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
+async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
@@ -66,12 +68,10 @@ async function inviteNewOrganizationEmployee (client, organization, user, extraA
         organization: { id: organization.id },
         ...extraAttrs,
     }
-
     const { data, errors } = await client.mutate(INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION, {
         data: { ...attrs },
     })
-    if (raw) return { data, errors }
-    expect(errors).toEqual(undefined)
+    throwIfError(data, errors)
     return [data.obj, attrs]
 }
 
@@ -94,8 +94,7 @@ async function reInviteNewOrganizationEmployee (client, organization, user, extr
     const { data, errors } = await client.mutate(REINVITE_ORGANIZATION_EMPLOYEE_MUTATION, {
         data: { ...attrs },
     })
-    if (raw) return { data, errors }
-    expect(errors).toEqual(undefined)
+    throwIfError(data, errors)
     return [data.obj, attrs]
 }
 
@@ -116,7 +115,30 @@ async function acceptOrRejectOrganizationInviteById (client, invite, extraAttrs 
         data: { ...attrs },
     })
     if (raw) return { data, errors }
-    expect(errors).toEqual(undefined)
+    if (errors && errors.length > 0) {
+        throw new ApolloError('Mutation error', 'INTERNAL_SERVER_ERROR', { data, errors })
+    }
+    return [data.obj, attrs]
+}
+
+async function acceptOrRejectOrganizationInviteByCode (client, inviteCode, extraAttrs = {}, { raw = false } = {}) {
+    if (!client) throw new Error('no client')
+    if (!inviteCode) throw new Error('no inviteCode')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1, sender,
+        ...extraAttrs,
+    }
+
+    const { data, errors } = await client.mutate(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION, {
+        inviteCode,
+        data: { ...attrs },
+    })
+    if (raw) return { data, errors }
+    if (errors && errors.length > 0) {
+        throw new ApolloError('Mutation error', 'INTERNAL_SERVER_ERROR', { data, errors })
+    }
     return [data.obj, attrs]
 }
 
@@ -135,5 +157,6 @@ module.exports = {
     inviteNewOrganizationEmployee,
     reInviteNewOrganizationEmployee,
     acceptOrRejectOrganizationInviteById,
+    acceptOrRejectOrganizationInviteByCode,
     makeClientWithRegisteredOrganization,
 }

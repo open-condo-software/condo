@@ -6,13 +6,38 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/SigninAsUserService')
 const { getItem } = require('@keystonejs/server-side-graphql-client')
 const { getSchemaCtx } = require('@core/keystone/schema')
-const { SIGNIN_AS_USER_NOT_FOUND, SIGNIN_AS_USER_DENIED } = require('@condo/domains/user/constants/errors')
+const { GQLError, GQLErrorCode: { FORBIDDEN, BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { USER_NOT_FOUND } = require('../constants/errors')
 
+
+/**
+ * List of possible errors, that this custom schema can throw
+ * They will be rendered in documentation section in GraphiQL for this custom schema
+ */
+const errors = {
+    USER_NOT_FOUND: {
+        mutation: 'signinAsUser',
+        code: BAD_USER_INPUT,
+        type: USER_NOT_FOUND,
+        message: 'Could not find a user with a specified id',
+    },
+    DENIED_FOR_ADMIN: {
+        mutation: 'signinAsUser',
+        code: FORBIDDEN,
+        message: 'You cannot authenticate for an another admin user',
+    },
+    DENIED_FOR_SUPPORT: {
+        mutation: 'signinAsUser',
+        code: FORBIDDEN,
+        message: 'You cannot authenticate for an another support user',
+    },
+}
 
 const SigninAsUserService = new GQLCustomSchema('SigninAsUserService', {
     types: [
         {
             access: true,
+            // todo(DOMA-2305) use UserWhereUniqueInput instead of ID!
             type: 'input SigninAsUserInput { dv: Int!, sender: SenderFieldInput!, id: ID! }',
         },
         {
@@ -25,18 +50,23 @@ const SigninAsUserService = new GQLCustomSchema('SigninAsUserService', {
         {
             access: access.canSigninAsUser,
             schema: 'signinAsUser(data: SigninAsUserInput!): SigninAsUserOutput',
+            doc: {
+                summary: 'Authenticates as an another user to be able to see the system, as it does',
+                description: 'You cannot authenticate for another admin or support or whatever kind of a non-client user',
+                errors,
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { id } } = args
                 const { keystone } = await getSchemaCtx('User')
                 const user = await getItem({ keystone, listKey: 'User', itemId: id, returnFields: 'id isSupport isAdmin' })
                 if (!user) {
-                    throw new Error(`${SIGNIN_AS_USER_NOT_FOUND} no user found`)
+                    throw new GQLError(errors.USER_NOT_FOUND)
                 }
                 if (user.isAdmin) {
-                    throw new Error(`${SIGNIN_AS_USER_DENIED}] can not sign in as admin user`)
+                    throw new GQLError(errors.DENIED_FOR_ADMIN)
                 }
                 if (user.isSupport) {
-                    throw new Error(`${SIGNIN_AS_USER_DENIED}] can not sign in as support user`)
+                    throw new GQLError(errors.DENIED_FOR_SUPPORT)
                 }
                 const sessionToken = await context.startAuthedSession({ item: user, list: keystone.lists['User'] })
                 const result = {

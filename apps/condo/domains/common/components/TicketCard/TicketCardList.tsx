@@ -44,14 +44,12 @@ const TicketsPartContainer = styled.div`
 `
 
 interface ITicketCardListProps {
-    organizationId: string
-    contactPhone: string
-    contactName: string
+    contactId: string
 }
 interface ITicketCardProps {
+    contactId: string
     address: string
     tickets: TicketSchema[]
-    contactName: string
 }
 
 const TICKETS_ON_CARD = 2
@@ -61,7 +59,7 @@ const TICKET_CARD_LIST_GUTTER: RowProps['gutter'] = [0, 24]
 const TICKET_CARD_GUTTER: RowProps['gutter'] = [0, 12]
 const TICKET_CARD_HAS_MORE_LINK_STYLE: React.CSSProperties = { fontSize: 12, marginTop: 16, color: `${green[6]}` }
 
-const TicketCard: React.FC<ITicketCardProps> = ({ address, tickets, contactName }) => {
+const TicketCard: React.FC<ITicketCardProps> = ({ contactId, address, tickets }) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const TicketsByContactMessage = intl.formatMessage({ id: 'TicketsByContact' })
@@ -70,7 +68,7 @@ const TicketCard: React.FC<ITicketCardProps> = ({ address, tickets, contactName 
     const { isSmall } = useLayoutContext()
     const hasMoreTickets = tickets.length >= TICKETS_ON_CARD ? tickets.length - TICKETS_ON_CARD : 0
 
-    const filters = { clientName: contactName, address }
+    const filters = { contact: [contactId], address }
     const query = qs.stringify({ filters: JSON.stringify(pickBy(filters)) }, TICKET_QUERY_STRINGIFY_OPTIONS)
 
     return (
@@ -129,22 +127,21 @@ const TicketCard: React.FC<ITicketCardProps> = ({ address, tickets, contactName 
     )
 }
 
-export const generateQueryVariables = (organizationId: string, contactPhone: string) => ({
+export const generateQueryVariables = (contactId: string) => ({
     sortBy: TICKET_SORT_BY,
     where: {
-        organization: { id: organizationId },
-        contact: { phone: contactPhone },
+        contact: { id: contactId },
     },
 })
 
-const TicketCardList: React.FC<ITicketCardListProps> = ({ organizationId, contactPhone, contactName }) => {
+const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
     const intl = useIntl()
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
     const {
         loading,
         objs: tickets,
-    } = Ticket.useObjects(generateQueryVariables(organizationId, contactPhone), {
+    } = Ticket.useObjects(generateQueryVariables(contactId), {
         fetchPolicy: 'cache-first',
     })
     const addresses = useMemo(() => {
@@ -161,7 +158,7 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ organizationId, contac
                 addresses.map(([address, tickets], key) => (
                     <TicketCard
                         key={key}
-                        contactName={contactName}
+                        contactId={contactId}
                         tickets={tickets}
                         address={address}
                     />

@@ -33,13 +33,16 @@ const PAYMENT_TOO_BIG_IMPLICIT_FEE = '[payment:implicitFee:tooBig] Implicit fee 
 const PAYMENT_NO_PAIRED_CONTEXT = '[payment:receipts:noContext] Input is containing "receipt", but "context" was not provided'
 const PAYMENT_NO_SUPPORTED_CONTEXT = '[payment:context:integration:supportedBillings] Acquiring integration of specified context does not support billing of specified receipt'
 const PAYMENT_RECIPIENT_MISMATCH = '[payment:recipient:mismatch] Payment\'s recipient fields values does not match with receipt recipient fields'
+const PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME = '[payment:explicitFee:explicitServiceCharge:bothGTZero] Both explicitFee and explicitServiceCharge were specified and set greater than 0, which is not allowed. You should set either explicitFee or explicitServiceCharge to any value greater than zero, and set other explicitly to "0"'
+const PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT = '[payment:explicitFee:explicitServiceCharge:bothGTZero] You\'re trying to update explicitFee/explicitServiceCharge property while other property of this pair was greater than zero, but only one of them allowed to be greater than zero at the same time. You need to explicitly pass "0" to one of them'
 const MULTIPAYMENT_EMPTY_PAYMENTS = '[multiPayment:payments:empty] Cannot create multipayment without payments'
 const MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE = '[multiPayment:implicitFee:tooBig] Implicit fee cannot be greater than amount (without explicit fee)'
 const MULTIPAYMENT_NO_RECEIPT_PAYMENTS = '[multiPayment:payments:noReceipt] Some of listed payments have no receipts.'
 const MULTIPAYMENT_MULTIPLE_CURRENCIES = '[multiPayment:payments:currencyCode:mismatch] Some of listed payments have currency code which is not equal to multiPayment\'s one.'
 const MULTIPAYMENT_NOT_UNIQUE_RECEIPTS = '[multiPayment:payments:receipt:duplicates] Some of listed payments have same billing receipt which is not allowed. Please group all payments with same receipt into single one and repeat process.'
 const MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH = '[multiPayment:amount:formulaMismatch] Amount equality is not satisfied (multiPayment.amountWithoutExplicitFee = sum of multiPayment.payments.amount)'
-const MULTIPAYMENT_IMPLICIT_FEE_MISMATCH = '[multiPayment:implicitFee:formulaMismatch] Implicit fee equality is not satisfied (multiPayment.implicitFee = sum of multiPayment.payments.implicitFee if specified otherwise 0).'
+const MULTIPAYMENT_IMPLICIT_FEE_MISMATCH = '[multiPayment:implicitFee:formulaMismatch] All of multipayment\'s payments have implicit fee, but it\'s equality is not satisfied (multiPayment.implicitFee = sum of multiPayment.payments.implicitFee)'
+const MULTIPAYMENT_SERVICE_FEE_MISMATCH = '[multiPayment:serviceFee:formulaMismatch] All of multipayment\'s payments have service fee, but it\'s  equality is not satisfied (multiPayment.serviceFee = sum of multiPayment.payments.serviceFee)'
 const MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS = '[multiPayment:receipt:context:integration:multiple] Cannot create multiPayment form payments linked to different acquiring integrations (integrations amount not equal to 1)'
 const MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH = '[multiPayment:integration:mismatch] Acquiring integration from payment\'s receipts does not equal to multiPayment.integration'
 const MULTIPAYMENT_CANNOT_GROUP_RECEIPTS = '[multiPayment:integration:canGroupReceipts:false:multipleReceipts] Cannot create multipayment with multiple payments since acquiring integration cannot group receipts'
@@ -49,9 +52,16 @@ const MULTIPAYMENT_FROZEN_FIELD_INCLUDED = '[multiPayment:frozenFieldsIncluding]
 const MULTIPAYMENT_UNDONE_PAYMENTS = `[multiPayment:payments:status:not:done] Cannot move multipayment status to "${MULTIPAYMENT_DONE_STATUS}" if at least 1 of it's payments have status not equal to "${PAYMENT_DONE_STATUS}".`
 const MULTIPAYMENT_DELETED_PAYMENTS = `[multiPayment:payments:deletedAt:not:null] Cannot move multipayment status to "${MULTIPAYMENT_DONE_STATUS}" if at least 1 of it's payments was deleted.`
 const MULTIPAYMENT_EXPLICIT_FEE_MISMATCH = '[multiPayment:explicitFee:formulaMismatch] Explicit fee equality is not satisfied (multiPayment.explicitFee = sum of multiPayment.payments.explicitFee)'
+const MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH = '[multiPayment:explicitServiceCharge:formulaMismatch] Explicit service charge equality is not satisfied (multiPayment.explicitServiceCharge = sum of multiPayment.payments.explicitServiceCharge)'
 const MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE = '[multiPayment:payments:implicitFee:inconsistentBehaviour] Implicit fee must be indicated either for all payments, or for none of them, but was partially indicated'
+const MULTIPAYMENT_INCONSISTENT_SERVICE_FEE = '[multiPayment:payments:serviceFee:inconsistentBehaviour] Service fee must be indicated either for all payments, or for none of them, but was partially indicated'
 const MULTIPAYMENT_NON_INIT_PAYMENTS = `[multiPayment:payments:status:not:initial] MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_INIT_STATUS}".`
 const MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP = '[multiPayment:payments:multiPayment:not:null] Some of payments are already linked to multipayments.'
+
+const FEE_DISTRIBUTION_UNSUPPORTED_FORMULA = '[feeDistribution:wrong:formula'
+const FEE_DISTRIBUTION_INCOMPLETE_FORMULA = '[feeDistribution:missing:recipient'
+const FEE_TOTAL_SUM_CHECK_FAILED = '[feeDistribution:total:check:failed'
+const FEE_TOTAL_COMMISSION_CHECK_FAILED = '[feeDistribution:fee:check:failed'
 
 module.exports = {
     REGISTER_MP_EMPTY_INPUT,
@@ -87,6 +97,8 @@ module.exports = {
     PAYMENT_TOO_BIG_IMPLICIT_FEE,
     PAYMENT_NO_SUPPORTED_CONTEXT,
     PAYMENT_RECIPIENT_MISMATCH,
+    PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME,
+    PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
     MULTIPAYMENT_NO_RECEIPT_PAYMENTS,
@@ -106,4 +118,11 @@ module.exports = {
     MULTIPAYMENT_DELETED_PAYMENTS,
     MULTIPAYMENT_NON_INIT_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
+    MULTIPAYMENT_INCONSISTENT_SERVICE_FEE,
+    MULTIPAYMENT_SERVICE_FEE_MISMATCH,
+    MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
+    FEE_DISTRIBUTION_UNSUPPORTED_FORMULA,
+    FEE_DISTRIBUTION_INCOMPLETE_FORMULA,
+    FEE_TOTAL_SUM_CHECK_FAILED,
+    FEE_TOTAL_COMMISSION_CHECK_FAILED,
 }

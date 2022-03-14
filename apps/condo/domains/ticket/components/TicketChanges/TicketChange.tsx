@@ -1,10 +1,10 @@
 import React  from 'react'
 import { Row, Col, Typography, Tooltip } from 'antd'
-import { has } from 'lodash'
+import { get, has } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { formatDate } from '../../utils/helpers'
+import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { green } from '@ant-design/colors'
@@ -67,6 +67,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.address' })
     const DeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deadline' })
+    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident' })
 
     const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
@@ -74,7 +75,10 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
+    const { objs: ticketStatuses } = TicketStatus.useObjects({})
+
     const fields = [
+        ['canReadByResident', CanReadByResidentMessage, { change: 'pages.condo.ticket.TicketChanges.canReadByResident.change' }],
         ['clientPhone', ClientPhoneMessage],
         ['details', DetailsMessage, { change: 'pages.condo.ticket.TicketChanges.details.change' }],
         ['clientName', ClientNameMessage],
@@ -84,13 +88,17 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['statusDisplayName', StatusDisplayNameMessage, { change: 'pages.condo.ticket.TicketChanges.status.change' }],
         ['propertyDisplayName', AddressMessage],
         ['assigneeDisplayName', AssigneeMessage],
-        ['executorDisplayName', ExecutorMessage],
+        ['executorDisplayName', ExecutorMessage, { add: 'pages.condo.ticket.TicketChanges.executor.add', remove: 'pages.condo.ticket.TicketChanges.executor.remove' }],
         ['classifierDisplayName', ClassifierMessage],
         ['placeClassifierDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
     ]
 
     const BooleanToString = {
+        canReadByResident: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.false' }),
+        },
         isPaid: {
             'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
             'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
@@ -107,6 +115,14 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     const formatField = (field, value, type: TicketChangeFieldMessageType) => {
         const formatterFor = {
+            statusDisplayName: (field, value) => {
+                const statusIdTo = get(ticketChange, 'statusIdTo')
+                const ticketStatus = ticketStatuses.find(status => status.id === statusIdTo)
+                const ticketStatusColor = get(ticketStatus, ['colors', 'primary'])
+                const ticketStatusChangeTextStyle = { color: ticketStatusColor }
+
+                return <Typography.Text style={ticketStatusChangeTextStyle}>{value}</Typography.Text>
+            },
             deadline: (field, value) => {
                 return <Typography.Text>{dayjs(value).format('DD MMMM YYYY')}</Typography.Text>
             },
@@ -164,6 +180,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const formatDiffMessage = (field, message, ticketChange, customMessages: ITicketChangeFieldMessages = {}) => {
         if (typeof ticketChange[`${field}To`] === 'boolean') {
             const valueTo = BooleanToString[field][ticketChange[`${field}To`]]
+
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -179,8 +196,10 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             )
         }
 
-        const valueFrom = formatField(field, ticketChange[`${field}From`], TicketChangeFieldMessageType.From)
-        const valueTo = formatField(field, ticketChange[`${field}To`], TicketChangeFieldMessageType.To)
+        const valueFrom = ticketChange[`${field}From`]
+        const valueTo = ticketChange[`${field}To`]
+        const formattedValueFrom = formatField(field, valueFrom, TicketChangeFieldMessageType.From)
+        const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
 
         if (valueFrom && valueTo) {
             return (
@@ -191,8 +210,8 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                         id={ customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.change' }
                         values={{
                             field: message,
-                            from: valueFrom,
-                            to: valueTo,
+                            from: formattedValueFrom,
+                            to: formattedValueTo,
                         }}
                     />
                 </>
@@ -206,7 +225,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                         id={ customMessages.add ? customMessages.add : 'pages.condo.ticket.TicketChanges.add' }
                         values={{
                             field: message,
-                            to: valueTo,
+                            to: formattedValueTo,
                         }}
                     />
                 </>
@@ -220,7 +239,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                         id={ customMessages.remove ? customMessages.remove : 'pages.condo.ticket.TicketChanges.remove' }
                         values={{
                             field: message,
-                            from: valueFrom,
+                            from: formattedValueFrom,
                         }}
                     />
                 </>
@@ -230,7 +249,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     // Omit what was not changed
     const changedFields = fields.filter(([field]) => (
-        ticketChange[`${field}From`] !== null && ticketChange[`${field}To`] !== null
+        ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
     ))
 
     return changedFields.map(([field, message, changeMessage]) => ({

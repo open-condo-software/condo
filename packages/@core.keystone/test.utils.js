@@ -2,14 +2,22 @@ const axios = require('axios').default
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const { gql } = require('graphql-tag')
 const { CookieJar, Cookie } = require('tough-cookie')
-const urlParse = require("url").parse
-const { print } = require('graphql/language/printer')
+const urlParse = require('url').parse
 const crypto = require('crypto')
 const express = require('express')
 const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
 const util = require('util')
 const conf = require('@core/config')
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
+const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
+const { onError } = require('@apollo/client/link/error')
+const { createUploadLink } = require('apollo-upload-client')
+const FormData = require('form-data')
+const fetch = require('node-fetch')
+const http = require('http')
+const https = require('https')
+const { flattenDeep, fromPairs, toPairs } = require('lodash')
+const fs = require('fs')
 
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
 const NUMBER_RE = /^[1-9][0-9]*$/i
@@ -24,9 +32,12 @@ const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && con
 const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
 const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql.js')
-const http = require('http')
-const https = require('https')
-const { flattenDeep, fromPairs, toPairs } = require('lodash')
+
+class UploadingFile {
+    constructor (filePath) {
+        this.stream = fs.createReadStream(filePath)
+    }
+}
 
 const SIGNIN_BY_EMAIL_MUTATION = gql`
     mutation sigin($identity: String, $secret: String) {
@@ -65,7 +76,7 @@ function setFakeClientMode (path) {
             __expressServer = http.createServer(__expressApp).listen(0)
         }, 10000)
         afterAll(async () => {
-            if(__expressServer) __expressServer.close()
+            if (__expressServer) __expressServer.close()
             if (__keystone) await __keystone.disconnect()
             __keystone = null
             __expressApp = null
@@ -78,7 +89,12 @@ function setFakeClientMode (path) {
 }
 
 const prepareKeystoneExpressApp = async (entryPoint) => {
-    const { distDir, keystone, apps, configureExpress } = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
+    const {
+        distDir,
+        keystone,
+        apps,
+        configureExpress,
+    } = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
     const dev = process.env.NODE_ENV === 'development'
     const { middlewares } = await keystone.prepare({ apps, distDir, dev })
     await keystone.connect()
@@ -97,151 +113,163 @@ const prepareNextExpressApp = async (dir) => {
     return { app }
 }
 
-const makeFakeClient = async (app, server) => {
-    const request = require('supertest')
-    const port = server.address().port
-    const protocol = app instanceof https.Server ? 'https' : 'http'
-    const serverUrl = protocol + '://127.0.0.1:' + port
+/**
+ * @param {function} callable
+ * @param {Object} params
+ * @returns {Promise<Object>}
+ */
+async function doGqlRequest (callable, params) {
+    try {
+        return await callable({
+            ...params,
+            // About error policies see https://www.apollographql.com/docs/react/v2/data/error-handling/#error-policies
+            errorPolicy: 'all',
+            fetchPolicy: 'no-cache',
+        })
+    } catch (e) {
+        const errors = []
 
-    const client = request(server)
-
-    let cookies = {}
-
-    let customHeaders = {}
-    /**
-     *
-     * @param {import('supertest').Test} test
-     * @returns
-     */
-    function setupSupertest (test) {
-        test = test.set(customHeaders)
-        return test
-    }
-    function extractCookies (cookies) {
-        return cookies.reduce((shapedCookies, cookieString) => {
-            const [rawCookie, ...flags] = cookieString.split('; ')
-            const [cookieName, value] = rawCookie.split('=')
-            return { ...shapedCookies, [cookieName]: value }
-        }, {})
-    }
-
-    function cookiesToString (cookies) {
-        return Object.entries(cookies).map(([key, value]) => `${key}=${value}`).join(';')
-    }
-
-    return {
-        serverUrl,
-        getCookie: () => cookiesToString(cookies),
-        setHeaders: (headers) => {
-            customHeaders = {...customHeaders, ...headers}
-        },
-        mutate: async (query, variables = {}) => {
-            if (query.kind !== 'Document') throw new Error('query is not a gql object')
-            return new Promise((resolve, reject) => {
-                setupSupertest(client.post(API_PATH)).set('Cookie', [cookiesToString(cookies)]).send({
-                    query: print(query),
-                    variables: JSON.stringify(variables),
-                }).end(function (err, res) {
-                    if (err) {
-                        console.error(err)
-                        return reject(err)
-                    }
-                    const setCookies = res.headers['set-cookie']
-                    if (setCookies) {
-                        cookies = { ...cookies, ...extractCookies(setCookies) }
-                    }
-                    const body = res.body
-                    if (body && body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
-                        console.warn(util.inspect(body.errors, { showHidden: false, depth: null }))
-                    }
-                    return resolve(body)
-                })
+        if (e.graphQLErrors && e.graphQLErrors.length > 0) {
+            e.graphQLErrors.map((graphQLError) => {
+                errors.push(graphQLError)
             })
-        },
-        query: async (query, variables = {}) => {
-            if (query.kind !== 'Document') throw new Error('query is not a gql object')
-            return new Promise((resolve, reject) => {
-                setupSupertest(client.get(API_PATH)).set('Cookie', [cookiesToString(cookies)]).query({
-                    query: print(query),
-                    variables: JSON.stringify(variables),
-                }).end(function (err, res) {
-                    if (err) {
-                        console.error(err)
-                        return reject(err)
-                    }
-                    const setCookies = res.headers['set-cookie']
-                    if (setCookies) {
-                        cookies = { ...cookies, ...extractCookies(setCookies) }
-                    }
-                    const body = res.body
-                    if (body && body.errors && TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS) {
-                        console.warn(util.inspect(body.errors, { showHidden: false, depth: null }))
-                    }
-                    return resolve(body)
-                })
-            })
-        },
+        }
+
+        if (e.networkError) {
+            if (e.networkError.result && e.networkError.result.errors) {
+                e.networkError.result.errors.forEach((err) => errors.push(err))
+            }
+        }
+
+        return { errors }
     }
 }
 
-const makeRealClient = async () => {
-    // TODO(pahaz): remove axios! need something else ... may be apollo client
-    const serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
-    const cookieJar = new CookieJar()
-    const client = axios.create({
-        withCredentials: true,
-        adapter: require('axios/lib/adapters/http'),
+/**
+ * @param {string} serverUrl
+ * @param {boolean} logResponseErrors
+ * @returns {{client: ApolloClient, getCookie: () => string, setHeaders: ({object}) => void}}
+ */
+const makeApolloClient = (serverUrl, logResponseErrors = true) => {
+    let cookiesObj = {}
+    let customHeaders = {}
+
+    /**
+     * @returns {string}
+     */
+    const restoreCookies = () => {
+        return Object.entries(cookiesObj).map(([key, value]) => `${key}=${value}`).join(';')
+    }
+
+    /**
+     * @param {string[]} cookiesToSave
+     */
+    const saveCookies = (cookiesToSave) => {
+        cookiesObj = {
+            ...cookiesObj,
+            ...cookiesToSave.reduce((shapedCookies, cookieString) => {
+                const [rawCookie, ...flags] = cookieString.split('; ')
+                const [cookieName, value] = rawCookie.split('=')
+                return { ...shapedCookies, [cookieName]: value }
+            }, {}),
+        }
+    }
+
+    const apolloLinks = []
+
+    if (logResponseErrors) {
+        // Log any GraphQL errors or network error that occurred
+        const errorLink = onError(({ graphQLErrors, networkError }) => {
+            if (graphQLErrors) {
+                graphQLErrors.forEach((gqlError) => {
+                    console.warn(`[GraphQL error]: ${JSON.stringify(gqlError)}}`)
+                })
+            }
+
+            if (networkError) {
+                console.warn(`[Network error]: ${networkError}`)
+            }
+        })
+
+        apolloLinks.push(errorLink)
+    }
+
+    // Terminating link must be in the end of links chain
+    apolloLinks.push(createUploadLink({
+        uri: `${serverUrl}${API_PATH}`,
+        credentials: 'include',
         headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Cache: 'no-cache',
+            'content-type': 'application/json',
+            accept: 'application/json',
+            cache: 'no-cache',
+            mode: 'cors',
+            credentials: 'include',
         },
-        validateStatus: (status) => status >= 200 && status < 500,
+        includeExtensions: true,
+        isExtractableFile: (value) => {
+            return value instanceof UploadingFile
+        },
+        FormData,
+        formDataAppendFile: (form, name, file) => {
+            form.append(name, file.stream)
+        },
+        useGETForQueries: true,
+        fetch: (uri, options) => {
+            options.headers = { ...options.headers, ...customHeaders }
+            if (cookiesObj && Object.keys(cookiesObj).length > 0) {
+                options.headers = { ...options.headers, cookie: restoreCookies() }
+            }
+
+            return fetch(uri, options)
+                .then((response) => {
+                    const setCookieHeader = response.headers.raw()['set-cookie']
+                    if (setCookieHeader) {
+                        // accumulate cookies received from the server
+                        saveCookies(setCookieHeader)
+                    }
+                    return response
+                })
+        },
+    }))
+
+    const client = new ApolloClient({
+        cache: new InMemoryCache({
+            addTypename: false,
+        }),
+        link: ApolloLink.from(apolloLinks),
     })
-    axiosCookieJarSupport(client)
-    client.defaults.jar = cookieJar
 
     return {
+        client,
         serverUrl,
-        getCookie: () => toPairs(fromPairs(flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).map(x => x.split('=')))).map(([k, v]) => `${k}=${v}`).join(';'),
+        getCookie: () => restoreCookies(),
         setHeaders: (headers) => {
-            client.defaults.headers = { ...client.defaults.headers, ...headers}
+            customHeaders = { ...customHeaders, ...headers }
         },
-        mutate: async (query, variables = {}) => {
-            if (query.kind !== 'Document') throw new Error('query is not a gql object')
-            const response = await client.post(TESTS_REAL_CLIENT_REMOTE_API_URL, {
-                query: print(query),
-                variables: JSON.stringify(variables),
-            })
-            const body = response.data
-            if (body && body.errors && TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS) {
-                console.warn(util.inspect(body.errors, { showHidden: false, depth: null }))
-            }
-            return body
+        mutate: async (mutation, variables = {}) => {
+            return doGqlRequest(client.mutate, { mutation, variables })
         },
         query: async (query, variables = {}) => {
-            if (query.kind !== 'Document') throw new Error('query is not a gql object')
-            const response = await client.get(TESTS_REAL_CLIENT_REMOTE_API_URL, {
-                params: {
-                    query: print(query),
-                    variables: JSON.stringify(variables),
-                },
-            })
-            const body = response.data
-            if (body && body.errors && TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS) {
-                console.warn(util.inspect(body.errors, { showHidden: false, depth: null }))
-            }
-            return body
+            return doGqlRequest(client.query, { query, variables })
         },
     }
 }
 
 const makeClient = async () => {
+    // Data for real client
+    let serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
+    let logErrors = TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
+
     if (__expressApp) {
-        return await makeFakeClient(__expressApp, __expressServer)
+        const port = __expressServer.address().port
+        const protocol = __expressApp instanceof https.Server ? 'https' : 'http'
+
+        // Overriding with data for fake client
+        serverUrl = protocol + '://127.0.0.1:' + port
+        logErrors = TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
     }
 
-    return await makeRealClient()
+    return makeApolloClient(serverUrl, logErrors)
 }
 
 const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
@@ -415,4 +443,5 @@ module.exports = {
     DATETIME_RE,
     UUID_RE,
     NUMBER_RE,
+    UploadingFile,
 }

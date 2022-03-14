@@ -4,10 +4,10 @@
 
 const { pick, get } = require('lodash')
 const Big = require('big.js')
-
+const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
-const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
     BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
@@ -15,12 +15,11 @@ const {
 } = require('../constants/constants')
 const { generateQuerySortBy } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegeneration/generate.gql')
-
 const { GQLCustomSchema, find } = require('@core/keystone/schema')
 
 
 /**
- * Sums all DONE payments for billingReceipt for <organization> with <accountNumber> and <period>
+ * Sums all DONE or WITHDRAWN payments for billingReceipt for <organization> with <accountNumber> and <period>
  * @param context {Object}
  * @param organizationId {string}
  * @param accountNumber {string}
@@ -34,7 +33,7 @@ const getPaymentsSum = async (context, organizationId, accountNumber, period, bi
         organization: { id: organizationId },
         accountNumber: accountNumber,
         period: period,
-        status: PAYMENT_DONE_STATUS,
+        status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
         recipientBic: bic,
         recipientBankAccount: bankAccount,
     })
@@ -63,10 +62,10 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
         },
         {
             access: true,
-            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! }`,
+            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! }`,
         },
     ],
-    
+
     queries: [
         {
             access: access.canGetAllResidentBillingReceipts,
@@ -97,7 +96,6 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 if (!Array.isArray(serviceConsumers) || !serviceConsumers.length) {
                     return []
                 }
-
                 const processedReceipts = []
                 for (const serviceConsumer of serviceConsumers) {
 
@@ -109,7 +107,6 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                             sortBy, first, skip,
                         }
                     )
-
                     receiptsForConsumer.forEach(receipt => processedReceipts.push({
                         id: receipt.id,
                         dv: receipt.dv,
@@ -130,20 +127,29 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
 
                     const organizationId = get(processedReceipt.serviceConsumer, ['organization'])
                     const accountNumber = get(processedReceipt.serviceConsumer, ['accountNumber'])
-
+                    const paid = await getPaymentsSum(
+                        context,
+                        organizationId,
+                        accountNumber,
+                        get(processedReceipt, 'period', null),
+                        get(processedReceipt, ['recipient', 'bic'], null),
+                        get(processedReceipt, ['recipient', 'bankAccount'], null)
+                    )
+                    const acquiringContextId = get(processedReceipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
+                    const toPay = get(processedReceipt, ['toPay'], 0)
+                    let fee = '0'
+                    if (acquiringContextId) {
+                        const formula = await getAcquiringIntegrationContextFormula(context, acquiringContextId)
+                        const feeCalculator = new FeeDistribution(formula)
+                        const { explicitFee } = feeCalculator.calculate(Big(toPay).minus(Big(paid)).toFixed(2))
+                        fee = String(explicitFee)
+                    }
                     receiptsWithPayments.push(({
                         ...processedReceipt,
-                        paid: await getPaymentsSum(
-                            context,
-                            organizationId,
-                            accountNumber,
-                            get(processedReceipt, 'period', null),
-                            get(processedReceipt, ['recipient', 'bic'], null),
-                            get(processedReceipt, ['recipient', 'bankAccount'], null)
-                        ),
+                        paid,
+                        explicitFee: fee,
                     }))
                 }
-
                 return receiptsWithPayments
             },
         },

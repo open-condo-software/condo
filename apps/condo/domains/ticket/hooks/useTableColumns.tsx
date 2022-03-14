@@ -26,6 +26,7 @@ import { getDeadlineType, getHumanizeDeadlineDateDifference, IFilters, TicketDea
 import { getTicketDetailsRender } from '../utils/clientSchema/Renders'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
+import { TicketTag } from '../components/TicketTag'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -57,10 +58,10 @@ const COLUMNS_WIDTH_SMALLER_XXL_SCREEN = {
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
-    const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
-    const WarrantyMessage = intl.formatMessage({ id: 'Warranty' }).toLowerCase()
+    const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
+    const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
+    const PaidMessage = intl.formatMessage({ id: 'Paid' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
     const StatusMessage = intl.formatMessage({ id: 'Status' })
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
@@ -85,7 +86,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const renderStatus = useCallback((status, record) => {
-        const { primary: color, secondary: backgroundColor } = status.colors
+        const { primary: backgroundColor, secondary: color } = status.colors
         const extraProps = { style: { color } }
         // TODO(DOMA-1518) find solution for cases where no status received
         const highlightedContent = getHighlightedContents(search, null, extraProps)(status.name)
@@ -94,32 +95,32 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             <Space direction='vertical' size={7}>
                 {
                     status.name && (
-                        <Tag color={backgroundColor}>
+                        <TicketTag color={backgroundColor}>
                             {highlightedContent}
-                        </Tag>
+                        </TicketTag>
                     )
                 }
                 {
                     record.isEmergency && (
-                        <Tag color={TICKET_TYPE_TAG_COLORS.emergency}>
+                        <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>
                             <Typography.Text type="danger">
-                                {EmergencyMessage.toLowerCase()}
+                                {EmergencyMessage}
                             </Typography.Text>
-                        </Tag>
+                        </TicketTag>
                     )
                 }
                 {
                     record.isPaid && (
-                        <Tag color={TICKET_TYPE_TAG_COLORS.paid}>
-                            {PaidMessage.toLowerCase()}
-                        </Tag>
+                        <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>
+                            {PaidMessage}
+                        </TicketTag>
                     )
                 }
                 {
                     record.isWarranty && (
-                        <Tag color={TICKET_TYPE_TAG_COLORS.warranty}>
-                            {WarrantyMessage.toLowerCase()}
-                        </Tag>
+                        <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>
+                            {WarrantyMessage}
+                        </TicketTag>
                     )
                 }
             </Space>
@@ -148,10 +149,19 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const renderUnit = useCallback((text, record) => {
         const sectionName = get(record, 'sectionName')
         const floorName = get(record, 'floorName')
+        const unitType = get(record, 'unitType', 'flat')
+        let unitNamePrefix = null
+        let extraTitle = null
         const postfix = sectionName && floorName &&
             `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
-
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
+        if (text) {
+            extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+            if (unitType !== 'flat') {
+                unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
+            }
+        }
+        const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
+        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS, extraTitle)(unitName)
     }, [ShortFloorNameMessage, ShortSectionNameMessage, search])
 
     const renderAddress = useCallback(

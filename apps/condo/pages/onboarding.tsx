@@ -10,9 +10,13 @@ import { useIntl } from '@core/next/intl'
 import { Col, Row, Skeleton, Space, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
+import some from 'lodash/some'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
+import { WelcomePopup } from '../domains/onboarding/components/WelcomePopup'
+import { useOrganization } from '@core/next/organization'
+import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/common'
 
 interface IOnBoardingIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -24,16 +28,17 @@ const GUTTER_BODY: [Gutter, Gutter] = [0, 0]
 
 const OnBoardingPage: IOnBoardingIndexPage = () => {
     const intl = useIntl()
-    const router = useRouter()
     const Title = intl.formatMessage({ id: 'onboarding.title' })
     const SubTitle = intl.formatMessage({ id: 'onboarding.subtitle' })
-    const { onBoardingSteps = [], onBoarding, refetchOnBoarding } = useOnBoardingContext()
+
+    const router = useRouter()
+    const { onBoardingSteps = [], onBoarding, refetchOnBoarding, isLoading } = useOnBoardingContext()
+    const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
+    const { organization } = useOrganization()
     const {
         ServiceSubscriptionWelcomePopup,
         isServiceSubscriptionWelcomePopupVisible,
     } = useServiceSubscriptionWelcomePopup()
-
-    const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
 
     useEffect(() => {
         refetchOnBoarding()
@@ -50,6 +55,9 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
             return leftStep.order > rightStep.order ? 1 : -1
         })
     }, [onBoardingSteps])
+
+    const organizationImportRemoteSystem = get(organization, 'importRemoteSystem')
+    const [createOrganizationStep, ...otherSteps] = sortedOnBoardingSteps
 
     return (
         <>
@@ -116,6 +124,11 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
             {
                 isServiceSubscriptionWelcomePopupVisible && (
                     <ServiceSubscriptionWelcomePopup/>
+                )
+            }
+            {
+                !isLoading && organizationImportRemoteSystem === SBBOL_IMPORT_NAME && !some(otherSteps, 'completed') && (
+                    <WelcomePopup />
                 )
             }
         </>

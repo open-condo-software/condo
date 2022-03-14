@@ -8,7 +8,6 @@ const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError
 const { signinAsUserByTestClient } = require('@condo/domains/user/utils/testSchema')
 const { GET_MY_USERINFO } = require('@condo/domains/user/gql')
 import { catchErrorFrom } from '@condo/domains/common/utils/testSchema'
-const { SIGNIN_AS_USER_DENIED } = require('@condo/domains/user/constants/errors')
 
 describe('SigninAsUserService', () => {
     describe('Support', () => {
@@ -25,7 +24,15 @@ describe('SigninAsUserService', () => {
             await catchErrorFrom(async () => {
                 await signinAsUserByTestClient(supportClient, userClient.user.id )
             }, ({ errors, data }) => {
-                expect(errors[0].message).toContain(SIGNIN_AS_USER_DENIED)
+                expect(errors).toMatchObject([{
+                    message: 'You cannot authenticate for an another support user',
+                    name: 'GraphQLError',
+                    path: ['result'],
+                    extensions: {
+                        mutation: 'signinAsUser',
+                        code: 'FORBIDDEN',
+                    },
+                }])
                 expect(data).toEqual({ 'result': null })
             })
         })
@@ -35,7 +42,15 @@ describe('SigninAsUserService', () => {
             await catchErrorFrom(async () => {
                 await signinAsUserByTestClient(supportClient, userClient.user.id )
             }, ({ errors, data }) => {
-                expect(errors[0].message).toContain(SIGNIN_AS_USER_DENIED)
+                expect(errors).toMatchObject([{
+                    message: 'You cannot authenticate for an another admin user',
+                    name: 'GraphQLError',
+                    path: ['result'],
+                    extensions: {
+                        mutation: 'signinAsUser',
+                        code: 'FORBIDDEN',
+                    },
+                }])
                 expect(data).toEqual({ 'result': null })
             })
         })

@@ -9,6 +9,12 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { getById } = require('@core/keystone/schema')
 const get = require('lodash/get')
 
+/**
+ * Acquiring integration context may only be read:
+ * 1. Admin / support
+ * 2. Organization integration manager
+ * 3. Integration service account
+ */
 async function canReadAcquiringIntegrationContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -23,6 +29,16 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
     }
 }
 
+/**
+ * Acquiring integration context may only be created by:
+ * 1. Admin
+ * 2. Organization integration manager
+ * 3. Integration service user
+ *
+ * Acquiring integration context may only be updated by:
+ * 1. Admin
+ * 2. Integration service user
+ */
 async function canManageAcquiringIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -51,6 +67,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
 
     return await checkAcquiringIntegrationAccessRight(user.id, integrationId)
 }
+
 
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
