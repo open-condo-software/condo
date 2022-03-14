@@ -13,7 +13,7 @@ const NoBillingStub = (): JSX.Element => {
         <EmptyListView
             label={noBillingLabel}
             message={noBillingMessage}
-            createRoute="/settings"
+            createRoute="/settings?tab=billing"
             createLabel={createBillingLabel}
         />
     )
