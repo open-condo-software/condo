@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Resident as ResidentGQL } from '@condo/domains/resident/gql'
 import { Resident, ResidentUpdateInput, QueryAllResidentsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user', 'organization', 'property', 'billingAccount', 'unitName']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user', 'organization', 'property', 'billingAccount', 'unitName', 'unitType']
 const RELATIONS = ['user', 'organization', 'property', 'billingAccount']
 
 export interface IResidentUIState extends Resident {
