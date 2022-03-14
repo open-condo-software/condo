@@ -1,9 +1,9 @@
 const Ajv = require('ajv')
 const { Json } = require('@core/keystone/fields')
-
 const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
 
 const PAYMENTS_FILTER_TYPE_NAME = 'PaymentsFilter'
+const PAYMENTS_FILTER_INPUT_NAME = 'PaymentsFilterInput'
 
 const PaymentsFilterFields = {
     advancedAt: '[String]',
@@ -16,9 +16,16 @@ const PAYMENTS_FILTER_TYPE = `
     type ${PAYMENTS_FILTER_TYPE_NAME} {
         ${render(PaymentsFilterFields)}
     }
+    
+    input ${PAYMENTS_FILTER_INPUT_NAME} {
+        ${render(PaymentsFilterFields)}
+    }
 `
 
-const getPaymentsFilterSchemaValueType = (value) => value.startsWith('[') ? { type: 'array', items: { type: 'string' } } : { type: 'string' }
+const getPaymentsFilterSchemaValueType = (value) => value.startsWith('[') ? {
+    type: 'array',
+    items: { type: 'string' },
+} : { type: 'string' }
 
 const PaymentsFilterSchema = {
     type: 'object',
@@ -37,6 +44,8 @@ const PAYMENTS_FILTER_FIELD = {
     type: Json,
     extendGraphQLTypes: [PAYMENTS_FILTER_TYPE],
     graphQLReturnType: PAYMENTS_FILTER_TYPE_NAME,
+    graphQLInputType: PAYMENTS_FILTER_INPUT_NAME,
+    graphQLAdminFragment: `{ ${Object.keys(PaymentsFilterFields).join(' ')} }`,
     isRequired: true,
     hooks: {
         validateInput: validatePaymentsFilter,
