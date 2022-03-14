@@ -4,6 +4,7 @@
 
 const faker = require('faker')
 const get = require('lodash/get')
+const sample = require('lodash/sample')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
 
@@ -20,6 +21,7 @@ const { registerResidentByTestClient, Resident } = require('@condo/domains/resid
 
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
+const { FLAT_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
 describe('manageResidentToPropertyAndOrganizationConnections worker task tests', () => {
     it('connects new property with matched address to existing orphan residents (no other props)', async () => {
@@ -351,6 +353,7 @@ describe('RegisterResidentService', () => {
         expect(obj.address).toEqual(attrs.address)
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
         expect(obj.user.id).toEqual(userClient.user.id)
+        expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
     })
 
     test('cannot be executed by user', async () => {
@@ -377,6 +380,7 @@ describe('RegisterResidentService', () => {
         expect(obj.address).toEqual(attrs.address)
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
         expect(obj.user.id).toEqual(adminClient.user.id)
+        expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
     })
 
     it('connects property with matched address to resident', async () => {
@@ -400,6 +404,7 @@ describe('RegisterResidentService', () => {
         expect(obj.user.id).toEqual(adminClient.user.id)
         expect(obj.property.id).toEqual(property.id)
         expect(obj.organization.id).toEqual(organization.id)
+        expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
     })
 
     it('does not connects to deleted property with matched address to resident', async () => {
@@ -422,6 +427,7 @@ describe('RegisterResidentService', () => {
         expect(obj.user.id).toEqual(adminClient.user.id)
         expect(obj.property).toEqual(null)
         expect(obj.organization).toEqual(null)
+        expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
     })
 
     it('does not connects to old deleted property with matched address', async () => {
@@ -444,6 +450,7 @@ describe('RegisterResidentService', () => {
         expect(obj.user.id).toEqual(adminClient.user.id)
         expect(obj.property.id).toEqual(property2.id)
         expect(obj.organization.id).toEqual(organization2.id)
+        expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
     })
 
     it('does not connects to new property with matched address', async () => {
@@ -464,6 +471,7 @@ describe('RegisterResidentService', () => {
         expect(obj.user.id).toEqual(adminClient.user.id)
         expect(obj.property.id).toEqual(property1.id)
         expect(obj.organization.id).toEqual(organization1.id)
+        expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
     })
 
     test('cannot be executed for staff', async () => {
@@ -515,5 +523,20 @@ describe('RegisterResidentService', () => {
         expect(restoredResident.deletedAt).toBeNull()
         expect(restoredResident.organization.id).toEqual(organization.id)
         expect(restoredResident.property.id).toEqual(property.id)
+    })
+
+    it('should set unitType field if it was passed', async () => {
+        const userClient = await makeClientWithResidentUser()
+        const unitType = sample(UNIT_TYPES)
+        const [obj, attrs] = await registerResidentByTestClient(userClient, { unitType })
+
+        expect(obj.id).toMatch(UUID_RE)
+        expect(obj.dv).toEqual(1)
+        expect(obj.sender).toEqual(attrs.sender)
+        expect(obj.v).toEqual(1)
+        expect(obj.address).toEqual(attrs.address)
+        expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
+        expect(obj.user.id).toEqual(userClient.user.id)
+        expect(obj.unitType).toEqual(unitType)
     })
 })
