@@ -5,6 +5,7 @@ const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { EXPORT_CONTACTS_TO_EXCEL } = require('@condo/domains/contact/gql')
 const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const faker = require('faker')
 
 describe('ExportContactsService', () => {
     describe('User', () => {
@@ -14,6 +15,8 @@ describe('ExportContactsService', () => {
 
             const variables = {
                 data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
                     where: { organization: { id: client.organization.id } },
                     sortBy: 'id_ASC',
                 },
@@ -33,6 +36,8 @@ describe('ExportContactsService', () => {
 
             const variables = {
                 data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
                     where: { organization: { id: client2.organization.id } },
                     sortBy: 'id_ASC',
                 },
@@ -49,6 +54,8 @@ describe('ExportContactsService', () => {
 
             const variables = {
                 data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
                     where: { organization: { id: client.organization.id } },
                     sortBy: 'id_ASC',
                 },
@@ -77,6 +84,8 @@ describe('ExportContactsService', () => {
             await createTestContact(client2, client2.organization, client2.property)
             const { data: { result }, errors } = await client.query(EXPORT_CONTACTS_TO_EXCEL, {
                 data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
                     where: { organization: { id: client2.organization.id } },
                     sortBy: 'id_ASC',
                 },
