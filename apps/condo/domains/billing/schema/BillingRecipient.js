@@ -10,6 +10,10 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingRecipient')
+const { hasDvAndSenderFields } = require(
+    '@condo/domains/common/utils/validation.utils')
+const { DV_UNKNOWN_VERSION_ERROR } = require(
+    '@condo/domains/common/constants/errors')
 const { INTEGRATION_CONTEXT_FIELD } = require('@condo/domains/billing/schema/fields/relations')
 
 const BillingRecipient = new GQLListSchema('BillingRecipient', {
@@ -96,6 +100,26 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
         update: access.canManageBillingRecipients,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        validateInput: ({ resolvedData, context, addValidationError }) => {
+            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
+            const { dv } = resolvedData
+            if (dv === 1) {
+                // NOTE: version 1 specific translations. Don't optimize this logic
+            } else {
+                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+        },
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['context', 'tin', 'iec', 'bic', 'bankAccount'],
+                name: 'billingRecipient_unique_context_tin_iec_bic_bankAccount',
+            },
+        ],
     },
 })
 
