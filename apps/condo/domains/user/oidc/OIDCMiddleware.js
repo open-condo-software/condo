@@ -117,6 +117,7 @@ class OIDCMiddleware {
                 }
 
                 const redirectTo = await provider.interactionResult(req, res, result, { mergeWithLastSubmission: false })
+                logger.info({ redirectTo, interactionDetails })
                 res.send({ redirectTo })
             } catch (err) {
                 logger.error({
