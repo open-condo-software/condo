@@ -29,6 +29,8 @@ async function canManagePaymentsFilterTemplates ({ authentication: { item: user 
             user: { id: user.id },
             deletedAt: null,
             isBlocked: false,
+            isAccepted: true,
+            isRejected: false,
         })
 
         if (!employeeForUser) {
