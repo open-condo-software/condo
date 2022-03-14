@@ -171,6 +171,7 @@ const Property = new GQLListSchema('Property', {
                 },
             },
         },
+        // TODO(pahaz): DOMA-2426 what it property type village?
         uninhabitedUnitsCount: {
             schemaDoc: 'A number of non-residential units. Number of parking places for unit.unitType = parking, apartment, commercial & warehouse',
             type: Integer,
@@ -267,7 +268,7 @@ const Property = new GQLListSchema('Property', {
             yearRangeTo: dayjs().year(),
         },
 
-        area: {
+        area: { // ??? зачем оно вообще
             schemaDoc: 'Property area in square meters',
             type: Decimal,
             knexOptions: {
