@@ -22151,6 +22151,13 @@ export type PaymentsFilter = {
   type?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
+export type PaymentsFilterInput = {
+  advancedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
+  accountNumber?: Maybe<Scalars['String']>;
+  address?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
 /**  The payments filter preset  */
 export type PaymentsFilterTemplate = {
   __typename?: 'PaymentsFilterTemplate';
@@ -22187,7 +22194,7 @@ export type PaymentsFilterTemplateCreateInput = {
   sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   employee?: Maybe<OrganizationEmployeeRelateToOneInput>;
-  fields?: Maybe<Scalars['JSON']>;
+  fields?: Maybe<PaymentsFilterInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -22393,7 +22400,7 @@ export type PaymentsFilterTemplateUpdateInput = {
   sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   employee?: Maybe<OrganizationEmployeeRelateToOneInput>;
-  fields?: Maybe<Scalars['JSON']>;
+  fields?: Maybe<PaymentsFilterInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -22438,10 +22445,10 @@ export type PaymentsFilterTemplateWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   employee?: Maybe<OrganizationEmployeeWhereInput>;
   employee_is_null?: Maybe<Scalars['Boolean']>;
-  fields?: Maybe<Scalars['JSON']>;
-  fields_not?: Maybe<Scalars['JSON']>;
-  fields_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  fields_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  fields?: Maybe<PaymentsFilterInput>;
+  fields_not?: Maybe<PaymentsFilterInput>;
+  fields_in?: Maybe<Array<Maybe<PaymentsFilterInput>>>;
+  fields_not_in?: Maybe<Array<Maybe<PaymentsFilterInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
