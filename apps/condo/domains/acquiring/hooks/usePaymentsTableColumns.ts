@@ -24,6 +24,8 @@ export function usePaymentsTableColumns (currencyCode: string): Record<string, u
         let search = get(filters, 'search')
         search = Array.isArray(search) ? null : search
 
+        const stringSearch = getTextRender(String(search))
+
         const columns = {
             date: {
                 title: dateTitle,
@@ -38,7 +40,7 @@ export function usePaymentsTableColumns (currencyCode: string): Record<string, u
                 key: 'accountNumber',
                 dataIndex: 'accountNumber',
                 width: '120px',
-                render: getTextRender(String(search)),
+                render: stringSearch,
             },
             address: {
                 title: addressTitle,
@@ -58,13 +60,13 @@ export function usePaymentsTableColumns (currencyCode: string): Record<string, u
                 title: typeTitle,
                 key: 'type',
                 dataIndex: ['context', 'integration', 'name'],
-                render: getTextRender(String(search)),
+                render: stringSearch,
             },
             transaction: {
                 title: transactionTitle,
                 key: 'transaction',
                 dataIndex: ['multiPayment', 'transactionId'],
-                render: getTextRender(String(search)),
+                render: stringSearch,
             },
             amount: {
                 title: paymentAmountTitle,
