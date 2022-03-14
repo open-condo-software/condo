@@ -8,9 +8,16 @@
  * yarn node apps/condo/bin/sbbol/credentials.js change-client-secret 1234 a1b2c3d4 asdf12345
  */
 const path = require('path')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { values } = require('lodash')
-const { changeClientSecret, refreshAllTokens } = require('@condo/domains/organization/integrations/sbbol/utils')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+
+const conf = require('@core/config')
+const { getRandomString } = require('@core/keystone/test.utils')
+
+const { changeClientSecret, refreshAllTokens, getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/utils')
+
+const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
+const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 
 const COMMAND = {
     REFRESH_ALL_TOKENS: 'refresh-all-tokens',
@@ -24,7 +31,7 @@ const workerJob = async () => {
         throw new Error('Wrong command.')
     }
 
-    const resolved = path.resolve('apps/condo/index.js')
+    const resolved = path.resolve('./index.js')
     const { distDir, keystone, apps } = require(resolved)
     const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
     // we need only apollo
@@ -38,15 +45,23 @@ const workerJob = async () => {
     }
 
     if (command === COMMAND.CHANGE_CLIENT_SECRET) {
-        const [clientId, currentClientSecret, newClientSecret] = process.argv.slice(3)
-        if (!clientId) {
-            throw new Error('cliendId should be specified as a first argument of the command')
-        }
-        if (!currentClientSecret) {
-            throw new Error('Old clientSecret should be specified as a second argument of the command')
-        }
-        if (!newClientSecret) {
-            throw new Error('New clientSecret should be specified as a third argument of the command')
+        let clientId, currentClientSecret, newClientSecret
+        [clientId, currentClientSecret, newClientSecret] = process.argv.slice(3)
+        if (!clientId && !currentClientSecret && !newClientSecret) {
+            const { tokenSet } = await getOrganizationAccessToken(context, SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+            currentClientSecret = tokenSet.clientSecret || SBBOL_AUTH_CONFIG.client_secret
+            clientId = SBBOL_AUTH_CONFIG.client_id
+            newClientSecret = getRandomString()
+        } else {
+            if (!clientId) {
+                throw new Error('cliendId should be specified as a first argument of the command')
+            }
+            if (!currentClientSecret) {
+                throw new Error('Old clientSecret should be specified as a second argument of the command')
+            }
+            if (!newClientSecret) {
+                throw new Error('New clientSecret should be specified as a third argument of the command')
+            }
         }
 
         await changeClientSecret(context, { clientId, currentClientSecret, newClientSecret })

@@ -1,7 +1,7 @@
 const { generators } = require('openid-client')
 const readline = require('readline')
 
-const { SbbolOauth2Api } = require('@condo/domains/organization/integrations/sbbol/oauth2')
+const { initializeSbbolAuthApi } = require('@condo/domains/organization/integrations/sbbol/utils')
 const { getSbbolUserInfoErrors } = require('@condo/domains/organization/integrations/sbbol/common')
 
 function askQuestion (query) {
@@ -17,7 +17,7 @@ function askQuestion (query) {
 }
 
 async function main () {
-    const api = new SbbolOauth2Api()
+    const api = await initializeSbbolAuthApi()
     const checks = { nonce: generators.nonce(), state: generators.state() }
     const redirectUrl = api.authorizationUrlWithParams(checks)
     console.log(redirectUrl)
