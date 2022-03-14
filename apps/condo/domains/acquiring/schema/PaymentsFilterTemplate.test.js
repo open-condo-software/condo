@@ -9,7 +9,6 @@ const { PaymentsFilterTemplate, createTestPaymentsFilterTemplate, updateTestPaym
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
-    expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObjects,
 } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -18,7 +17,7 @@ const {
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowMutationError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowUserInputError } = require('@condo/domains/common/utils/testSchema')
 
 describe('PaymentsFilterTemplate', () => {
     describe('Create', () => {
@@ -39,7 +38,7 @@ describe('PaymentsFilterTemplate', () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role, { isAccepted: true })
 
             const [filtersTemplate] = await createTestPaymentsFilterTemplate(user, employee, {})
 
@@ -57,10 +56,11 @@ describe('PaymentsFilterTemplate', () => {
                 wrongField: wrongFieldValue,
             }
 
-            await expectToThrowValidationFailureError(
+            await expectToThrowUserInputError(
                 async () => await createTestPaymentsFilterTemplate(user, employee, {
                     fields: wrongFilters,
-                })
+                }),
+                'got invalid value'
             )
         })
 
@@ -75,13 +75,11 @@ describe('PaymentsFilterTemplate', () => {
                 type: wrongFieldValue,
             }
 
-            await expectToThrowMutationError(
+            await expectToThrowUserInputError(
                 async () => await createTestPaymentsFilterTemplate(user, employee, {
                     fields: wrongFilters,
                 }),
-                'You attempted to perform an invalid mutation',
-                ['obj'],
-                'ValidationFailureError'
+                'got invalid value',
             )
         })
 
@@ -162,7 +160,7 @@ describe('PaymentsFilterTemplate', () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role, { isAccepted: true })
 
             const [filtersTemplate] = await createTestPaymentsFilterTemplate(user, employee, {})
             const templates = await PaymentsFilterTemplate.getAll(user, { id: filtersTemplate.id })
@@ -176,7 +174,7 @@ describe('PaymentsFilterTemplate', () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
             const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee1] = await createTestOrganizationEmployee(admin, organization, user1.user, role)
+            const [employee1] = await createTestOrganizationEmployee(admin, organization, user1.user, role, { isAccepted: true })
             const user2 = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, user2.user, role)
 
@@ -191,7 +189,7 @@ describe('PaymentsFilterTemplate', () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
             const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee] = await createTestOrganizationEmployee(admin, organization, user1.user, role)
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user1.user, role, { isAccepted: true })
             const user2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
             const [filtersTemplate] = await createTestPaymentsFilterTemplate(user1, employee, {})
@@ -205,7 +203,7 @@ describe('PaymentsFilterTemplate', () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
             const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee] = await createTestOrganizationEmployee(admin, organization, user1.user, role)
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user1.user, role, { isAccepted: true })
             const anonymous = await makeClient()
 
             const [filtersTemplate] = await createTestPaymentsFilterTemplate(user1, employee, {})
@@ -239,7 +237,7 @@ describe('PaymentsFilterTemplate', () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role, { isAccepted: true })
 
             const [filtersTemplate] = await createTestPaymentsFilterTemplate(user, employee, {})
             const newTemplateName = faker.random.alphaNumeric(8)
@@ -256,7 +254,7 @@ describe('PaymentsFilterTemplate', () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
             const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee1] = await createTestOrganizationEmployee(admin, organization, user1.user, role)
+            const [employee1] = await createTestOrganizationEmployee(admin, organization, user1.user, role, { isAccepted: true })
             const user2 = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, user2.user, role)
 
@@ -275,7 +273,7 @@ describe('PaymentsFilterTemplate', () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
             const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee1] = await createTestOrganizationEmployee(admin, organization, user1.user, role)
+            const [employee1] = await createTestOrganizationEmployee(admin, organization, user1.user, role, { isAccepted: true })
             const user2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
             const [filtersTemplate] = await createTestPaymentsFilterTemplate(user1, employee1, {})
@@ -293,7 +291,7 @@ describe('PaymentsFilterTemplate', () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
             const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [employee1] = await createTestOrganizationEmployee(admin, organization, user1.user, role)
+            const [employee1] = await createTestOrganizationEmployee(admin, organization, user1.user, role, { isAccepted: true })
             const user2 = await makeClient()
 
             const [filtersTemplate] = await createTestPaymentsFilterTemplate(user1, employee1, {})
