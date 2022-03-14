@@ -1,40 +1,33 @@
-import { Col, Input, Row, Typography } from 'antd'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { get } from 'lodash'
-import React, { useCallback } from 'react'
-import { Gutter } from 'antd/es/grid/row'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
 import { DiffOutlined } from '@ant-design/icons'
-import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
-
-import {
-    PageHeader,
-    PageWrapper,
-    useLayoutContext,
-} from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import {
-    getPageIndexFromQuery,
-    CONTACT_PAGE_SIZE,
-} from '@condo/domains/contact/utils/helpers'
-import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
-import { IFilters } from '@condo/domains/contact/utils/helpers'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { Contact } from '@condo/domains/contact/utils/clientSchema'
+import { EXPORT_CONTACTS_TO_EXCEL } from '@app/condo/domains/contact/gql'
 import { Button } from '@condo/domains/common/components/Button'
+
+import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
-import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
-import { getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { Table } from '@condo/domains/common/components/Table/Index'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
+import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
-import { EXPORT_CONTACTS_TO_EXCEL } from '@app/condo/domains/contact/gql'
+import { Contact } from '@condo/domains/contact/utils/clientSchema'
+import { CONTACT_PAGE_SIZE, getPageIndexFromQuery, IFilters } from '@condo/domains/contact/utils/helpers'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+import { Col, Input, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import { get } from 'lodash'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import React, { useCallback } from 'react'
+import { TableFiltersContainer } from '../../domains/common/components/TableFiltersContainer'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -108,57 +101,65 @@ export const ContactsPageContent = ({
                             : (
                                 <Row gutter={ROW_VERTICAL_GUTTERS} align={'middle'} justify={'start'}>
                                     <Col span={24}>
-                                        <Row justify={'space-between'} gutter={ROW_VERTICAL_GUTTERS}>
-                                            <Col xs={24} lg={6}>
-                                                <Input
-                                                    placeholder={SearchPlaceholder}
-                                                    onChange={(e) => {handleSearchChange(e.target.value)}}
-                                                    value={search}
-                                                />
-                                            </Col>
-                                            <Col>
-                                                <Row gutter={ROW_HORIZONTAL_GUTTERS} align={'middle'} justify={'center'}>
-                                                    <Col hidden={isSmall}>
-                                                        {
-                                                            canManageContacts && (
-                                                                <ImportWrapper
-                                                                    objectsName={ContactsMessage}
-                                                                    accessCheck={canManageContacts}
-                                                                    onFinish={refetch}
-                                                                    columns={columns}
-                                                                    rowNormalizer={contactNormalizer}
-                                                                    rowValidator={contactValidator}
-                                                                    objectCreator={contactCreator}
-                                                                    domainTranslate={ContactTitle}
-                                                                    exampleTemplateLink={'/contact-import-example.xlsx'}
-                                                                >
+                                        <TableFiltersContainer>
+                                            <Row justify={'space-between'} gutter={ROW_VERTICAL_GUTTERS}>
+                                                <Col xs={24} lg={6}>
+                                                    <Input
+                                                        placeholder={SearchPlaceholder}
+                                                        onChange={(e) => {
+                                                            handleSearchChange(e.target.value)
+                                                        }}
+                                                        value={search}
+                                                    />
+                                                </Col>
+                                                <Col>
+                                                    <Row
+                                                        gutter={ROW_HORIZONTAL_GUTTERS}
+                                                        align={'middle'}
+                                                        justify={'center'}
+                                                    >
+                                                        <Col hidden={isSmall}>
+                                                            {
+                                                                canManageContacts && (
+                                                                    <ImportWrapper
+                                                                        objectsName={ContactsMessage}
+                                                                        accessCheck={canManageContacts}
+                                                                        onFinish={refetch}
+                                                                        columns={columns}
+                                                                        rowNormalizer={contactNormalizer}
+                                                                        rowValidator={contactValidator}
+                                                                        objectCreator={contactCreator}
+                                                                        domainTranslate={ContactTitle}
+                                                                        exampleTemplateLink={'/contact-import-example.xlsx'}
+                                                                    >
+                                                                        <Button
+                                                                            type={'sberPrimary'}
+                                                                            icon={<DiffOutlined/>}
+                                                                            block
+                                                                            secondary
+                                                                        />
+                                                                    </ImportWrapper>
+                                                                )
+                                                            }
+                                                        </Col>
+                                                        <Col>
+                                                            {
+                                                                canManageContacts && (
                                                                     <Button
+                                                                        block={!isSmall}
+                                                                        key="left"
                                                                         type={'sberPrimary'}
-                                                                        icon={<DiffOutlined />}
-                                                                        block
-                                                                        secondary
-                                                                    />
-                                                                </ImportWrapper>
-                                                            )
-                                                        }
-                                                    </Col>
-                                                    <Col>
-                                                        {
-                                                            canManageContacts && (
-                                                                <Button
-                                                                    block={!isSmall}
-                                                                    key='left'
-                                                                    type={'sberPrimary'}
-                                                                    onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                                                >
-                                                                    {CreateContact}
-                                                                </Button>
-                                                            )
-                                                        }
-                                                    </Col>
-                                                </Row>
-                                            </Col>
-                                        </Row>
+                                                                        onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                                                                    >
+                                                                        {CreateContact}
+                                                                    </Button>
+                                                                )
+                                                            }
+                                                        </Col>
+                                                    </Row>
+                                                </Col>
+                                            </Row>
+                                        </TableFiltersContainer>
                                     </Col>
                                     <Col span={24}>
                                         <Table
