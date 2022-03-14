@@ -20,6 +20,7 @@ const { hasValidJsonStructure } = require('@condo/domains/common/utils/validatio
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
+const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -110,6 +111,7 @@ class SberBuisnessOnlineMiddleware {
         // TODO(zuch): find a way to remove bind
         app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
         app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
+        app.use(expressErrorHandler)
         return app
     }
 }
