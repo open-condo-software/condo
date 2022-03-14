@@ -75,7 +75,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         // TODO @toplenboren (Doma-2241) make this not null!
         receiver: {
-            schemaDoc: 'Integration context',
+            schemaDoc: 'Relation to the BillingRecipient. Going to override recipient field, has the same meaning',
             type: Relationship,
             ref: 'BillingRecipient',
             isRequired: true,
