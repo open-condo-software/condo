@@ -11,27 +11,29 @@ const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/se
 
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const access = require('@condo/domains/resident/access/RegisterResidentService')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
     types: [
         {
             access: true,
-            type: 'input RegisterResidentInput { dv: Int!, sender: SenderFieldInput!, address: String!, addressMeta: AddressMetaFieldInput!, unitName: String! }',
+            type: 'input RegisterResidentInput { dv: Int!, sender: SenderFieldInput!, address: String!, addressMeta: AddressMetaFieldInput!, unitName: String!, unitType: BuildingUnitType }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canRegisterResident,
             schema: 'registerResident(data: RegisterResidentInput!): Resident',
             resolver: async (parent, args, context) => {
-                const { data: { dv, sender, address, addressMeta, unitName } } = args
+                const { data: { dv, sender, address, addressMeta, unitName, unitType } } = args
                 const attrs = {
                     dv,
                     sender,
                     address,
                     addressMeta,
                     unitName,
+                    unitType,
                     user: { connect: { id: context.authedItem.id } },
                 }
                 const [existingResident] = await ResidentAPI.getAll(context, {
@@ -52,6 +54,10 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 if (property) {
                     attrs.property = { connect: { id: property.id } }
                     attrs.organization = { connect: { id: property.organization.id } }
+                }
+
+                if (!attrs.unitType) {
+                    attrs.unitType = FLAT_UNIT_TYPE
                 }
 
                 let id
@@ -79,7 +85,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
             },
         },
     ],
-    
+
 })
 
 module.exports = {

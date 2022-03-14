@@ -26709,6 +26709,7 @@ export type RegisterResidentInput = {
   address: Scalars['String'];
   addressMeta: AddressMetaFieldInput;
   unitName: Scalars['String'];
+  unitType?: Maybe<BuildingUnitType>;
 };
 
 export type RegisterServiceConsumerInput = {
@@ -26793,6 +26794,8 @@ export type Resident = {
   addressMeta?: Maybe<AddressMetaField>;
   /**  Unit of the property, in which this person resides  */
   unitName?: Maybe<Scalars['String']>;
+  /**  Type of unit, such as parking lot or flat  */
+  unitType?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -26898,6 +26901,7 @@ export type ResidentCreateInput = {
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26930,6 +26934,7 @@ export type ResidentHistoryRecord = {
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -26956,6 +26961,7 @@ export type ResidentHistoryRecordCreateInput = {
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26987,6 +26993,7 @@ export type ResidentHistoryRecordUpdateInput = {
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27082,6 +27089,24 @@ export type ResidentHistoryRecordWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_contains?: Maybe<Scalars['String']>;
+  unitType_not_contains?: Maybe<Scalars['String']>;
+  unitType_starts_with?: Maybe<Scalars['String']>;
+  unitType_not_starts_with?: Maybe<Scalars['String']>;
+  unitType_ends_with?: Maybe<Scalars['String']>;
+  unitType_not_ends_with?: Maybe<Scalars['String']>;
+  unitType_i?: Maybe<Scalars['String']>;
+  unitType_not_i?: Maybe<Scalars['String']>;
+  unitType_contains_i?: Maybe<Scalars['String']>;
+  unitType_not_contains_i?: Maybe<Scalars['String']>;
+  unitType_starts_with_i?: Maybe<Scalars['String']>;
+  unitType_not_starts_with_i?: Maybe<Scalars['String']>;
+  unitType_ends_with_i?: Maybe<Scalars['String']>;
+  unitType_not_ends_with_i?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -27340,6 +27365,7 @@ export type ResidentUpdateInput = {
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27410,6 +27436,10 @@ export type ResidentWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -31260,6 +31290,8 @@ export enum SortResidentHistoryRecordsBy {
   AddressDesc = 'address_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -31326,6 +31358,8 @@ export enum SortResidentsBy {
   AddressDesc = 'address_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
