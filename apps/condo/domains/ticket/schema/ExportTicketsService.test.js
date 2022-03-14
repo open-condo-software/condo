@@ -7,6 +7,7 @@ const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const isObsConfigured = require('@condo/domains/common/utils/testSchema/isObsConfigured')
+const faker = require('faker')
 
 describe('ExportTicketService', () => {
     describe('User', () => {
@@ -14,8 +15,12 @@ describe('ExportTicketService', () => {
             if (isObsConfigured()) {
                 const client = await makeClientWithProperty()
                 await createTestTicket(client, client.organization, client.property)
-                const { data: { result: { status, linkToFile } } }  = await client.query(EXPORT_TICKETS_TO_EXCEL, {
-                    data: { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+                const { data: { result: { status, linkToFile } } } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
+                    data: {
+                        where: { organization: { id: client.organization.id } },
+                        sortBy: 'id_ASC',
+                        timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                    },
                 })
                 expect(status).toBe('ok')
                 expect(linkToFile).not.toHaveLength(0)
@@ -29,7 +34,12 @@ describe('ExportTicketService', () => {
             const client2 = await makeClientWithProperty()
             await createTestTicket(client2, client2.organization, client2.property)
             const { data: { result }, errors } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
-                data: { where: { organization: { id: client2.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+                data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
+                    where: { organization: { id: client2.organization.id } },
+                    sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                },
             })
             expect(result).toBeNull()
             expect(errors).toHaveLength(1)
@@ -37,8 +47,14 @@ describe('ExportTicketService', () => {
 
         it('receives error of tickets for export are not found', async () => {
             const client = await makeClientWithProperty()
-            const { data: { result }, errors }  = await client.query(EXPORT_TICKETS_TO_EXCEL, {
-                data: { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+            const { data: { result }, errors } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
+                data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
+                    where: { organization: { id: client.organization.id } },
+                    sortBy: 'id_ASC',
+                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                },
             })
             expect(result).toBeNull()
             expect(errors).toMatchObject([{
@@ -61,7 +77,13 @@ describe('ExportTicketService', () => {
             const client2 = await makeClientWithProperty()
             await createTestTicket(client2, client2.organization, client2.property)
             const { data: { result }, errors } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
-                data: { where: { organization: { id: client2.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+                data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
+                    where: { organization: { id: client2.organization.id } },
+                    sortBy: 'id_ASC',
+                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+                },
             })
             expect(result).toBeNull()
             expect(errors).toHaveLength(1)
