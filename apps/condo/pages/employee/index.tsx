@@ -1,37 +1,35 @@
-import {
-    PageHeader,
-    PageWrapper,
-    useLayoutContext,
-} from '@condo/domains/common/components/containers/BaseLayout'
+import { EllipsisOutlined } from '@ant-design/icons'
+import { Button } from '@condo/domains/common/components/Button'
+import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { updateQuery } from '@condo/domains/common/utils/filters.utils'
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
+import { canManageEmployee } from '@condo/domains/organization/permissions'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import {
+    EMPLOYEE_PAGE_SIZE,
     filtersToQuery,
     getPageIndexFromQuery,
     getSortStringFromQuery,
-    EMPLOYEE_PAGE_SIZE,
-    sorterToQuery, queryToSorter,
+    IFilters,
+    queryToSorter,
+    sorterToQuery,
 } from '@condo/domains/organization/utils/helpers'
-import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
-import { IFilters } from '@condo/domains/organization/utils/helpers'
 import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
 
-import { Col, Input, Row, Table, Typography, Dropdown, Menu, Tooltip } from 'antd'
-import { EllipsisOutlined } from '@ant-design/icons'
+import { Col, Dropdown, Input, Menu, Row, Table, Tooltip, Typography } from 'antd'
+import { debounce, get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { get, debounce } from 'lodash'
 import React, { useCallback, useState } from 'react'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { useOrganization } from '@core/next/organization'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { Button } from '@condo/domains/common/components/Button'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { canManageEmployee } from '@condo/domains/organization/permissions'
-import { updateQuery } from '@condo/domains/common/utils/filters.utils'
-import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
-import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { TableFiltersContainer } from '../../domains/common/components/TableFiltersContainer'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
@@ -130,41 +128,45 @@ export const EmployeesPageContent = ({
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
                                 createRoute={ADD_EMPLOYEE_ROUTE}
-                                createLabel={CreateEmployee} />
+                                createLabel={CreateEmployee}/>
                             : <Row gutter={[0, 40]} align={'middle'}>
                                 <Col span={24}>
-                                    <Row justify={'space-between'} gutter={[0, 40]}>
-                                        <Col xs={24} lg={6}>
-                                            <Input
-                                                placeholder={SearchPlaceholder}
-                                                onChange={(e)=>{handleSearchChange(e.target.value)}}
-                                                value={search}
-                                            />
-                                        </Col>
-                                        {
-                                            canManageEmployee && (
-                                                <Dropdown.Button
-                                                    overlay={dropDownMenu}
-                                                    buttonsRender={() => [
-                                                        <Button
-                                                            key='left'
-                                                            type={'sberPrimary'}
-                                                            style={{ borderRight: '1px solid white' }}
-                                                            onClick={handleAddEmployee}
-                                                        >
-                                                            {CreateEmployee}
-                                                        </Button>,
-                                                        <Button
-                                                            key='right'
-                                                            type={'sberPrimary'}
-                                                            style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
-                                                            icon={<EllipsisOutlined />}
-                                                        />,
-                                                    ]}
+                                    <TableFiltersContainer>
+                                        <Row justify={'space-between'} gutter={[0, 40]}>
+                                            <Col xs={24} lg={6}>
+                                                <Input
+                                                    placeholder={SearchPlaceholder}
+                                                    onChange={(e) => {
+                                                        handleSearchChange(e.target.value)
+                                                    }}
+                                                    value={search}
                                                 />
-                                            )
-                                        }
-                                    </Row>
+                                            </Col>
+                                            {
+                                                canManageEmployee && (
+                                                    <Dropdown.Button
+                                                        overlay={dropDownMenu}
+                                                        buttonsRender={() => [
+                                                            <Button
+                                                                key="left"
+                                                                type={'sberPrimary'}
+                                                                style={{ borderRight: '1px solid white' }}
+                                                                onClick={handleAddEmployee}
+                                                            >
+                                                                {CreateEmployee}
+                                                            </Button>,
+                                                            <Button
+                                                                key="right"
+                                                                type={'sberPrimary'}
+                                                                style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
+                                                                icon={<EllipsisOutlined/>}
+                                                            />,
+                                                        ]}
+                                                    />
+                                                )
+                                            }
+                                        </Row>
+                                    </TableFiltersContainer>
                                 </Col>
                                 <Col span={24}>
                                     <Table
@@ -197,7 +199,7 @@ const EmployeesPage = () => {
     const router = useRouter()
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const sortBy = sortFromQuery.length > 0  ? sortFromQuery : 'createdAt_DESC'
+    const sortBy = sortFromQuery.length > 0 ? sortFromQuery : 'createdAt_DESC'
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
