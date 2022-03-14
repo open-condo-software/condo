@@ -1,24 +1,23 @@
-import React from 'react'
-import { useRouter } from 'next/router'
-import qs from 'qs'
-import { ColumnsType } from 'antd/lib/table'
-
-import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
-import { useIntl } from '@core/next/intl'
-
-import { Col, Input, Row, Typography } from 'antd'
-import { Table } from '@condo/domains/common/components/Table/Index'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DatabaseFilled } from '@ant-design/icons'
+import { DivisionWhereInput, OrganizationEmployeeRole, SortDivisionsBy } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
-import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { Division } from '@condo/domains/division/utils/clientSchema'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Table } from '@condo/domains/common/components/Table/Index'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
-import { DivisionWhereInput, OrganizationEmployeeRole, SortDivisionsBy } from '@app/condo/schema'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-
+import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { Division } from '@condo/domains/division/utils/clientSchema'
+import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
+import { useIntl } from '@core/next/intl'
+import { Col, Input, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import { ColumnsType } from 'antd/lib/table'
+import { useRouter } from 'next/router'
+import qs from 'qs'
+import React from 'react'
 
 type BuildingTableProps = {
     role: OrganizationEmployeeRole
@@ -27,6 +26,8 @@ type BuildingTableProps = {
     sortBy: string[]
     onSearch?: (properties: Division.IDivisionUIState[]) => void
 }
+
+const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 
 export default function DivisionTable (props: BuildingTableProps) {
     const intl = useIntl()
@@ -68,45 +69,53 @@ export default function DivisionTable (props: BuildingTableProps) {
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
 
     if (error) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null} />
+        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
     return (
-        <Row align={'middle'} gutter={[0, 40]}>
-            <Col xs={24} lg={6}>
-                <Input
-                    placeholder={SearchPlaceholder}
-                    onChange={(e) => {handleSearchChange(e.target.value)}}
-                    value={search}
-                />
-            </Col>
-            <Col lg={6} offset={1} hidden={isSmall}>
-                <Tooltip title={NotImplementedYetMessage} >
-                    <Typography.Text
-                        style={{
-                            opacity: 70,
-                            color: colors.sberGrey[4],
-                        }}
-                    >
-                        <Button
-                            type={'inlineLink'}
-                            icon={<DatabaseFilled />}
-                            target='_blank'
-                            rel='noreferrer'>{DownloadExcelLabel}
-                        </Button>
-                    </Typography.Text>
-                </Tooltip>
-            </Col>
-            <Col xs={24} lg={4} offset={isSmall ? 0 : 7}>
-                {
-                    role?.canManageDivisions && (
-                        <Row justify={isSmall ? 'start' : 'end'}>
-                            <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
-                                {CreateLabel}
-                            </Button>
-                        </Row>
-                    )
-                }
+        <Row align={'middle'} gutter={ROW_VERTICAL_GUTTERS}>
+            <Col span={24}>
+                <TableFiltersContainer>
+                    <Row justify="space-between" gutter={ROW_VERTICAL_GUTTERS}>
+                        <Col xs={24} lg={6}>
+                            <Input
+                                placeholder={SearchPlaceholder}
+                                onChange={(e) => {
+                                    handleSearchChange(e.target.value)
+                                }}
+                                value={search}
+                            />
+                        </Col>
+                        <Col lg={6} offset={1} hidden={isSmall}>
+                            <Tooltip title={NotImplementedYetMessage}>
+                                <Typography.Text
+                                    style={{
+                                        opacity: 70,
+                                        color: colors.sberGrey[4],
+                                    }}
+                                >
+                                    <Button
+                                        type={'inlineLink'}
+                                        icon={<DatabaseFilled/>}
+                                        target="_blank"
+                                        rel="noreferrer">{DownloadExcelLabel}
+                                    </Button>
+                                </Typography.Text>
+                            </Tooltip>
+                        </Col>
+                        <Col xs={24} lg={4} offset={isSmall ? 0 : 7}>
+                            {
+                                role?.canManageDivisions && (
+                                    <Row justify={isSmall ? 'start' : 'end'}>
+                                        <Button type="sberPrimary" onClick={() => router.push('/division/create')}>
+                                            {CreateLabel}
+                                        </Button>
+                                    </Row>
+                                )
+                            }
+                        </Col>
+                    </Row>
+                </TableFiltersContainer>
             </Col>
             <Col span={24}>
                 <Table
@@ -117,9 +126,13 @@ export default function DivisionTable (props: BuildingTableProps) {
                     onRow={handleRowAction}
                     columns={tableColumns}
                     pageSize={PROPERTY_PAGE_SIZE}
-                    applyQuery={(queryParams)=> {
+                    applyQuery={(queryParams) => {
                         queryParams['tab'] = router.query['tab']
-                        const newQuery = qs.stringify({ ...queryParams }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+                        const newQuery = qs.stringify({ ...queryParams }, {
+                            arrayFormat: 'comma',
+                            skipNulls: true,
+                            addQueryPrefix: true,
+                        })
                         return router.push(router.route + newQuery)
                     }}
                 />
