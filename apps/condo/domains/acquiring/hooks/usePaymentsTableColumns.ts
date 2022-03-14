@@ -45,16 +45,22 @@ export function usePaymentsTableColumns (currencyCode: string): Record<string, u
             address: {
                 title: addressTitle,
                 key: 'address',
-                dataIndex: ['receipt', 'property', 'address'],
                 sorter: true,
-                render: getTextRender(String(search)),
+                render: (obj) => stringSearch(get(
+                    obj,
+                    ['receipt', 'property', 'address'],
+                    get(obj, ['frozenReceipt', 'data', 'property', 'address'], null),
+                )),
             },
             unitName: {
                 title: unitNameTitle,
                 key: 'unitName',
-                dataIndex: ['receipt', 'account', 'unitName'],
                 width: '128px',
-                render: getTextRender(String(search)),
+                render: (obj) => stringSearch(get(
+                    obj,
+                    ['receipt', 'account', 'unitName'],
+                    get(obj, ['frozenReceipt', 'data', 'account', 'unitName'], null),
+                )),
             },
             type: {
                 title: typeTitle,
