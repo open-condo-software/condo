@@ -1,14 +1,14 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const isFunction = require('lodash/isFunction')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@core/config')
 
 const { RU_LOCALE, EN_LOCALE, LOCALES } = require('@condo/domains/common/constants/locale')
 
-const { MESSAGE_TYPES } = require('./constants/constants')
-
 const {
+    MESSAGE_TYPES,
     EMAIL_TRANSPORT,
     SMS_TRANSPORT,
     PUSH_TRANSPORT,
@@ -21,7 +21,7 @@ const {
     SHARE_TICKET_MESSAGE_TYPE,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     CUSTOMER_IMPORTANT_NOTE_TYPE,
-    MESSAGE_FORWARDED_TO_SUPPORT,
+    MESSAGE_FORWARDED_TO_SUPPORT_TYPE,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
     TICKET_STATUS_CHANGED_TYPE,
@@ -488,6 +488,47 @@ const getTicketStatusChangedMessage = (message, transport) => {
     }
 }
 
+const getForwardedToSupportMessage = (message) => {
+    const { emailFrom, meta } = message
+    const { text, os, appVersion, organizationsData = [] } = meta
+
+    switch (message.lang) {
+        case EN_LOCALE: {
+            const org = isEmpty(organizationsData)
+                ? 'нет'
+                : organizationsData.map(({ name, inn }) => `- ${name}. ИНН: ${inn}`).join('')
+
+            return {
+                subject: 'Ticket from mobile application',
+                text: `
+                        OS: ${os}
+                        Application version: ${appVersion}
+                        Email: ${emailFrom ? emailFrom : 'не указан'}
+                        Message: ${text}
+                        Organization: ${org}
+                    `,
+            }
+        }
+
+        case RU_LOCALE: {
+            const org = isEmpty(organizationsData)
+                ? 'no'
+                : organizationsData.map(({ name, inn }) => `- ${name}. TIN: ${inn}`).join('')
+
+            return {
+                subject: 'Обращение из мобильного приложения',
+                text: `
+                        Система: ${os}
+                        Версия приложения: ${appVersion}
+                        Email: ${emailFrom ? emailFrom : 'не указан'}
+                        Сообщение: ${text}
+                        УК: ${org}
+                    `,
+            }
+        }
+    }
+}
+
 const MESSAGE_TEMPLATE_BY_TYPE = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: getInviteNewEmployeeMessage,
     [DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: getDirtyInviteNewEmployeeMessage,
@@ -500,6 +541,7 @@ const MESSAGE_TEMPLATE_BY_TYPE = {
     [TICKET_ASSIGNEE_CONNECTED_TYPE]: getTicketAssigneeConnectedMessage,
     [TICKET_EXECUTOR_CONNECTED_TYPE]: getTicketExecutorConnectedMessage,
     [TICKET_STATUS_CHANGED_TYPE]: getTicketStatusChangedMessage,
+    [MESSAGE_FORWARDED_TO_SUPPORT_TYPE]: getForwardedToSupportMessage,
 }
 
 /**
@@ -527,22 +569,22 @@ async function renderTemplate (transport, message) {
         if (result) return { ...result, notificationId: message.id }
     }
 
-    if (message.type === MESSAGE_FORWARDED_TO_SUPPORT) {
-        const { emailFrom, meta } = message
-        const { dv, text, os, appVersion, organizationsData = [] } = meta
-
-        return {
-            subject: 'Обращение из мобильного приложения',
-            text: `
-                Система: ${os}
-                Версия приложения: ${appVersion}
-                Email: ${emailFrom ? emailFrom : 'не указан'}
-                Сообщение: ${text}
-                УК: ${organizationsData.length === 0 ? 'нет' : organizationsData.map(({ name, inn }) => `
-                  - ${name}. ИНН: ${inn}`).join('')}
-            `,
-        }
-    }
+    // if (message.type === MESSAGE_FORWARDED_TO_SUPPORT_TYPE) {
+    //     const { emailFrom, meta } = message
+    //     const { dv, text, os, appVersion, organizationsData = [] } = meta
+    //
+    //     return {
+    //         subject: 'Обращение из мобильного приложения',
+    //         text: `
+    //             Система: ${os}
+    //             Версия приложения: ${appVersion}
+    //             Email: ${emailFrom ? emailFrom : 'не указан'}
+    //             Сообщение: ${text}
+    //             УК: ${organizationsData.length === 0 ? 'нет' : organizationsData.map(({ name, inn }) => `
+    //               - ${name}. ИНН: ${inn}`).join('')}
+    //         `,
+    //     }
+    // }
 
     throw new Error('unknown template or lang')
 }
