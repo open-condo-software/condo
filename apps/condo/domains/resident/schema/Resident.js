@@ -7,7 +7,7 @@ const { Text, Relationship, Virtual } = require('@keystonejs/fields')
 const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
+const { SENDER_FIELD, DV_FIELD, ADDRESS_META_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 
 const access = require('@condo/domains/resident/access/Resident')
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
@@ -182,6 +182,10 @@ const Resident = new GQLListSchema('Resident', {
             schemaDoc: 'Unit of the property, in which this person resides',
             type: Text,
             isRequired: true,
+        },
+
+        unitType: {
+            ...UNIT_TYPE_FIELD,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],

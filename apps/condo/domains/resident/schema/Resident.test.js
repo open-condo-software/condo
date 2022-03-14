@@ -32,6 +32,7 @@ const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSche
 const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 describe('Resident', () => {
 
@@ -547,6 +548,7 @@ describe('Resident', () => {
             expect(obj.user.id).toEqual(userClient.user.id)
             expect(obj.organization.id).toEqual(userClient.organization.id)
             expect(obj.property.id).toEqual(userClient.property.id)
+            expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
         })
 
         it('cannot be created by user', async () => {
@@ -682,6 +684,7 @@ describe('Resident', () => {
             expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
             expect(objUpdated.createdAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.unitType).toEqual(obj.unitType)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
         })
 
