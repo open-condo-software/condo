@@ -40,7 +40,7 @@ async function getOrganizationAccessToken (context, organizationImportId) {
             clientSecret: tokenSet.clientSecret,
         })
         const { access_token, refresh_token, expires_at } = await oauth2.refreshToken(tokenSet.refreshToken)
-        await TokenSet.update(context, tokenSet.id, {
+        tokenSet = await TokenSet.update(context, tokenSet.id, {
             accessToken: access_token,
             refreshToken: refresh_token,
             accessTokenExpiresAt: new Date(Number(expires_at) * 1000).toISOString(),
