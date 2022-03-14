@@ -5,7 +5,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const get = require('lodash/get')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { find } = require('@core/keystone/schema')
-const { checkRelatedOrganizationPermission } = require('../../organization/utils/accessSchema')
+const { checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canExportPaymentsToExcel ({ args: { data: { where } }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -24,7 +24,7 @@ async function canExportPaymentsToExcel ({ args: { data: { where } }, authentica
         return false
     }
 
-    const [organization] = await find('Organization', organizationWhere)
+    const [organization] = await find('Organization', { ...organizationWhere, deletedAt: null })
     if (!organization) {
         return false
     }
