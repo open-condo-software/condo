@@ -109,7 +109,8 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
 
             const ticket = await getById('Ticket', itemId)
             if (!ticket) return false
-            if (ticket.createdBy !== user.id) return false
+            // Чтобы житель мог обновлять statusReopenedCounter у не своих заявок (созданных диспетчером на его контакт)
+            // if (ticket.createdBy !== user.id) return false
             propertyId = get(ticket, 'property', null)
             unitName = get(ticket, 'unitName', null)
         }
