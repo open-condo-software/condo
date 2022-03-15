@@ -7,7 +7,7 @@ import { useIntl } from '@core/next/intl'
 import { Form, notification } from 'antd'
 import { DocumentNode } from 'graphql'
 import { get } from 'lodash'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback } from 'react'
 
 interface IExportToExcelActionBarProps {
     hidden?: boolean
@@ -29,12 +29,8 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
     } = props
 
     const intl = useIntl()
-    const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.DownloadExcelLabel' })
     const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
-
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
-
-    const [downloadLink, setDownloadLink] = useState(null)
 
     const [
         exportToExcel,
@@ -47,14 +43,12 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
                 notification.error({ message })
             },
             onCompleted: data => {
-                setDownloadLink(data.result.linkToFile)
+                if (window) {
+                    window.location.href = data.result.linkToFile
+                }
             },
         },
     )
-
-    useEffect(() => {
-        setDownloadLink(null)
-    }, [searchObjectsQuery, sortBy, exportToExcelQuery, timeZone])
 
     const variablesData = {
         dv: 1,
@@ -63,7 +57,7 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         sortBy: sortBy,
         timeZone: undefined,
     }
-    const deps = [exportToExcel, searchObjectsQuery, sortBy]
+    const deps = [exportToExcel, searchObjectsQuery, sortBy, variablesData]
 
     if (useTimeZone) {
         variablesData.timeZone = timeZone
@@ -77,31 +71,16 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
     return (
         <Form.Item noStyle>
             <ActionBar hidden={hidden}>
-                {
-                    downloadLink
-                        ?
-                        <Button
-                            type={'inlineLink'}
-                            icon={<DatabaseFilled/>}
-                            loading={isXlsLoading}
-                            target="_blank"
-                            href={downloadLink}
-                            rel="noreferrer"
-                        >
-                            {DownloadExcelLabel}
-                        </Button>
-                        :
-                        <Button
-                            type={'sberBlack'}
-                            secondary
-                            icon={<DatabaseFilled/>}
-                            loading={isXlsLoading}
-                            onClick={handleExportToExcel}
-                            disabled={disabled}
-                        >
-                            {ExportAsExcelLabel}
-                        </Button>
-                }
+                <Button
+                    type={'sberBlack'}
+                    secondary
+                    icon={<DatabaseFilled/>}
+                    loading={isXlsLoading}
+                    onClick={handleExportToExcel}
+                    disabled={disabled}
+                >
+                    {ExportAsExcelLabel}
+                </Button>
             </ActionBar>
         </Form.Item>
     )
