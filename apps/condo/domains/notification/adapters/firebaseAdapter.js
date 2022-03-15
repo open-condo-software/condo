@@ -1,5 +1,6 @@
 const admin = require('firebase-admin')
 const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNull')
 const faker = require('faker')
 
 const conf = require('@core/config')
@@ -34,9 +35,15 @@ const getFakeSuccessResponse = () => ({
  */
 class FirebaseAdapter {
     constructor (config = FIREBASE_CONFIG) {
-        if (!config) console.error('Valid FIREBASE_CONFIG_JSON should be provided within .env, and can be retrieved from https://console.firebase.google.com/project/__PROJECT_ID__/settings/serviceaccounts/adminsdk')
+        this.app = null
 
-        this.app = admin.initializeApp({ credential: admin.credential.cert(config) })
+        if (isEmpty(config)) console.error('Valid FIREBASE_CONFIG_JSON should be provided within .env, and can be retrieved from https://console.firebase.google.com/project/__PROJECT_ID__/settings/serviceaccounts/adminsdk')
+
+        try {
+            this.app = admin.initializeApp({ credential: admin.credential.cert(config) })
+        } catch (error) {
+            console.error('Unable to authorize at FireBase using provided FIREBASE_CONFIG_JSON', error)
+        }
     }
 
     prepareNotification ({ title, body } = {}) {
@@ -84,6 +91,8 @@ class FirebaseAdapter {
     async sendNotification ({ notification, tokensData, data } = {}) {
         console.log('sendNotification:', { notification, tokensData, data })
 
+        // If we were unable to initialize firebase, then we will always fail to deliver pushes
+        if (isNull(this.app)) return [false, { error: 'No FIREBASE_CONFIG_JSON provided or invalid' }]
         if (!tokensData || isEmpty(tokensData)) return null
 
         const [notifications, fakeNotifications] = this.prepareNotifications(notification, data, tokensData)
