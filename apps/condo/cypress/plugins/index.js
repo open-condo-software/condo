@@ -52,14 +52,6 @@ module.exports = async (on, config) => {
             await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true })
             return null
         },
-
-        testTimings (attributes) {
-            console.log('Test "%s" has finished in %dms',
-                attributes.title, attributes.duration)
-            console.table(attributes.commands)
-
-            return null
-        },
     })
 
     return config
