@@ -36,7 +36,6 @@ export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
     } else {
         let symbolsPassed = 0
         const parts = text.split(searchRegexp)
-
         result = parts.map((part) => {
             const startSymbolIndex = symbolsPassed
             const isMatch = searchRegexp.test(part)

@@ -19,7 +19,6 @@ import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelecto
 import { Row, Col, Input, Select, Typography } from 'antd'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
-import { getDecimalMoneyFilter } from '@condo/domains/billing/utils/helpers'
 import { ServicesModal } from '../ServicesModal'
 import { IBillingReceiptUIState } from '@condo/domains/billing/utils/clientSchema/BillingReceipt'
 
@@ -47,15 +46,10 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const contextPeriod = get(context, ['lastReport', 'period'], null)
     const currencyCode = get(context, ['integration', 'currencyCode'], 'RUB')
 
-    const formattedNumber = intl.formatNumberToParts('123.45', { style: 'currency', currency: currencyCode })
-    const decimal = get(formattedNumber.filter(part => part.type === 'decimal'), ['0', 'value'], '.')
-
-    const toPayFilter = getDecimalMoneyFilter('toPay', decimal)
     const queryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
         ...staticQueryMetas,
         { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
-        { keyword: 'toPay', filters: [toPayFilter] },
-        { keyword: 'search', filters: [addressFilter, accountFilter, toPayFilter], combineType: 'OR' },
+        { keyword: 'search', filters: [addressFilter, accountFilter], combineType: 'OR' },
     ]
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
     const {
