@@ -125,6 +125,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
             let receiverId
             const sameRecipient = await BillingRecipient.getOne(context, {
+                context: contextId,
                 tin: get(recipient, 'tin'),
                 iec: get(recipient, 'iec'),
                 bic: get(recipient, 'bic'),
