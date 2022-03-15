@@ -10,6 +10,7 @@ export const getDecimalMoneyFilter = (dataIndex: DataIndexType, separator: strin
     return function filterMoney (search: string) {
         if (!search) return
         const replaced = search.replace(separator, '.')
+        if (isNaN(Number(replaced))) return
         return defaultFilter(replaced)
     }
 }
