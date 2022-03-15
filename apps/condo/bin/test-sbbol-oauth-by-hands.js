@@ -1,6 +1,8 @@
 const { generators } = require('openid-client')
 const readline = require('readline')
+const path = require('path')
 
+const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
 const { initializeSbbolAuthApi } = require('@condo/domains/organization/integrations/sbbol/utils')
 const { getSbbolUserInfoErrors } = require('@condo/domains/organization/integrations/sbbol/common')
 
@@ -17,6 +19,7 @@ function askQuestion (query) {
 }
 
 async function main () {
+    await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp'] })
     const api = await initializeSbbolAuthApi()
     const checks = { nonce: generators.nonce(), state: generators.state() }
     const redirectUrl = api.authorizationUrlWithParams(checks)
@@ -34,4 +37,10 @@ async function main () {
     }
 }
 
-main().catch(console.error)
+main().then(
+    () => process.exit(),
+    (error) => {
+        console.error(error)
+        process.exit(1)
+    },
+)

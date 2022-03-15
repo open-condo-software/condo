@@ -15,6 +15,7 @@ const logger = baseLogger.child({ module: 'oauth2' })
 
 class SbbolOauth2Api {
     constructor ({ clientSecret }) {
+        if (!clientSecret) throw new Error('SbbolOauth2Api: unknown clientSecret')
         this.createClient(clientSecret)
     }
 

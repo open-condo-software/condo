@@ -12,7 +12,7 @@ const { values } = require('lodash')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const conf = require('@core/config')
-const { getRandomString } = require('@core/keystone/test.utils')
+const { getRandomString, prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
 
 const { changeClientSecret, refreshAllTokens, getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/utils')
 
@@ -31,12 +31,7 @@ const workerJob = async () => {
         throw new Error('Wrong command.')
     }
 
-    const resolved = path.resolve('./index.js')
-    const { distDir, keystone, apps } = require(resolved)
-    const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
-    // we need only apollo
-    await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
-    await keystone.connect()
+    const { keystone } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp'] })
 
     const context = await keystone.createContext({ skipAccessControl: true })
 
@@ -52,6 +47,7 @@ const workerJob = async () => {
             currentClientSecret = tokenSet.clientSecret || SBBOL_AUTH_CONFIG.client_secret
             clientId = SBBOL_AUTH_CONFIG.client_id
             newClientSecret = getRandomString()
+            console.log(`Run with: ${clientId} "${currentClientSecret}" "${newClientSecret}"`)
         } else {
             if (!clientId) {
                 throw new Error('cliendId should be specified as a first argument of the command')
