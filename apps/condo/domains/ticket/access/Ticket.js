@@ -104,13 +104,12 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         } else if (operation === 'update') {
             if (!itemId) return false
 
-            const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'details'])
+            const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'details', 'reviewValue', 'reviewComment'])
             if (!isEmpty(inaccessibleUpdatedFields)) return false
 
             const ticket = await getById('Ticket', itemId)
             if (!ticket) return false
-            // Чтобы житель мог обновлять statusReopenedCounter у не своих заявок (созданных диспетчером на его контакт)
-            // if (ticket.createdBy !== user.id) return false
+            if (ticket.createdBy !== user.id) return false
             propertyId = get(ticket, 'property', null)
             unitName = get(ticket, 'unitName', null)
         }
