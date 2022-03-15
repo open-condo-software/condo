@@ -11,6 +11,7 @@ import {
     layoutCss,
     pageContentCss,
     pageHeaderCss,
+    spacedPageHeaderCss,
     StyledPageWrapper,
     subLayoutCss,
     tablePageContentCss,
@@ -73,12 +74,21 @@ interface IPageHeaderProps extends PageHeaderProps {
     subTitle?: string
     className?: string
     style?: CSSProperties
+    spaced?: boolean
 }
 
-const PageHeader: FunctionComponent<IPageHeaderProps> = ({ children, className, style, title, subTitle, ...pageHeaderProps }) => {
+const PageHeader: FunctionComponent<IPageHeaderProps> = ({
+    children,
+    className,
+    style,
+    title,
+    subTitle,
+    spaced,
+    ...pageHeaderProps
+}) => {
     return (
         <AntPageHeader
-            className={classnames('page-header', className)} css={pageHeaderCss} style={style}
+            className={classnames('page-header', className)} css={spaced ? spacedPageHeaderCss : pageHeaderCss} style={style}
             title={title} subTitle={subTitle}
             {...pageHeaderProps}
         >
