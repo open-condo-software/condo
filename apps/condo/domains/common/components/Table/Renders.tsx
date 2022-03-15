@@ -3,7 +3,6 @@ import { Typography } from 'antd'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
 import isBoolean from 'lodash/isBoolean'
 import { FilterValue } from 'antd/es/table/interface'
 
@@ -183,62 +182,22 @@ export const renderMeterReading = (values: string[], resourceId: string, measure
     return `${getIntegerPartOfReading(values[0])} ${measure}`
 }
 
-const dimText = (text: string, extraStyles: React.CSSProperties = {}) => (
-    <Typography.Text type={'secondary'} style={extraStyles}>
+const dimText = (text: string, index: number) => (
+    <Typography.Text type={'secondary'} key={index}>
         {text}
     </Typography.Text>
 )
 
-const renderMoney = (formattedValue: Intl.NumberFormatPart[]) => {
-    const prefix = []
-    const decimalAndFraction = []
-    const postfix = []
-
-    let decimalAndFractionProcessedFlag = false
-
-    formattedValue.forEach(token => {
-        switch (token.type) {
-            case 'decimal':
-            case 'fraction':
-                decimalAndFraction.push(token.value)
-                decimalAndFractionProcessedFlag = true
-                break
-            default:
-                if (decimalAndFractionProcessedFlag) {
-                    postfix.push(token.value)
-                } else {
-                    prefix.push(token.value)
-                }
-        }
-    })
-
-    return (<>
-        {prefix.join('')}
-        {dimText(decimalAndFraction.join(''))}
-        {postfix.join('')}
-    </>)
-}
-
 export const getMoneyRender = (
-    search: string,
     intl,
     currencyCode = DEFAULT_CURRENCY_CODE
 ) => {
     return function render (text: string): RenderReturnType {
         if (!text) return <EmptyTableCell/>
+        const formattedParts = intl.formatNumberToParts(parseFloat(text), { style: 'currency', currency: currencyCode })
 
-        const formattedCurrency = intl.formatNumberToParts(parseFloat(text), { style: 'currency', currency: currencyCode })
-
-        if (isEmpty(search)) return renderMoney(formattedCurrency)
-
-        return (
-            <>
-                <TextHighlighter
-                    text={text}
-                    search={search}
-                    renderPart={() => renderMoney(formattedCurrency)}
-                />
-            </>
-        )
+        return formattedParts.map((part, index) => {
+            return ['fraction', 'decimal'].includes(part.type) ? dimText(part.value, index) : part.value
+        })
     }
 }

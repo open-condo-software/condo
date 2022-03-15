@@ -78,7 +78,7 @@ export function usePaymentsTableColumns (currencyCode: string): Record<string, u
                 title: paymentAmountTitle,
                 key: 'amount',
                 dataIndex: 'amount',
-                render: getMoneyRender(String(search), intl, currencyCode),
+                render: getMoneyRender(intl, currencyCode),
                 width: '144px',
                 sorter: true,
             },

@@ -30,7 +30,7 @@ export const MoneyBlock: React.FC<IMoneyBlockProps> = ({
 }) => {
     const intl = useIntl()
     const render = useMemo(() => {
-        return getMoneyRender(undefined, intl, currencyCode)
+        return getMoneyRender(intl, currencyCode)
     }, [intl, currencyCode])
 
     const isPositive = amount && Big(amount).gt(0)
