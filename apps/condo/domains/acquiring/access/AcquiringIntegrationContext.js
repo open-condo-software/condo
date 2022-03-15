@@ -32,8 +32,9 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
 /**
  * Acquiring integration context may only be created by:
  * 1. Admin
- * 2. Organization integration manager
+ * 2. Organization integration manager (See field access, manager can update only a small set of fields)
  * 3. Integration service user
+ * 4. Support
  *
  * Acquiring integration context may only be updated by:
  * 1. Admin
@@ -44,7 +45,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     let organizationId, integrationId
 
@@ -54,7 +55,6 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
         integrationId = get(originalInput, ['integration', 'connect', 'id'])
         if (!organizationId || !integrationId) return false
     } else if (operation === 'update') {
-        if (user.isSupport) return true
         // getting ids from existing object
         if (!itemId) return false
         const context = await getById('AcquiringIntegrationContext', itemId)

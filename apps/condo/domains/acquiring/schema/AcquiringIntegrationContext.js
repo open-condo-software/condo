@@ -11,6 +11,8 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
 const dayjs = require('dayjs')
+const { ORGANIZATION_OWNED_FIELD } = require(
+    '@condo/domains/organization/schema/fields')
 const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
@@ -26,17 +28,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
 
         integration: ACQUIRING_INTEGRATION_FIELD,
 
-        organization: {
-            schemaDoc: 'Service provider (organization)',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
-            access: {
-                update: false,
-            },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         settings: {
             schemaDoc: 'Settings that are required for acquiring to work properly. The data structure depends on the integration and defined here',
@@ -58,17 +50,16 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     hasValidJsonStructure(args, true, 1, {})
                 },
             },
-            access: {
-
-            }
         },
 
+        // PaymentsAllowedFrom can only be set up by support manager
         paymentsAllowedFrom: {
             schemaDoc: 'Datetime from which you are allowed to pay from this acquiring',
             type: DateTimeUtc,
             isRequired: false,
         },
-        
+
+        // paymentsAllowedTo can only be set up by support manager
         paymentsAllowedTo: {
             schemaDoc: 'Datetime to which you are allowed to pay from this acquiring',
             type: DateTimeUtc,
