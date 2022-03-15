@@ -66,7 +66,8 @@ const Ticket = new GQLListSchema('Ticket', {
         reviewValue: {
             schemaDoc: 'Review of the ticket by a resident on a 2-point scale',
             type: Select,
-            options: Object.keys(TICKET_REVIEW_VALUES).join(','),
+            dataType: 'string',
+            options: ['good', 'bad'],
         },
         reviewComment: {
             schemaDoc: 'Resident\'s comment on ticket review',
