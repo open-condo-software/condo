@@ -28,7 +28,6 @@ const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/c
 const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const {
-    LOCK_TIMEOUT,
     SMS_CODE_LENGTH,
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
@@ -48,8 +47,7 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
             hooks: {
                 resolveInput: ({ resolvedData }) => {
                     if (resolvedData['phone']) {
-                        const normalizedPhone = normalizePhone(resolvedData['phone'])
-                        return normalizedPhone
+                        return normalizePhone(resolvedData['phone'])
                     }
                 },
             },
@@ -281,8 +279,6 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (isEmpty(actions)) {
                     throw new Error(`${CONFIRM_PHONE_ACTION_EXPIRED}] unable to find confirm phone action`)
                 }
-                await redisGuard.checkLock(token, 'confirm')
-                await redisGuard.lock(token, 'confirm', LOCK_TIMEOUT)
                 const { id, smsCode: actionSmsCode, retries, smsCodeExpiresAt } = actions[0]
                 const isExpired = (new Date(smsCodeExpiresAt) < new Date(now))
                 if (isExpired) {
