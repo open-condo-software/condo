@@ -207,6 +207,11 @@ export const pageHeaderCss = css`
   background: ${colors.white};
 `
 
+export const spacedPageHeaderCss = css`
+  padding: 0 0 60px;
+  background: ${colors.white};
+`
+
 export const pageContentCss = css`
   flex-grow: 1;
   max-width: 1200px;
