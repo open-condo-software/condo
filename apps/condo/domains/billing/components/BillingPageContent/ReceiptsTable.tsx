@@ -45,8 +45,12 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const { isSmall } = useLayoutContext()
 
     const contextPeriod = get(context, ['lastReport', 'period'], null)
-    const separator = get(context, ['integration', 'currency', 'displayInfo', 'delimiterNative'], '.')
-    const toPayFilter = getDecimalMoneyFilter('toPay', separator)
+    const currencyCode = get(context, ['integration', 'currencyCode'], 'RUB')
+
+    const formattedNumber = intl.formatNumberToParts('123.45', { style: 'currency', currency: currencyCode })
+    const decimal = get(formattedNumber.filter(part => part.type === 'decimal'), ['0', 'value'], '.')
+
+    const toPayFilter = getDecimalMoneyFilter('toPay', decimal)
     const queryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
         ...staticQueryMetas,
         { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
@@ -68,8 +72,6 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
 
     const [search, handleSearchChange] = useSearch(loading)
     const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
-
-    const currencyCode = get(context, ['integration', 'currencyCode'], 'RUB')
 
     let hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)
     let hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
