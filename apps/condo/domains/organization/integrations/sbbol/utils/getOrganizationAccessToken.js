@@ -27,7 +27,7 @@ async function getClientSecret (organizationImportId) {
  * @return {Promise<SbbolOauth2Api>}
  */
 async function initializeSbbolAuthApi () {
-    const clientSecret = getClientSecret(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
+    const clientSecret = await getClientSecret(SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
 
     return new SbbolOauth2Api({
         clientSecret,
