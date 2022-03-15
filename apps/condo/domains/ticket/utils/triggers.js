@@ -46,7 +46,7 @@ const triggerTicketEventActions = async ({ operation, existingItem, updatedItem,
         })
     }
 
-    if (false && isExecutorConnected) {
+    if (isExecutorConnected) {
         await sendMessage(context, {
             lang,
             to: { user: { id: nextExecutorId || prevExecutorId } },
@@ -61,7 +61,9 @@ const triggerTicketEventActions = async ({ operation, existingItem, updatedItem,
         })
     }
 
-    console.log('triggerTicketEventActions:', { operation, isStatusChanged, prevStatusId, nextStatusId })
+    if (isStatusChanged) {
+        // TODO(DOMA-2434): Add logic for sending notifications to resident on ticket status change
+    }
 }
 
 module.exports = {
