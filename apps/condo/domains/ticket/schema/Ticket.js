@@ -323,7 +323,7 @@ const Ticket = new GQLListSchema('Ticket', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
-            await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
+            await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey, context }, context)
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
             const statusId = get(resolvedData, 'status')
@@ -333,20 +333,8 @@ const Ticket = new GQLListSchema('Ticket', {
                 addOrderToTicket(resolvedData, statusId)
             }
 
-            if (userType === RESIDENT) {
-                const currentStatusId = get(existingItem, 'status')
-
-                if (operation === 'create') {
-                    await addClientInfoToResidentTicket(context, resolvedData)
-                }
-                else if (operation === 'update' && currentStatusId === STATUS_IDS.COMPLETED) {
-                    // Если есть оценка и текущий статус "выполнена" – переводим в закрытый статус
-                    const ticketReview = get(resolvedData, 'reviewValue')
-
-                    if (ticketReview) {
-                        resolvedData['status'] = STATUS_IDS.CLOSED
-                    }
-                }
+            if (userType === RESIDENT && operation === 'create') {
+                await addClientInfoToResidentTicket(context, resolvedData)
             }
 
             const newItem = { ...existingItem, ...resolvedData }
