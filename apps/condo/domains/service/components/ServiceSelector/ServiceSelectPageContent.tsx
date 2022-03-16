@@ -2,9 +2,11 @@ import React from 'react'
 import { Typography, Row, Col } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
+import Carousel from '@condo/domains/common/components/Carousel'
 import { Section } from './Section'
 import { CardsContainer } from './CardsContainer'
 import { ServiceSelectCard } from './ServiceSelectCard'
+import { ServiceCarouselCard } from './ServiceCarouselCard'
 
 export const ServiceSelectPageContent: React.FC = () => {
     // TODO(2420): Add employee rights check
@@ -16,8 +18,14 @@ export const ServiceSelectPageContent: React.FC = () => {
     const AvailableSectionTitle = intl.formatMessage({ id: 'services.Available' })
 
     // TODO(2420): Add logic
-    const isAnyServiceConnected = false
+    const isAnyServiceConnected = true
 
+
+    // TODO(remove)
+    const contentStyle = {
+        height: 160,
+        margin: 0,
+    }
 
     return (
         <>
@@ -27,7 +35,17 @@ export const ServiceSelectPageContent: React.FC = () => {
                     isAnyServiceConnected &&
                     <Col span={24}>
                         <Section title={AlreadyConnectedSectionTitle}>
-                            Секция ПОДКЛЮЧЕНО
+                            <Carousel>
+                                {/*<ServiceCarouselCard logoSrc={'https://logo.clearbit.com/shopify.com'}>*/}
+
+                                {/*</ServiceCarouselCard>*/}
+                                <h3 style={contentStyle}>1</h3>
+                                <h3 style={contentStyle}>2</h3>
+                                <h3 style={contentStyle}>3</h3>
+                                <h3 style={contentStyle}>4</h3>
+                                <h3 style={contentStyle}>5</h3>
+                                <h3 style={contentStyle}>6</h3>
+                            </Carousel>
                         </Section>
                     </Col>
                 }
