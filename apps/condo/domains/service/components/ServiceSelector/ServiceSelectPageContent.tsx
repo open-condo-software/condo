@@ -5,7 +5,6 @@ import { PageHeader } from '@condo/domains/common/components/containers/BaseLayo
 import Carousel from '@condo/domains/common/components/Carousel'
 import { Section } from './Section'
 import { CardsContainer } from './CardsContainer'
-import { ServiceSelectCard } from './ServiceSelectCard'
 import { ServiceCarouselCard } from './ServiceCarouselCard'
 
 export const ServiceSelectPageContent: React.FC = () => {
@@ -20,13 +19,6 @@ export const ServiceSelectPageContent: React.FC = () => {
     // TODO(2420): Add logic
     const isAnyServiceConnected = true
 
-
-    // TODO(remove)
-    const contentStyle = {
-        height: 160,
-        margin: 0,
-    }
-
     return (
         <>
             <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} spaced/>
@@ -36,15 +28,44 @@ export const ServiceSelectPageContent: React.FC = () => {
                     <Col span={24}>
                         <Section title={AlreadyConnectedSectionTitle}>
                             <Carousel>
-                                {/*<ServiceCarouselCard logoSrc={'https://logo.clearbit.com/shopify.com'}>*/}
-
-                                {/*</ServiceCarouselCard>*/}
-                                <h3 style={contentStyle}>1</h3>
-                                <h3 style={contentStyle}>2</h3>
-                                <h3 style={contentStyle}>3</h3>
-                                <h3 style={contentStyle}>4</h3>
-                                <h3 style={contentStyle}>5</h3>
-                                <h3 style={contentStyle}>6</h3>
+                                <ServiceCarouselCard
+                                    logoSrc={'https://logo.clearbit.com/shopify.com'}
+                                    title={'Слушай, что-то я похоже очень большой текст'}
+                                    url={'https://www.shopify.com'}
+                                />
+                                <ServiceCarouselCard
+                                    logoSrc={'https://logo.clearbit.com/spotify.comssss'}
+                                    title={'Слушай, что-то я похоже очень большой текст'}
+                                    url={'https://www.google.com'}
+                                />
+                                <ServiceCarouselCard
+                                    logoSrc={'https://logo.clearbit.com/spotify.com'}
+                                    title={'Слушай, что-то я похоже очень большой текст'}
+                                    url={'https://www.spotify.com'}
+                                />
+                                <ServiceCarouselCard
+                                    title={'Слушай, что-то я похоже очень большой текст'}
+                                    url={'/settings?tab=billing'}
+                                />
+                                <ServiceCarouselCard
+                                    logoSrc={'https://logo.clearbit.com/shopify.com'}
+                                    title={'Слушай, что-то я похоже очень большой текст'}
+                                    url={'https://www.shopify.com'}
+                                />
+                                <ServiceCarouselCard
+                                    logoSrc={'https://logo.clearbit.com/spotify.comssss'}
+                                    title={'Слушай, что-то я похоже очень большой текст'}
+                                    url={'https://www.google.com'}
+                                />
+                                <ServiceCarouselCard
+                                    logoSrc={'https://logo.clearbit.com/spotify.com'}
+                                    title={'Слушай, что-то я похоже очень большой текст'}
+                                    url={'https://www.spotify.com'}
+                                />
+                                <ServiceCarouselCard
+                                    title={'Слушай, что-то я похоже очень большой текст'}
+                                    url={'/settings?tab=billing'}
+                                />
                             </Carousel>
                         </Section>
                     </Col>
@@ -52,7 +73,7 @@ export const ServiceSelectPageContent: React.FC = () => {
                 <Col span={24}>
                     <Section title={AvailableSectionTitle} hideTitle={!isAnyServiceConnected}>
                         <CardsContainer>
-                            <ServiceSelectCard/>
+                            {/*<ServiceSelectCard/>*/}
                             <div>2<br/>2.2</div>
                             <div>3</div>
                             <div>4</div>
