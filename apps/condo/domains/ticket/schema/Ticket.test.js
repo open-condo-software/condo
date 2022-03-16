@@ -233,6 +233,30 @@ describe('Ticket', () => {
             expect(updatedTicket.status.id).toEqual(STATUS_IDS.CLOSED)
         })
 
+        test('employee: update statusReopenedCounter when update status from completed to open', async () => {
+            const userClient = await makeClientWithProperty()
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            expect(ticket.id).toEqual(updatedTicket.id)
+            expect(updatedTicket.statusReopenedCounter).toEqual(1)
+
+            await updateTestTicket(userClient, ticket.id, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+            const [againUpdatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            expect(againUpdatedTicket.statusReopenedCounter).toEqual(2)
+        })
+
         test('resident: cannot update his Ticket fields other than accessibleUpdatedFields', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
