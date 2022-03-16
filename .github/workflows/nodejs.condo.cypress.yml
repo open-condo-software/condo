@@ -67,8 +67,6 @@ jobs:
           yarn workspace @app/condo start &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
 
-          yarn workspace @app/condo makemigrations --check &> /dev/null
-
       - name: run cypress tests
         run: |
           yarn workspace @app/condo cypress run --record --key ad9117c5-f6c2-4543-912a-c9076c7f66aa

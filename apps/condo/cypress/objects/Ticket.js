@@ -37,8 +37,10 @@ class TicketCreate {
     }
 
     chooseAddressForTicket () {
-        cy.get('[data-cy=property-address-search-option]')
-            .click()
+        cy.get('[data-cy=property-address-search-option', {
+            timeout: 5000,
+        }).should('be.visible')
+        cy.get('[data-cy=property-address-search-input-item] input').click().type('{downArrow}').type('{enter}')
         return this
     }
 
@@ -194,7 +196,7 @@ class TicketEdit {
  */
     visit () {
         cy.visit(TICKET_VIEW_URL)
-        cy.wait('@getAllTicketClassifierRules')
+        cy.wait('@getAllTickets')
 
         cy.get('[data-cy=tickets-table] tbody tr').first().trigger('click')
         cy.location('pathname').should('not.eq', TICKET_VIEW_URL)
