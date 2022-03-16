@@ -67,10 +67,9 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
                 // and "create" action should not be performed.
                 // In case of violation of unique constraint on `Contact` table,
                 // be silent for a user, but make a record in log.
-                if (e.message.match('Contact_uniq')) {
-                    console.error(e)
-                } else {
-                    console.error(e)
+                console.error(e)
+                if (!e.message.match('Contact_uniq')) {
+                    throw e
                 }
             }
         }
