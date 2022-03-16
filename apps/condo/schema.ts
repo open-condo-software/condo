@@ -442,12 +442,18 @@ export type AcquiringIntegrationContext = {
   sender?: Maybe<SenderField>;
   /**  Acquiring integration. Determines way of user's payment  */
   integration?: Maybe<AcquiringIntegration>;
-  /**  Service provider (organization)  */
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Settings that are required for acquiring to work properly. The data structure depends on the integration and defined here  */
   settings?: Maybe<Scalars['JSON']>;
   /**  The current state of the integration process. Some integration need to store past state here, additional data and etc.  */
   state?: Maybe<Scalars['JSON']>;
+  /**  Datetime from which you are allowed to pay from this acquiring  */
+  paymentsAllowedFrom?: Maybe<Scalars['String']>;
+  /**  Datetime to which you are allowed to pay from this acquiring  */
+  paymentsAllowedTo?: Maybe<Scalars['String']>;
+  /**  Alias for (paymentsAllowedFrom < datetime.now() < paymentsAllowedTo)  */
+  isPaymentsAllowed?: Maybe<Scalars['Boolean']>;
   /**  Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored  */
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   id: Scalars['ID'];
@@ -467,6 +473,8 @@ export type AcquiringIntegrationContextCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  paymentsAllowedFrom?: Maybe<Scalars['String']>;
+  paymentsAllowedTo?: Maybe<Scalars['String']>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -494,6 +502,9 @@ export type AcquiringIntegrationContextHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  paymentsAllowedFrom?: Maybe<Scalars['String']>;
+  paymentsAllowedTo?: Maybe<Scalars['String']>;
+  isPaymentsAllowed?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -515,6 +526,9 @@ export type AcquiringIntegrationContextHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  paymentsAllowedFrom?: Maybe<Scalars['String']>;
+  paymentsAllowedTo?: Maybe<Scalars['String']>;
+  isPaymentsAllowed?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -541,6 +555,9 @@ export type AcquiringIntegrationContextHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  paymentsAllowedFrom?: Maybe<Scalars['String']>;
+  paymentsAllowedTo?: Maybe<Scalars['String']>;
+  isPaymentsAllowed?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -585,6 +602,26 @@ export type AcquiringIntegrationContextHistoryRecordWhereInput = {
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  paymentsAllowedFrom?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_not?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_lt?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_lte?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_gt?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_gte?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentsAllowedFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentsAllowedTo?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_not?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_lt?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_lte?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_gt?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_gte?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentsAllowedTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isPaymentsAllowed?: Maybe<Scalars['JSON']>;
+  isPaymentsAllowed_not?: Maybe<Scalars['JSON']>;
+  isPaymentsAllowed_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  isPaymentsAllowed_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -682,6 +719,8 @@ export type AcquiringIntegrationContextUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  paymentsAllowedFrom?: Maybe<Scalars['String']>;
+  paymentsAllowedTo?: Maybe<Scalars['String']>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -719,6 +758,22 @@ export type AcquiringIntegrationContextWhereInput = {
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  paymentsAllowedFrom?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_not?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_lt?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_lte?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_gt?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_gte?: Maybe<Scalars['String']>;
+  paymentsAllowedFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentsAllowedFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentsAllowedTo?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_not?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_lt?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_lte?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_gt?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_gte?: Maybe<Scalars['String']>;
+  paymentsAllowedTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentsAllowedTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   implicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   implicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
@@ -5559,7 +5614,7 @@ export type BillingReceipt = {
   services?: Maybe<Array<BillingReceiptServiceField>>;
   /**  Billing account recipient. Should contain all meta information to identify the organization  */
   recipient?: Maybe<BillingReceiptsRecipientField>;
-  /**  Integration context  */
+  /**  Relation to the BillingRecipient. Going to override recipient field, has the same meaning  */
   receiver?: Maybe<BillingRecipient>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -29164,6 +29219,10 @@ export enum SortAcquiringIntegrationAccessRightsBy {
 export enum SortAcquiringIntegrationContextHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  PaymentsAllowedFromAsc = 'paymentsAllowedFrom_ASC',
+  PaymentsAllowedFromDesc = 'paymentsAllowedFrom_DESC',
+  PaymentsAllowedToAsc = 'paymentsAllowedTo_ASC',
+  PaymentsAllowedToDesc = 'paymentsAllowedTo_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -29187,6 +29246,10 @@ export enum SortAcquiringIntegrationContextsBy {
   IntegrationDesc = 'integration_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  PaymentsAllowedFromAsc = 'paymentsAllowedFrom_ASC',
+  PaymentsAllowedFromDesc = 'paymentsAllowedFrom_DESC',
+  PaymentsAllowedToAsc = 'paymentsAllowedTo_ASC',
+  PaymentsAllowedToDesc = 'paymentsAllowedTo_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
