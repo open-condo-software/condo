@@ -20,16 +20,11 @@ class TicketCreate {
 
     visit () {
         cy.visit(TICKET_CREATE_URL)
-        cy.wait('@getAllContacts')
-        return this
-    }
-
-    chooseOrganization () {
-        cy.get('[data-cy=organization-select-item]').click()
         return this
     }
 
     clickAndInputAddress (address) {
+        cy.wait('@getAllContacts')
         cy.get('[data-cy=property-address-search-input-item] input')
             .click({ force: true })
             .focus()
