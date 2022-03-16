@@ -50,20 +50,29 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     hasValidJsonStructure(args, true, 1, {})
                 },
             },
+            access: {
+                update: access.canManageOnlyIfIntegrationServiceUser,
+            },
         },
 
-        // PaymentsAllowedFrom can only be set up by support manager
         paymentsAllowedFrom: {
             schemaDoc: 'Datetime from which you are allowed to pay from this acquiring',
             type: DateTimeUtc,
             isRequired: false,
+            access: {
+                create: access.canManageOnlyIfSupport,
+                update: access.canManageOnlyIfSupport,
+            },
         },
 
-        // paymentsAllowedTo can only be set up by support manager
         paymentsAllowedTo: {
             schemaDoc: 'Datetime to which you are allowed to pay from this acquiring',
             type: DateTimeUtc,
             isRequired: false,
+            access: {
+                create: access.canManageOnlyIfSupport,
+                update: access.canManageOnlyIfSupport,
+            },  
         },
         
         isPaymentsAllowed: {
@@ -83,6 +92,10 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
             isRequired: false,
             schemaDoc: 'Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored',
+            access: {
+                create: access.canManageOnlyIfSupport,
+                update: access.canManageOnlyIfSupport,
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],

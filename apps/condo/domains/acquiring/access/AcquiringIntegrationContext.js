@@ -72,14 +72,18 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
 
 
 /**
- * Sensitive fields in acquiring integration context may only be managed by:
- * 1. Admin
- * 2. Integration service user
+ * Some sensitive fields could only be managed by Support
  */
-async function canManageSensitiveAcquiringIntegrationContextFields ({ authentication: { item: user } }) {
-    return !user.isSupport
+async function canManageOnlyIfSupport ({ authentication: { item: user } }) {
+    return user.isSupport || user.isAdmin
 }
 
+/**
+ * Some sensitive fields could only be managed by Integration service user,
+ */
+async function canManageOnlyIfIntegrationServiceUser ({ authentication: { item: user } }) {
+    return user.isAdmin || !user.isSupport
+}
 
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
@@ -88,5 +92,6 @@ async function canManageSensitiveAcquiringIntegrationContextFields ({ authentica
 module.exports = {
     canReadAcquiringIntegrationContexts,
     canManageAcquiringIntegrationContexts,
-    canManageSensitiveAcquiringIntegrationContextFields,
+    canManageOnlyIfSupport,
+    canManageOnlyIfIntegrationServiceUser,
 }
