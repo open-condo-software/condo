@@ -345,11 +345,6 @@ const Ticket = new GQLListSchema('Ticket', {
                     if (ticketReview) {
                         resolvedData['status'] = STATUS_IDS.CLOSED
                     }
-
-                    if (resolvedStatusId === STATUS_IDS.OPEN) {
-                        const existedStatusReopenedCounter = existingItem['statusReopenedCounter']
-                        resolvedData['statusReopenedCounter'] = existedStatusReopenedCounter + 1
-                    }
                 }
             }
 
