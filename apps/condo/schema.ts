@@ -14714,6 +14714,7 @@ export type Mutation = {
    * }`
    */
   updateResidentTicket?: Maybe<ResidentTicketOutput>;
+  reopenTicket?: Maybe<ReopenTicketOutput>;
   /**
    * Sends message of specified type to specified contact
    *
@@ -18375,6 +18376,11 @@ export type MutationCreateResidentTicketArgs = {
 export type MutationUpdateResidentTicketArgs = {
   id?: Maybe<Scalars['ID']>;
   data?: Maybe<ResidentTicketUpdateInput>;
+};
+
+
+export type MutationReopenTicketArgs = {
+  data: ReopenTicketInput;
 };
 
 
@@ -26735,6 +26741,17 @@ export type RegisterServiceConsumerInput = {
 
 export type RegisterServiceConsumerInputExtra = {
   paymentCategory?: Maybe<Scalars['String']>;
+};
+
+export type ReopenTicketInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  ticketId: Scalars['ID'];
+};
+
+export type ReopenTicketOutput = {
+  __typename?: 'ReopenTicketOutput';
+  id?: Maybe<Scalars['ID']>;
 };
 
 export type ResendConfirmPhoneActionSmsInput = {
