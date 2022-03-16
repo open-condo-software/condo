@@ -29,6 +29,14 @@ const ArrowCircle = styled.div<ArrowCircleProps>`
   background: ${colors.white};
   cursor: pointer;
   ${(props) => props.type === 'next' ? 'right' : 'left'}: -32px;
+  transition-property: color, border;
+  transition-duration: .3s;
+  transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  z-index: 9;
+  &:hover {
+    border: 1px solid ${colors.blue[4]};
+    color: ${colors.blue[4]};
+  }
 `
 
 const IconHolder = styled.div<ArrowButtonTypeProp>`
