@@ -15,6 +15,7 @@ const DV_VERSION_MISMATCH = 'DV_VERSION_MISMATCH'
 const DV_UNKNOWN_VERSION_ERROR = '[dv:unknownDataVersion:'
 const STATUS_UPDATED_AT_ERROR = '[dv:incorrectStatusUpdatedAt:'
 
+const PROPERTY_REQUIRED_ERROR = '[property:is:empty'
 const ALREADY_EXISTS_ERROR = '[constrain:alreadyExists:'
 const NOT_FOUND_ERROR = '[constrain:notFound:' // TODO(antonal): replace to `NOT_FOUND` across entire project
 const NOT_FOUND = 'NOT_FOUND'
@@ -60,4 +61,5 @@ module.exports = {
     WRONG_FORMAT,
     WRONG_VALUE,
     UNKNOWN_ATTRIBUTE,
+    PROPERTY_REQUIRED_ERROR,
 }

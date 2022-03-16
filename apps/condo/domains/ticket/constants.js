@@ -9,6 +9,8 @@ const COMPLETED_STATUS_TYPE = 'completed'
 const DEFERRED_STATUS_TYPE = 'deferred'
 const CLOSED_STATUS_TYPE = 'closed'
 
+const EMPTY_PROPERTY_ERROR = '[ticket:empty:property'
+
 const TICKET_STATUS_TYPES = [
     NEW_OR_REOPENED_STATUS_TYPE,
     PROCESSING_STATUS_TYPE,
@@ -43,4 +45,5 @@ module.exports = {
     CLOSED_STATUS_TYPE,
     TICKET_STATUS_TYPES,
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS,
+    EMPTY_PROPERTY_ERROR,
 }

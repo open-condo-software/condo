@@ -30,11 +30,11 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { USER_TYPES } from '@condo/domains/user/constants/common'
 import { RESIDENT } from '@condo/domains/user/constants/common'
+const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
 
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
-
 const { TabPane } = Tabs
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
@@ -331,6 +331,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const initialCanReadByResidentValue = useMemo(() => get(initialValues, 'canReadByResident', true), [initialValues])
     const isResidentTicket = useMemo(() => get(initialValues, ['createdBy', 'type']) === RESIDENT, [initialValues])
+    const ErrorToFormFieldMsgMapping = {
+        [PROPERTY_REQUIRED_ERROR]: {
+            name: 'property',
+            errors: [AddressNotSelected],
+        },
+    }
 
     return (
         <>
@@ -344,6 +350,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                     values.unitType = selectedUnitTypeRef.current
                     return values
                 }}
+                ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
             >
                 {({ handleSave, isLoading, form }) => (
                     <>
