@@ -788,7 +788,7 @@ describe('MultiPayment', () => {
                 expect(multiPayment).toHaveProperty('transactionId', transactionId)
                 expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_WITHDRAWN_STATUS)
 
-                // Stage 3. On next day after Settlement bank complete payments, acquiring integration account setting everything to done
+                // Stage 3. On next day after Settlement bank complete payments, acquiring integration account sets everything to done
                 for (const payment of payments) {
                     const advancedAt = dayjs().toISOString()
                     const updatedPayment = await Payment.update(integrationClient, payment.id, {

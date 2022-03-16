@@ -162,7 +162,6 @@ async function createTestAcquiringIntegrationContext (client, organization, inte
         settings,
         state,
         ...extraAttrs,
-        implicitFeeDistributionSchema: getRandomImplicitFeeDistribution(),
     }
     const obj = await AcquiringIntegrationContext.create(client, attrs)
     return [obj, attrs]
@@ -395,7 +394,9 @@ async function makePayer (receiptsAmount = 1) {
     }
 
     const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
-    const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+    const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+        implicitFeeDistributionSchema: getRandomImplicitFeeDistribution()
+    })
 
     const [resident] = await createTestResident(admin, client.user, organization, property)
     const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization , {
@@ -457,7 +458,9 @@ async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmoun
         const property = result[i].property
         const billingAccount = result[i].billingAccount
         const billingContext = result[i].billingContext
-        const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+        const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+            implicitFeeDistributionSchema: getRandomImplicitFeeDistribution()
+        },)
         const [resident] = await createTestResident(admin, client.user, organization, property)
         const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization, {
             acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
@@ -579,5 +582,6 @@ module.exports = {
     PaymentsFilterTemplate,
     createTestPaymentsFilterTemplate,
     updateTestPaymentsFilterTemplate,
+    getRandomImplicitFeeDistribution,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

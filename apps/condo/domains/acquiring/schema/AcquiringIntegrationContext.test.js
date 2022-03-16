@@ -40,16 +40,16 @@ describe('AcquiringIntegrationContext', () => {
                 expect(context).toHaveProperty(['organization', 'id'], organization.id)
                 expect(context).toHaveProperty(['integration', 'id'], integration.id)
             })
-            test('support can\'t', async () => {
+            test('support can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
-
                 const support = await makeClientWithSupportUser()
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestAcquiringIntegrationContext(support, organization, integration)
-                })
+                const [context] = await createTestAcquiringIntegrationContext(support, organization, integration)
+                expect(context).toBeDefined()
+                expect(context).toHaveProperty(['organization', 'id'], organization.id)
+                expect(context).toHaveProperty(['integration', 'id'], integration.id)
             })
             describe('user', async () => {
                 test('can with if it\'s integration manager of organization (has `canManageIntegration`)', async () => {
@@ -258,7 +258,7 @@ describe('AcquiringIntegrationContext', () => {
                 expect(newContext).toBeDefined()
                 expect(newContext.integration.id).toEqual(newIntegration.id)
             })
-            test('support can\'t', async () => {
+            test('support can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -268,11 +268,12 @@ describe('AcquiringIntegrationContext', () => {
 
                 const support = await makeClientWithSupportUser()
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestAcquiringIntegrationContext(support, context.id, {
-                        integration: { connect: { id: newIntegration.id } },
-                    })
-                })
+                const [newContext] = await updateTestAcquiringIntegrationContext(support, context.id, {
+                    integration: { connect: { id: newIntegration.id } },
+                } )
+
+                expect(newContext).toBeDefined()
+                expect(newContext.integration.id).toEqual(newIntegration.id)
             })
             describe('user', () => {
                 test('can if it\'s acquiring integration account', async () => {
