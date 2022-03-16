@@ -91,11 +91,8 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 dataIndex: ['toPay'],
                 sorter: true,
                 sortOrder: get(sorterMap, 'toPay'),
-                filteredValue: get(filters, 'toPay'),
                 width: detailed ? '13%' : '20%',
                 align: 'right',
-                filterIcon: getFilterIcon,
-                filterDropdown: getTextFilterDropdown(ToPayTitle),
                 render: getMoneyRender(intl, currencyCode),
             },
         }
