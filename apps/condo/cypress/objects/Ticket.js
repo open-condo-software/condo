@@ -211,7 +211,10 @@ class TicketEdit {
 
         cy.get('[data-cy=ticket-status-select]')
             .click()
-        cy.get('[data-cy=ticket-status-select-option]').first().click()
+        cy.wait('@getAllTicketClassifierRules')
+        cy.get('[data-cy=ticket-status-select-option]', {
+            timeout: 5000,
+        }).first().click()
 
         return this
     }
