@@ -8,7 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/contact/access/Contact')
-const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
+const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR, PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 
@@ -97,6 +97,10 @@ const Contact = new GQLListSchema('Contact', {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { property, unitName, name, phone } = newItem
+
+            if (operation === 'create' && !property) {
+                return addValidationError(`${ PROPERTY_REQUIRED_ERROR }] no property for contact`)
+            }
             const condition = {
                 property: { id: property },
                 name,

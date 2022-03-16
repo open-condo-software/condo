@@ -3,6 +3,8 @@ import { Contact } from '../../utils/clientSchema'
 import { ContactFields, ContactsEditor, IContactEditorProps } from './index'
 import { IContactUIState } from '../../utils/clientSchema/Contact'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
+const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
+
 
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
@@ -48,6 +50,10 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
 
     const createContact = async (organization, property, unitName) => {
         if (shouldCreateContactRef.current) {
+            // property is a required field for contact creation
+            if (!property) {
+                throw new Error(`${PROPERTY_REQUIRED_ERROR}] no property selected for contact`)
+            }
             try {
                 return await createContactAction({
                     phone: contactFieldsRef.current.phone,
@@ -64,7 +70,7 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
                 if (e.message.match('Contact_uniq')) {
                     console.error(e)
                 } else {
-                    throw (e)
+                    console.error(e)
                 }
             }
         }
