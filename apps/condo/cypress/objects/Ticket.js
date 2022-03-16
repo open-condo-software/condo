@@ -24,7 +24,11 @@ class TicketCreate {
     }
 
     clickAndInputAddress (address) {
-        cy.wait('@getAllContacts')
+        cy.get('[data-cy=property-address-search-input-item] input', {
+            timeout: 5000,
+        }).should('be.visible')
+        cy.wait('@getAllProperties')
+
         cy.get('[data-cy=property-address-search-input-item] input')
             .click({ force: true })
             .focus()
