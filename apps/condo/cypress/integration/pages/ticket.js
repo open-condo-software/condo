@@ -4,7 +4,6 @@ import faker from 'faker'
 import { TicketCreate, TicketView, TicketEdit } from '../../objects/Ticket'
 
 const authUserWithCookies = (userData) => {
-    cy.clearCookies()
     cy.setCookie('locale', 'en')
     cy.setCookie('keystone.sid', userData.cookie.replace('keystone.sid=', ''))
     cy.setCookie('organizationLinkId', userData.organizationLinkId)
@@ -13,56 +12,65 @@ const authUserWithCookies = (userData) => {
 describe('Ticket create',  function () {
     describe('User', function () {
         beforeEach(() => {
-            cy.task('keystone:createUserWithProperty').then((response) => {
-                this.userData = response
-                authUserWithCookies(response)
-            })
+            cy.clearCookies()
         })
 
         it('can create ticket',  () => {
-            const { address: propertyAddress, map: propertyMap } = this.userData.property
-            const propertyUnits = propertyMap.sections
-                .map(section => section.floors.map(floor => floor.units.map(unit => unit.label))).flat(2)
+            cy.task('keystone:createUserWithProperty').then((response) => {
+                authUserWithCookies(response)
+                const { address: propertyAddress, map: propertyMap } = response.property
+                const propertyUnits = propertyMap.sections
+                    .map(section => section.floors.map(floor => floor.units.map(unit => unit.label))).flat(2)
 
-            const ticketCreate = new TicketCreate()
-            ticketCreate
-                .visit()
-                .clickAndInputAddress(propertyAddress)
-                .chooseAddressForTicket()
-                .clickAndInputUnitName(sample(propertyUnits))
-                .chooseUnitName()
-                .clickAndInputDescription(faker.lorem.sentence(3))
-                .selectProblemWithCategoryClassifier()
-                .clickOnSubmitButton()
+                const ticketCreate = new TicketCreate()
+                ticketCreate
+                    .visit()
+                    .clickAndInputAddress(propertyAddress)
+                    .chooseAddressForTicket()
+                    .clickAndInputUnitName(sample(propertyUnits))
+                    .chooseUnitName()
+                    .clickAndInputDescription(faker.lorem.sentence(3))
+                    .selectProblemWithCategoryClassifier()
+                    .clickOnSubmitButton()
+            })
         })
 
         it('can view and filter tickets with table', () => {
-            cy.task('keystone:createTickets', this.userData).then(() => {
-                const { address: propertyAddress } = this.userData.property
+            cy.task('keystone:createUserWithProperty').then((response) => {
+                authUserWithCookies(response)
 
-                const ticketView = new TicketView()
-                ticketView
-                    .visit()
-                    .clickIsWarrantyCheckbox()
-                    .clickIsPaidCheckbox()
-                    .clickIsEmergencyCheckbox()
-                    .clickOnGlobalFiltersButton()
-                    .typeAddressSearchInput(propertyAddress)
+                cy.task('keystone:createTickets', response).then(() => {
+                    const { address: propertyAddress } = response.property
+
+                    const ticketView = new TicketView()
+                    ticketView
+                        .visit()
+                        .clickIsWarrantyCheckbox()
+                        .clickIsPaidCheckbox()
+                        .clickIsEmergencyCheckbox()
+                        .clickOnGlobalFiltersButton()
+                        .typeAddressSearchInput(propertyAddress)
+                })
             })
         })
 
         it('can view and edit ticket', () => {
-            cy.task('keystone:createTickets', this.userData).then(() => {
-                const ticketEdit = new TicketEdit()
-                ticketEdit
-                    .visit()
-                    .changeTicketStatus()
-                    .clickUpdateTicketLink()
-                    .clickProblemClassifier()
-                    .clickTicketDeadline()
-                    .clickAssigneeInput()
-                    .clickApplyChanges()
+            cy.task('keystone:createUserWithProperty').then((response) => {
+                authUserWithCookies(response)
+
+                cy.task('keystone:createTickets', response).then(() => {
+                    const ticketEdit = new TicketEdit()
+                    ticketEdit
+                        .visit()
+                        .changeTicketStatus()
+                        .clickUpdateTicketLink()
+                        .clickProblemClassifier()
+                        .clickTicketDeadline()
+                        .clickAssigneeInput()
+                        .clickApplyChanges()
+                })
             })
+
         })
     })
 })
