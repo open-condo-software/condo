@@ -55,7 +55,7 @@ jobs:
           set -x
           cp .env.example .env
           echo 'NODE_ENV=test' >> .env
-          export NODE_ENV=test
+          export NODE_ENV=development
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
           export NOTIFICATION__DISABLE_LOGGING=true
           export WORKER_CONCURRENCY=50
@@ -71,7 +71,7 @@ jobs:
 
       - name: run cypress tests
         run: |
-          yarn workspace @app/condo cypress run --headless
+          yarn workspace @app/condo cypress run --record --key ad9117c5-f6c2-4543-912a-c9076c7f66aa
 
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
