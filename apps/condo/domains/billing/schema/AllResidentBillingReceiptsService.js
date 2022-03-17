@@ -81,7 +81,8 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                     throw new Error('Invalid user id!')
                 }
 
-                // We can't really use getting service consumer with all access here, since we do not show billingAccount to our user
+                // Step 1: Get all service consumers available for user, and specified in query
+                // NOTE: We can't really use getting service consumer with all access here, since we do not show billingAccount to our user
                 const GET_ONLY_OWN_SERVICE_CONSUMER_WHERE = { user: { id: userId } }
                 if (!serviceConsumerWhere.resident) {
                     serviceConsumerWhere.resident = GET_ONLY_OWN_SERVICE_CONSUMER_WHERE
@@ -91,13 +92,15 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                     serviceConsumerWhere.deletedAt = null
                 }
 
+                // Step 1.1: Select only payable (isPaymentsAllowed == true) consumers with billing account
                 const serviceConsumers = (await find('ServiceConsumer', serviceConsumerWhere))
                     .filter(consumer => get(consumer, 'billingAccount'))
+                    .filter(consumer => get(consumer, ['acquiringIntegrationContext', 'isPaymentsAllowed']))
                 if (!Array.isArray(serviceConsumers) || !serviceConsumers.length) {
                     return []
                 }
 
-
+                // Step 2: Get all billing receipts for all consumers
                 const processedReceipts = []
                 for (const serviceConsumer of serviceConsumers) {
 
@@ -115,34 +118,32 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                         }
                     )
 
+                    // Step 2.1 Get only receipts with approved recipients
                     for (const receiptForConsumer of receiptsForConsumer) {
 
-                        const receiptOrganizationId = get(receiptForConsumer, ['organization', 'id'])
-                        const acquiringIntegrationContext = await find('AcquiringIntegrationContext', {
-                            organization: { id: receiptOrganizationId },
-                            deletedAt: false,
-                        })
-
-                        if (get(acquiringIntegrationContext, 'isPaymentsAllowed')) {
-                            processedReceipts.push(
-                                {
-                                    id: receiptForConsumer.id,
-                                    dv: receiptForConsumer.dv,
-                                    recipient: receiptForConsumer.recipient,
-                                    receiver: receiptForConsumer.receiver,
-                                    period: receiptForConsumer.period,
-                                    toPay: receiptForConsumer.toPay,
-                                    toPayDetails: receiptForConsumer.toPayDetails,
-                                    services: receiptForConsumer.services,
-                                    printableNumber: receiptForConsumer.printableNumber,
-                                    serviceConsumer: serviceConsumer,
-                                    currencyCode: get(receiptForConsumer, ['context', 'integration', 'currencyCode'], null),
-                                }
-                            )
+                        if (!get(receiptForConsumer, ['recipient', 'isApproved'])) {
+                            continue
                         }
+
+                        processedReceipts.push(
+                            {
+                                id: receiptForConsumer.id,
+                                dv: receiptForConsumer.dv,
+                                recipient: receiptForConsumer.recipient,
+                                receiver: receiptForConsumer.receiver,
+                                period: receiptForConsumer.period,
+                                toPay: receiptForConsumer.toPay,
+                                toPayDetails: receiptForConsumer.toPayDetails,
+                                services: receiptForConsumer.services,
+                                printableNumber: receiptForConsumer.printableNumber,
+                                serviceConsumer: serviceConsumer,
+                                currencyCode: get(receiptForConsumer, ['context', 'integration', 'currencyCode'], null),
+                            }
+                        )
                     }
                 }
 
+                // Step 3: Select only one last receipt for every recipient
                 //
                 // TODO: (@toplenboren) DOMA-2479 Make this look adequate!
                 // AS HOTFIX we select only one latest receipt from each receiver + accountNumber by period
@@ -176,6 +177,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 }
                 const processedAndFilteredReceipts = Object.values(receiptsByAccountAndRecipient)
 
+                // Step 4: Calculate fees and paid fields for all processed and allowed receipts
                 const receiptsWithPayments = []
                 for (const receipt of processedAndFilteredReceipts) {
                     const organizationId = get(receipt.serviceConsumer, ['organization'])
