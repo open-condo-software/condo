@@ -163,21 +163,6 @@ export const statusToQueryByName = (statusName?: string) => {
     }
 }
 
-const datesFromTextQuery = (text) => {
-    const possibleDates = text.match(/[0-9.]+/g) || []
-    const [currentYear, currentMonth] = dayjs().format('YYYY-MM').split('-')
-    return possibleDates.map(possibleDate => {
-        const [day = '', month = '', year = ''] = possibleDate.split('.')
-        if (day.length !== 2) {
-            return
-        }
-        return [
-            day,
-            month.length === 2 ? month : currentMonth,
-            year.length === 4 ? year : currentYear,
-        ].join('.')
-    }).map(createdAtToQuery).filter(Boolean).map(range => ( { AND: [{ createdAt_gte: range[0] }, { createdAt_lte: range[1] }] }))
-}
 
 export const searchToQuery = (search?: string): TicketWhereInput[] => {
     if (!search) {
@@ -188,7 +173,6 @@ export const searchToQuery = (search?: string): TicketWhereInput[] => {
     const assigneeQuery = assigneeToQuery(search)
     const propertyQuery = propertyToQuery(search)
     const statusQuery = statusToQueryByName(search)
-    const datesQueries = datesFromTextQuery(search)
 
     return [
         { clientName_contains_i: search },
@@ -196,7 +180,6 @@ export const searchToQuery = (search?: string): TicketWhereInput[] => {
         { executor: executorQuery },
         { assignee: assigneeQuery },
         Number(search) && { number: Number(search) },
-        ...datesQueries.length ? datesQueries : [],
         { property: propertyQuery },
         { status: statusQuery },
     ].filter(Boolean)
@@ -392,12 +375,12 @@ export type ticketAnalyticsPageFilters = {
 interface IFilterToQuery {
     (
         { filter, viewMode, ticketType, mainGroup }:
-        {
-            filter: ticketAnalyticsPageFilters,
-            viewMode: ViewModeTypes,
-            ticketType: TicketSelectTypes,
-            mainGroup: GroupTicketsByTypes
-        }
+            {
+                filter: ticketAnalyticsPageFilters,
+                viewMode: ViewModeTypes,
+                ticketType: TicketSelectTypes,
+                mainGroup: GroupTicketsByTypes
+            }
     ): { AND: TicketWhereInput['AND'], groupBy: TicketAnalyticsGroupBy[] }
 }
 
@@ -483,14 +466,14 @@ const formatPieChartName = (chartName: string): string => {
 
 interface IGetChartOptions {
     ({
-        legend,
-        viewMode,
-        animationEnabled,
-        axisData,
-        tooltip,
-        series,
-        chartOptions,
-    }: {
+         legend,
+         viewMode,
+         animationEnabled,
+         axisData,
+         tooltip,
+         series,
+         chartOptions,
+     }: {
         legend: string[],
         viewMode: ViewModeTypes,
         animationEnabled: boolean,
@@ -507,15 +490,15 @@ interface IGetChartOptions {
 }
 
 export const getChartOptions: IGetChartOptions = ({
-    series,
-    axisData,
-    tooltip,
-    animationEnabled,
-    viewMode,
-    legend,
-    chartOptions,
-    color,
-    showTitle = true }) => {
+                                                      series,
+                                                      axisData,
+                                                      tooltip,
+                                                      animationEnabled,
+                                                      viewMode,
+                                                      legend,
+                                                      chartOptions,
+                                                      color,
+                                                      showTitle = true }) => {
     const option = {
         animation: animationEnabled,
         color,
