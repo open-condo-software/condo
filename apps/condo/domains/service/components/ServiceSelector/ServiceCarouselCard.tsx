@@ -5,6 +5,7 @@ import { CheckIcon } from '@condo/domains/common/components/icons/Check'
 import { useIntl } from '@core/next/intl'
 import { gradients } from '@condo/domains/common/constants/style'
 import { useRouter } from 'next/router'
+import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
 
 interface ServiceCarouselCardProps {
     logoSrc?: string
@@ -17,8 +18,18 @@ const FALLBACK_LOGO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wCEAA
 // NOTE: Wrapper to fix inner css
 const CardWrapper = styled.div`
   cursor: pointer;
-  & .ant-card-body {
-    padding: 24px;
+  border: 1px solid ${colors.backgroundWhiteSecondary};
+  transition: ${transitions.elevateTransition};
+  box-sizing: border-box;
+  border-radius: 12px;
+  &:hover {
+    border: none;
+    box-shadow: ${shadows.small};
+  }
+  & > .ant-card {
+    & > .ant-card-body {
+      padding: 24px;
+    }
   }
 `
 
@@ -54,8 +65,8 @@ export const ServiceCarouselCard: React.FC<ServiceCarouselCardProps> = ({ logoSr
     return (
         <CardWrapper>
             <Card
-                bordered={false}
                 onClick={() => router.push(url)}
+                bordered={false}
             >
                 <Row gutter={[0, 12]}>
                     <Col span={24}>
