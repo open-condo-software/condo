@@ -83,7 +83,7 @@ const AcquiringIntegrationDetailsPage = () => {
     const markDownText = get(integration, 'detailsText')
 
     return (
-        <>
+        <FeatureFlagRequired name={'acquiring'} fallback={<Error statusCode={404}/>}>
             <Head>
                 <title>{pageTitle}</title>
             </Head>
@@ -124,7 +124,7 @@ const AcquiringIntegrationDetailsPage = () => {
                     }
                 </OrganizationRequired>
             </PageWrapper>
-        </>
+        </FeatureFlagRequired>
     )
 }
 
