@@ -69,7 +69,7 @@ jobs:
 
       - name: run cypress tests
         run: |
-          yarn workspace @app/condo cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }} -b chrome
+          yarn workspace @app/condo cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }} -b chrome -C ./cypress/cypress.json
 
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
