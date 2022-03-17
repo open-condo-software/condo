@@ -125,17 +125,17 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             },
             {
                 type: 'models.CheckConstraint',
-                check: 'Q(unitsCount__gt=0)',
+                check: 'Q(unitsCount__gte=0)',
                 name: 'positive_unitsCount_check',
             },
             {
                 type: 'models.CheckConstraint',
-                check: 'Q(unitPrice__gt=0)',
+                check: 'Q(unitPrice__gte=0)',
                 name: 'positive_unitPrice_check',
             },
             {
                 type: 'models.CheckConstraint',
-                check: 'Q(totalPrice__gt=0)',
+                check: 'Q(totalPrice__gte=0)',
                 name: 'positive_totalPrice_check',
             },
         ],

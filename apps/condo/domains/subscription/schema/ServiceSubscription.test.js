@@ -73,7 +73,7 @@ describe('ServiceSubscription', () => {
             expect(obj.currency).toBeNull()
         })
 
-        it('should have positive `totalPrice` if is not trial', async () => {
+        it('should have not-null `totalPrice` if is not trial', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
 
