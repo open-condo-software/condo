@@ -122,7 +122,7 @@ export const getFilter: (
         }
         switch (argData) {
             case 'number':
-                args = search.filter(Number).map(Number)
+                args = search.filter(value => Number(value) && String(value).indexOf('.') === -1).map(Number)
                 break
             case 'dateTime':
                 args = search
@@ -156,6 +156,9 @@ export const getFilter: (
 
 type MultipleDataIndexType = DataIndexType[]
 type TicketAttributesFilterGetterType = (dataIndices: MultipleDataIndexType) => FilterType
+
+
+
 
 export const getTicketAttributesFilter: TicketAttributesFilterGetterType = (dataIndices) => {
     return function getWhereQuery (search) {
@@ -211,10 +214,39 @@ export const getDayLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIn
     }
 }
 
+const datesFromTextQuery = (text) => {
+    const possibleDates = text.match(/[0-9.]+/g) || []
+    const [currentYear, currentMonth] = dayjs().format('YYYY-MM').split('-')
+    return possibleDates.map(possibleDate => {
+        const [day = '', month = '', year = ''] = possibleDate.split('.')
+        if (day.length !== 2) {
+            return null
+        }
+        const date = dayjs([
+            day,
+            month.length === 2 ? month : currentMonth,
+            year.length === 4 ? year : currentYear,
+        ].join('.'), 'DD.MM.YYYY')
+        if (date.isValid()) {
+            return [
+                date.startOf('day').toISOString(),
+                date.endOf('day').toISOString(),
+            ]
+        }
+        return null
+    }).filter(Boolean)
+}
+
 export const getDayRangeFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     const gte = getDayGteFilter(dataIndex)
     const lte = getDayLteFilter(dataIndex)
     return function searchRange (search) {
+        if (!search) {
+            return
+        }
+        if (typeof search === 'string') {
+            [search] = datesFromTextQuery(search)
+        }
         if (!Array.isArray(search) || search.length !== 2) return
         const gteWhere = gte(search[0])
         const lteWhere = lte(search[1])

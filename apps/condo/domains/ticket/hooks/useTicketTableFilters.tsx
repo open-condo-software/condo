@@ -111,6 +111,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     filterDetails,
                     filterExecutorName,
                     filterAssigneeName,
+                    filterCreatedAtRange,
                 ],
                 combineType: 'OR',
             },
