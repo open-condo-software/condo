@@ -8,7 +8,7 @@ const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { find } = require('lodash')
-const { SUBSCRIPTION_TYPE, SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const dayjs = require('dayjs')
 
 const firstInn = '7784523718'
@@ -50,7 +50,7 @@ describe('syncSubscriptions', () => {
             mockResponseFromFintechApi.advanceAcceptances = () => mockActiveSubscriptionResponse.activeSubscription(firstInn)
         })
 
-        it('creates new subscription and stops already active one', async () => {
+        it('creates new non-trial subscription for 1 year and stops already active one', async () => {
             const today = dayjs()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(userClient, {
@@ -78,8 +78,9 @@ describe('syncSubscriptions', () => {
             expect(dayjs(trialSubscriptionAfterSync.finishAt).diff(today, 'minute')).toEqual(0)
 
             const sbbolSubscriptionAfterSync = find(subscriptions, { type: SUBSCRIPTION_TYPE.SBBOL })
+            expect(sbbolSubscriptionAfterSync.isTrial).toBeFalsy()
             expect(dayjs(sbbolSubscriptionAfterSync.startAt).diff(today, 'minute')).toEqual(0)
-            expect(dayjs(sbbolSubscriptionAfterSync.finishAt).diff(dayjs(sbbolSubscriptionAfterSync.startAt), 'day')).toEqual(SUBSCRIPTION_TRIAL_PERIOD_DAYS)
+            expect(dayjs(sbbolSubscriptionAfterSync.finishAt).diff(dayjs(sbbolSubscriptionAfterSync.startAt), 'year')).toEqual(1)
         })
     })
 

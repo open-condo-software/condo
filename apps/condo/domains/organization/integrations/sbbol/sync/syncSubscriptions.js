@@ -78,19 +78,21 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
         }
 
         const now = dayjs()
-        const trialServiceSubscription = await ServiceSubscription.create(context, {
+        const serviceSubscription = await ServiceSubscription.create(context, {
             ...dvSenderFields,
             type: SUBSCRIPTION_TYPE.SBBOL,
-            isTrial: true,
+            isTrial: false,
             organization: { connect: { id: organization.id } },
             startAt: now.toISOString(),
-            finishAt: now.add(SUBSCRIPTION_TRIAL_PERIOD_DAYS, 'days').toISOString(),
+            finishAt: now.add(1, 'year').toISOString(),
+            totalPrice: '0',
+            currency: 'RUB',
             sbbolOfferAccept: {
                 dv: 1,
                 ...advanceAcceptance, // TODO: Figure out, why it crashes here on `payerInn` field
             },
         })
-        logger.info({ message: 'Created trial subscription for SBBOL', serviceSubscription: trialServiceSubscription })
+        logger.info({ message: 'Created subscription for SBBOL', serviceSubscription })
     } else {
         logger.info({ message: 'User from organization has declined our offer in SBBOL', payerInn })
         if (existingSubscription.type === SUBSCRIPTION_TYPE.SBBOL) {
