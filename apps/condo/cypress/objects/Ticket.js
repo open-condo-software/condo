@@ -115,12 +115,12 @@ class TicketView {
         cy.get('[data-cy=ticket-filter-isWarranty]').click()
         cy.location('search').should('contain', 'isWarranty')
         cy.wait('@getAllTickets')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 1)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length.greaterThan', 1)
 
         cy.get('[data-cy=ticket-filter-isWarranty]').click()
         cy.location('search').should('not.contain', 'isWarranty')
         cy.wait('@getAllTickets')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 3)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length.greaterThan', 3)
 
         return this
     }
@@ -129,12 +129,12 @@ class TicketView {
         cy.get('[data-cy=ticket-filter-isPaid]').click()
         cy.location('search').should('contain', 'isPaid')
         cy.wait('@getAllTickets')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 1)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length.greaterThan', 1)
 
         cy.get('[data-cy=ticket-filter-isPaid]').click()
         cy.location('search').should('not.contain', 'isPaid')
         cy.wait('@getAllTickets')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 3)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length.greaterThan', 3)
 
         return this
     }
@@ -143,12 +143,12 @@ class TicketView {
         cy.get('[data-cy=ticket-filter-isEmergency]').click()
         cy.location('search').should('contain', 'isEmergency')
         cy.wait('@getAllTickets')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 1)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length.greaterThan', 1)
 
         cy.get('[data-cy=ticket-filter-isEmergency]').click()
         cy.location('search').should('not.contain', 'isEmergency')
         cy.wait('@getAllTickets')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 3)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length.greaterThan', 3)
 
         return this
     }
@@ -171,13 +171,13 @@ class TicketView {
 
         cy.wait('@getAllTickets')
         cy.location('search').should('contain', 'property')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 3)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length.greaterThan', 3)
 
         cy.get('[data-cy=filters-button-reset]').click()
         cy.wait('@getAllTickets')
         cy.location('search').should('not.contain', 'property')
         cy.location('search').should('be.empty')
-        cy.get('[data-cy=tickets-table] tbody tr').should('have.length', 3)
+        cy.get('[data-cy=tickets-table] tbody tr').should('have.length.greaterThan', 3)
 
         return this
     }
@@ -197,6 +197,7 @@ class TicketEdit {
     visit () {
         cy.visit(TICKET_VIEW_URL)
         cy.wait('@getAllTickets')
+        cy.wait('@getAllTicketClassifierRules')
 
         cy.get('[data-cy=tickets-table] tbody tr', {
             timeout: 5000,

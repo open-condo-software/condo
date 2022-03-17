@@ -11,7 +11,7 @@ const authUserWithCookies = (userData) => {
 
 describe('Ticket',  function () {
     describe('User', function () {
-        beforeEach(() => {
+        afterEach(() => {
             cy.clearCookies()
         })
 
@@ -64,9 +64,7 @@ describe('Ticket',  function () {
                         .visit()
                         .changeTicketStatus()
                         .clickUpdateTicketLink()
-                        .clickProblemClassifier()
                         .clickTicketDeadline()
-                        .clickAssigneeInput()
                         .clickApplyChanges()
                 })
             })

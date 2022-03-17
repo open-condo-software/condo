@@ -1,6 +1,7 @@
 /**
  * @type {Cypress.PluginConfig}
  */
+const isEmpty = require('lodash/isEmpty')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const {
     createTestUser,
@@ -12,6 +13,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
+let userObject = {}
 
 module.exports = async (on, config) => {
 
@@ -28,22 +30,29 @@ module.exports = async (on, config) => {
             return await ConfirmPhoneAction.getAll(admin, { phone })
         },
         async 'keystone:createUserWithProperty' () {
-            const result = await makeClientWithProperty()
-            const client = await makeLoggedInClient(result.userAttrs)
-            const cookie = client.getCookie()
+            if (isEmpty(userObject)) {
+                const result = await makeClientWithProperty()
+                const client = await makeLoggedInClient(result.userAttrs)
+                const cookie = client.getCookie()
 
-            const organizationLink = await OrganizationEmployee.getOne(client, {
-                user: { id: result.userAttrs.id }, isRejected: false, isBlocked: false,
-            })
-            const user = Object.assign({}, result.user)
-            return Object.assign({}, {
-                user,
-                property: result.property,
-                cookie,
-                organizationLinkId: organizationLink.id,
-                userAttrs: result.userAttrs,
-                organization: result.organization,
-            })
+                const organizationLink = await OrganizationEmployee.getOne(client, {
+                    user: { id: result.userAttrs.id }, isRejected: false, isBlocked: false,
+                })
+                const user = Object.assign({}, result.user)
+                userObject = Object.assign({}, {
+                    user,
+                    property: result.property,
+                    cookie,
+                    organizationLinkId: organizationLink.id,
+                    userAttrs: result.userAttrs,
+                    organization: result.organization,
+                })
+
+                return userObject
+            }
+
+            return userObject
+
         },
         async 'keystone:createTickets' (ticketAttrs) {
             const client = await makeLoggedInClient(ticketAttrs.userAttrs)
