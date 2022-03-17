@@ -7,6 +7,5 @@ export const SlideContainer = styled.div`
   height: 100%;
   box-sizing: border-box;
   background: ${colors.white};
-  border: 1px solid ${colors.backgroundWhiteSecondary};
   border-radius: 12px;
 `

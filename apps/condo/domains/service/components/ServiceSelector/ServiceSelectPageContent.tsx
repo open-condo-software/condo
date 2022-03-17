@@ -48,21 +48,22 @@ export const ServiceSelectPageContent: React.FC = () => {
                                     url={'/settings?tab=billing'}
                                 />
                                 <ServiceCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/shopify.com'}
+                                    logoSrc={'https://logo.clearbit.com/amazon.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'https://www.shopify.com'}
                                 />
                                 <ServiceCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/spotify.comssss'}
+                                    logoSrc={'https://logo.clearbit.com/asos.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'https://www.google.com'}
                                 />
                                 <ServiceCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/spotify.com'}
+                                    logoSrc={'https://logo.clearbit.com/ebay.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'https://www.spotify.com'}
                                 />
                                 <ServiceCarouselCard
+                                    logoSrc={'https://logo.clearbit.com/apple.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'/settings?tab=billing'}
                                 />
