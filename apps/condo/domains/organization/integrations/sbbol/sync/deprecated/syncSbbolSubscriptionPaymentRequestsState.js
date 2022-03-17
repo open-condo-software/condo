@@ -1,10 +1,10 @@
-const { logger: baseLogger } = require('../common')
+const { logger: baseLogger } = require('../../common')
 const { getSchemaCtx } = require('@core/keystone/schema')
-const { initSbbolFintechApi } = require('../SbbolFintechApi')
+const { initSbbolFintechApi } = require('../../SbbolFintechApi')
 const { ServiceSubscriptionPayment, ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const { executeInSequence } = require('@condo/domains/common/utils/parallel')
-const { SBBOL_PAYMENT_STATUS_MAP, dvSenderFields } = require('../constants')
+const { SBBOL_PAYMENT_STATUS_MAP, dvSenderFields } = require('../../constants')
 const { get } = require('lodash')
 const dayjs = require('dayjs')
 

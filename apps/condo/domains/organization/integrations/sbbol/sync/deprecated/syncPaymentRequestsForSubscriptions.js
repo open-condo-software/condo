@@ -1,14 +1,14 @@
 const { ServiceSubscription, ServiceSubscriptionPayment } = require('@condo/domains/subscription/utils/serverSchema')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const dayjs = require('dayjs')
-const { initSbbolFintechApi } = require('../SbbolFintechApi')
+const { initSbbolFintechApi } = require('../../SbbolFintechApi')
 const { SBBOL_YEARLY_SUBSCRIPTION_PRICE, SUBSCRIPTION_TYPE, SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_PAYMENT_CURRENCY } = require('@condo/domains/subscription/constants')
 
 const conf = process.env
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 
-const { logger: baseLogger } = require('../common')
-const { dvSenderFields, BANK_OPERATION_CODE } = require('../constants')
+const { logger: baseLogger } = require('../../common')
+const { dvSenderFields, BANK_OPERATION_CODE } = require('../../constants')
 const { SBBOL_OFFER_ACCEPT_IS_NULL_ERROR, SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR } = require('@condo/domains/subscription/constants/errors')
 
 const logger = baseLogger.child({ module: 'syncPaymentRequestsForSubscriptions' })
