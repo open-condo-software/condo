@@ -121,7 +121,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                     // Step 2.1 Get only receipts with approved recipients
                     for (const receiptForConsumer of receiptsForConsumer) {
 
-                        if (!get(receiptForConsumer, ['recipient', 'isApproved'])) {
+                        if (!get(receiptForConsumer, ['receiver', 'isApproved'])) {
                             continue
                         }
 
@@ -187,8 +187,8 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                         organizationId,
                         accountNumber,
                         get(receipt, 'period', null),
-                        get(receipt, ['recipient', 'bic'], null),
-                        get(receipt, ['recipient', 'bankAccount'], null)
+                        get(receipt, ['receiver', 'bic'], null),
+                        get(receipt, ['receiver', 'bankAccount'], null)
                     )
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)
