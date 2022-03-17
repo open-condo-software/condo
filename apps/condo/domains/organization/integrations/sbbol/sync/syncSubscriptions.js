@@ -113,7 +113,7 @@ const syncSubscriptions = async (date = null) => {
     const { keystone: context } = await getSchemaCtx('ServiceSubscription')
 
     const fintechApi = await initSbbolFintechApi(context)
-    if (!fintechApi) return
+    if (!fintechApi) throw new Error('Cannot initialize SbbolFintechApi')
 
     logger.info({ message: 'Checking, whether the user have ServiceSubscription items' })
 
