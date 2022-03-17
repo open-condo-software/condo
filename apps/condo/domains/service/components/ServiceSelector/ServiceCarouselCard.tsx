@@ -46,6 +46,7 @@ const ConnectContainer = styled.span`
 
 const IMAGE_STYLES: CSSProperties = {
     objectFit: 'contain',
+    objectPosition: 'left',
 }
 
 const TEXT_BLOCK_STYLE: CSSProperties = {
