@@ -9,7 +9,7 @@ const authUserWithCookies = (userData) => {
     cy.setCookie('organizationLinkId', userData.organizationLinkId)
 }
 
-describe('Ticket create',  function () {
+describe('Ticket',  function () {
     describe('User', function () {
         beforeEach(() => {
             cy.clearCookies()

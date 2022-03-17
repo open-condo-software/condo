@@ -198,6 +198,9 @@ class TicketEdit {
         cy.visit(TICKET_VIEW_URL)
         cy.wait('@getAllTickets')
 
+        cy.get('[data-cy=tickets-table] tbody tr', {
+            timeout: 5000,
+        }).first().should('have.class', 'ant-table-row-level-0')
         cy.get('[data-cy=tickets-table] tbody tr').first().trigger('click')
         cy.location('pathname').should('not.eq', TICKET_VIEW_URL)
 
