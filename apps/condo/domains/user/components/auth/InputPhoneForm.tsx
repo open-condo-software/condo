@@ -14,7 +14,6 @@ import { FormattedMessage } from 'react-intl'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { RegisterContext } from './RegisterContextProvider'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
-import {SUPPORT_EMAIL, SUPPORT_PHONE} from "../../../common/constants/requisites";
 
 
 const FORM_LAYOUT = {
