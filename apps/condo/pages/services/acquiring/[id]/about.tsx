@@ -5,11 +5,14 @@ import { useIntl } from '@core/next/intl'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
-import PageContent from '@condo/domains/miniapp/components/AppSelector'
+import PageContent from '@condo/domains/miniapp/components/AppDescription'
+import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
-const ServicesPage = () => {
+const AboutAcquiringPage = () => {
     const intl = useIntl()
+    // TODO(2420): Change it based on integration
     const PageTitle = intl.formatMessage({ id: 'menu.Services' })
+
 
     return (
         <FeatureFlagRequired name={'services'} fallback={<Error statusCode={404}/>}>
@@ -23,6 +26,9 @@ const ServicesPage = () => {
     )
 }
 
-ServicesPage.requiredAccess = OrganizationRequired
+AboutAcquiringPage.requiredAccess = OrganizationRequired
+AboutAcquiringPage.headerAction = <ReturnBackHeaderAction
+    descriptor={{ id: 'menu.Services' }}
+    path={'/services'}/>
 
-export default ServicesPage
+export default AboutAcquiringPage

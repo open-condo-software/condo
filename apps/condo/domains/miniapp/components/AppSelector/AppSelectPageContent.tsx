@@ -5,8 +5,8 @@ import { PageHeader } from '@condo/domains/common/components/containers/BaseLayo
 import Carousel from '@condo/domains/common/components/Carousel'
 import { Section } from './Section'
 import { CardsContainer, CardsPerRowType } from './CardsContainer'
-import { ServiceCarouselCard } from './ServiceCarouselCard'
-import { ServiceSelectCard } from './ServiceSelectCard'
+import { AppCarouselCard } from './AppCarouselCard'
+import { AppSelectCard } from './AppSelectCard'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
 
@@ -18,7 +18,7 @@ const WINDOW_SMALLEST_CAROUSEL_CARD_WIDTH = 460
 
 const PAGE_CONTENT_STYLES: CSSProperties = { paddingBottom: 60 }
 
-export const ServiceSelectPageContent: React.FC = () => {
+export const AppSelectPageContent: React.FC = () => {
     // TODO(2420): Add employee rights check
     // TODO(2420): Add select queries
 
@@ -50,46 +50,46 @@ export const ServiceSelectPageContent: React.FC = () => {
                     <Col span={24}>
                         <Section title={AlreadyConnectedSectionTitle}>
                             <Carousel slidesToShow={slidesToShow}>
-                                <ServiceCarouselCard
+                                <AppCarouselCard
                                     logoSrc={'https://logo.clearbit.com/shopify.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'https://www.shopify.com'}
                                 />
-                                <ServiceCarouselCard
+                                <AppCarouselCard
                                     logoSrc={'https://logo.clearbit.com/spotify.comssss'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'https://www.google.com'}
                                 />
-                                <ServiceCarouselCard
+                                <AppCarouselCard
                                     logoSrc={'https://logo.clearbit.com/google.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'https://www.google.com'}
                                 />
-                                <ServiceCarouselCard
+                                <AppCarouselCard
                                     logoSrc={'https://logo.clearbit.com/spotify.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'https://www.spotify.com'}
                                 />
-                                <ServiceCarouselCard
+                                <AppCarouselCard
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'/settings?tab=billing'}
                                 />
-                                <ServiceCarouselCard
+                                <AppCarouselCard
                                     logoSrc={'https://logo.clearbit.com/amazon.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'https://www.shopify.com'}
                                 />
-                                <ServiceCarouselCard
+                                <AppCarouselCard
                                     logoSrc={'https://logo.clearbit.com/asos.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'https://www.google.com'}
                                 />
-                                <ServiceCarouselCard
+                                <AppCarouselCard
                                     logoSrc={'https://logo.clearbit.com/ebay.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'https://www.spotify.com'}
                                 />
-                                <ServiceCarouselCard
+                                <AppCarouselCard
                                     logoSrc={'https://logo.clearbit.com/apple.com'}
                                     title={'Слушай, что-то я похоже очень большой текст'}
                                     url={'/settings?tab=billing'}
@@ -101,31 +101,31 @@ export const ServiceSelectPageContent: React.FC = () => {
                 <Col span={24}>
                     <Section title={AvailableSectionTitle} hideTitle={!isAnyServiceConnected}>
                         <CardsContainer cardsPerRow={servicesPerRow}>
-                            <ServiceSelectCard
+                            <AppSelectCard
                                 logoSrc={'https://logo.clearbit.com/shopify.com'}
                                 title={'Слушай, что-то я похоже очень большой текст'}
                                 url={'https://www.shopify.com'}
                                 description={'loremloremloremloremloremlorem loremloremlorem loremloremloremlorem loremloremloremloremlorem loremloremloremloremloremlorem'}
                             />
-                            <ServiceSelectCard
+                            <AppSelectCard
                                 title={'Я без логотипа'}
                                 url={'https://www.shopify.com'}
                                 description={'Короткое описание'}
                             />
-                            <ServiceSelectCard
+                            <AppSelectCard
                                 title={'Я disabled'}
                                 url={'https://www.shopify.com'}
                                 description={'Короткое описание'}
                                 disabled
                             />
-                            <ServiceSelectCard
+                            <AppSelectCard
                                 title={'У меня есть тэг'}
                                 tag={'Крутой тэг'}
                                 url={'https://www.shopify.com'}
                                 description={'Короткое описание'}
                                 disabled
                             />
-                            <ServiceSelectCard
+                            <AppSelectCard
                                 title={'У меня тоже есть тэг'}
                                 logoSrc={'https://logo.clearbit.com/google.com'}
                                 tag={'Крутой тэг'}
