@@ -150,6 +150,7 @@
   "menu.Services": "Services",
   "services.AlreadyConnected": "Already connected",
   "services.Available": "Available",
+  "services.More": "More",
   "MinutesShort": "${minutes} min.",
   "RolesAndAccess": "Roles and accesses",
   "Subscription": "Subscription",
