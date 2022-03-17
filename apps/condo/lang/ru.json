@@ -150,6 +150,7 @@
   "menu.Services": "Сервисы",
   "services.AlreadyConnected": "Уже подключено",
   "services.Available": "Можно подключить",
+  "services.More": "Подробнее",
   "MinutesShort": "${minutes} мин.",
   "RolesAndAccess": "Роли и доступы",
   "Subscription": "Подписка",

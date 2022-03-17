@@ -23,7 +23,7 @@ const CardWrapper = styled.div`
   box-sizing: border-box;
   border-radius: 12px;
   &:hover {
-    border: none;
+    border-color: ${colors.white};
     box-shadow: ${shadows.small};
   }
   & > .ant-card {

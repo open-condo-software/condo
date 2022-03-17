@@ -116,7 +116,7 @@ const shadows = {
 }
 
 const transitions = {
-    elevateTransition: 'box-shadow 0.2s ease-in-out, border-width 0.2s ease-in-out',
+    elevateTransition: 'box-shadow 0.2s ease-in-out, border-width 0.2s ease-in-out, border-color 0.2s ease-in-out',
     easeInOut: 'all .2s ease-in-out',
     allDefault: 'all 0.3s',
 }

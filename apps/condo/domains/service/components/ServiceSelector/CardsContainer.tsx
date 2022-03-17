@@ -1,9 +1,16 @@
-import styled from '@emotion/styled'
+import React from 'react'
+import { Col, Row } from 'antd'
 
-export const CardsContainer = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-column-gap: 40px;
-  grid-row-gap: 40px;
-`
+export const CardsContainer: React.FC = ({ children }) => {
+    return (
+        <Row gutter={[40, 40]}>
+            { React.Children.map(children, (child) => {
+                return (
+                    <Col span={8}>
+                        {child}
+                    </Col>
+                )
+            }) }
+        </Row>
+    )
+}
