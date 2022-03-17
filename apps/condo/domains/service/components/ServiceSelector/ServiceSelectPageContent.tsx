@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { Typography, Row, Col } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
@@ -15,6 +15,8 @@ const WINDOW_SMALL_SELECT_CARD_WIDTH = 550
 const WINDOW_MEDIUM_CAROUSEL_CARD_WIDTH = 800
 const WINDOW_SMALL_CAROUSEL_CARD_WIDTH = 625
 const WINDOW_SMALLEST_CAROUSEL_CARD_WIDTH = 460
+
+const PAGE_CONTENT_STYLES: CSSProperties = { paddingBottom: 60 }
 
 export const ServiceSelectPageContent: React.FC = () => {
     // TODO(2420): Add employee rights check
@@ -42,7 +44,7 @@ export const ServiceSelectPageContent: React.FC = () => {
     return (
         <>
             <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} spaced/>
-            <Row gutter={[0, 60]}>
+            <Row gutter={[0, 60]} style={PAGE_CONTENT_STYLES}>
                 {
                     isAnyServiceConnected &&
                     <Col span={24}>

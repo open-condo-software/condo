@@ -28,6 +28,7 @@ interface CardWrapperProps {
 // NOTE: Wrapper to fix inner css, since we cannot access title container from headStyle
 const CardWrapper = styled.div<CardWrapperProps>`
   position: relative;
+  ${(props) => props.disabled ? '' : 'cursor: pointer;'}
   & > .ant-card {
     box-sizing: border-box;
     border: 1px solid ${colors.backgroundWhiteSecondary};
@@ -80,11 +81,17 @@ export const ServiceSelectCard: React.FC<ServiceCarouselCardProps> = ({ logoSrc,
 
     const router = useRouter()
 
+    const clickHandler = () => {
+        if (disabled) return
+        router.push(url)
+    }
+
     return (
         <CardWrapper disabled={disabled}>
             <Card
                 title={<Image src={logoSrc || FALLBACK_IMAGE} style={IMAGE_STYLES} preview={false} fallback={FALLBACK_IMAGE}/>}
                 bordered={false}
+                onClick={clickHandler}
             >
                 <Row gutter={[0, 12]}>
                     <Col span={24}>
@@ -104,7 +111,6 @@ export const ServiceSelectCard: React.FC<ServiceCarouselCardProps> = ({ logoSrc,
                             style={BUTTON_STYLES}
                             type={'sberBlack'}
                             disabled={disabled}
-                            onClick={() => router.push(url)}
                         >
                             {MoreMessage}
                         </Button>
