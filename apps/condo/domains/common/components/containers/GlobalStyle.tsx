@@ -242,6 +242,7 @@ export default function GlobalStyle () {
               ${inputControlCss}
               ${page}
               ${carouselCss}
+              ${cardCSS}
             `}
         />
     )
@@ -377,5 +378,14 @@ const carouselCss = css`
   }
   .slick-slide {
     padding: 12px;
+  }
+`
+
+const cardCSS = css`
+  .ant-card-bordered {
+    border: 1px solid ${colors.backgroundWhiteSecondary};
+  }
+  .ant-card-head {
+    border-color: ${colors.backgroundWhiteSecondary};
   }
 `
