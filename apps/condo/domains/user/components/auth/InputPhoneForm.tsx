@@ -14,6 +14,7 @@ import { FormattedMessage } from 'react-intl'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { RegisterContext } from './RegisterContextProvider'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
+import {SUPPORT_EMAIL, SUPPORT_PHONE} from "../../../common/constants/requisites";
 
 
 const FORM_LAYOUT = {
@@ -135,14 +136,10 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                     id='pages.auth.register.info.PersonalDataProcessingConsent'
                                     values={{
                                         consentLink: (
-                                            <Button type={'inlineLink'} size={'small'} target='_blank' href={'/pdpc.pdf'} rel='noreferrer'>
-                                                {ConsentContent}
-                                            </Button>
+                                            <Button style={{ bottom: '-4px' }} type={'inlineLink'} size={'small'} target='_blank' href={'/pdpc.pdf'} rel='noreferrer'>{ConsentContent}</Button>
                                         ),
                                         privacyPolicyLink: (
-                                            <Button type={'inlineLink'} size={'small'} target='_blank' href={'/policy.pdf'} rel='noreferrer'>
-                                                {PrivacyPolicyContent}
-                                            </Button>
+                                            <Button style={{ bottom: '-4px' }} type={'inlineLink'} size={'small'} target='_blank' href={'/policy.pdf'} rel='noreferrer'>{PrivacyPolicyContent}</Button>
                                         ),
                                     }}
                                 />
