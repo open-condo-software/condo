@@ -409,6 +409,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
+    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
     const ChangedMessage = intl.formatMessage({ id: 'Changed' })
     const TimeHasPassedMessage = intl.formatMessage({ id: 'TimeHasPassed' })
     const DaysShortMessage = intl.formatMessage({ id: 'DaysShort' })
@@ -469,6 +470,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const isEmergency = get(ticket, 'isEmergency')
     const isPaid = get(ticket, 'isPaid')
     const isWarranty = get(ticket, 'isWarranty')
+    const statusReopenedCounter = get(ticket, 'statusReopenedCounter')
 
     const handleTicketStatusChanged = () => {
         refetchTicket()
@@ -596,6 +598,13 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                         {isEmergency && <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
                                         {isPaid && <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
                                         {isWarranty && <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
+                                        {
+                                            statusReopenedCounter > 0 && (
+                                                <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
+                                                    {ReturnedMessage.toLowerCase()} {statusReopenedCounter > 1 && `(${statusReopenedCounter})`}
+                                                </TicketTag>
+                                            )
+                                        }
                                     </Space>
                                 </Col>
                                 <Col span={24}>

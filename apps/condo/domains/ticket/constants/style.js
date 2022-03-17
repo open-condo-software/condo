@@ -41,6 +41,7 @@ const TICKET_TYPE_TAG_COLORS = {
     emergency: 'red',
     paid: 'orange',
     warranty: 'purple',
+    returned: 'volcano',
 }
 
 module.exports = {
