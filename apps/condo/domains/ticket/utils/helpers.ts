@@ -375,12 +375,12 @@ export type ticketAnalyticsPageFilters = {
 interface IFilterToQuery {
     (
         { filter, viewMode, ticketType, mainGroup }:
-            {
-                filter: ticketAnalyticsPageFilters,
-                viewMode: ViewModeTypes,
-                ticketType: TicketSelectTypes,
-                mainGroup: GroupTicketsByTypes
-            }
+        {
+            filter: ticketAnalyticsPageFilters,
+            viewMode: ViewModeTypes,
+            ticketType: TicketSelectTypes,
+            mainGroup: GroupTicketsByTypes
+        }
     ): { AND: TicketWhereInput['AND'], groupBy: TicketAnalyticsGroupBy[] }
 }
 
@@ -466,14 +466,14 @@ const formatPieChartName = (chartName: string): string => {
 
 interface IGetChartOptions {
     ({
-         legend,
-         viewMode,
-         animationEnabled,
-         axisData,
-         tooltip,
-         series,
-         chartOptions,
-     }: {
+        legend,
+        viewMode,
+        animationEnabled,
+        axisData,
+        tooltip,
+        series,
+        chartOptions,
+    }: {
         legend: string[],
         viewMode: ViewModeTypes,
         animationEnabled: boolean,
@@ -490,15 +490,15 @@ interface IGetChartOptions {
 }
 
 export const getChartOptions: IGetChartOptions = ({
-                                                      series,
-                                                      axisData,
-                                                      tooltip,
-                                                      animationEnabled,
-                                                      viewMode,
-                                                      legend,
-                                                      chartOptions,
-                                                      color,
-                                                      showTitle = true }) => {
+    series,
+    axisData,
+    tooltip,
+    animationEnabled,
+    viewMode,
+    legend,
+    chartOptions,
+    color,
+    showTitle = true }) => {
     const option = {
         animation: animationEnabled,
         color,
