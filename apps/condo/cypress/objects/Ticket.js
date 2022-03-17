@@ -209,15 +209,16 @@ class TicketEdit {
     }
 
     changeTicketStatus () {
-        cy.wait('@getAllTicketComments')
         cy.wait('@getAllTickets')
         cy.wait('@getAllTicketClassifierRules')
         cy.wait('@getAllTicketFiles')
         cy.wait('@getAllTicketStatuses')
+        cy.wait('@getAllOrganizationEmployees')
 
         cy.get('[data-cy=ticket-status-select]')
             .click()
-        cy.wait('@getAllTicketClassifierRules')
+        cy.get('[data-cy=ticket-status-select]').should('have.class', 'ant-select-open')
+
         cy.get('[data-cy=ticket-status-select-option]', {
             timeout: 5000,
         }).first().click()

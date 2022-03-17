@@ -2,5 +2,6 @@
     "projectId": "dc36jj",
     "baseUrl": "http://localhost:3000",
     "videoCompression": 15,
-    "pageLoadTimeout": 10000
+    "pageLoadTimeout": 10000,
+    "waitForAnimations": true
 }
