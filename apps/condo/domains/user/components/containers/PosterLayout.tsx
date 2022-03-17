@@ -16,7 +16,8 @@ interface IPosterLayoutProps {
     layoutBgColor?: string
 }
 
-const FOOTER_STYLE = { backgroundColor: 'inherit' }
+const FOOTER_STYLES = { backgroundColor: 'inherit', marginTop: 5, position: 'static' }
+const ROW_STYLE = { marginTop: 65 }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor }) => {
     const { isSmall } = useLayoutContext()
@@ -34,8 +35,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                 <Col lg={11} md={24} hidden={isSmall}>
                     <PosterWrapper>
                         <Poster
-                            src={'/authPoster.png'}
-                            placeholderSrc={'/authPosterPlaceholder.png'}
+                            src={'/authLogo.png'}
                             placeholderColor={colors.selago}
                         />
                     </PosterWrapper>
@@ -43,12 +43,12 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                 <Col lg={13} md={24}>
                     <PageContent isSmall={isSmall}>
                         <ChildrenWrapper isSmall={isSmall}>
-                            <Row>
+                            <Row style={ROW_STYLE}>
                                 <Col lg={15} md={24} push={CHILDREN_COL_PUSH} pull={CHILDREN_COL_PULL}>
                                     {children}
                                 </Col>
                             </Row>
-                            <Footer isSmall={isSmall} style={FOOTER_STYLE}>
+                            <Footer isSmall={isSmall} style={FOOTER_STYLES as React.CSSProperties}>
                                 <Row>
                                     <Col lg={15} md={24} push={FOOTER_COL_PUSH} pull={FOOTER_COL_PULL}>
                                         <FormattedMessage

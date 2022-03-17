@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import React from 'react'
 import ProgressiveImage from 'react-progressive-image'
-import { transitions, colors } from '@condo/domains/common/constants/style'
+import { transitions } from '@condo/domains/common/constants/style'
 
 interface IImageProps {
     src: string
@@ -9,9 +9,7 @@ interface IImageProps {
 }
 
 export const PosterContainer = styled.div<IImageProps>`
-  background: url(${({ src }) => src}) no-repeat center center;
-  background-color: ${({ placeholderColor }) => placeholderColor ? placeholderColor : colors.white};
-  background-size: cover;
+  background: url(${({ src }) => src}) center no-repeat;
   width: 100%;
   height: 100%;
   transition: ${transitions.allDefault};
