@@ -6,12 +6,8 @@ import { colors, shadows, transitions } from '@condo/domains/common/constants/st
 import { Button } from '@condo/domains/common/components/Button'
 import { useIntl } from '@core/next/intl'
 
-
-interface ServiceCarouselCardTitleProps {
+interface AppSelectCardProps {
     logoSrc?: string
-}
-
-interface ServiceCarouselCardProps extends ServiceCarouselCardTitleProps {
     tag?: string
     title: string,
     description: string,
@@ -75,7 +71,7 @@ const IMAGE_STYLES: CSSProperties = { objectFit: 'contain', height: '100%' }
 const BUTTON_STYLES: CSSProperties = { marginTop: 12 }
 const PARAGRAPH_STYLE: CSSProperties = { margin: 0, height: 66 }
 
-export const ServiceSelectCard: React.FC<ServiceCarouselCardProps> = ({ logoSrc, tag, disabled, url, title, description }) => {
+export const AppSelectCard: React.FC<AppSelectCardProps> = ({ logoSrc, tag, disabled, url, title, description }) => {
     const intl = useIntl()
     const MoreMessage = intl.formatMessage({ id: 'services.More' })
 

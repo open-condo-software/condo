@@ -7,7 +7,7 @@ import { gradients } from '@condo/domains/common/constants/style'
 import { useRouter } from 'next/router'
 import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
 
-interface ServiceCarouselCardProps {
+interface AppCarouselCardProps {
     logoSrc?: string
     title: string
     url: string
@@ -58,7 +58,7 @@ const TEXT_STYLE: CSSProperties = {
     lineHeight: '24px',
 }
 
-export const ServiceCarouselCard: React.FC<ServiceCarouselCardProps> = ({ logoSrc, title, url }) => {
+export const AppCarouselCard: React.FC<AppCarouselCardProps> = ({ logoSrc, title, url }) => {
     const intl = useIntl()
     const ConnectedLabel = intl.formatMessage({ id: 'Connected' })
     const router = useRouter()
