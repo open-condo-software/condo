@@ -34,8 +34,9 @@ const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { TERMINAL_TICKET_STATUS_IDS, STATUS_IDS } = require('../constants/statusTransitions')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-const { TICKET_REVIEW_VALUES } = require('@condo/domains/ticket/constants')
+const { TICKET_REVIEW_VALUES, COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { COMPLETED } = require('../constants/statusTypes')
+const { TicketStatus } = require('../utils/serverSchema')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -64,8 +65,8 @@ const Ticket = new GQLListSchema('Ticket', {
         reviewValue: {
             schemaDoc: 'Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review',
             type: Select,
-            dataType: 'integer',
-            options: TICKET_REVIEW_VALUES,
+            dataType: 'string',
+            options: '0, 1, 2',
         },
         reviewComment: {
             schemaDoc: 'Resident\'s comment on ticket review',
