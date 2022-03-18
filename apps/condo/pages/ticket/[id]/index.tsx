@@ -160,12 +160,18 @@ const TicketContent = ({ ticket }) => {
     const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` })
 
     const propertyWasDeleted = !(ticket.property)
-    const ticketReviewValue = ticket.reviewValue
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
     const ticketUnit = ticket.unitName ? `${UnitTypePrefix.toLowerCase()} ${ticket.unitName}` : ''
     const ticketSectionAndFloor = ticket.sectionName && ticket.floorName
         ? `(${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName})`
         : ''
+
+    const ticketReviewValue = ticket.reviewValue
+    const ticketReviewComment = ticket.reviewComment
+    const reviewValueToText = useMemo(() => ({
+        '1': 'Плохо 😔',
+        '2': 'Хорошо 😊',
+    }), [])
 
     const { objs: files } = TicketFile.useObjects({
         where: { ticket: { id: ticket ? ticket.id : null } },
@@ -294,11 +300,16 @@ const TicketContent = ({ ticket }) => {
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         {
-                            // ticketReviewValue ? (
-                            <PageFieldRow title={'Оценка жителя'}>
-                                <Typography.Text> Хорошо 😊 </Typography.Text>
-                            </PageFieldRow>
-                            // ) : null
+                            ticketReviewValue ? (
+                                <PageFieldRow title={'Оценка жителя'}>
+                                    <Typography.Text>
+                                        {reviewValueToText[ticketReviewValue]}&nbsp;
+                                        <Typography.Text type={'secondary'}>
+                                            ({ticketReviewComment ? ticketReviewComment : 'без уточнения'})
+                                        </Typography.Text>
+                                    </Typography.Text>
+                                </PageFieldRow>
+                            ) : null
                         }
                         {
                             ticketDeadline ? (
