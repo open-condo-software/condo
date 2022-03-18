@@ -3,6 +3,7 @@
  */
 
 const faker = require('faker')
+const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 
 const {
     completeTestPayment,
@@ -84,6 +85,15 @@ describe('AllResidentBillingReceipts', () => {
                 expect(receipt.currencyCode).not.toBeNull()
             })
         })
+    })
+
+    test('user with valid serviceAccount can read BillingReceipt without raw data', async () => {
+        const { adminClient, client, serviceConsumer, billingReceipts } = await makePayer(1)
+
+        const objs = await ResidentBillingReceipt.getAll(client)
+        expect(objs).toHaveLength(1)
+        expect(objs[0].raw).toEqual(undefined)
+        expect(objs[0].id).toEqual(billingReceipts[0].id)
     })
 
     test('user with valid serviceAccount can read BillingReceipt without raw data', async () => {
