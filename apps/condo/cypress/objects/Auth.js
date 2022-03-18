@@ -35,6 +35,13 @@ class SignIn {
             .click()
         return this
     }
+
+    chooseOrganization () {
+        cy.get('[data-cy=organization-select-item]')
+            .first()
+            .click()
+        return this
+    }
 }
 
 class ForgotPassword {

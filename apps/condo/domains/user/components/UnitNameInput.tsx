@@ -50,7 +50,7 @@ const getOptionGroupBySectionType: IGetOptionGroupBySectionType = (props) => {
                 data-unitType={unitType}
                 data-unitName={String(unit.label)}
                 title={String(unit.label)}
-                data-cy={'unit-name-input-option'}
+                data-cy={'user__unit-name-input-option'}
                 style={BASE_UNIT_NAME_INPUT_OPTION_STYLE}
             >
                 {unit.label}

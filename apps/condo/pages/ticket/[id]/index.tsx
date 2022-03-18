@@ -572,7 +572,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                         ticket={ticket}
                                                         onUpdate={handleTicketStatusChanged}
                                                         loading={loading}
-                                                        data-cy={'ticket-status-select'}
+                                                        data-cy={'ticket__status-select'}
                                                     />
                                                 </Col>
                                                 {
@@ -605,7 +605,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                             type={'sberDefaultGradient'}
                                             secondary
                                             icon={<EditFilled />}
-                                            data-cy={'ticket-update-link'}
+                                            data-cy={'ticket__update-link'}
                                         >
                                             {UpdateMessage}
                                         </Button>
