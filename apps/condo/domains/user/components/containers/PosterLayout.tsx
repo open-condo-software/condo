@@ -35,7 +35,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                 <Col lg={11} md={24} hidden={isSmall}>
                     <PosterWrapper>
                         <Poster
-                            src={'/authLogo.png'}
+                            src={'/authPoster.png'}
                             placeholderColor={colors.selago}
                         />
                     </PosterWrapper>
