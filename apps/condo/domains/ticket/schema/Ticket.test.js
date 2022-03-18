@@ -223,12 +223,12 @@ describe('Ticket', () => {
             })
 
             const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
-                reviewValue: 2,
+                reviewValue: '2',
                 reviewComment,
             })
 
             expect(ticket.id).toEqual(updatedTicket.id)
-            expect(updatedTicket.reviewValue).toEqual(2)
+            expect(updatedTicket.reviewValue).toEqual('2')
             expect(updatedTicket.reviewComment).toEqual(reviewComment)
             expect(updatedTicket.status.id).toEqual(STATUS_IDS.CLOSED)
         })
@@ -247,12 +247,12 @@ describe('Ticket', () => {
             })
 
             const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
-                reviewValue: 0,
+                reviewValue: '0',
             })
 
             expect(ticket.id).toEqual(updatedTicket.id)
-            expect(updatedTicket.reviewValue).toEqual(2)
-            expect(updatedTicket.status.id).toEqual(STATUS_IDS.IN_PROGRESS)
+            expect(updatedTicket.reviewValue).toEqual('0')
+            expect(updatedTicket.status.id).toEqual(STATUS_IDS.OPEN)
         })
 
         test('employee: update statusReopenedCounter when update status from completed to open', async () => {

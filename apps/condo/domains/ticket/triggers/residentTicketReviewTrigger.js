@@ -1,7 +1,7 @@
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-const closeTicketAfterResidentReviewTrigger = {
+const residentTicketReviewTrigger = {
     rule: {
         conditions: {
             all: [
@@ -19,8 +19,8 @@ const closeTicketAfterResidentReviewTrigger = {
                 {
                     fact: 'data',
                     path: '$.resolvedData.reviewValue',
-                    operator: 'notIn',
-                    value: [undefined, 0],
+                    operator: 'notEqual',
+                    value: undefined,
                 },
                 {
                     fact: 'data',
@@ -36,14 +36,18 @@ const closeTicketAfterResidentReviewTrigger = {
             ],
         },
         event: {
-            type: 'closeTicketAfterResidentReviewTrigger',
+            type: 'residentTicketReviewTrigger',
         },
     },
     action: ({ data: { resolvedData } }) => {
-        resolvedData['status'] = STATUS_IDS.CLOSED
+        if (resolvedData.reviewValue === '0') {
+            resolvedData['status'] = STATUS_IDS.OPEN
+        } else {
+            resolvedData['status'] = STATUS_IDS.CLOSED
+        }
     },
 }
 
 module.exports = {
-    closeTicketAfterResidentReviewTrigger,
+    residentTicketReviewTrigger,
 }
