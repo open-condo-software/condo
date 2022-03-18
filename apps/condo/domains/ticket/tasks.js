@@ -31,7 +31,7 @@ async function manageTicketPropertyAddressChange (propertyId, userInfo) {
 /**
  * Closes tickets that are in the "completed" status for 7 days
  */
-const closeCompletedTicketsTask = createCronTask('closeCompletedTickets', '0 1 * * *', async () => {
+const closeCompletedTicketsTask = createCronTask('closeCompletedTickets', '*/2 * * * *', async () => {
     const { keystone: context } = await getSchemaCtx('Ticket')
 
     await closeCompletedTickets(context)
