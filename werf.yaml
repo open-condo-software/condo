@@ -52,7 +52,7 @@ git:
 shell:
   install:
   - "cd /app"
-  - "yarn install"
+  - "yarn install --frozen-lockfile"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -98,7 +98,7 @@ git:
 shell:
   install:
     - "cd /app"
-    - "yarn install"
+    - "yarn install --frozen-lockfile"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -144,7 +144,7 @@ git:
 shell:
   install:
     - "cd /app"
-    - "yarn install"
+    - "yarn install --frozen-lockfile"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -190,7 +190,7 @@ git:
 shell:
   install:
     - "cd /app"
-    - "yarn install"
+    - "yarn install --frozen-lockfile"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
