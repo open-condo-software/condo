@@ -18,7 +18,6 @@ import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Ticket, TicketChange, TicketComment, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import {
     getDeadlineType, getHumanizeDeadlineDateDifference,
@@ -45,7 +44,6 @@ import { BaseType } from 'antd/lib/typography/Base'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { FormattedMessage } from 'react-intl'
-import { CloseOrReturnTicketContainer } from '../../../domains/ticket/components/CloseOrReturnTicketContainer'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -606,13 +604,6 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                             )
                                         }
                                     </Space>
-                                </Col>
-                                <Col span={24}>
-                                    {
-                                        ticket.status.id === '5b9decd7-792c-42bb-b16d-822142fd2d69' && (
-                                            <CloseOrReturnTicketContainer ticket={ticket} />
-                                        )
-                                    }
                                 </Col>
                                 <TicketContent ticket={ticket}/>
                                 <ActionBar>
