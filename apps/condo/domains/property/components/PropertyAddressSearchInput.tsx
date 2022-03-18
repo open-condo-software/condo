@@ -63,7 +63,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
                     value={dataItem.text}
                     title={dataItem.text}
                     id={index}
-                    data-cy={'property-address-search-option'}
+                    data-cy={'ticket__property-address-search-option'}
                 >
                     {
                         searchValue === dataItem.text
