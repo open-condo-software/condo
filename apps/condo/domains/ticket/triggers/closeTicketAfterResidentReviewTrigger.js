@@ -19,8 +19,8 @@ const closeTicketAfterResidentReviewTrigger = {
                 {
                     fact: 'data',
                     path: '$.resolvedData.reviewValue',
-                    operator: 'notEqual',
-                    value: undefined,
+                    operator: 'notIn',
+                    value: [undefined, 0],
                 },
                 {
                     fact: 'data',

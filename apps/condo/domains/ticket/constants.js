@@ -34,7 +34,12 @@ const TICKET_STATUS_TYPES = [
 // TODO(AntonAL) add files to trackable - files are now in hidden relation
 const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusUpdatedAt', 'classifierRule']
 
-const TICKET_REVIEW_VALUES = ['Good', 'Bad']
+const TICKET_REVIEW_VALUES = [
+    { value: 0, label: 'Return' },
+    { value: 1, label: 'Bad' },
+    { value: 2, label: 'Good' },
+]
+
 
 module.exports = {
     NEW_OR_REOPENED_STATUS_TYPE,

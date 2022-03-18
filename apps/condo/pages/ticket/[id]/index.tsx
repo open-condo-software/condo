@@ -160,6 +160,7 @@ const TicketContent = ({ ticket }) => {
     const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` })
 
     const propertyWasDeleted = !(ticket.property)
+    const ticketReviewValue = ticket.reviewValue
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
     const ticketUnit = ticket.unitName ? `${UnitTypePrefix.toLowerCase()} ${ticket.unitName}` : ''
     const ticketSectionAndFloor = ticket.sectionName && ticket.floorName
@@ -292,6 +293,13 @@ const TicketContent = ({ ticket }) => {
             <Row gutter={[0, 40]}>
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
+                        {
+                            // ticketReviewValue ? (
+                            <PageFieldRow title={'Оценка жителя'}>
+                                <Typography.Text> Хорошо 😊 </Typography.Text>
+                            </PageFieldRow>
+                            // ) : null
+                        }
                         {
                             ticketDeadline ? (
                                 <PageFieldRow title={Deadline}>
