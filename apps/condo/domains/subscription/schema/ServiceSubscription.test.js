@@ -119,44 +119,44 @@ describe('ServiceSubscription', () => {
             expect(obj.currency).toEqual('RUB')
         })
 
-        it('should have positive prices and `unitsCount` if they are set', async () => {
+        it('should have not negative prices and `unitsCount` if they are set', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
 
-            const wrongValuesWithZeroUnitsCount = {
+            const wrongValuesWithNegativeUnitsCount = {
                 isTrial: false,
-                unitsCount: 0,
+                unitsCount: -1,
                 currency: 'RUB',
             }
 
             await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroUnitsCount)
+                await createTestServiceSubscription(adminClient, organization, wrongValuesWithNegativeUnitsCount)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('violates check constraint "positive_unitsCount_check"')
                 expect(data).toEqual({ 'obj': null })
             })
 
-            const wrongValuesWithZeroUnitPrice = {
+            const wrongValuesWithNegativeUnitPrice = {
                 isTrial: false,
-                unitPrice: '0',
+                unitPrice: '-1',
                 currency: 'RUB',
             }
 
             await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroUnitPrice)
+                await createTestServiceSubscription(adminClient, organization, wrongValuesWithNegativeUnitPrice)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('violates check constraint "positive_unitPrice_check"')
                 expect(data).toEqual({ 'obj': null })
             })
 
-            const wrongValuesWithZeroTotalPrice = {
+            const wrongValuesWithNegativeTotalPrice = {
                 isTrial: false,
-                totalPrice: '0',
+                totalPrice: '-1',
                 currency: 'RUB',
             }
 
             await catchErrorFrom(async () => {
-                await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroTotalPrice)
+                await createTestServiceSubscription(adminClient, organization, wrongValuesWithNegativeTotalPrice)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('violates check constraint "positive_totalPrice_check"')
                 expect(data).toEqual({ 'obj': null })
