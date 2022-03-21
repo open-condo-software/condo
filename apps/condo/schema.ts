@@ -36183,6 +36183,7 @@ export type TicketFilter = {
   categoryClassifier?: Maybe<Array<Maybe<Scalars['String']>>>;
   clientPhone?: Maybe<Array<Maybe<Scalars['String']>>>;
   author?: Maybe<Array<Maybe<Scalars['String']>>>;
+  reviewValue?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 /**  Employee specific ticket filter template  */
