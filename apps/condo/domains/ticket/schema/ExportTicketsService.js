@@ -1,4 +1,5 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
+const conf = require('@core/config')
 const access = require('@condo/domains/ticket/access/ExportTicketsService')
 const { TicketStatus, loadTicketsForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
@@ -10,6 +11,8 @@ const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
+const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -48,10 +51,13 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
                 const statuses = await TicketStatus.getAll(context, {})
                 const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
+                const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                const translations = getTranslations(locale)
                 const reviewValueText = {
-                    '1': 'Плохо',
-                    '2': 'Хорошо',
+                    '1': translations['ticket.reviewValue.bad'],
+                    '2': translations['ticket.reviewValue.good'],
                 }
+
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
                 if (allTickets.length === 0) {
                     throw new GQLError(errors.NOTHING_TO_EXPORT, context)
