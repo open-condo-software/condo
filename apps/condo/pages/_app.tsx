@@ -196,7 +196,7 @@ const MyApp = ({ Component, pageProps }) => {
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 async function messagesImporter (locale) {
-    const locale_data = await import(`../lang/${locale}`)
+    const locale_data = await import(`../lang/${locale}/${locale}`)
     return { ...locale_data.default }
 }
 

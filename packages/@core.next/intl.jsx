@@ -19,7 +19,7 @@ let getMessages = async (locale) => {
         return module.default || module
     } catch (error) {
         console.error('getMessages error:', error)
-        const module = await import('./lang/en.json')
+        const module = await import(`./lang/${defaultLocale}/${defaultLocale}.json`)
         return module.default
     }
 }
