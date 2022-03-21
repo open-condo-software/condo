@@ -8,6 +8,7 @@ const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const get = require('lodash/get')
 const { addClientInfoToResidentTicket, addOrderToTicket } = require('../utils/serverSchema/resolveHelpers')
+const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
 
 const {
     SENDER_FIELD,
@@ -327,6 +328,9 @@ const Ticket = new GQLListSchema('Ticket', {
 
             const newItem = { ...existingItem, ...resolvedData }
             const propertyId = get(newItem, 'property', null)
+            if (!propertyId) {
+                throw new Error(`${PROPERTY_REQUIRED_ERROR}] empty property for ticket`)
+            }
             const property = await getByCondition('Property', {
                 id: propertyId,
                 deletedAt: null,
