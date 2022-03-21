@@ -569,23 +569,6 @@ async function renderTemplate (transport, message) {
         if (result) return { ...result, notificationId: message.id }
     }
 
-    // if (message.type === MESSAGE_FORWARDED_TO_SUPPORT_TYPE) {
-    //     const { emailFrom, meta } = message
-    //     const { dv, text, os, appVersion, organizationsData = [] } = meta
-    //
-    //     return {
-    //         subject: 'Обращение из мобильного приложения',
-    //         text: `
-    //             Система: ${os}
-    //             Версия приложения: ${appVersion}
-    //             Email: ${emailFrom ? emailFrom : 'не указан'}
-    //             Сообщение: ${text}
-    //             УК: ${organizationsData.length === 0 ? 'нет' : organizationsData.map(({ name, inn }) => `
-    //               - ${name}. ИНН: ${inn}`).join('')}
-    //         `,
-    //     }
-    // }
-
     throw new Error('unknown template or lang')
 }
 

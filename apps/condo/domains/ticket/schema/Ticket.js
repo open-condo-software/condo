@@ -393,8 +393,9 @@ const Ticket = new GQLListSchema('Ticket', {
                 [{ property, unitName }, { placeClassifier, categoryClassifier, problemClassifier }]
             )(...args)
 
+            const [requestData] = args
             /* NOTE: this sends different kinds of notifications on ticket create/update */
-            await triggerTicketEventActions(args[0])
+            await triggerTicketEventActions(requestData)
         },
     },
     access: {

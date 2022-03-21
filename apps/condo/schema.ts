@@ -5559,7 +5559,7 @@ export type BillingReceipt = {
   services?: Maybe<Array<BillingReceiptServiceField>>;
   /**  Billing account recipient. Should contain all meta information to identify the organization  */
   recipient?: Maybe<BillingReceiptsRecipientField>;
-  /**  Integration context  */
+  /**  Relation to the BillingRecipient. Going to override recipient field, has the same meaning  */
   receiver?: Maybe<BillingRecipient>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -9731,7 +9731,8 @@ export enum MessageStatusType {
   Processing = 'processing',
   Error = 'error',
   Delivered = 'delivered',
-  Canceled = 'canceled'
+  Canceled = 'canceled',
+  Read = 'read'
 }
 
 export type MessageUpdateInput = {
@@ -14819,7 +14820,7 @@ export type Mutation = {
    * 			"required": true
    * 		}
    * 	},
-   * 	"DEVELOPER_IMPORTANT_NOTE_TYPE": {
+   * 	"DEVELOPER_IMPORTANT_NOTE": {
    * 		"dv": {
    * 			"defaultValue": "",
    * 			"required": true
@@ -14833,7 +14834,7 @@ export type Mutation = {
    * 			"required": true
    * 		}
    * 	},
-   * 	"CUSTOMER_IMPORTANT_NOTE_TYPE": {
+   * 	"CUSTOMER_IMPORTANT_NOTE": {
    * 		"dv": {
    * 			"defaultValue": "",
    * 			"required": true
@@ -14871,6 +14872,64 @@ export type Mutation = {
    * 		"attachments": {
    * 			"defaultValue": [],
    * 			"isRequired": false
+   * 		}
+   * 	},
+   * 	"TICKET_ASSIGNEE_CONNECTED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"ticketId": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"ticketNumber": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userId": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"TICKET_EXECUTOR_CONNECTED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"ticketId": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"ticketNumber": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userId": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"TICKET_STATUS_CHANGED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"ticketId": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"ticketNumber": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"ticketStatus": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userId": {
+   * 			"defaultValue": null,
+   * 			"required": true
    * 		}
    * 	}
    * }`
@@ -27558,9 +27617,12 @@ export enum SendMessageType {
   ResetPassword = 'RESET_PASSWORD',
   SmsVerify = 'SMS_VERIFY',
   ShareTicket = 'SHARE_TICKET',
-  DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
-  CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
-  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT'
+  DeveloperImportantNote = 'DEVELOPER_IMPORTANT_NOTE',
+  CustomerImportantNote = 'CUSTOMER_IMPORTANT_NOTE',
+  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
+  TicketAssigneeConnected = 'TICKET_ASSIGNEE_CONNECTED',
+  TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED',
+  TicketStatusChanged = 'TICKET_STATUS_CHANGED'
 }
 
 export type SenderField = {

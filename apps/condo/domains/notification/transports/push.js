@@ -29,11 +29,11 @@ async function prepareMessageToSend (message) {
 }
 
 async function send ({ userId, notification, data, notificationId } = {}) {
-    const tokensData = await getTokens(userId)
+    const tokens = await getTokens(userId)
 
-    console.log('push send:', { userId, notification, data, tokensData })
+    console.log('push send:', { userId, notification, data, tokens })
 
-    const result = await adapter.sendNotification({ tokensData, notification, data })
+    const result = await adapter.sendNotification({ tokens, notification, data })
 
     console.log('push send result:', result)
 

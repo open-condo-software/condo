@@ -43,7 +43,7 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
 
 // TODO(DOMA-2396): Add customizable transportation priorities for different types of notifications
 /**
- * Calculates transport types queue for a message according to message type, transportation priorities for
+ * Calculates transport types priority queue for a message according to message type, transportation priorities for
  * message type and fallback hardcoded priorities for edge cases.
  * @param message
  * @returns {Promise<*[]>}
@@ -57,10 +57,11 @@ async function _choseMessageTransport (message) {
     for (const transport of TRANSPORT_PRIORITIES) {
         if (transport === PUSH_TRANSPORT) transports.push(PUSH_TRANSPORT)
         // Here we come if current transport priority is not a PUSH
-        if (transport === SMS_TRANSPORT && !isEmpty(phone)) transports.push(SMS_TRANSPORT)
+        // SMS transport checks for phone both within message data and user data
+        if (transport === SMS_TRANSPORT && (!isEmpty(phone) || !isEmpty(user.phone))) transports.push(SMS_TRANSPORT)
         // Here we come if primary transport priority is neither PUSH or SMS,
         // or it is SMS, but no phone number provided
-        if (transport === EMAIL_TRANSPORT && !isEmpty(email)) transports.push(EMAIL_TRANSPORT)
+        if (transport === EMAIL_TRANSPORT && (!isEmpty(email) || !isEmpty(user.email))) transports.push(EMAIL_TRANSPORT)
     }
 
     // Here we come if transport priorities weren't set for messate.type or
@@ -68,11 +69,10 @@ async function _choseMessageTransport (message) {
     // so we should use fallback transport type
 
     // SMS has higher priority over EMAIL.
-    if (!isEmpty(phone) && !transports.includes(SMS_TRANSPORT)) transports.push(SMS_TRANSPORT)
-    if (!isEmpty(email) && !transports.includes(EMAIL_TRANSPORT)) transports.push(EMAIL_TRANSPORT)
+    if ((!isEmpty(phone) || !isEmpty(user.phone)) && !transports.includes(SMS_TRANSPORT)) transports.push(SMS_TRANSPORT)
+    if ((!isEmpty(email) || !isEmpty(user.email)) && !transports.includes(EMAIL_TRANSPORT)) transports.push(EMAIL_TRANSPORT)
 
-    if (!isEmpty(user.email) && !transports.includes(EMAIL_TRANSPORT)) transports.push(EMAIL_TRANSPORT)
-
+    // At this point we return whatever non-empty sequence we've got
     if (!isEmpty(transports)) return transports
 
     // NOTE: none of requirements were met for message state, so we can't send anything anywhere actually.
@@ -107,14 +107,9 @@ async function deliverMessage (messageId) {
 
     for (const transport of transports) {
 
-        if (message.type !== 'REGISTER_NEW_USER') console.log('deliverMessage:', { messageId, message, transport })
-
         try {
             const adapter = TRANSPORTS[transport]
             const messageContext = await adapter.prepareMessageToSend(message)
-
-            if (message.type !== 'REGISTER_NEW_USER') console.log('deliverMessage try:', { transport, message, messageContext })
-
             const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext)
 
             if (isOk) {
