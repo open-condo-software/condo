@@ -155,6 +155,7 @@
   "Published": "Опубликовано",
   "services.SetupService": "Настроить сервис",
   "services.PartnerSite": "Сайт партнера",
+  "services.AboutService": "Об услуге",
   "MinutesShort": "${minutes} мин.",
   "RolesAndAccess": "Роли и доступы",
   "Subscription": "Подписка",
