@@ -82,7 +82,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const AuthorMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.Author' })
     const EnterFullNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterFullName' })
     const GoodReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.good' })
-    const BadReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.good' })
+    const BadReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.bad' })
     const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
 
