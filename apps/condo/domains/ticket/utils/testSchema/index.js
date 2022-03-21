@@ -9,7 +9,7 @@ const { get } = require('lodash')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { TICKET_STATUS_TYPES } = require('../../constants')
-const { generateGQLTestUtils, throwIfError} = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const {
     TicketStatus: TicketStatusGQL,

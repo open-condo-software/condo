@@ -30,11 +30,10 @@ async function manageTicketPropertyAddressChange (propertyId, userInfo) {
 /**
  * Closes tickets that are in the "completed" status for 7 days
  */
-const closeCompletedTicketsTask = createCronTask('closeCompletedTickets', '*/2 * * * *', async () => {
+const closeCompletedTicketsTask = createCronTask('closeCompletedTickets', '0 1 * * *', async () => {
     const { keystone } = await getSchemaCtx('Ticket')
     const adminContext = await keystone.createContext({ skipAccessControl: true })
-
-    const weekAgo = dayjs().subtract('1', 'minutes').toISOString()
+    const weekAgo = dayjs().startOf('day').subtract('7', 'day').toISOString()
 
     const ticketsToChange = await find('Ticket', {
         status: { id: STATUS_IDS.COMPLETED },
