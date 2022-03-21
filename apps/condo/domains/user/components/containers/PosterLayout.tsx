@@ -23,6 +23,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
     const { isSmall } = useLayoutContext()
 
     const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
+    const POSTER_WRAPPER_STYLE = { backgroundColor: colors.backgroundLightGrey }
     const CHILDREN_COL_PUSH = isSmall ? 0 : 4
     const CHILDREN_COL_PULL = isSmall ? 0 : 6
     const FOOTER_COL_PUSH = isSmall ? 0 : 4
@@ -32,11 +33,12 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
         <Layout style={LAYOUT_STYLE}>
             <AuthHeader headerAction={headerAction}/>
             <Row align={'stretch'}>
-                <Col lg={11} md={24} hidden={isSmall}>
+                <Col lg={11} md={24} hidden={isSmall} style={POSTER_WRAPPER_STYLE}>
                     <PosterWrapper>
                         <Poster
                             src={'/authPoster.png'}
-                            placeholderColor={colors.selago}
+                            placeholderSrc={'/authPosterPlaceholder.png'}
+                            placeholderColor={colors.black}
                         />
                     </PosterWrapper>
                 </Col>
