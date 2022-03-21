@@ -170,6 +170,10 @@ export const getTicketAttributesFilter: TicketAttributesFilterGetterType = (data
             OR: dataIndices.map(wrappedDataIndex => {
                 if (!args.find(arg => arg === wrappedDataIndex) || !isString(wrappedDataIndex)) return
 
+                if (wrappedDataIndex === 'statusReopenedCounter') {
+                    return { [`${wrappedDataIndex}_gt`]: 0 }
+                }
+
                 return {
                     [wrappedDataIndex]: true,
                 }
