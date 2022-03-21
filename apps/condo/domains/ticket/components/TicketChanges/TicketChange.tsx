@@ -12,6 +12,8 @@ import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/
 import { FormattedMessage } from 'react-intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import dayjs from 'dayjs'
+import isNull from 'lodash/isNull'
+import isNil from 'lodash/isNil'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -92,6 +94,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['classifierDisplayName', ClassifierMessage],
         ['placeClassifierDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
+        ['statusReopenedCounter', '', { change: 'вернул заявку в работу' }],
     ]
 
     const BooleanToString = {
@@ -171,6 +174,9 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
                 return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay}${problemClassifierToDisplay ? ` → ${problemClassifierToDisplay}` : ''}`
             },
+            // reviewValue: (field, value) => {
+            //
+            // },
         }
         return has(formatterFor, field)
             ? formatterFor[field](field, value, type)
@@ -202,10 +208,12 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
         const valueFrom = ticketChange[`${field}From`]
         const valueTo = ticketChange[`${field}To`]
+        const isValueFromNotEmpty = !isNil(valueFrom)
+        const isValueToNotEmpty = !isNil(valueTo)
         const formattedValueFrom = formatField(field, valueFrom, TicketChangeFieldMessageType.From)
         const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
 
-        if (valueFrom && valueTo) {
+        if (isValueFromNotEmpty && isValueToNotEmpty) {
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -220,7 +228,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     />
                 </>
             )
-        } else if (valueTo) { // only "to" part
+        } else if (isValueToNotEmpty) { // only "to" part
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -234,7 +242,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     />
                 </>
             )
-        } else if (valueFrom) {
+        } else if (isValueFromNotEmpty) {
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -266,10 +274,13 @@ const SafeUserMention = ({ createdBy }) => {
     const intl = useIntl()
     const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
     const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
+    const userTypeMessage = createdBy.type === 'resident' ? 'Житель' : 'Диспетчер'
 
     return (
         createdBy ? (
-            createdBy.name
+            <>
+                {userTypeMessage} {createdBy.name}
+            </>
         ) : (
             <Tooltip placement="top" title={DeletedCreatedAtNoticeDescription}>
                 <span>{DeletedCreatedAtNoticeTitle}</span>
