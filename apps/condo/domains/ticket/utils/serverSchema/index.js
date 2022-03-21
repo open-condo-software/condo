@@ -19,7 +19,6 @@ const { TicketClassifierRule: TicketClassifierRuleGQL } = require('@condo/domain
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
-const { REOPEN_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -38,19 +37,6 @@ const TicketClassifierRule = generateServerUtils(TicketClassifierRuleGQL)
 const ResidentTicket = generateServerUtils(ResidentTicketGQL)
 
 const TicketFilterTemplate = generateServerUtils(TicketFilterTemplateGQL)
-async function reopenTicket (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write reopenTicket serverSchema guards
-
-    return await execGqlWithoutAccess(context, {
-        query: REOPEN_TICKET_MUTATION,
-        variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to reopenTicket',
-        dataPath: 'obj',
-    })
-}
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -127,6 +113,5 @@ module.exports = {
     TicketSource,
     loadTicketsForExcelExport,
     TicketFilterTemplate,
-    reopenTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

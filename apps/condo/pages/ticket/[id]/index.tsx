@@ -44,6 +44,7 @@ import { BaseType } from 'antd/lib/typography/Base'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { FormattedMessage } from 'react-intl'
+import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -158,6 +159,9 @@ const TicketContent = ({ ticket }) => {
     const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' }).toLowerCase()
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' }).toLowerCase()
     const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` })
+    const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
+    const ReviewWithoutCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.withoutComment' })
+    const NoReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.noReview' })
 
     const propertyWasDeleted = !(ticket.property)
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
@@ -169,9 +173,9 @@ const TicketContent = ({ ticket }) => {
     const ticketReviewValue = ticket.reviewValue
     const ticketReviewComment = ticket.reviewComment
     const reviewValueToText = useMemo(() => ({
-        '1': 'Плохо 😔',
-        '2': 'Хорошо 😊',
-    }), [])
+        '1': `${getReviewMessageByValue('1', intl)} 😔`,
+        '2': `${getReviewMessageByValue('2', intl)} 😊`,
+    }), [intl])
 
     const { objs: files } = TicketFile.useObjects({
         where: { ticket: { id: ticket ? ticket.id : null } },
@@ -301,19 +305,19 @@ const TicketContent = ({ ticket }) => {
                     <Row gutter={[0, 24]}>
                         {
                             ticket.status.type === 'closed' ? (
-                                <PageFieldRow title={'Оценка жителя'}>
+                                <PageFieldRow title={ReviewValueMessage}>
                                     <Typography.Text>
                                         {
                                             ticketReviewValue ? (
                                                 <>
                                                     {reviewValueToText[ticketReviewValue]}&nbsp;
                                                     <Typography.Text type={'secondary'}>
-                                                        ({ticketReviewComment ? ticketReviewComment : 'без уточнения'})
+                                                        ({ticketReviewComment ? ticketReviewComment.replace(';', ',') : ReviewWithoutCommentMessage})
                                                     </Typography.Text>
                                                 </>
                                             ) : (
                                                 <Typography.Text type={'secondary'}>
-                                                    житель не оценил
+                                                    {NoReviewMessage}
                                                 </Typography.Text>
                                             )
                                         }
