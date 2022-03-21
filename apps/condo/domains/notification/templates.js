@@ -168,7 +168,7 @@ async function renderTemplate (transport, message) {
                                 </tr>
                             </table>
                             <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Добрый день!<br />
-                            С вами поделились заявкой №${ticketNumber} от ${dayjs(date).locale(LOCALES[RU_LOCALE]).format('D MMMM YYYY')})}.<br />
+                            С вами поделились заявкой №${ticketNumber} от ${dayjs(date).locale(LOCALES[RU_LOCALE]).format('D MMMM YYYY')}.<br />
                             Текст заявки: «${details}»</p>
                             <p>&nbsp;</p>
                             <div><!--[if mso]>
