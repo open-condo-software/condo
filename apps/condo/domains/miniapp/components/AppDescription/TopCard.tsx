@@ -6,7 +6,8 @@ import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
-import { useWindowSize } from '../../../common/hooks/useWindowSize'
+import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
+import { TagContainer } from '../TagContainer'
 
 interface TopCardTitleProps {
     logoSrc?: string,
@@ -14,6 +15,7 @@ interface TopCardTitleProps {
     description: string,
     setupUrl: string,
     partnerUrl?: string,
+    tag?: string,
 }
 
 interface TopCardProps extends TopCardTitleProps {
@@ -23,6 +25,7 @@ interface TopCardProps extends TopCardTitleProps {
 
 const CardWrapper = styled.div`
   border-radius: 12px;
+  position: relative;
   & > .ant-card {
     overflow: hidden;
     & > .ant-card-body {
@@ -79,7 +82,7 @@ const FALLBACK_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CA
 
 const TITLE_VERTICAL_MARK = 720
 
-const TopCardTitle: React.FC<TopCardTitleProps> = ({ logoSrc, title, description, setupUrl, partnerUrl }) => {
+const TopCardTitle: React.FC<TopCardTitleProps> = ({ logoSrc, title, description, setupUrl, partnerUrl, tag }) => {
     const intl = useIntl()
     const SetupMessage = intl.formatMessage({ id: 'services.SetupService' })
     const PartnerSiteMessage = intl.formatMessage({ id: 'services.PartnerSite' })
@@ -88,6 +91,7 @@ const TopCardTitle: React.FC<TopCardTitleProps> = ({ logoSrc, title, description
     const isSmallLayout = Boolean(width && width < TITLE_VERTICAL_MARK)
 
     const rowMargins: CSSProperties = isSmallLayout ? { marginTop: 180 } : { marginLeft: 200, marginTop: 12 }
+    const titleStyles: CSSProperties = isSmallLayout || !tag ? {} : { paddingRight: 100 }
 
     return (
         <>
@@ -96,7 +100,7 @@ const TopCardTitle: React.FC<TopCardTitleProps> = ({ logoSrc, title, description
             </LogoContainer>
             <Row gutter={[0, 16]} style={rowMargins}>
                 <Col span={24}>
-                    <Typography.Title level={4} ellipsis={true}>
+                    <Typography.Title level={4} ellipsis={true} style={titleStyles}>
                         {title}
                     </Typography.Title>
                 </Col>
@@ -138,6 +142,7 @@ export const TopCard: React.FC<TopCardProps> = ({
     description,
     setupUrl,
     partnerUrl,
+    tag,
 }) => {
     const intl = useIntl()
     const DeveloperMessage = intl.formatMessage({ id: 'Developer' })
@@ -145,7 +150,7 @@ export const TopCard: React.FC<TopCardProps> = ({
 
     return (
         <CardWrapper>
-            <Card bordered={true} title={<TopCardTitle title={title} description={description} setupUrl={setupUrl} partnerUrl={partnerUrl}/>}>
+            <Card bordered={true} title={<TopCardTitle title={title} description={description} setupUrl={setupUrl} partnerUrl={partnerUrl} tag={tag}/>}>
                 <Space size={[40, 0]} direction={'horizontal'} wrap={true}>
                     <Typography.Text ellipsis={true}>
                         <Typography.Text type={'secondary'}>
@@ -165,6 +170,15 @@ export const TopCard: React.FC<TopCardProps> = ({
                     </Typography.Text>
                 </Space>
             </Card>
+            {
+                tag && (
+                    <TagContainer right={40} top={56}>
+                        <Typography.Text type={'secondary'}>
+                            {tag}
+                        </Typography.Text>
+                    </TagContainer>
+                )
+            }
         </CardWrapper>
     )
 }
