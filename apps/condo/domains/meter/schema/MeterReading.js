@@ -77,7 +77,6 @@ const MeterReading = new GQLListSchema('MeterReading', {
     },
     hooks: {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
-            await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey }, context)
             const user = get(context, ['req', 'user'])
 
             if (operation === 'create' && user.type === RESIDENT) {
