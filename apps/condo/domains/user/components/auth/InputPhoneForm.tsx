@@ -147,8 +147,8 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Row justify={'space-between'} gutter={[0, 12]}>
-                        <Col xs={24} lg={11}>
+                    <Row justify={'space-between'} gutter={[5, 8]}>
+                        <Col xs={24} lg={11} style={ { maxWidth: '100%' } }>
                             <Button
                                 key='submit'
                                 type='sberPrimary'
