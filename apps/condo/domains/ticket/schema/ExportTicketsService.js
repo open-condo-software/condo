@@ -48,6 +48,10 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
                 const statuses = await TicketStatus.getAll(context, {})
                 const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
+                const reviewValueText = {
+                    '1': 'Плохо',
+                    '2': 'Хорошо',
+                }
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
                 if (allTickets.length === 0) {
                     throw new GQLError(errors.NOTHING_TO_EXPORT, context)
@@ -82,6 +86,9 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         comments: comments.map(comment => comment.split(':').pop()).join(TICKET_COMMENTS_SEPARATOR),
                         source: ticket.source || '',
                         deadline: ticket.deadline ? formatDate(ticket.deadline) : '',
+                        reviewValue: ticket.reviewValue ? reviewValueText[ticket.reviewValue] : '',
+                        reviewComment: ticket.reviewComment || '',
+                        statusReopenedCounter: ticket.statusReopenedCounter || '',
                     }
                 })
                 const linkToFile = await createExportFile({
