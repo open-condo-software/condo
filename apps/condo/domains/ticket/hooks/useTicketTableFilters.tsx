@@ -96,7 +96,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
         { label: PaidMessage, value: 'isPaid' },
         { label: EmergencyMessage, value: 'isEmergency' },
         { label: WarrantyMessage, value: 'isWarranty' },
-        { label: ReturnedMessage, value: 'statusReopenedCounter' },
+        { label: ReturnedMessage.toLowerCase(), value: 'statusReopenedCounter' },
     ]
     const reviewValueOptions = [
         { label: GoodReviewMessage, value: '2' },

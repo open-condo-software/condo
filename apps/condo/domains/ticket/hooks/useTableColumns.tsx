@@ -133,7 +133,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 }
             </Space>
         )
-    }, [EmergencyMessage, PaidMessage, WarrantyMessage, search])
+    }, [EmergencyMessage, PaidMessage, ReturnedMessage, WarrantyMessage, search])
 
     const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
