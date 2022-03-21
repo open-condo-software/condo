@@ -304,7 +304,7 @@ const TicketContent = ({ ticket }) => {
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         {
-                            ticket.status.type === 'closed' ? (
+                            ticket.status.type === CLOSED_STATUS_TYPE ? (
                                 <PageFieldRow title={ReviewValueMessage}>
                                     <Typography.Text>
                                         {
