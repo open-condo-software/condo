@@ -127,7 +127,7 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'watchersDisplayNamesFrom',
     'watchersDisplayNamesTo',
 ]
-const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
+const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender { dv fingerprint } v createdBy { id name type } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)

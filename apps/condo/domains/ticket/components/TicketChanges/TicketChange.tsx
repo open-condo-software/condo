@@ -196,6 +196,10 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             )
         }
 
+        if (ticketChange.sender.fingerprint === 'auto-close') {
+            return field === 'statusDisplayName' && 'Автоматическое закрытие заявки по истечению срока ожидания ответа жителя.'
+        }
+
         const valueFrom = ticketChange[`${field}From`]
         const valueTo = ticketChange[`${field}To`]
         const formattedValueFrom = formatField(field, valueFrom, TicketChangeFieldMessageType.From)
@@ -262,6 +266,7 @@ const SafeUserMention = ({ createdBy }) => {
     const intl = useIntl()
     const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
     const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
+
     return (
         createdBy ? (
             createdBy.name
