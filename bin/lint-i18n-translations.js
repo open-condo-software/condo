@@ -57,8 +57,9 @@ const langDir = path.join(root, 'lang')
 
 const translations = []
 
-fs.readdirSync(langDir).map(fileName => {
-    const lang = fileName.match(/(\w+)\.json/)[1]
+fs.readdirSync(langDir).map(folderName => {
+    const fileName = `${folderName}/${folderName}.json`
+    const lang = folderName
     const filePath = `${langDir}/${fileName}`
     console.log(`Load file ${filePath}`)
 
