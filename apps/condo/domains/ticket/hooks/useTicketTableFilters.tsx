@@ -39,6 +39,7 @@ const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
 const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty', 'statusReopenedCounter'])
+const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
 const filterFloor = getFilter('floorName', 'array', 'string', 'in')
@@ -92,6 +93,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
         { label: EmergencyMessage, value: 'isEmergency' },
         { label: WarrantyMessage, value: 'isWarranty' },
         { label: 'Возвращена', value: 'statusReopenedCounter' },
+    ]
+    const reviewValueOptions = [
+        { label: 'Хорошо', value: '2' },
+        { label: 'Плохо', value: '1' },
     ]
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')
@@ -332,6 +337,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                     modalFilterComponentWrapper: {
                         label: AttributeLabel,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'reviewValue',
+                filters: [filterReviewValue],
+                component: {
+                    type: ComponentType.Select,
+                    options: reviewValueOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: 'Оценка жителя',
                         size: FilterComponentSize.Medium,
                     },
                 },
