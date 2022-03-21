@@ -81,6 +81,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const AttributeLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.Attribute' })
     const AuthorMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.Author' })
     const EnterFullNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterFullName' })
+    const GoodReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.good' })
+    const BadReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.good' })
+    const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
+    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
 
     const { objs: statuses } = TicketStatus.useObjects({})
     const statusOptions = convertToOptions<ITicketStatusUIState>(statuses, 'name', 'id')
@@ -92,11 +96,11 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
         { label: PaidMessage, value: 'isPaid' },
         { label: EmergencyMessage, value: 'isEmergency' },
         { label: WarrantyMessage, value: 'isWarranty' },
-        { label: 'Возвращена', value: 'statusReopenedCounter' },
+        { label: ReturnedMessage, value: 'statusReopenedCounter' },
     ]
     const reviewValueOptions = [
-        { label: 'Хорошо', value: '2' },
-        { label: 'Плохо', value: '1' },
+        { label: GoodReviewMessage, value: '2' },
+        { label: BadReviewMessage, value: '1' },
     ]
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')
@@ -353,7 +357,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                         placeholder: SelectMessage,
                     },
                     modalFilterComponentWrapper: {
-                        label: 'Оценка жителя',
+                        label: ReviewValueMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },

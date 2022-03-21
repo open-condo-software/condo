@@ -171,14 +171,6 @@ const TICKET_FILTER_FIELDS = '{ organization number createdAt status details pro
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_FILTER_TEMPLATE_FIELDS)
 
-// TODO(codegen): write return type result!
-
-const REOPEN_TICKET_MUTATION = gql`
-    mutation reopenTicket ($data: ReopenTicketInput!) {
-        result: reopenTicket(data: $data) { id }
-    }
-`
-
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -211,7 +203,5 @@ module.exports = {
     RESIDENT_TICKET_FIELDS,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
     TicketFilterTemplate,
-    REOPEN_TICKET_MUTATION,
-
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

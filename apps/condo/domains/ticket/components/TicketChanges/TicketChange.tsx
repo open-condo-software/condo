@@ -12,8 +12,9 @@ import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/
 import { FormattedMessage } from 'react-intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import dayjs from 'dayjs'
-import isNull from 'lodash/isNull'
 import isNil from 'lodash/isNil'
+import { getReviewMessageByValue } from '../../utils/clientSchema/Ticket'
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -77,6 +78,12 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
+    const FilledReviewCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.filled' })
+    const BadReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.badReview' })
+    const GoodReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.goodReview' })
+    const AutoClosedMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoCloseTicket' })
+    const AndMessage = intl.formatMessage(( { id: 'And' }))
+
     const { objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const fields = [
@@ -94,7 +101,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['classifierDisplayName', ClassifierMessage],
         ['placeClassifierDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
-        ['statusReopenedCounter', '', { change: 'вернул заявку в работу' }],
+        ['statusReopenedCounter', '', { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' }],
         ['reviewValue', '', { add: 'pages.condo.ticket.TicketChanges.reviewValue.add' }],
     ]
 
@@ -176,17 +183,18 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay}${problemClassifierToDisplay ? ` → ${problemClassifierToDisplay}` : ''}`
             },
             reviewValue: (field, value) => {
-                const reviewValueMessage = value === '1' ? '«Плохо»' : '«Хорошо»'
+                const reviewValueMessage = getReviewMessageByValue(value, intl)
                 const reviewComment = ticketChange['reviewCommentTo']
                 let reviewCommentMessage
 
                 if (reviewComment) {
-                    reviewCommentMessage = `Отметил «${reviewComment}»`
+                    const selectedReviewOptions = reviewComment.split(';').map(option => `«${option.trim()}»`).join(` ${AndMessage} `)
+                    reviewCommentMessage = `${FilledReviewCommentMessage} ${selectedReviewOptions}`
                 } else {
                     if (value === '1') {
-                        reviewCommentMessage = 'Что именно не понравилось – не отметил'
+                        reviewCommentMessage = BadReviewEmptyCommentMessage
                     } else if (value === '2') {
-                        reviewCommentMessage = 'Что именно понравилось – не отметил'
+                        reviewCommentMessage = GoodReviewEmptyCommentMessage
                     }
                 }
 
@@ -218,7 +226,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         }
 
         if (ticketChange.sender.fingerprint === 'auto-close') {
-            return field === 'statusDisplayName' && 'Заявка автоматически переведена в статус «Закрыта», так как от жителя не было обратной связи в течение 7 дней.'
+            return field === 'statusDisplayName' && AutoClosedMessage
         }
 
         const valueFrom = ticketChange[`${field}From`]
@@ -289,7 +297,9 @@ const SafeUserMention = ({ createdBy }) => {
     const intl = useIntl()
     const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
     const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
-    const userTypeMessage = createdBy.type === 'resident' ? 'Житель' : 'Диспетчер'
+    const DispatcherRoleName = intl.formatMessage({ id: 'employee.role.Dispatcher.name' })
+    const Resident = intl.formatMessage({ id: 'Contact' })
+    const userTypeMessage = createdBy.type === RESIDENT ? Resident : DispatcherRoleName
 
     return (
         createdBy ? (

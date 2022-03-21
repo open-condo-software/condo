@@ -27,7 +27,6 @@ const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql
 const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
 const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
-const { REOPEN_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -412,19 +411,6 @@ async function updateTestTicketFilterTemplate (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function reopenTicketByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(REOPEN_TICKET_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -461,6 +447,5 @@ module.exports = {
     createResidentTicketByTestClient,
     updateResidentTicketByTestClient,
     TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate,
-reopenTicketByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

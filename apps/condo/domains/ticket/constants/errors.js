@@ -1,8 +1,5 @@
 const UNKNOWN_GROUP_BY_FILTER = 'UNKNOWN_GROUP_BY_FILTER'
 
-const TICKET_STATUS_MUST_BE_COMPLETED_MESSAGE = 'To reopen an ticket, its status must be "completed"'
-
 module.exports = {
     UNKNOWN_GROUP_BY_FILTER,
-    TICKET_STATUS_MUST_BE_COMPLETED_MESSAGE,
 }

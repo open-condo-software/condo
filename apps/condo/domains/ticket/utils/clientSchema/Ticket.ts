@@ -89,6 +89,15 @@ function convertToGQLInput (state: ITicketFormState): TicketUpdateInput {
     return result
 }
 
+function getReviewMessageByValue (reviewValue, intl) {
+    switch (reviewValue) {
+        case '1':
+            return intl.formatMessage({ id: 'ticket.reviewValue.bad' })
+        case '2':
+            return intl.formatMessage({ id: 'ticket.reviewValue.good' })
+    }
+}
+
 const {
     useObject,
     useObjects,
@@ -105,4 +114,5 @@ export {
     useDelete,
     convertToUIFormState,
     extractAttributes,
+    getReviewMessageByValue,
 }
