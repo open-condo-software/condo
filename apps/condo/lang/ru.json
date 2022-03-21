@@ -493,6 +493,7 @@
   "pages.condo.ticket.TicketChanges.executor": "исполнителя",
   "pages.condo.ticket.TicketChanges.executor.add": "добавил {field}. Стал «{to}»",
   "pages.condo.ticket.TicketChanges.executor.remove": "удалил {field}. Был «{from}»",
+  "pages.condo.ticket.TicketChanges.reviewValue.add": "оценил заявку на {to}",
   "pages.condo.ticket.TicketChanges.classifier": "классификатор",
   "pages.condo.ticket.TicketChanges.address": "адрес",
   "pages.condo.ticket.TicketChanges.deadline": "срок заявки",

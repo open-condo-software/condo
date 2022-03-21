@@ -95,6 +95,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['placeClassifierDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
         ['statusReopenedCounter', '', { change: 'вернул заявку в работу' }],
+        ['reviewValue', '', { add: 'pages.condo.ticket.TicketChanges.reviewValue.add' }],
     ]
 
     const BooleanToString = {
@@ -174,9 +175,23 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
                 return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay}${problemClassifierToDisplay ? ` → ${problemClassifierToDisplay}` : ''}`
             },
-            // reviewValue: (field, value) => {
-            //
-            // },
+            reviewValue: (field, value) => {
+                const reviewValueMessage = value === '1' ? '«Плохо»' : '«Хорошо»'
+                const reviewComment = ticketChange['reviewCommentTo']
+                let reviewCommentMessage
+
+                if (reviewComment) {
+                    reviewCommentMessage = `Отметил «${reviewComment}»`
+                } else {
+                    if (value === '1') {
+                        reviewCommentMessage = 'Что именно не понравилось – не отметил'
+                    } else if (value === '2') {
+                        reviewCommentMessage = 'Что именно понравилось – не отметил'
+                    }
+                }
+
+                return `${reviewValueMessage}. ${reviewCommentMessage}`
+            },
         }
         return has(formatterFor, field)
             ? formatterFor[field](field, value, type)
