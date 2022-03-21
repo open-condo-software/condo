@@ -155,6 +155,7 @@
   "Published": "Published",
   "services.SetupService": "Set up service",
   "services.PartnerSite": "Partner site",
+  "services.AboutService": "About service",
   "MinutesShort": "${minutes} min.",
   "RolesAndAccess": "Roles and accesses",
   "Subscription": "Subscription",

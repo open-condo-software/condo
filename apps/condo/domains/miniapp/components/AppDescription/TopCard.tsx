@@ -148,6 +148,9 @@ export const TopCard: React.FC<TopCardProps> = ({
     const DeveloperMessage = intl.formatMessage({ id: 'Developer' })
     const PublishedMessage = intl.formatMessage({ id: 'Published' })
 
+    const { width } = useWindowSize()
+    const isSmallLayout = Boolean(width && width < TITLE_VERTICAL_MARK)
+
     return (
         <CardWrapper>
             <Card bordered={true} title={<TopCardTitle title={title} description={description} setupUrl={setupUrl} partnerUrl={partnerUrl} tag={tag}/>}>
@@ -172,7 +175,7 @@ export const TopCard: React.FC<TopCardProps> = ({
             </Card>
             {
                 tag && (
-                    <TagContainer right={40} top={56}>
+                    <TagContainer right={40} top={isSmallLayout ? 40 : 56}>
                         <Typography.Text type={'secondary'}>
                             {tag}
                         </Typography.Text>

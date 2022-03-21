@@ -2,10 +2,10 @@ import React from 'react'
 import Head from 'next/head'
 import Error from 'next/error'
 import { useIntl } from '@core/next/intl'
-import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
-import PageContent from '@condo/domains/miniapp/components/AppSelector'
+import Content from '@condo/domains/miniapp/components/AppSelector'
 
 const ServicesPage = () => {
     const intl = useIntl()
@@ -17,7 +17,9 @@ const ServicesPage = () => {
                 <title>{PageTitle}</title>
             </Head>
             <PageWrapper>
-                <PageContent/>
+                <PageContent>
+                    <Content/>
+                </PageContent>
             </PageWrapper>
         </FeatureFlagRequired>
     )
