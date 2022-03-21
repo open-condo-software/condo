@@ -1,25 +1,22 @@
 const fetch = require('node-fetch')
 const { Issuer, generators } = require('openid-client')
 const { default: axios } = require('axios')
+const jwtDecode = require('jwt-decode')
 
 const { createAxiosClientWithCookie, getRandomString } = require('@core/keystone/test.utils')
 
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { AdapterFactory } = require('../oidc/adapter')
-
-async function createClient (oidcClient) {
-    const clients = new AdapterFactory('Client')
-    await clients.upsert(oidcClient.client_id, oidcClient)
-}
+const { createOidcClient } = require('../oidc/')
 
 async function getAccessToken (accessToken) {
     const clients = new AdapterFactory('AccessToken')
     return await clients.find(accessToken)
 }
 
-async function request (url, cookie) {
-    const client = createAxiosClientWithCookie({ maxRedirects: 0 }, cookie, url)
+async function request (url, cookie, maxRedirects = 0) {
+    const client = createAxiosClientWithCookie({ maxRedirects }, cookie, url)
     const res = await client.get(url)
     cookie = client.getCookie()
     return {
@@ -102,7 +99,7 @@ test('oidc', async () => {
     const uri = 'https://jwt.io/'
     const clientId = getRandomString()
     const clientSecret = getRandomString()
-    await createClient({
+    await createOidcClient({
         // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
         client_id: clientId,
         client_secret: clientSecret,
@@ -176,4 +173,66 @@ test('oidc', async () => {
         { id: c.user.id, name: c.user.name },
         { 'Authorization': `Bearer ${tokenSet.access_token}` },
     )
+})
+
+test('oidc auth by mini app', async () => {
+    const c = await makeClientWithNewRegisteredAndLoggedInUser()
+
+    const uri = `${c.serverUrl}/.well-known/apollo/server-health`
+    const clientId = getRandomString()
+    const clientSecret = getRandomString()
+
+    await createOidcClient({
+        // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
+        response_types: ['code id_token', 'code', 'id_token'],
+        grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
+        token_endpoint_auth_method: 'client_secret_basic',
+    })
+
+    const serverUrl = c.serverUrl
+    const issuer = new Issuer({
+        authorization_endpoint: `${serverUrl}/oidc/auth`,
+        token_endpoint: `${serverUrl}/oidc/token`,
+        end_session_endpoint: `${serverUrl}/oidc/session/end`,
+        jwks_uri: `${serverUrl}/oidc/jwks`,
+        revocation_endpoint: `${serverUrl}/oidc/token/revocation`,
+        userinfo_endpoint: `${serverUrl}/oidc/me`,
+        issuer: serverUrl,
+    })
+    const client = new issuer.Client({
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
+        response_types: ['code id_token'],
+        token_endpoint_auth_method: 'client_secret_basic',
+    })
+    const _validateJWT = client.validateJWT
+    client.validateJWT = async (jwt, expectedAlg, required) => {
+        try {
+            await _validateJWT.call(client, jwt, expectedAlg, required)
+        } catch (error) {
+            console.error({ message: error.message, jwt, error })
+        }
+        return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
+    }
+
+    const checks = { nonce: generators.nonce(), state: generators.state() }
+    const redirectUrl = client.authorizationUrl({
+        response_type: 'code',
+        scope: 'openid',
+        ...checks,
+    })
+
+    console.log(redirectUrl)
+    const res1 = await request(redirectUrl, c.getCookie(), 100)
+    expect(res1.status).toEqual(200)
+    expect(res1.data).toMatchObject({ 'status': 'pass' })
+
+    console.log(res1.url)
+    const params = client.callbackParams(res1.url)
+    const tokenSet = await client.callback(uri, { code: params.code }, { nonce: checks.nonce })
+    expect(tokenSet.access_token).toBeTruthy()
 })
