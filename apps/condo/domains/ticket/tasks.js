@@ -3,7 +3,6 @@ const { createTask, createCronTask } = require('@core/keystone/tasks')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const dayjs = require('dayjs')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const closeCompletedTickets = require('./utils/serverSchema/closeCompletedTickets')
 
 /**
  * Launched when address of some property was changed to sync propertyAddress field of all linked tickets
@@ -32,9 +31,24 @@ async function manageTicketPropertyAddressChange (propertyId, userInfo) {
  * Closes tickets that are in the "completed" status for 7 days
  */
 const closeCompletedTicketsTask = createCronTask('closeCompletedTickets', '*/2 * * * *', async () => {
-    const { keystone: context } = await getSchemaCtx('Ticket')
+    const { keystone } = await getSchemaCtx('Ticket')
+    const adminContext = await keystone.createContext({ skipAccessControl: true })
 
-    await closeCompletedTickets(context)
+    const weekAgo = dayjs().subtract('1', 'minutes').toISOString()
+
+    const ticketsToChange = await find('Ticket', {
+        status: { id: STATUS_IDS.COMPLETED },
+        statusUpdatedAt_lte: weekAgo,
+        deletedAt: null,
+    })
+
+    for (const ticket of ticketsToChange) {
+        await Ticket.update(adminContext, ticket.id, {
+            status: { connect: { id: STATUS_IDS.CLOSED } },
+            dv: 1,
+            sender: { fingerprint: 'auto-close', dv: 1 },
+        })
+    }
 })
 
 module.exports = {

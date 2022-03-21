@@ -300,13 +300,23 @@ const TicketContent = ({ ticket }) => {
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         {
-                            ticketReviewValue ? (
+                            ticket.status.type === 'closed' ? (
                                 <PageFieldRow title={'Оценка жителя'}>
                                     <Typography.Text>
-                                        {reviewValueToText[ticketReviewValue]}&nbsp;
-                                        <Typography.Text type={'secondary'}>
-                                            ({ticketReviewComment ? ticketReviewComment : 'без уточнения'})
-                                        </Typography.Text>
+                                        {
+                                            ticketReviewValue ? (
+                                                <>
+                                                    {reviewValueToText[ticketReviewValue]}&nbsp;
+                                                    <Typography.Text type={'secondary'}>
+                                                        ({ticketReviewComment ? ticketReviewComment : 'без уточнения'})
+                                                    </Typography.Text>
+                                                </>
+                                            ) : (
+                                                <Typography.Text type={'secondary'}>
+                                                    житель не оценил
+                                                </Typography.Text>
+                                            )
+                                        }
                                     </Typography.Text>
                                 </PageFieldRow>
                             ) : null
