@@ -27,6 +27,8 @@ class OIDCMiddleware {
 
         app.get('/oidc/interaction/:uid', setNoCache, async (req, res, next) => {
             /*
+                This code is based on: https://github.com/panva/node-oidc-provider/blob/main/example/routes/express.js
+
                 Important notes about interactionResult from: https://github.com/panva/node-oidc-provider
 
                 // result should be an object with some or all the following properties
@@ -116,15 +118,14 @@ class OIDCMiddleware {
                     }
                 }
 
-                const redirectTo = await provider.interactionResult(req, res, result, { mergeWithLastSubmission: false })
-                logger.info({ redirectTo, interactionDetails })
-                res.send({ redirectTo })
+                logger.info({ interactionDetails: result })
+                await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false })
             } catch (err) {
                 logger.error({
                     message: 'ERROR<-OIDCInteraction',
                     error: safeFormatError(err),
                 })
-                res.status(400).json({
+                return res.status(400).json({
                     error: 'invalid_request',
                     error_description: err.toString(),
                 })
