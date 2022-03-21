@@ -193,7 +193,7 @@ const ChangePasswordPage: AuthPage = () => {
                                 >
                                     {SaveMsg}
                                 </Button>
-                                <Typography.Text type='secondary' style={{ marginLeft: '20px' }}>
+                                <Typography.Text type='secondary' style={{ marginLeft: '20px', maxWidth: '100%' }}>
                                     {AndSignInMsg}
                                 </Typography.Text>
                             </Form.Item>
