@@ -5,7 +5,7 @@ import styled from '@emotion/styled'
 import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
 import { useIntl } from '@core/next/intl'
-
+import { TagContainer } from '../TagContainer'
 interface AppSelectCardProps {
     logoSrc?: string
     tag?: string
@@ -56,17 +56,6 @@ const CardWrapper = styled.div<CardWrapperProps>`
   }
 `
 
-const TagContainer = styled.div`
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  font-size: 12px;
-  background: ${colors.backgroundLightGrey};
-  border-radius: 100px;
-  padding: 2px 10px;
-  font-weight: 600;
-`
-
 const IMAGE_STYLES: CSSProperties = { objectFit: 'contain', height: '100%' }
 const BUTTON_STYLES: CSSProperties = { marginTop: 12 }
 const PARAGRAPH_STYLE: CSSProperties = { margin: 0, height: 66 }
@@ -115,7 +104,7 @@ export const AppSelectCard: React.FC<AppSelectCardProps> = ({ logoSrc, tag, disa
             </Card>
             {
                 tag && (
-                    <TagContainer>
+                    <TagContainer right={4} top={4}>
                         <Typography.Text type={'secondary'}>
                             {tag}
                         </Typography.Text>

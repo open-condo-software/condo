@@ -14,6 +14,7 @@ export const AppDescriptionPageContent: React.FC = () => {
                 title={'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Adipisci autem blanditiis consectetur ea eaque ipsum, magnam minus, modi molestias nisi nobis numquam perferendis quos recusandae ut velit voluptas voluptatem! Quos.'}
                 setupUrl={'https://spotify.com'}
                 partnerUrl={'https://spotify.com'}
+                tag={'Биллинг'}
             />
         </>
     )
