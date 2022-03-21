@@ -218,7 +218,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         }
 
         if (ticketChange.sender.fingerprint === 'auto-close') {
-            return field === 'statusDisplayName' && 'Автоматическое закрытие заявки по истечению срока ожидания ответа жителя.'
+            return field === 'statusDisplayName' && 'Заявка автоматически переведена в статус «Закрыта», так как от жителя не было обратной связи в течение 7 дней.'
         }
 
         const valueFrom = ticketChange[`${field}From`]
