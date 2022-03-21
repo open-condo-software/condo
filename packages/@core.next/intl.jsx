@@ -10,7 +10,7 @@ let defaultLocale = 'en'
 
 let messagesImporter = (locale) => {
     throw new Error('You should define your own "messagesImporter(locale)" function. ' +
-        'Like so: "withIntl({ ..., messagesImporter: (locale) => import(`../lang/${locale}`) })(...)"')
+        'Like so: "withIntl({ ..., messagesImporter: (locale) => import(`../lang/${locale}/${locale}`) })(...)"')
 }
 
 let getMessages = async (locale) => {

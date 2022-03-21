@@ -51,7 +51,7 @@ const MyApp = ({ Component, pageProps }) => {
 }
 
 async function messagesImporter (locale) {
-    const base = await import(`../../condo/lang/${locale}`)
+    const base = await import(`../../condo/lang/${locale}/${locale}`)
     const override = await import(`../lang/${locale}`)
     return { ...base.default, ...override.default }
 }
