@@ -32,6 +32,7 @@ export default function Custom500 () {
                         <ErrorPosterWrapper isSmall={isSmall}>
                             <Poster
                                 src={'/authPoster.png'}
+                                placeholderSrc={'/authPosterPlaceholder.png'}
                                 placeholderColor={colors.selago}
                             />
                         </ErrorPosterWrapper>
