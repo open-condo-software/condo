@@ -16,7 +16,7 @@ interface IPosterLayoutProps {
     layoutBgColor?: string
 }
 
-const FOOTER_STYLES = { backgroundColor: 'inherit', marginTop: 5, position: 'static' }
+const FOOTER_STYLES: React.CSSProperties = { backgroundColor: 'inherit', marginTop: 5, position: 'static' }
 const ROW_STYLE = { marginTop: 65 }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor }) => {
@@ -50,7 +50,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                                     {children}
                                 </Col>
                             </Row>
-                            <Footer isSmall={isSmall} style={FOOTER_STYLES as React.CSSProperties}>
+                            <Footer isSmall={isSmall} style={FOOTER_STYLES}>
                                 <Row>
                                     <Col lg={15} md={24} push={FOOTER_COL_PUSH} pull={FOOTER_COL_PULL}>
                                         <FormattedMessage
