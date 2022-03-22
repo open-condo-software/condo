@@ -388,20 +388,37 @@ async function makePayer (receiptsAmount = 1) {
     const [billingProperty] = await createTestBillingProperty(admin, billingContext, {address: property.address})
     const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty)
     const billingReceipts = []
+
     for (let i = 0; i < receiptsAmount; i++) {
+
+        const tin = faker.datatype.number().toString()
+        const iec = faker.datatype.number().toString()
+        const bic = faker.datatype.number().toString()
+        const bankAccount = faker.datatype.number().toString()
+
         const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, {
+            recipient: {
+                tin: tin,
+                iec: iec,
+                bic: bic,
+                bankAccount: bankAccount,
+            },
             receiver: {
                 create: {
-                    tin: faker.datatype.number().toString(),
-                    iec: faker.datatype.number().toString(),
-                    bic: faker.datatype.number().toString(),
-                    bankAccount: faker.datatype.number().toString(),
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: "fingerprint" },
+                    context: { connect: { id: billingContext.id } },
+                    tin: tin,
+                    iec: iec,
+                    bic: bic,
+                    bankAccount: bankAccount,
                     isApproved: true,
                 }
             }
         })
         billingReceipts.push(receipt)
     }
+
 
     const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
     const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
