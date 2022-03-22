@@ -6,6 +6,7 @@ import {
     AcquiringIntegrationContext,
     updateTestAcquiringIntegrationContext,
 } from '@condo/domains/acquiring/utils/testSchema'
+import { createTestBillingRecipient } from '@condo/domains/billing/utils/testSchema'
 
 const { BillingIntegrationOrganizationContext } = require('../utils/testSchema')
 
@@ -918,5 +919,63 @@ describe('AllResidentBillingReceipts', () => {
             expect(receiptForHousing.period).toEqual(receiptForWater.period)
             expect(receiptForHousing.account.id).toEqual(receiptForWater.account.id)
         })
+    })
+
+    test('Support can approve billing receipt and make it payable', async () => {
+        const userClient = await makeClientWithProperty()
+        const support = await makeClientWithSupportUser()
+
+        const [integration] = await createTestBillingIntegration(support)
+        const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
+
+        const integrationClient = await makeLoggedInClient()
+        await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
+        const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
+            address: userClient.property.address,
+        })
+        const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(integrationClient, billingContext, billingProperty)
+
+        // Approve billing recipient
+        const [billingRecipient] = await createTestBillingRecipient(support, billingContext)
+        await updateTestBillingRecipient(support, billingRecipient.id, {
+            isApproved: true,
+        })
+
+        // Approve Acquiring
+        const startDate = dayjs().add(-7, 'day').toISOString()
+        const endDate = dayjs().add(7, 'day').toISOString()
+        const [acquiringIntegration] = await createTestAcquiringIntegration(support, [integration])
+        await createTestAcquiringIntegrationContext(support, userClient.organization, acquiringIntegration, {
+            implicitFeeDistributionSchema: getRandomImplicitFeeDistribution(),
+            paymentsAllowedFrom: startDate,
+            paymentsAllowedTo: endDate,
+        })
+
+        const residentUser = await makeClientWithResidentUser()
+        const [resident] = await registerResidentByTestClient(residentUser, {
+            address: userClient.property.address,
+            addressMeta: userClient.property.addressMeta,
+            unitName: billingAccountAttrs.unitName,
+        })
+
+        await registerServiceConsumerByTestClient(residentUser, {
+            residentId: resident.id,
+            accountNumber: billingAccountAttrs.number,
+            organizationId: userClient.organization.id,
+        })
+
+        await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount, {
+            recipient: {
+                tin: billingRecipient.tin,
+                iec: billingRecipient.iec,
+                bic: billingRecipient.bic,
+                bankAccount: billingRecipient.bankAccount,
+            },
+            receiver: { connect: { id: billingRecipient.id } },
+        })
+
+        const result = await ResidentBillingReceipt.getAll(residentUser)
+
+        expect(result).toHaveLength(1)
     })
 })
