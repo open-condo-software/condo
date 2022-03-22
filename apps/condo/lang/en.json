@@ -974,7 +974,6 @@
   "MultiPayment.status.DONE": "Done",
   "MultiPayment.status.PROCESSING": "Processing",
   "MultiPayment.status.ERROR": "Error",
-  "RegistriesUploading": "Registries uploading: {name}",
   "pages.paymentConfirm.PageTitle": "Payment",
   "pay": "Pay",
   "pages.paymentConfirm.VerifyPaymentAmount": "Verify payment amount",

@@ -974,7 +974,6 @@
   "MultiPayment.status.DONE": "Завершено",
   "MultiPayment.status.PROCESSING": "В обработке",
   "MultiPayment.status.ERROR": "Ошибка",
-  "RegistriesUploading": "Загрузка реестров {name}",
   "pages.paymentConfirm.PageTitle": "Оплата",
   "pay": "Оплатить",
   "pages.paymentConfirm.VerifyPaymentAmount": "Проверьте сумму платежа",
