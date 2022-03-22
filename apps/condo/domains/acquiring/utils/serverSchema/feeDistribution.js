@@ -124,7 +124,16 @@ class FeeDistribution extends Logger {
 }
 
 const getAcquiringIntegrationContextFormula = async (context, acquiringContextId) => {
-    const [{ integration: { explicitFeeDistributionSchema },  implicitFeeDistributionSchema } ] = await AcquiringIntegrationContextApi.getAll(context, { id: acquiringContextId })
+    let [{ integration: { explicitFeeDistributionSchema },  implicitFeeDistributionSchema } ] = await AcquiringIntegrationContextApi.getAll(context, { id: acquiringContextId })
+    // TODO(zuch): DOMA-2499 Refactoring for distribution schema
+    // explicitFeeDistributionSchema is a required field
+    if (!Array.isArray(explicitFeeDistributionSchema)) {
+        explicitFeeDistributionSchema = []
+    }
+    // implicitFeeDistributionSchema can be null
+    if (!Array.isArray(implicitFeeDistributionSchema)) {
+        implicitFeeDistributionSchema = []
+    }
     return Object.fromEntries(
         explicitFeeDistributionSchema
             .concat(implicitFeeDistributionSchema)
