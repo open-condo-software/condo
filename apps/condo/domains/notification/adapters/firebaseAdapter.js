@@ -43,7 +43,7 @@ const getFakeSuccessResponse = () => ({
 })
 
 /**
- * Send push notification to pushToken via app, configured by FIREBASE_CONFIG in .env
+ * Send push notification to pushToken via app, configured by FIREBASE_CONFIG in .helm (.env)
  * Attention! Notifications could only be sent to devices, connected via same PROJECT_ID.
  * Attempts to send push notifications to devices, connected through different projects will fail.
  */
@@ -51,17 +51,13 @@ class FirebaseAdapter {
     constructor (config = FIREBASE_CONFIG) {
         this.app = null
 
-        if (isEmpty(config)) console.error('Valid FIREBASE_CONFIG_JSON should be provided within .env, and can be retrieved from https://console.firebase.google.com/project/__PROJECT_ID__/settings/serviceaccounts/adminsdk')
+        if (isEmpty(config)) throw new Error('Valid FIREBASE_CONFIG_JSON should be provided within .helm (.env), and can be retrieved from https://console.firebase.google.com/project/__PROJECT_ID__/settings/serviceaccounts/adminsdk')
 
-        try {
-            this.app = admin.initializeApp({ credential: admin.credential.cert(config) })
-        } catch (error) {
-            console.error('Unable to authorize at FireBase using provided FIREBASE_CONFIG_JSON', error)
-        }
+        this.app = admin.initializeApp({ credential: admin.credential.cert(config) })
     }
 
     prepareNotification ({ title, body } = {}) {
-        if (!title || !body || isEmpty(title) || isEmpty(body)) throw new Error('No notification.title or notification.body')
+        if (!title || !body || isEmpty(title) || isEmpty(body)) throw new Error('Missing notification.title or notification.body')
 
         return { title, body }
     }
@@ -85,6 +81,13 @@ class FirebaseAdapter {
         return [notifications, fakeNotifications]
     }
 
+    /**
+     * For testing purpose we have to emulate FireBase response for predefined tokens, because it's almost
+     * impossible to get real FireBase push token in automated way.
+     * @param result
+     * @param fakeNotifications
+     * @returns {*}
+     */
     injectFakeResults (result, fakeNotifications) {
         const mixed = { ...result }
 
