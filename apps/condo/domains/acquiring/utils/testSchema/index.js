@@ -392,7 +392,11 @@ async function makePayer (receiptsAmount = 1) {
         const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, {
             receiver: {
                 create: {
-                    tin: faker.ran
+                    tin: faker.datatype.number().toString(),
+                    iec: faker.datatype.number().toString(),
+                    bic: faker.datatype.number().toString(),
+                    bankAccount: faker.datatype.number().toString(),
+                    isApproved: true,
                 }
             }
         })
