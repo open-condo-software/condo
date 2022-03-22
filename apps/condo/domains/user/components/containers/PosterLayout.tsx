@@ -8,22 +8,15 @@ import { Button } from '@condo/domains/common/components/Button'
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@condo/domains/common/constants/requisites'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-import { ChildrenWrapper, Footer, Layout, PageContent } from './styles'
+import { ChildrenWrapper, Footer, Layout, PageContent, PosterWrapper } from './styles'
 import { AuthHeader } from './AuthHeader'
-import styled from '@emotion/styled'
 
 interface IPosterLayoutProps {
     headerAction: React.ReactElement,
     layoutBgColor?: string
 }
 
-const PosterWrapper = styled.div`
-  width: 60%;
-  height: 100vh;
-  margin: auto;
-`
-
-const FOOTER_STYLES: React.CSSProperties = { backgroundColor: 'inherit', marginTop: 5, position: 'static', textAlign: 'center' }
+const FOOTER_STYLES: React.CSSProperties = { backgroundColor: 'inherit', marginTop: 5, position: 'static' }
 const ROW_STYLE = { marginTop: 65 }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor }) => {
