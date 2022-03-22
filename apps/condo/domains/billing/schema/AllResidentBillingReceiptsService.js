@@ -92,17 +92,33 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                     serviceConsumerWhere.deletedAt = null
                 }
 
-                // Step 1.1: Select only payable (isPaymentsAllowed == true) consumers with billing account
-                const serviceConsumers = (await find('ServiceConsumer', serviceConsumerWhere))
+                // Step 1.1: Select only consumers with billing account
+                let serviceConsumers = (await find('ServiceConsumer', serviceConsumerWhere))
                     .filter(consumer => get(consumer, 'billingAccount'))
-                    .filter(consumer => get(consumer, ['acquiringIntegrationContext', 'isPaymentsAllowed']))
-                if (!Array.isArray(serviceConsumers) || !serviceConsumers.length) {
+
+                // Step 1.2 Select only payable consumers (isPaymentsAllowed == true)
+                const payableConsumers = []
+                for (const serviceConsumer of serviceConsumers) {
+                    const [acquiringIntegrationContext] = await find(
+                        'AcquiringIntegrationContext',
+                        { id: serviceConsumer.acquiringIntegrationContext }
+                    )
+                    const now = dayjs()
+                    const from = dayjs(get(acquiringIntegrationContext, 'paymentsAllowedFrom'))
+                    const to = dayjs(get(acquiringIntegrationContext, 'paymentsAllowedTo'))
+                    if (from === null || to === null) { continue }
+                    if (from < now && now < to) {
+                        payableConsumers.push(serviceConsumer)
+                    }
+                }
+
+                if (!Array.isArray(payableConsumers) || !payableConsumers.length) {
                     return []
                 }
 
                 // Step 2: Get all billing receipts for all consumers
                 const processedReceipts = []
-                for (const serviceConsumer of serviceConsumers) {
+                for (const serviceConsumer of payableConsumers) {
 
                     const receiptsQuery = {
                         ...receiptsWhere,
