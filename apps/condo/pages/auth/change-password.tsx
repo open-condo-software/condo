@@ -184,21 +184,19 @@ const ChangePasswordPage: AuthPage = () => {
                             </Row>
                         </Col>
                         <Col span={24}>
-                            <Form style={{ maxWidth: '100%' }}>
-                                <Form.Item>
-                                    <Button
-                                        key='submit'
-                                        type='sberPrimary'
-                                        loading={isSaving}
-                                        htmlType="submit"
-                                    >
-                                        {SaveMsg}
-                                    </Button>
-                                    <Typography.Text type='secondary' style={{ marginLeft: '20px' }}>
-                                        {AndSignInMsg}
-                                    </Typography.Text>
-                                </Form.Item>
-                            </Form>
+                            <Form.Item wrapperCol={{ span: 24 }}>
+                                <Button
+                                    key='submit'
+                                    type='sberPrimary'
+                                    loading={isSaving}
+                                    htmlType="submit"
+                                >
+                                    {SaveMsg}
+                                </Button>
+                                <Typography.Text type='secondary' style={ { marginLeft: 20 } }>
+                                    {AndSignInMsg}
+                                </Typography.Text>
+                            </Form.Item>
                         </Col>
                     </Row>
                 </Form>

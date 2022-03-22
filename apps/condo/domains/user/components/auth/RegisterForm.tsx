@@ -43,6 +43,9 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
 
+    const PASSWORD_MSG_LABEL = <label style={{ whiteSpace:'break-spaces' }}>{PasswordMsg}</label>
+    const CONFIRM_PASSWORD_MSG_LABEL = <label style={{ whiteSpace:'break-spaces' }}>{ConfirmPasswordMsg}</label>
+
     const validators = useRegisterFormValidators()
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
@@ -155,7 +158,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                 <Col span={24}>
                                     <Form.Item
                                         name='password'
-                                        label={<label style={{ whiteSpace:'break-spaces' }}>{PasswordMsg}</label>}
+                                        label={PASSWORD_MSG_LABEL}
                                         rules={validators.password}
                                         data-cy={'register-password-item'}
                                     >
@@ -165,7 +168,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                 <Col span={24}>
                                     <Form.Item
                                         name='confirm'
-                                        label={<label style={{ whiteSpace:'break-spaces' }}>{ConfirmPasswordMsg}</label>}
+                                        label={CONFIRM_PASSWORD_MSG_LABEL}
                                         dependencies={['password']}
                                         rules={validators.confirm}
                                         data-cy={'register-confirmpassword-item'}
