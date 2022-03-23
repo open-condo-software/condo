@@ -175,7 +175,7 @@ const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_F
  
 const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
     query getPredictTicketClassification ($data: PredictTicketClassificationInput!) {
-        obj: PredictTicketClassification(data: $data) ${TICKET_CLASSIFIER_RULE_FIELDS}
+        obj: executePredictTicketClassification(data: $data) { id place { id name } category { id name }  }
     }
 `
 
