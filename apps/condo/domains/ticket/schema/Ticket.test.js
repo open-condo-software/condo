@@ -225,7 +225,7 @@ describe('Ticket', () => {
             expect(updatedTicket.status.id).toEqual(STATUS_IDS.CLOSED)
         })
 
-        test('resident: return to work Ticket when reviewValue is \'return\'', async () => {
+        test('resident: return to work Ticket when reviewValue is \'returned\'', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)

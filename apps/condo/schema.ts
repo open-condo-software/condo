@@ -33444,13 +33444,13 @@ export type TicketChangeCreateInput = {
 };
 
 export enum TicketChangeReviewValueFromType {
-  Return = 'return',
+  Returned = 'returned',
   Bad = 'bad',
   Good = 'good'
 }
 
 export enum TicketChangeReviewValueToType {
-  Return = 'return',
+  Returned = 'returned',
   Bad = 'bad',
   Good = 'good'
 }
@@ -37889,7 +37889,7 @@ export type TicketReportWidgetOutput = {
 };
 
 export enum TicketReviewValueType {
-  Return = 'return',
+  Returned = 'returned',
   Bad = 'bad',
   Good = 'good'
 }
