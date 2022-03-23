@@ -22567,6 +22567,10 @@ export type PaymentsUpdateInput = {
   data?: Maybe<PaymentUpdateInput>;
 };
 
+export type PredictTicketClassificationInput = {
+  details: Scalars['String'];
+};
+
 export type PropertiesCreateInput = {
   data?: Maybe<PropertyCreateInput>;
 };
@@ -24005,6 +24009,7 @@ export type Query = {
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   allResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
+  executePredictTicketClassification?: Maybe<TicketClassifierRule>;
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
@@ -26672,6 +26677,11 @@ export type QueryAllResidentTicketsArgs = {
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
   sortBy?: Maybe<Array<SortResidentTicketsBy>>;
+};
+
+
+export type QueryExecutePredictTicketClassificationArgs = {
+  data: PredictTicketClassificationInput;
 };
 
 

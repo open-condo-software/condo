@@ -171,6 +171,14 @@ const TICKET_FILTER_FIELDS = '{ organization number createdAt status details pro
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_FILTER_TEMPLATE_FIELDS)
 
+// TODO(codegen): write return type result!
+ 
+const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
+    query getPredictTicketClassification ($data: PredictTicketClassificationInput!) {
+        obj: PredictTicketClassification(data: $data) ${TICKET_CLASSIFIER_RULE_FIELDS}
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -203,5 +211,8 @@ module.exports = {
     RESIDENT_TICKET_FIELDS,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
     TicketFilterTemplate,
+
+    PREDICT_TICKET_CLASSIFICATION_QUERY,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
