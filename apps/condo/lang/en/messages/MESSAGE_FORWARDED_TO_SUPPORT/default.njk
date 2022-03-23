@@ -1,0 +1,12 @@
+Mobile OS: {{ message.meta.os }}
+App version: {{ message.meta.appVersion }}
+Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}N/A{% endif %}
+Message text: {{ message.meta.text }}
+Organizations:
+{%- if message.meta.organizationsData.length == 0 -%}
+  no
+{%- else -%}
+  {% for org in message.meta.organizationsData %}
+    - {{org.name}}. TIN: {{org.inn}}
+  {% endfor %}
+{% endif %}
