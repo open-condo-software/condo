@@ -21,7 +21,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsExecutor': true,
         'canReadPayments': true,
         'canReadBillingReceipts': true,
-        'isDivisionLimitedVisibility': false,
+        'canReadEntitiesOnlyInScopeOfDivision': false,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -42,7 +42,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsExecutor': true,
         'canReadPayments': true,
         'canReadBillingReceipts': true,
-        'isDivisionLimitedVisibility': false,
+        'canReadEntitiesOnlyInScopeOfDivision': false,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -63,7 +63,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsExecutor': true,
         'canReadPayments': false,
         'canReadBillingReceipts': false,
-        'isDivisionLimitedVisibility': false,
+        'canReadEntitiesOnlyInScopeOfDivision': false,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -84,7 +84,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsExecutor': true,
         'canReadPayments': false,
         'canReadBillingReceipts': false,
-        'isDivisionLimitedVisibility': false,
+        'canReadEntitiesOnlyInScopeOfDivision': false,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -105,7 +105,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsExecutor': true,
         'canReadPayments': false,
         'canReadBillingReceipts': false,
-        'isDivisionLimitedVisibility': false,
+        'canReadEntitiesOnlyInScopeOfDivision': false,
     },
 }
 module.exports = {

@@ -559,7 +559,7 @@ describe('Meter', () => {
             const [propertyInDivision2] = await createTestProperty(admin, organization)
             const [propertyOutOfDivision] = await createTestProperty(admin, organization)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                isDivisionLimitedVisibility: true,
+                canReadEntitiesOnlyInScopeOfDivision: true,
             })
             const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {})
             await createTestDivision(admin, organization, employee, {
@@ -598,7 +598,7 @@ describe('Meter', () => {
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const [divisionLimitedRole] = await createTestOrganizationEmployeeRole(admin, organization, {
-                isDivisionLimitedVisibility: true,
+                canReadEntitiesOnlyInScopeOfDivision: true,
             })
             const [divisionLimitedEmployee] = await createTestOrganizationEmployee(admin, organization, client.user, divisionLimitedRole, {})
 

@@ -18,7 +18,7 @@ const Division = generateServerUtils(DivisionGQL)
 async function getUserDivisionsInfo (context, userId) {
     const divisionVisibleLimitedEmployees = await OrganizationEmployee.getAll(context, {
         user: { id: userId },
-        role: { isDivisionLimitedVisibility: true },
+        role: { canReadEntitiesOnlyInScopeOfDivision: true },
         deletedAt: null,
         isBlocked: false,
     })
