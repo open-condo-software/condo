@@ -16,17 +16,19 @@ const loadTranslations = () => {
         .reduce((prev, curr) => ({ ...prev, ...curr }))
 }
 
-const getTranslations = (lang = conf.DEFAULT_LOCALE) => {
+const maybeLoadTranslations = () => {
     if (isEmpty(translations)) {
         loadTranslations()
     }
+}
+
+const getTranslations = (lang = conf.DEFAULT_LOCALE) => {
+    maybeLoadTranslations()
     return translations[lang] || translations[conf.DEFAULT_LOCALE]
 }
 
 const getAvailableLocales = () => {
-    if (isEmpty(translations)) {
-        loadTranslations()
-    }
+    maybeLoadTranslations()
     return Object.keys(translations)
 }
 
