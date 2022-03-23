@@ -781,6 +781,7 @@
   "notification.messages.INVITE_NEW_EMPLOYEE.push.title": "You are invited to join organization as employee",
   "notification.messages.REGISTER_NEW_USER.email.subject": "Your access data to doma.ai service",
   "notification.messages.REGISTER_NEW_USER.push.title": "Your access data to doma.ai service",
+  "notification.messages.SHARE_TICKET.email.subject": "Ticket №{ticketNumber}",
   "TicketDeadline": "Ticket deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
   "ticket.EmptyList.title": "Create the first one, it's simple",

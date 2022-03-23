@@ -45,6 +45,7 @@ const MESSAGE_TYPES = [
 const MESSAGE_TYPES_TRANSPORTS = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
     [MESSAGE_FORWARDED_TO_SUPPORT]: [EMAIL_TRANSPORT],
+    [SHARE_TICKET_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
 }
 
 //todo: maybe we should to gather all data about messages types in the single object

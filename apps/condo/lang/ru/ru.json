@@ -781,6 +781,7 @@
   "notification.messages.INVITE_NEW_EMPLOYEE.push.title": "Вас пригласили присоединиться к организации в качестве сотрудника",
   "notification.messages.REGISTER_NEW_USER.email.subject": "Ваши данные для доступа к сервису doma.ai",
   "notification.messages.REGISTER_NEW_USER.push.title": "Ваши данные для доступа к сервису doma.ai",
+  "notification.messages.SHARE_TICKET.email.subject": "Заявка №{ticketNumber}",
   "TicketDeadline": "Срок выполнения заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",
