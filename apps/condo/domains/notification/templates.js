@@ -186,21 +186,6 @@ async function renderTemplate (transport, message) {
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
     return renderMessage({ message, env })
 
-    if (message.type === SMS_VERIFY_CODE_MESSAGE_TYPE) {
-        const { smsCode } = message.meta
-        if (message.lang === 'en') {
-            return {
-                subject: 'Verify code',
-                text: `Code: ${smsCode}`,
-            }
-        } else if (message.lang === 'ru') {
-            return {
-                subject: 'Код',
-                text: `Код: ${smsCode}`,
-            }
-        }
-    }
-
     if (message.type === DEVELOPER_IMPORTANT_NOTE_TYPE) {
         const { data, type } = message.meta
         return {

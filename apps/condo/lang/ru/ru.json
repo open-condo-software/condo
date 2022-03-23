@@ -784,6 +784,8 @@
   "notification.messages.SHARE_TICKET.email.subject": "Заявка №{ticketNumber}",
   "notification.messages.RESET_PASSWORD.email.subject": "Восстановление пароля",
   "notification.messages.RESET_PASSWORD.push.title": "Восстановление пароля",
+  "notification.messages.SMS_VERIFY.email.subject": "Код",
+  "notification.messages.SMS_VERIFY.push.title": "Код",
   "TicketDeadline": "Срок выполнения заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",
