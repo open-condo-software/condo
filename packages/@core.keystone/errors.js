@@ -124,6 +124,7 @@ class GQLError extends ApolloError {
         const message = template(fields.message)(fields.messageInterpolation)
         extensions.message = message
         if (context) {
+            // todo use i18n from apps/condo/domains/common/utils/localesLoader.js
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
             const translations = getTranslations(locale)
             const translatedMessage = translations[fields.messageForUser]
