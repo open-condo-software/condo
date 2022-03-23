@@ -18,8 +18,6 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { SortMeterReadingsBy, SortMetersBy } from '@app/condo/schema'
 import { IMeterReadingUIState } from '../utils/clientSchema/MeterReading'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
-import { EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
-    EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT } from '../constants/errors'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { useMeterTableColumns } from '../hooks/useMeterTableColumns'
@@ -79,6 +77,94 @@ function getTableData (meters: IMeterUIState[], meterReadings: IMeterReadingUISt
     return dataSource
 }
 
+export const PropertyMetersForm = ({
+    handleSave,
+    selectedPropertyId,
+    selectedUnitName,
+    organizationId,
+    tableColumns,
+    newMeterReadings,
+    setNewMeterReadings,
+}) => {
+    const intl = useIntl()
+    const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
+
+    const { isSmall } = useLayoutContext()
+
+    const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useObjects({
+        where: {
+            property: { id: selectedPropertyId },
+            unitName: selectedUnitName,
+        },
+        orderBy: SortMetersBy.CreatedAtDesc,
+    })
+    const meterIds = meters.map(meter => meter.id)
+    const { objs: meterReadings, refetch: refetchMeterReadings, loading: meterReadingsLoading } = MeterReading.useObjects({
+        where: {
+            meter: { id_in: meterIds },
+        },
+        sortBy: [SortMeterReadingsBy.CreatedAtDesc],
+    })
+    const refetch = useCallback(() => {
+        refetchMeters()
+        refetchMeterReadings()
+    }, [refetchMeterReadings, refetchMeters])
+
+    const loading = metersLoading || meterReadingsLoading
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, selectedUnitName, refetch)
+    const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
+
+    useEffect(() => {
+        refetch()
+        setNewMeterReadings({})
+    }, [selectedPropertyId, selectedUnitName])
+
+    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                const meter = get(record, 'meter')
+                setSelectedMeter(meter)
+            },
+        }
+    }, [setSelectedMeter])
+    const handleAddMeterButtonClick = useCallback(() => setIsCreateMeterModalVisible(true),
+        [setIsCreateMeterModalVisible])
+
+    return (
+        <>
+            <Col span={24}>
+                <Row gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
+                    <Typography.Title level={2}>{MetersAndReadingsMessage}</Typography.Title>
+                    {
+                        selectedUnitName ? (
+                            <Table
+                                scroll={getTableScrollConfig(isSmall)}
+                                loading={loading}
+                                totalRows={total}
+                                dataSource={dataSource}
+                                columns={tableColumns}
+                                pagination={false}
+                                onRow={handleRowAction}
+                            />
+                        ) : null
+                    }
+                </Row>
+            </Col>
+            <Col span={24}>
+                <CreateMeterReadingsActionBar
+                    handleSave={handleSave}
+                    newMeterReadings={newMeterReadings}
+                    handleAddMeterButtonClick={handleAddMeterButtonClick}
+                    isLoading={loading}
+                />
+            </Col>
+            <CreateMeterModal />
+            <UpdateMeterModal />
+        </>
+    )
+}
+
 const VALIDATE_FORM_TRIGGER = ['onBlur', 'onSubmit']
 const FORM_ROW_LARGE_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
@@ -91,14 +177,13 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
-    const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
 
-    const { isSmall } = useLayoutContext()
     const { requiredValidator } = useValidations()
     const validations = {
         property: [requiredValidator],
     }
 
+    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns()
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
     const selectPropertyIdRef = useRef(selectedPropertyId)
@@ -127,50 +212,11 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     }, [canCreateContact])
 
     const router = useRouter()
-    const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useObjects({
-        where: {
-            property: { id: selectedPropertyId },
-            unitName: selectedUnitName,
-        },
-        orderBy: SortMetersBy.CreatedAtDesc,
-    })
-    const meterIds = meters.map(meter => meter.id)
-    const { objs: meterReadings, refetch: refetchMeterReadings, loading: meterReadingsLoading } = MeterReading.useObjects({
-        where: {
-            meter: { id_in: meterIds },
-        },
-        sortBy: [SortMeterReadingsBy.CreatedAtDesc],
-    })
-
-    const refetch = useCallback(() => {
-        refetchMeters()
-        refetchMeterReadings()
-    }, [refetchMeterReadings, refetchMeters])
-    const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organization.id, selectedPropertyId, selectedUnitName, refetch)
-    const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
-    const { tableColumns, newMeterReadings, setNewMeterReadings } = useMeterTableColumns()
-    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: () => {
-                const meter = get(record, 'meter')
-                setSelectedMeter(meter)
-            },
-        }
-    }, [setSelectedMeter])
-    const handleAddMeterButtonClick = useCallback(() => setIsCreateMeterModalVisible(true),
-        [setIsCreateMeterModalVisible])
-
-    useEffect(() => {
-        refetch()
-        setNewMeterReadings({})
-    }, [selectedPropertyId, selectedUnitName])
 
     const createMeterReadingAction = MeterReading.useCreate({
         source: CALL_METER_READING_SOURCE_ID,
-    }, () => {
-        router.push('/meter')
+    }, async () => {
+        await router.push('/meter')
     })
 
     const handleSubmit = useCallback(async (values) => {
@@ -280,34 +326,15 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col span={24}>
-                                <Row gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
-                                    <Typography.Title level={2}>{MetersAndReadingsMessage}</Typography.Title>
-                                    {
-                                        selectedUnitName ? (
-                                            <Table
-                                                scroll={getTableScrollConfig(isSmall)}
-                                                loading={loading}
-                                                totalRows={total}
-                                                dataSource={dataSource}
-                                                columns={tableColumns}
-                                                pagination={false}
-                                                onRow={handleRowAction}
-                                            />
-                                        ) : null
-                                    }
-                                </Row>
-                            </Col>
-                            <Col span={24}>
-                                <CreateMeterReadingsActionBar
-                                    handleSave={handleSave}
-                                    newMeterReadings={newMeterReadings}
-                                    handleAddMeterButtonClick={handleAddMeterButtonClick}
-                                    isLoading={loading}
-                                />
-                            </Col>
-                            <CreateMeterModal />
-                            <UpdateMeterModal />
+                            <PropertyMetersForm
+                                selectedPropertyId={selectedPropertyId}
+                                selectedUnitName={selectedUnitName}
+                                handleSave={handleSave}
+                                organizationId={organization.id}
+                                tableColumns={tableColumns}
+                                setNewMeterReadings={setNewMeterReadings}
+                                newMeterReadings={newMeterReadings}
+                            />
                         </Row>
                     </Col>
                 </>
