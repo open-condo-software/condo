@@ -28,6 +28,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 import { TableFiltersContainer } from '../../domains/common/components/TableFiltersContainer'
+import isEmpty from 'lodash/isEmpty'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -79,6 +80,7 @@ export const ContactsPageContent = ({
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
+    const isNoContactsData = !contacts.length && isEmpty(filtersFromQuery) && !loading
 
     return (
         <>
@@ -89,7 +91,7 @@ export const ContactsPageContent = ({
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
                 <TablePageContent>
                     {
-                        !contacts.length && !filtersFromQuery
+                        isNoContactsData
                             ? (
                                 <EmptyListView
                                     label={EmptyListLabel}
