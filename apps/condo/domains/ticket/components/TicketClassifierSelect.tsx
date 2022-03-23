@@ -310,8 +310,18 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     }
 
     const ClassifiersEditorComponent = useMemo(() => {
-        const ClassifiersEditorWrapper: React.FC<{ form, disabled }> = ({ form, disabled }) => {
+        const ClassifiersEditorWrapper: React.FC<{ form, disabled, autoClassifierFill }> = ({ form, disabled, autoClassifierFill }) => {
             ticketForm.current = form
+            useEffect(() => {
+                if (autoClassifierFill) {
+                    ticketForm.current.setFields([
+                        { name: 'classifierRule', value: autoClassifierFill.classifierRule },
+                        { name: 'placeClassifier', value: autoClassifierFill.placeClassifier },
+                        { name: 'categoryClassifier', value: autoClassifierFill.categoryClassifier },
+                        { name: 'problemClassifier', value: null },
+                    ])
+                }
+            }, [autoClassifierFill])
             return (
                 <Row gutter={CLASSIFIER_ROW_GUTTER}>
                     <Form.Item name={'classifierRule'} rules={validations.classifierRule} noStyle={true}>
