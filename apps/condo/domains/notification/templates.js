@@ -155,7 +155,7 @@ async function renderTemplate (transport, message) {
         throw new Error('unexpected transport argument')
     }
 
-    if (!MESSAGE_TRANSPORTS_RENDERERS.includes(transport)) {
+    if (!Object.keys(MESSAGE_TRANSPORTS_RENDERERS).includes(transport)) {
         throw new Error(`No renderer for ${transport} messages`)
     }
 
