@@ -14873,6 +14873,46 @@ export type Mutation = {
    * 			"defaultValue": [],
    * 			"isRequired": false
    * 		}
+   * 	},
+   * 	"TICKET_ASSIGNEE_CONNECTED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"ticketId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketNumber": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"TICKET_EXECUTOR_CONNECTED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"ticketId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketNumber": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
    * 	}
    * }`
    *
@@ -27602,7 +27642,9 @@ export enum SendMessageType {
   ShareTicket = 'SHARE_TICKET',
   DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
   CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
-  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT'
+  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
+  TicketAssigneeConnected = 'TICKET_ASSIGNEE_CONNECTED',
+  TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED'
 }
 
 export type SenderField = {

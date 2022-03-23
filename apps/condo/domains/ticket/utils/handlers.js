@@ -7,7 +7,18 @@ const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/c
 const { TICKET_ASSIGNEE_CONNECTED_TYPE, TICKET_EXECUTOR_CONNECTED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
-const handleTicketEvents = async ({ operation, existingItem, updatedItem, context }) => {
+const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
+const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
+const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
+
+/**
+ * Detects possible events within Ticket schema request
+ * @param operation
+ * @param existingItem
+ * @param updatedItem
+ * @returns {{}}
+ */
+const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     const isCreateOperation =  operation === 'create'
     const isUpdateOperation =  operation === 'update'
     const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
@@ -16,56 +27,100 @@ const handleTicketEvents = async ({ operation, existingItem, updatedItem, contex
     const nextAssigneeId = get(updatedItem, 'assignee')
     const nextExecutorId = get(updatedItem, 'executor')
     const nextStatusId = get(updatedItem, 'status')
-    // assignee connected within create ticket operation or
-    // assignee connected/changed within update ticket operation
-    const isAssigneeConnected = isCreateOperation && nextAssigneeId || isUpdateOperation && nextAssigneeId && nextAssigneeId !== prevAssigneeId
-    // executor connected within create ticket operation or
-    // executor connected/changed within update ticket operation
-    const isExecutorConnected = isCreateOperation && nextExecutorId || isUpdateOperation && nextExecutorId && nextExecutorId !== prevExecutorId
-    const isStatusChanged = isCreateOperation && !!nextStatusId || isUpdateOperation && nextStatusId && nextStatusId !== prevStatusId
+    const result = {}
+
+    /**
+     * assignee connected within create ticket operation or
+     * assignee connected/changed within update ticket operation
+     */
+    result[ASSIGNEE_CONNECTED_EVENT_TYPE] = isCreateOperation && !!nextAssigneeId || isUpdateOperation && !!nextAssigneeId && nextAssigneeId !== prevAssigneeId
+
+    /**
+     * executor connected within create ticket operation or
+     * executor connected/changed within update ticket operation
+     */
+    result[EXECUTOR_CONNECTED_EVENT_TYPE] = isCreateOperation && !!nextExecutorId || isUpdateOperation && nextExecutorId && nextExecutorId !== prevExecutorId
+
+    /**
+     * ticket status changed
+     */
+    result[STATUS_CHANGED_EVENT_TYPE] = isCreateOperation && !!nextStatusId || isUpdateOperation && nextStatusId && nextStatusId !== prevStatusId
+
+    return result
+}
+
+/**
+ * Basically sends different kinds of notifications when assignee/executable added to Ticket, status changed, etc.
+ * @param operation
+ * @param existingItem
+ * @param updatedItem
+ * @param context
+ * @returns {Promise<void>}
+ */
+const handleTicketEvents = async (requestData) => {
+    const eventTypes = detectEventTypes(requestData)
+    const { operation, existingItem, updatedItem, context } = requestData
+    const isCreateOperation =  operation === 'create'
+    const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
+    const prevExecutorId = !isCreateOperation && get(existingItem, 'executor')
+    const nextAssigneeId = get(updatedItem, 'assignee')
+    const nextExecutorId = get(updatedItem, 'executor')
 
     const organization = await getByCondition('Organization', {
         id: updatedItem.organization,
         deletedAt: null,
     })
 
-    const lang = COUNTRIES[organization.country].locale || DEFAULT_LOCALE
+    /**
+     * Detect message language
+     * Use DEFAULT_LOCALE if organization.country is unknown
+     * (not defined within @condo/domains/common/constants/countries)
+     */
+    const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
 
-    if (isAssigneeConnected) {
+    if (eventTypes[ASSIGNEE_CONNECTED_EVENT_TYPE]) {
         await sendMessage(context, {
             lang,
             to: { user: { id: nextAssigneeId || prevAssigneeId } },
             type: TICKET_ASSIGNEE_CONNECTED_TYPE,
             meta: {
                 dv: 1,
-                ticketId: updatedItem.id,
-                ticketNumber: updatedItem.number,
-                userId: nextAssigneeId || prevAssigneeId,
+                data: {
+                    ticketId: updatedItem.id,
+                    ticketNumber: updatedItem.number,
+                    userId: nextAssigneeId || prevAssigneeId,
+                },
             },
             sender: updatedItem.sender,
         })
     }
 
-    if (isExecutorConnected) {
+    if (eventTypes[EXECUTOR_CONNECTED_EVENT_TYPE]) {
         await sendMessage(context, {
             lang,
             to: { user: { id: nextExecutorId || prevExecutorId } },
             type: TICKET_EXECUTOR_CONNECTED_TYPE,
             meta: {
                 dv: 1,
-                ticketId: updatedItem.id,
-                ticketNumber: updatedItem.number,
-                userId: nextAssigneeId || prevAssigneeId,
+                data: {
+                    ticketId: updatedItem.id,
+                    ticketNumber: updatedItem.number,
+                    userId: nextExecutorId || prevExecutorId,
+                },
             },
             sender: updatedItem.sender,
         })
     }
 
-    if (isStatusChanged) {
+    if (eventTypes[STATUS_CHANGED_EVENT_TYPE]) {
         // TODO(DOMA-2434): Add logic for sending notifications to resident on ticket status change
     }
 }
 
 module.exports = {
     handleTicketEvents,
+    detectEventTypes,
+    ASSIGNEE_CONNECTED_EVENT_TYPE,
+    EXECUTOR_CONNECTED_EVENT_TYPE,
+    STATUS_CHANGED_EVENT_TYPE,
 }
