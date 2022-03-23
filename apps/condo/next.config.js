@@ -8,6 +8,7 @@ const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 // NOTE: FormTable require rc-table module
 const withTM = require('next-transpile-modules')(['@core/next', '@core/keystone', 'rc-table', '@condo/domains'])
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
+const { get } = require('lodash')
 
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
@@ -49,7 +50,17 @@ module.exports = withTM(withLess(withCSS({
         const plugins = config.plugins
 
         // NOTE: Replace Moment.js with Day.js in antd project
-        config.plugins = [ ...plugins, new AntdDayjsWebpackPlugin() ]
+        config.plugins = [...plugins, new AntdDayjsWebpackPlugin()]
+
+        /**
+         Prevent warnings for messages templates during building.
+         These files are processing manually using nunjucks
+         @link https://webpack.js.org/configuration/module/#modulenoparse
+         */
+        config.module.noParse = [
+            ...get(config, ['module', 'noParse'], []),
+            /lang\/.*\.njk$/,
+        ]
 
         return config
     },
