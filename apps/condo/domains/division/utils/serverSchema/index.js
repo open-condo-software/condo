@@ -4,19 +4,19 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { Division: DivisionGQL } = require('@condo/domains/division/gql')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const uniq = require('lodash/uniq')
 const flatten = require('lodash/flatten')
+const { find } = require('@core/keystone/schema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Division = generateServerUtils(DivisionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function getUserDivisionsInfo (context, userId) {
-    const divisionVisibleLimitedEmployees = await OrganizationEmployee.getAll(context, {
+    const divisionVisibleLimitedEmployees = await find('OrganizationEmployee', {
         user: { id: userId },
         role: { canReadEntitiesOnlyInScopeOfDivision: true },
         deletedAt: null,
@@ -24,7 +24,7 @@ async function getUserDivisionsInfo (context, userId) {
     })
 
     if (divisionVisibleLimitedEmployees.length > 0) {
-        const organizationsIdsWithEmployeeInDivision = divisionVisibleLimitedEmployees.map(employee => employee.organization.id)
+        const organizationsIdsWithEmployeeInDivision = divisionVisibleLimitedEmployees.map(employee => employee.organization)
         const divisionVisibleLimitedEmployeesIds = divisionVisibleLimitedEmployees.map(employee => employee.id)
         const employeeDivisions = await Division.getAll(context, {
             OR: [
