@@ -17,7 +17,14 @@ const {
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     CUSTOMER_IMPORTANT_NOTE_TYPE,
     MESSAGE_FORWARDED_TO_SUPPORT,
+    TICKET_ASSIGNEE_CONNECTED_TYPE,
+    TICKET_EXECUTOR_CONNECTED_TYPE,
 } = require('./constants/constants')
+
+const {
+    getTicketAssigneeConnectedMessage,
+    getTicketExecutorConnectedMessage,
+} = require('./ticketTemplates')
 
 async function renderTemplate (transport, message) {
     if (!MESSAGE_TRANSPORTS.includes(transport)) throw new Error('unexpected transport argument')
@@ -255,7 +262,7 @@ async function renderTemplate (transport, message) {
 
     if (message.type === MESSAGE_FORWARDED_TO_SUPPORT) {
         const { emailFrom, meta } = message
-        const { dv, text, os, appVersion, organizationsData = [] } = meta
+        const { text, os, appVersion, organizationsData = [] } = meta
 
         return {
             subject: 'Обращение из мобильного приложения',
@@ -268,6 +275,14 @@ async function renderTemplate (transport, message) {
                   - ${name}. ИНН: ${inn}`).join('')}
             `,
         }
+    }
+
+    if (message.type === TICKET_ASSIGNEE_CONNECTED_TYPE) {
+        return getTicketAssigneeConnectedMessage(message, transport)
+    }
+
+    if (message.type === TICKET_EXECUTOR_CONNECTED_TYPE) {
+        return getTicketExecutorConnectedMessage(message, transport)
     }
 
     throw new Error('unknown template or lang')

@@ -35,6 +35,8 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { TERMINAL_TICKET_STATUS_IDS } = require('../constants/statusTransitions')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
+const { handleTicketEvents } = require('../utils/handlers')
+
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
     fields: {
@@ -338,18 +340,11 @@ const Ticket = new GQLListSchema('Ticket', {
             }
 
             if (resolvedData.contact) {
-                const [contact] = await Contact.getAll(context, {
-                    id: resolvedData.contact,
-                })
-                if (!resolvedData.clientName) {
-                    resolvedData.clientName = contact.name
-                }
-                if (!resolvedData.clientEmail) {
-                    resolvedData.clientEmail = contact.email
-                }
-                if (!resolvedData.clientPhone) {
-                    resolvedData.clientPhone = contact.phone
-                }
+                const contact = await Contact.getOne(context, { id: resolvedData.contact })
+
+                if (!resolvedData.clientName) resolvedData.clientName = contact.name
+                if (!resolvedData.clientEmail) resolvedData.clientEmail = contact.email
+                if (!resolvedData.clientPhone) resolvedData.clientPhone = contact.phone
             }
 
             return resolvedData
@@ -393,6 +388,10 @@ const Ticket = new GQLListSchema('Ticket', {
                 relatedManyToManyResolvers,
                 [{ property, unitName }, { placeClassifier, categoryClassifier, problemClassifier }]
             )(...args)
+
+            const [requestData] = args
+            /* NOTE: this sends different kinds of notifications on ticket create/update */
+            await handleTicketEvents(requestData)
         },
     },
     access: {

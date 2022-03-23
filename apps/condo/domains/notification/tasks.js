@@ -6,7 +6,8 @@ const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const sms = require('./transports/sms')
 const email = require('./transports/email')
-const { SMS_TRANSPORT, EMAIL_TRANSPORT, MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_PROCESSING_STATUS, MESSAGE_ERROR_STATUS, MESSAGE_DELIVERED_STATUS } = require('./constants/constants')
+const push = require('./transports/push')
+const { SMS_TRANSPORT, EMAIL_TRANSPORT, PUSH_TRANSPORT, MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_PROCESSING_STATUS, MESSAGE_ERROR_STATUS, MESSAGE_DELIVERED_STATUS } = require('./constants/constants')
 
 const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
 const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
@@ -14,6 +15,7 @@ const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
 const TRANSPORTS = {
     [SMS_TRANSPORT]: sms,
     [EMAIL_TRANSPORT]: email,
+    [PUSH_TRANSPORT]: push,
 }
 
 async function _sendMessageByAdapter (transport, adapter, messageContext) {
@@ -32,41 +34,32 @@ async function _choseMessageTransport (message) {
     if (!isEmpty(phone)) {
         return SMS_TRANSPORT
     }
-    if (!isEmpty(email)) {
-        return EMAIL_TRANSPORT
-    }
     // TODO(pahaz): we should chose the best transport for the message.
     //  We can chose transport depends on the message.type?
     //  or use something like message.user.profile.preferredNotificationTransport if user want to get messages from TG
-    if (!isEmpty(user.email)) {
+    if (!isEmpty(email) || !isEmpty(user.email)) {
         return EMAIL_TRANSPORT
     }
-    return SMS_TRANSPORT
+    return PUSH_TRANSPORT
+}
+
+const MESSAGE_SENDING_STATUSES = {
+    MESSAGE_SENDING_STATUS: true,
+    MESSAGE_RESENDING_STATUS: true,
 }
 
 async function deliveryMessage (messageId) {
     const { keystone } = await getSchemaCtx('Message')
+    const message = await Message.getOne(keystone, { id: messageId })
 
-    const messages = await Message.getAll(keystone, { id: messageId })
-    if (messages.length !== 1) throw new Error('message id not found or found multiple results')
-
-    const message = messages[0]
-    if (message.id !== messageId) throw new Error('get message by id has wrong result')
+    if (!message || message.id !== messageId) throw new Error('get message by id has wrong result')
+    if (MESSAGE_SENDING_STATUSES[message.status]) return `already-${message.status}`
 
     const transport = await _choseMessageTransport(message)
-
-    if (message.id !== messageId) throw new Error('get message by id wrong result')
-    if (message.status !== MESSAGE_SENDING_STATUS && message.status !== MESSAGE_RESENDING_STATUS) {
-        return `already-${message.status}`
-    }
-
-    const baseAttrs = {
-        // TODO(pahaz): it's better to use server side fingerprint?!
-        dv: message.dv,
-        sender: message.sender,
-    }
-
+    // TODO(pahaz): it's better to use server side fingerprint?!
+    const baseAttrs = { dv: message.dv, sender: message.sender }
     const processingMeta = { dv: 1, transport, step: 'init' }
+
     await Message.update(keystone, message.id, {
         ...baseAttrs,
         status: MESSAGE_PROCESSING_STATUS,
