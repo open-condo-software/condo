@@ -21,7 +21,7 @@ const TICKET_STATUS_TYPES = [
 const REVIEW_VALUES = {
     BAD: 'bad',
     GOOD: 'good',
-    RETURN: 'return',
+    RETURN: 'returned',
 }
 
 /*
