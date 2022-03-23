@@ -132,28 +132,32 @@ export const MetersPageContent = ({
                                                 </Col>
                                                 <Col>
                                                     <Row gutter={[10, 0]} align={'middle'} justify={'center'}>
-                                                        <Col>
-                                                            <ImportWrapper
-                                                                objectsName={MeterReadingImportObjectsName}
-                                                                accessCheck={canManageMeterReadings}
-                                                                onFinish={refetch}
-                                                                columns={columns}
-                                                                maxTableLength={hasFeature('bigger_limit_for_meter_import') ? 10000 : 500}
-                                                                rowNormalizer={meterReadingNormalizer}
-                                                                rowValidator={meterReadingValidator}
-                                                                objectCreator={meterReadingCreator}
-                                                                domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                                                exampleTemplateLink={'/meter-import-example.xlsx'}
-                                                                mutationErrorsToMessages={mutationErrorsToMessages}
-                                                            >
-                                                                <Button
-                                                                    type={'sberPrimary'}
-                                                                    icon={<DiffOutlined />}
-                                                                    block
-                                                                    secondary
-                                                                />
-                                                            </ImportWrapper>
-                                                        </Col>
+                                                        {
+                                                            canManageMeterReadings && (
+                                                                <Col>
+                                                                    <ImportWrapper
+                                                                        objectsName={MeterReadingImportObjectsName}
+                                                                        accessCheck={canManageMeterReadings}
+                                                                        onFinish={refetch}
+                                                                        columns={columns}
+                                                                        maxTableLength={hasFeature('bigger_limit_for_meter_import') ? 10000 : 500}
+                                                                        rowNormalizer={meterReadingNormalizer}
+                                                                        rowValidator={meterReadingValidator}
+                                                                        objectCreator={meterReadingCreator}
+                                                                        domainTranslate={MeterReadingImportObjectsNameManyGenitive}
+                                                                        exampleTemplateLink={'/meter-import-example.xlsx'}
+                                                                        mutationErrorsToMessages={mutationErrorsToMessages}
+                                                                    >
+                                                                        <Button
+                                                                            type={'sberPrimary'}
+                                                                            icon={<DiffOutlined />}
+                                                                            block
+                                                                            secondary
+                                                                        />
+                                                                    </ImportWrapper>
+                                                                </Col>
+                                                            )
+                                                        }
                                                         <Col>
                                                             <Button
                                                                 secondary

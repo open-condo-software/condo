@@ -6,6 +6,7 @@ const { render, getValidator } = require('@condo/domains/billing/schema/fields/u
 const METER_READING_FILTER_TYPE_NAME = 'MeterReadingFilters'
 
 const MeterReadingFilterFields = {
+    organization: '[String]',
     address: '[String]',
     accountNumber: 'String',
     place: 'String',

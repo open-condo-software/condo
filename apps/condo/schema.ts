@@ -5559,7 +5559,7 @@ export type BillingReceipt = {
   services?: Maybe<Array<BillingReceiptServiceField>>;
   /**  Billing account recipient. Should contain all meta information to identify the organization  */
   recipient?: Maybe<BillingReceiptsRecipientField>;
-  /**  Integration context  */
+  /**  Relation to the BillingRecipient. Going to override recipient field, has the same meaning  */
   receiver?: Maybe<BillingRecipient>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -10775,6 +10775,7 @@ export type MeterReadingFilterTemplatesUpdateInput = {
 
 export type MeterReadingFilters = {
   __typename?: 'MeterReadingFilters';
+  organization?: Maybe<Array<Maybe<Scalars['String']>>>;
   address?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
@@ -36062,6 +36063,7 @@ export type TicketFilesUpdateInput = {
 
 export type TicketFilter = {
   __typename?: 'TicketFilter';
+  organization?: Maybe<Array<Maybe<Scalars['String']>>>;
   number?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Array<Maybe<Scalars['String']>>>;
   status?: Maybe<Array<Maybe<Scalars['String']>>>;
