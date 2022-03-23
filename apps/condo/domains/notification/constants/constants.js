@@ -38,6 +38,16 @@ const MESSAGE_TYPES = [
     TICKET_EXECUTOR_CONNECTED_TYPE,
 ]
 
+/**
+ * If some messages types has limited variety of transports, please set it here.
+ * The rest of types must have templates for all transports or at least default template.
+ */
+const MESSAGE_TYPES_TRANSPORTS = {
+    [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
+    [MESSAGE_FORWARDED_TO_SUPPORT]: [EMAIL_TRANSPORT],
+}
+
+//todo: maybe we should to gather all data about messages types in the single object
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -173,4 +183,5 @@ module.exports = {
     FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     DEFAULT_TEMPLATE_FILE_NAME,
+    MESSAGE_TYPES_TRANSPORTS,
 }
