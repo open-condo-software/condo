@@ -5,7 +5,7 @@
  */
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const compact = require('lodash/compact')
-const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
 const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
@@ -19,6 +19,7 @@ const { TicketClassifierRule: TicketClassifierRuleGQL } = require('@condo/domain
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
+const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -37,6 +38,20 @@ const TicketClassifierRule = generateServerUtils(TicketClassifierRuleGQL)
 const ResidentTicket = generateServerUtils(ResidentTicketGQL)
 
 const TicketFilterTemplate = generateServerUtils(TicketFilterTemplateGQL)
+
+async function predictTicketClassification (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.details) throw new Error('no data details')
+
+    return await execGqlWithoutAccess(context, {
+        query: PREDICT_TICKET_CLASSIFICATION_QUERY,
+        variables: { data },
+        errorMessage: '[error] Unable to predictTicketClassification',
+        dataPath: 'obj',
+    })
+}
+
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -113,5 +128,6 @@ module.exports = {
     TicketSource,
     loadTicketsForExcelExport,
     TicketFilterTemplate,
+    predictTicketClassification,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
