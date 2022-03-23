@@ -68,27 +68,30 @@ function getTemplate (lang, messageType, transportType) {
  * @param {string} lang
  * @param {string} messageType
  *
- * @returns {{isHtml: boolean, templatePath: string}}
+ * @returns {{templatePathText: ?string, templatePathHtml: ?string}}
  */
 function getEmailTemplate (lang, messageType) {
     const defaultTemplatePath = path.resolve(__dirname, `${langDirRelated}/${lang}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
     const emailTextTemplatePath = path.resolve(__dirname, `${langDirRelated}/${lang}/messages/${messageType}/${EMAIL_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
     const emailHtmlTemplatePath = path.resolve(__dirname, `${langDirRelated}/${lang}/messages/${messageType}/${EMAIL_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
 
-    let isHtml = false
-    let templatePath = null
+    let templatePathText = null
+    let templatePathHtml = null
 
     if (fs.existsSync(emailTextTemplatePath)) {
-        templatePath = emailTextTemplatePath
-    } else if (fs.existsSync(emailHtmlTemplatePath)) {
-        isHtml = true
-        templatePath = emailHtmlTemplatePath
-    } else if (fs.existsSync(defaultTemplatePath)) {
-        templatePath = defaultTemplatePath
+        templatePathText = emailTextTemplatePath
     }
 
-    if (templatePath) {
-        return { templatePath, isHtml }
+    if (fs.existsSync(emailHtmlTemplatePath)) {
+        templatePathHtml = emailHtmlTemplatePath
+    }
+
+    if (!templatePathText && !templatePathHtml && fs.existsSync(defaultTemplatePath)) {
+        templatePathText = defaultTemplatePath
+    }
+
+    if (templatePathText || templatePathHtml) {
+        return { templatePathText, templatePathHtml }
     }
 
     throw new Error(`There is no "${lang}" template for "${messageType}" to send by "${EMAIL_TRANSPORT}"`)
@@ -128,11 +131,20 @@ const MESSAGE_TRANSPORTS_RENDERERS = {
     },
     [EMAIL_TRANSPORT]: function ({ message, env }) {
         const { lang, meta } = message
-        const { templatePath, isHtml } = getEmailTemplate(message.lang, message.type)
-        return {
+        const { templatePathText, templatePathHtml } = getEmailTemplate(message.lang, message.type)
+        const ret = {
             subject: i18n(translationStringKeyForEmailSubject(message.type), { lang, meta }),
-            [isHtml ? 'html' : 'text']: nunjucks.render(templatePath, { message, env }),
         }
+
+        if (templatePathText) {
+            ret.text = nunjucks.render(templatePathText, { message, env })
+        }
+
+        if (templatePathHtml) {
+            ret.html = nunjucks.render(templatePathHtml, { message, env })
+        }
+
+        return ret
     },
     [TELEGRAM_TRANSPORT]: function ({ message, env }) {
         throw new Error('No Telegram transport yet')
@@ -173,68 +185,6 @@ async function renderTemplate (transport, message) {
 
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
     return renderMessage({ message, env })
-
-    if (message.type === SHARE_TICKET_MESSAGE_TYPE) {
-        const { ticketNumber, date, details, id } = message.meta
-
-        if (message.lang === EN_LOCALE) {
-            return {
-                subject: `Ticket №${ticketNumber}`,
-                html: `
-                    <html style="fmargin: 0; font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">
-                        <body style="margin: 0; font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">
-                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 16px;">
-                                <tr>
-                                    <td width="10%" align="left"><b style="font-size: 16px;">DOMA.ai</b></td>
-                                    <td width="80%">&nbsp;</td>
-                                    <td width="10%" align="right"><b style="font-size: 16px;">CONTROL ROOM</b></td>
-                                </tr>
-                            </table>
-                            <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Hello!<br />
-                            Ticket #${ticketNumber} dated ${dayjs(date).locale(LOCALES[EN_LOCALE]).format('D MMMM YYYY')} has been shared with you.<br />
-                            The text of the ticket: "${details}"</p>
-                            <p>&nbsp;</p>
-                            <div><!--[if mso]>
-                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${serverUrl}/ticket/${id}" style="height:40px;v-text-anchor:middle;width:330px;" arcsize="10%" stroke="f" fill="t">
-                                <v:fill type="tile" src="" color="#4CD174" />
-                                <w:anchorlock/>
-                                <center style="color:#ffffff;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;">To Doma.ai ticket's card</center>
-                            </v:roundrect>
-                            <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;border-radius:4px;color:#ffffff;display:inline-block;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">To Doma.ai ticket's card</a></div>
-                        </body>
-                    </html>
-                `,
-            }
-        } else if (message.lang === RU_LOCALE) {
-            return {
-                subject: `Заявка №${ticketNumber}`,
-                html: `
-                    <html style="fmargin: 0; font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">
-                        <body style="margin: 0; font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">
-                            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">
-                                <tr>
-                                    <td width="10%" align="left"><b style="font-size: 16px;">DOMA.ai</b></td>
-                                    <td width="80%">&nbsp;</td>
-                                    <td width="10%" align="right"><b style="font-size: 16px;">ДИСПЕТЧЕРСКАЯ</b></td>
-                                </tr>
-                            </table>
-                            <p style="font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif; font-size: 22px; font-weight: 400; line-height: 32px; text-align: left;">Добрый день!<br />
-                            С вами поделились заявкой №${ticketNumber} от ${dayjs(date).locale(LOCALES[RU_LOCALE]).format('D MMMM YYYY')}.<br />
-                            Текст заявки: «${details}»</p>
-                            <p>&nbsp;</p>
-                            <div><!--[if mso]>
-                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${serverUrl}/ticket/${id}" style="height:40px;v-text-anchor:middle;width:330px;" arcsize="10%" stroke="f" fill="t">
-                                <v:fill type="tile" src="" color="#4CD174" />
-                                <w:anchorlock/>
-                                <center style="color:#ffffff;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;">Перейти в карточку заявки в Doma.ai</center>
-                            </v:roundrect>
-                            <![endif]--><a href="${serverUrl}/ticket/${id}" style="background-color:#4CD174;border-radius:4px;color:#ffffff;display:inline-block;font-family: Roboto, Arial, 'Nimbus Sans L', Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:330px;-webkit-text-size-adjust:none;mso-hide:all;">Перейти в карточку заявки в Doma.ai</a></div>
-                        </body>
-                    </html>
-                `,
-            }
-        }
-    }
 
     if (message.type === RESET_PASSWORD_MESSAGE_TYPE) {
         const { token } = message.meta

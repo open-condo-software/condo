@@ -63,11 +63,22 @@ describe('Notifications', () => {
                 const transports = getPossibleTransports(messageType)
 
                 for (const transport of transports) {
-                    const templateFile = path.resolve(__dirname, folder, `${transport}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
-                    const hasParticularTransportTemplate = fs.existsSync(templateFile)
-                    if (!hasParticularTransportTemplate) {
-                        console.error(`No template file: ${templateFile} or ${DEFAULT_TEMPLATE_FILE_NAME}`)
-                        result = false
+                    if (transport === EMAIL_TRANSPORT) {
+                        // The email transport may use a text template, html template, or both.
+                        // So, at least one of them must exist.
+                        const templateFileText = path.resolve(__dirname, folder, `${transport}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+                        const templateFileHtml = path.resolve(__dirname, folder, `${transport}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+                        if (!fs.existsSync(templateFileText) && !fs.existsSync(templateFileHtml)) {
+                            console.error(`No template file(s) for ${transport}: ${templateFileText} or ${templateFileHtml}, or single ${DEFAULT_TEMPLATE_FILE_NAME}`)
+                            result = false
+                        }
+                    } else {
+                        const templateFile = path.resolve(__dirname, folder, `${transport}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+                        const hasParticularTransportTemplate = fs.existsSync(templateFile)
+                        if (!hasParticularTransportTemplate) {
+                            console.error(`No template file for ${transport}: ${templateFile} or ${DEFAULT_TEMPLATE_FILE_NAME}`)
+                            result = false
+                        }
                     }
                 }
             }
