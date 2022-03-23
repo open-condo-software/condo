@@ -15,6 +15,7 @@ import dayjs from 'dayjs'
 import isNil from 'lodash/isNil'
 import { getReviewMessageByValue } from '../../utils/clientSchema/Ticket'
 import { RESIDENT } from '@condo/domains/user/constants/common'
+import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -191,9 +192,9 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     const selectedReviewOptions = reviewComment.split(';').map(option => `«${option.trim()}»`).join(` ${AndMessage} `)
                     reviewCommentMessage = `${FilledReviewCommentMessage} ${selectedReviewOptions}`
                 } else {
-                    if (value === '1') {
+                    if (value === REVIEW_VALUES.BAD) {
                         reviewCommentMessage = BadReviewEmptyCommentMessage
-                    } else if (value === '2') {
+                    } else if (value === REVIEW_VALUES.GOOD) {
                         reviewCommentMessage = GoodReviewEmptyCommentMessage
                     }
                 }

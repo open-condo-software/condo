@@ -1,5 +1,6 @@
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { REVIEW_VALUES } = require('@condo/domains/ticket/constants')
 
 const residentTicketReviewTrigger = {
     rule: {
@@ -40,7 +41,7 @@ const residentTicketReviewTrigger = {
         },
     },
     action: ({ data: { resolvedData } }) => {
-        if (resolvedData.reviewValue === '0') {
+        if (resolvedData.reviewValue === REVIEW_VALUES.RETURN) {
             resolvedData['status'] = STATUS_IDS.OPEN
         } else {
             resolvedData['status'] = STATUS_IDS.CLOSED

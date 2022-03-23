@@ -32645,7 +32645,7 @@ export type Ticket = {
   /**  Counter showing the number of changes `status` to `new_or_reopened`  */
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   /**  Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review  */
-  reviewValue?: Maybe<Scalars['String']>;
+  reviewValue?: Maybe<TicketReviewValueType>;
   /**  Resident's comment on ticket review  */
   reviewComment?: Maybe<Scalars['String']>;
   /**  Status updated at time  */
@@ -33153,9 +33153,9 @@ export type TicketChange = {
   /**  Counter showing the number of changes `status` to `new_or_reopened`  */
   statusReopenedCounterTo?: Maybe<Scalars['Int']>;
   /**  Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review  */
-  reviewValueFrom?: Maybe<Scalars['String']>;
+  reviewValueFrom?: Maybe<TicketChangeReviewValueFromType>;
   /**  Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review  */
-  reviewValueTo?: Maybe<Scalars['String']>;
+  reviewValueTo?: Maybe<TicketChangeReviewValueToType>;
   /**  Resident's comment on ticket review  */
   reviewCommentFrom?: Maybe<Scalars['String']>;
   /**  Resident's comment on ticket review  */
@@ -33374,8 +33374,8 @@ export type TicketChangeCreateInput = {
   ticket?: Maybe<TicketRelateToOneInput>;
   statusReopenedCounterFrom?: Maybe<Scalars['Int']>;
   statusReopenedCounterTo?: Maybe<Scalars['Int']>;
-  reviewValueFrom?: Maybe<Scalars['String']>;
-  reviewValueTo?: Maybe<Scalars['String']>;
+  reviewValueFrom?: Maybe<TicketChangeReviewValueFromType>;
+  reviewValueTo?: Maybe<TicketChangeReviewValueToType>;
   reviewCommentFrom?: Maybe<Scalars['String']>;
   reviewCommentTo?: Maybe<Scalars['String']>;
   statusReasonFrom?: Maybe<Scalars['String']>;
@@ -33485,14 +33485,26 @@ export type TicketChangeCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
 };
 
+export enum TicketChangeReviewValueFromType {
+  Return = 'return',
+  Bad = 'bad',
+  Good = 'good'
+}
+
+export enum TicketChangeReviewValueToType {
+  Return = 'return',
+  Bad = 'bad',
+  Good = 'good'
+}
+
 export type TicketChangeUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
   statusReopenedCounterFrom?: Maybe<Scalars['Int']>;
   statusReopenedCounterTo?: Maybe<Scalars['Int']>;
-  reviewValueFrom?: Maybe<Scalars['String']>;
-  reviewValueTo?: Maybe<Scalars['String']>;
+  reviewValueFrom?: Maybe<TicketChangeReviewValueFromType>;
+  reviewValueTo?: Maybe<TicketChangeReviewValueToType>;
   reviewCommentFrom?: Maybe<Scalars['String']>;
   reviewCommentTo?: Maybe<Scalars['String']>;
   statusReasonFrom?: Maybe<Scalars['String']>;
@@ -33635,14 +33647,14 @@ export type TicketChangeWhereInput = {
   statusReopenedCounterTo_gte?: Maybe<Scalars['Int']>;
   statusReopenedCounterTo_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   statusReopenedCounterTo_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  reviewValueFrom?: Maybe<Scalars['String']>;
-  reviewValueFrom_not?: Maybe<Scalars['String']>;
-  reviewValueFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  reviewValueFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  reviewValueTo?: Maybe<Scalars['String']>;
-  reviewValueTo_not?: Maybe<Scalars['String']>;
-  reviewValueTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  reviewValueTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  reviewValueFrom?: Maybe<TicketChangeReviewValueFromType>;
+  reviewValueFrom_not?: Maybe<TicketChangeReviewValueFromType>;
+  reviewValueFrom_in?: Maybe<Array<Maybe<TicketChangeReviewValueFromType>>>;
+  reviewValueFrom_not_in?: Maybe<Array<Maybe<TicketChangeReviewValueFromType>>>;
+  reviewValueTo?: Maybe<TicketChangeReviewValueToType>;
+  reviewValueTo_not?: Maybe<TicketChangeReviewValueToType>;
+  reviewValueTo_in?: Maybe<Array<Maybe<TicketChangeReviewValueToType>>>;
+  reviewValueTo_not_in?: Maybe<Array<Maybe<TicketChangeReviewValueToType>>>;
   reviewCommentFrom?: Maybe<Scalars['String']>;
   reviewCommentFrom_not?: Maybe<Scalars['String']>;
   reviewCommentFrom_contains?: Maybe<Scalars['String']>;
@@ -35833,7 +35845,7 @@ export type TicketCreateInput = {
   sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   statusReopenedCounter?: Maybe<Scalars['Int']>;
-  reviewValue?: Maybe<Scalars['String']>;
+  reviewValue?: Maybe<TicketReviewValueType>;
   reviewComment?: Maybe<Scalars['String']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   statusReason?: Maybe<Scalars['String']>;
@@ -37918,6 +37930,12 @@ export type TicketReportWidgetOutput = {
   data?: Maybe<Array<TicketReportData>>;
 };
 
+export enum TicketReviewValueType {
+  Return = 'return',
+  Bad = 'bad',
+  Good = 'good'
+}
+
 /**  Ticket source. Income call, mobile app, external system, ...  */
 export type TicketSource = {
   __typename?: 'TicketSource';
@@ -38701,7 +38719,7 @@ export type TicketUpdateInput = {
   sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   statusReopenedCounter?: Maybe<Scalars['Int']>;
-  reviewValue?: Maybe<Scalars['String']>;
+  reviewValue?: Maybe<TicketReviewValueType>;
   reviewComment?: Maybe<Scalars['String']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   statusReason?: Maybe<Scalars['String']>;
@@ -38773,10 +38791,10 @@ export type TicketWhereInput = {
   statusReopenedCounter_gte?: Maybe<Scalars['Int']>;
   statusReopenedCounter_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   statusReopenedCounter_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  reviewValue?: Maybe<Scalars['String']>;
-  reviewValue_not?: Maybe<Scalars['String']>;
-  reviewValue_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  reviewValue_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  reviewValue?: Maybe<TicketReviewValueType>;
+  reviewValue_not?: Maybe<TicketReviewValueType>;
+  reviewValue_in?: Maybe<Array<Maybe<TicketReviewValueType>>>;
+  reviewValue_not_in?: Maybe<Array<Maybe<TicketReviewValueType>>>;
   reviewComment?: Maybe<Scalars['String']>;
   reviewComment_not?: Maybe<Scalars['String']>;
   reviewComment_contains?: Maybe<Scalars['String']>;

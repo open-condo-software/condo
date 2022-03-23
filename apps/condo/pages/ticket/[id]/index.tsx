@@ -45,6 +45,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { FormattedMessage } from 'react-intl'
 import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
+import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -173,8 +174,8 @@ const TicketContent = ({ ticket }) => {
     const ticketReviewValue = ticket.reviewValue
     const ticketReviewComment = ticket.reviewComment
     const reviewValueToText = useMemo(() => ({
-        '1': `${getReviewMessageByValue('1', intl)} 😔`,
-        '2': `${getReviewMessageByValue('2', intl)} 😊`,
+        [REVIEW_VALUES.BAD]: `${getReviewMessageByValue(REVIEW_VALUES.BAD, intl)} 😔`,
+        [REVIEW_VALUES.GOOD]: `${getReviewMessageByValue(REVIEW_VALUES.GOOD, intl)} 😊`,
     }), [intl])
 
     const { objs: files } = TicketFile.useObjects({

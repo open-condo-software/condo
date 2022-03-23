@@ -13,6 +13,7 @@ const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
+const { REVIEW_VALUES } = require('@condo/domains/ticket/constants')
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -54,8 +55,8 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
                 const translations = getTranslations(locale)
                 const reviewValueText = {
-                    '1': translations['ticket.reviewValue.bad'],
-                    '2': translations['ticket.reviewValue.good'],
+                    [REVIEW_VALUES.BAD]: translations['ticket.reviewValue.bad'],
+                    [REVIEW_VALUES.GOOD]: translations['ticket.reviewValue.good'],
                 }
 
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
