@@ -27,6 +27,7 @@ const {
     DEFAULT_TEMPLATE_FILE_NAME,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
 } = require('./constants/constants')
+const { i18n } = require('@condo/domains/common/utils/localesLoader')
 
 const {
     getTicketAssigneeConnectedMessage,
@@ -121,9 +122,10 @@ const MESSAGE_TRANSPORTS_RENDERERS = {
         }
     },
     [EMAIL_TRANSPORT]: function ({ message, env }) {
+        const { lang, meta } = message
         const { templatePath, isHtml } = getEmailTemplate(message.lang, message.type)
         return {
-            subject: translationStringKeyForEmailSubject(message.type),
+            subject: i18n(translationStringKeyForEmailSubject(message.type), { lang, meta }),
             [isHtml ? 'html' : 'text']: nunjucks.render(templatePath, { message, env }),
         }
     },
@@ -131,9 +133,10 @@ const MESSAGE_TRANSPORTS_RENDERERS = {
         throw new Error('No Telegram transport yet')
     },
     [PUSH_TRANSPORT]: function ({ message, env }) {
+        const { lang, meta } = message
         return {
             notification: {
-                title: translationStringKeyForPushTitle(message.type),
+                title: i18n(translationStringKeyForPushTitle(message.type), { lang, meta }),
                 body: nunjucks.render(getTemplate(message.lang, message.type, PUSH_TRANSPORT), { message, env }),
             },
             data: get(message, ['meta', 'pushData'], null),
