@@ -30,6 +30,7 @@ import React, { useCallback } from 'react'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT, EXTENDED_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
+import isEmpty from 'lodash/isEmpty'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -81,6 +82,7 @@ export const ContactsPageContent = ({
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
+    const isNoContactsData = !contacts.length && isEmpty(filtersFromQuery) && !loading
 
     return (
         <>
@@ -91,7 +93,7 @@ export const ContactsPageContent = ({
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
                 <TablePageContent>
                     {
-                        !contacts.length && !filtersFromQuery
+                        isNoContactsData
                             ? (
                                 <EmptyListView
                                     label={EmptyListLabel}

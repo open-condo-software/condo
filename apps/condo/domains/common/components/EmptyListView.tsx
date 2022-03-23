@@ -28,9 +28,9 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({ image, chil
     return (
         <div style={style}>
             <Empty
-                style={{ maxWidth: '400px' }}
+                style={{ maxWidth: '350px' }}
                 image={image ? image : <EmptyIcon/>}
-                imageStyle={{ height: '120px' }}
+                imageStyle={{ height: '200px' }}
                 description={
                     <Space direction={'vertical'} size={0}>
                         {children}
@@ -61,7 +61,7 @@ const EmptyListMessage = styled.div`
 export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, createRoute, createLabel }) => {
     const router = useRouter()
     return (
-        <BasicEmptyListView image="dino/dino-searching.png">
+        <BasicEmptyListView image="dino/dino-searching@2x.png">
             <EmptyListLabel>{label}</EmptyListLabel>
             <EmptyListMessage>{message}</EmptyListMessage>
             <Button
