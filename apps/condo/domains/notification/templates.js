@@ -184,37 +184,6 @@ async function renderTemplate (transport, message) {
         }
     }
 
-    if (message.type === DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE) {
-        const { organizationName } = message.meta
-        if (transport === EMAIL_TRANSPORT) {
-            if (message.lang === EN_LOCALE) {
-                return {
-                    subject: 'You are invited to join organization as employee',
-                    text: `Organization "${organizationName}" invited you as employee.\n` +
-                        `Click to the link to join: ${serverUrl}/auth/signin`,
-                }
-            } else if (message.lang === RU_LOCALE) {
-                return {
-                    subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
-                    text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
-                        `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
-                }
-            }
-        } else if (transport === SMS_TRANSPORT) {
-            if (message.lang === EN_LOCALE) {
-                return {
-                    text: `Organization "${organizationName}" invited you as employee.\n` +
-                        `Click to the link to join: ${serverUrl}/auth/signin`,
-                }
-            } else if (message.lang === RU_LOCALE) {
-                return {
-                    text: `Организация "${organizationName}" приглашает вас в качестве сотрудника.\n` +
-                        `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/signin`,
-                }
-            }
-        }
-    }
-
     if (message.type === REGISTER_NEW_USER_MESSAGE_TYPE) {
         const { userPhone, userPassword } = message.meta
         if (transport === EMAIL_TRANSPORT) {
@@ -388,19 +357,6 @@ async function renderTemplate (transport, message) {
                 ИНН: ${get(data, ['organization', 'meta', 'inn'])},
             `,
         }
-    }
-
-    if (message.type === MESSAGE_FORWARDED_TO_SUPPORT) {
-        // const templatePath = path.resolve(__dirname, `../../lang/${message.lang}/messages/${MESSAGE_FORWARDED_TO_SUPPORT}/default.njk`)
-        const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
-        return renderMessage(message)
-        // return {
-        //     subject: 'message for support',
-        //     text: nunjucks.render(
-        //         templatePath,
-        //         { message },
-        //     ),
-        // }
     }
 
     if (message.type === TICKET_ASSIGNEE_CONNECTED_TYPE) {
