@@ -14,7 +14,7 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import dayjs from 'dayjs'
 import isNil from 'lodash/isNil'
 import { getReviewMessageByValue } from '../../utils/clientSchema/Ticket'
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+import { RESIDENT } from '@condo/domains/user/constants/common'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
