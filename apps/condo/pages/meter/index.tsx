@@ -37,6 +37,7 @@ import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunc
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT, EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '@condo/domains/meter/constants/errors'
 import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT, EXTENDED_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
+import isEmpty from 'lodash/isEmpty'
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 
@@ -49,9 +50,8 @@ export const MetersPageContent = ({
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
-    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
-    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
+    const CreateTicket = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many' })
@@ -84,6 +84,7 @@ export const MetersPageContent = ({
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate)
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
+    const isNoMeterData = !meterReadings.length && isEmpty(filters) && !loading
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -111,12 +112,12 @@ export const MetersPageContent = ({
                 <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
                 <TablePageContent>
                     {
-                        !meterReadings.length && !filters
+                        isNoMeterData
                             ? (
                                 <EmptyListView
                                     label={EmptyListLabel}
-                                    message={EmptyListMessage}
-                                    createRoute='/ticket/create'
+                                    message={''}
+                                    createRoute='/meter/create'
                                     createLabel={CreateTicket} />
                             ) :
                             (
