@@ -1,7 +1,8 @@
-const { RU_LOCALE, EN_LOCALE } = require('./locale')
+const { RU_LOCALE, EN_LOCALE, DEFAULT_LOCALE } = require('./locale')
 
 const DEFAULT_ENGLISH_COUNTRY = 'en'
 const RUSSIA_COUNTRY = 'ru'
+
 const COUNTRIES = {
     [DEFAULT_ENGLISH_COUNTRY]: {
         'role.admin.name': 'Admin',
@@ -26,6 +27,8 @@ const COUNTRIES = {
 }
 
 module.exports = {
-    DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY,
+    DEFAULT_ENGLISH_COUNTRY,
+    RUSSIA_COUNTRY,
     COUNTRIES,
+    DEFAULT_LOCALE,
 }

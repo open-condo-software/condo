@@ -14,27 +14,25 @@ const SERVER_URL = process.env.SERVER_URL || conf.SERVER_URL
 
 const getTicketAssigneeConnectedMessagePush = (message) => {
     const { id: notificationId } = message
-    const { ticketId, ticketNumber, userId } = get(message, 'meta', {})
+    const { ticketId, ticketNumber, userId } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
             return {
                 notification: {
-                    title: `Ticket #${ticketNumber}`,
-                    body: `You were assigned as responsible of ticket #${ticketNumber}`,
+                    title: `You were assigned as responsible of ticket #${ticketNumber}`,
+                    body: 'Please read the details.',
                 },
-                data: { ticketId, notificationId },
-                userId,
+                data: { ticketId, notificationId, userId },
             }
 
         case RU_LOCALE:
             return {
                 notification: {
-                    title: `Заявка №${ticketNumber}`,
-                    body: `Вы назначены ответственным(-ой) по заявке №${ticketNumber}`,
+                    title: `Вы назначены ответственным(-ой) по заявке №${ticketNumber}`,
+                    body: 'Посмотрите детали заявки',
                 },
-                data: { ticketId, notificationId },
-                userId,
+                data: { ticketId, notificationId, userId },
             }
     }
 }
@@ -84,27 +82,25 @@ const getTicketAssigneeConnectedMessage = (message, transport) => {
 
 const getTicketExecutorConnectedMessagePush = (message) => {
     const { id: notificationId } = message
-    const { ticketId, ticketNumber, userId } = get(message, 'meta', {})
+    const { ticketId, ticketNumber, userId } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
             return {
                 notification: {
-                    title: `Ticket #${ticketNumber}`,
-                    body: `You were assigned as executor of ticket #${ticketNumber}`,
-                    userId,
+                    title: `You were assigned as executor of ticket #${ticketNumber}`,
+                    body: 'Please read the details.',
                 },
-                data: { ticketId, notificationId },
+                data: { ticketId, notificationId, userId },
             }
 
         case RU_LOCALE:
             return {
                 notification: {
-                    title: `Заявка №${ticketNumber}`,
-                    body: `Вы назначены исполнителем(-ницей) по заявке №${ticketNumber}`,
-                    userId,
+                    title: `Вы назначены исполнителем(-ницей) по заявке №${ticketNumber}`,
+                    body: 'Посмотрите детали заявки',
                 },
-                data: { ticketId, notificationId },
+                data: { ticketId, notificationId, userId },
             }
     }
 }

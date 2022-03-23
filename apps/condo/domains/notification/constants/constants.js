@@ -93,15 +93,19 @@ const MESSAGE_META = {
     },
     [TICKET_ASSIGNEE_CONNECTED_TYPE]: {
         dv: { defaultValue: '', required: true },
-        ticketId: { defaultValue: '', required: true },
-        ticketNumber: { defaultValue: '', required: true },
-        userId: { defaultValue: null, required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+        },
     },
     [TICKET_EXECUTOR_CONNECTED_TYPE]: {
         dv: { defaultValue: '', required: true },
-        ticketId: { defaultValue: '', required: true },
-        ticketNumber: { defaultValue: '', required: true },
-        userId: { defaultValue: null, required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+        },
     },
 }
 
@@ -123,6 +127,9 @@ const PUSH_TRANSPORT_HUAWEI = 'huawei'
 const PUSH_TRANSPORT_TYPES = [PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_APPLE, PUSH_TRANSPORT_HUAWEI]
 const PUSH_FAKE_TOKEN_SUCCESS = 'PUSH_FAKE_TOKEN_SUCCESS'
 const PUSH_FAKE_TOKEN_FAIL = 'PUSH_FAKE_TOKEN_FAIL'
+
+const FIREBASE_CONFIG_ENV = 'FIREBASE_CONFIG_JSON'
+const FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV = 'FIREBASE_PUSH_TOKEN_TEST'
 
 module.exports = {
     JSON_NO_REQUIRED_ATTR_ERROR,
@@ -159,4 +166,6 @@ module.exports = {
     PUSH_TRANSPORT_HUAWEI,
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_FAKE_TOKEN_FAIL,
+    FIREBASE_CONFIG_ENV,
+    FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV,
 }

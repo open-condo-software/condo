@@ -8,7 +8,7 @@ const {
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
 } = require('../constants/constants')
-const { deliveryMessage } = require('../tasks')
+const { deliverMessage } = require('../tasks')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 
@@ -136,7 +136,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
 
                 const message = await Message.create(context, messageAttrs)
 
-                await deliveryMessage.delay(message.id)
+                await deliverMessage.delay(message.id)
 
                 return {
                     id: message.id,
@@ -157,7 +157,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     deliveredAt: null,
                 })
 
-                await deliveryMessage.delay(message.id)
+                await deliverMessage.delay(message.id)
 
                 return {
                     id: message.id,

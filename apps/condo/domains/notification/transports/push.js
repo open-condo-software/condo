@@ -5,12 +5,14 @@ const { find } = require('@core/keystone/schema')
 const { PUSH_TRANSPORT_FIREBASE } = require('@condo/domains/notification/constants/constants')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
 
-const { renderTemplate } = require('../templates')
 const { PUSH_TRANSPORT } = require('../constants/constants')
+const { renderTemplate } = require('../templates')
 
 const adapter = new FirebaseAdapter()
 
 async function getTokens (userId) {
+    if (!userId) return []
+
     const condition = {
         owner: { id: userId },
         deletedAt: null,
@@ -28,14 +30,11 @@ async function prepareMessageToSend (message) {
     return await renderTemplate(PUSH_TRANSPORT, message)
 }
 
-async function send ({ userId, notification, data, notificationId } = {}) {
+async function send ({ notification, data } = {}) {
+    const { userId } = data
     const tokens = await getTokens(userId)
 
-    console.log('push send:', { userId, notification, data, tokens })
-
     const result = await adapter.sendNotification({ tokens, notification, data })
-
-    console.log('push send result:', result)
 
     return result
 }
@@ -43,4 +42,6 @@ async function send ({ userId, notification, data, notificationId } = {}) {
 module.exports = {
     prepareMessageToSend,
     send,
+    // NOTE: This forces to run push transport code instead of mocking result even if SEND_TO_CONSOLE is set
+    noSendToConsole: true,
 }

@@ -1,48 +1,37 @@
 const admin = require('firebase-admin')
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
-const cloneDeep = require('lodash/cloneDeep')
 const faker = require('faker')
 
-const { PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL } = require('../constants/constants')
+const conf = require('@core/config')
 
-const FIREBASE_CONFIG_ENV = 'FIREBASE_CONFIG_JSON'
+const { logger } = require('@condo/domains/notification/utils')
+
+const { PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL, FIREBASE_CONFIG_ENV } = require('../constants/constants')
+const { EMPTY_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('../constants/errors')
+
+const IS_BUILD_PHASE = conf.PHASE === 'build'
+const IS_PRODUCTION = conf.NODE_ENV === 'production'
+const FAKE_SUCCESS_MESSAGE_PREFIX = 'fake-success-message'
 
 let FIREBASE_CONFIG = null
 
-// JSON.parse would throw for a broken JSON, so we should take care of it here
-try {
-    FIREBASE_CONFIG = process.env[FIREBASE_CONFIG_ENV] && JSON.parse(process.env[FIREBASE_CONFIG_ENV])
+if (!IS_BUILD_PHASE) {
+    const FIREBASE_CONFIG_JSON = conf[FIREBASE_CONFIG_ENV] || process.env[FIREBASE_CONFIG_ENV]
 
-    //TODO(DOMA-xxx): Validate FIREBASE_CONFIG_JSON structure
-} catch (error) {
-    throw new Error(`.env ${FIREBASE_CONFIG_ENV} is broken, should be valid JSON`)
+    if (!FIREBASE_CONFIG_JSON) throw new Error(EMPTY_CONFIG_ERROR)
+
+    // JSON.parse would throw for a broken JSON, so we should take care of it here
+    try {
+        FIREBASE_CONFIG = JSON.parse(FIREBASE_CONFIG_JSON)
+    } catch (error) {
+        throw new Error(EMPTY_CONFIG_ERROR)
+    }
+
+    if (isEmpty(FIREBASE_CONFIG)) throw new Error(EMPTY_CONFIG_ERROR)
+} else {
+    FIREBASE_CONFIG = { error: 'Build faze' }
 }
-
-const EMPTY_RESULT = {
-    responses: [],
-    successCount: 0,
-    failureCount: 0,
-}
-
-// This fake response mimics FireBase failure response
-const FAKE_ERROR_RESPONSE = {
-    success: false,
-    error: {
-        errorInfo: {
-            code: 'fake-error',
-            message: 'Fake error message',
-        },
-    },
-}
-
-const FAKE_SUCCESS_MESSAGE_PREFIX = 'fake-success-message'
-
-// This fake response fn mimics FireBase success response
-const getFakeSuccessResponse = () => ({
-    success: true,
-    messageId: `fake-success-message/${faker.datatype.uuid()}`,
-})
 
 /**
  * Send push notification to pushToken via app, configured by FIREBASE_CONFIG in .helm (.env)
@@ -50,27 +39,92 @@ const getFakeSuccessResponse = () => ({
  * Attempts to send push notifications to devices, connected through different projects will fail.
  */
 class FirebaseAdapter {
-    constructor (config = FIREBASE_CONFIG) {
-        this.app = null
+    app = null
+    projectId = null
 
-        if (isEmpty(config)) throw new Error(`Valid ${FIREBASE_CONFIG_ENV} should be provided within .helm (.env), and can be retrieved from https://console.firebase.google.com/project/__PROJECT_ID__/settings/serviceaccounts/adminsdk`)
+    constructor (config = FIREBASE_CONFIG, throwOnError = false) {
+        try {
+            if (isEmpty(config)) throw new Error(EMPTY_CONFIG_ERROR)
 
-        this.app = admin.initializeApp({ credential: admin.credential.cert(config) })
+            this.app = admin.initializeApp({ credential: admin.credential.cert(config) })
+        } catch (e) {
+            // Broken FireBase config on production is critical
+            // CI within build faze 'thinks' that it's production :(
+            if (!IS_BUILD_PHASE && IS_PRODUCTION || throwOnError) throw new Error(e)
+
+            // For CI/local tests config is useless because of emulation via FAKE tokens
+            logger.error(e)
+        }
+        this.projectId = config.project_id
+        this.messageIdPrefixRegexp = new RegExp(`projects/${this.projectId}/messages`)
     }
 
-    prepareNotification ({ title, body } = {}) {
-        if (!title || !body || isEmpty(title) || isEmpty(body)) throw new Error('Missing notification.title or notification.body')
+    /**
+     * Mimics FireBase request result
+     * @returns {{responses: *[], successCount: number, failureCount: number}}
+     */
+    getEmptyResult () {
+        return {
+            responses: [],
+            successCount: 0,
+            failureCount: 0,
+        }
+    }
+
+    /**
+     * Mimics FireBase failure response
+     * @returns {{success: boolean, error: {errorInfo: {code: string, message: string}}}}
+     */
+    getFakeErrorResponse () {
+        return {
+            success: false,
+            error: {
+                errorInfo: {
+                    code: 'fake-error',
+                    message: 'Fake error message',
+                },
+            },
+        }
+    }
+
+    /**
+     * Mimics FireBase success response
+     * @returns {{success: boolean, messageId: string}}
+     */
+    getFakeSuccessResponse () {
+        return {
+            success: true,
+            messageId: `fake-success-message/${faker.datatype.uuid()}`,
+        }
+    }
+
+    /**
+     * Validates and prepares notification significant fields
+     * @param title
+     * @param body
+     * @returns {{title, body}}
+     */
+    validateAndPrepareNotification ({ title, body } = {}) {
+        if (!title || !body || isEmpty(title) || isEmpty(body)) throw new Error(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
 
         return { title, body }
     }
 
-    prepareNotifications (notificationRaw, data, tokens = []) {
-        const notification = this.prepareNotification(notificationRaw)
+    /**
+     * Prepares notification for either/both sending to FireBase and/or emulation if FAKE tokens present
+     * Converts single notification to notifications array (for multiple tokens provided) for batch request
+     * @param notificationRaw
+     * @param data
+     * @param tokens
+     * @returns {*[][]}
+     */
+    prepareBatchData (notificationRaw, data, tokens = []) {
+        const notification = this.validateAndPrepareNotification(notificationRaw)
         const notifications = []
         const fakeNotifications = []
 
         tokens.forEach((pushToken) => {
-            const isFakeToken = pushToken === PUSH_FAKE_TOKEN_SUCCESS || pushToken === PUSH_FAKE_TOKEN_FAIL
+            const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
 
             target.push({
@@ -84,8 +138,8 @@ class FirebaseAdapter {
     }
 
     /**
-     * For testing purpose we have to emulate FireBase response for predefined tokens, because it's almost
-     * impossible to get real FireBase push token in automated way.
+     * For testing purpose we have to emulate FireBase response for predefined FAKE tokens,
+     * because it's almost impossible to get real FireBase push token in automated way.
      * @param result
      * @param fakeNotifications
      * @returns {*}
@@ -94,13 +148,13 @@ class FirebaseAdapter {
         const mixed = { ...result }
 
         fakeNotifications.forEach(({ token }) => {
-            if (token === PUSH_FAKE_TOKEN_SUCCESS) {
+            if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
                 mixed.successCount++
-                mixed.responses.push(getFakeSuccessResponse())
+                mixed.responses.push(this.getFakeSuccessResponse())
             }
-            if (token === PUSH_FAKE_TOKEN_FAIL) {
+            if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
                 mixed.failureCount++
-                mixed.responses.push(cloneDeep(FAKE_ERROR_RESPONSE))
+                mixed.responses.push(this.getFakeErrorResponse())
             }
         })
 
@@ -108,10 +162,10 @@ class FirebaseAdapter {
     }
 
     /**
-     * Manage to send notification to all available pushTokens of the user.
+     * Manages to send notification to all available pushTokens of the user.
      * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes
-     * Would try to send request to FireBase only if FireBase is initialized and tokens contains
-     * real (non-fake) tokens.
+     * Would try to send request to FireBase only if FireBase is initialized and `tokens` array contains
+     * real (non-fake) items.
      * Would succeed if at least one real token succeeds in delivering notification through FireBase, or
      * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
      * @param notification
@@ -119,14 +173,16 @@ class FirebaseAdapter {
      * @param data
      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
      */
-    async sendNotification ({ notification, tokens, data } = {}) {
-        if (!tokens || isEmpty(tokens)) return null
+    async sendNotification ({ notification, data, tokens } = {}) {
+        if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications] = this.prepareNotifications(notification, data, tokens)
+        const [notifications, fakeNotifications] = this.prepareBatchData(notification, data, tokens)
         let result
 
+        // If we come up to here and no real tokens provided, that means fakeNotifications contains
+        // some FAKE tokens and emulation is required for testing purposes
         if (isEmpty(notifications)) {
-            result = this.injectFakeResults(cloneDeep(EMPTY_RESULT), fakeNotifications)
+            result = this.injectFakeResults(this.getEmptyResult(), fakeNotifications)
         }
 
         // NOTE: we try to fire FireBase request only if FireBase was initialized and we have some real notifications
@@ -149,4 +205,6 @@ class FirebaseAdapter {
 module.exports = {
     FirebaseAdapter,
     FAKE_SUCCESS_MESSAGE_PREFIX,
+    EMPTY_CONFIG_ERROR,
+    EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
 }
