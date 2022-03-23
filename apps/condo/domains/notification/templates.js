@@ -166,24 +166,6 @@ async function renderTemplate (transport, message) {
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
     return renderMessage({ message, env })
 
-    if (message.type === INVITE_NEW_EMPLOYEE_MESSAGE_TYPE) {
-        const { organizationName, inviteCode } = message.meta
-
-        if (message.lang === EN_LOCALE) {
-            return {
-                subject: 'You are invited to join organization as employee',
-                text: `Organization "${organizationName}" invited you as employee.\n` +
-                    `Click to the link to join: ${serverUrl}/auth/invite/${inviteCode}`,
-            }
-        } else if (message.lang === RU_LOCALE) {
-            return {
-                subject: 'Вас пригласили присоединиться к организации в качестве сотрудника',
-                text: `Администратор организации "${organizationName}" приглашает вас в качестве сотрудника.\n` +
-                    `Перейдите по ссылке, чтобы присоединиться: ${serverUrl}/auth/invite/${inviteCode}`,
-            }
-        }
-    }
-
     if (message.type === REGISTER_NEW_USER_MESSAGE_TYPE) {
         const { userPhone, userPassword } = message.meta
         if (transport === EMAIL_TRANSPORT) {
