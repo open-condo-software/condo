@@ -3,6 +3,7 @@ const fs = require('fs')
 const process = require('process')
 const isEmpty = require('lodash/isEmpty')
 const conf = require('@core/config')
+const { get, template } = require('lodash')
 
 let translations = {}
 
@@ -32,8 +33,30 @@ const getAvailableLocales = () => {
     return Object.keys(translations)
 }
 
+/**
+ * @param {string} code - the translation code written in en.json, ru.json, ...
+ * @param {string} lang - the language code
+ * @param {Object} meta - variables passing to the translation string
+ * @returns {string} translated string
+ * @example
+ * // en.json:
+ * {
+ *   ...,
+ *   "greeting": "Hello, {name}!",
+ *   ...,
+ * }
+ *
+ * i18n('greeting', { meta: { name: 'World' } })
+ * // => "Hello, World!"
+ */
+const i18n = (code, { lang = conf.DEFAULT_LOCALE, meta = {} } = {}) => {
+    maybeLoadTranslations()
+    return template(get(translations, [lang, code], code), { interpolate: /{([\s\S]+?)}/g })(meta)
+}
+
 module.exports = {
     loadTranslations,
     getTranslations,
     getAvailableLocales,
+    i18n,
 }
