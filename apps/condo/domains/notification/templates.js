@@ -166,51 +166,6 @@ async function renderTemplate (transport, message) {
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
     return renderMessage({ message, env })
 
-    if (message.type === REGISTER_NEW_USER_MESSAGE_TYPE) {
-        const { userPhone, userPassword } = message.meta
-        if (transport === EMAIL_TRANSPORT) {
-            if (message.lang === EN_LOCALE) {
-                return {
-                    subject: 'Your access data to doma.ai service.',
-                    text: `
-                    Phone: ${userPhone}
-                    Password: ${userPassword}
-
-                    Please follow link: ${serverUrl}/auth/signin
-                `,
-                }
-            } else if (message.lang === RU_LOCALE) {
-                return {
-                    subject: 'Ваши данные для доступа к сервису doma.ai.',
-                    text: `
-                    Номер телефона: ${userPhone}
-                    Пароль: ${userPassword}
-
-                    Ссылка для авторизации: ${serverUrl}/auth/signin
-                `,
-                }
-            }
-        } else if (transport === SMS_TRANSPORT) {
-            if (message.lang === EN_LOCALE) {
-                return {
-                    text: `
-                    Phone: ${userPhone}
-                    Password: ${userPassword}
-                    -> ${serverUrl}
-                `,
-                }
-            } else if (message.lang === RU_LOCALE) {
-                return {
-                    text: `
-                    Тел: ${userPhone}
-                    Пароль: ${userPassword}
-                    -> ${serverUrl}
-                `,
-                }
-            }
-        }
-    }
-
     if (message.type === SHARE_TICKET_MESSAGE_TYPE) {
         const { ticketNumber, date, details, id } = message.meta
 
