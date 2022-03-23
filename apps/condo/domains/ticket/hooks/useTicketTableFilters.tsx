@@ -18,6 +18,7 @@ import {
     getTicketAttributesFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
@@ -99,8 +100,8 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
         { label: ReturnedMessage.toLowerCase(), value: 'statusReopenedCounter' },
     ]
     const reviewValueOptions = [
-        { label: GoodReviewMessage, value: '2' },
-        { label: BadReviewMessage, value: '1' },
+        { label: GoodReviewMessage, value: REVIEW_VALUES.GOOD },
+        { label: BadReviewMessage, value: REVIEW_VALUES.BAD },
     ]
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')

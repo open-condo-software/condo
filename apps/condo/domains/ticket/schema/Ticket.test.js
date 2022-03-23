@@ -23,6 +23,7 @@ const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
 const { STATUS_IDS } = require('../constants/statusTransitions')
+const { REVIEW_VALUES } = require('../constants')
 
 describe('Ticket', () => {
     describe('Crud', () => {
@@ -214,17 +215,17 @@ describe('Ticket', () => {
             })
 
             const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
-                reviewValue: '2',
+                reviewValue: REVIEW_VALUES.GOOD,
                 reviewComment,
             })
 
             expect(ticket.id).toEqual(updatedTicket.id)
-            expect(updatedTicket.reviewValue).toEqual('2')
+            expect(updatedTicket.reviewValue).toEqual(REVIEW_VALUES.GOOD)
             expect(updatedTicket.reviewComment).toEqual(reviewComment)
             expect(updatedTicket.status.id).toEqual(STATUS_IDS.CLOSED)
         })
 
-        test('resident: return to work Ticket when reviewValue is 0', async () => {
+        test('resident: return to work Ticket when reviewValue is \'return\'', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
@@ -238,11 +239,11 @@ describe('Ticket', () => {
             })
 
             const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
-                reviewValue: '0',
+                reviewValue: REVIEW_VALUES.RETURN,
             })
 
             expect(ticket.id).toEqual(updatedTicket.id)
-            expect(updatedTicket.reviewValue).toEqual('0')
+            expect(updatedTicket.reviewValue).toEqual(REVIEW_VALUES.RETURN)
             expect(updatedTicket.status.id).toEqual(STATUS_IDS.OPEN)
         })
 
