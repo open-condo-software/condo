@@ -97,31 +97,6 @@ describe('Notifications', () => {
         expect(result).toEqual(true)
     })
 
-    it('Email templates has only one format: text or html', () => {
-        let result = true
-        for (const locale of Object.keys(LOCALES)) {
-            for (const messageType of MESSAGE_TYPES) {
-                if (isTemplateNeeded(messageType, EMAIL_TRANSPORT)) {
-                    // Skip in case there is no email template needed for some message type.
-                    continue
-                }
-
-                const folder = templateFolder(locale, messageType)
-                const templateFileText = path.resolve(__dirname, folder, `${EMAIL_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
-                const templateFileHtml = path.resolve(__dirname, folder, `${EMAIL_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
-
-                const textExists = fs.existsSync(templateFileText)
-                const htmlExists = fs.existsSync(templateFileHtml)
-
-                if (textExists && htmlExists) {
-                    console.error(`One of email templates is redundant: ${templateFileText} or ${templateFileHtml}.`)
-                    result = false
-                }
-            }
-        }
-        expect(result).toEqual(true)
-    })
-
     it('All push templates has translations for titles', () => {
         let result = true
 

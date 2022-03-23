@@ -1,7 +1,7 @@
 const conf = require('@core/config')
 const dayjs = require('dayjs')
 const { get } = require('lodash')
-const nunjucks = require('nunjucks')
+const Nunjucks = require('nunjucks')
 const path = require('path')
 const fs = require('fs')
 
@@ -34,7 +34,12 @@ const {
     getTicketExecutorConnectedMessage,
 } = require('./ticketTemplates')
 
-const langDirRelated = '../../../lang'
+const langDirRelated = '../../lang'
+
+const nunjucks = new Nunjucks.Environment(new Nunjucks.FileSystemLoader(path.resolve(__dirname, langDirRelated)))
+nunjucks.addFilter('dateFormat', function (dateStr, locale, format) {
+    return dayjs(dateStr).locale(LOCALES[locale || conf.DEFAULT_LOCALE]).format(format || 'D MMMM YYYY')
+})
 
 /**
  * @param {string} lang
