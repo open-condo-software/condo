@@ -2,7 +2,6 @@ import React, { CSSProperties } from 'react'
 import { Card, Image, Space, Typography, Row, Col } from 'antd'
 import styled from '@emotion/styled'
 import dayjs from 'dayjs'
-import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
@@ -13,7 +12,6 @@ interface TopCardTitleProps {
     logoSrc?: string,
     title: string,
     description: string,
-    setupUrl: string,
     partnerUrl?: string,
     tag?: string,
 }
@@ -35,8 +33,10 @@ const CardWrapper = styled.div`
     & > .ant-card-head {
       padding: 0;
       & .ant-card-head-title {
-        padding: 40px;
+        padding: 40px 40px 48px 40px;
         position: relative;
+        // logo + vert.paddings
+        min-height: 248px;
       }
     }
   }
@@ -68,12 +68,6 @@ const LogoContainer = styled.div<CenteredProps>`
   border: 1px solid ${colors.backgroundWhiteSecondary};
 `
 
-const ButtonsWrapper = styled.div<CenteredProps>`
-  display: flex;
-  justify-content: ${(props) => props.centered ? 'center' : 'flex-start'};
-  margin-top: ${(props) => props.centered ? '8' : '0'}px;
-`
-
 
 const IMAGE_STYLES: CSSProperties = { objectFit: 'contain' }
 const DETAILED_TEXT_STYLES: CSSProperties = { margin: 0, height: 48, whiteSpace: 'normal' }
@@ -82,11 +76,7 @@ const FALLBACK_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CA
 
 const TITLE_VERTICAL_MARK = 720
 
-const TopCardTitle: React.FC<TopCardTitleProps> = ({ logoSrc, title, description, setupUrl, partnerUrl, tag }) => {
-    const intl = useIntl()
-    const SetupMessage = intl.formatMessage({ id: 'services.SetupService' })
-    const PartnerSiteMessage = intl.formatMessage({ id: 'services.PartnerSite' })
-    const router = useRouter()
+const TopCardTitle: React.FC<TopCardTitleProps> = ({ logoSrc, title, description, tag }) => {
     const { width } = useWindowSize()
     const isSmallLayout = Boolean(width && width < TITLE_VERTICAL_MARK)
 
@@ -109,25 +99,6 @@ const TopCardTitle: React.FC<TopCardTitleProps> = ({ logoSrc, title, description
                         {description}
                     </Typography.Paragraph>
                 </Col>
-                <Col span={24}>
-                    <ButtonsWrapper centered={isSmallLayout}>
-                        <Space size={[40, 12]}>
-                            <Button
-                                type={'sberDefaultGradient'}
-                                onClick={() => router.push(setupUrl)}
-                            >
-                                {SetupMessage}
-                            </Button>
-                            {
-                                partnerUrl && (
-                                    <Typography.Link onClick={() => router.push(partnerUrl)}>
-                                        {PartnerSiteMessage}
-                                    </Typography.Link>
-                                )
-                            }
-                        </Space>
-                    </ButtonsWrapper>
-                </Col>
             </Row>
         </>
     )
@@ -140,20 +111,22 @@ export const TopCard: React.FC<TopCardProps> = ({
     published,
     title,
     description,
-    setupUrl,
     partnerUrl,
     tag,
 }) => {
     const intl = useIntl()
     const DeveloperMessage = intl.formatMessage({ id: 'Developer' })
     const PublishedMessage = intl.formatMessage({ id: 'Published' })
+    const PartnerSiteMessage = intl.formatMessage({ id: 'services.PartnerSite' })
 
     const { width } = useWindowSize()
     const isSmallLayout = Boolean(width && width < TITLE_VERTICAL_MARK)
 
+    const router = useRouter()
+
     return (
         <CardWrapper>
-            <Card bordered={true} title={<TopCardTitle title={title} description={description} setupUrl={setupUrl} partnerUrl={partnerUrl} tag={tag}/>}>
+            <Card bordered={true} title={<TopCardTitle title={title} description={description} partnerUrl={partnerUrl} tag={tag}/>}>
                 <Space size={[40, 0]} direction={'horizontal'} wrap={true}>
                     <Typography.Text ellipsis={true}>
                         <Typography.Text type={'secondary'}>
@@ -171,6 +144,13 @@ export const TopCard: React.FC<TopCardProps> = ({
                             {dayjs(published).format('DD.MM.YYYY')}
                         </Typography.Text>
                     </Typography.Text>
+                    {
+                        partnerUrl && (
+                            <Typography.Link onClick={() => router.push(partnerUrl)}>
+                                {PartnerSiteMessage}
+                            </Typography.Link>
+                        )
+                    }
                 </Space>
             </Card>
             {

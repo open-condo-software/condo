@@ -156,6 +156,7 @@
   "services.SetupService": "Set up service",
   "services.PartnerSite": "Partner site",
   "services.AboutService": "About service",
+  "services.HowToSetup": "How to set up",
   "MinutesShort": "${minutes} min.",
   "RolesAndAccess": "Roles and accesses",
   "Subscription": "Subscription",

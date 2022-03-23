@@ -156,6 +156,7 @@
   "services.SetupService": "Настроить сервис",
   "services.PartnerSite": "Сайт партнера",
   "services.AboutService": "Об услуге",
+  "services.HowToSetup": "Как настроить сервис",
   "MinutesShort": "${minutes} мин.",
   "RolesAndAccess": "Роли и доступы",
   "Subscription": "Подписка",
