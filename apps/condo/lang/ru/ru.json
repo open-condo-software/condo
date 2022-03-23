@@ -774,6 +774,8 @@
   "division.action.delete.confirm.title": "Точно удалить участок?",
   "division.action.delete.confirm.message": "После удаления участка пропадёт возможность автоматического назначения ответственных и исполнителей для создаваемых заявок на указанные в участке дома. Сотрудники и дома удалены не будут.",
   "division.action.delete.confirm.ok": "Удалить участок",
+  "notification.messages.MESSAGE_FORWARDED_TO_SUPPORT.email.subject": "Обращение из мобильного приложения",
+  "notification.messages.DIRTY_INVITE_NEW_EMPLOYEE.email.subject": "Вас пригласили присоединиться к организации в качестве сотрудника",
   "TicketDeadline": "Срок выполнения заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",
