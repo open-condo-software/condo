@@ -782,6 +782,8 @@
   "notification.messages.REGISTER_NEW_USER.email.subject": "Your access data to doma.ai service",
   "notification.messages.REGISTER_NEW_USER.push.title": "Your access data to doma.ai service",
   "notification.messages.SHARE_TICKET.email.subject": "Ticket №{ticketNumber}",
+  "notification.messages.RESET_PASSWORD.email.subject": "You are trying to reset password",
+  "notification.messages.RESET_PASSWORD.push.title": "You are trying to reset password",
   "TicketDeadline": "Ticket deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
   "ticket.EmptyList.title": "Create the first one, it's simple",
