@@ -117,4 +117,6 @@ describe('Notifications', () => {
 
         expect(result).toEqual(true)
     })
+
+    test.todo('Test custom filter for nunjucks: dateFormat')
 })
