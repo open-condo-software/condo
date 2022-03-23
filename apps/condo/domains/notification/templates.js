@@ -186,39 +186,6 @@ async function renderTemplate (transport, message) {
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
     return renderMessage({ message, env })
 
-    if (message.type === RESET_PASSWORD_MESSAGE_TYPE) {
-        const { token } = message.meta
-        if (transport === EMAIL_TRANSPORT) {
-            if (message.lang === 'en') {
-                return {
-                    subject: 'You are trying to reset password',
-                    text: `Click to the link to set new password: ${serverUrl}/auth/change-password?token=${token}`,
-                }
-            } else if (message.lang === 'ru') {
-                return {
-                    subject: 'Восстановление пароля',
-                    text: `
-                    Добрый день! \n
-                    Чтобы задать новый пароль к платформе Doma.ai, вам просто нужно перейти по сслыке.\n
-                    ${serverUrl}/auth/change-password?token=${token}
-                `,
-                }
-            }
-        } else if (transport === SMS_TRANSPORT) {
-            if (message.lang === 'en') {
-                return {
-                    text: `Click to the link to set new password: ${serverUrl}/auth/change-password?token=${token}`,
-                }
-            } else if (message.lang === 'ru') {
-                return {
-                    text: `
-                        Перейдите по сслыке для изменения пароля: ${serverUrl}/auth/change-password?token=${token}
-                    `,
-                }
-            }
-        }
-    }
-
     if (message.type === SMS_VERIFY_CODE_MESSAGE_TYPE) {
         const { smsCode } = message.meta
         if (message.lang === 'en') {
