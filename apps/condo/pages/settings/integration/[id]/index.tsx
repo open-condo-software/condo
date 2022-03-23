@@ -8,8 +8,8 @@ import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { Typography, Col, Row, Space, Modal, Alert, Tooltip, Radio } from 'antd'
-const ReactMarkdown = require('react-markdown')
-const gfm = require('remark-gfm')
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useOrganization } from '@core/next/organization'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -187,7 +187,7 @@ const BillingIntegrationDetailsPage = () => {
                                                 {
                                                     markDownText && (
                                                         <Col span={24} style={DESCRIPTION_TEXT_STYLE}>
-                                                            <ReactMarkdown remarkPlugins={[gfm]}>
+                                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                                 {markDownText}
                                                             </ReactMarkdown>
                                                         </Col>
