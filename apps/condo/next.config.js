@@ -8,7 +8,6 @@ const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 // NOTE: FormTable require rc-table module
 const withTM = require('next-transpile-modules')(['@core/next', '@core/keystone', 'rc-table', '@condo/domains'])
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
-const { get } = require('lodash')
 
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
