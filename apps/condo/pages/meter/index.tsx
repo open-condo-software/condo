@@ -24,7 +24,7 @@ import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { EXPORT_METER_READINGS } from '@condo/domains/meter/gql'
+import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
@@ -182,7 +182,7 @@ export const MetersPageContent = ({
                                     <ExportToExcelActionBar
                                         hidden={isSmall}
                                         searchObjectsQuery={searchMeterReadingsQuery}
-                                        exportToExcelQuery={EXPORT_METER_READINGS}
+                                        exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                                         sortBy={sortBy}
                                     />
                                 </Row>
