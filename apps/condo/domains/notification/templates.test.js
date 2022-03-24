@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { isEmpty, get } = require('lodash')
-const { LOCALES } = require('@condo/domains/common/constants/locale')
+const { LOCALES, EN_LOCALE } = require('@condo/domains/common/constants/locale')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 const {
     MESSAGE_TYPES,
@@ -16,7 +16,15 @@ const {
     translationStringKeyForEmailSubject,
     translationStringKeyForPushTitle,
     templateEngine,
+    templateEngineDefaultDateFormat,
 } = require('@condo/domains/notification/templates')
+const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { createTestMessage } = require('@condo/domains/notification/utils/testSchema')
+const emailTransport = require('@condo/domains/notification/transports/email')
+const { SHARE_TICKET_MESSAGE_TYPE } = require('./constants/constants')
+const dayjs = require('dayjs')
+const faker = require('faker')
 
 /**
  * The *Relative* path to templates folder
@@ -150,5 +158,38 @@ describe('Notifications', () => {
 
         const resultStr = templateEngine.renderString('{{ someStr | dump | safe }}', { someStr: 'Hello, World!' })
         expect(resultStr).toEqual('"Hello, World!"')
+    })
+
+    it('Render variables into email subject and message body', async () => {
+        const client = await makeLoggedInAdminClient()
+
+        const developerData = { type: 'some text for email subject', data: 'Some string data' }
+        const [messageDeveloper, attrsDeveloper] = await createTestMessage(client, {
+            type: DEVELOPER_IMPORTANT_NOTE_TYPE,
+            lang: EN_LOCALE,
+            meta: { ...developerData, dv: 1 },
+        })
+
+        const ticketData = {
+            date: dayjs(),
+            id: faker.datatype.uuid(),
+            ticketNumber: 42,
+            details: 'The ticket details',
+        }
+        const [messageShare, attrsShare] = await createTestMessage(client, {
+            type: SHARE_TICKET_MESSAGE_TYPE,
+            lang: EN_LOCALE,
+            meta: { ...ticketData, dv: 1 },
+        })
+
+        const preparedMessageDeveloper = await emailTransport.prepareMessageToSend(messageDeveloper)
+        const preparedMessageShare = await emailTransport.prepareMessageToSend(messageShare)
+
+        expect(preparedMessageDeveloper.subject).toEqual(developerData.type)
+        expect(preparedMessageDeveloper.text.trim()).toEqual(`"${developerData.data}"`)
+
+        expect(preparedMessageShare.subject).toEqual(`Ticket №${ticketData.ticketNumber}`)
+        expect(preparedMessageShare.html).toContain(`Ticket #${ticketData.ticketNumber} dated ${dayjs(ticketData.date).locale(LOCALES[EN_LOCALE]).format(templateEngineDefaultDateFormat)} has been shared with you.`)
+        expect(preparedMessageShare.html).toContain(`The text of the ticket: "${ticketData.details}"`)
     })
 })
