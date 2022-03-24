@@ -316,10 +316,6 @@ const Ticket = new GQLListSchema('Ticket', {
 
             if (statusId) {
                 addOrderToTicket(resolvedData, statusId)
-
-                if (TERMINAL_TICKET_STATUS_IDS.includes(statusId)) {
-                    resolvedData.deadline = null
-                }
             }
 
             if (operation === 'create' && user && user.type === RESIDENT) {
