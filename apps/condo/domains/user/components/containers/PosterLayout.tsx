@@ -16,7 +16,7 @@ interface IPosterLayoutProps {
     layoutBgColor?: string
 }
 
-const FOOTER_STYLES: React.CSSProperties = { backgroundColor: 'inherit', marginTop: 5, position: 'static' }
+const FOOTER_STYLES: React.CSSProperties = { backgroundColor: 'inherit', marginTop: 5, position: 'static', textAlign: 'center' }
 const ROW_STYLE = { marginTop: 65 }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor }) => {
