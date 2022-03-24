@@ -1,15 +1,12 @@
-import { RightOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import React from 'react'
 import { shadows, transitions, colors, DEFAULT_BORDER_WIDTH } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { OnBoardingStepType } from './index'
 
-export const ActivateStepIcon = styled(RightOutlined)`
+export const ActivateStepIcon = styled.div`
   transition: ${transitions.easeInOut};
-  font-size: 14px;
   margin-left: auto;
-  color: ${colors.black};
   opacity: 0;
 `
 
