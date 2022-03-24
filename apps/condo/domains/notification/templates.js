@@ -222,4 +222,5 @@ module.exports = {
     getEmailTemplate,
     translationStringKeyForEmailSubject,
     translationStringKeyForPushTitle,
+    templateEngine: nunjucks,
 }
