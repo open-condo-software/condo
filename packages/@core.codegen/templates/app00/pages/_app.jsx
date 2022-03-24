@@ -12,7 +12,7 @@ import { withOrganization } from '@core/next/organization'
 
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import BaseLayout from '@app/condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { MenuItem } from "@condo/domains/common/components/MenuItem";
+import { MenuItem } from '@condo/domains/common/components/MenuItem'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
