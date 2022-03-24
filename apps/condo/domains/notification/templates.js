@@ -162,11 +162,6 @@ async function renderTemplate (transport, message) {
         throw new Error(`No renderer for ${transport} messages`)
     }
 
-    // TODO(pahaz): we need to decide where to store templates! HArDCODE!
-    // TODO(pahaz): write the logic here!
-    //  1) we should find message template by TYPE + LANG
-    //  2) we should render the template and return transport context
-
     const serverUrl = conf.SERVER_URL
 
     /**
