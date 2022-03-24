@@ -1602,6 +1602,26 @@ export type AdvanceAcceptanceBundleInput = {
   currentState?: Maybe<CurrentStateType>;
 };
 
+export type AllOrganizationAppsInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  organization: OrganizationWhereUniqueInput;
+};
+
+export type AppInfoOutput = {
+  __typename?: 'AppInfoOutput';
+  id: Scalars['ID'];
+  type: AppType;
+  connected: Scalars['Boolean'];
+  name: Scalars['String'];
+  shortDescription: Scalars['String'];
+};
+
+export enum AppType {
+  Billing = 'BILLING',
+  Acquiring = 'ACQUIRING'
+}
+
 export type AuthenticateUserWithPhoneAndPasswordInput = {
   phone: Scalars['String'];
   password: Scalars['String'];
@@ -24147,6 +24167,7 @@ export type Query = {
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
+  allOrganizationApps?: Maybe<Array<AppInfoOutput>>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -26831,6 +26852,11 @@ export type QueryExportMeterReadingsArgs = {
 
 export type QueryExportPaymentsToExcelArgs = {
   data: ExportPaymentsToExcelInput;
+};
+
+
+export type QueryAllOrganizationAppsArgs = {
+  data: AllOrganizationAppsInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {

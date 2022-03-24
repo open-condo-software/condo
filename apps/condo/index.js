@@ -80,6 +80,7 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/meter/schema'),
         require('@condo/domains/subscription/schema'),
         require('@condo/domains/acquiring/schema'),
+        require('@condo/domains/miniapp/schema'),
     ], [schemaDocPreprocessor])
 
     registerTasks([
