@@ -117,6 +117,7 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
             {
                 type: 'models.UniqueConstraint',
                 fields: ['context', 'tin', 'iec', 'bic', 'bankAccount'],
+                condition: 'Q(deletedAt__isnull=True)',
                 name: 'billingRecipient_unique_context_tin_iec_bic_bankAccount',
             },
         ],
