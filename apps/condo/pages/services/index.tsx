@@ -6,10 +6,21 @@ import { PageWrapper, PageContent } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import Content from '@condo/domains/miniapp/components/AppSelector'
+import get from 'lodash/get'
+import { useOrganization } from '@core/next/organization'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
 const ServicesPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'menu.Services' })
+    const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
+
+    const userOrganization = useOrganization()
+    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
+
+    if (!canManageIntegrations) {
+        return <LoadingOrErrorPage title={PageTitle} error={NoPermissionsMessage}/>
+    }
 
     return (
         <FeatureFlagRequired name={'services'} fallback={<Error statusCode={404}/>}>
