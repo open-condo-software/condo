@@ -46,20 +46,15 @@ module.exports = withTM(withLess(withCSS({
             },
         ]
     },
-    webpack: (config) => {
+    webpack: (config, options) => {
         const plugins = config.plugins
 
         // NOTE: Replace Moment.js with Day.js in antd project
         config.plugins = [...plugins, new AntdDayjsWebpackPlugin()]
 
-        /**
-         Prevent warnings for messages templates during building.
-         These files are processing manually using nunjucks
-         @link https://webpack.js.org/configuration/module/#modulenoparse
-         */
-        config.module.noParse = [
-            ...get(config, ['module', 'noParse'], []),
-            /lang\/.*\.njk$/,
+        config.module.rules = [
+            ...(config.module.rules || []),
+            { test: /lang\/.*\.njk$/, use: 'raw-loader' },
         ]
 
         return config
