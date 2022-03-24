@@ -139,10 +139,6 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         setIsVisible(false)
     }, [setIsVisible])
 
-    const inputStyle = {
-        backgroundColor: '#F0F0F0',
-    }
-
     const ModalForm: React.FC = () => (
         <BaseModalForm
             mutation={REGISTER_NEW_ORGANIZATION_MUTATION}
@@ -162,15 +158,12 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
 
             <Form.Item name='name' label={NameMsg} rules={validators.name} validateFirst>
                 <Input
-                    style={inputStyle}
                     placeholder={CreateOrganizationPlaceholder}
                 />
             </Form.Item>
 
             <Form.Item name='tin' style={FORM_ITEM_STYLES} label={InnMessage} rules={validators.tin} validateFirst>
-                <Input
-                    style={inputStyle}
-                />
+                <Input />
             </Form.Item>
         </BaseModalForm>
     )
