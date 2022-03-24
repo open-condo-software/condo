@@ -50,7 +50,7 @@ export const MetersPageContent = ({
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
-    const CreateTicket = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
+    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many' })
@@ -117,7 +117,7 @@ export const MetersPageContent = ({
                                     label={EmptyListLabel}
                                     message={''}
                                     createRoute='/meter/create'
-                                    createLabel={CreateTicket} />
+                                    createLabel={CreateMeter} />
                             ) :
                             (
                                 <Row gutter={METERS_PAGE_CONTENT_ROW_GUTTERS} align={'middle'} justify={'center'}>

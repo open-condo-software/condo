@@ -49,7 +49,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const PropertyTitle = intl.formatMessage({ id: 'pages.condo.property.ImportTitle' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
-    const CreateTicket = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
+    const CreateProperty = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
 
     const { role, searchPropertiesQuery, tableColumns, sortBy } = props
 
@@ -117,7 +117,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
             label={EmptyListLabel}
             message={EmptyListMessage}
             createRoute="/property/create"
-            createLabel={CreateTicket}/>
+            createLabel={CreateProperty}/>
         : (
             <Row justify={'space-between'} gutter={ROW_VERTICAL_GUTTERS}>
                 <Col span={24}>
