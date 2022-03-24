@@ -7,7 +7,7 @@ const { GQLListSchema, getByCondition } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const get = require('lodash/get')
-const { addClientInfoToResidentTicket, addOrderToTicket } = require('../utils/serverSchema/resolveHelpers')
+const { addClientInfoToResidentTicket, updateResolvedDataByResolvedStatus } = require('../utils/serverSchema/resolveHelpers')
 const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
 
 const {
@@ -32,10 +32,7 @@ const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ER
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { TERMINAL_TICKET_STATUS_IDS, STATUS_IDS } = require('../constants/statusTransitions')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
-const { TicketStatus } = require('../utils/serverSchema')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -323,12 +320,9 @@ const Ticket = new GQLListSchema('Ticket', {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey, context }, context)
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
-            const statusId = get(resolvedData, 'status')
             const userType = get(user, 'type')
 
-            if (statusId) {
-                addOrderToTicket(resolvedData, statusId)
-            }
+            await updateResolvedDataByResolvedStatus(context, existingItem, resolvedData)
 
             if (userType === RESIDENT && operation === 'create') {
                 await addClientInfoToResidentTicket(context, resolvedData)
