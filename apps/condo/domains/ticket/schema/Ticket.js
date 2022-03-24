@@ -33,6 +33,8 @@ const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, 
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
+const { TERMINAL_TICKET_STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { calculateTicketOrder, calculateReopenedCounter } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 
 const { handleTicketEvents } = require('../utils/handlers')
 
@@ -323,8 +325,17 @@ const Ticket = new GQLListSchema('Ticket', {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
+            const resolvedStatusId = get(resolvedData, 'status')
 
-            await updateResolvedDataByResolvedStatus(context, existingItem, resolvedData)
+            if (resolvedStatusId) {
+                calculateTicketOrder(resolvedData, resolvedStatusId)
+
+                if (TERMINAL_TICKET_STATUS_IDS.includes(resolvedStatusId)) {
+                    resolvedData.deadline = null
+                }
+
+                await calculateReopenedCounter(context, existingItem, resolvedData)
+            }
 
             if (userType === RESIDENT && operation === 'create') {
                 await addClientInfoToResidentTicket(context, resolvedData)
