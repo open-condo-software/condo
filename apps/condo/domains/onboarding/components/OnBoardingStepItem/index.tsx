@@ -2,6 +2,7 @@ import { Space } from 'antd'
 import React from 'react'
 import { colors } from '@condo/domains/common/constants/style'
 import { ActivateStepIcon, IconContainer, StepContainer, StepTitle, StepDescription } from './components'
+import { ArrowSemiBoldRightSvg } from '@condo/domains/common/components/icons/ArrowSemiBold'
 
 export enum OnBoardingStepType {
     DEFAULT = 'Default',
@@ -38,7 +39,9 @@ export const OnBoardingStepItem: React.FC<IOnBoardingStep> = (props) => {
                     <StepDescription>{description}</StepDescription>
                 </Space>
             </Space>
-            <ActivateStepIcon />
+            <ActivateStepIcon>
+                <ArrowSemiBoldRightSvg />
+            </ActivateStepIcon>
         </StepContainer>
     )
 }
