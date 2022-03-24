@@ -4,24 +4,14 @@ const { get } = require('lodash')
 const Nunjucks = require('nunjucks')
 const path = require('path')
 const fs = require('fs')
-
-const { RU_LOCALE, EN_LOCALE, LOCALES } = require('@condo/domains/common/constants/locale')
+const { LOCALES } = require('@condo/domains/common/constants/locale')
 
 const {
-    INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-    DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     MESSAGE_TRANSPORTS,
-    REGISTER_NEW_USER_MESSAGE_TYPE,
-    RESET_PASSWORD_MESSAGE_TYPE,
-    SMS_VERIFY_CODE_MESSAGE_TYPE,
-    SHARE_TICKET_MESSAGE_TYPE,
     EMAIL_TRANSPORT,
     SMS_TRANSPORT,
     TELEGRAM_TRANSPORT,
     PUSH_TRANSPORT,
-    DEVELOPER_IMPORTANT_NOTE_TYPE,
-    CUSTOMER_IMPORTANT_NOTE_TYPE,
-    MESSAGE_FORWARDED_TO_SUPPORT,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
     DEFAULT_TEMPLATE_FILE_NAME,
@@ -187,18 +177,6 @@ async function renderTemplate (transport, message) {
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
     return renderMessage({ message, env })
 
-    if (message.type === CUSTOMER_IMPORTANT_NOTE_TYPE) {
-        const { data } = message.meta
-
-        return {
-            subject: 'Новая организация. (СББОЛ)',
-            text: `
-                Название: ${get(data, ['organization', 'name'])},
-                ИНН: ${get(data, ['organization', 'meta', 'inn'])},
-            `,
-        }
-    }
-
     if (message.type === TICKET_ASSIGNEE_CONNECTED_TYPE) {
         return getTicketAssigneeConnectedMessage(message, transport)
     }
@@ -206,8 +184,6 @@ async function renderTemplate (transport, message) {
     if (message.type === TICKET_EXECUTOR_CONNECTED_TYPE) {
         return getTicketExecutorConnectedMessage(message, transport)
     }
-
-    throw new Error('unknown template or lang')
 }
 
 module.exports = {

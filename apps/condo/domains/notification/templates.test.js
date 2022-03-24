@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { isEmpty, get } = require('lodash')
-const { LOCALES, EN_LOCALE } = require('@condo/domains/common/constants/locale')
+const { LOCALES, EN_LOCALE, RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 const {
     MESSAGE_TYPES,
@@ -22,9 +22,10 @@ const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/c
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const emailTransport = require('@condo/domains/notification/transports/email')
-const { SHARE_TICKET_MESSAGE_TYPE } = require('./constants/constants')
+const { SHARE_TICKET_MESSAGE_TYPE, CUSTOMER_IMPORTANT_NOTE_TYPE } = require('./constants/constants')
 const dayjs = require('dayjs')
 const faker = require('faker')
+const { makeClientWithRegisteredOrganization } = require('../organization/utils/testSchema/Organization')
 
 /**
  * The *Relative* path to templates folder
@@ -191,5 +192,21 @@ describe('Notifications', () => {
         expect(preparedMessageShare.subject).toEqual(`Ticket №${ticketData.ticketNumber}`)
         expect(preparedMessageShare.html).toContain(`Ticket #${ticketData.ticketNumber} dated ${dayjs(ticketData.date).locale(LOCALES[EN_LOCALE]).format(templateEngineDefaultDateFormat)} has been shared with you.`)
         expect(preparedMessageShare.html).toContain(`The text of the ticket: "${ticketData.details}"`)
+    })
+
+    it('Render message after SBBOL auth', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const admin = await makeLoggedInAdminClient()
+
+        const [message, attrs] = await createTestMessage(admin, {
+            type: CUSTOMER_IMPORTANT_NOTE_TYPE,
+            lang: RU_LOCALE,
+            meta: { organization: client.organization, dv: 1 },
+        })
+
+        const preparedMessage = await emailTransport.prepareMessageToSend(message)
+
+        expect(preparedMessage.subject).toEqual('Новая организация. (СББОЛ)')
+        expect(preparedMessage.text.trim()).toEqual(`Название: ${client.organization.name},\nИНН: ${client.organization.meta.inn},`)
     })
 })
