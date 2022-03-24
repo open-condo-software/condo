@@ -42,7 +42,7 @@ export default function DivisionTable (props: BuildingTableProps) {
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.division.index.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.division.index.EmptyList.text' })
-    const CreateTicket = intl.formatMessage({ id: 'pages.condo.division.index.CreateDivisionButtonLabel' })
+    const CreateDivision = intl.formatMessage({ id: 'pages.condo.division.index.CreateDivisionButtonLabel' })
 
     const { role, searchDivisionsQuery, tableColumns, sortBy } = props
 
@@ -83,7 +83,7 @@ export default function DivisionTable (props: BuildingTableProps) {
             label={EmptyListLabel}
             message={EmptyListMessage}
             createRoute="/division/create"
-            createLabel={CreateTicket}/>
+            createLabel={CreateDivision}/>
         : (
             <Row align={'middle'} gutter={ROW_VERTICAL_GUTTERS}>
                 <Col span={24}>
