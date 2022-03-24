@@ -602,6 +602,7 @@
   "pages.condo.analytics.TicketAnalyticsPage.TicketChartView.LoadMoreTitle": "Load more {entity}",
   "pages.organizations.CreateOrganizationButtonLabel": "Create organization",
   "pages.organizations.CreateOrganizationModalTitle": "New organization",
+  "pages.organizations.CreateOrganizationPlaceholder": "For example, IDACORP, Inc.",
   "pages.organizations.EditOrganizationModalTitle": "Edit organization",
   "pages.organizations.OrganizationName": "Name",
   "pages.organizations.tin": "TIN",
