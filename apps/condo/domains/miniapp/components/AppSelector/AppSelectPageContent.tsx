@@ -19,7 +19,6 @@ const WINDOW_SMALLEST_CAROUSEL_CARD_WIDTH = 460
 const PAGE_CONTENT_STYLES: CSSProperties = { paddingBottom: 60 }
 
 export const AppSelectPageContent: React.FC = () => {
-    // TODO(2420): Add employee rights check
     // TODO(2420): Add select queries
 
     const intl = useIntl()
