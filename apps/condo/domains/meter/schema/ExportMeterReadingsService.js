@@ -32,7 +32,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
     types: [
         {
             access: true,
-            type: 'input ExportMeterReadingsInput { where: MeterReadingWhereInput!, sortBy: [SortMeterReadingsBy!], timeZone: String! }',
+            type: 'input ExportMeterReadingsInput { dv: Int!, sender: SenderFieldInput!, where: MeterReadingWhereInput!, sortBy: [SortMeterReadingsBy!], timeZone: String! }',
         },
         {
             access: true,
