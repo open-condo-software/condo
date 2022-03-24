@@ -24,7 +24,7 @@ const {
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')
 const { triggersManager } = require('@core/triggers')
-const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
+const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES } = require('../constants')
 const { buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
@@ -61,7 +61,7 @@ const Ticket = new GQLListSchema('Ticket', {
         reviewValue: {
             schemaDoc: 'Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review',
             type: Select,
-            options: 'returned, bad, good',
+            options: Object.values(REVIEW_VALUES).join(','),
         },
         reviewComment: {
             schemaDoc: 'Resident\'s comment on ticket review',
