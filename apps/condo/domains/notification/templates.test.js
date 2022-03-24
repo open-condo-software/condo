@@ -103,7 +103,7 @@ describe('Notifications', () => {
         for (const locale of Object.keys(LOCALES)) {
             const strings = getTranslations(locale)
             for (const messageType of MESSAGE_TYPES) {
-                if (isTemplateNeeded(messageType, EMAIL_TRANSPORT)) {
+                if (!isTemplateNeeded(messageType, EMAIL_TRANSPORT)) {
                     // Skip in case there is no email template needed for some message type.
                     continue
                 }
@@ -124,7 +124,7 @@ describe('Notifications', () => {
         for (const locale of Object.keys(LOCALES)) {
             const strings = getTranslations(locale)
             for (const messageType of MESSAGE_TYPES) {
-                if (isTemplateNeeded(messageType, PUSH_TRANSPORT)) {
+                if (!isTemplateNeeded(messageType, PUSH_TRANSPORT)) {
                     // Skip in case there is no email template needed for some message type.
                     continue
                 }
