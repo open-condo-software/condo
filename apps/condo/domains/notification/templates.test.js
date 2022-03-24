@@ -15,6 +15,7 @@ const {
 const {
     translationStringKeyForEmailSubject,
     translationStringKeyForPushTitle,
+    templateEngine,
 } = require('@condo/domains/notification/templates')
 
 /**
@@ -129,5 +130,25 @@ describe('Notifications', () => {
         expect(result).toEqual(true)
     })
 
-    test.todo('Test custom filter for nunjucks: dateFormat')
+    it('Successfully rendered date by custom filter', () => {
+        const ruWithDefaultFormat = templateEngine.renderString('Date of the first commit in condo is {{ \'2020-04-19\' | dateFormat(\'ru\') }}')
+        expect(ruWithDefaultFormat).toEqual('Date of the first commit in condo is 19 апреля 2020')
+
+        const ruWithCustomFormat = templateEngine.renderString('Date of the first commit in condo is {{ \'2020-04-19\' | dateFormat(\'ru\', \'DD MMM YYYY\') }}')
+        expect(ruWithCustomFormat).toEqual('Date of the first commit in condo is 19 апр. 2020')
+
+        const enWithDefaultFormat = templateEngine.renderString('Date of the first commit in condo is {{ \'2020-04-19\' | dateFormat(\'en\') }}')
+        expect(enWithDefaultFormat).toEqual('Date of the first commit in condo is 19 April 2020')
+
+        const enWithCustomFormat = templateEngine.renderString('Date of the first commit in condo is {{ \'2020-04-19\' | dateFormat(\'en\', \'DD MMM YYYY\') }}')
+        expect(enWithCustomFormat).toEqual('Date of the first commit in condo is 19 Apr 2020')
+    })
+
+    it('Render json as string', () => {
+        const resultObj = templateEngine.renderString('{{ someData | dump | safe }}', { someData: { a: 1, b: '2' } })
+        expect(resultObj).toEqual('{"a":1,"b":"2"}')
+
+        const resultStr = templateEngine.renderString('{{ someStr | dump | safe }}', { someStr: 'Hello, World!' })
+        expect(resultStr).toEqual('"Hello, World!"')
+    })
 })
