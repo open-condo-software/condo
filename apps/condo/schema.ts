@@ -33486,15 +33486,15 @@ export type TicketChangeCreateInput = {
 };
 
 export enum TicketChangeReviewValueFromType {
-  Returned = 'returned',
   Bad = 'bad',
-  Good = 'good'
+  Good = 'good',
+  Returned = 'returned'
 }
 
 export enum TicketChangeReviewValueToType {
-  Returned = 'returned',
   Bad = 'bad',
-  Good = 'good'
+  Good = 'good',
+  Returned = 'returned'
 }
 
 export type TicketChangeUpdateInput = {
@@ -37931,9 +37931,9 @@ export type TicketReportWidgetOutput = {
 };
 
 export enum TicketReviewValueType {
-  Returned = 'returned',
   Bad = 'bad',
-  Good = 'good'
+  Good = 'good',
+  Returned = 'returned'
 }
 
 /**  Ticket source. Income call, mobile app, external system, ...  */
