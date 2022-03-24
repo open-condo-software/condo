@@ -7,7 +7,7 @@ import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidateP
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 
 import { useIntl } from '@core/next/intl'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row, Tabs, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useContext, useEffect, useState } from 'react'
 import { ButtonHeaderActions } from '@condo/domains/common/components/HeaderActions'
@@ -97,9 +97,12 @@ const RegisterPage: AuthPage = () => {
 
     return (
         <RegisterContextProvider>
-            <Row gutter={[0, 24]}>
+            <Row gutter={[0, 60]}>
                 <Col span={24}>
-                    <Typography.Title>{RegistrationTitleMsg}</Typography.Title>
+                    <Tabs defaultActiveKey='register' style={ { alignItems:'center', fontWeight: 500 } }>
+                        <Tabs.TabPane key='register' tab={'Регистрация'}/>
+                        <Tabs.TabPane key='signin' tab={'Вход'}/>
+                    </Tabs>
                 </Col>
                 <Col span={24}>
                     { steps[state] }
