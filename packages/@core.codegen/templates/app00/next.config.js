@@ -4,7 +4,8 @@ const withCSS = require('@zeit/next-css')
 // Tell webpack to compile the "@core/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
-const withTM = require('next-transpile-modules')(['@core/next', '@app/condo', '@{{name}}/domains', 'rc-table'])
+// TODO(codegen): include all TypeScript modules, that you plan to use in your app, otherwise you will get errors about unregognized TypeScript syntax
+const withTM = require('next-transpile-modules')(['@core/next', '@app/condo', '@condo/domains', '@{{name}}/domains', 'rc-table'])
 
 const serverUrl = conf['SERVER_URL']
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
