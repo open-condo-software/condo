@@ -7,13 +7,14 @@ import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Row, Typography, Checkbox } from 'antd'
+import { Col, Form, Row, Space, Checkbox, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { RegisterContext } from './RegisterContextProvider'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
+import { colors } from '@condo/domains/common/constants/style'
 
 
 const FORM_LAYOUT = {
@@ -101,82 +102,64 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
             labelAlign='left'
             requiredMark={false}
         >
-            <Row gutter={[0, 60]}>
-                <Col span={24}>
-                    <Row gutter={[0, 40]}>
-                        <Col span={24}>
-                            <Typography.Paragraph>{RegisterHelpMessage}</Typography.Paragraph>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item
-                                name='phone'
-                                label={PhoneMsg}
-                                data-cy={'register-phone-item'}
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: FieldIsRequiredMsg,
-                                    },
-                                    () => ({
-                                        validator () {
-                                            if (!smsSendError) {
-                                                return Promise.resolve()
-                                            }
-                                            return Promise.reject(smsSendError)
-                                        },
-                                    }),
-                                ]}
-                            >
-                                <PhoneInput placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)} block/>
-                            </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                            <Checkbox checked={agreed} onChange={handleToggleAgreed} data-cy={'register-personal-data-checkbox'}>
-                                <FormattedMessage
-                                    id='pages.auth.register.info.PersonalDataProcessingConsent'
-                                    values={{
-                                        consentLink: (
-                                            <Button style={{ bottom: '-4px' }} type={'inlineLink'} size={'small'} target='_blank' href={'/pdpc.pdf'} rel='noreferrer'>{ConsentContent}</Button>
-                                        ),
-                                        privacyPolicyLink: (
-                                            <Button style={{ bottom: '-4px' }} type={'inlineLink'} size={'small'} target='_blank' href={'/policy.pdf'} rel='noreferrer'>{PrivacyPolicyContent}</Button>
-                                        ),
-                                    }}
-                                />
-                            </Checkbox>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={24}>
-                    <Row justify={'space-between'} gutter={[5, 8]}>
-                        <Col xs={24} lg={11} style={ { maxWidth: '100%' } }>
-                            <Button
-                                key='submit'
-                                type='sberPrimary'
-                                htmlType='submit'
-                                loading={isLoading}
-                                data-cy={'register-button'}
-                                block={isSmall}
-                                disabled={!agreed}
-                            >
-                                {RegisterMsg}
-                            </Button>
-                        </Col>
-                        <Col xs={24} lg={11}>
-                            <Button
-                                key='submit'
-                                type='sberAction'
-                                icon={<SberIconWithoutLabel/>}
-                                href={'/api/sbbol/auth'}
-                                block={isSmall}
-                                disabled={!agreed}
-                            >
-                                {SberIdRegisterMsg}
-                            </Button>
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
+            <Space direction={'vertical'} align={'center'} size={20}>
+                <Form.Item
+                    name='phone'
+                    label={PhoneMsg}
+                    rules={[
+                        {
+                            required: true,
+                            message: FieldIsRequiredMsg,
+                        },
+                        () => ({
+                            validator () {
+                                if (!smsSendError) {
+                                    return Promise.resolve()
+                                }
+                                return Promise.reject(smsSendError)
+                            },
+                        }),
+                    ]}
+                >
+                    <PhoneInput placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)} block/>
+                </Form.Item>
+                <Checkbox checked={agreed} onChange={handleToggleAgreed}>
+                    <FormattedMessage
+                        id='pages.auth.register.info.PersonalDataProcessingConsent'
+                        values={{
+                            consentLink: (
+                                <Button style={{ bottom: '-4px' }} type={'inlineLink'} size={'small'} target='_blank' href={'/pdpc.pdf'} rel='noreferrer'>{ConsentContent}</Button>
+                            ),
+                            privacyPolicyLink: (
+                                <Button style={{ bottom: '-4px' }} type={'inlineLink'} size={'small'} target='_blank' href={'/policy.pdf'} rel='noreferrer'>{PrivacyPolicyContent}</Button>
+                            ),
+                        }}
+                    />
+                </Checkbox>
+                <Space direction={'vertical'} align={'center'} size={20}>
+                    <Button
+                        key='submit'
+                        type='sberPrimary'
+                        htmlType='submit'
+                        loading={isLoading}
+                        block={isSmall}
+                        disabled={!agreed}
+                    >
+                        {RegisterMsg}
+                    </Button>
+                    <Typography.Text disabled style={ { color: colors.textSecondary, fontWeight: 600 } }>или</Typography.Text>
+                    <Button
+                        key='submit'
+                        type='sberAction'
+                        icon={<SberIconWithoutLabel/>}
+                        href={'/api/sbbol/auth'}
+                        block={isSmall}
+                        disabled={!agreed}
+                    >
+                        {SberIdRegisterMsg}
+                    </Button>
+                </Space>
+            </Space>
         </Form>
     )
 }
