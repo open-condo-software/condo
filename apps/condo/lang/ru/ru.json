@@ -786,6 +786,8 @@
   "notification.messages.RESET_PASSWORD.push.title": "Восстановление пароля",
   "notification.messages.SMS_VERIFY.email.subject": "Код",
   "notification.messages.SMS_VERIFY.push.title": "Код",
+  "notification.messages.DEVELOPER_IMPORTANT_NOTE_TYPE.email.subject": "{type}",
+  "notification.messages.DEVELOPER_IMPORTANT_NOTE_TYPE.push.title": "{type}",
   "TicketDeadline": "Срок выполнения заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",

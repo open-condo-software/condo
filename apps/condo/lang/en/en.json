@@ -786,6 +786,8 @@
   "notification.messages.RESET_PASSWORD.push.title": "You are trying to reset password",
   "notification.messages.SMS_VERIFY.email.subject": "Verify code",
   "notification.messages.SMS_VERIFY.push.title": "Verify code",
+  "notification.messages.DEVELOPER_IMPORTANT_NOTE_TYPE.email.subject": "{type}",
+  "notification.messages.DEVELOPER_IMPORTANT_NOTE_TYPE.push.title": "{type}",
   "TicketDeadline": "Ticket deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
   "ticket.EmptyList.title": "Create the first one, it's simple",

@@ -186,14 +186,6 @@ async function renderTemplate (transport, message) {
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
     return renderMessage({ message, env })
 
-    if (message.type === DEVELOPER_IMPORTANT_NOTE_TYPE) {
-        const { data, type } = message.meta
-        return {
-            subject: String(type),
-            text: JSON.stringify(data),
-        }
-    }
-
     if (message.type === CUSTOMER_IMPORTANT_NOTE_TYPE) {
         const { data } = message.meta
 
