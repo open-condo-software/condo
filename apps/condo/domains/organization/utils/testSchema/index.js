@@ -4,13 +4,11 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const get = require('lodash/get')
-const omit = require('lodash/omit')
 const {makeClientWithProperty} = require('@condo/domains/property/utils/testSchema')
 const {createTestProperty} = require('@condo/domains/property/utils/testSchema')
 const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require ('@condo/domains/common/constants/countries')
-const { makeClientWithNewRegisteredAndLoggedInUser, registerNewUser } = require ('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeLoggedInClient } = require ('@core/keystone/test.utils')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require ('@condo/domains/user/utils/testSchema')
+const { makeLoggedInAdminClient } = require ('@core/keystone/test.utils')
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const {
@@ -228,13 +226,15 @@ async function createTestOrganizationWithAccessToAnotherOrganization () {
     }
 }
 
-async function makeEmployeeUserClientWithAbilities (abilities = {}) {
+async function makeEmployeeUserClientWithAbilities (abilities = {}, accepted=true) {
     const adminClient = await makeLoggedInAdminClient()
     const userClient = await makeClientWithProperty()
     const [organization] = await createTestOrganization(adminClient)
     const [property] = await createTestProperty(adminClient, organization, { map: buildingMapJson })
     const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, abilities)
-    const [employee] = await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+    const [employee] = await createTestOrganizationEmployee(adminClient, organization, userClient.user, role, {
+        isAccepted: accepted,
+    })
     userClient.organization = organization
     userClient.property = property
     userClient.role = role

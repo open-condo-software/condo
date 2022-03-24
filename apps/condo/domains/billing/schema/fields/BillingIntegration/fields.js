@@ -16,7 +16,7 @@ const DETAILS_TEXT_FIELD = {
 const SHORT_DESCRIPTION_FIELD = {
     schemaDoc: 'Short integration description, that would be shown on settings card',
     type: Text,
-    isRequired: false,
+    isRequired: true,
 }
 
 const IS_HIDDEN_FIELD = {
