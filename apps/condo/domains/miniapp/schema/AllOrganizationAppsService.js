@@ -19,7 +19,7 @@ const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsServi
         },
         {
             access: true,
-            type: 'type AppInfoOutput { id: ID!, type: AppType!, connected: Boolean!, name: String!, shortDescription: String! }',
+            type: 'type AppInfoOutput { id: ID!, type: AppType!, connected: Boolean!, name: String!, shortDescription: String!, category: String }',
         },
     ],
     
@@ -47,6 +47,7 @@ const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsServi
                         name: billing.name,
                         shortDescription: billing.shortDescription,
                         connected: connectedBillingIntegrations.includes(billing.id),
+                        category: BILLING_APP_TYPE,
                     })
                 }
 
@@ -66,6 +67,7 @@ const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsServi
                         name: acquiring.name,
                         shortDescription: acquiring.shortDescription,
                         connected: connectedAcquiringIntegrations.includes(acquiring.id),
+                        category: ACQUIRING_APP_TYPE,
                     })
                 }
 

@@ -7,8 +7,13 @@ import { Section } from './Section'
 import { CardsContainer, CardsPerRowType } from './CardsContainer'
 import { AppCarouselCard } from './AppCarouselCard'
 import { AppSelectCard } from './AppSelectCard'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
+import { useQuery } from '@core/next/apollo'
+import { ALL_ORGANIZATION_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
+import { get } from 'lodash'
+import { useOrganization } from '@core/next/organization'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+
 
 const WINDOW_MEDIUM_SELECT_CARD_WIDTH = 870
 const WINDOW_SMALL_SELECT_CARD_WIDTH = 550
@@ -19,9 +24,8 @@ const WINDOW_SMALLEST_CAROUSEL_CARD_WIDTH = 460
 const PAGE_CONTENT_STYLES: CSSProperties = { paddingBottom: 60 }
 
 export const AppSelectPageContent: React.FC = () => {
-    // TODO(2420): Add select queries
-
     const intl = useIntl()
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const PageTitle = intl.formatMessage({ id: 'menu.Services' })
     const AlreadyConnectedSectionTitle = intl.formatMessage({ id: 'services.AlreadyConnected' })
     const AvailableSectionTitle = intl.formatMessage({ id: 'services.Available' })
@@ -37,8 +41,28 @@ export const AppSelectPageContent: React.FC = () => {
     else if (width && width < WINDOW_SMALL_CAROUSEL_CARD_WIDTH) slidesToShow = 2
     else if (width && width < WINDOW_MEDIUM_CAROUSEL_CARD_WIDTH) slidesToShow = 3
 
-    // TODO(2420): Add logic
-    const isAnyServiceConnected = hasFeature('servicesCarousel')
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const { loading, error, data } = useQuery(ALL_ORGANIZATION_APPS_QUERY, {
+        fetchPolicy: 'cache-and-network',
+        variables: {
+            data: {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'initial' },
+                organization: { id: userOrganizationId },
+            },
+        },
+    })
+
+    if (loading || error) {
+        return <LoadingOrErrorPage title={LoadingMessage} error={error} loading={loading}/>
+    }
+
+    const services = get(data, 'objs', [])
+    const connectedServices = services.filter(service => service.connected)
+    const unconnectedServices = services.filter(service => !service.connected)
+
+    const isAnyServiceConnected = Boolean(connectedServices.length)
 
     return (
         <>
@@ -49,50 +73,20 @@ export const AppSelectPageContent: React.FC = () => {
                     <Col span={24}>
                         <Section title={AlreadyConnectedSectionTitle}>
                             <Carousel slidesToShow={slidesToShow}>
-                                <AppCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/shopify.com'}
-                                    title={'Слушай, что-то я похоже очень большой текст'}
-                                    url={'https://www.shopify.com'}
-                                />
-                                <AppCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/spotify.comssss'}
-                                    title={'Слушай, что-то я похоже очень большой текст'}
-                                    url={'https://www.google.com'}
-                                />
-                                <AppCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/google.com'}
-                                    title={'Слушай, что-то я похоже очень большой текст'}
-                                    url={'https://www.google.com'}
-                                />
-                                <AppCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/spotify.com'}
-                                    title={'Слушай, что-то я похоже очень большой текст'}
-                                    url={'https://www.spotify.com'}
-                                />
-                                <AppCarouselCard
-                                    title={'Слушай, что-то я похоже очень большой текст'}
-                                    url={'/settings?tab=billing'}
-                                />
-                                <AppCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/amazon.com'}
-                                    title={'Слушай, что-то я похоже очень большой текст'}
-                                    url={'https://www.shopify.com'}
-                                />
-                                <AppCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/asos.com'}
-                                    title={'Слушай, что-то я похоже очень большой текст'}
-                                    url={'https://www.google.com'}
-                                />
-                                <AppCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/ebay.com'}
-                                    title={'Слушай, что-то я похоже очень большой текст'}
-                                    url={'https://www.spotify.com'}
-                                />
-                                <AppCarouselCard
-                                    logoSrc={'https://logo.clearbit.com/apple.com'}
-                                    title={'Слушай, что-то я похоже очень большой текст'}
-                                    url={'/settings?tab=billing'}
-                                />
+                                {
+                                    connectedServices.map(service => {
+                                        return (
+                                            <AppCarouselCard
+                                                key={service.name}
+                                                title={service.name}
+                                                // TODO (2420): Add it
+                                                // logoSrc={'https://logo.clearbit.com/shopify.com'}
+                                                // TODO (2420): Change it
+                                                url={'/services'}
+                                            />
+                                        )
+                                    })
+                                }
                             </Carousel>
                         </Section>
                     </Col>
@@ -100,37 +94,25 @@ export const AppSelectPageContent: React.FC = () => {
                 <Col span={24}>
                     <Section title={AvailableSectionTitle} hideTitle={!isAnyServiceConnected}>
                         <CardsContainer cardsPerRow={servicesPerRow}>
-                            <AppSelectCard
-                                logoSrc={'https://logo.clearbit.com/shopify.com'}
-                                title={'Слушай, что-то я похоже очень большой текст'}
-                                url={'https://www.shopify.com'}
-                                description={'loremloremloremloremloremlorem loremloremlorem loremloremloremlorem loremloremloremloremlorem loremloremloremloremloremlorem'}
-                            />
-                            <AppSelectCard
-                                title={'Я без логотипа'}
-                                url={'https://www.shopify.com'}
-                                description={'Короткое описание'}
-                            />
-                            <AppSelectCard
-                                title={'Я disabled'}
-                                url={'https://www.shopify.com'}
-                                description={'Короткое описание'}
-                                disabled
-                            />
-                            <AppSelectCard
-                                title={'У меня есть тэг'}
-                                tag={'Крутой тэг'}
-                                url={'https://www.shopify.com'}
-                                description={'Короткое описание'}
-                                disabled
-                            />
-                            <AppSelectCard
-                                title={'У меня тоже есть тэг'}
-                                logoSrc={'https://logo.clearbit.com/google.com'}
-                                tag={'Крутой тэг'}
-                                url={'https://www.shopify.com'}
-                                description={'Короткое описание'}
-                            />
+                            {
+                                unconnectedServices.map(service => {
+                                    const tag = service.category
+                                        ? intl.formatMessage({ id: `services.category.${service.category}` })
+                                        : undefined
+                                    return (
+                                        <AppSelectCard
+                                            key={service.name}
+                                            title={service.name}
+                                            description={service.shortDescription}
+                                            // TODO(2420) Change it
+                                            url={'/services'}
+                                            tag={tag}
+                                            // TODO(2420) Add it
+                                            // logoSrc={}
+                                        />
+                                    )
+                                })
+                            }
                         </CardsContainer>
                     </Section>
                 </Col>
