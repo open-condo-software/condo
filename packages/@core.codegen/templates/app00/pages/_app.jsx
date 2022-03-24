@@ -10,11 +10,9 @@ import { withAuth } from '@core/next/auth'
 import { withIntl } from '@core/next/intl'
 import { withOrganization } from '@core/next/organization'
 
-import GlobalStyle from '@app/condo/containers/GlobalStyle'
-import BaseLayout from '@app/condo/containers/BaseLayout'
-import {MenuItem} from "@condo/domains/common/components/MenuItem"
-
-import { messagesImporter as condoMessagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
+import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
+import BaseLayout from '@app/condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { MenuItem } from "@condo/domains/common/components/MenuItem";
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -34,6 +32,8 @@ const MenuData = () => {
 
 const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
+    const HeaderAction = Component.headerAction
+    const RequiredAccess = Component.requiredAccess || React.Fragment
     return (
         <CacheProvider value={cache}>
             <Head>
@@ -44,17 +44,19 @@ const MyApp = ({ Component, pageProps }) => {
                 />
             </Head>
             <GlobalStyle/>
-            <LayoutComponent menuData={<MenuData/>}>
-                <Component {...pageProps} />
+            <LayoutComponent menuData={<MenuData/>} headerAction={HeaderAction}>
+                <RequiredAccess>
+                    <Component {...pageProps} />
+                </RequiredAccess>
             </LayoutComponent>
         </CacheProvider>
     )
 }
 
 async function messagesImporter (locale) {
-    const base = await condoMessagesImporter(locale)
+    const base = await import(`../../condo/lang/${locale}`)
     const override = await import(`../lang/${locale}`)
-    return { ...base, ...override.default }
+    return { ...base.default, ...override.default }
 }
 
 export default (
