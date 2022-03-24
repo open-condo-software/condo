@@ -602,6 +602,7 @@
   "pages.condo.analytics.TicketAnalyticsPage.TicketChartView.LoadMoreTitle": "Загрузить больше {entity}",
   "pages.organizations.CreateOrganizationButtonLabel": "Создать организацию",
   "pages.organizations.CreateOrganizationModalTitle": "Создание организации",
+  "pages.organizations.CreateOrganizationPlaceholder": "Например, ООО «УК №1»",
   "pages.organizations.EditOrganizationModalTitle": "Редактирование организации",
   "pages.organizations.OrganizationName": "Название",
   "pages.organizations.tin": "ИНН",
