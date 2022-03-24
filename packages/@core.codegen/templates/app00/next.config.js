@@ -1,3 +1,4 @@
+const conf = require('@core/config')
 const withLess = require('@zeit/next-less')
 const withCSS = require('@zeit/next-css')
 // Tell webpack to compile the "@core/next" package, necessary
@@ -5,7 +6,7 @@ const withCSS = require('@zeit/next-css')
 // NOTE: FormTable require rc-table module
 const withTM = require('next-transpile-modules')(['@core/next', '@app/condo', '@{{name}}/domains', 'rc-table'])
 
-const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
+const serverUrl = conf['SERVER_URL']
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
 
 module.exports = withTM(withLess(withCSS({
