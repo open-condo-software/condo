@@ -159,6 +159,8 @@
   "services.PartnerSite": "Сайт партнера",
   "services.AboutService": "Об услуге",
   "services.HowToSetup": "Как настроить сервис",
+  "services.category.BILLING": "Биллинг",
+  "services.category.ACQUIRING": "Эквайринг",
   "MinutesShort": "${minutes} мин.",
   "RolesAndAccess": "Роли и доступы",
   "Subscription": "Подписка",

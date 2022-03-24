@@ -4,9 +4,9 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const gql = require('graphql-tag')
+const { gql } = require('graphql-tag')
 
-const APP_FIELDS = '{ id name shortDescription connected type }'
+const APP_FIELDS = '{ id name shortDescription connected type category }'
  
 const ALL_ORGANIZATION_APPS_QUERY = gql`
     query getAllOrganizationApps ($data: AllOrganizationAppsInput!) {

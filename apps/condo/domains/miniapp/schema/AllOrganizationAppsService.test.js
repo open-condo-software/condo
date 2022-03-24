@@ -63,13 +63,14 @@ describe('AllOrganizationAppsService', () => {
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
-                expect(data).toEqual(expect.arrayContaining([{
+                expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
                     id: integration.id,
                     type: BILLING_APP_TYPE,
                     connected: false,
                     name: integration.name,
                     shortDescription: integration.shortDescription,
-                }]))
+                    category: BILLING_APP_TYPE,
+                })]))
             })
             test('Shows connected with context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
@@ -126,13 +127,14 @@ describe('AllOrganizationAppsService', () => {
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
-                expect(data).toEqual(expect.arrayContaining([{
+                expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
                     id: integration.id,
                     type: ACQUIRING_APP_TYPE,
                     connected: false,
                     name: integration.name,
                     shortDescription: integration.shortDescription,
-                }]))
+                    category: ACQUIRING_APP_TYPE,
+                })]))
             })
             test('Shows connected with context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
