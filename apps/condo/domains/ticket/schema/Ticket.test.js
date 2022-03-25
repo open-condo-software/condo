@@ -1216,7 +1216,9 @@ describe('Ticket', () => {
 
             expect(message1.status).toEqual('delivered')
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
-            expect(message1.processingMeta.transport).toEqual('sms')
+            expect(message1.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message1.processingMeta.transport).toEqual('sms')
         })
 
         test('assignee with registered invalid pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
@@ -1246,7 +1248,10 @@ describe('Ticket', () => {
 
             expect(message1.status).toEqual('delivered')
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
-            expect(message1.processingMeta.transport).toEqual('sms')
+            expect(message1.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message1.processingMeta.transport).toEqual('sms')
+
         })
 
         test('executor with registered pushToken and connected to ticket on create receives push notification', async () => {
@@ -1299,7 +1304,9 @@ describe('Ticket', () => {
 
             expect(message1.status).toEqual('delivered')
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
-            expect(message1.processingMeta.transport).toEqual('sms')
+            expect(message1.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message1.processingMeta.transport).toEqual('sms')
         })
 
         test('executor with registered invalid pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
@@ -1329,7 +1336,9 @@ describe('Ticket', () => {
 
             expect(message1.status).toEqual('delivered')
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
-            expect(message1.processingMeta.transport).toEqual('sms')
+            expect(message1.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message1.processingMeta.transport).toEqual('sms')
         })
 
     })
