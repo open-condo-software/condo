@@ -327,11 +327,6 @@ const Ticket = new GQLListSchema('Ticket', {
 
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
-
-                if (TERMINAL_TICKET_STATUS_IDS.includes(resolvedStatusId)) {
-                    resolvedData.deadline = null
-                }
-
                 await calculateReopenedCounter(context, existingItem, resolvedData)
             }
 
