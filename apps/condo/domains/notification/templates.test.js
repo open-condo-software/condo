@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { isEmpty, get } = require('lodash')
+const { escape, isEmpty, get } = require('lodash')
 const { LOCALES, EN_LOCALE, RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 const {
@@ -163,7 +163,7 @@ describe('Notifications', () => {
     it('Render variables into email subject and message body', async () => {
         const client = await makeLoggedInAdminClient()
 
-        const developerData = { type: 'some text for email subject', data: 'Some string data' }
+        const developerData = { type: 'some text for email subject', data: 'Some "string" data' }
         const [messageDeveloper, attrsDeveloper] = await createTestMessage(client, {
             type: DEVELOPER_IMPORTANT_NOTE_TYPE,
             lang: EN_LOCALE,
@@ -174,7 +174,7 @@ describe('Notifications', () => {
             date: dayjs(),
             id: faker.datatype.uuid(),
             ticketNumber: 42,
-            details: 'The ticket details',
+            details: 'The "ticket" details',
         }
         const [messageShare, attrsShare] = await createTestMessage(client, {
             type: SHARE_TICKET_MESSAGE_TYPE,
@@ -186,17 +186,18 @@ describe('Notifications', () => {
         const preparedMessageShare = await emailTransport.prepareMessageToSend(messageShare)
 
         expect(preparedMessageDeveloper.subject).toEqual(developerData.type)
-        expect(preparedMessageDeveloper.text.trim()).toEqual(`"${developerData.data}"`)
+        expect(preparedMessageDeveloper.text.trim()).toEqual(JSON.stringify(`${developerData.data}`))
 
         expect(preparedMessageShare.subject).toEqual(`Ticket №${ticketData.ticketNumber}`)
         expect(preparedMessageShare.html).toContain(`Ticket #${ticketData.ticketNumber} dated ${dayjs(ticketData.date).locale(LOCALES[EN_LOCALE]).format(TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT)} has been shared with you.`)
-        expect(preparedMessageShare.html).toContain(`The text of the ticket: "${ticketData.details}"`)
+        expect(preparedMessageShare.html).toContain(`The text of the ticket: "${escape(ticketData.details)}"`)
     })
 
     it('Render message after SBBOL auth', async () => {
         const client = await makeClientWithRegisteredOrganization()
         const admin = await makeLoggedInAdminClient()
 
+        client.organization.name = 'Lightning mc\'queen'
         const [message, attrs] = await createTestMessage(admin, {
             type: CUSTOMER_IMPORTANT_NOTE_TYPE,
             lang: RU_LOCALE,
@@ -206,6 +207,6 @@ describe('Notifications', () => {
         const preparedMessage = await emailTransport.prepareMessageToSend(message)
 
         expect(preparedMessage.subject).toEqual('Новая организация. (СББОЛ)')
-        expect(preparedMessage.text.trim()).toEqual(`Название: ${client.organization.name},\nИНН: ${client.organization.meta.inn},`)
+        expect(preparedMessage.text.trim()).toEqual(`Название: ${escape(client.organization.name)},\nИНН: ${client.organization.meta.inn},`)
     })
 })
