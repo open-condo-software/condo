@@ -3,10 +3,11 @@ import { PageContent, PageHeader, PageWrapper } from './BaseLayout'
 import React from 'react'
 import { Typography } from 'antd'
 import { Loader } from '../Loader'
+import { ApolloError } from '@apollo/client'
 
 interface ILoadingOrErrorPageProps {
     title: string
-    error: string
+    error: string | ApolloError
     loading?: boolean
 }
 

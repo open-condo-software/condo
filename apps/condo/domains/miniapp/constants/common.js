@@ -1,0 +1,13 @@
+const BILLING_APP_TYPE = 'BILLING'
+const ACQUIRING_APP_TYPE = 'ACQUIRING'
+
+const APP_TYPES = [
+    BILLING_APP_TYPE,
+    ACQUIRING_APP_TYPE,
+]
+
+module.exports = {
+    BILLING_APP_TYPE,
+    ACQUIRING_APP_TYPE,
+    APP_TYPES,
+}
