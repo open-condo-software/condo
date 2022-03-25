@@ -9,7 +9,7 @@ import { FeatureFlagRequired } from '@condo/domains/common/components/containers
 import Error from 'next/error'
 import Head from 'next/head'
 import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
-import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants/common'
+import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 
 interface AboutBillingServicePageProps {
     id: string,
@@ -22,7 +22,7 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
     const TagMessage = intl.formatMessage({ id: `services.category.${BILLING_APP_TYPE}` })
 
     const userOrganization = useOrganization()
-    const organizationId = get(userOrganization, ['organization', 'id'], '')
+    const organizationId = get(userOrganization, ['organization', 'id'], null)
 
     const { obj: integration, loading: integrationLoading, error: integrationError } = BillingIntegration.useObject({
         where: { id },
@@ -57,6 +57,8 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
                         published={integration.createdAt}
                         logoSrc={get(integration, ['logo', 'publicUrl'])}
                         tag={TagMessage}
+                        developer={integration.developer}
+                        partnerUrl={get(integration, 'partnerUrl')}
                     />
                 </PageContent>
             </PageWrapper>
