@@ -6,6 +6,9 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/miniapp/access/AllOrganizationAppsService')
 const { ACQUIRING_APP_TYPE, BILLING_APP_TYPE, APP_TYPES } = require('@condo/domains/miniapp/constants')
 const { find } = require('@core/keystone/schema')
+const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
+const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
+const get = require('lodash/get')
 
 const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsService', {
     types: [
@@ -19,7 +22,7 @@ const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsServi
         },
         {
             access: true,
-            type: 'type AppInfoOutput { id: ID!, type: AppType!, connected: Boolean!, name: String!, shortDescription: String!, category: String }',
+            type: 'type AppInfoOutput { id: ID!, type: AppType!, connected: Boolean!, name: String!, shortDescription: String!, category: String, logo: String }',
         },
     ],
     
@@ -27,13 +30,13 @@ const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsServi
         {
             access: access.canAllOrganizationApps,
             schema: 'allOrganizationApps (data: AllOrganizationAppsInput!): [AppInfoOutput!]',
-            resolver: async (parent, args) => {
+            resolver: async (parent, args, context) => {
                 const { data: { organization } } = args
                 const services = []
 
-                const billingIntegrations = await find('BillingIntegration', {
-                    deletedAt: null,
+                const billingIntegrations = await BillingIntegration.getAll(context, {
                     isHidden: false,
+                    deletedAt: null,
                 })
                 const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     organization,
@@ -48,12 +51,13 @@ const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsServi
                         shortDescription: billing.shortDescription,
                         connected: connectedBillingIntegrations.includes(billing.id),
                         category: BILLING_APP_TYPE,
+                        logo: get(billing, ['logo', 'publicUrl'], null),
                     })
                 }
 
-                const acquiringIntegrations = await find('AcquiringIntegration', {
-                    deletedAt: null,
+                const acquiringIntegrations = await AcquiringIntegration.getAll(context, {
                     isHidden: false,
+                    deletedAt: null,
                 })
                 const acquiringContexts = await find('AcquiringIntegrationContext', {
                     organization,
@@ -68,6 +72,7 @@ const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsServi
                         shortDescription: acquiring.shortDescription,
                         connected: connectedAcquiringIntegrations.includes(acquiring.id),
                         category: ACQUIRING_APP_TYPE,
+                        logo: get(acquiring, ['logo', 'publicUrl'], null),
                     })
                 }
 

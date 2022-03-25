@@ -75,12 +75,12 @@ export const AppSelectPageContent: React.FC = () => {
                             <Carousel slidesToShow={slidesToShow}>
                                 {
                                     connectedServices.map(service => {
+                                        const logo = service.logo || undefined
                                         return (
                                             <AppCarouselCard
                                                 key={service.name}
                                                 title={service.name}
-                                                // TODO (2420): Add it
-                                                // logoSrc={'https://logo.clearbit.com/shopify.com'}
+                                                logoSrc={logo}
                                                 // TODO (2420): Change it
                                                 url={'/services'}
                                             />
@@ -99,16 +99,16 @@ export const AppSelectPageContent: React.FC = () => {
                                     const tag = service.category
                                         ? intl.formatMessage({ id: `services.category.${service.category}` })
                                         : undefined
+                                    const url = `/services/${service.id}/about?type=${service.type}`
+                                    const logo = service.logo || undefined
                                     return (
                                         <AppSelectCard
                                             key={service.name}
                                             title={service.name}
                                             description={service.shortDescription}
-                                            // TODO(2420) Change it
-                                            url={'/services'}
+                                            url={url}
                                             tag={tag}
-                                            // TODO(2420) Add it
-                                            // logoSrc={}
+                                            logoSrc={logo}
                                         />
                                     )
                                 })
