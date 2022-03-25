@@ -2,50 +2,37 @@ import React from 'react'
 import { Col, Row, Typography } from 'antd'
 import { TopCard } from './TopCard'
 import { AboutCard } from './AboutCard'
-import dayjs from 'dayjs'
 import { useIntl } from '@core/next/intl'
 import { MarkDown } from '@condo/domains/common/components/MarkDown'
 
-const markdown = `A paragraph with *emphasis* and **strong importance**.
-# Заголовок 1
-## Заголовок 2
-### Заголовок 3
-#### Заголовок 4
-##### Заголовок 5
-> Цитата ~зачеркнуто~ и [ссылка](https://reactjs.org).
+interface AppDescriptionPageContentProps {
+    title: string,
+    description: string,
+    published: string,
+    logoSrc?: string,
+    tag?: string,
+}
 
-* список
-* [ ] todo
-* [x] done
-\`\`\`
-Блок кода
-\`\`\`
-A table:
-
-**Жирный** и *курсив*
-
-Список:
-1. First item
-2. Second item
-3. Third item
-4. Fourth item
-
-`
-
-export const AppDescriptionPageContent: React.FC = () => {
+export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps> = ({
+    title,
+    description,
+    published,
+    logoSrc,
+    tag,
+}) => {
     const intl = useIntl()
     const HowToSetupMessage = intl.formatMessage({ id: 'services.HowToSetup' })
     return (
         <Row gutter={[0, 60]}>
             <Col span={24}>
                 <TopCard
+                    title={title}
+                    description={description}
+                    published={published}
                     developer={'SBERlonglonglonglonglonglonglong'}
-                    published={dayjs().toISOString()}
-                    description={'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Adipisci autem blanditiis consectetur ea eaque ipsum, magnam minus, modi molestias nisi nobis numquam perferendis quos recusandae ut velit voluptas voluptatem! Quos.'}
-                    title={'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Adipisci autem blanditiis consectetur ea eaque ipsum, magnam minus, modi molestias nisi nobis numquam perferendis quos recusandae ut velit voluptas voluptatem! Quos.'}
                     partnerUrl={'https://spotify.com'}
-                    // logoSrc={'https://github.com/SavelevMatthew/SavelevMatthew/blob/main/media/github.jpg'}
-                    tag={'Биллинг'}
+                    logoSrc={logoSrc}
+                    tag={tag}
                 />
             </Col>
             <Col span={24}>
@@ -56,7 +43,7 @@ export const AppDescriptionPageContent: React.FC = () => {
                         </Typography.Title>
                     </Col>
                     <Col span={24}>
-                        <MarkDown text={markdown}/>
+                        <MarkDown text={'markdown'}/>
                     </Col>
                 </Row>
             </Col>

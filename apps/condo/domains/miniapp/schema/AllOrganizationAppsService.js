@@ -4,7 +4,7 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/miniapp/access/AllOrganizationAppsService')
-const { ACQUIRING_APP_TYPE, BILLING_APP_TYPE, APP_TYPES } = require('@condo/domains/miniapp/constants')
+const { ACQUIRING_APP_TYPE, BILLING_APP_TYPE, APP_TYPES } = require('@condo/domains/miniapp/constants/common')
 const { find } = require('@core/keystone/schema')
 const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
 const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')

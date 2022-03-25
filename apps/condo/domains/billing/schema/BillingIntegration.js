@@ -16,7 +16,7 @@ const {
 } = require('@condo/domains/billing/constants/constants')
 const { AVAILABLE_OPTIONS_FIELD } = require('./fields/BillingIntegration/AvailableOptions')
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
-const { APPS_FILE_ADAPTER } = require('@condo/domains/miniapp/constants')
+const { APPS_FILE_ADAPTER } = require('@condo/domains/miniapp/constants/serverSide')
 
 
 const BillingIntegration = new GQLListSchema('BillingIntegration', {

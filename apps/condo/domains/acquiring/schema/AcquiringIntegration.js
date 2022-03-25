@@ -13,7 +13,7 @@ const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/er
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
-const { APPS_FILE_ADAPTER } = require('../../miniapp/constants')
+const { APPS_FILE_ADAPTER } = require('@condo/domains/miniapp/constants/serverSide')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
