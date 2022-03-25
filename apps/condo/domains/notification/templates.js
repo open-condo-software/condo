@@ -104,6 +104,46 @@ function translationStringKeyForPushTitle (messageType) {
     return `notification.messages.${messageType}.${PUSH_TRANSPORT}.title`
 }
 
+function smsRenderer ({ message, env }) {
+    return {
+        text: nunjucks.render(getTemplate(message.lang, message.type, SMS_TRANSPORT), { message, env }),
+    }
+}
+
+function emailRenderer ({ message, env }) {
+    const { lang, meta } = message
+    const { templatePathText, templatePathHtml } = getEmailTemplate(message.lang, message.type)
+    const ret = {
+        subject: i18n(translationStringKeyForEmailSubject(message.type), { lang, meta }),
+    }
+
+    if (templatePathText) {
+        ret.text = nunjucks.render(templatePathText, { message, env })
+    }
+
+    if (templatePathHtml) {
+        ret.html = nunjucks.render(templatePathHtml, { message, env })
+    }
+
+    return ret
+}
+
+function telegramRenderer ({ message, env }) {
+    throw new Error('There was no telegram transport. Please write the renderer for Telegram.')
+}
+
+function pushRenderer ({ message, env }) {
+    const { lang, meta } = message
+    return {
+        notification: {
+            title: i18n(translationStringKeyForPushTitle(message.type), { lang, meta }),
+            body: nunjucks.render(getTemplate(message.lang, message.type, PUSH_TRANSPORT), { message, env }),
+        },
+        data: get(message, ['meta', 'pushData'], null),
+        userId: get(message, ['meta', 'userId'], null),
+    }
+}
+
 /**
  * Template environment variable type
  * @typedef {Object} MessageTemplateEnvironment
@@ -115,42 +155,10 @@ function translationStringKeyForPushTitle (messageType) {
  * @type {Object<string, function({message: Message, env: MessageTemplateEnvironment}): Object>}
  */
 const MESSAGE_TRANSPORTS_RENDERERS = {
-    [SMS_TRANSPORT]: function ({ message, env }) {
-        return {
-            text: nunjucks.render(getTemplate(message.lang, message.type, SMS_TRANSPORT), { message, env }),
-        }
-    },
-    [EMAIL_TRANSPORT]: function ({ message, env }) {
-        const { lang, meta } = message
-        const { templatePathText, templatePathHtml } = getEmailTemplate(message.lang, message.type)
-        const ret = {
-            subject: i18n(translationStringKeyForEmailSubject(message.type), { lang, meta }),
-        }
-
-        if (templatePathText) {
-            ret.text = nunjucks.render(templatePathText, { message, env })
-        }
-
-        if (templatePathHtml) {
-            ret.html = nunjucks.render(templatePathHtml, { message, env })
-        }
-
-        return ret
-    },
-    [TELEGRAM_TRANSPORT]: function ({ message, env }) {
-        throw new Error('No Telegram transport yet')
-    },
-    [PUSH_TRANSPORT]: function ({ message, env }) {
-        const { lang, meta } = message
-        return {
-            notification: {
-                title: i18n(translationStringKeyForPushTitle(message.type), { lang, meta }),
-                body: nunjucks.render(getTemplate(message.lang, message.type, PUSH_TRANSPORT), { message, env }),
-            },
-            data: get(message, ['meta', 'pushData'], null),
-            userId: get(message, ['meta', 'userId'], null),
-        }
-    },
+    [SMS_TRANSPORT]: smsRenderer,
+    [EMAIL_TRANSPORT]: emailRenderer,
+    [TELEGRAM_TRANSPORT]: telegramRenderer,
+    [PUSH_TRANSPORT]: pushRenderer,
 }
 
 const transportsWithRenderers = Object.keys(MESSAGE_TRANSPORTS_RENDERERS)
