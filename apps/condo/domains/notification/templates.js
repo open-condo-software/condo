@@ -24,12 +24,12 @@ const {
     getTicketExecutorConnectedMessage,
 } = require('./ticketTemplates')
 
-const langDirRelated = '../../lang'
-const templateEngineDefaultDateFormat = 'D MMMM YYYY'
+const LANG_DIR_RELATED = '../../lang'
+const TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT = 'D MMMM YYYY'
 
-const nunjucks = new Nunjucks.Environment(new Nunjucks.FileSystemLoader(path.resolve(__dirname, langDirRelated)))
+const nunjucks = new Nunjucks.Environment(new Nunjucks.FileSystemLoader(path.resolve(__dirname, LANG_DIR_RELATED)))
 nunjucks.addFilter('dateFormat', function (dateStr, locale, format) {
-    return dayjs(dateStr).locale(LOCALES[locale || conf.DEFAULT_LOCALE]).format(format || templateEngineDefaultDateFormat)
+    return dayjs(dateStr).locale(LOCALES[locale || conf.DEFAULT_LOCALE]).format(format || TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT)
 })
 
 /**
@@ -40,8 +40,8 @@ nunjucks.addFilter('dateFormat', function (dateStr, locale, format) {
  * @returns {string}
  */
 function getTemplate (lang, messageType, transportType) {
-    const defaultTemplatePath = path.resolve(__dirname, `${langDirRelated}/${lang}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
-    const transportTemplatePath = path.resolve(__dirname, `${langDirRelated}/${lang}/messages/${messageType}/${transportType}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${lang}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
+    const transportTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${lang}/messages/${messageType}/${transportType}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
 
     if (fs.existsSync(transportTemplatePath)) {
         return transportTemplatePath
@@ -62,9 +62,9 @@ function getTemplate (lang, messageType, transportType) {
  * @returns {{templatePathText: ?string, templatePathHtml: ?string}}
  */
 function getEmailTemplate (lang, messageType) {
-    const defaultTemplatePath = path.resolve(__dirname, `${langDirRelated}/${lang}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
-    const emailTextTemplatePath = path.resolve(__dirname, `${langDirRelated}/${lang}/messages/${messageType}/${EMAIL_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
-    const emailHtmlTemplatePath = path.resolve(__dirname, `${langDirRelated}/${lang}/messages/${messageType}/${EMAIL_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${lang}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
+    const emailTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${lang}/messages/${messageType}/${EMAIL_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    const emailHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${lang}/messages/${messageType}/${EMAIL_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
 
     let templatePathText = null
     let templatePathHtml = null
@@ -187,5 +187,5 @@ module.exports = {
     translationStringKeyForEmailSubject,
     translationStringKeyForPushTitle,
     templateEngine: nunjucks,
-    templateEngineDefaultDateFormat,
+    TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT,
 }
