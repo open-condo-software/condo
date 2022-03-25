@@ -4,9 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { execGqlWithoutAccess, generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { ALL_ORGANIZATION_APPS_MUTATION } = require('@condo/domains/miniapp/gql')
+const { DescriptionBlock: DescriptionBlockGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 async function allOrganizationApps (context, data) {
@@ -22,9 +23,11 @@ async function allOrganizationApps (context, data) {
     })
 }
 
+const DescriptionBlock = generateServerUtils(DescriptionBlockGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     allOrganizationApps,
+    DescriptionBlock,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

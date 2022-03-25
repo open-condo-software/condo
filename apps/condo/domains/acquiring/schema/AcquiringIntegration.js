@@ -7,13 +7,12 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
-const { SHORT_DESCRIPTION_FIELD, DETAILS_TITLE_FIELD, DETAILS_TEXT_FIELD, IS_HIDDEN_FIELD } = require(
-    '@condo/domains/billing/schema/fields/BillingIntegration/fields')
+const { DETAILS_TITLE_FIELD, DETAILS_TEXT_FIELD, IS_HIDDEN_FIELD } = require('@condo/domains/billing/schema/fields/BillingIntegration/fields')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
-const { LOGO_FIELD, DEVELOPER_FIELD, PARTNER_URL_FIELD } = require('@condo/domains/miniapp/schema/fields/integration')
+const { LOGO_FIELD, DEVELOPER_FIELD, PARTNER_URL_FIELD, SHORT_DESCRIPTION_FIELD, DESCRIPTION_BLOCKS_FIELD } = require('@condo/domains/miniapp/schema/fields/integration')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
@@ -31,6 +30,11 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         logo: LOGO_FIELD,
 
         shortDescription: SHORT_DESCRIPTION_FIELD,
+
+        descriptionBlocks: {
+            ...DESCRIPTION_BLOCKS_FIELD,
+            ref: 'DescriptionBlock.acquiringIntegration',
+        },
 
         developer: DEVELOPER_FIELD,
 

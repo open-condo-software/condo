@@ -5,7 +5,7 @@ import { useIntl } from '@core/next/intl'
 import { colors } from '@condo/domains/common/constants/style'
 import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
 
-type AboutBlockProps = {
+export type AboutBlockProps = {
     description: string
     title: string,
     imageSrc: string
