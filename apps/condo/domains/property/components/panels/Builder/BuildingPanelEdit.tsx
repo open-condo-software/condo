@@ -883,26 +883,25 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
 
     useEffect(() => {
         if (copyId !== null) {
-            const sectionToCopy = builder.map.sections.find((section) => section.id === copyId)
-            const floorIndexes = sectionToCopy.floors.map((floor) => floor.index)
-            setMinFloor(Math.min(...floorIndexes))
-            setFloorCount(floorIndexes.length)
-            setUnitsOnFloor(get(sectionToCopy, 'floors.0.units.length', 0))
-            setSectionName(builder.nextSectionName)
+            builder.addPreviewCopySection(copyId)
         }
     }, [builder, copyId])
 
     const handleFinish = useCallback(() => {
         builder.removePreviewSection()
-        builder.addSection({ id: '', name: sectionName, minFloor, maxFloor: maxFloorValue, unitsOnFloor }, unitType)
-        setSectionName(builder.nextSectionName)
+        if (copyId === null) {
+            builder.addSection({ id: '', name: sectionName, minFloor, maxFloor: maxFloorValue, unitsOnFloor }, unitType)
+            setSectionName(builder.nextSectionName)
+        } else {
+            builder.addCopySection(copyId)
+        }
+
         refresh()
         resetForm()
-    }, [refresh, resetForm, builder, sectionName, minFloor, floorCount, unitsOnFloor, unitType])
+    }, [refresh, resetForm, builder, sectionName, minFloor, unitsOnFloor, unitType, copyId, maxFloorValue])
 
     const setSectionNameValue = useCallback((value) => setSectionName(value ? value.toString() : ''), [])
-
-    const isSubmitDisabled = !(minFloor && floorCount && unitsOnFloor)
+    const isSubmitDisabled = copyId !== null ? false : !(minFloor && floorCount && unitsOnFloor)
     const isCreateColumnsHidden = copyId !== null
     const iconRotation = minFloorHidden ? 0 : 180
     const minFloorMargin = minFloorHidden ? '-28px' : 0
@@ -1289,23 +1288,24 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
 
     useEffect(() => {
         if (copyId !== null) {
-            const sectionToCopy = builder.map.parking.find((section) => section.id === copyId)
-            const floorIndexes = sectionToCopy.floors.map((floor) => floor.index)
-            setMinFloor(Math.min(...floorIndexes))
-            setFloorCount(floorIndexes.length)
-            setUnitsOnFloor(get(sectionToCopy, 'floors.0.units.length', 0))
+            builder.addPreviewCopyParking(copyId)
         }
     }, [builder, copyId])
 
     const handleFinish = useCallback(() => {
         builder.removePreviewParking()
-        builder.addParking({ id: '', name: parkingName, minFloor, maxFloor: maxFloorValue, unitsOnFloor })
-        setParkingName(builder.nextParkingName)
+        if (copyId === null) {
+            builder.addParking({ id: '', name: parkingName, minFloor, maxFloor: maxFloorValue, unitsOnFloor })
+            setParkingName(builder.nextParkingName)
+        } else {
+            builder.addCopyParking(copyId)
+        }
+
         refresh()
         resetForm()
-    }, [refresh, resetForm, builder, minFloor, floorCount, unitsOnFloor, parkingName])
+    }, [refresh, resetForm, builder, minFloor, unitsOnFloor, maxFloorValue, parkingName, copyId])
 
-    const isSubmitDisabled = !(minFloor && floorCount && unitsOnFloor)
+    const isSubmitDisabled = copyId !== null ? false : !(minFloor && floorCount && unitsOnFloor)
     const isCreateColumnsHidden = copyId !== null
     const iconRotation = minFloorHidden ? 0 : 180
     const minFloorMargin = minFloorHidden ? '-28px' : 0

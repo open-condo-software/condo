@@ -9,6 +9,7 @@ import isObjectEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import uniq from 'lodash/uniq'
+import find from 'lodash/find'
 import MapSchemaJSON from './MapJsonSchema.json'
 
 const ajv = new Ajv()
@@ -686,6 +687,54 @@ class MapEdit extends MapView {
         this.editMode = 'addSection'
     }
 
+    public addPreviewCopySection (sectionId: string): void {
+        this.removePreviewSection()
+        const newSection = cloneDeep(find(this.map.sections, section => section.id === sectionId))
+        newSection.preview = true
+
+        newSection.id = String(++this.autoincrement)
+        newSection.index = this.sections.length + 1
+        newSection.name = this.nextSectionName
+
+        let unitNumber = this.nextUnitNumber
+        newSection.floors.reverse().forEach((floor) => {
+            floor.id = String(++this.autoincrement)
+
+            floor.units.forEach((unit) => {
+                unit.id = String(++this.autoincrement)
+                unit.label = String(unitNumber)
+                unit.preview = true
+                unitNumber++
+            })
+        })
+
+        this.previewSectionId = newSection.id
+        this.map.sections.push(newSection)
+        this.notifyUpdater()
+    }
+
+    public addCopySection (sectionId: string): void {
+        const newSection = cloneDeep(find(this.map.sections, section => section.id === sectionId))
+
+        newSection.id = String(++this.autoincrement)
+        newSection.index = this.sections.length + 1
+        newSection.name = this.nextSectionName
+
+        let unitNumber = this.nextUnitNumber
+        newSection.floors.reverse().forEach((floor) => {
+            floor.id = String(++this.autoincrement)
+
+            floor.units.forEach((unit) => {
+                unit.id = String(++this.autoincrement)
+                unit.label = String(unitNumber)
+                unitNumber++
+            })
+        })
+
+        this.map.sections.push(newSection)
+        this.notifyUpdater()
+    }
+
     public updateSection (section: BuildingSection): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => section.id === mapSection.id)
         if (sectionIndex !== -1) {
@@ -746,6 +795,54 @@ class MapEdit extends MapView {
         this.map.parking.push(newParking)
         this.notifyUpdater()
         this.editMode = 'addParking'
+    }
+
+    public addPreviewCopyParking (parkingId: string): void {
+        this.removePreviewParking()
+        const newParking = cloneDeep(find(this.map.parking, parking => parking.id === parkingId))
+        newParking.preview = true
+
+        newParking.id = String(++this.autoincrement)
+        newParking.index = this.parking.length + 1
+        newParking.name = this.nextParkingName
+
+        let unitNumber = this.nextParkingUnitNumber
+        newParking.floors.reverse().forEach((floor) => {
+            floor.id = String(++this.autoincrement)
+
+            floor.units.forEach((unit) => {
+                unit.id = String(++this.autoincrement)
+                unit.label = String(unitNumber)
+                unit.preview = true
+                unitNumber++
+            })
+        })
+
+        this.previewParkingId = newParking.id
+        this.map.parking.push(newParking)
+        this.notifyUpdater()
+    }
+
+    public addCopyParking (parkingId: string): void {
+        const newParking = cloneDeep(find(this.map.parking, parking => parking.id === parkingId))
+
+        newParking.id = String(++this.autoincrement)
+        newParking.index = this.parking.length + 1
+        newParking.name = this.nextParkingName
+
+        let unitNumber = this.nextParkingUnitNumber
+        newParking.floors.reverse().forEach((floor) => {
+            floor.id = String(++this.autoincrement)
+
+            floor.units.forEach((unit) => {
+                unit.id = String(++this.autoincrement)
+                unit.label = String(unitNumber)
+                unitNumber++
+            })
+        })
+
+        this.map.parking.push(newParking)
+        this.notifyUpdater()
     }
 
     public addPreviewUnit (unit: Partial<BuildingUnitArg>): void {
