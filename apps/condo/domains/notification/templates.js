@@ -153,12 +153,14 @@ const MESSAGE_TRANSPORTS_RENDERERS = {
     },
 }
 
+const transportsWithRenderers = Object.keys(MESSAGE_TRANSPORTS_RENDERERS)
+
 async function renderTemplate (transport, message) {
     if (!MESSAGE_TRANSPORTS.includes(transport)) {
         throw new Error('unexpected transport argument')
     }
 
-    if (!Object.keys(MESSAGE_TRANSPORTS_RENDERERS).includes(transport)) {
+    if (!transportsWithRenderers.includes(transport)) {
         throw new Error(`No renderer for ${transport} messages`)
     }
 
