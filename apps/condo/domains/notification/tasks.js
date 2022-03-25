@@ -57,8 +57,13 @@ async function _choseMessageTransport (message) {
     if (!isEmpty(user)) {
         transports.push(PUSH_TRANSPORT)
 
+        // By now most of mobile users are not ready to receive push, so almost always it would come to
+        // SMS as a fallback transport, which is quite expensive (we have 13k+) new tickets a month, which could
+        // cause up to x(2 + 5) and even more notifications (13k x 7 x 3 RUB > 250K RUB),
+        // so @MikhailRumanovskii decided to switch this off for a while
+        // if (!isEmpty(user.phone) && !transports.includes(SMS_TRANSPORT)) transports.push(SMS_TRANSPORT)
+
         // Fallback transport attempts, if PUSH delivery fails
-        if (!isEmpty(user.phone) && !transports.includes(SMS_TRANSPORT)) transports.push(SMS_TRANSPORT)
         if (!isEmpty(user.email) && !transports.includes(EMAIL_TRANSPORT)) transports.push(EMAIL_TRANSPORT)
     }
 
