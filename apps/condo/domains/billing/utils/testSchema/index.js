@@ -58,6 +58,7 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
         name,
         detailsTitle,
         currencyCode,
+        instruction: faker.datatype.string(),
         isHidden: true,
         shortDescription: faker.commerce.productDescription(),
         developer: faker.company.companyName(),

@@ -7,12 +7,21 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
-const { DETAILS_TITLE_FIELD, DETAILS_TEXT_FIELD, IS_HIDDEN_FIELD } = require('@condo/domains/billing/schema/fields/BillingIntegration/fields')
+const { DETAILS_TITLE_FIELD, IS_HIDDEN_FIELD } = require('@condo/domains/billing/schema/fields/BillingIntegration/fields')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
+const { NO_INSTRUCTION_ERROR } = require('@condo/domains/miniapp/constants')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
-const { LOGO_FIELD, DEVELOPER_FIELD, PARTNER_URL_FIELD, SHORT_DESCRIPTION_FIELD, DESCRIPTION_BLOCKS_FIELD } = require('@condo/domains/miniapp/schema/fields/integration')
+const {
+    LOGO_FIELD,
+    DEVELOPER_FIELD,
+    PARTNER_URL_FIELD,
+    SHORT_DESCRIPTION_FIELD,
+    DESCRIPTION_BLOCKS_FIELD,
+    INSTRUCTION_TEXT_FIELD,
+    IFRAME_URL_FIELD,
+} = require('@condo/domains/miniapp/schema/fields/integration')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
@@ -40,9 +49,11 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
 
         partnerUrl: PARTNER_URL_FIELD,
 
-        detailsTitle: DETAILS_TITLE_FIELD,
+        instruction: INSTRUCTION_TEXT_FIELD,
 
-        detailsText: DETAILS_TEXT_FIELD,
+        appUrl: IFRAME_URL_FIELD,
+
+        detailsTitle: DETAILS_TITLE_FIELD,
 
         isHidden: IS_HIDDEN_FIELD,
 
@@ -95,11 +106,14 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError }) => {
+        validateInput: ({ resolvedData, context, addValidationError, existingItem }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
             if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
+                const newItem = { ...existingItem, ...resolvedData }
+                if (!newItem.appUrl && !newItem.instruction) {
+                    return addValidationError(NO_INSTRUCTION_ERROR)
+                }
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }

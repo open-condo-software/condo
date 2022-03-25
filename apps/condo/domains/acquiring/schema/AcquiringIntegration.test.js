@@ -3,6 +3,7 @@
  */
 
 import { DV_UNKNOWN_VERSION_ERROR } from '@condo/domains/common/constants/errors'
+import { NO_INSTRUCTION_ERROR } from '@condo/domains/miniapp/constants'
 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
@@ -213,6 +214,16 @@ describe('AcquiringIntegration', () => {
                     supportedBillingIntegrations: { disconnectAll: true },
                 })
             }, INTEGRATION_NO_BILLINGS_ERROR)
+        })
+        test('Should have instruction if no iframe url specified', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [billing] = await createTestBillingIntegration(admin)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegration(admin, [billing], {
+                    instruction: null,
+                    appUrl: null,
+                })
+            }, NO_INSTRUCTION_ERROR)
         })
     })
 })
