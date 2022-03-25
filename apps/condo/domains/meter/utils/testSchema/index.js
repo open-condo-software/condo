@@ -5,14 +5,15 @@
  */
 
 const faker = require('faker')
-const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
-const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
+const { MeterResource: MeterResourceGQL, EXPORT_METER_READINGS } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
-const { EXPORT_METER_READINGS_MUTATION } = require('@condo/domains/meter/gql')
+const { EXPORT_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -156,9 +157,10 @@ async function exportMeterReadingsByTestClient(client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(EXPORT_METER_READINGS_MUTATION, { data: attrs })
+    const { data, errors } = await client.query(EXPORT_METER_READINGS_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -206,6 +208,6 @@ module.exports = {
     Meter, createTestMeter, updateTestMeter,
     MeterReading, createTestMeterReading, updateTestMeterReading,
     exportMeterReadingsByTestClient,
-        MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
+    MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

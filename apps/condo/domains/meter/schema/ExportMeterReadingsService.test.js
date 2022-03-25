@@ -5,13 +5,10 @@ const isObsConfigured = require('@condo/domains/common/utils/testSchema/isObsCon
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
-const { createTestMeter, createTestMeterReading, MeterReadingSource, MeterResource } = require('../utils/testSchema')
+const { createTestMeter, createTestMeterReading, MeterReadingSource, MeterResource, exportMeterReadingsByTestClient } = require('../utils/testSchema')
 const { CALL_METER_READING_SOURCE_ID, COLD_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
-const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const { EXPORT_METER_READINGS } = require('@condo/domains/meter/gql')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
-
 
 describe('ExportMeterReadingsService', () => {
     describe('Employee with "canManageMeters"', () => {
@@ -25,12 +22,9 @@ describe('ExportMeterReadingsService', () => {
                 const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
                 await createTestMeterReading(client, meter, client.organization, source)
 
-                const { data: { result: { status, linkToFile } } } = await client.query(EXPORT_METER_READINGS, {
-                    data: {
-                        where: { organization: { id: client.organization.id } },
-                        sortBy: 'id_ASC',
-                        timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
-                    },
+                const [{ status, linkToFile }] = await exportMeterReadingsByTestClient(client, {
+                    where: { organization: { id: client.organization.id } },
+                    sortBy: 'id_ASC',
                 })
 
                 expect(status).toBe('ok')
@@ -48,12 +42,9 @@ describe('ExportMeterReadingsService', () => {
                 await createTestMeter(client, client.organization, client.property, resource, {})
 
                 await catchErrorFrom(async () => {
-                    await client.query(EXPORT_METER_READINGS, {
-                        data: {
-                            where: { organization: { id: client.organization.id } },
-                            sortBy: 'id_ASC',
-                            timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
-                        },
+                    await exportMeterReadingsByTestClient(client, {
+                        where: { organization: { id: client.organization.id } },
+                        sortBy: 'id_ASC',
                     })
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
@@ -82,11 +73,17 @@ describe('ExportMeterReadingsService', () => {
         const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
         await createTestMeterReading(client, meter, client.organization, source)
 
-        const { data: { result }, errors } = await anonymous.query(EXPORT_METER_READINGS, {
-            data: { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+        await catchErrorFrom(async () => {
+            await exportMeterReadingsByTestClient(anonymous, {
+                where: {
+                    organization: { id: client.organization.id },
+                },
+                sortBy: 'id_ASC',
+
+            })
+        }, ({ errors }) => {
+            expect(errors).toHaveLength(1)
         })
-        expect(result).toBeNull()
-        expect(errors).toHaveLength(1)
     })
 
     test('user: cannot get meter readings export', async () => {
@@ -100,11 +97,16 @@ describe('ExportMeterReadingsService', () => {
         const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
         await createTestMeterReading(client, meter, client.organization, source)
 
-        const { data: { result }, errors } = await user.query(EXPORT_METER_READINGS, {
-            data: { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE },
+        await catchErrorFrom(async () => {
+            await exportMeterReadingsByTestClient(user, {
+                where: {
+                    organization: { id: client.organization.id },
+                },
+                sortBy: 'id_ASC',
+            })
+        }, async ({ errors }) => {
+            expect(errors).toHaveLength(1)
         })
-        expect(result).toBeNull()
-        expect(errors).toHaveLength(1)
     })
 
     test('admin: can get meter readings export from selected organization', async () => {
@@ -119,12 +121,9 @@ describe('ExportMeterReadingsService', () => {
 
             const admin = await makeLoggedInAdminClient()
 
-            const { data: { result: { status, linkToFile } } } = await admin.query(EXPORT_METER_READINGS, {
-                data: {
-                    where: { organization: { id: client.organization.id } },
-                    sortBy: 'id_ASC',
-                    timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
-                },
+            const [{ status, linkToFile }] = await exportMeterReadingsByTestClient(admin, {
+                where: { organization: { id: client.organization.id } },
+                sortBy: 'id_ASC',
             })
 
             expect(status).toBe('ok')
