@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { BillingIntegration as BillingIntegrationGQL } from '@condo/domains/billing/gql'
 import { BillingIntegration, BillingIntegrationUpdateInput, QueryAllBillingIntegrationsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'shortDescription', 'logo', 'detailsTitle', 'detailsText', 'detailsConfirmButtonText', 'detailsInstructionButtonText', 'detailsInstructionButtonLink', 'contextDefaultStatus', 'billingPageTitle', 'currency', 'dataFormat', 'isHidden', 'availableOptions']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'shortDescription', 'logo', 'developer', 'partnerUrl', 'detailsTitle', 'detailsText', 'detailsConfirmButtonText', 'detailsInstructionButtonText', 'detailsInstructionButtonLink', 'contextDefaultStatus', 'billingPageTitle', 'currency', 'dataFormat', 'isHidden', 'availableOptions']
 const RELATIONS = []
 
 export interface IBillingIntegrationUIState extends BillingIntegration {

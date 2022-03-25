@@ -11,6 +11,8 @@ interface AppDescriptionPageContentProps {
     published: string,
     logoSrc?: string,
     tag?: string,
+    developer: string,
+    partnerUrl?: string,
 }
 
 export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps> = ({
@@ -19,6 +21,8 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
     published,
     logoSrc,
     tag,
+    developer,
+    partnerUrl,
 }) => {
     const intl = useIntl()
     const HowToSetupMessage = intl.formatMessage({ id: 'services.HowToSetup' })
@@ -29,8 +33,8 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                     title={title}
                     description={description}
                     published={published}
-                    developer={'SBERlonglonglonglonglonglonglong'}
-                    partnerUrl={'https://spotify.com'}
+                    developer={developer}
+                    partnerUrl={partnerUrl}
                     logoSrc={logoSrc}
                     tag={tag}
                 />

@@ -12,6 +12,7 @@ const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
 const RUB_CURRENCY_CODE = 'RUB'
 const USD_CURRENCY_CODE = 'USD'
+const DEVELOPER_NAME = 'DOMA'
 
 const Lvl1DataFormat = {
     hasToPayDetails: false,
@@ -51,6 +52,7 @@ const InProgressBilling = {
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
     billingPageTitle: 'Биллинг ГИС ЖКХ',
     dataFormat: Lvl1DataFormat,
+    developer: DEVELOPER_NAME,
 }
 
 const SuccessfulBilling = {
@@ -98,6 +100,7 @@ const SuccessfulBilling = {
             },
         ],
     },
+    developer: DEVELOPER_NAME,
 }
 
 const ErrorBilling = {
@@ -108,6 +111,7 @@ const ErrorBilling = {
     detailsTitle: 'You won\'t do this',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
     dataFormat: Lvl1DataFormat,
+    developer: DEVELOPER_NAME,
 }
 
 const NoDetailsBilling = {
@@ -119,6 +123,7 @@ const NoDetailsBilling = {
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 1',
     dataFormat: Lvl1DataFormat,
+    developer: DEVELOPER_NAME,
 }
 
 const NoDetailsDollarBilling = {
@@ -130,6 +135,7 @@ const NoDetailsDollarBilling = {
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг "Доллар", уровень 1',
     dataFormat: Lvl1DataFormat,
+    developer: DEVELOPER_NAME,
 }
 
 const ToPayDetailsBilling = {
@@ -141,6 +147,7 @@ const ToPayDetailsBilling = {
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 1+',
     dataFormat: Lvl1PlusDataFormat,
+    developer: DEVELOPER_NAME,
 }
 
 const WithServicesBilling = {
@@ -152,6 +159,7 @@ const WithServicesBilling = {
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 2',
     dataFormat: Lvl2DataFormat,
+    developer: DEVELOPER_NAME,
 }
 
 const WithServicesDetailsBilling = {
@@ -163,6 +171,7 @@ const WithServicesDetailsBilling = {
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 3',
     dataFormat: Lvl3DataFormat,
+    developer: DEVELOPER_NAME,
 }
 
 const RUBLE_BILLINGS_TO_CREATE = [

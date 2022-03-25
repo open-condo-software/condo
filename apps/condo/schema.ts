@@ -40,10 +40,14 @@ export type AcquiringIntegration = {
   sender?: Maybe<SenderField>;
   /**  Name of `acquiring component`, which is set up by developer  */
   name?: Maybe<Scalars['String']>;
-  /**  Acquiring integration logo  */
+  /**  Integration company logo  */
   logo?: Maybe<File>;
   /**  Short integration description, that would be shown on settings card  */
   shortDescription?: Maybe<Scalars['String']>;
+  /**  Developer company name  */
+  developer?: Maybe<Scalars['String']>;
+  /**  Integration company website  */
+  partnerUrl?: Maybe<Scalars['String']>;
   /**  Title of confirmation/details page of integration  */
   detailsTitle?: Maybe<Scalars['String']>;
   /**  Text of confirmation/details page of integration written in markdown  */
@@ -891,6 +895,8 @@ export type AcquiringIntegrationCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -924,6 +930,8 @@ export type AcquiringIntegrationHistoryRecord = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -949,6 +957,8 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -979,6 +989,8 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -1052,6 +1064,42 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
   shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer?: Maybe<Scalars['String']>;
+  developer_not?: Maybe<Scalars['String']>;
+  developer_contains?: Maybe<Scalars['String']>;
+  developer_not_contains?: Maybe<Scalars['String']>;
+  developer_starts_with?: Maybe<Scalars['String']>;
+  developer_not_starts_with?: Maybe<Scalars['String']>;
+  developer_ends_with?: Maybe<Scalars['String']>;
+  developer_not_ends_with?: Maybe<Scalars['String']>;
+  developer_i?: Maybe<Scalars['String']>;
+  developer_not_i?: Maybe<Scalars['String']>;
+  developer_contains_i?: Maybe<Scalars['String']>;
+  developer_not_contains_i?: Maybe<Scalars['String']>;
+  developer_starts_with_i?: Maybe<Scalars['String']>;
+  developer_not_starts_with_i?: Maybe<Scalars['String']>;
+  developer_ends_with_i?: Maybe<Scalars['String']>;
+  developer_not_ends_with_i?: Maybe<Scalars['String']>;
+  developer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  partnerUrl_not?: Maybe<Scalars['String']>;
+  partnerUrl_contains?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_i?: Maybe<Scalars['String']>;
+  partnerUrl_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsTitle_not?: Maybe<Scalars['String']>;
   detailsTitle_contains?: Maybe<Scalars['String']>;
@@ -1192,6 +1240,8 @@ export type AcquiringIntegrationUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -1264,6 +1314,42 @@ export type AcquiringIntegrationWhereInput = {
   shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
   shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer?: Maybe<Scalars['String']>;
+  developer_not?: Maybe<Scalars['String']>;
+  developer_contains?: Maybe<Scalars['String']>;
+  developer_not_contains?: Maybe<Scalars['String']>;
+  developer_starts_with?: Maybe<Scalars['String']>;
+  developer_not_starts_with?: Maybe<Scalars['String']>;
+  developer_ends_with?: Maybe<Scalars['String']>;
+  developer_not_ends_with?: Maybe<Scalars['String']>;
+  developer_i?: Maybe<Scalars['String']>;
+  developer_not_i?: Maybe<Scalars['String']>;
+  developer_contains_i?: Maybe<Scalars['String']>;
+  developer_not_contains_i?: Maybe<Scalars['String']>;
+  developer_starts_with_i?: Maybe<Scalars['String']>;
+  developer_not_starts_with_i?: Maybe<Scalars['String']>;
+  developer_ends_with_i?: Maybe<Scalars['String']>;
+  developer_not_ends_with_i?: Maybe<Scalars['String']>;
+  developer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  partnerUrl_not?: Maybe<Scalars['String']>;
+  partnerUrl_contains?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_i?: Maybe<Scalars['String']>;
+  partnerUrl_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsTitle_not?: Maybe<Scalars['String']>;
   detailsTitle_contains?: Maybe<Scalars['String']>;
@@ -3191,10 +3277,14 @@ export type BillingIntegration = {
   sender?: Maybe<SenderField>;
   /**  The name of the `integration component` that the developer remembers  */
   name?: Maybe<Scalars['String']>;
-  /**  Billing integration logo  */
+  /**  Integration company logo  */
   logo?: Maybe<File>;
   /**  Short integration description, that would be shown on settings card  */
   shortDescription?: Maybe<Scalars['String']>;
+  /**  Developer company name  */
+  developer?: Maybe<Scalars['String']>;
+  /**  Integration company website  */
+  partnerUrl?: Maybe<Scalars['String']>;
   /**  Title of confirmation/details page of integration  */
   detailsTitle?: Maybe<Scalars['String']>;
   /**  Text of confirmation/details page of integration written in markdown  */
@@ -3540,6 +3630,8 @@ export type BillingIntegrationCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['String']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
@@ -3590,6 +3682,8 @@ export type BillingIntegrationHistoryRecord = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
@@ -3620,6 +3714,8 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
@@ -3655,6 +3751,8 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
@@ -3733,6 +3831,42 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
   shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer?: Maybe<Scalars['String']>;
+  developer_not?: Maybe<Scalars['String']>;
+  developer_contains?: Maybe<Scalars['String']>;
+  developer_not_contains?: Maybe<Scalars['String']>;
+  developer_starts_with?: Maybe<Scalars['String']>;
+  developer_not_starts_with?: Maybe<Scalars['String']>;
+  developer_ends_with?: Maybe<Scalars['String']>;
+  developer_not_ends_with?: Maybe<Scalars['String']>;
+  developer_i?: Maybe<Scalars['String']>;
+  developer_not_i?: Maybe<Scalars['String']>;
+  developer_contains_i?: Maybe<Scalars['String']>;
+  developer_not_contains_i?: Maybe<Scalars['String']>;
+  developer_starts_with_i?: Maybe<Scalars['String']>;
+  developer_not_starts_with_i?: Maybe<Scalars['String']>;
+  developer_ends_with_i?: Maybe<Scalars['String']>;
+  developer_not_ends_with_i?: Maybe<Scalars['String']>;
+  developer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  partnerUrl_not?: Maybe<Scalars['String']>;
+  partnerUrl_contains?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_i?: Maybe<Scalars['String']>;
+  partnerUrl_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsTitle_not?: Maybe<Scalars['String']>;
   detailsTitle_contains?: Maybe<Scalars['String']>;
@@ -4621,6 +4755,8 @@ export type BillingIntegrationUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['String']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
@@ -4697,6 +4833,42 @@ export type BillingIntegrationWhereInput = {
   shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
   shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer?: Maybe<Scalars['String']>;
+  developer_not?: Maybe<Scalars['String']>;
+  developer_contains?: Maybe<Scalars['String']>;
+  developer_not_contains?: Maybe<Scalars['String']>;
+  developer_starts_with?: Maybe<Scalars['String']>;
+  developer_not_starts_with?: Maybe<Scalars['String']>;
+  developer_ends_with?: Maybe<Scalars['String']>;
+  developer_not_ends_with?: Maybe<Scalars['String']>;
+  developer_i?: Maybe<Scalars['String']>;
+  developer_not_i?: Maybe<Scalars['String']>;
+  developer_contains_i?: Maybe<Scalars['String']>;
+  developer_not_contains_i?: Maybe<Scalars['String']>;
+  developer_starts_with_i?: Maybe<Scalars['String']>;
+  developer_not_starts_with_i?: Maybe<Scalars['String']>;
+  developer_ends_with_i?: Maybe<Scalars['String']>;
+  developer_not_ends_with_i?: Maybe<Scalars['String']>;
+  developer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  partnerUrl_not?: Maybe<Scalars['String']>;
+  partnerUrl_contains?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_i?: Maybe<Scalars['String']>;
+  partnerUrl_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsTitle_not?: Maybe<Scalars['String']>;
   detailsTitle_contains?: Maybe<Scalars['String']>;
@@ -29499,6 +29671,10 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   NameDesc = 'name_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
+  DeveloperAsc = 'developer_ASC',
+  DeveloperDesc = 'developer_DESC',
+  PartnerUrlAsc = 'partnerUrl_ASC',
+  PartnerUrlDesc = 'partnerUrl_DESC',
   DetailsTitleAsc = 'detailsTitle_ASC',
   DetailsTitleDesc = 'detailsTitle_DESC',
   IsHiddenAsc = 'isHidden_ASC',
@@ -29530,6 +29706,10 @@ export enum SortAcquiringIntegrationsBy {
   NameDesc = 'name_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
+  DeveloperAsc = 'developer_ASC',
+  DeveloperDesc = 'developer_DESC',
+  PartnerUrlAsc = 'partnerUrl_ASC',
+  PartnerUrlDesc = 'partnerUrl_DESC',
   DetailsTitleAsc = 'detailsTitle_ASC',
   DetailsTitleDesc = 'detailsTitle_DESC',
   DetailsTextAsc = 'detailsText_ASC',
@@ -29795,6 +29975,10 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   NameDesc = 'name_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
+  DeveloperAsc = 'developer_ASC',
+  DeveloperDesc = 'developer_DESC',
+  PartnerUrlAsc = 'partnerUrl_ASC',
+  PartnerUrlDesc = 'partnerUrl_DESC',
   DetailsTitleAsc = 'detailsTitle_ASC',
   DetailsTitleDesc = 'detailsTitle_DESC',
   DetailsConfirmButtonTextAsc = 'detailsConfirmButtonText_ASC',
@@ -29909,6 +30093,10 @@ export enum SortBillingIntegrationsBy {
   NameDesc = 'name_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
+  DeveloperAsc = 'developer_ASC',
+  DeveloperDesc = 'developer_DESC',
+  PartnerUrlAsc = 'partnerUrl_ASC',
+  PartnerUrlDesc = 'partnerUrl_DESC',
   DetailsTitleAsc = 'detailsTitle_ASC',
   DetailsTitleDesc = 'detailsTitle_DESC',
   DetailsTextAsc = 'detailsText_ASC',

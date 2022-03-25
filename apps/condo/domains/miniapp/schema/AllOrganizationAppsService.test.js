@@ -9,7 +9,7 @@ const { allOrganizationAppsByTestClient } = require('@condo/domains/miniapp/util
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE } = require('@condo/domains/miniapp/constants/common')
+const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE } = require('@condo/domains/miniapp/constants')
 const dayjs = require('dayjs')
 
 describe('AllOrganizationAppsService', () => {

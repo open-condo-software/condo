@@ -1,7 +1,7 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import Error from 'next/error'
-import { APP_TYPES, BILLING_APP_TYPE } from '@condo/domains/miniapp/constants/common'
+import { APP_TYPES, BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import get from 'lodash/get'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useOrganization } from '@core/next/organization'
