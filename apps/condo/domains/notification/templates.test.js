@@ -84,8 +84,7 @@ describe('Notifications', () => {
                         }
                     } else {
                         const templateFile = path.resolve(__dirname, folder, `${transport}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
-                        const hasParticularTransportTemplate = fs.existsSync(templateFile)
-                        if (!hasParticularTransportTemplate) {
+                        if (!fs.existsSync(templateFile)) {
                             console.error(`No template file for ${transport}: ${templateFile} or ${DEFAULT_TEMPLATE_FILE_NAME}`)
                             result = false
                         }
