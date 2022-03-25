@@ -21,8 +21,17 @@ interface ITicketThreeLevelsClassifierHookInput {
         problemClassifier?: string
     }
 }
+
+interface ITicketClassifierRuleType {
+    id?: string
+    place?: string
+    category?: string
+    problem?: string
+}
+
 interface ITicketThreeLevelsClassifierHookOutput {
     ClassifiersEditorComponent: React.FC<{ form, disabled }>
+    setRuleId: (value: ITicketClassifierRuleType) => void
 }
 
 interface ITicketClassifierSelectHookInput {
@@ -115,6 +124,8 @@ const useTicketClassifierSelectHook = ({
     }
 }
 
+
+
 const CLASSIFIER_ROW_GUTTER: [Gutter, Gutter] = [40, 10]
 
 export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
@@ -127,7 +138,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
     const ProblemClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.ProblemLabel' })
-    const ruleRef = useRef({ id: classifierRule, place: null, category:null, problem: null })
+    const ruleRef = useRef<ITicketClassifierRuleType>({ id: classifierRule, place: null, category:null, problem: null })
     const client = useApolloClient()
     const ClassifierLoader = new ClassifiersQueryLocal(client)
     const validations = useTicketValidations()
@@ -180,6 +191,13 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         problem: problemSet,
     }
 
+    const setRuleId = async (value) => {
+        ruleRef.current = value
+        await loadLevels()
+        placeSet.one(value.place)
+        categorySet.one(value.category)
+    }
+
     const Refs = {
         place: placeRef,
         category: categoryRef,
@@ -205,6 +223,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         })
         return () => {
             // clear all loaded data from helper
+            console.log('DESTROY')
             ClassifierLoader.clear()
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -310,18 +329,8 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     }
 
     const ClassifiersEditorComponent = useMemo(() => {
-        const ClassifiersEditorWrapper: React.FC<{ form, disabled, autoClassifierFill }> = ({ form, disabled, autoClassifierFill }) => {
+        const ClassifiersEditorWrapper: React.FC<{ form, disabled }> = ({ form, disabled }) => {
             ticketForm.current = form
-            useEffect(() => {
-                if (autoClassifierFill) {
-                    ticketForm.current.setFields([
-                        { name: 'classifierRule', value: autoClassifierFill.classifierRule },
-                        { name: 'placeClassifier', value: autoClassifierFill.placeClassifier },
-                        { name: 'categoryClassifier', value: autoClassifierFill.categoryClassifier },
-                        { name: 'problemClassifier', value: null },
-                    ])
-                }
-            }, [autoClassifierFill])
             return (
                 <Row gutter={CLASSIFIER_ROW_GUTTER}>
                     <Form.Item name={'classifierRule'} rules={validations.classifierRule} noStyle={true}>
@@ -362,5 +371,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
 
     return {
         ClassifiersEditorComponent,
+        setRuleId,
     }
 }
