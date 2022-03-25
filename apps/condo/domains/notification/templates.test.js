@@ -16,7 +16,7 @@ const {
     translationStringKeyForEmailSubject,
     translationStringKeyForPushTitle,
     templateEngine,
-    templateEngineDefaultDateFormat,
+    TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT,
 } = require('@condo/domains/notification/templates')
 const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
@@ -190,7 +190,7 @@ describe('Notifications', () => {
         expect(preparedMessageDeveloper.text.trim()).toEqual(`"${developerData.data}"`)
 
         expect(preparedMessageShare.subject).toEqual(`Ticket №${ticketData.ticketNumber}`)
-        expect(preparedMessageShare.html).toContain(`Ticket #${ticketData.ticketNumber} dated ${dayjs(ticketData.date).locale(LOCALES[EN_LOCALE]).format(templateEngineDefaultDateFormat)} has been shared with you.`)
+        expect(preparedMessageShare.html).toContain(`Ticket #${ticketData.ticketNumber} dated ${dayjs(ticketData.date).locale(LOCALES[EN_LOCALE]).format(TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT)} has been shared with you.`)
         expect(preparedMessageShare.html).toContain(`The text of the ticket: "${ticketData.details}"`)
     })
 
