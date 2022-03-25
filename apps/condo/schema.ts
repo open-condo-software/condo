@@ -44,6 +44,9 @@ export type AcquiringIntegration = {
   logo?: Maybe<File>;
   /**  Short integration description, that would be shown on settings card  */
   shortDescription?: Maybe<Scalars['String']>;
+  /**  Link to app description blocks if exists...You can control order of appearance in CRM by specifying theirs order parameter  */
+  descriptionBlocks: Array<DescriptionBlock>;
+  _descriptionBlocksMeta?: Maybe<_QueryMeta>;
   /**  Developer company name  */
   developer?: Maybe<Scalars['String']>;
   /**  Integration company website  */
@@ -73,6 +76,28 @@ export type AcquiringIntegration = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+};
+
+
+/**  Information about `acquiring component` which will generate `billing receipts` and `payments`  */
+export type AcquiringIntegrationDescriptionBlocksArgs = {
+  where?: Maybe<DescriptionBlockWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDescriptionBlocksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  Information about `acquiring component` which will generate `billing receipts` and `payments`  */
+export type AcquiringIntegration_DescriptionBlocksMetaArgs = {
+  where?: Maybe<DescriptionBlockWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDescriptionBlocksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
 };
 
 
@@ -895,6 +920,7 @@ export type AcquiringIntegrationCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
+  descriptionBlocks?: Maybe<DescriptionBlockRelateToManyInput>;
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
@@ -1240,6 +1266,7 @@ export type AcquiringIntegrationUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
+  descriptionBlocks?: Maybe<DescriptionBlockRelateToManyInput>;
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
@@ -1314,6 +1341,12 @@ export type AcquiringIntegrationWhereInput = {
   shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
   shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  /**  condition must be true for all nodes  */
+  descriptionBlocks_every?: Maybe<DescriptionBlockWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  descriptionBlocks_some?: Maybe<DescriptionBlockWhereInput>;
+  /**  condition must be false for all nodes  */
+  descriptionBlocks_none?: Maybe<DescriptionBlockWhereInput>;
   developer?: Maybe<Scalars['String']>;
   developer_not?: Maybe<Scalars['String']>;
   developer_contains?: Maybe<Scalars['String']>;
@@ -3281,6 +3314,9 @@ export type BillingIntegration = {
   logo?: Maybe<File>;
   /**  Short integration description, that would be shown on settings card  */
   shortDescription?: Maybe<Scalars['String']>;
+  /**  Link to app description blocks if exists...You can control order of appearance in CRM by specifying theirs order parameter  */
+  descriptionBlocks: Array<DescriptionBlock>;
+  _descriptionBlocksMeta?: Maybe<_QueryMeta>;
   /**  Developer company name  */
   developer?: Maybe<Scalars['String']>;
   /**  Integration company website  */
@@ -3317,6 +3353,28 @@ export type BillingIntegration = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+};
+
+
+/**  Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ...   */
+export type BillingIntegrationDescriptionBlocksArgs = {
+  where?: Maybe<DescriptionBlockWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDescriptionBlocksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ...   */
+export type BillingIntegration_DescriptionBlocksMetaArgs = {
+  where?: Maybe<DescriptionBlockWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDescriptionBlocksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
 };
 
 
@@ -3630,6 +3688,7 @@ export type BillingIntegrationCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
+  descriptionBlocks?: Maybe<DescriptionBlockRelateToManyInput>;
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
@@ -4755,6 +4814,7 @@ export type BillingIntegrationUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
+  descriptionBlocks?: Maybe<DescriptionBlockRelateToManyInput>;
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
@@ -4833,6 +4893,12 @@ export type BillingIntegrationWhereInput = {
   shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
   shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  /**  condition must be true for all nodes  */
+  descriptionBlocks_every?: Maybe<DescriptionBlockWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  descriptionBlocks_some?: Maybe<DescriptionBlockWhereInput>;
+  /**  condition must be false for all nodes  */
+  descriptionBlocks_none?: Maybe<DescriptionBlockWhereInput>;
   developer?: Maybe<Scalars['String']>;
   developer_not?: Maybe<Scalars['String']>;
   developer_contains?: Maybe<Scalars['String']>;
@@ -8267,6 +8333,442 @@ export enum CurrentStateType {
   NotPaid = 'NOT_PAID',
   Deactivated = 'DEACTIVATED'
 }
+
+/**  Block of text and image used to represent miniapp features on it's description page  */
+export type DescriptionBlock = {
+  __typename?: 'DescriptionBlock';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the DescriptionBlock List config, or
+   *  2. As an alias to the field set on 'labelField' in the DescriptionBlock List config, or
+   *  3. As an alias to a 'name' field on the DescriptionBlock List (if one exists), or
+   *  4. As an alias to the 'id' field on the DescriptionBlock List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  /**  Title of a feature  */
+  title?: Maybe<Scalars['String']>;
+  /**  Text describing a feature  */
+  description?: Maybe<Scalars['String']>;
+  /**  Image representing a feature  */
+  image?: Maybe<File>;
+  /**  Order of block. Default value is 0. The higher the number, the further the block is from the start.  */
+  order?: Maybe<Scalars['Int']>;
+  /**  Link to billing integration. Note that one of the following fields are required: [billingIntegration, acquiringIntegration]  */
+  billingIntegration?: Maybe<BillingIntegration>;
+  /**  Link to acquiring integration. Note that one of the following fields are required: [billingIntegration, acquiringIntegration]  */
+  acquiringIntegration?: Maybe<AcquiringIntegration>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type DescriptionBlockCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['Upload']>;
+  order?: Maybe<Scalars['Int']>;
+  billingIntegration?: Maybe<BillingIntegrationRelateToOneInput>;
+  acquiringIntegration?: Maybe<AcquiringIntegrationRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type DescriptionBlockHistoryRecord = {
+  __typename?: 'DescriptionBlockHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the DescriptionBlockHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the DescriptionBlockHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the DescriptionBlockHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the DescriptionBlockHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['JSON']>;
+  order?: Maybe<Scalars['Int']>;
+  billingIntegration?: Maybe<Scalars['String']>;
+  acquiringIntegration?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DescriptionBlockHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type DescriptionBlockHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['JSON']>;
+  order?: Maybe<Scalars['Int']>;
+  billingIntegration?: Maybe<Scalars['String']>;
+  acquiringIntegration?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DescriptionBlockHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum DescriptionBlockHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type DescriptionBlockHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['JSON']>;
+  order?: Maybe<Scalars['Int']>;
+  billingIntegration?: Maybe<Scalars['String']>;
+  acquiringIntegration?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<DescriptionBlockHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type DescriptionBlockHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<DescriptionBlockHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<DescriptionBlockHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  title?: Maybe<Scalars['String']>;
+  title_not?: Maybe<Scalars['String']>;
+  title_contains?: Maybe<Scalars['String']>;
+  title_not_contains?: Maybe<Scalars['String']>;
+  title_starts_with?: Maybe<Scalars['String']>;
+  title_not_starts_with?: Maybe<Scalars['String']>;
+  title_ends_with?: Maybe<Scalars['String']>;
+  title_not_ends_with?: Maybe<Scalars['String']>;
+  title_i?: Maybe<Scalars['String']>;
+  title_not_i?: Maybe<Scalars['String']>;
+  title_contains_i?: Maybe<Scalars['String']>;
+  title_not_contains_i?: Maybe<Scalars['String']>;
+  title_starts_with_i?: Maybe<Scalars['String']>;
+  title_not_starts_with_i?: Maybe<Scalars['String']>;
+  title_ends_with_i?: Maybe<Scalars['String']>;
+  title_not_ends_with_i?: Maybe<Scalars['String']>;
+  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  image?: Maybe<Scalars['JSON']>;
+  image_not?: Maybe<Scalars['JSON']>;
+  image_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  image_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  order?: Maybe<Scalars['Int']>;
+  order_not?: Maybe<Scalars['Int']>;
+  order_lt?: Maybe<Scalars['Int']>;
+  order_lte?: Maybe<Scalars['Int']>;
+  order_gt?: Maybe<Scalars['Int']>;
+  order_gte?: Maybe<Scalars['Int']>;
+  order_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  order_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  billingIntegration?: Maybe<Scalars['String']>;
+  billingIntegration_not?: Maybe<Scalars['String']>;
+  billingIntegration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingIntegration_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  acquiringIntegration?: Maybe<Scalars['String']>;
+  acquiringIntegration_not?: Maybe<Scalars['String']>;
+  acquiringIntegration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  acquiringIntegration_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<DescriptionBlockHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<DescriptionBlockHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<DescriptionBlockHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<DescriptionBlockHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type DescriptionBlockHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type DescriptionBlockHistoryRecordsCreateInput = {
+  data?: Maybe<DescriptionBlockHistoryRecordCreateInput>;
+};
+
+export type DescriptionBlockHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<DescriptionBlockHistoryRecordUpdateInput>;
+};
+
+export type DescriptionBlockRelateToManyInput = {
+  create?: Maybe<Array<Maybe<DescriptionBlockCreateInput>>>;
+  connect?: Maybe<Array<Maybe<DescriptionBlockWhereUniqueInput>>>;
+  disconnect?: Maybe<Array<Maybe<DescriptionBlockWhereUniqueInput>>>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type DescriptionBlockUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['Upload']>;
+  order?: Maybe<Scalars['Int']>;
+  billingIntegration?: Maybe<BillingIntegrationRelateToOneInput>;
+  acquiringIntegration?: Maybe<AcquiringIntegrationRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type DescriptionBlockWhereInput = {
+  AND?: Maybe<Array<Maybe<DescriptionBlockWhereInput>>>;
+  OR?: Maybe<Array<Maybe<DescriptionBlockWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  title?: Maybe<Scalars['String']>;
+  title_not?: Maybe<Scalars['String']>;
+  title_contains?: Maybe<Scalars['String']>;
+  title_not_contains?: Maybe<Scalars['String']>;
+  title_starts_with?: Maybe<Scalars['String']>;
+  title_not_starts_with?: Maybe<Scalars['String']>;
+  title_ends_with?: Maybe<Scalars['String']>;
+  title_not_ends_with?: Maybe<Scalars['String']>;
+  title_i?: Maybe<Scalars['String']>;
+  title_not_i?: Maybe<Scalars['String']>;
+  title_contains_i?: Maybe<Scalars['String']>;
+  title_not_contains_i?: Maybe<Scalars['String']>;
+  title_starts_with_i?: Maybe<Scalars['String']>;
+  title_not_starts_with_i?: Maybe<Scalars['String']>;
+  title_ends_with_i?: Maybe<Scalars['String']>;
+  title_not_ends_with_i?: Maybe<Scalars['String']>;
+  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  image?: Maybe<Scalars['String']>;
+  image_not?: Maybe<Scalars['String']>;
+  image_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  image_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  order?: Maybe<Scalars['Int']>;
+  order_not?: Maybe<Scalars['Int']>;
+  order_lt?: Maybe<Scalars['Int']>;
+  order_lte?: Maybe<Scalars['Int']>;
+  order_gt?: Maybe<Scalars['Int']>;
+  order_gte?: Maybe<Scalars['Int']>;
+  order_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  order_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  billingIntegration?: Maybe<BillingIntegrationWhereInput>;
+  billingIntegration_is_null?: Maybe<Scalars['Boolean']>;
+  acquiringIntegration?: Maybe<AcquiringIntegrationWhereInput>;
+  acquiringIntegration_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type DescriptionBlockWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type DescriptionBlocksCreateInput = {
+  data?: Maybe<DescriptionBlockCreateInput>;
+};
+
+export type DescriptionBlocksUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<DescriptionBlockUpdateInput>;
+};
 
 /**  Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. Device could be mobile or web based. Device could be registered (created by user, admin or anonymous) with or without token, and updated later on by admin (or a user within SyncDeviceService) by adding/changing token value and connecting device to user (whose authorization was passed within request). All such interactions should be done via SyncDeviceService.  */
 export type Device = {
@@ -14663,6 +15165,30 @@ export type Mutation = {
   deletePaymentsFilterTemplate?: Maybe<PaymentsFilterTemplate>;
   /**  Delete multiple PaymentsFilterTemplate items by ID.  */
   deletePaymentsFilterTemplates?: Maybe<Array<Maybe<PaymentsFilterTemplate>>>;
+  /**  Create a single DescriptionBlockHistoryRecord item.  */
+  createDescriptionBlockHistoryRecord?: Maybe<DescriptionBlockHistoryRecord>;
+  /**  Create multiple DescriptionBlockHistoryRecord items.  */
+  createDescriptionBlockHistoryRecords?: Maybe<Array<Maybe<DescriptionBlockHistoryRecord>>>;
+  /**  Update a single DescriptionBlockHistoryRecord item by ID.  */
+  updateDescriptionBlockHistoryRecord?: Maybe<DescriptionBlockHistoryRecord>;
+  /**  Update multiple DescriptionBlockHistoryRecord items by ID.  */
+  updateDescriptionBlockHistoryRecords?: Maybe<Array<Maybe<DescriptionBlockHistoryRecord>>>;
+  /**  Delete a single DescriptionBlockHistoryRecord item by ID.  */
+  deleteDescriptionBlockHistoryRecord?: Maybe<DescriptionBlockHistoryRecord>;
+  /**  Delete multiple DescriptionBlockHistoryRecord items by ID.  */
+  deleteDescriptionBlockHistoryRecords?: Maybe<Array<Maybe<DescriptionBlockHistoryRecord>>>;
+  /**  Create a single DescriptionBlock item.  */
+  createDescriptionBlock?: Maybe<DescriptionBlock>;
+  /**  Create multiple DescriptionBlock items.  */
+  createDescriptionBlocks?: Maybe<Array<Maybe<DescriptionBlock>>>;
+  /**  Update a single DescriptionBlock item by ID.  */
+  updateDescriptionBlock?: Maybe<DescriptionBlock>;
+  /**  Update multiple DescriptionBlock items by ID.  */
+  updateDescriptionBlocks?: Maybe<Array<Maybe<DescriptionBlock>>>;
+  /**  Delete a single DescriptionBlock item by ID.  */
+  deleteDescriptionBlock?: Maybe<DescriptionBlock>;
+  /**  Delete multiple DescriptionBlock items by ID.  */
+  deleteDescriptionBlocks?: Maybe<Array<Maybe<DescriptionBlock>>>;
   /**
    * Registers new user and sends notification
    *
@@ -18633,6 +19159,68 @@ export type MutationDeletePaymentsFilterTemplateArgs = {
 
 
 export type MutationDeletePaymentsFilterTemplatesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateDescriptionBlockHistoryRecordArgs = {
+  data?: Maybe<DescriptionBlockHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateDescriptionBlockHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<DescriptionBlockHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateDescriptionBlockHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<DescriptionBlockHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateDescriptionBlockHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<DescriptionBlockHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteDescriptionBlockHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteDescriptionBlockHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateDescriptionBlockArgs = {
+  data?: Maybe<DescriptionBlockCreateInput>;
+};
+
+
+export type MutationCreateDescriptionBlocksArgs = {
+  data?: Maybe<Array<Maybe<DescriptionBlocksCreateInput>>>;
+};
+
+
+export type MutationUpdateDescriptionBlockArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<DescriptionBlockUpdateInput>;
+};
+
+
+export type MutationUpdateDescriptionBlocksArgs = {
+  data?: Maybe<Array<Maybe<DescriptionBlocksUpdateInput>>>;
+};
+
+
+export type MutationDeleteDescriptionBlockArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteDescriptionBlocksArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -24302,6 +24890,22 @@ export type Query = {
   _allPaymentsFilterTemplatesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the PaymentsFilterTemplate list.  */
   _PaymentsFilterTemplatesMeta?: Maybe<_ListMeta>;
+  /**  Search for all DescriptionBlockHistoryRecord items which match the where clause.  */
+  allDescriptionBlockHistoryRecords?: Maybe<Array<Maybe<DescriptionBlockHistoryRecord>>>;
+  /**  Search for the DescriptionBlockHistoryRecord item with the matching ID.  */
+  DescriptionBlockHistoryRecord?: Maybe<DescriptionBlockHistoryRecord>;
+  /**  Perform a meta-query on all DescriptionBlockHistoryRecord items which match the where clause.  */
+  _allDescriptionBlockHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the DescriptionBlockHistoryRecord list.  */
+  _DescriptionBlockHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all DescriptionBlock items which match the where clause.  */
+  allDescriptionBlocks?: Maybe<Array<Maybe<DescriptionBlock>>>;
+  /**  Search for the DescriptionBlock item with the matching ID.  */
+  DescriptionBlock?: Maybe<DescriptionBlock>;
+  /**  Perform a meta-query on all DescriptionBlock items which match the where clause.  */
+  _allDescriptionBlocksMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the DescriptionBlock list.  */
+  _DescriptionBlocksMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   /**
@@ -26972,6 +27576,56 @@ export type Query_AllPaymentsFilterTemplatesMetaArgs = {
   where?: Maybe<PaymentsFilterTemplateWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortPaymentsFilterTemplatesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllDescriptionBlockHistoryRecordsArgs = {
+  where?: Maybe<DescriptionBlockHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDescriptionBlockHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryDescriptionBlockHistoryRecordArgs = {
+  where: DescriptionBlockHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllDescriptionBlockHistoryRecordsMetaArgs = {
+  where?: Maybe<DescriptionBlockHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDescriptionBlockHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllDescriptionBlocksArgs = {
+  where?: Maybe<DescriptionBlockWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDescriptionBlocksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryDescriptionBlockArgs = {
+  where: DescriptionBlockWhereUniqueInput;
+};
+
+
+export type Query_AllDescriptionBlocksMetaArgs = {
+  where?: Maybe<DescriptionBlockWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortDescriptionBlocksBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -29706,6 +30360,8 @@ export enum SortAcquiringIntegrationsBy {
   NameDesc = 'name_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
+  DescriptionBlocksAsc = 'descriptionBlocks_ASC',
+  DescriptionBlocksDesc = 'descriptionBlocks_DESC',
   DeveloperAsc = 'developer_ASC',
   DeveloperDesc = 'developer_DESC',
   PartnerUrlAsc = 'partnerUrl_ASC',
@@ -30093,6 +30749,8 @@ export enum SortBillingIntegrationsBy {
   NameDesc = 'name_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
+  DescriptionBlocksAsc = 'descriptionBlocks_ASC',
+  DescriptionBlocksDesc = 'descriptionBlocks_DESC',
   DeveloperAsc = 'developer_ASC',
   DeveloperDesc = 'developer_DESC',
   PartnerUrlAsc = 'partnerUrl_ASC',
@@ -30477,6 +31135,60 @@ export enum SortContactsBy {
   PhoneDesc = 'phone_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortDescriptionBlockHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  TitleAsc = 'title_ASC',
+  TitleDesc = 'title_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  OrderAsc = 'order_ASC',
+  OrderDesc = 'order_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortDescriptionBlocksBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  TitleAsc = 'title_ASC',
+  TitleDesc = 'title_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  OrderAsc = 'order_ASC',
+  OrderDesc = 'order_DESC',
+  BillingIntegrationAsc = 'billingIntegration_ASC',
+  BillingIntegrationDesc = 'billingIntegration_DESC',
+  AcquiringIntegrationAsc = 'acquiringIntegration_ASC',
+  AcquiringIntegrationDesc = 'acquiringIntegration_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

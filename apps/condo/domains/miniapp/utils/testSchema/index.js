@@ -4,12 +4,18 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { throwIfError, generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { ALL_ORGANIZATION_APPS_QUERY } = require('@condo/domains/miniapp/gql')
+const { DescriptionBlock: DescriptionBlockGQL } = require('@condo/domains/miniapp/gql')
+const {UploadingFile} = require("@core/keystone/test.utils")
+const path = require('path')
+const conf = require("@core/config")
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const DescriptionBlock = generateGQLTestUtils(DescriptionBlockGQL)
 /* AUTOGENERATE MARKER <CONST> */
+
 
 async function allOrganizationAppsByTestClient(client, organizationId, extraAttrs) {
     if (!client) throw new Error('no client')
@@ -26,9 +32,42 @@ async function allOrganizationAppsByTestClient(client, organizationId, extraAttr
     throwIfError(data, errors)
     return [data.objs, attrs]
 }
+async function createTestDescriptionBlock (client, billingId, acquiringId, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const image = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/user/test-assets/dino.png'))
+    const attrs = {
+        dv: 1,
+        sender,
+        image,
+        description: faker.commerce.productDescription(),
+        billingIntegration: billingId ? { connect: { id: billingId } } : undefined,
+        acquiringIntegration: acquiringId ? { connect: { id: acquiringId } } : undefined,
+        ...extraAttrs,
+    }
+    const obj = await DescriptionBlock.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestDescriptionBlock (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await DescriptionBlock.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-allOrganizationAppsByTestClient
+    allOrganizationAppsByTestClient,
+    DescriptionBlock, createTestDescriptionBlock, updateTestDescriptionBlock,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

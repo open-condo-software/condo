@@ -7,8 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegration')
-const { SHORT_DESCRIPTION_FIELD, DETAILS_TITLE_FIELD, DETAILS_TEXT_FIELD, IS_HIDDEN_FIELD } = require(
-    './fields/BillingIntegration/fields')
+const { DETAILS_TITLE_FIELD, DETAILS_TEXT_FIELD, IS_HIDDEN_FIELD } = require('./fields/BillingIntegration/fields')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
@@ -16,7 +15,7 @@ const {
 } = require('@condo/domains/billing/constants/constants')
 const { AVAILABLE_OPTIONS_FIELD } = require('./fields/BillingIntegration/AvailableOptions')
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
-const { LOGO_FIELD, DEVELOPER_FIELD, PARTNER_URL_FIELD } = require('@condo/domains/miniapp/schema/fields/integration')
+const { LOGO_FIELD, DEVELOPER_FIELD, PARTNER_URL_FIELD, SHORT_DESCRIPTION_FIELD, DESCRIPTION_BLOCKS_FIELD } = require('@condo/domains/miniapp/schema/fields/integration')
 
 
 const BillingIntegration = new GQLListSchema('BillingIntegration', {
@@ -34,6 +33,11 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         logo: LOGO_FIELD,
 
         shortDescription: SHORT_DESCRIPTION_FIELD,
+
+        descriptionBlocks: {
+            ...DESCRIPTION_BLOCKS_FIELD,
+            ref: 'DescriptionBlock.billingIntegration',
+        },
 
         developer: DEVELOPER_FIELD,
 

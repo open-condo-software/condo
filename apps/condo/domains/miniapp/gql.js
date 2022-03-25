@@ -5,6 +5,9 @@
  */
 
 const { gql } = require('graphql-tag')
+const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+
+const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const APP_FIELDS = '{ id name shortDescription connected type category logo }'
  
@@ -14,9 +17,13 @@ const ALL_ORGANIZATION_APPS_QUERY = gql`
     }
 `
 
+const DESCRIPTION_BLOCK_FIELDS = `{ title description image { publicUrl } ${COMMON_FIELDS} }`
+const DescriptionBlock = generateGqlQueries('DescriptionBlock', DESCRIPTION_BLOCK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ALL_ORGANIZATION_APPS_QUERY,
+    DescriptionBlock,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

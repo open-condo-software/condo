@@ -13,12 +13,6 @@ const DETAILS_TEXT_FIELD = {
     isRequired: false,
 }
 
-const SHORT_DESCRIPTION_FIELD = {
-    schemaDoc: 'Short integration description, that would be shown on settings card',
-    type: Text,
-    isRequired: true,
-}
-
 const IS_HIDDEN_FIELD = {
     schemaDoc: 'Indicates whether the integration is hidden inside the CRM',
     type: Checkbox,
@@ -29,6 +23,5 @@ const IS_HIDDEN_FIELD = {
 module.exports = {
     DETAILS_TITLE_FIELD,
     DETAILS_TEXT_FIELD,
-    SHORT_DESCRIPTION_FIELD,
     IS_HIDDEN_FIELD,
 }

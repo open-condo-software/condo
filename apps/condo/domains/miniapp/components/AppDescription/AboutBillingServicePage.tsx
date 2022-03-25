@@ -1,5 +1,6 @@
 import React from 'react'
 import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
+import { DescriptionBlock } from '@condo/domains/miniapp/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import { AppDescriptionPageContent } from './AppDescriptionPageContent'
@@ -32,9 +33,16 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
         where: { organization: { id: organizationId } },
     })
 
-    if (integrationLoading || contextLoading || integrationError || contextError) {
+    const { objs: blocks, loading: blocksLoading, error: blocksError } = DescriptionBlock.useObjects({
+        where: {
+            billingIntegration: { id: get(integration, 'id', null) },
+            acquiringIntegration_is_null: true,
+        },
+    })
+
+    if (integrationLoading || contextLoading || integrationError || contextError || blocksLoading || blocksError) {
         return (
-            <LoadingOrErrorPage title={LoadingMessage} error={integrationError} loading={integrationLoading || contextLoading}/>
+            <LoadingOrErrorPage title={LoadingMessage} error={integrationError || contextError || blocksError} loading={integrationLoading || contextLoading || blocksLoading}/>
         )
     }
 
@@ -43,6 +51,12 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
     }
 
     const PageTitle = get(integration, 'name', BillingMessage)
+
+    const descriptionBlocks = blocks.map(block => ({
+        title: block.title,
+        description: block.description,
+        imageSrc: block.image.publicUrl,
+    }))
 
     return (
         <FeatureFlagRequired name={'services'} fallback={<Error statusCode={404}/>}>
@@ -59,6 +73,7 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
                         tag={TagMessage}
                         developer={integration.developer}
                         partnerUrl={get(integration, 'partnerUrl')}
+                        descriptionBlocks={descriptionBlocks}
                     />
                 </PageContent>
             </PageWrapper>
