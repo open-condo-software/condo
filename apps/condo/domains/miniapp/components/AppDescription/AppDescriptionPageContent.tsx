@@ -71,7 +71,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                             <Col span={24}>
                                 <Button
                                     type={'sberDefaultGradient'}
-                                    onClick={() => router.push(`/service/${id}?=type${type}`)}
+                                    onClick={() => router.push(`/services/${id}?=type${type}`)}
                                 >
                                     {SetupMessage}
                                 </Button>

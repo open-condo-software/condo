@@ -9,8 +9,9 @@ import { useIntl } from '@core/next/intl'
 import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import Error from 'next/error'
 import Head from 'next/head'
-import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
+import { SortDescriptionBlocksBy } from '@app/condo/schema'
 
 interface AboutBillingServicePageProps {
     id: string,
@@ -33,11 +34,16 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
         where: { organization: { id: organizationId } },
     })
 
+
     const { objs: blocks, loading: blocksLoading, error: blocksError } = DescriptionBlock.useObjects({
         where: {
             billingIntegration: { id: get(integration, 'id', null) },
             acquiringIntegration_is_null: true,
         },
+        sortBy: [
+            SortDescriptionBlocksBy.OrderAsc,
+            SortDescriptionBlocksBy.CreatedAtDesc,
+        ],
     })
 
     if (integrationLoading || contextLoading || integrationError || contextError || blocksLoading || blocksError) {
