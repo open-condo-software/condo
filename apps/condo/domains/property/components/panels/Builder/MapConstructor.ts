@@ -697,7 +697,7 @@ class MapEdit extends MapView {
         newSection.name = this.nextSectionName
 
         let unitNumber = this.nextUnitNumber
-        newSection.floors.reverse().forEach((floor) => {
+        newSection.floors.reduceRight((_, floor) => {
             floor.id = String(++this.autoincrement)
 
             floor.units.forEach((unit) => {
@@ -706,7 +706,8 @@ class MapEdit extends MapView {
                 unit.preview = true
                 unitNumber++
             })
-        })
+            return floor
+        }, newSection.floors[0])
 
         this.previewSectionId = newSection.id
         this.map.sections.push(newSection)
@@ -721,7 +722,7 @@ class MapEdit extends MapView {
         newSection.name = this.nextSectionName
 
         let unitNumber = this.nextUnitNumber
-        newSection.floors.reverse().forEach((floor) => {
+        newSection.floors.reduceRight((_, floor) => {
             floor.id = String(++this.autoincrement)
 
             floor.units.forEach((unit) => {
@@ -729,7 +730,8 @@ class MapEdit extends MapView {
                 unit.label = String(unitNumber)
                 unitNumber++
             })
-        })
+            return floor
+        }, newSection.floors[0])
 
         this.map.sections.push(newSection)
         this.notifyUpdater()
@@ -807,7 +809,7 @@ class MapEdit extends MapView {
         newParking.name = this.nextParkingName
 
         let unitNumber = this.nextParkingUnitNumber
-        newParking.floors.reverse().forEach((floor) => {
+        newParking.floors.reduceRight((_, floor) => {
             floor.id = String(++this.autoincrement)
 
             floor.units.forEach((unit) => {
@@ -816,7 +818,8 @@ class MapEdit extends MapView {
                 unit.preview = true
                 unitNumber++
             })
-        })
+            return floor
+        }, newParking.floors[0])
 
         this.previewParkingId = newParking.id
         this.map.parking.push(newParking)
@@ -831,7 +834,7 @@ class MapEdit extends MapView {
         newParking.name = this.nextParkingName
 
         let unitNumber = this.nextParkingUnitNumber
-        newParking.floors.reverse().forEach((floor) => {
+        newParking.floors.reduceRight((_, floor) => {
             floor.id = String(++this.autoincrement)
 
             floor.units.forEach((unit) => {
@@ -839,7 +842,8 @@ class MapEdit extends MapView {
                 unit.label = String(unitNumber)
                 unitNumber++
             })
-        })
+            return floor
+        }, newParking.floors[0])
 
         this.map.parking.push(newParking)
         this.notifyUpdater()
