@@ -40,6 +40,8 @@ export type AcquiringIntegration = {
   sender?: Maybe<SenderField>;
   /**  Name of `acquiring component`, which is set up by developer  */
   name?: Maybe<Scalars['String']>;
+  /**  Acquiring integration logo  */
+  logo?: Maybe<File>;
   /**  Short integration description, that would be shown on settings card  */
   shortDescription?: Maybe<Scalars['String']>;
   /**  Title of confirmation/details page of integration  */
@@ -887,6 +889,7 @@ export type AcquiringIntegrationCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['String']>;
@@ -919,6 +922,7 @@ export type AcquiringIntegrationHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
@@ -943,6 +947,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
@@ -972,6 +977,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
@@ -1024,6 +1030,10 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo?: Maybe<Scalars['JSON']>;
+  logo_not?: Maybe<Scalars['JSON']>;
+  logo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  logo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   shortDescription?: Maybe<Scalars['String']>;
   shortDescription_not?: Maybe<Scalars['String']>;
   shortDescription_contains?: Maybe<Scalars['String']>;
@@ -1180,6 +1190,7 @@ export type AcquiringIntegrationUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['String']>;
@@ -1231,6 +1242,10 @@ export type AcquiringIntegrationWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo?: Maybe<Scalars['String']>;
+  logo_not?: Maybe<Scalars['String']>;
+  logo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   shortDescription?: Maybe<Scalars['String']>;
   shortDescription_not?: Maybe<Scalars['String']>;
   shortDescription_contains?: Maybe<Scalars['String']>;
@@ -1615,6 +1630,8 @@ export type AppInfoOutput = {
   connected: Scalars['Boolean'];
   name: Scalars['String'];
   shortDescription: Scalars['String'];
+  category?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['String']>;
 };
 
 export enum AppType {
@@ -3174,6 +3191,8 @@ export type BillingIntegration = {
   sender?: Maybe<SenderField>;
   /**  The name of the `integration component` that the developer remembers  */
   name?: Maybe<Scalars['String']>;
+  /**  Billing integration logo  */
+  logo?: Maybe<File>;
   /**  Short integration description, that would be shown on settings card  */
   shortDescription?: Maybe<Scalars['String']>;
   /**  Title of confirmation/details page of integration  */
@@ -3519,6 +3538,7 @@ export type BillingIntegrationCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['String']>;
@@ -3568,6 +3588,7 @@ export type BillingIntegrationHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
@@ -3597,6 +3618,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
@@ -3631,6 +3653,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['JSON']>;
@@ -3688,6 +3711,10 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo?: Maybe<Scalars['JSON']>;
+  logo_not?: Maybe<Scalars['JSON']>;
+  logo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  logo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   shortDescription?: Maybe<Scalars['String']>;
   shortDescription_not?: Maybe<Scalars['String']>;
   shortDescription_contains?: Maybe<Scalars['String']>;
@@ -4592,6 +4619,7 @@ export type BillingIntegrationUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsText?: Maybe<Scalars['String']>;
@@ -4647,6 +4675,10 @@ export type BillingIntegrationWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo?: Maybe<Scalars['String']>;
+  logo_not?: Maybe<Scalars['String']>;
+  logo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   shortDescription?: Maybe<Scalars['String']>;
   shortDescription_not?: Maybe<Scalars['String']>;
   shortDescription_contains?: Maybe<Scalars['String']>;

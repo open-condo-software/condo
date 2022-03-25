@@ -6,7 +6,7 @@
 
 const { gql } = require('graphql-tag')
 
-const APP_FIELDS = '{ id name shortDescription connected type category }'
+const APP_FIELDS = '{ id name shortDescription connected type category logo }'
  
 const ALL_ORGANIZATION_APPS_QUERY = gql`
     query getAllOrganizationApps ($data: AllOrganizationAppsInput!) {
