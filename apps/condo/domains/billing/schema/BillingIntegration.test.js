@@ -7,12 +7,28 @@ const { getRandomString } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj  } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowValidationFailureError,
+} = require('@condo/domains/common/utils/testSchema')
+const { NO_INSTRUCTION_ERROR } = require('@condo/domains/miniapp/constants')
 const faker = require('faker')
 
 describe('BillingIntegration', () => {
 
     describe('Validators', () => {
+        test('Should have instruction if no iframe url specified', async () => {
+            const admin = await makeLoggedInAdminClient()
+            await expectToThrowValidationFailureError(async () => {
+                await createTestBillingIntegration(admin, {
+                    instruction: null,
+                    appUrl: null,
+                })
+            }, NO_INSTRUCTION_ERROR)
+        })
+
         test('update format with right payload', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)

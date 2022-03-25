@@ -1,5 +1,6 @@
 const { Text, File, Relationship } = require('@keystonejs/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { Markdown } = require('@keystonejs/fields-markdown')
 
 const APPS_FILE_ADAPTER = new FileAdapter('apps')
 
@@ -43,6 +44,18 @@ const SHORT_DESCRIPTION_FIELD = {
     isRequired: true,
 }
 
+const INSTRUCTION_TEXT_FIELD = {
+    schemaDoc: 'Text which used to describe how to connect app written in markdown',
+    type: Markdown,
+    isRequired: false,
+}
+
+const IFRAME_URL_FIELD = {
+    schemaDoc: 'Url to app page, which will is app starting point and will be opened in iframe',
+    type: Text,
+    isRequired: false,
+}
+
 module.exports = {
     DEVELOPER_FIELD,
     LOGO_FIELD,
@@ -50,5 +63,7 @@ module.exports = {
     APP_IMAGE_FIELD,
     DESCRIPTION_BLOCKS_FIELD,
     SHORT_DESCRIPTION_FIELD,
+    INSTRUCTION_TEXT_FIELD,
+    IFRAME_URL_FIELD,
 }
 

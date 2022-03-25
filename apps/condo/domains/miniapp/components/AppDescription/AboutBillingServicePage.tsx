@@ -74,6 +74,8 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
                         developer={integration.developer}
                         partnerUrl={get(integration, 'partnerUrl')}
                         descriptionBlocks={descriptionBlocks}
+                        instruction={integration.instruction}
+                        appUrl={integration.appUrl}
                     />
                 </PageContent>
             </PageWrapper>
