@@ -49,6 +49,9 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
     constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private problem = []) {}
 
     public async init (): Promise<void> {
+        if (this.rules && this.rules.length) {
+            return
+        }
         let skip = 0
         let maxCount = 500
         let newchunk = []

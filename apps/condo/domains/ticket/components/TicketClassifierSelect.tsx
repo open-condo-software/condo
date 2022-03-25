@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
-import { Select, Input, Col, Form, Row } from 'antd'
+import { Select, Input, Col, Form, Row, notification } from 'antd'
 const { Option } = Select
 import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
 import { uniqBy, isEmpty, find, pick, get } from 'lodash'
-import { ClassifiersQueryLocal, ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 import { Gutter } from 'antd/es/grid/row'
 import { TicketFormItem } from './BaseTicketForm'
+import { useLazyQuery } from '@apollo/client'
+import { PREDICT_TICKET_CLASSIFICATION_QUERY } from '@condo/domains/ticket/gql.js'
+
 
 interface Options {
     id: string
@@ -31,7 +34,7 @@ interface ITicketClassifierRuleType {
 
 interface ITicketThreeLevelsClassifierHookOutput {
     ClassifiersEditorComponent: React.FC<{ form, disabled }>
-    setRuleId: (value: ITicketClassifierRuleType) => void
+    predictTicketClassifier: (details: string) => void
 }
 
 interface ITicketClassifierSelectHookInput {
@@ -144,6 +147,22 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const validations = useTicketValidations()
     const ticketForm = useRef(null)
 
+    const predictTicketClassifier = async (details) => {
+        const data = await client.query({
+            query: PREDICT_TICKET_CLASSIFICATION_QUERY,
+            variables: { data: { details } },
+        })
+        if (!data) {
+            return
+        }
+        const { data: { obj: { id, category, place } } } = data
+        await ClassifierLoader.init()
+        await updateLevels({ id: id, category: category.id, place: place.id, problem: null }).then(() => {
+            placeSet.one(ruleRef.current.place)
+            categorySet.one(ruleRef.current.category)
+        })
+    }
+
     const onUserSelect = (id, type) => {
         const clearProblem = (id === null && type !== 'problem') ? { problem: null } : {}
         ruleRef.current = { ...ruleRef.current, [type]: id, ...clearProblem }
@@ -191,13 +210,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         problem: problemSet,
     }
 
-    const setRuleId = async (value) => {
-        ruleRef.current = value
-        await loadLevels()
-        placeSet.one(value.place)
-        categorySet.one(value.category)
-    }
-
     const Refs = {
         place: placeRef,
         category: categoryRef,
@@ -223,7 +235,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         })
         return () => {
             // clear all loaded data from helper
-            console.log('DESTROY')
             ClassifierLoader.clear()
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -250,7 +261,9 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                         query[key] = { id: querySelectors[key] }
                     }
                 }
-                ClassifierLoader.findRules(query).then(data => resolve([type, ClassifierLoader.rulesToOptions(data, type)]))
+                ClassifierLoader.findRules(query).then(data => {
+                    resolve([type, ClassifierLoader.rulesToOptions(data, type)])
+                })
             })
         }))
         const result = Object.fromEntries(loadedRules)
@@ -307,9 +320,9 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         })
         if (!isEmpty(updateEmptyState)) {
             // here we need to rebuild all options except selected
-            for (const type in updateEmptyState) {
-                Refs[type].setV
-            }
+            //for (const type in updateEmptyState) {
+            //    Refs[type].setV // ?
+            //}
             ruleRef.current = { ...ruleRef.current, ...updateEmptyState, id: null, ...selected }
             if (maxUpdates > 0) {
                 return await updateLevels(selected, --maxUpdates)
@@ -371,6 +384,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
 
     return {
         ClassifiersEditorComponent,
-        setRuleId,
+        predictTicketClassifier,
     }
 }
