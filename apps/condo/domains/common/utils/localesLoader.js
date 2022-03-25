@@ -1,7 +1,6 @@
 const path = require('path')
 const fs = require('fs')
 const process = require('process')
-const isEmpty = require('lodash/isEmpty')
 const conf = require('@core/config')
 const { get, template } = require('lodash')
 
@@ -17,19 +16,13 @@ const loadTranslations = () => {
         .reduce((prev, curr) => ({ ...prev, ...curr }))
 }
 
-const maybeLoadTranslations = () => {
-    if (isEmpty(translations)) {
-        loadTranslations()
-    }
-}
+loadTranslations()
 
 const getTranslations = (lang = conf.DEFAULT_LOCALE) => {
-    maybeLoadTranslations()
     return translations[lang] || translations[conf.DEFAULT_LOCALE]
 }
 
 const getAvailableLocales = () => {
-    maybeLoadTranslations()
     return Object.keys(translations)
 }
 
@@ -50,7 +43,6 @@ const getAvailableLocales = () => {
  * // => "Hello, World!"
  */
 const i18n = (code, { lang = conf.DEFAULT_LOCALE, meta = {} } = {}) => {
-    maybeLoadTranslations()
     return template(get(translations, [lang, code], code), { interpolate: /{([\s\S]+?)}/g })(meta)
 }
 
