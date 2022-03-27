@@ -5,6 +5,7 @@
 const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 const compact = require('lodash/compact')
+const flatten = require('lodash/flatten')
 const omit = require('lodash/omit')
 const isEmpty = require('lodash/isEmpty')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
@@ -13,6 +14,8 @@ const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@con
 const { getById, find } = require('@core/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { Division, getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -41,13 +44,48 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
         }
     }
 
+    const userDivisionsInfo = await getUserDivisionsInfo(context, user.id)
+
+    if (userDivisionsInfo) {
+        const { organizationsIdsWithEmployeeInDivision, divisionsPropertiesIds } = userDivisionsInfo
+
+        return {
+            OR: [
+                {
+                    AND: [
+                        {
+                            organization: {
+                                id_not_in: organizationsIdsWithEmployeeInDivision,
+                                OR: [
+                                    queryOrganizationEmployeeFor(user.id),
+                                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                                ],
+                            },
+                        },
+                    ],
+                },
+                {
+                    AND: [
+                        {
+                            organization: { id_in: organizationsIdsWithEmployeeInDivision },
+                            OR: [
+                                { property: { id_in: divisionsPropertiesIds } },
+                                { executor: { id: user.id } },
+                                { assignee: { id: user.id } },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        }
+    }
+
     return {
         organization: {
             OR: [
                 queryOrganizationEmployeeFor(user.id),
                 queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
             ],
-            deletedAt: null,
         },
     }
 }

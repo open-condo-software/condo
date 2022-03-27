@@ -13,9 +13,11 @@ import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '@condo/do
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount', 'uninhabitedUnitsCount', 'yearOfConstruction', 'area']
 const RELATIONS = ['organization']
 import { BuildingMap, AddressMetaField } from '@app/condo/schema'
+import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
 
 export interface IPropertyUIState extends Property {
     id: string
+    organization: IOrganizationUIState
     address: string
     addressMeta: AddressMetaField
     name?: string

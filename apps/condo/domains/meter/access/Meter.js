@@ -9,8 +9,9 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { get } = require('lodash')
 const { getByCondition } = require('@core/keystone/schema')
+const { getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
 
-async function canReadMeters ({ authentication: { item: user } }) {
+async function canReadMeters ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
@@ -23,6 +24,39 @@ async function canReadMeters ({ authentication: { item: user } }) {
             id_in: availableMetersIds,
             deletedAt: null,
         }
+    }
+
+    const userDivisionsInfo = await getUserDivisionsInfo(context, user.id)
+
+    if (userDivisionsInfo) {
+        const { organizationsIdsWithEmployeeInDivision, divisionsPropertiesIds } = userDivisionsInfo
+
+        return {
+            OR: [
+                {
+                    AND: [
+                        {
+                            organization: {
+                                id_not_in: organizationsIdsWithEmployeeInDivision,
+                                OR: [
+                                    queryOrganizationEmployeeFor(user.id),
+                                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                                ],
+                            },
+                        },
+                    ],
+                },
+                {
+                    AND: [
+                        {
+                            organization: { id_in: organizationsIdsWithEmployeeInDivision },
+                            property: { id_in: divisionsPropertiesIds },
+                        },
+                    ],
+                },
+            ],
+        }
+
     }
 
     return {

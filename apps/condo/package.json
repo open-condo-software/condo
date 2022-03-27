@@ -68,7 +68,7 @@
     "express": "^4.17.1",
     "facepaint": "^1.2.1",
     "firebase": "^7.19.0",
-    "firebase-admin": "^9.5.0",
+    "firebase-admin": "^10.0.2",
     "generate-password": "^1.6.0",
     "get-contrast": "^2.0.0",
     "graphql-voyager": "^1.0.0-rc.31",

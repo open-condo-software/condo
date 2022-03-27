@@ -61,22 +61,19 @@ describe('Message', () => {
         const admin = await makeLoggedInAdminClient()
         const [obj, attrs] = await createTestMessage(admin, { user: { connect: { id: client.user.id } } })
 
-        const objs = await Message.getAll(client, {
-            type: obj.type,
-        }, { sortBy: ['updatedAt_DESC'] })
+        const obj1 = await Message.getOne(client, { id: obj.id })
 
-        expect(objs[0].type).toEqual(INVITE_NEW_EMPLOYEE_MESSAGE_TYPE)
-        expect(objs).toHaveLength(1)
-        expect(objs[0].id).toMatch(obj.id)
-        expect(objs[0].dv).toEqual(1)
-        expect(objs[0].sender).toEqual(attrs.sender)
-        expect(objs[0].v).toEqual(1)
-        expect(objs[0].newId).toEqual(null)
-        expect(objs[0].deletedAt).toEqual(null)
-        expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-        expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-        expect(objs[0].createdAt).toMatch(obj.createdAt)
-        expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+        expect(obj1.type).toEqual(INVITE_NEW_EMPLOYEE_MESSAGE_TYPE)
+        expect(obj1.id).toMatch(obj.id)
+        expect(obj1.dv).toEqual(1)
+        expect(obj1.sender).toEqual(attrs.sender)
+        expect(obj1.v).toEqual(1)
+        expect(obj1.newId).toEqual(null)
+        expect(obj1.deletedAt).toEqual(null)
+        expect(obj1.createdBy.id).toMatch(admin.user.id)
+        expect(obj1.updatedBy.id).toMatch(admin.user.id)
+        expect(obj1.createdAt).toMatch(obj.createdAt)
+        expect(obj1.updatedAt).toMatch(obj.updatedAt)
     })
 
     test('anonymous: read Message', async () => {

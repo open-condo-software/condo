@@ -110,7 +110,7 @@ export const ButtonHeaderActions: React.FC<IRightButtonHeaderActionsProps> = (pr
     const { isMobile } = useContext(AuthLayoutContext)
     const { isSmall } = useLayoutContext()
     return (
-        <Row justify={'space-between'} gutter={[20, 0]}>
+        <Row justify={'space-between'} gutter={[5, 10]}>
             <Col>
                 <Button
                     key='submit'

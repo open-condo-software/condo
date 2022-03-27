@@ -16,12 +16,14 @@ interface IPosterLayoutProps {
     layoutBgColor?: string
 }
 
-const FOOTER_STYLE = { backgroundColor: 'inherit' }
+const FOOTER_STYLES: React.CSSProperties = { backgroundColor: 'inherit', marginTop: 5, position: 'static', textAlign: 'center' }
+const ROW_STYLE = { marginTop: 65 }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor }) => {
     const { isSmall } = useLayoutContext()
 
     const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
+    const POSTER_WRAPPER_STYLE = { backgroundColor: colors.backgroundLightGrey }
     const CHILDREN_COL_PUSH = isSmall ? 0 : 4
     const CHILDREN_COL_PULL = isSmall ? 0 : 6
     const FOOTER_COL_PUSH = isSmall ? 0 : 4
@@ -31,24 +33,24 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
         <Layout style={LAYOUT_STYLE}>
             <AuthHeader headerAction={headerAction}/>
             <Row align={'stretch'}>
-                <Col lg={11} md={24} hidden={isSmall}>
+                <Col lg={11} md={24} hidden={isSmall} style={POSTER_WRAPPER_STYLE}>
                     <PosterWrapper>
                         <Poster
                             src={'/authPoster.png'}
                             placeholderSrc={'/authPosterPlaceholder.png'}
-                            placeholderColor={colors.selago}
+                            placeholderColor={colors.black}
                         />
                     </PosterWrapper>
                 </Col>
                 <Col lg={13} md={24}>
                     <PageContent isSmall={isSmall}>
                         <ChildrenWrapper isSmall={isSmall}>
-                            <Row>
+                            <Row style={ROW_STYLE}>
                                 <Col lg={15} md={24} push={CHILDREN_COL_PUSH} pull={CHILDREN_COL_PULL}>
                                     {children}
                                 </Col>
                             </Row>
-                            <Footer isSmall={isSmall} style={FOOTER_STYLE}>
+                            <Footer isSmall={isSmall} style={FOOTER_STYLES}>
                                 <Row>
                                     <Col lg={15} md={24} push={FOOTER_COL_PUSH} pull={FOOTER_COL_PULL}>
                                         <FormattedMessage

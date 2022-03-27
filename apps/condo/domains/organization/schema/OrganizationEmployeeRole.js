@@ -74,6 +74,11 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             type: Checkbox,
             defaultValue: true,
         },
+        canReadEntitiesOnlyInScopeOfDivision: {
+            schemaDoc: 'Limits the visibility of entities (such as ticket or meter/meterReading) to division',
+            type: Checkbox,
+            defaultValue: false,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), historical()],
     access: {

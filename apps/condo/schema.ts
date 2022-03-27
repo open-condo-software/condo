@@ -10830,6 +10830,7 @@ export type MeterReadingFilterTemplatesUpdateInput = {
 
 export type MeterReadingFilters = {
   __typename?: 'MeterReadingFilters';
+  organization?: Maybe<Array<Maybe<Scalars['String']>>>;
   address?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
@@ -14926,6 +14927,46 @@ export type Mutation = {
    * 		"attachments": {
    * 			"defaultValue": [],
    * 			"isRequired": false
+   * 		}
+   * 	},
+   * 	"TICKET_ASSIGNEE_CONNECTED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"ticketId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketNumber": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"TICKET_EXECUTOR_CONNECTED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"ticketId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketNumber": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
    * 		}
    * 	}
    * }`
@@ -19939,6 +19980,8 @@ export type OrganizationEmployeeRole = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   /**  Allows employees with this role to be assigned to tickets as executor  */
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
+  /**  Limits the visibility of entities (such as ticket or meter/meterReading) to division  */
+  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -19969,6 +20012,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
+  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20009,6 +20053,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
+  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -20043,6 +20088,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
+  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20082,6 +20128,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
+  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20183,6 +20230,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canBeAssignedAsResponsible_not?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor_not?: Maybe<Scalars['Boolean']>;
+  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
+  canReadEntitiesOnlyInScopeOfDivision_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -20279,6 +20328,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
+  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -20371,6 +20421,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canBeAssignedAsResponsible_not?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor_not?: Maybe<Scalars['Boolean']>;
+  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
+  canReadEntitiesOnlyInScopeOfDivision_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -27645,7 +27697,9 @@ export enum SendMessageType {
   ShareTicket = 'SHARE_TICKET',
   DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
   CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
-  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT'
+  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
+  TicketAssigneeConnected = 'TICKET_ASSIGNEE_CONNECTED',
+  TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED'
 }
 
 export type SenderField = {
@@ -30905,6 +30959,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanBeAssignedAsResponsibleDesc = 'canBeAssignedAsResponsible_DESC',
   CanBeAssignedAsExecutorAsc = 'canBeAssignedAsExecutor_ASC',
   CanBeAssignedAsExecutorDesc = 'canBeAssignedAsExecutor_DESC',
+  CanReadEntitiesOnlyInScopeOfDivisionAsc = 'canReadEntitiesOnlyInScopeOfDivision_ASC',
+  CanReadEntitiesOnlyInScopeOfDivisionDesc = 'canReadEntitiesOnlyInScopeOfDivision_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -30960,6 +31016,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanBeAssignedAsResponsibleDesc = 'canBeAssignedAsResponsible_DESC',
   CanBeAssignedAsExecutorAsc = 'canBeAssignedAsExecutor_ASC',
   CanBeAssignedAsExecutorDesc = 'canBeAssignedAsExecutor_DESC',
+  CanReadEntitiesOnlyInScopeOfDivisionAsc = 'canReadEntitiesOnlyInScopeOfDivision_ASC',
+  CanReadEntitiesOnlyInScopeOfDivisionDesc = 'canReadEntitiesOnlyInScopeOfDivision_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -36125,6 +36183,7 @@ export type TicketFilesUpdateInput = {
 
 export type TicketFilter = {
   __typename?: 'TicketFilter';
+  organization?: Maybe<Array<Maybe<Scalars['String']>>>;
   number?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Array<Maybe<Scalars['String']>>>;
   status?: Maybe<Array<Maybe<Scalars['String']>>>;

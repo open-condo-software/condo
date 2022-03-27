@@ -3,15 +3,18 @@ import get from 'lodash/get'
 const Ajv = require('ajv')
 const ajv = new Ajv()
 
+// CONST DECLARATION BLOCK (for checking by external observer)
 export const NOTIFICATION_MESSAGE_TYPE = 'notification'
 export const REQUIREMENT_MESSAGE_TYPE = 'requirement'
 export const LOADED_STATUS_MESSAGE_TYPE = 'loading'
+export const RESIZE_MESSAGE_TYPE = 'resize'
 export const ERROR_MESSAGE_TYPE = 'error'
 
 export type NotificationType = 'info' | 'warning' | 'error' | 'success'
 export type RequirementType = 'auth' | 'organization'
 export type LoadingStatuses = 'done'
 
+// TYPES DECLARATION BLOCK
 type NotificationMessageType = {
     type: 'notification',
     notificationType: NotificationType,
@@ -34,18 +37,34 @@ type ErrorMessageType = {
     requestMessage?: Record<string, unknown>,
 }
 
-type ParsedMessageType = {
-    message?: RequirementMessageType | NotificationMessageType | LoadedStatusMessageType | ErrorMessageType,
-    errors?: Array<string>,
+type ResizeMessageType = {
+    type: 'resize',
+    height: number,
 }
 
-type parseMessageType = (data: any) => ParsedMessageType
+type SystemMessageType = RequirementMessageType | NotificationMessageType | LoadedStatusMessageType | ErrorMessageType | ResizeMessageType
 
+type SystemMessageReturnType = {
+    type: 'system'
+    message: SystemMessageType
+}
+
+type CustomMessageReturnType = {
+    type: 'custom'
+    message: Record<string, unknown>
+}
+
+type ParsedMessageReturnType = SystemMessageReturnType | CustomMessageReturnType
+
+type parseMessageType = (data: any) => ParsedMessageReturnType
+
+// CONFIGURATION BLOCK
 const AvailableMessageTypes = [
     NOTIFICATION_MESSAGE_TYPE,
     REQUIREMENT_MESSAGE_TYPE,
     LOADED_STATUS_MESSAGE_TYPE,
     ERROR_MESSAGE_TYPE,
+    RESIZE_MESSAGE_TYPE,
 ]
 
 const MessagesRequiredProperties = {
@@ -53,9 +72,19 @@ const MessagesRequiredProperties = {
     [REQUIREMENT_MESSAGE_TYPE]: ['requirement'],
     [LOADED_STATUS_MESSAGE_TYPE]: ['status'],
     [ERROR_MESSAGE_TYPE]: ['message'],
+    [RESIZE_MESSAGE_TYPE]: ['height'],
 }
 
-const MessageSchema = {
+const SystemMessageDetectorSchema = {
+    type: 'object',
+    properties: {
+        type: { enum: AvailableMessageTypes },
+    },
+    additionalProperties: true,
+    required: ['type'],
+}
+
+const SystemMessageSchema = {
     type: 'object',
     properties: {
         type: { enum: AvailableMessageTypes },
@@ -64,6 +93,7 @@ const MessageSchema = {
         requirement: { enum: ['auth', 'organization'] },
         status: { const: 'done' },
         requestMessage: {  type: 'object' },
+        height: { type: 'number' },
     },
     additionalProperties: false,
     required: ['type'],
@@ -75,83 +105,103 @@ const MessageSchema = {
     })),
 }
 
-const validator = ajv.compile(MessageSchema)
+const systemMessageDetector = ajv.compile(SystemMessageDetectorSchema)
+const systemMessageValidator = ajv.compile(SystemMessageSchema)
 
+// PARSING PART
 export const parseMessage: parseMessageType = (data) => {
-    if (!validator(data)) {
-        return { errors: validator.errors.map(error => `JSON validation error. SchemaPath ${error.schemaPath}, message: ${error.message}`) }
-    }
-    if (data.type === NOTIFICATION_MESSAGE_TYPE) {
-        return {
-            message: {
-                type: NOTIFICATION_MESSAGE_TYPE,
-                notificationType: data.notificationType,
-                message: data.message,
-            },
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return null
+    if (systemMessageDetector(data)) {
+        if (!systemMessageValidator(data)) return null
+        switch (data.type) {
+            case NOTIFICATION_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: NOTIFICATION_MESSAGE_TYPE,
+                        notificationType: data.notificationType,
+                        message: data.message,
+                    },
+                }
+            case REQUIREMENT_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: REQUIREMENT_MESSAGE_TYPE,
+                        requirement: data.requirement,
+                    },
+                }
+            case LOADED_STATUS_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: LOADED_STATUS_MESSAGE_TYPE,
+                        status: data.status,
+                    },
+                }
+            case ERROR_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: ERROR_MESSAGE_TYPE,
+                        message: data.message,
+                        requestMessage: get(data, 'requestMessage'),
+                    },
+                }
+            case RESIZE_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: RESIZE_MESSAGE_TYPE,
+                        height: data.height,
+                    },
+                }
         }
+    } else {
+        return { type: 'custom', message: data }
     }
-    if (data.type === REQUIREMENT_MESSAGE_TYPE) {
-        return {
-            message: {
-                type: REQUIREMENT_MESSAGE_TYPE,
-                requirement: data.requirement,
-            },
-        }
-    }
-    if (data.type === LOADED_STATUS_MESSAGE_TYPE) {
-        return {
-            message: {
-                type: LOADED_STATUS_MESSAGE_TYPE,
-                status: data.status,
-            },
-        }
-    }
-    if (data.type === ERROR_MESSAGE_TYPE) {
-        return {
-            message: {
-                type: ERROR_MESSAGE_TYPE,
-                message: data.message,
-                requestMessage: get(data, 'requestMessage'),
-            },
-        }
-    }
-    return { errors: ['UNKNOWN MESSAGE TYPE'] }
 }
 
-export const sendMessage = (message: string, messageType: NotificationType, receiver: Window, receiverOrigin: string): void => {
+// UTILS BLOCK
+export const sendMessage = (message: Record<string, unknown>, receiver: Window, receiverOrigin: string): void => {
     if (receiver) {
-        receiver.postMessage({
-            type: NOTIFICATION_MESSAGE_TYPE,
-            notificationType: messageType,
-            message,
-        }, receiverOrigin)
+        receiver.postMessage(message, receiverOrigin)
     }
+}
+
+export const sendNotification = (message: string, messageType: NotificationType, receiver: Window, receiverOrigin: string): void => {
+    sendMessage({
+        type: NOTIFICATION_MESSAGE_TYPE,
+        notificationType: messageType,
+        message,
+    }, receiver, receiverOrigin)
 }
 
 export const sendRequirementRequest = (requirement: RequirementType, receiver: Window, receiverOrigin: string): void => {
-    if (receiver) {
-        receiver.postMessage({
-            type:REQUIREMENT_MESSAGE_TYPE,
-            requirement,
-        }, receiverOrigin)
-    }
+    sendMessage({
+        type:REQUIREMENT_MESSAGE_TYPE,
+        requirement,
+    }, receiver, receiverOrigin)
 }
 
 export const sendLoadedStatus = (receiver: Window, receiverOrigin: string): void => {
-    if (receiver) {
-        receiver.postMessage({
-            type: LOADED_STATUS_MESSAGE_TYPE,
-            status: 'done',
-        }, receiverOrigin)
-    }
+    sendMessage({
+        type: LOADED_STATUS_MESSAGE_TYPE,
+        status: 'done',
+    }, receiver, receiverOrigin)
 }
 
 export const sendError = (message: string, requestMessage: Record<string, unknown>, receiver: Window, receiverOrigin: string): void => {
-    if (receiver) {
-        receiver.postMessage({
-            type: ERROR_MESSAGE_TYPE,
-            message,
-            requestMessage,
-        }, receiverOrigin)
-    }
+    sendMessage({
+        type: ERROR_MESSAGE_TYPE,
+        message,
+        requestMessage,
+    }, receiver, receiverOrigin)
+}
+
+export const sendSize = (height: number, receiver: Window, receiverOrigin: string): void => {
+    sendMessage({
+        type: RESIZE_MESSAGE_TYPE,
+        height,
+    }, receiver, receiverOrigin)
 }

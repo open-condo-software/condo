@@ -4,15 +4,43 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { Division: DivisionGQL } = require('@condo/domains/division/gql')
+const uniq = require('lodash/uniq')
+const flatten = require('lodash/flatten')
+const { find } = require('@core/keystone/schema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Division = generateServerUtils(DivisionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+async function getUserDivisionsInfo (context, userId) {
+    const divisionVisibleLimitedEmployees = await find('OrganizationEmployee', {
+        user: { id: userId },
+        role: { canReadEntitiesOnlyInScopeOfDivision: true },
+        deletedAt: null,
+        isBlocked: false,
+    })
+
+    if (divisionVisibleLimitedEmployees.length > 0) {
+        const organizationsIdsWithEmployeeInDivision = divisionVisibleLimitedEmployees.map(employee => employee.organization)
+        const divisionVisibleLimitedEmployeesIds = divisionVisibleLimitedEmployees.map(employee => employee.id)
+        const employeeDivisions = await Division.getAll(context, {
+            OR: [
+                { responsible: { id_in: divisionVisibleLimitedEmployeesIds } },
+                { executors_some: { id_in: divisionVisibleLimitedEmployeesIds } },
+            ],
+        })
+        const divisionsPropertiesIds = uniq(flatten(employeeDivisions.map(division => division.properties))
+            .map(property => property.id))
+
+        return { organizationsIdsWithEmployeeInDivision, divisionsPropertiesIds }
+    }
+}
+
 module.exports = {
     Division,
+    getUserDivisionsInfo,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

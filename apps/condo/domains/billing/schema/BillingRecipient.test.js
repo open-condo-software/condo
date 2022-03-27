@@ -3,7 +3,6 @@
  */
 import {
     catchErrorFrom,
-    expectToThrowMutationError,
 } from '@condo/domains/common/utils/testSchema'
 
 const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
@@ -323,6 +322,29 @@ describe('BillingRecipient', () => {
                     expect(msg).toContain('duplicate key value violates unique constraint')
                 }
             )
+        })
+
+        test('can create - delete - create new BillingRecipient', async () => {
+            const admin = await makeLoggedInAdminClient()
+
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+
+            const [obj] = await createTestBillingRecipient(admin, context)
+
+            const [updatedObj] = await updateTestBillingRecipient(admin, obj.id, { deletedAt: 'True' })
+
+            const [objNew] = await createTestBillingRecipient(admin, context, {
+                tin: obj.tin,
+                iec: obj.iec,
+                bic: obj.bic,
+                bankAccount: obj.bankAccount,
+            })
+
+            expect(obj.id).toBeDefined()
+            expect(updatedObj.id).toEqual(obj.id)
+            expect(updatedObj.deletedAt).not.toBeNull()
+            expect(objNew.id).toBeDefined()
+            expect(obj.id).not.toEqual(objNew.id)
         })
     })
 })

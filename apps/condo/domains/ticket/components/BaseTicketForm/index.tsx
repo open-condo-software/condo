@@ -142,7 +142,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                             currentLength={currentDetailsLength}
                                             maxLength={500}
                                             onChange={e => setCurrentDetailsLength(e.target.value.length)}
-                                            placeholder={DescriptionPlaceholder}
+                                            placeholder={DescriptionPlaceholder + ' *'}
                                             disabled={disableUserInteraction}
                                             style={INPUT_WITH_COUNTER_STYLE}
                                             data-cy={'ticket__description-input'}

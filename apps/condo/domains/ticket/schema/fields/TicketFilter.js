@@ -6,6 +6,7 @@ const { render, getValidator } = require('@condo/domains/billing/schema/fields/u
 const TICKET_FILTER_TYPE_NAME = 'TicketFilter'
 
 const TicketFilterFields = {
+    organization: '[String]',
     number: 'Int',
     createdAt: '[String]',
     status: '[String]',

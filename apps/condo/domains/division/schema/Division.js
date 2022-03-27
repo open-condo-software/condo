@@ -11,6 +11,7 @@ const access = require('@condo/domains/division/access/Division')
 const { OrganizationEmployee, Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { get } = require('lodash')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { MAX_PROPERTIES_IN_DIVISION } = require('@condo/domains/division/constants')
 
 
 const Division = new GQLListSchema('Division', {
@@ -72,6 +73,10 @@ const Division = new GQLListSchema('Division', {
                     const [organization] = await Organization.getAll(context, { id: organizationId })
 
                     const propertyIds = resolvedData[fieldPath]
+                    if (propertyIds.length > MAX_PROPERTIES_IN_DIVISION) {
+                        addFieldValidationError('Exceeded the maximum number of properties in the division (150 properties)')
+                    }
+
                     // Fetch in specified order to be able to test a list of ids in error message
                     const properties = await Property.getAll(context, { id_in: propertyIds }, { sortBy: ['createdAt_ASC'] })
                     const propertyIdsFromAnotherOrganization = []

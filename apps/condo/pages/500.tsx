@@ -33,7 +33,7 @@ export default function Custom500 () {
                             <Poster
                                 src={'/authPoster.png'}
                                 placeholderSrc={'/authPosterPlaceholder.png'}
-                                placeholderColor={colors.selago}
+                                placeholderColor={colors.backgroundLightGrey}
                             />
                         </ErrorPosterWrapper>
                     ) : null
@@ -55,6 +55,6 @@ export default function Custom500 () {
     )
 }
 
-export const ErrorLayout = (props) => <PosterLayout {...props} layoutBgColor={colors.selago} />
+export const ErrorLayout = (props) => <PosterLayout {...props} layoutBgColor={colors.backgroundLightGrey} />
 
 Custom500.container = ErrorLayout

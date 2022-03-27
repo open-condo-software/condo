@@ -184,7 +184,7 @@ const ChangePasswordPage: AuthPage = () => {
                             </Row>
                         </Col>
                         <Col span={24}>
-                            <Form.Item >
+                            <Form.Item wrapperCol={{ span: 24 }}>
                                 <Button
                                     key='submit'
                                     type='sberPrimary'
@@ -193,7 +193,7 @@ const ChangePasswordPage: AuthPage = () => {
                                 >
                                     {SaveMsg}
                                 </Button>
-                                <Typography.Text type='secondary' style={{ marginLeft: '20px' }}>
+                                <Typography.Text type='secondary' style={ { marginLeft: 20 } }>
                                     {AndSignInMsg}
                                 </Typography.Text>
                             </Form.Item>

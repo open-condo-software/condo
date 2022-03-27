@@ -8,6 +8,7 @@ const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const get = require('lodash/get')
 const { addClientInfoToResidentTicket, addOrderToTicket } = require('../utils/serverSchema/resolveHelpers')
+const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
 
 const {
     SENDER_FIELD,
@@ -33,6 +34,8 @@ const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { TERMINAL_TICKET_STATUS_IDS } = require('../constants/statusTransitions')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
+
+const { handleTicketEvents } = require('../utils/handlers')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -315,10 +318,6 @@ const Ticket = new GQLListSchema('Ticket', {
 
             if (statusId) {
                 addOrderToTicket(resolvedData, statusId)
-
-                if (TERMINAL_TICKET_STATUS_IDS.includes(statusId)) {
-                    resolvedData.deadline = null
-                }
             }
 
             if (operation === 'create' && user && user.type === RESIDENT) {
@@ -327,6 +326,9 @@ const Ticket = new GQLListSchema('Ticket', {
 
             const newItem = { ...existingItem, ...resolvedData }
             const propertyId = get(newItem, 'property', null)
+            if (!propertyId) {
+                throw new Error(`${PROPERTY_REQUIRED_ERROR}] empty property for ticket`)
+            }
             const property = await getByCondition('Property', {
                 id: propertyId,
                 deletedAt: null,
@@ -338,18 +340,11 @@ const Ticket = new GQLListSchema('Ticket', {
             }
 
             if (resolvedData.contact) {
-                const [contact] = await Contact.getAll(context, {
-                    id: resolvedData.contact,
-                })
-                if (!resolvedData.clientName) {
-                    resolvedData.clientName = contact.name
-                }
-                if (!resolvedData.clientEmail) {
-                    resolvedData.clientEmail = contact.email
-                }
-                if (!resolvedData.clientPhone) {
-                    resolvedData.clientPhone = contact.phone
-                }
+                const contact = await Contact.getOne(context, { id: resolvedData.contact })
+
+                if (!resolvedData.clientName) resolvedData.clientName = contact.name
+                if (!resolvedData.clientEmail) resolvedData.clientEmail = contact.email
+                if (!resolvedData.clientPhone) resolvedData.clientPhone = contact.phone
             }
 
             return resolvedData
@@ -393,6 +388,10 @@ const Ticket = new GQLListSchema('Ticket', {
                 relatedManyToManyResolvers,
                 [{ property, unitName }, { placeClassifier, categoryClassifier, problemClassifier }]
             )(...args)
+
+            const [requestData] = args
+            /* NOTE: this sends different kinds of notifications on ticket create/update */
+            await handleTicketEvents(requestData)
         },
     },
     access: {

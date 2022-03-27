@@ -27,7 +27,7 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationWithAccessToAnotherOrganization,
     makeEmployeeUserClientWithAbilities,
-    updateTestOrganization,
+    updateTestOrganization, createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 
 const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
@@ -38,6 +38,8 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser }
 
 const { MeterResource, Meter, createTestMeter, updateTestMeter } = require('../utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('../constants/constants')
+const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
+const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
 
 describe('Meter', () => {
     describe('Create', () => {
@@ -546,6 +548,73 @@ describe('Meter', () => {
             const meters = await Meter.getAll(clientTo, { id: meter.id })
 
             expect(meters).toHaveLength(0)
+        })
+
+        test('employee with division limited role: can read meters only from his divisions', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [propertyInDivision1] = await createTestProperty(admin, organization)
+            const [propertyInDivision2] = await createTestProperty(admin, organization)
+            const [propertyOutOfDivision] = await createTestProperty(admin, organization)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canReadEntitiesOnlyInScopeOfDivision: true,
+            })
+            const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {})
+            await createTestDivision(admin, organization, employee, {
+                properties: {
+                    connect: [
+                        { id: propertyInDivision1.id },
+                    ],
+                },
+            })
+            await createTestDivision(admin, organization, employee, {
+                properties: {
+                    connect: [
+                        { id: propertyInDivision2.id },
+                    ],
+                },
+            })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meterFromDivision1] = await createTestMeter(admin, organization, propertyInDivision1, resource, {})
+            const [meterFromDivision2] = await createTestMeter(admin, organization, propertyInDivision2, resource, {})
+            await createTestMeter(admin, organization, propertyOutOfDivision, resource, {})
+
+            const meters = await Meter.getAll(client)
+            expect(meters).toHaveLength(2)
+
+            const [readMeterFromDivision1] = await Meter.getAll(client, { id: meterFromDivision1.id })
+            expect(readMeterFromDivision1.id).toBeDefined()
+
+            const [readMeterFromDivision2] = await Meter.getAll(client, { id: meterFromDivision2.id })
+            expect(readMeterFromDivision2.id).toBeDefined()
+        })
+
+        test('employee: can read all organization meters if in other organization he has division limited role', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [divisionLimitedRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canReadEntitiesOnlyInScopeOfDivision: true,
+            })
+            const [divisionLimitedEmployee] = await createTestOrganizationEmployee(admin, organization, client.user, divisionLimitedRole, {})
+
+            const [organization1] = await createTestOrganization(admin)
+            const [property1] = await createTestProperty(admin, organization1)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization1)
+            const [employee] = await createTestOrganizationEmployee(admin, organization1, client.user, role, {})
+
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            await createTestMeter(admin, organization, property, resource, {})
+            const [meter] = await createTestMeter(admin, organization1, property1, resource, {})
+
+            const meters = await Meter.getAll(client)
+
+            expect(meters).toHaveLength(1)
+            expect(meters[0].id).toEqual(meter.id)
         })
 
         test('resident: can read his Meters', async () => {
