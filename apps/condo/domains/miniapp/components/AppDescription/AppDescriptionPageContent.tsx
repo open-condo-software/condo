@@ -69,6 +69,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                     </Col>
                     {
                         React.Children.map(children, child => {
+                            if (!child) return null
                             return (
                                 <Col span={24}>
                                     {child}
