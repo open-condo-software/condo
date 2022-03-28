@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 import { Image, Card, Row, Col, Typography, Space } from 'antd'
 import styled from '@emotion/styled'
 import { CheckIcon } from '@condo/domains/common/components/icons/Check'
@@ -63,10 +63,14 @@ export const AppCarouselCard: React.FC<AppCarouselCardProps> = ({ logoSrc, title
     const ConnectedLabel = intl.formatMessage({ id: 'Connected' })
     const router = useRouter()
 
+    const handleCardClick = useCallback(() => {
+        router.push(url)
+    }, [router, url])
+
     return (
         <CardWrapper>
             <Card
-                onClick={() => router.push(url)}
+                onClick={handleCardClick}
                 bordered={false}
             >
                 <Row gutter={[0, 12]}>
