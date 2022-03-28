@@ -105,7 +105,6 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                         compatibilityWithAntAutoComplete={true}
                     />
                 </AutoComplete>
-
             </Col>
             <Col span={10}>
                 <AutoComplete
