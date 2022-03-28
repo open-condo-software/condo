@@ -35,6 +35,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
     const intl = useIntl()
     const HowToSetupMessage = intl.formatMessage({ id: 'services.HowToSetup' })
     const SetupMessage = intl.formatMessage({ id: 'services.SetupService' })
+    const DefaultInstructionMessage = intl.formatMessage({ id: 'services.instruction.default' })
 
     const router = useRouter()
     const { query: { id, type } } = router
@@ -67,6 +68,15 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                         instruction && (
                             <Col span={24}>
                                 <MarkDown text={instruction}/>
+                            </Col>
+                        )
+                    }
+                    {
+                        Boolean(!instruction && appUrl) && (
+                            <Col span={24}>
+                                <Typography.Text type={'secondary'}>
+                                    {DefaultInstructionMessage}
+                                </Typography.Text>
                             </Col>
                         )
                     }
