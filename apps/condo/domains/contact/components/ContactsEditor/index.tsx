@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Col, Form, FormInstance, Input, Row, Skeleton } from 'antd'
+import { Col, Form, FormInstance, Input, Row, Skeleton, Tabs } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
@@ -17,6 +17,8 @@ import { colors } from '@condo/domains/common/constants/style'
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
 import { ContactOption } from './ContactOption'
+import { FocusContainer } from '../../../common/components/FocusContainer'
+import { OrganizationEmployee } from '../../../organization/utils/clientSchema'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -57,7 +59,17 @@ export interface IContactEditorProps {
     property?: string,
     unitName?: string,
     allowLandLine?: boolean;
+    disabled?: boolean
 }
+
+const ContactsInfoFocusContainer = styled(FocusContainer)`
+  position: relative;
+  left: ${({ padding }) => padding ? padding : '24px'};
+  box-sizing: border-box;
+  width: 100%;
+  background: ${colors.backgroundLightGrey};
+`
+const { TabPane } = Tabs
 
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const intl = useIntl()
@@ -66,9 +78,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
     const CannotCreateContactMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.CannotCreateContact' })
+    const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
+    const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
 
     const { form, fields, value: initialValue, onChange, organization, role, property, unitName, allowLandLine } = props
-
 
     const [selectedContact, setSelectedContact] = useState(null)
     const [value, setValue] = useState(initialValue)
@@ -88,6 +101,15 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             organization: { id: organization },
             property: { id: property ? property : null },
             unitName: unitName ? unitName : undefined,
+        },
+        first: 1000,
+    })
+
+    const {
+        objs: fetchedEmployees,
+    } = OrganizationEmployee.useObjects({
+        where: {
+            organization: { id: organization },
         },
         first: 1000,
     })
@@ -125,10 +147,21 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setEditableFieldsChecked(false)
     }
 
+    const triggerOnChange = (contact: ContactValue, isNew) => {
+        form.setFieldsValue({
+            [fields.id]: contact.id,
+            [fields.name]: contact.name,
+            [fields.phone]: contact.phone,
+        })
+        setValue(contact)
+        setSelectedContact(contact)
+        onChange && onChange(contact, isNew)
+    }
+
     const handleSelectContact = (contact) => {
         setSelectedContact(contact)
         setEditableFieldsChecked(false)
-        triggerOnChange(contact)
+        triggerOnChange(contact, false)
     }
 
     const handleChangeContact = debounce((contact) => {
@@ -136,7 +169,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         // so, it should be connected with ticket
         const contactFromFetched = find(fetchedContacts, { ...contact, unitName })
         const contactToSet = contactFromFetched || contact
-        triggerOnChange(contactToSet)
+
+        triggerOnChange(contactToSet, !contactFromFetched)
+
         setManuallyTypedContact(contact)
         setEditableFieldsChecked(true)
         setSelectedContact(null)
@@ -145,19 +180,24 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleSyncedFieldsChecked = () => {
         setSelectedContact(null)
         setEditableFieldsChecked(true)
+
+        if (!initialValue.id && initialValue.phone) {
+            handleChangeContact(initialValue)
+        }
     }
 
-    const triggerOnChange = (contact: ContactValue) => {
+    const handleChangeEmployee = debounce((contact) => {
         form.setFieldsValue({
-            [fields.id]: contact.id,
+            [fields.id]: null,
             [fields.name]: contact.name,
             [fields.phone]: contact.phone,
         })
-        setValue(contact)
-        setSelectedContact(contact)
-        const isNew = !contact.id
-        onChange && onChange(contact, isNew)
-    }
+        const employeeContact = { ...contact, id: null }
+        setValue(employeeContact)
+        setManuallyTypedContact(employeeContact)
+
+        onChange && onChange(employeeContact, false)
+    }, DEBOUNCE_TIMEOUT)
 
     const initialValueIsPresentedInFetchedContacts = fetchedContacts && initialValue && initialValue.name && initialValue.phone && find(fetchedContacts, initialValue)
 
@@ -173,8 +213,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         }
 
         return false
-    }, [editableFieldsChecked, initialValue, sameAsInitial, selectedContact, triggerOnChange])
-
+    }, [editableFieldsChecked, sameAsInitial, selectedContact])
 
     const contactOptions = useMemo(() => fetchedContacts.map((contact) => (
         <ContactOption
@@ -185,6 +224,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         />
     )), [fetchedContacts, handleSelectContact, isContactSelected])
 
+    const handleTabChange = useCallback((tab) => {
+        setSelectedContact(null)
+        setEditableFieldsChecked(false)
+
+        if (tab === '2') {
+            handleChangeEmployee(value)
+        }
+    }, [handleChangeEmployee, value])
 
     if (loading) {
         return (
@@ -198,70 +245,92 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }
 
     return (
-        <Row gutter={[40, 25]}>
-            <Col span={24}>
-                <Row gutter={[40, 25]}>
-                    <Labels
-                        left={PhoneLabel}
-                        right={FullNameLabel}
-                    />
-                    {fetchedContacts.length === 0 || !unitName ? (
-                        <ContactSyncedAutocompleteFields
-                            initialValue={initialValue || manuallyTypedContact}
-                            onChange={handleChangeContact}
-                            contacts={fetchedContacts}
-                        />
-                    ) : (
-                        <>
-                            {contactOptions}
-                            <>
-                                {(displayEditableContactFields || (initialValue && !initialValueIsPresentedInFetchedContacts)) ? (
+        <Col span={24}>
+            <ContactsInfoFocusContainer className={props.disabled && 'disabled'}>
+                <Tabs defaultActiveKey={!initialValue.id && initialValue.phone ? '2' : '1'} style={{ width: '100%' }} onChange={handleTabChange}>
+                    <TabPane tab={TicketFromResidentMessage} key="1">
+                        <Row gutter={[40, 25]}>
+                            <Labels
+                                left={PhoneLabel}
+                                right={FullNameLabel}
+                            />
+                            {fetchedContacts.length === 0 || !unitName ? (
+                                <ContactSyncedAutocompleteFields
+                                    initialValue={initialValue || manuallyTypedContact}
+                                    onChange={handleChangeContact}
+                                    contacts={fetchedContacts}
+                                />
+                            ) : (
+                                <>
+                                    {contactOptions}
                                     <>
-                                        <Labels
-                                            left={AnotherContactLabel}
-                                        />
-                                        <ContactSyncedAutocompleteFields
-                                            initialValue={initialValue || manuallyTypedContact}
-                                            onChange={handleChangeContact}
-                                            onChecked={handleSyncedFieldsChecked}
-                                            checked={editableFieldsChecked}
-                                            contacts={fetchedContacts}
-                                            displayMinusButton={true}
-                                            onClickMinusButton={handleClickOnMinusButton}
-                                        />
-                                        {(!get(role, 'canManageContacts')) && (
+                                        {(displayEditableContactFields || (initialValue && !initialValueIsPresentedInFetchedContacts)) ? (
+                                            <>
+                                                <Labels
+                                                    left={AnotherContactLabel}
+                                                />
+                                                <ContactSyncedAutocompleteFields
+                                                    initialValue={initialValue || manuallyTypedContact}
+                                                    onChange={handleChangeContact}
+                                                    onChecked={handleSyncedFieldsChecked}
+                                                    checked={editableFieldsChecked}
+                                                    contacts={fetchedContacts}
+                                                    displayMinusButton={true}
+                                                    onClickMinusButton={handleClickOnMinusButton}
+                                                />
+                                                {(!get(role, 'canManageContacts')) && (
+                                                    <Col span={24}>
+                                                        <ErrorsWrapper>
+                                                            {CannotCreateContactMessage}
+                                                        </ErrorsWrapper>
+                                                    </Col>
+                                                )}
+                                            </>
+                                        ) : (
                                             <Col span={24}>
-                                                <ErrorsWrapper>
-                                                    {CannotCreateContactMessage}
-                                                </ErrorsWrapper>
+                                                <Button
+                                                    type="link"
+                                                    style={{
+                                                        color: colors.black,
+                                                        paddingLeft: '5px',
+                                                    }}
+                                                    onClick={handleClickOnPlusButton}
+                                                    icon={<PlusCircleOutlined style={{
+                                                        color: colors.black,
+                                                        fontSize: 21,
+                                                        position: 'relative',
+                                                        top: '2px',
+                                                    }}/>}
+                                                >
+                                                    {AddNewContactLabel}
+                                                </Button>
                                             </Col>
                                         )}
                                     </>
-                                ) : (
-                                    <Col span={24}>
-                                        <Button
-                                            type="link"
-                                            style={{
-                                                color: colors.black,
-                                                paddingLeft: '5px',
-                                            }}
-                                            onClick={handleClickOnPlusButton}
-                                            icon={<PlusCircleOutlined style={{
-                                                color: colors.black,
-                                                fontSize: 21,
-                                                position: 'relative',
-                                                top: '2px',
-                                            }}/>}
-                                        >
-                                            {AddNewContactLabel}
-                                        </Button>
-                                    </Col>
-                                )}
-                            </>
-                        </>
-                    )}
-                </Row>
-                {/*
+                                </>
+                            )}
+                        </Row>
+                    </TabPane>
+                    <TabPane
+                        tab={TicketNotFromResidentMessage}
+                        key="2"
+                    >
+                        <Row gutter={[40, 25]}>
+                            <Labels
+                                left={PhoneLabel}
+                                right={FullNameLabel}
+                            />
+                            <ContactSyncedAutocompleteFields
+                                initialValue={initialValue || manuallyTypedContact}
+                                onChange={handleChangeEmployee}
+                                contacts={fetchedEmployees}
+                            />
+                        </Row>
+                    </TabPane>
+                </Tabs>
+            </ContactsInfoFocusContainer>
+
+            {/*
                     This is a place for items of external form, this component is embedded into.
                     Why not to use them in place of actual inputs?
                     Because we have many inputs ;)
@@ -272,31 +341,30 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     The simplest solution, i currently know, — is to keep it in one place.
                     So, we use hidden inputs here, but reveal validation errors.
                 */}
-                <Row gutter={[40, 25]}>
-                    <Col span={10}>
-                        <Form.Item name={fields.id} hidden>
-                            <Input value={get(value, 'id')}/>
+            <Row gutter={[40, 25]}>
+                <Col span={10}>
+                    <Form.Item name={fields.id} hidden>
+                        <Input value={get(value, 'id')}/>
+                    </Form.Item>
+                    <ErrorContainerOfHiddenControl>
+                        <Form.Item
+                            name={fields.phone}
+                            validateFirst
+                            rules={validations.phone}>
+                            <Input value={get(value, 'phone')}/>
                         </Form.Item>
-                        <ErrorContainerOfHiddenControl>
-                            <Form.Item
-                                name={fields.phone}
-                                validateFirst
-                                rules={validations.phone}>
-                                <Input value={get(value, 'phone')}/>
-                            </Form.Item>
-                        </ErrorContainerOfHiddenControl>
-                    </Col>
-                    <Col span={10}>
-                        <ErrorContainerOfHiddenControl>
-                            <Form.Item name={fields.name}>
-                                <Input value={get(value, 'name')}/>
-                            </Form.Item>
-                        </ErrorContainerOfHiddenControl>
-                    </Col>
-                    <Col span={2}/>
-                    <Col span={2}/>
-                </Row>
-            </Col>
-        </Row>
+                    </ErrorContainerOfHiddenControl>
+                </Col>
+                <Col span={10}>
+                    <ErrorContainerOfHiddenControl>
+                        <Form.Item name={fields.name}>
+                            <Input value={get(value, 'name')}/>
+                        </Form.Item>
+                    </ErrorContainerOfHiddenControl>
+                </Col>
+                <Col span={2}/>
+                <Col span={2}/>
+            </Row>
+        </Col>
     )
 }
