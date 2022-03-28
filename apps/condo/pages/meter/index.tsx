@@ -141,7 +141,7 @@ export const MetersPageContent = ({
                                                                         accessCheck={canManageMeterReadings}
                                                                         onFinish={refetch}
                                                                         columns={columns}
-                                                                        maxTableLength={hasFeature('bigger_limit_for_meter_import') ?
+                                                                        maxTableLength={hasFeature('bigger_limit_for_import') ?
                                                                             EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
                                                                             DEFAULT_RECORDS_LIMIT_FOR_IMPORT
                                                                         }

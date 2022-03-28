@@ -128,7 +128,7 @@ export const ContactsPageContent = ({
                                                                         accessCheck={canManageContacts}
                                                                         onFinish={refetch}
                                                                         columns={columns}
-                                                                        maxTableLength={hasFeature('bigger_limit_for_contacts_import') ?
+                                                                        maxTableLength={hasFeature('bigger_limit_for_import') ?
                                                                             EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
                                                                             DEFAULT_RECORDS_LIMIT_FOR_IMPORT
                                                                         }
