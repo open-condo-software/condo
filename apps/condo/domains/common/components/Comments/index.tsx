@@ -36,7 +36,7 @@ const Container = styled.aside<IContainerProps>`
         if (isSmall) {
             return 'margin: 0 -20px -60px;'
         } else {
-            return 'height: calc(100vh - 120px);'
+            return 'height: calc(100vh - 100px);'
         }
     }}
 
@@ -96,7 +96,7 @@ const CommentsTabsContainer = styled.div`
     display: flex;
     flex: 1 1 auto;
 
-    height: calc(100vh - 340px);
+    height: calc(100vh - 508px);
     overflow-y: scroll;
   
     .ant-tabs-card.ant-tabs {
