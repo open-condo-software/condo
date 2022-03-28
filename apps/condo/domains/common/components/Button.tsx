@@ -143,13 +143,13 @@ const buttonGradientCss = css`
       }
     `
 const buttonDefaultGradientCss = (secondary = false) => {
-    const border = secondary ? `1px solid ${colors.inputBorderHover}` : '1px solid transparent'
+    const border = secondary ? `1px solid ${colors.black}` : '1px solid transparent'
     return  css`
       background: ${secondary ? 'transparent' : colors.black};
       border-radius: 8px;
       color: ${secondary ? colors.black : colors.defaultWhite[5]};
       box-shadow: none;
-      font-weight: 700;
+      font-weight: 600;
       outline: none;
       border: ${border};
       transition: ${transitions.allDefault};
@@ -170,7 +170,7 @@ const buttonDefaultGradientCss = (secondary = false) => {
         right: 0;
         height: inherit;
         width: inherit;
-        color: black;
+        color: ${colors.black};
         opacity: 0;
         border: none;
         padding: inherit;
@@ -195,10 +195,10 @@ const buttonDefaultGradientCss = (secondary = false) => {
       }
 
       &:disabled, &:hover:disabled {
-        color: ${colors.inputBorderHover};
-        background: ${secondary ? 'transparent' : '#E6E8F1'};
+        color: ${secondary ? colors.black : colors.white};
+        background: ${secondary ? 'transparent' : colors.black };
         & {
-          opacity: 70%;
+          opacity: 0.5;
         }
       }
     `

@@ -12,6 +12,7 @@ import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { SortDescriptionBlocksBy } from '@app/condo/schema'
+import { ConnectedBilling } from '@condo/domains/billing/components/Alerts/ConnectedBilling'
 
 interface AboutBillingServicePageProps {
     id: string,
@@ -64,6 +65,8 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
         imageSrc: block.image.publicUrl,
     }))
 
+    const connectedBilling = get(context, ['integration', 'id'], null)
+
     return (
         <FeatureFlagRequired name={'services'} fallback={<Error statusCode={404}/>}>
             <Head>
@@ -82,7 +85,14 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
                         descriptionBlocks={descriptionBlocks}
                         instruction={integration.instruction}
                         appUrl={integration.appUrl}
-                    />
+                        disabledConnect={Boolean(connectedBilling)}
+                    >
+                        {
+                            connectedBilling && (
+                                <ConnectedBilling/>
+                            )
+                        }
+                    </AppDescriptionPageContent>
                 </PageContent>
             </PageWrapper>
         </FeatureFlagRequired>
