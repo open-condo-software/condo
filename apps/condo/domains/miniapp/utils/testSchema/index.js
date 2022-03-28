@@ -41,6 +41,7 @@ async function createTestDescriptionBlock (client, billingId, acquiringId, extra
         dv: 1,
         sender,
         image,
+        title: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
         billingIntegration: billingId ? { connect: { id: billingId } } : undefined,
         acquiringIntegration: acquiringId ? { connect: { id: acquiringId } } : undefined,

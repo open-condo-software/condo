@@ -1,5 +1,6 @@
 import React from 'react'
-import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
+import { AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
+import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { DescriptionBlock } from '@condo/domains/miniapp/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
@@ -10,36 +11,34 @@ import { FeatureFlagRequired } from '@condo/domains/common/components/containers
 import Error from 'next/error'
 import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
+import { ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { SortDescriptionBlocksBy } from '@app/condo/schema'
-import { ConnectedBilling } from '@condo/domains/billing/components/Alerts/ConnectedBilling'
+import { NoConnectedBillings } from '@condo/domains/acquiring/components/Alerts/NoConnectedBillings'
 
-interface AboutBillingServicePageProps {
+interface AboutAcquiringServicePageProps {
     id: string,
 }
 
-export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = ({ id }) => {
+export const AboutAcquiringServicePage: React.FC<AboutAcquiringServicePageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const BillingMessage = intl.formatMessage({ id: 'menu.Billing' })
-    const TagMessage = intl.formatMessage({ id: `services.category.${BILLING_APP_TYPE}` })
+    const AcquiringMessage = intl.formatMessage({ id: `services.category.${ACQUIRING_APP_TYPE}` })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
 
-    const { obj: integration, loading: integrationLoading, error: integrationError } = BillingIntegration.useObject({
+    const { obj: integration, loading: integrationLoading, error: integrationError } = AcquiringIntegration.useObject({
         where: { id },
     })
 
-    const { objs: contexts, loading: contextsLoading, error: contextsError } = BillingIntegrationOrganizationContext.useObjects({
+    const { objs: billingContexts, loading: billingsLoading, error: billingsError } = BillingIntegrationOrganizationContext.useObjects({
         where: { organization: { id: organizationId } },
     })
 
-
     const { objs: blocks, loading: blocksLoading, error: blocksError } = DescriptionBlock.useObjects({
         where: {
-            billingIntegration: { id: get(integration, 'id', null) },
-            acquiringIntegration_is_null: true,
+            acquiringIntegration: { id },
+            billingIntegration_is_null: true,
         },
         sortBy: [
             SortDescriptionBlocksBy.OrderAsc,
@@ -47,9 +46,14 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
         ],
     })
 
-    if (integrationLoading || contextsLoading || integrationError || contextsError || blocksLoading || blocksError) {
+    if (integrationLoading || billingsLoading || blocksLoading
+        || integrationError || billingsError || blocksError) {
         return (
-            <LoadingOrErrorPage title={LoadingMessage} error={integrationError || contextsError || blocksError} loading={integrationLoading || contextsLoading || blocksLoading}/>
+            <LoadingOrErrorPage
+                title={LoadingMessage}
+                error={integrationError || blocksError || billingsError}
+                loading={integrationLoading || blocksLoading || billingsLoading}
+            />
         )
     }
 
@@ -57,7 +61,7 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
         return <Error statusCode={404}/>
     }
 
-    const PageTitle = get(integration, 'name', BillingMessage)
+    const PageTitle = get(integration, 'name', AcquiringMessage)
 
     const descriptionBlocks = blocks.map(block => ({
         title: block.title,
@@ -65,7 +69,7 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
         imageSrc: block.image.publicUrl,
     }))
 
-    const isAnyBillingConnected = Boolean(contexts.length)
+    const isAnyBillingConnected = Boolean(billingContexts.length)
 
     return (
         <FeatureFlagRequired name={'services'} fallback={<Error statusCode={404}/>}>
@@ -79,17 +83,17 @@ export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = (
                         description={integration.shortDescription}
                         published={integration.createdAt}
                         logoSrc={get(integration, ['logo', 'publicUrl'])}
-                        tag={TagMessage}
+                        tag={AcquiringMessage}
                         developer={integration.developer}
                         partnerUrl={get(integration, 'partnerUrl')}
                         descriptionBlocks={descriptionBlocks}
                         instruction={integration.instruction}
                         appUrl={integration.appUrl}
-                        disabledConnect={isAnyBillingConnected}
+                        disabledConnect={!isAnyBillingConnected}
                     >
                         {
-                            isAnyBillingConnected && (
-                                <ConnectedBilling/>
+                            !isAnyBillingConnected && (
+                                <NoConnectedBillings/>
                             )
                         }
                     </AppDescriptionPageContent>
