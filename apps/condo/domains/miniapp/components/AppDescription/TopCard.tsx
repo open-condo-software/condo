@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 import { Card, Image, Space, Typography, Row, Col } from 'antd'
 import styled from '@emotion/styled'
 import dayjs from 'dayjs'
@@ -129,6 +129,10 @@ export const TopCard: React.FC<TopCardProps> = ({
 
     const router = useRouter()
 
+    const handlePartnerClick = useCallback(() => {
+        router.push(partnerUrl)
+    }, [router, partnerUrl])
+
     return (
         <CardWrapper centered={isSmallLayout}>
             <Card bordered={true} title={<TopCardTitle title={title} description={description} partnerUrl={partnerUrl} tag={tag} logoSrc={logoSrc}/>}>
@@ -151,7 +155,7 @@ export const TopCard: React.FC<TopCardProps> = ({
                     </Typography.Text>
                     {
                         partnerUrl && (
-                            <Typography.Link onClick={() => router.push(partnerUrl)}>
+                            <Typography.Link onClick={handlePartnerClick}>
                                 {PartnerSiteMessage}
                             </Typography.Link>
                         )

@@ -1,4 +1,4 @@
-import React  from 'react'
+import React, { useCallback } from 'react'
 import { Col, Row, Typography } from 'antd'
 import { TopCard } from './TopCard'
 import { AboutCard, AboutBlockProps } from './AboutCard'
@@ -39,6 +39,10 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
     const router = useRouter()
     const { query: { id, type } } = router
 
+    const handleButtonClick = useCallback(() => {
+        router.push(`/services/${id}?=type${type}`)
+    }, [router, id, type])
+
     return (
         <Row gutter={[0, 60]}>
             <Col span={24}>
@@ -71,7 +75,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                             <Col span={24}>
                                 <Button
                                     type={'sberDefaultGradient'}
-                                    onClick={() => router.push(`/services/${id}?=type${type}`)}
+                                    onClick={handleButtonClick}
                                 >
                                     {SetupMessage}
                                 </Button>
