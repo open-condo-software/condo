@@ -1,27 +1,31 @@
-const { identity } = require('lodash')
+const { identity, get } = require('lodash')
 const { v4 } = require('uuid')
+const express = require('express')
+const bodyParser = require('body-parser')
+const nextCookie = require('next-cookies')
+
 const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
-const { registerTriggers } = require('@core/triggers')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
+
 const conf = require('@core/config')
+const { registerTriggers } = require('@core/triggers')
 const { registerTasks } = require('@core/keystone/tasks')
 const { prepareDefaultKeystoneConfig, getAdapter } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/KSv5v6/v5/registerSchema')
-const express = require('express')
-const bodyParser = require('body-parser')
-const nextCookie = require('next-cookies')
+const { schemaDocPreprocessor } = require('@core/keystone/preprocessors/schemaDoc')
+
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
-const { schemaDocPreprocessor } = require('@core/keystone/preprocessors/schemaDoc')
+const { OIDCMiddleware } = require('@condo/domains/user/oidc')
+
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -64,6 +68,55 @@ const keystone = new Keystone({
         }
     },
 })
+
+const originalCreateList = keystone.createList
+
+const cache = {}
+
+keystone.createList = (...args) => {
+    const list = originalCreateList.apply(keystone, args)
+
+    const originalListQuery = list.listQuery
+    list.listQuery = async function (args, context, gqlName, info, from) {
+        const listResult = await originalListQuery.call(list, args, context, gqlName, info, from)
+
+        console.debug(`
+            LIST_QUERY ${gqlName}\r\n
+            ARGS: ${JSON.stringify(args)}\r\n
+            FROM: ${JSON.stringify(from)}`
+        )
+
+        return listResult
+    }
+
+    const originalItemQuery = list.itemQuery
+    list.itemQuery = async (args, context, gqlName, info, from) => {
+        const req = get(context, 'req')
+
+        const key = JSON.stringify(`${gqlName}_${JSON.stringify(req.authedItem)}_${JSON.stringify(args)}`)
+
+        if (key in cache) {
+            console.debug(`
+            ITEM_QUERY ${gqlName}\r\n
+            KEY: ${key}\r\n
+            CACHE_HIT?: Yes`
+            )
+            return cache[key]
+        }
+
+        const itemQueryResult = await originalItemQuery.call(list, args, context, gqlName, info, from)
+
+        console.debug(`
+            ITEM_QUERY ${gqlName}\r\n
+            KEY: ${key}\r\n
+            CACHE_HIT?: No`
+        )
+
+        return itemQueryResult
+    }
+
+    return list
+}
 
 if (!IS_BUILD_PHASE) {
     registerSchemas(keystone, [
