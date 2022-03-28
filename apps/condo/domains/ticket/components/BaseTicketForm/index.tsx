@@ -149,7 +149,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                         />
                                     </TicketFormItem>
                                 </Col>
-                                <Col span={24}>
+                                <Col span={24} style={{ 'padding-top': '24px' }}>
                                     <TicketFormItem>
                                         <UploadComponent/>
                                     </TicketFormItem>
