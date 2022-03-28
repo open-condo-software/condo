@@ -77,9 +77,6 @@ export function useTicketValidations (): IFormFieldsRuleMap {
         details: [
             {
                 whitespace: true,
-                message: intl.formatMessage({ id: 'field.Description.lengthError' }),
-            },
-            {
                 required: true,
                 min: 6,
                 message: intl.formatMessage({ id: 'field.Description.lengthError' }),
