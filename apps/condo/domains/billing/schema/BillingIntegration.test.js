@@ -13,7 +13,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
-const { NO_INSTRUCTION_ERROR } = require('@condo/domains/miniapp/constants')
+const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
 const faker = require('faker')
 
 describe('BillingIntegration', () => {
@@ -26,7 +26,17 @@ describe('BillingIntegration', () => {
                     instruction: null,
                     appUrl: null,
                 })
-            }, NO_INSTRUCTION_ERROR)
+            }, NO_INSTRUCTION_OR_MESSAGE_ERROR)
+        })
+
+        test('Should have connectedMessage if no iframe url specified', async () => {
+            const admin = await makeLoggedInAdminClient()
+            await expectToThrowValidationFailureError(async () => {
+                await createTestBillingIntegration(admin, {
+                    connectedMessage: null,
+                    appUrl: null,
+                })
+            }, NO_INSTRUCTION_OR_MESSAGE_ERROR)
         })
 
         test('update format with right payload', async () => {
