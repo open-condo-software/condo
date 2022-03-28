@@ -1,7 +1,27 @@
+const { getById } = require('@core/keystone/schema')
+
 const { AdapterFactory } = require('./adapter')
 
 module.exports = {
     adapter: AdapterFactory,
+    async findAccount (ctx, id) {
+        const user = await getById('User', id)
+        if (!user) throw new Error('unknown user id')
+        // TODO(pahaz): think about user and and claims
+        return {
+            accountId: id,
+            async claims (use, scope) {
+                return {
+                    sub: id,
+                    v: user.v,
+                    type: user.type,
+                    name: user.name,
+                    isSupport: user.isSupport,
+                    isAdmin: user.isAdmin,
+                }
+            },
+        }
+    },
     interactions: {
         url (ctx, interaction) { // eslint-disable-line no-unused-vars
             return `/oidc/interaction/${interaction.uid}`
@@ -12,12 +32,8 @@ module.exports = {
         keys: ['some secret key', 'and also the old rotated away some time ago', 'and one more'],
     },
     claims: {
-        // TODO(pahaz): think about it!
-        address: ['address'],
-        email: ['email', 'email_verified'],
-        phone: ['phone_number', 'phone_number_verified'],
-        profile: ['birthdate', 'family_name', 'gender', 'given_name', 'locale', 'middle_name', 'name',
-            'nickname', 'picture', 'preferred_username', 'profile', 'updated_at', 'website', 'zoneinfo'],
+        // TODO(pahaz): SCOPES think about it!
+        openid: ['sub', 'name', 'isAdmin', 'isSupport', 'v', 'type'],
     },
     features: {
         // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#featuresclientcredentials - Enables grant_type=client_credentials to be used on the token endpoint

@@ -124,8 +124,7 @@ test('oidc', async () => {
     })
 
     const nonce = generators.nonce()
-    const scope = 'openid'
-    const url = new URL(serverSideOidcClient.authorizationUrl({ scope, nonce }))
+    const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
     const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
 
     // 2) client side ( open oidcAuthUrl )
@@ -155,7 +154,14 @@ test('oidc', async () => {
     // 4) check requests by accessToken to /oidc/userinfo
 
     const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
-    expect(userinfo).toEqual({ 'sub': c.user.id })
+    expect(userinfo).toEqual({
+        'sub': c.user.id,
+        'type': 'staff',
+        'v': 1,
+        'isAdmin': false,
+        'isSupport': false,
+        'name': c.user.name,
+    })
     expect(await getAccessToken(tokenSet.access_token)).toMatchObject({
         'accountId': c.user.id,
         'clientId': clientId,
@@ -222,7 +228,6 @@ test('oidc auth by mini app', async () => {
     const checks = { nonce: generators.nonce(), state: generators.state() }
     const redirectUrl = client.authorizationUrl({
         response_type: 'code',
-        scope: 'openid',
         ...checks,
     })
 

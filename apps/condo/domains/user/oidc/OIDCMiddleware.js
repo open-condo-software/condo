@@ -118,7 +118,7 @@ class OIDCMiddleware {
                     }
                 }
 
-                logger.info({ interactionDetails: result })
+                logger.info({ interactionDetails, result })
                 await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false })
             } catch (err) {
                 logger.error({
