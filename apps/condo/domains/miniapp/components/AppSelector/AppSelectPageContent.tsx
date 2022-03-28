@@ -59,7 +59,13 @@ export const AppSelectPageContent: React.FC = () => {
     }
 
     const services = get(data, 'objs', [])
-    const connectedServices = services.filter(service => service.connected)
+    // const connectedServices = services.filter(service => service.connected)
+    const connectedServices = [
+        {
+            logo: 'asd',
+            name: 'NameNameNameNameNameName',
+        },
+    ]
     const unconnectedServices = services.filter(service => !service.connected)
 
     const isAnyServiceConnected = Boolean(connectedServices.length)
