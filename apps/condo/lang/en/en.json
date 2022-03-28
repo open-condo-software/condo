@@ -159,6 +159,7 @@
   "services.PartnerSite": "Partner site",
   "services.AboutService": "About service",
   "services.HowToSetup": "How to set up",
+  "services.instruction.default": "Click on the «Set up service» button and follow the instructions",
   "services.category.BILLING": "Billing",
   "services.category.ACQUIRING": "Acquiring",
   "MinutesShort": "${minutes} min.",

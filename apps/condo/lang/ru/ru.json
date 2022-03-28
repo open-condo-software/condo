@@ -159,6 +159,7 @@
   "services.PartnerSite": "Сайт партнера",
   "services.AboutService": "Об услуге",
   "services.HowToSetup": "Как настроить сервис",
+  "services.instruction.default": "Нажмите на кнопку «Настроить сервис» и следуйте дальнейшей инструкции",
   "services.category.BILLING": "Биллинг",
   "services.category.ACQUIRING": "Эквайринг",
   "MinutesShort": "${minutes} мин.",
