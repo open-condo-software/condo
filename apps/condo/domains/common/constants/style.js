@@ -38,6 +38,8 @@ const scampi = '#525FA8'
 const zircon = '#F1F3FF'
 const logoPurple = '#525FAB'
 const backgroundWhiteSecondary = '#E6E8F1'
+const attentionBg = '#FFF5E6'
+const attentionText = '#FF9500'
 
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
@@ -101,6 +103,8 @@ const colors = {
     backgroundLightGrey,
     textSecondary,
     backgroundWhiteSecondary,
+    attentionBg,
+    attentionText,
 }
 
 const fontSizes = {
@@ -180,14 +184,14 @@ const antGlobalVariables = {
     '@alert-info-bg-color': '@blue-2',
     '@alert-success-border-color': '@green-2',
     '@alert-success-bg-color': '@green-2',
-    '@alert-warning-border-color': '@gold-2',
-    '@alert-warning-bg-color': '@gold-2',
+    '@alert-warning-border-color': colors.attentionBg,
+    '@alert-warning-bg-color': colors.attentionBg,
     '@typography-title-margin-bottom': 0,
     '@tooltip-bg': 'rgba(0, 0, 0)',
     '@text-color': colors.sberGrey[9],
     '@text-color-secondary': textSecondary,
     '@success-color': green[6],
-    '@warning-color': colors.orange[6],
+    '@warning-color': colors.attentionText,
     '@error-color': colors.red[5],
     '@disabled-color': inputBorderGrey,
     '@link-color': green[6],

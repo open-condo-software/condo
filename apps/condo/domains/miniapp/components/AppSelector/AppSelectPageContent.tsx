@@ -76,13 +76,13 @@ export const AppSelectPageContent: React.FC = () => {
                                 {
                                     connectedServices.map(service => {
                                         const logo = service.logo || undefined
+                                        const url = `/services/${service.id}?type=${service.type}`
                                         return (
                                             <AppCarouselCard
                                                 key={service.name}
                                                 title={service.name}
                                                 logoSrc={logo}
-                                                // TODO (2420): Change it
-                                                url={'/services'}
+                                                url={url}
                                             />
                                         )
                                     })

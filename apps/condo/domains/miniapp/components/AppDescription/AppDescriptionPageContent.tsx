@@ -18,6 +18,7 @@ interface AppDescriptionPageContentProps {
     descriptionBlocks?: Array<AboutBlockProps>,
     instruction?: string,
     appUrl?: string,
+    disabledConnect?: boolean,
 }
 
 export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps> = ({
@@ -31,6 +32,8 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
     descriptionBlocks,
     instruction,
     appUrl,
+    children,
+    disabledConnect,
 }) => {
     const intl = useIntl()
     const HowToSetupMessage = intl.formatMessage({ id: 'services.HowToSetup' })
@@ -65,6 +68,15 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                         </Typography.Title>
                     </Col>
                     {
+                        React.Children.map(children, child => {
+                            return (
+                                <Col span={24}>
+                                    {child}
+                                </Col>
+                            )
+                        })
+                    }
+                    {
                         instruction && (
                             <Col span={24}>
                                 <MarkDown text={instruction}/>
@@ -86,6 +98,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                                 <Button
                                     type={'sberDefaultGradient'}
                                     onClick={handleButtonClick}
+                                    disabled={disabledConnect}
                                 >
                                     {SetupMessage}
                                 </Button>
