@@ -124,6 +124,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const details = get(initialValues, 'details')
     const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
 
+
     return (
         <Col span={24}>
             <Row gutter={[0, 60]}>
