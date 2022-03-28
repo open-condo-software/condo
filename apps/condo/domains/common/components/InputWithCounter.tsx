@@ -13,7 +13,7 @@ type InputWithCounterProps = AntdInputProps & {
 export const InputWithCounter: React.FC<InputWithCounterProps> = ({ InputComponent, currentLength, maxLength, ...inputProps }) => (
     <Col>
         <InputComponent maxLength={maxLength} {...inputProps} />
-        <Typography.Text style={{ color: colors.sberGrey[5], fontSize: '12px', float: 'right' }}>
+        <Typography.Text style={{ color: colors.sberGrey[5], fontSize: '12px', float: 'right', 'position': 'absolute', 'right': '0', 'bottom': '-20px' }}>
             {currentLength}/{maxLength}
         </Typography.Text>
     </Col>
