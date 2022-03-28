@@ -12,10 +12,10 @@ import { User } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import { Button } from '../Button'
 import get from 'lodash/get'
-import { fontSize } from 'html2canvas/dist/types/css/property-descriptors/font-size'
 import { ImageIcon } from '../icons/ImageIcon'
 import { VideoIcon } from '../icons/VideoIcon'
 import { DocIcon } from '../icons/DocIcon'
+import { useAuth } from '@core/next/auth'
 
 interface ICommentProps {
     comment: TComment,
@@ -145,8 +145,6 @@ const CommentFileList = ({ comment }) => {
     const files = get(comment, ['meta', 'files'])
     const [openedImageSrc, setOpenedImageSrc] = useState()
 
-    console.log('openedImageSrc', openedImageSrc)
-
     if (!Array.isArray(files)) {
         return <></>
     }
@@ -197,6 +195,47 @@ const CommentFileList = ({ comment }) => {
 
 const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 
+const getCommentAuthorRoleMessage = (author: User, intl) => {
+    const ResidentMessage = intl.formatMessage({ id: 'Contact' }).toLowerCase()
+    const EmployeeMessage = intl.formatMessage({ id: 'Employee' }).toLowerCase()
+
+    switch (author.type) {
+        case RESIDENT: {
+            return ResidentMessage
+        }
+        case STAFF: {
+            return EmployeeMessage
+        }
+    }
+}
+
+export const CommentPlaceholder = ({ content }) => {
+    const intl = useIntl()
+    const { user } = useAuth()
+
+    return (
+        <AntComment
+            content={
+                <>
+                    <Typography.Text>
+                        {content}
+                    </Typography.Text>
+                    {/*<CommentFileList comment={comment} />*/}
+                </>
+            }
+            author={
+                <Typography.Text type={'secondary'}>
+                    <Typography.Text type={'secondary'} underline style={{ paddingRight: '2px' }}>
+                        {user.name}
+                    </Typography.Text>
+                    ({getCommentAuthorRoleMessage(user, intl)}),
+                </Typography.Text>
+            }
+            css={CommentStyle}
+        />
+    )
+}
+
 export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, deleteAction }) => {
     const intl = useIntl()
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'Comments.actions.delete.confirm.title' })
@@ -204,19 +243,6 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const ConfirmDeleteCancelText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.cancelText' })
     const CommentDeletedText = intl.formatMessage({ id: 'Comments.deleted' })
     const MetaUpdatedText = intl.formatMessage({ id: 'Comments.meta.updated' })
-    const ResidentMessage = intl.formatMessage({ id: 'Contact' }).toLowerCase()
-    const EmployeeMessage = intl.formatMessage({ id: 'Employee' }).toLowerCase()
-
-    const getCommentAuthorRoleMessage = useCallback((author: User) => {
-        switch (author.type) {
-            case RESIDENT: {
-                return ResidentMessage
-            }
-            case STAFF: {
-                return EmployeeMessage
-            }
-        }
-    }, [EmployeeMessage, ResidentMessage])
 
     const [dateShowMode, setDateShowMode] = useState<'created' | 'updated'>('created')
 
@@ -273,7 +299,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
                     <Typography.Text type={'secondary'} underline style={{ paddingRight: '2px' }}>
                         {comment.user.name}
                     </Typography.Text>
-                    ({getCommentAuthorRoleMessage(comment.user)}),
+                    ({getCommentAuthorRoleMessage(comment.user, intl)}),
                 </Typography.Text>
             }
             datetime={
