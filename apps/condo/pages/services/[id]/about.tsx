@@ -1,14 +1,14 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import Error from 'next/error'
-import { APP_TYPES, BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
+import { APP_TYPES, BILLING_APP_TYPE, ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import get from 'lodash/get'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { AboutBillingServicePage } from '@condo/domains/miniapp/components/AppDescription'
+import { AboutBillingServicePage, AboutAcquiringServicePage } from '@condo/domains/miniapp/components/AppDescription'
 
 const AboutServicePage = () => {
     const intl = useIntl()
@@ -32,8 +32,11 @@ const AboutServicePage = () => {
 
     if (type === BILLING_APP_TYPE) {
         return <AboutBillingServicePage id={id}/>
+    } else if (type === ACQUIRING_APP_TYPE) {
+        return <AboutAcquiringServicePage id={id}/>
     }
-    return null
+
+    return <Error statusCode={404}/>
 }
 
 AboutServicePage.requiredAccess = OrganizationRequired
