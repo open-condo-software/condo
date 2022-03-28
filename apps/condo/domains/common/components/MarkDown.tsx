@@ -5,12 +5,14 @@ import { Typography } from 'antd'
 
 interface MarkDownProps {
     text: string,
+    fontSize?: number,
 }
 
-export const MarkDown: React.FC<MarkDownProps> = ({ text }) => {
+export const MarkDown: React.FC<MarkDownProps> = ({ text, fontSize }) => {
+    const style = fontSize ? { fontSize } : {}
 
     return (
-        <Typography.Text type={'secondary'}>
+        <Typography.Text type={'secondary'} style={style}>
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
             >

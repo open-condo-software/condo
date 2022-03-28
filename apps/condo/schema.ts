@@ -53,6 +53,8 @@ export type AcquiringIntegration = {
   partnerUrl?: Maybe<Scalars['String']>;
   /**  Text which used to describe how to connect app written in markdown  */
   instruction?: Maybe<Scalars['String']>;
+  /**  Short message which will be displayed on app's index page if it has no appUrl. Required if appUrl is not specified  */
+  connectedMessage?: Maybe<Scalars['String']>;
   /**  Url to app page, which will is app starting point and will be opened in iframe  */
   appUrl?: Maybe<Scalars['String']>;
   /**  Title of confirmation/details page of integration  */
@@ -926,6 +928,7 @@ export type AcquiringIntegrationCreateInput = {
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -962,6 +965,7 @@ export type AcquiringIntegrationHistoryRecord = {
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['JSON']>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -990,6 +994,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['JSON']>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -1023,6 +1028,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['JSON']>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -1136,6 +1142,10 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   instruction_not?: Maybe<Scalars['JSON']>;
   instruction_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   instruction_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
+  connectedMessage_not?: Maybe<Scalars['JSON']>;
+  connectedMessage_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  connectedMessage_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   appUrl?: Maybe<Scalars['String']>;
   appUrl_not?: Maybe<Scalars['String']>;
   appUrl_contains?: Maybe<Scalars['String']>;
@@ -1294,6 +1304,7 @@ export type AcquiringIntegrationUpdateInput = {
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -1426,6 +1437,24 @@ export type AcquiringIntegrationWhereInput = {
   instruction_not_ends_with_i?: Maybe<Scalars['String']>;
   instruction_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   instruction_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  connectedMessage_not?: Maybe<Scalars['String']>;
+  connectedMessage_contains?: Maybe<Scalars['String']>;
+  connectedMessage_not_contains?: Maybe<Scalars['String']>;
+  connectedMessage_starts_with?: Maybe<Scalars['String']>;
+  connectedMessage_not_starts_with?: Maybe<Scalars['String']>;
+  connectedMessage_ends_with?: Maybe<Scalars['String']>;
+  connectedMessage_not_ends_with?: Maybe<Scalars['String']>;
+  connectedMessage_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_i?: Maybe<Scalars['String']>;
+  connectedMessage_contains_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_contains_i?: Maybe<Scalars['String']>;
+  connectedMessage_starts_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_ends_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  connectedMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   appUrl?: Maybe<Scalars['String']>;
   appUrl_not?: Maybe<Scalars['String']>;
   appUrl_contains?: Maybe<Scalars['String']>;
@@ -3366,6 +3395,8 @@ export type BillingIntegration = {
   partnerUrl?: Maybe<Scalars['String']>;
   /**  Text which used to describe how to connect app written in markdown  */
   instruction?: Maybe<Scalars['String']>;
+  /**  Short message which will be displayed on app's index page if it has no appUrl. Required if appUrl is not specified  */
+  connectedMessage?: Maybe<Scalars['String']>;
   /**  Url to app page, which will is app starting point and will be opened in iframe  */
   appUrl?: Maybe<Scalars['String']>;
   /**  Title of confirmation/details page of integration  */
@@ -3737,6 +3768,7 @@ export type BillingIntegrationCreateInput = {
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
@@ -3790,6 +3822,7 @@ export type BillingIntegrationHistoryRecord = {
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['JSON']>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
@@ -3823,6 +3856,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['JSON']>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
@@ -3861,6 +3895,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['JSON']>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
@@ -3979,6 +4014,10 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   instruction_not?: Maybe<Scalars['JSON']>;
   instruction_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   instruction_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
+  connectedMessage_not?: Maybe<Scalars['JSON']>;
+  connectedMessage_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  connectedMessage_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   appUrl?: Maybe<Scalars['String']>;
   appUrl_not?: Maybe<Scalars['String']>;
   appUrl_contains?: Maybe<Scalars['String']>;
@@ -4885,6 +4924,7 @@ export type BillingIntegrationUpdateInput = {
   developer?: Maybe<Scalars['String']>;
   partnerUrl?: Maybe<Scalars['String']>;
   instruction?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
   detailsTitle?: Maybe<Scalars['String']>;
   detailsConfirmButtonText?: Maybe<Scalars['String']>;
@@ -5021,6 +5061,24 @@ export type BillingIntegrationWhereInput = {
   instruction_not_ends_with_i?: Maybe<Scalars['String']>;
   instruction_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   instruction_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  connectedMessage_not?: Maybe<Scalars['String']>;
+  connectedMessage_contains?: Maybe<Scalars['String']>;
+  connectedMessage_not_contains?: Maybe<Scalars['String']>;
+  connectedMessage_starts_with?: Maybe<Scalars['String']>;
+  connectedMessage_not_starts_with?: Maybe<Scalars['String']>;
+  connectedMessage_ends_with?: Maybe<Scalars['String']>;
+  connectedMessage_not_ends_with?: Maybe<Scalars['String']>;
+  connectedMessage_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_i?: Maybe<Scalars['String']>;
+  connectedMessage_contains_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_contains_i?: Maybe<Scalars['String']>;
+  connectedMessage_starts_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_ends_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  connectedMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   appUrl?: Maybe<Scalars['String']>;
   appUrl_not?: Maybe<Scalars['String']>;
   appUrl_contains?: Maybe<Scalars['String']>;
@@ -30456,6 +30514,8 @@ export enum SortAcquiringIntegrationsBy {
   PartnerUrlDesc = 'partnerUrl_DESC',
   InstructionAsc = 'instruction_ASC',
   InstructionDesc = 'instruction_DESC',
+  ConnectedMessageAsc = 'connectedMessage_ASC',
+  ConnectedMessageDesc = 'connectedMessage_DESC',
   AppUrlAsc = 'appUrl_ASC',
   AppUrlDesc = 'appUrl_DESC',
   DetailsTitleAsc = 'detailsTitle_ASC',
@@ -30849,6 +30909,8 @@ export enum SortBillingIntegrationsBy {
   PartnerUrlDesc = 'partnerUrl_DESC',
   InstructionAsc = 'instruction_ASC',
   InstructionDesc = 'instruction_DESC',
+  ConnectedMessageAsc = 'connectedMessage_ASC',
+  ConnectedMessageDesc = 'connectedMessage_DESC',
   AppUrlAsc = 'appUrl_ASC',
   AppUrlDesc = 'appUrl_DESC',
   DetailsTitleAsc = 'detailsTitle_ASC',

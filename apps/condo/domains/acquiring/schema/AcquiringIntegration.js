@@ -11,7 +11,7 @@ const { DETAILS_TITLE_FIELD, IS_HIDDEN_FIELD } = require('@condo/domains/billing
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
-const { NO_INSTRUCTION_ERROR } = require('@condo/domains/miniapp/constants')
+const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const {
     LOGO_FIELD,
@@ -21,6 +21,7 @@ const {
     DESCRIPTION_BLOCKS_FIELD,
     INSTRUCTION_TEXT_FIELD,
     IFRAME_URL_FIELD,
+    CONNECTED_MESSAGE_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
 
@@ -50,6 +51,8 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         partnerUrl: PARTNER_URL_FIELD,
 
         instruction: INSTRUCTION_TEXT_FIELD,
+
+        connectedMessage: CONNECTED_MESSAGE_FIELD,
 
         appUrl: IFRAME_URL_FIELD,
 
@@ -111,8 +114,8 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             const { dv } = resolvedData
             if (dv === 1) {
                 const newItem = { ...existingItem, ...resolvedData }
-                if (!newItem.appUrl && !newItem.instruction) {
-                    return addValidationError(NO_INSTRUCTION_ERROR)
+                if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
+                    return addValidationError(NO_INSTRUCTION_OR_MESSAGE_ERROR)
                 }
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)

@@ -56,6 +56,12 @@ const IFRAME_URL_FIELD = {
     isRequired: false,
 }
 
+const CONNECTED_MESSAGE_FIELD = {
+    schemaDoc: 'Short message which will be displayed on app\'s index page if it has no appUrl. Required if appUrl is not specified',
+    type: Markdown,
+    isRequired: false,
+}
+
 module.exports = {
     DEVELOPER_FIELD,
     LOGO_FIELD,
@@ -65,5 +71,6 @@ module.exports = {
     SHORT_DESCRIPTION_FIELD,
     INSTRUCTION_TEXT_FIELD,
     IFRAME_URL_FIELD,
+    CONNECTED_MESSAGE_FIELD,
 }
 

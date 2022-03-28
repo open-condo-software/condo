@@ -1,8 +1,8 @@
-import { Empty, Space } from 'antd'
+import { Empty, EmptyProps, Space } from 'antd'
 import { useRouter } from 'next/router'
 import { Button } from './Button'
 import { EmptyIcon } from './EmptyIcon'
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import styled from '@emotion/styled'
 
 export interface IEmptyListProps {
@@ -12,21 +12,23 @@ export interface IEmptyListProps {
     createLabel: string,
 }
 
-export interface IBasicEmptyListProps {
+export interface IBasicEmptyListProps extends EmptyProps {
     image?: string
     children?: React.ReactNode
+    containerStyle?: CSSProperties,
 }
 
-export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({ image, children }) => {
-    const style = {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100%',
-        width: '100%',
-    }
+const DEFAULT_CONTAINER_STYLE: CSSProperties = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    width: '100%',
+}
+
+export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({ image, children, containerStyle, ...other }) => {
     return (
-        <div style={style}>
+        <div style={{ ...DEFAULT_CONTAINER_STYLE, ...containerStyle }}>
             <Empty
                 style={{ maxWidth: '350px' }}
                 image={image ? image : <EmptyIcon/>}
@@ -36,6 +38,7 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({ image, chil
                         {children}
                     </Space>
                 }
+                {...other}
             />
         </div>
     )
