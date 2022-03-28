@@ -44,7 +44,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
     const { query: { id, type } } = router
 
     const handleButtonClick = useCallback(() => {
-        router.push(`/services/${id}?=type${type}`)
+        router.push(`/services/${id}?type=${type}`)
     }, [router, id, type])
 
     return (
