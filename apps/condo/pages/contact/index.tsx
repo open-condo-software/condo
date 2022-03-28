@@ -27,7 +27,9 @@ import { get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
-import { TableFiltersContainer } from '../../domains/common/components/TableFiltersContainer'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT, EXTENDED_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -126,6 +128,10 @@ export const ContactsPageContent = ({
                                                                         accessCheck={canManageContacts}
                                                                         onFinish={refetch}
                                                                         columns={columns}
+                                                                        maxTableLength={hasFeature('bigger_limit_for_contacts_import') ?
+                                                                            EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                                                            DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                                                        }
                                                                         rowNormalizer={contactNormalizer}
                                                                         rowValidator={contactValidator}
                                                                         objectCreator={contactCreator}

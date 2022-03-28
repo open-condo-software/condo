@@ -19,6 +19,7 @@ import {
 import { DataImporter } from '../DataImporter'
 import { Button } from '../Button'
 import { DownloadOutlined } from '@ant-design/icons'
+import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 
 interface IColumnsInfoBoxProps {
     columns: Columns
@@ -199,7 +200,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
 }
 
 ImportWrapper.defaultProps = {
-    maxTableLength: 500,
+    maxTableLength: DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
 }
 
 export {
