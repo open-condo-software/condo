@@ -644,6 +644,7 @@
   "employee.UpdateTitle": "Editing an employee",
   "employee.ConfirmDeleteTitle": "Delete an employee?",
   "employee.ConfirmDeleteMessage": "All data about him will be erased forever",
+  "employee.FullName.requiredError": "Enter employee name",
   "employee.emptyList.title": "You are blocked",
   "employee.emptyList.description": "Your employer has blocked you from the organization",
   "employee.role.Administrator.name": "Administrator",

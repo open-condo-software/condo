@@ -51,6 +51,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const InviteEmployeeLabel = intl.formatMessage({ id: 'employee.InviteEmployee' })
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const FullNamePlaceholder = intl.formatMessage({ id: 'field.FullName' })
+    const FullNameRequiredMessage = intl.formatMessage({ id: 'employee.FullName.requiredError' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const EmailLabel = intl.formatMessage({ id: 'Email' })
@@ -76,7 +77,7 @@ export const CreateEmployeeForm: React.FC = () => {
         { where: { organization: { id: get(organization, 'id') } } }
     )
 
-    const { requiredValidator, emailValidator, phoneValidator } = useValidations()
+    const { changeMessage, requiredValidator, emailValidator, phoneValidator } = useValidations()
     const alreadyRegisteredPhoneValidator = {
         validator: (_, value) => {
             if (employee.find(emp => emp.phone === value)) return Promise.reject(UserAlreadyInListMsg)
@@ -98,6 +99,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator, alreadyRegisteredPhoneValidator],
         email: [emailValidator, alreadyRegisteredEmailValidator],
+        name: [changeMessage(requiredValidator, FullNameRequiredMessage)],
     }
 
     const action = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, () => {
@@ -167,6 +169,8 @@ export const CreateEmployeeForm: React.FC = () => {
                                                         label={FullNameLabel}
                                                         {...INPUT_LAYOUT_PROPS}
                                                         labelAlign={'left'}
+                                                        required
+                                                        rules={validations.name}
                                                     >
                                                         <Input placeholder={FullNamePlaceholder} />
                                                     </Form.Item>
@@ -270,7 +274,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                 >
                                                     {InviteEmployeeLabel}
                                                 </Button>
-                                                <ErrorsContainer phone={phone} />
+
                                             </ActionBar>
                                         )
                                     }
