@@ -10,7 +10,7 @@ import { useIntl } from '@core/next/intl'
 import { Col, Row, Tabs, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useContext, useEffect, useState } from 'react'
-import { ButtonHeaderActions } from '@condo/domains/common/components/HeaderActions'
+import { ButtonHeaderActions, TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
 import { useMutation } from '@core/next/apollo'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -97,13 +97,7 @@ const RegisterPage: AuthPage = () => {
 
     return (
         <RegisterContextProvider>
-            <Row gutter={[0, 60]}>
-                <Col span={24}>
-                    <Tabs defaultActiveKey='register' style={ { alignItems:'center', fontWeight: 500 } }>
-                        <Tabs.TabPane key='register' tab={'Регистрация'}/>
-                        <Tabs.TabPane key='signin' tab={'Вход'}/>
-                    </Tabs>
-                </Col>
+            <Row>
                 <Col span={24}>
                     { steps[state] }
                 </Col>
@@ -112,12 +106,6 @@ const RegisterPage: AuthPage = () => {
     )
 }
 
-RegisterPage.headerAction = (
-    <ButtonHeaderActions
-        descriptor={{ id: 'pages.auth.AlreadyRegistered' }}
-        path={'/auth/signin'}
-    />
-)
 RegisterPage.container = AuthLayout
 
 export default RegisterPage

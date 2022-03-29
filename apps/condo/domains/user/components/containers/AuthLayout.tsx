@@ -10,12 +10,10 @@ import { AuthLayoutContextProvider } from './AuthLayoutContext'
 const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
 
 export interface AuthPage extends React.FC {
-    headerAction: React.ReactElement
     container: React.FC
 }
 
 interface IAuthLayoutProps {
-    headerAction: React.ReactElement
     children: JSX.Element
 }
 
