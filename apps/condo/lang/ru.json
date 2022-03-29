@@ -643,7 +643,7 @@
   "employee.InviteEmployee": "Пригласить сотрудника",
   "employee.UpdateTitle": "Редактирование сотрудника",
   "employee.ConfirmDeleteTitle": "Удалить сотрудника?",
-  "employee.ConfirmDeleteMessage": "Все данные о нём сотрутсяы навсегда",
+  "employee.ConfirmDeleteMessage": "Все данные о нём сотрутся навсегда",
   "employee.FullName.requiredError": "Укажите имя сотрудника",
   "employee.emptyList.title": "Вы заблокированы",
   "employee.emptyList.description": "Ваш работодатель заблокировал вас в организации",
