@@ -24,6 +24,10 @@ const MESSAGE_FORWARDED_TO_SUPPORT = 'MESSAGE_FORWARDED_TO_SUPPORT'
 const TICKET_ASSIGNEE_CONNECTED_TYPE = 'TICKET_ASSIGNEE_CONNECTED'
 const TICKET_EXECUTOR_CONNECTED_TYPE = 'TICKET_EXECUTOR_CONNECTED'
 
+const TICKET_STATUS_IN_WORK = 'TICKET_STATUS_IN_WORK'
+const TICKET_STATUS_COMPLETED = 'TICKET_STATUS_COMPLETED'
+const TICKET_STATUS_RETURNED = 'TICKET_STATUS_RETURNED'
+
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -36,6 +40,10 @@ const MESSAGE_TYPES = [
     MESSAGE_FORWARDED_TO_SUPPORT,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
+
+    TICKET_STATUS_IN_WORK,
+    TICKET_STATUS_COMPLETED,
+    TICKET_STATUS_RETURNED,
 ]
 
 const MESSAGE_META = {
@@ -107,6 +115,30 @@ const MESSAGE_META = {
             userId: { defaultValue: '', required: true },
         },
     },
+    [TICKET_STATUS_IN_WORK]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_STATUS_COMPLETED]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_STATUS_RETURNED]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+        },
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -161,6 +193,11 @@ module.exports = {
     MESSAGE_FORWARDED_TO_SUPPORT,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
+
+    TICKET_STATUS_IN_WORK,
+    TICKET_STATUS_COMPLETED,
+    TICKET_STATUS_RETURNED,
+
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE,
     PUSH_TRANSPORT_HUAWEI,

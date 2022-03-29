@@ -19,11 +19,18 @@ const {
     MESSAGE_FORWARDED_TO_SUPPORT,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
+
+    TICKET_STATUS_IN_WORK,
+    TICKET_STATUS_COMPLETED,
+    TICKET_STATUS_RETURNED,
 } = require('./constants/constants')
 
 const {
     getTicketAssigneeConnectedMessage,
     getTicketExecutorConnectedMessage,
+    getTicketStatusInWorkMessage,
+    getTicketStatusCompletedMessage,
+    getTicketStatusReturnedMessage,
 } = require('./ticketTemplates')
 
 async function renderTemplate (transport, message) {
@@ -283,6 +290,18 @@ async function renderTemplate (transport, message) {
 
     if (message.type === TICKET_EXECUTOR_CONNECTED_TYPE) {
         return getTicketExecutorConnectedMessage(message, transport)
+    }
+
+    if (message.type === TICKET_STATUS_IN_WORK) {
+        return getTicketStatusInWorkMessage(message, transport)
+    }
+
+    if (message.type === TICKET_STATUS_COMPLETED) {
+        return getTicketStatusCompletedMessage(message, transport)
+    }
+
+    if (message.type === TICKET_STATUS_RETURNED) {
+        return getTicketStatusReturnedMessage(message, transport)
     }
 
     throw new Error('unknown template or lang')

@@ -147,7 +147,212 @@ const getTicketExecutorConnectedMessage = (message, transport) => {
     }
 }
 
+
+const getTicketStatusInWorkMessagePush = (message) => {
+    const { id: notificationId } = message
+    const { ticketId, ticketNumber, userId } = get(message, 'meta.data', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                notification: {
+                    title: `Ticket status changed #${ticketNumber}`,
+                    body: '👉🏻 «In work»',
+                },
+                data: { ticketId, notificationId, userId },
+            }
+
+        case RU_LOCALE:
+            return {
+                notification: {
+                    title: `Изменился статус заявки №${ticketNumber}`,
+                    body: '👉🏻 «В работе»',
+                },
+                data: { ticketId, notificationId, userId },
+            }
+    }
+}
+
+const getTicketStatusInWorkMessageSms = (message) => {
+    const { ticketNumber } = get(message, 'meta', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                text: `Ticket status changed #${ticketNumber}`,
+            }
+
+        case RU_LOCALE:
+            return {
+                text: `Изменился статус заявки №${ticketNumber}`,
+            }
+    }
+}
+
+const getTicketStatusInWorkMessageEmail = (message) => {
+    const { ticketId, ticketNumber } = get(message, 'meta', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                subject: `Ticket status changed #${ticketNumber}`,
+                text: `Please follow the link to view the ticket: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+
+        case RU_LOCALE:
+            return {
+                subject: `Изменился статус заявки №${ticketNumber}`,
+                text: `Ознакомиться с заявкой можнжо по ссылке: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+    }
+}
+
+const getTicketStatusInWorkMessage = (message, transport) => {
+    switch (transport) {
+        case PUSH_TRANSPORT: return getTicketStatusInWorkMessagePush(message)
+        case EMAIL_TRANSPORT: return getTicketStatusInWorkMessageEmail(message)
+        case SMS_TRANSPORT: return getTicketStatusInWorkMessageSms(message)
+    }
+}
+
+
+const getTicketStatusCompletedMessagePush = (message) => {
+    const { id: notificationId } = message
+    const { ticketId, userId } = get(message, 'meta.data', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                notification: {
+                    title: 'Your ticket has been completed',
+                    body: 'Evaluate the work on the ticket',
+                },
+                data: { ticketId, notificationId, userId },
+            }
+
+        case RU_LOCALE:
+            return {
+                notification: {
+                    title: 'Ваша заявка выполнена',
+                    body: 'Оцените работу по заявке',
+                },
+                data: { ticketId, notificationId, userId },
+            }
+    }
+}
+
+const getTicketStatusCompletedMessageSms = (message) => {
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                text: 'Your ticket has been completed',
+            }
+
+        case RU_LOCALE:
+            return {
+                text: 'Ваша заявка выполнена',
+            }
+    }
+}
+
+const getTicketStatusCompletedMessageEmail = (message) => {
+    const { ticketId } = get(message, 'meta', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                subject: 'Your ticket has been completed',
+                text: `Please follow the link to view the ticket: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+
+        case RU_LOCALE:
+            return {
+                subject: 'Ваша заявка выполнена',
+                text: `Ознакомиться с заявкой можнжо по ссылке: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+    }
+}
+
+const getTicketStatusCompletedMessage = (message, transport) => {
+    switch (transport) {
+        case PUSH_TRANSPORT: return getTicketStatusCompletedMessagePush(message)
+        case EMAIL_TRANSPORT: return getTicketStatusCompletedMessageEmail(message)
+        case SMS_TRANSPORT: return getTicketStatusCompletedMessageSms(message)
+    }
+}
+
+
+const getTicketStatusReturnedMessagePush = (message) => {
+    const { id: notificationId } = message
+    const { ticketId, ticketNumber, userId } = get(message, 'meta.data', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                notification: {
+                    title: `Returned the ticket #${ticketNumber} in work`,
+                    body: 'We deal with the problem',
+                },
+                data: { ticketId, notificationId, userId },
+            }
+
+        case RU_LOCALE:
+            return {
+                notification: {
+                    title: `Вернули заявку №${ticketNumber} в работу`,
+                    body: 'Уже разбираемся с проблемой',
+                },
+                data: { ticketId, notificationId, userId },
+            }
+    }
+}
+
+const getTicketStatusReturnedMessageSms = (message) => {
+    const { ticketNumber } = get(message, 'meta', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                text: `Returned the ticket #${ticketNumber} in work`,
+            }
+
+        case RU_LOCALE:
+            return {
+                text: `Вернули заявку №${ticketNumber} в работу`,
+            }
+    }
+}
+
+const getTicketStatusReturnedMessageEmail = (message) => {
+    const { ticketId, ticketNumber } = get(message, 'meta', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                subject: `Returned the ticket #${ticketNumber} in work`,
+                text: `Please follow the link to view the ticket: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+
+        case RU_LOCALE:
+            return {
+                subject: `Вернули заявку №${ticketNumber} в работу`,
+                text: `Ознакомиться с заявкой можнжо по ссылке: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+    }
+}
+
+const getTicketStatusReturnedMessage = (message, transport) => {
+    switch (transport) {
+        case PUSH_TRANSPORT: return getTicketStatusReturnedMessagePush(message)
+        case EMAIL_TRANSPORT: return getTicketStatusReturnedMessageEmail(message)
+        case SMS_TRANSPORT: return getTicketStatusReturnedMessageSms(message)
+    }
+}
+
 module.exports = {
     getTicketAssigneeConnectedMessage,
     getTicketExecutorConnectedMessage,
+    getTicketStatusInWorkMessage,
+    getTicketStatusCompletedMessage,
+    getTicketStatusReturnedMessage,
 }
