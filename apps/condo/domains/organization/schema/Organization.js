@@ -13,7 +13,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
+const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 
 const access = require('@condo/domains/organization/access/Organization')
 const userAccess = require('@condo/domains/user/access/User')
@@ -24,6 +24,10 @@ const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 const Organization = new GQLListSchema('Organization', {
     schemaDoc: 'B2B customer of the service, a legal entity or an association of legal entities (holding/group)',
     fields: {
+        // TODO(pahaz): DOMA-2308 migrate to `const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')`
+        dv: DV_FIELD,
+        sender: SENDER_FIELD,
+
         country: {
             schemaDoc: 'Country level specific',
             isRequired: true,
@@ -132,7 +136,7 @@ const Organization = new GQLListSchema('Organization', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadOrganizations,
         create: access.canManageOrganizations,
