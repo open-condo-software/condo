@@ -158,6 +158,7 @@ test('oidc', async () => {
         'sub': c.user.id,
         'type': 'staff',
         'v': 1,
+        'dv': 1,
         'isAdmin': false,
         'isSupport': false,
         'name': c.user.name,

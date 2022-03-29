@@ -14,6 +14,7 @@ module.exports = {
                 return {
                     sub: id,
                     v: user.v,
+                    dv: user.dv,
                     type: user.type,
                     name: user.name,
                     isSupport: user.isSupport,
@@ -33,7 +34,7 @@ module.exports = {
     },
     claims: {
         // TODO(pahaz): SCOPES think about it!
-        openid: ['sub', 'name', 'isAdmin', 'isSupport', 'v', 'type'],
+        openid: ['sub', 'v', 'dv', 'type', 'name', 'isAdmin', 'isSupport'],
     },
     features: {
         // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#featuresclientcredentials - Enables grant_type=client_credentials to be used on the token endpoint
