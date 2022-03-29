@@ -25,6 +25,24 @@ interface IGetOptionGroupBySectionType {
 export type UnitNameInputOption = LabeledValue & { 'data-unitType': BuildingUnitType, 'data-unitName': string }
 const BASE_UNIT_NAME_INPUT_OPTION_STYLE: React.CSSProperties = { paddingLeft: '12px' }
 
+/**
+ * Extract number from string, starting from the begining...
+ * 70A -> 70
+ * B66 -> NaN
+ * @param value
+ */
+function extractNumericPart (string: string): number {
+
+    const result = []
+    for (const char of string) {
+        if (char >= '0' && char <= '9') {
+            result.push(char)
+        }
+    }
+
+    return Number(result.join(''))
+}
+
 const getOptionGroupBySectionType: IGetOptionGroupBySectionType = (props) => {
     const { sections, unitType, groupLabel } = props
     if (!sections) return null
@@ -37,12 +55,35 @@ const getOptionGroupBySectionType: IGetOptionGroupBySectionType = (props) => {
 
     const flattenUnits: Array<BuildingUnit> = flattenDeep(unflattenUnits)
 
-    const options = flattenUnits.filter((unit) => {
+    const filteredUnits = flattenUnits.filter((unit) => {
         if (unitType === BuildingUnitType.Flat) {
             return unit.unitType === null || unit.unitType === BuildingUnitType.Flat
         }
         return unit.unitType === unitType
-    }).map(
+    }).sort( (unitA, unitB) => {
+        const unitALabel = extractNumericPart(unitA.label)
+        const unitBLabel = extractNumericPart(unitB.label)
+
+        if (isNaN(unitALabel)) {
+            return -1
+        }
+
+        if (isNaN(unitBLabel)) {
+            return 1
+        }
+
+        if (unitALabel < unitBLabel) {
+            return -1
+        } else if (unitALabel > unitBLabel) {
+            return 1
+        } else {
+            return 0
+        }
+    })
+
+    console.log(filteredUnits)
+
+    const options = filteredUnits.map(
         (unit) => (
             <Select.Option
                 key={`${unitType}-${unit.label}`}
