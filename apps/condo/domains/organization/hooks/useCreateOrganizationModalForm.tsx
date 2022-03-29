@@ -85,6 +85,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
     const CreateOrganizationModalTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationModalTitle' })
     const CreateOrganizationModalMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationMessage' })
+    const CreateOrganizationPlaceholder = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationPlaceholder' })
 
     const NameMsg = intl.formatMessage({ id: 'pages.organizations.OrganizationName' })
     const InnMessage = intl.formatMessage({ id: 'pages.organizations.tin' })
@@ -156,7 +157,9 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
             </Typography.Paragraph>
 
             <Form.Item name='name' label={NameMsg} rules={validators.name} validateFirst>
-                <Input />
+                <Input
+                    placeholder={CreateOrganizationPlaceholder}
+                />
             </Form.Item>
 
             <Form.Item name='tin' style={FORM_ITEM_STYLES} label={InnMessage} rules={validators.tin} validateFirst>

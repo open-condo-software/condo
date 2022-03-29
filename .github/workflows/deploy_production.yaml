@@ -5,7 +5,7 @@ concurrency: deploy_production.yaml
 on:
   push:
     tags:
-      - '*'
+      - 'release-v*'
 
 jobs:
   converge:

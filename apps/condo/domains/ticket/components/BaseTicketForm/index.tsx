@@ -28,7 +28,6 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { USER_TYPES } from '@condo/domains/user/constants/common'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
 
@@ -125,13 +124,14 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const details = get(initialValues, 'details')
     const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
 
+
     return (
         <Col span={24}>
             <Row gutter={[0, 60]}>
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Typography.Title level={3}>{DescriptionLabel}</Typography.Title>
+                            <Typography.Title level={3}><span style={{ 'color': colors.brightRed }}>*</span>{DescriptionLabel}</Typography.Title>
                         </Col>
                         <Col span={isSmall ? 24 : 20}>
                             <Row>
@@ -142,14 +142,14 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                             currentLength={currentDetailsLength}
                                             maxLength={500}
                                             onChange={e => setCurrentDetailsLength(e.target.value.length)}
-                                            placeholder={DescriptionPlaceholder + ' *'}
+                                            placeholder={DescriptionPlaceholder}
                                             disabled={disableUserInteraction}
                                             style={INPUT_WITH_COUNTER_STYLE}
                                             data-cy={'ticket__description-input'}
                                         />
                                     </TicketFormItem>
                                 </Col>
-                                <Col span={24}>
+                                <Col span={24} style={{ 'padding-top': '24px' }}>
                                     <TicketFormItem>
                                         <UploadComponent/>
                                     </TicketFormItem>

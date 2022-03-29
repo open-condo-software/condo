@@ -60,6 +60,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
+    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -123,9 +124,16 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                         </TicketTag>
                     )
                 }
+                {
+                    record.statusReopenedCounter > 0 && (
+                        <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
+                            {ReturnedMessage} {record.statusReopenedCounter > 1 && `(${record.statusReopenedCounter})`}
+                        </TicketTag>
+                    )
+                }
             </Space>
         )
-    }, [EmergencyMessage, PaidMessage, WarrantyMessage, search])
+    }, [EmergencyMessage, PaidMessage, ReturnedMessage, WarrantyMessage, search])
 
     const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)

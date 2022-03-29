@@ -1,4 +1,4 @@
-const { generate, grey, green, gold, blue, red, volcano, purple, lime, magenta, cyan, geekblue, yellow, orange } = require('@ant-design/colors')
+const { generate, green, gold, blue, red, volcano, purple, lime, magenta, cyan, geekblue, yellow, orange } = require('@ant-design/colors')
 
 const generateCustomColorPalette = (primaryColor, secondaryColor) => {
     const colorPalette = generate(primaryColor)
@@ -112,10 +112,11 @@ const shadows = {
     elevated: '0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12)',
     main: '0px 28px 65px rgba(208, 216, 225, 0.24), 0px 6px 15px rgba(208, 216, 225, 0.28), 0px 2px 6px rgba(208, 216, 225, 0.16)',
     big: '0px 14px 34px rgba(208, 216, 225, 0.4), 0px 15px 38px rgba(208, 216, 225, 0.4), 0px 7px 17px rgba(208, 216, 225, 0.6)',
+    small: '0px 19px 45px rgba(208, 216, 225, 0.12), 0px 6px 10px rgba(208, 216, 225, 0.2), 0px 2px 2px rgba(208, 216, 225, 0.28)',
 }
 
 const transitions = {
-    elevateTransition: 'box-shadow 0.2s ease-in-out, border 0.2s ease-in-out',
+    elevateTransition: 'box-shadow 0.2s ease-in-out, border-width 0.2s ease-in-out, border-color 0.2s ease-in-out',
     easeInOut: 'all .2s ease-in-out',
     allDefault: 'all 0.3s',
 }

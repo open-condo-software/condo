@@ -3,8 +3,9 @@ import { useIntl } from '@core/next/intl'
 import { getTextRender, getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import get from 'lodash/get'
-import { AlignType } from 'react-markdown'
 import { Tooltip } from 'antd'
+
+type AlignType = 'right' | 'left' | 'center'
 
 const DETAILED_COLUMNS_AMOUNT = 9
 const BASE_COLUMNS_AMOUNT = 2

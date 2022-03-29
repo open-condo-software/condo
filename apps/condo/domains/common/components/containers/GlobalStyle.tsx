@@ -241,6 +241,8 @@ export default function GlobalStyle () {
               ${radioGroupCss}
               ${inputControlCss}
               ${page}
+              ${carouselCss}
+              ${cardCSS}
             `}
         />
     )
@@ -364,5 +366,26 @@ const page = css`
     align-self: center;
     max-width: 600px;
     min-width: initial;
+  }
+`
+
+const carouselCss = css`
+  .ant-carousel {
+    width: 100%;
+    background: ${colors.backgroundLightGrey};
+    padding: 12px;
+    border-radius: 12px;
+  }
+  .slick-slide {
+    padding: 12px;
+  }
+`
+
+const cardCSS = css`
+  .ant-card-bordered {
+    border: 1px solid ${colors.backgroundWhiteSecondary};
+  }
+  .ant-card-head {
+    border-color: ${colors.backgroundWhiteSecondary};
   }
 `

@@ -12,6 +12,10 @@ import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/
 import { FormattedMessage } from 'react-intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import dayjs from 'dayjs'
+import isNil from 'lodash/isNil'
+import { getReviewMessageByValue } from '../../utils/clientSchema/Ticket'
+import { RESIDENT } from '@condo/domains/user/constants/common'
+import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -75,6 +79,12 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
+    const FilledReviewCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.filled' })
+    const BadReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.badReview' })
+    const GoodReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.goodReview' })
+    const AutoClosedMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoCloseTicket' })
+    const AndMessage = intl.formatMessage(( { id: 'And' }))
+
     const { objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const fields = [
@@ -92,6 +102,8 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['classifierDisplayName', ClassifierMessage],
         ['placeClassifierDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
+        ['statusReopenedCounter', '', { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' }],
+        ['reviewValue', '', { add: 'pages.condo.ticket.TicketChanges.reviewValue.add' }],
     ]
 
     const BooleanToString = {
@@ -171,6 +183,24 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
                 return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay}${problemClassifierToDisplay ? ` → ${problemClassifierToDisplay}` : ''}`
             },
+            reviewValue: (field, value) => {
+                const reviewValueMessage = getReviewMessageByValue(value, intl)
+                const reviewComment = ticketChange['reviewCommentTo']
+                let reviewCommentMessage
+
+                if (reviewComment) {
+                    const selectedReviewOptions = reviewComment.split(';').map(option => `«${option.trim()}»`).join(` ${AndMessage} `)
+                    reviewCommentMessage = `${FilledReviewCommentMessage} ${selectedReviewOptions}`
+                } else {
+                    if (value === REVIEW_VALUES.BAD) {
+                        reviewCommentMessage = BadReviewEmptyCommentMessage
+                    } else if (value === REVIEW_VALUES.GOOD) {
+                        reviewCommentMessage = GoodReviewEmptyCommentMessage
+                    }
+                }
+
+                return `${reviewValueMessage}. ${reviewCommentMessage}`
+            },
         }
         return has(formatterFor, field)
             ? formatterFor[field](field, value, type)
@@ -196,12 +226,18 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             )
         }
 
+        if (ticketChange.sender.fingerprint === 'auto-close') {
+            return field === 'statusDisplayName' && AutoClosedMessage
+        }
+
         const valueFrom = ticketChange[`${field}From`]
         const valueTo = ticketChange[`${field}To`]
+        const isValueFromNotEmpty = !isNil(valueFrom)
+        const isValueToNotEmpty = !isNil(valueTo)
         const formattedValueFrom = formatField(field, valueFrom, TicketChangeFieldMessageType.From)
         const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
 
-        if (valueFrom && valueTo) {
+        if (isValueFromNotEmpty && isValueToNotEmpty) {
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -216,7 +252,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     />
                 </>
             )
-        } else if (valueTo) { // only "to" part
+        } else if (isValueToNotEmpty) { // only "to" part
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -230,7 +266,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     />
                 </>
             )
-        } else if (valueFrom) {
+        } else if (isValueFromNotEmpty) {
             return (
                 <>
                     <SafeUserMention createdBy={ticketChange.createdBy} />
@@ -262,9 +298,15 @@ const SafeUserMention = ({ createdBy }) => {
     const intl = useIntl()
     const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
     const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
+    const DispatcherRoleName = intl.formatMessage({ id: 'employee.role.Dispatcher.name' })
+    const Resident = intl.formatMessage({ id: 'Contact' })
+    const userTypeMessage = createdBy.type === RESIDENT ? Resident : DispatcherRoleName
+
     return (
         createdBy ? (
-            createdBy.name
+            <>
+                {userTypeMessage} {createdBy.name}
+            </>
         ) : (
             <Tooltip placement="top" title={DeletedCreatedAtNoticeDescription}>
                 <span>{DeletedCreatedAtNoticeTitle}</span>

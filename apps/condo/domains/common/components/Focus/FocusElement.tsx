@@ -59,15 +59,15 @@ export const FocusElement: React.FC = ({ children }) => {
     return (
         isFocusVisible
             ? (
-                <FocusWrapper>
-                    <Tooltip
-                        title={Title}
-                        visible
-                        placement={'right'}
-                    >
+                <Tooltip
+                    title={Title}
+                    visible
+                    placement={'right'}
+                >
+                    <FocusWrapper>
                         {children}
-                    </Tooltip>
-                </FocusWrapper>
+                    </FocusWrapper>
+                </Tooltip>
             )
             : <>{ children }</>
     )

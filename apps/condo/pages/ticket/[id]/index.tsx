@@ -44,6 +44,8 @@ import { BaseType } from 'antd/lib/typography/Base'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { FormattedMessage } from 'react-intl'
+import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
+import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -158,6 +160,9 @@ const TicketContent = ({ ticket }) => {
     const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' }).toLowerCase()
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' }).toLowerCase()
     const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` })
+    const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
+    const ReviewWithoutCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.withoutComment' })
+    const NoReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.noReview' })
 
     const propertyWasDeleted = !(ticket.property)
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
@@ -165,6 +170,13 @@ const TicketContent = ({ ticket }) => {
     const ticketSectionAndFloor = ticket.sectionName && ticket.floorName
         ? `(${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName})`
         : ''
+
+    const ticketReviewValue = ticket.reviewValue
+    const ticketReviewComment = ticket.reviewComment
+    const reviewValueToText = useMemo(() => ({
+        [REVIEW_VALUES.BAD]: `${getReviewMessageByValue(REVIEW_VALUES.BAD, intl)} 😔`,
+        [REVIEW_VALUES.GOOD]: `${getReviewMessageByValue(REVIEW_VALUES.GOOD, intl)} 😊`,
+    }), [intl])
 
     const { objs: files } = TicketFile.useObjects({
         where: { ticket: { id: ticket ? ticket.id : null } },
@@ -293,6 +305,28 @@ const TicketContent = ({ ticket }) => {
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         {
+                            ticket.status.type === CLOSED_STATUS_TYPE ? (
+                                <PageFieldRow title={ReviewValueMessage}>
+                                    <Typography.Text>
+                                        {
+                                            ticketReviewValue ? (
+                                                <>
+                                                    {reviewValueToText[ticketReviewValue]}&nbsp;
+                                                    <Typography.Text type={'secondary'}>
+                                                        ({ticketReviewComment ? ticketReviewComment.replace(';', ',') : ReviewWithoutCommentMessage})
+                                                    </Typography.Text>
+                                                </>
+                                            ) : (
+                                                <Typography.Text type={'secondary'}>
+                                                    {NoReviewMessage}
+                                                </Typography.Text>
+                                            )
+                                        }
+                                    </Typography.Text>
+                                </PageFieldRow>
+                            ) : null
+                        }
+                        {
                             ticketDeadline ? (
                                 <PageFieldRow title={Deadline}>
                                     <Typography.Text strong> {dayjs(ticketDeadline).format('DD MMMM YYYY')} </Typography.Text>
@@ -407,6 +441,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
+    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
     const ChangedMessage = intl.formatMessage({ id: 'Changed' })
     const TimeHasPassedMessage = intl.formatMessage({ id: 'TimeHasPassed' })
     const DaysShortMessage = intl.formatMessage({ id: 'DaysShort' })
@@ -467,6 +502,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const isEmergency = get(ticket, 'isEmergency')
     const isPaid = get(ticket, 'isPaid')
     const isWarranty = get(ticket, 'isWarranty')
+    const statusReopenedCounter = get(ticket, 'statusReopenedCounter')
 
     const handleTicketStatusChanged = () => {
         refetchTicket()
@@ -594,6 +630,13 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                         {isEmergency && <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
                                         {isPaid && <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
                                         {isWarranty && <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
+                                        {
+                                            statusReopenedCounter > 0 && (
+                                                <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
+                                                    {ReturnedMessage.toLowerCase()} {statusReopenedCounter > 1 && `(${statusReopenedCounter})`}
+                                                </TicketTag>
+                                            )
+                                        }
                                     </Space>
                                 </Col>
                                 <TicketContent ticket={ticket}/>

@@ -252,6 +252,9 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
         responsibleListRef.current = [...searchObjectsList.map(({ key: id, title: value }) => ({ id, value }))]
     }, [responsibleList])
 
+    const onSpecificationChange = useCallback((e) => setSpecification(e), [])
+    const onRangePresetChange = useCallback((preset) => setDateRangePreset(preset.target.value), [])
+
     return (
         <Form>
             <Row gutter={[0, 40]}>
@@ -259,13 +262,13 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                     <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE}>
                         <DateRangePicker
                             value={dateRange}
-                            onChange={(range) => setDateRange(range)}
+                            onChange={onSpecificationChange}
                         />
                         <Typography.Paragraph>
                             <Radio.Group
                                 css={radioButtonBorderlessCss}
                                 size={'small'}
-                                onChange={preset => setDateRangePreset(preset.target.value)}
+                                onChange={onRangePresetChange}
                             >
                                 <Radio.Button value={'week'}>{PresetWeek}</Radio.Button>
                                 <Radio.Button value={'month'}>{PresetMonth}</Radio.Button>
@@ -277,7 +280,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                 </Col>
                 <Col xs={24} sm={12} lg={4} offset={isSmall ? 0 : 1}>
                     <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE}>
-                        <Select value={specification} onChange={(e) => setSpecification(e)}>
+                        <Select value={specification} onChange={onSpecificationChange}>
                             <Select.Option disabled={dateRange[1].diff(dateRange[0], 'quarter') > 0} value={'day'}>
                                 {SpecificationDays}
                             </Select.Option>
@@ -399,6 +402,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const [dateFrom, dateTo] = filtersRef.current !== null ? filtersRef.current.range : []
     const selectedPeriod = filtersRef.current !== null ? filtersRef.current.range.map(e => e.format(DATE_DISPLAY_FORMAT)).join(' - ') : ''
     const selectedAddresses = filtersRef.current !== null ? filtersRef.current.addressList : []
+    const ticketTypeRef = useRef<TicketSelectTypes>('all')
+
     const { TicketWarningModal, setIsVisible } = useTicketWarningModal(groupTicketsBy)
     const nullReplaces = {
         categoryClassifier: EmptyCategoryClassifierTitle,
@@ -762,15 +767,14 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     },
                 },
             })
-
             const { AND, groupBy } = filterToQuery(
-                { filter: filtersRef.current, viewMode, ticketType, mainGroup: groupTicketsBy }
+                { filter: filtersRef.current, viewMode, ticketType: ticketTypeRef.current, mainGroup: groupTicketsBy }
             )
 
             const where = { organization: { id: userOrganizationId }, AND }
             loadTicketAnalytics({ variables: { data: { groupBy, where, nullReplaces } } })
         }
-    }, [userOrganizationId, viewMode, ticketType, groupTicketsBy])
+    }, [userOrganizationId, viewMode, groupTicketsBy])
 
     useEffect(() => {
         const queryParams = getQueryParams()
@@ -779,6 +783,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     }, [])
 
     useEffect(() => {
+        ticketTypeRef.current = ticketType
         setAnalyticsData(null)
         getAnalyticsData()
     }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
@@ -869,7 +874,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         setAnalyticsData(null)
         filtersRef.current = filters
         getAnalyticsData()
-    }, [viewMode, ticketType, userOrganizationId, groupTicketsBy, dateFrom, dateTo])
+    }, [viewMode, userOrganizationId, groupTicketsBy, dateFrom, dateTo])
 
     let addressFilterTitle = selectedAddresses.length === 0 ? AllAddresses : `${SingleAddress} «${selectedAddresses[0].value}»`
     if (selectedAddresses.length > 1) {

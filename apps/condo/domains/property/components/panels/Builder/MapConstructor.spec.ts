@@ -29,7 +29,8 @@ const createBuildingMap = (sections: number, sectionTemplate = testSection): Map
 const createBuildingParking = (parkingSections: number): MapEdit => {
     const propertyMap = new MapEdit(null, () => null)
     for (let i = 0; i < parkingSections; i++) {
-        propertyMap.addParking({ ...testSection, name: sectionName(), type: BuildingMapEntityType.Section })
+        const name = (i + 1).toString()
+        propertyMap.addParking({ ...testSection, name, type: BuildingMapEntityType.Section })
     }
     return propertyMap
 }
@@ -398,6 +399,20 @@ describe('Map constructor', () => {
                 expect(Building.map.sections.map(section => section.name)).toEqual(sectionNames)
             })
         })
+        describe('Copy section',  () => {
+            it('should add full copy of selected section',  () => {
+                const Building = createBuildingMap(1)
+                Building.removeUnit(Building.sections[0].floors[0].units[0].id)
+                Building.addCopySection(Building.sections[0].id)
+                Building.validate()
+
+                expect(Building.isMapValid).toBeTruthy()
+                expect(Building.sections).toHaveLength(2)
+                expect(Building.sections[1]).not.toHaveProperty('preview')
+                expect(Building.sections[1]).toHaveProperty('name', String(Building.sections.length))
+                expect(Building.sections[0].floors[0].units).toHaveLength(Building.sections[1].floors[0].units.length)
+            })
+        })
     })
 
     describe('Parking operations', () => {
@@ -436,6 +451,21 @@ describe('Map constructor', () => {
                     .from({ length: Building.map.parking.length }, (_, index) => String(++index))
                 expect(Building.isMapValid).toBeTruthy()
                 expect(Building.map.parking.map(parkingSection => parkingSection.name)).toEqual(sectionNames)
+            })
+        })
+
+        describe('Copy parking', () => {
+            it('should add full copy of selected parking section', () => {
+                const Building = createBuildingParking(1)
+                Building.removeParkingUnit(Building.parking[0].floors[0].units[0].id)
+                Building.addCopyParking(Building.parking[0].id)
+                Building.validate()
+
+                expect(Building.isMapValid).toBeTruthy()
+                expect(Building.parking).toHaveLength(2)
+                expect(Building.parking[1]).not.toHaveProperty('preview')
+                expect(Building.parking[1]).toHaveProperty('name', String(Building.parking.length))
+                expect(Building.parking[0].floors[0].units).toHaveLength(Building.parking[1].floors[0].units.length)
             })
         })
     })
