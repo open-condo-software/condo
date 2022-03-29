@@ -15,11 +15,14 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { RegisterContext } from './RegisterContextProvider'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { colors } from '@condo/domains/common/constants/style'
+import { textAlign } from 'html2canvas/dist/types/css/property-descriptors/text-align'
+import { marginBottom } from 'html2canvas/dist/types/css/property-descriptors/margin'
+import { TabsAuthAction } from '../../../common/components/HeaderActions'
 
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
-    wrapperCol: { span: 14 },
+    wrapperCol: { span: 24 },
 }
 
 interface IInputPhoneFormProps {
@@ -36,7 +39,6 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
     const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
-
     const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
     const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
 
@@ -87,79 +89,99 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
         })
     }, [intl, form, handleReCaptchaVerify])
 
-    const [agreed, setAgreed] = useState(false)
-    const handleToggleAgreed = useCallback(() => {
-        setAgreed(prevState => !prevState)
-    }, [setAgreed])
-
+    const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
     return (
         <Form
             {...FORM_LAYOUT}
             form={form}
             name='register-input-phone'
             onFinish={startConfirmPhone}
-            colon={false}
-            labelAlign='left'
             requiredMark={false}
+            layout={'vertical'}
+            style={ { textAlign:'center', fontSize: 12, color:colors.textSecondary, lineHeight:'20px' } }
+
         >
-            <Space direction={'vertical'} align={'center'} size={20}>
-                <Form.Item
-                    name='phone'
-                    label={PhoneMsg}
-                    rules={[
-                        {
-                            required: true,
-                            message: FieldIsRequiredMsg,
-                        },
-                        () => ({
-                            validator () {
-                                if (!smsSendError) {
-                                    return Promise.resolve()
-                                }
-                                return Promise.reject(smsSendError)
-                            },
-                        }),
-                    ]}
-                >
-                    <PhoneInput placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)} block/>
-                </Form.Item>
-                <Checkbox checked={agreed} onChange={handleToggleAgreed}>
-                    <FormattedMessage
-                        id='pages.auth.register.info.PersonalDataProcessingConsent'
-                        values={{
-                            consentLink: (
-                                <Button style={{ bottom: '-4px' }} type={'inlineLink'} size={'small'} target='_blank' href={'/pdpc.pdf'} rel='noreferrer'>{ConsentContent}</Button>
-                            ),
-                            privacyPolicyLink: (
-                                <Button style={{ bottom: '-4px' }} type={'inlineLink'} size={'small'} target='_blank' href={'/policy.pdf'} rel='noreferrer'>{PrivacyPolicyContent}</Button>
-                            ),
-                        }}
-                    />
-                </Checkbox>
-                <Space direction={'vertical'} align={'center'} size={20}>
-                    <Button
-                        key='submit'
-                        type='sberPrimary'
-                        htmlType='submit'
-                        loading={isLoading}
-                        block={isSmall}
-                        disabled={!agreed}
-                    >
-                        {RegisterMsg}
-                    </Button>
-                    <Typography.Text disabled style={ { color: colors.textSecondary, fontWeight: 600 } }>или</Typography.Text>
-                    <Button
-                        key='submit'
-                        type='sberAction'
-                        icon={<SberIconWithoutLabel/>}
-                        href={'/api/sbbol/auth'}
-                        block={isSmall}
-                        disabled={!agreed}
-                    >
-                        {SberIdRegisterMsg}
-                    </Button>
-                </Space>
-            </Space>
+            <Row justify={'center'}>
+                <Col flex={'0 0 50%'} span={24} >
+                    <Row gutter={[0, 20]}>
+                        <Col span={24}>
+                            <TabsAuthAction currentActiveKey={'/auth/register'}/>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                name='phone'
+                                label={REGISTER_PHONE_LABEL}
+                                data-cy={'register-phone-item'}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: FieldIsRequiredMsg,
+                                    },
+                                    () => ({
+                                        validator () {
+                                            if (!smsSendError) {
+                                                return Promise.resolve()
+                                            }
+                                            return Promise.reject(smsSendError)
+                                        },
+                                    }),
+                                ]}
+                            >
+                                <PhoneInput style={{ borderRadius: 8, borderColor: colors.inputBorderGrey }} placeholder={ExamplePhoneMsg} onChange={()  => setSmsSendError(null)} block/>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Typography.Paragraph type='secondary' style={{ marginTop: '10px', textAlign: 'left' }}>
+                                <FormattedMessage
+                                    id='pages.auth.register.info.PersonalDataProcessingConsent'
+                                    values={{
+                                        consentLink: (
+                                            <Typography.Link style={ { color: colors.black } } target='_blank' href={'/pdpc.pdf'} rel='noreferrer'>{ConsentContent}</Typography.Link>
+                                        ),
+                                        privacyPolicyLink: (
+                                            <Typography.Link style={ { color: colors.black } } target='_blank' href={'/policy.pdf'} rel='noreferrer'>{PrivacyPolicyContent}</Typography.Link>
+                                        ),
+                                    }}
+                                />
+                            </Typography.Paragraph>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item>
+                                <Button
+                                    key='submit'
+                                    type='sberDefaultGradient'
+                                    htmlType='submit'
+                                    loading={isLoading}
+                                    data-cy={'register-button'}
+                                    block={isSmall}
+                                    disabled={false}
+                                    style={ { width: '100%' } }
+                                >
+                                    {RegisterMsg}
+                                </Button>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <FormattedMessage id='Or'/>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item>
+                                <Button
+                                    key='submit'
+                                    type='sberAction'
+                                    icon={<SberIconWithoutLabel/>}
+                                    href={'/api/sbbol/auth'}
+                                    block={isSmall}
+                                    disabled={false}
+                                    style={ { width: '100%' } }
+                                >
+                                    {SberIdRegisterMsg}
+                                </Button>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
         </Form>
     )
 }

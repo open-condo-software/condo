@@ -14,6 +14,7 @@ import ReactPhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
+import { colors } from '@condo/domains/common/constants/style'
 
 interface IPhoneInputProps extends InputProps {
     block?: boolean
@@ -47,6 +48,8 @@ const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
 
     return computedStyles
 }
+
+const BUTTON_INPUT_PHONE_STYLE: React.CSSProperties = { margin: 5, backgroundColor: colors.backgroundWhiteSecondary, border: 0, borderRadius: 8 }
 
 export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) => {
     const { value, placeholder, style, disabled, block, ...otherProps } = props
@@ -106,6 +109,7 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
             disabled={disabled}
             inputStyle={inputStyles}
             placeholder={placeholder}
+            buttonStyle={BUTTON_INPUT_PHONE_STYLE}
         />
     )
 })

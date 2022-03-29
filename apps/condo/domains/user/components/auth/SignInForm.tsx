@@ -12,10 +12,11 @@ import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { JAVASCRIPT_URL_XSS } from '@condo/domains/common/constants/regexps'
+import { colors } from '../../../common/constants/style'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
-    wrapperCol: { span: 14 },
+    wrapperCol: { span: 24 },
 }
 
 export const SignInForm = (): React.ReactElement => {
@@ -27,6 +28,7 @@ export const SignInForm = (): React.ReactElement => {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
+    const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
 
 
     const { isSmall } = useLayoutContext()
@@ -73,80 +75,89 @@ export const SignInForm = (): React.ReactElement => {
     }, [intl, form])
 
     const initialValues = { password: '', phone: '' }
-
+    const LOGIN_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
+    const PASSWORD_LABEL = <label style={ { alignSelf:'end' } }>{PasswordMsg}</label>
     return (
         <Form
             {...FORM_LAYOUT}
             form={form}
             name='signin'
-            labelAlign='left'
             onFinish={onFormSubmit}
             initialValues={initialValues}
-            colon={false}
             requiredMark={false}
+            layout={'vertical'}
+            style={ { textAlign:'center', fontSize: 12, color:colors.textSecondary, lineHeight:'20px' } }
         >
-            <Row gutter={[0, 40]}>
-                <Col span={24} >
-                    <Row gutter={[0, 24]}>
+            <Row justify={'center'}>
+                <Col flex={'0 0 50%'} span={24} >
+                    <Row gutter={[0, 20]}>
                         <Col span={24}>
                             <Form.Item
                                 name='phone'
-                                label={PhoneMsg}
+                                label={LOGIN_PHONE_LABEL}
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                                data-cy={'signin-phone-item'}
                             >
-                                <PhoneInput placeholder={ExamplePhoneMsg} tabIndex={1} block/>
+                                <PhoneInput style={{ borderRadius: 8, borderColor: colors.inputBorderGrey }} placeholder={ExamplePhoneMsg} tabIndex={1} block/>
                             </Form.Item>
                         </Col>
                         <Col span={24}>
                             <Form.Item
                                 name='password'
-                                label={PasswordMsg}
-                                labelAlign='left'
+                                label={PASSWORD_LABEL}
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                                data-cy={'signin-password-item'}
                             >
                                 <Input.Password tabIndex={2} />
                             </Form.Item>
                         </Col>
-                    </Row>
-                </Col>
-                <Col span={24}>
-                    <Row justify={'start'} align={'middle'} gutter={[0, 40]}>
-                        <Col xs={24}>
-                            <Row justify={'space-between'} gutter={[0, 12]}>
-                                <Col xs={24} lg={7}>
-                                    <Button
-                                        key='submit'
-                                        type='sberPrimary'
-                                        htmlType='submit'
-                                        loading={isLoading}
-                                        data-cy={'signin-button'}
-                                        block
-                                    >
-                                        {SignInMsg}
-                                    </Button>
-                                </Col >
-                                <Col xs={24} lg={14} offset={isSmall ? 0 : 3} style={{ textAlign: 'right' }}>
-                                    <Typography.Paragraph type='secondary' style={{ marginTop: '10px' }}>
-                                        <FormattedMessage
-                                            id='pages.auth.signin.ResetPasswordLink'
-                                            values={{
-                                                link: (
-                                                    <Button type={'inlineLink'} size={'small'} onClick={() => Router.push('/auth/forgot')}>
-                                                        {ResetMsg}
-                                                    </Button>
-                                                ),
-                                            }}
-                                        />
-                                    </Typography.Paragraph>
-                                </Col>
-                            </Row>
+                        <Col span={24}>
+                            <Typography.Paragraph type='secondary' style={{ marginTop: '10px', textAlign: 'left' }}>
+                                <FormattedMessage
+                                    id='pages.auth.signin.ResetPasswordLink'
+                                    values={{
+                                        link: (
+                                            <Typography.Link style={ { color:colors.black } } onClick={() => Router.push('/auth/forgot')}>
+                                                {ResetMsg}
+                                            </Typography.Link>
+                                        ),
+                                    }}
+                                />
+                            </Typography.Paragraph>
+                        </Col >
+                        <Col span={24}>
+                            <Form.Item>
+                                <Button
+                                    key='submit'
+                                    type='sberDefaultGradient'
+                                    htmlType='submit'
+                                    loading={isLoading}
+                                    block
+                                    style={ { width: '100%' } }
+                                >
+                                    {SignInMsg}
+                                </Button>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <FormattedMessage id='Or'/>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item>
+                                <Button
+                                    key='submit'
+                                    type='sberAction'
+                                    icon={<SberIconWithoutLabel/>}
+                                    href={'/api/sbbol/auth'}
+                                    block={isSmall}
+                                    disabled={false}
+                                    style={ { width: '100%' } }
+                                >
+                                    {SberIdRegisterMsg}
+                                </Button>
+                            </Form.Item>
                         </Col>
                     </Row>
                 </Col>
             </Row>
-
         </Form>
     )
 }
