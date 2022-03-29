@@ -47,6 +47,15 @@ export const ActionContainer = styled.div`
   padding: 16px 20px 0;
 `
 
+export const PosterWrapper = styled.div`
+  height: 90%;
+  background-color: ${colors.backgroundLightGrey};
+  border-radius: 22px;
+  width: 48%;
+  position: fixed;
+  margin: 36px 0 36px 36px
+`
+
 interface IContentProps {
     isSmall: boolean
 }
