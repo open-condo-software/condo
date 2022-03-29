@@ -5,7 +5,7 @@ import { colors } from '../constants/style'
 import { MessageDescriptor } from '@formatjs/intl/src/types'
 import Router, { useRouter } from 'next/router'
 import get from 'lodash/get'
-import { Row, Col, Space, Typography } from 'antd'
+import { Row, Col, Space, Typography, Tabs } from 'antd'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { Button } from './Button'
 import styled from '@emotion/styled'
@@ -26,6 +26,10 @@ interface IRightButtonHeaderActionsProps {
     sbbolButtonDescriptor?: MessageDescriptor
     descriptor: MessageDescriptor
     path: string
+}
+
+interface ITabsActionsProps{
+    currentActiveKey: string
 }
 
 const IconContainer = styled.div`
@@ -136,5 +140,22 @@ export const ButtonHeaderActions: React.FC<IRightButtonHeaderActionsProps> = (pr
             </Col>
         </Row>
 
+    )
+}
+
+export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
+    const { currentActiveKey } = props
+    const intl = useIntl()
+    const registerTab = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
+    const signInTab = intl.formatMessage({ id: 'SignIn' })
+    return (
+        <Tabs
+            defaultActiveKey={currentActiveKey}
+            style={ { alignItems:'center', fontWeight: 500 } }
+            onChange={(activeKey) => Router.push(activeKey)}
+        >
+            <Tabs.TabPane key='/auth/register' tab={registerTab}/>
+            <Tabs.TabPane key='/auth/signin' tab={signInTab}/>
+        </Tabs>
     )
 }

@@ -4,7 +4,7 @@ import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography } from 'antd'
 import Head from 'next/head'
 import React from 'react'
-import { ButtonHeaderActions } from '@condo/domains/common/components/HeaderActions'
+import { ButtonHeaderActions, TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
 
 const SignInPage: AuthPage = () => {
     const intl = useIntl()
@@ -12,12 +12,9 @@ const SignInPage: AuthPage = () => {
 
     return (
         <>
-            <Head>
-                <title>{SignInTitleMsg}</title>
-            </Head>
-            <Row gutter={[0, 40]}>
+            <Row>
                 <Col span={24}>
-                    <Typography.Title>{SignInTitleMsg}</Typography.Title>
+                    <TabsAuthAction currentActiveKey={'/auth/signin'}/>
                 </Col>
                 <Col span={24}>
                     <SignInForm />
@@ -27,7 +24,6 @@ const SignInPage: AuthPage = () => {
     )
 }
 
-SignInPage.headerAction = <ButtonHeaderActions descriptor={{ id: 'pages.auth.Register' }} path={'/auth/register'} sbbolButtonDescriptor={{ id: 'LoginBySBBOL' }}/>
 
 SignInPage.container = AuthLayout
 
