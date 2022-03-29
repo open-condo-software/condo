@@ -17,6 +17,7 @@ import {
 } from '@condo/domains/user/constants/errors'
 import { COMPLETE_CONFIRM_PHONE_MUTATION, RESEND_CONFIRM_PHONE_SMS_MUTATION } from '@condo/domains/user/gql'
 import { RegisterContext } from './RegisterContextProvider'
+import { colors } from '@condo/domains/common/constants/style'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
@@ -42,6 +43,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
     const SMSMaxRetriesReachedError = intl.formatMessage({ id: 'pages.auth.register.SMSMaxRetriesReachedError' })
     const SMSBadFormat = intl.formatMessage({ id: 'pages.auth.register.SMSBadFormat' })
     const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const RegistrationTitle = intl.formatMessage( { id: 'pages.auth.RegistrationTitle' } )
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
             [CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED]: {
@@ -148,22 +150,21 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
             colon={false}
             labelAlign='left'
             requiredMark={false}
+            layout={'vertical'}
         >
-            <Row gutter={[0, 60]}>
+            <Row gutter={[0, 40]}>
                 <Col span={24}>
-                    <Space direction={'vertical'} size={24}>
-                        <Typography.Text>
-                            <FormattedMessage
-                                id='pages.auth.register.info.SmsCodeSent'
-                                values={{
-                                    phone: (<span>{showPhone}<Button type={'inlineLink'} size={'small'} onClick={() => setIsPhoneVisible(!isPhoneVisible)}>({PhoneToggleLabel})</Button></span>),
-                                }}
-                            />
-                        </Typography.Text>
-                        <Button type={'inlineLink'} size={'small'} onClick={onReset}>
-                            {ChangePhoneNumberLabel}
-                        </Button>
-                    </Space>
+                    <Typography.Title >{RegistrationTitle}</Typography.Title>
+                </Col>
+                <Col span={18}>
+                    <Typography.Text>
+                        <FormattedMessage
+                            id='pages.auth.register.info.SmsCodeSent'
+                            values={{
+                                phone: (<span style={ { whiteSpace: 'nowrap' } }>{showPhone}<Typography.Link underline style={ { color: 'black' } } onClick={() => setIsPhoneVisible(!isPhoneVisible)}>({PhoneToggleLabel})</Typography.Link></span>),
+                            }}
+                        />
+                    </Typography.Text>
                 </Col>
                 <Col span={24}>
                     <Form.Item
@@ -199,14 +200,14 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                             const isCountDownActive = countdown > 0
                             return (
                                 <Space direction={'horizontal'} size={8}>
-                                    <Button
-                                        type={'inlineLink'}
-                                        size={'small'}
+                                    <Typography.Link
+                                        underline
+                                        style={{ color: colors.textSecondary }}
                                         disabled={isCountDownActive}
                                         onClick={runAction}
                                     >
                                         {ResendSmsLabel}
-                                    </Button>
+                                    </Typography.Link>
                                     {isCountDownActive && (
                                         <Typography.Text type='secondary'>
                                             { `${new Date(countdown * 1000).toISOString().substr(14, 5)}` }
@@ -216,6 +217,11 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                             )
                         }}
                     </CountDownTimer>
+                </Col>
+                <Col>
+                    <Typography.Link onClick={onReset}>
+                        {ChangePhoneNumberLabel}
+                    </Typography.Link>
                 </Col>
             </Row>
         </Form>
