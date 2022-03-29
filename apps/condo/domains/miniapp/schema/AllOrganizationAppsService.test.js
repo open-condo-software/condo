@@ -56,8 +56,9 @@ describe('AllOrganizationAppsService', () => {
             let admin
             beforeAll(async () => {
                 admin = await makeLoggedInAdminClient()
-                const [billing] = await createTestBillingIntegration(admin, { isHidden: false })
-                integration = billing
+            })
+            beforeEach(async () => {
+                [integration] = await createTestBillingIntegration(admin, { isHidden: false })
             })
             test('Shows unconnected without context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
@@ -120,8 +121,9 @@ describe('AllOrganizationAppsService', () => {
                 admin = await makeLoggedInAdminClient()
                 const [billing] = await createTestBillingIntegration(admin)
                 billings = [billing]
-                const [acquiring] = await createTestAcquiringIntegration(admin, billings)
-                integration = acquiring
+            })
+            beforeEach(async () => {
+                [integration] = await createTestAcquiringIntegration(admin, billings)
             })
             test('Shows unconnected without context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
