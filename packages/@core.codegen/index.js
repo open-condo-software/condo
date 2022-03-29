@@ -274,6 +274,15 @@ function createschema (argv) {
                 }
                 const result = field.split(':')
                 const type = result[1]
+                // Just developer helping messages
+                switch (type) {
+                    case 'String':
+                        console.error('Use `Text` type instead of `String`')
+                        break
+                    case 'Boolean':
+                        console.error('Use `Checkbox` type instead of `Boolean`')
+                        break
+                }
                 switch (type) {
                     case 'Text':
                     case 'Password':
@@ -339,6 +348,7 @@ function createschema (argv) {
                 const targetDirectory = path.resolve(process.cwd())
                 const templateDirectory = path.resolve(path.dirname(__filename), 'templates', template)
                 const app = path.basename(targetDirectory)
+                console.log(app)
 
                 const isTargetDirExists = await exists(path.join(targetDirectory, 'domains', domain, 'schema', `${name}.js`))
                 if (isTargetDirExists && !force) throw new Error(`Schema ${domain}.'${name}'.js is already exists!`)
