@@ -28,11 +28,13 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'condo.User.isAdmin',
             type: Checkbox,
             defaultValue: false,
+            access: access.canAccessToIsAdminField,
         },
         isSupport: {
             schemaDoc: 'condo.User.isSupport',
             type: Checkbox,
             defaultValue: false,
+            access: access.canAccessToIsAdminField,
         },
     },
     plugins: [uuided(), tracked(), softDeleted()],
