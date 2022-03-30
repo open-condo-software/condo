@@ -34,6 +34,9 @@ const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
 
+/**
+ * Next two variables need for keeping data about default filters during component lifetime
+ */
 let isDefaultFilterApplied = false
 let shouldApplyDefaultFilter = true
 
@@ -106,6 +109,9 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [dateRange, setDateRange] = useDateRangeSearch('advancedAt', loading)
 
+    /**
+     * We need to check if default filters should be applied only at first render
+     */
     useEffect(() => {
         if (!hasFilters && shouldApplyDefaultFilter && !isDefaultFilterApplied) {
             isDefaultFilterApplied = true
