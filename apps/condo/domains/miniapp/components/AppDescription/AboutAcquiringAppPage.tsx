@@ -1,7 +1,6 @@
 import React from 'react'
 import { AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
-import { DescriptionBlock } from '@condo/domains/miniapp/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import { AppDescriptionPageContent } from './AppDescriptionPageContent'
@@ -12,7 +11,6 @@ import Error from 'next/error'
 import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
-import { SortDescriptionBlocksBy } from '@app/condo/schema'
 import { NoConnectedBillings } from '@condo/domains/acquiring/components/Alerts/NoConnectedBillings'
 
 interface AboutAcquiringAppPageProps {
@@ -35,24 +33,12 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
         where: { organization: { id: organizationId } },
     })
 
-    const { objs: blocks, loading: blocksLoading, error: blocksError } = DescriptionBlock.useObjects({
-        where: {
-            acquiringIntegration: { id },
-            billingIntegration_is_null: true,
-        },
-        sortBy: [
-            SortDescriptionBlocksBy.OrderAsc,
-            SortDescriptionBlocksBy.CreatedAtDesc,
-        ],
-    })
-
-    if (integrationLoading || billingsLoading || blocksLoading
-        || integrationError || billingsError || blocksError) {
+    if (integrationLoading || billingsLoading || integrationError || billingsError) {
         return (
             <LoadingOrErrorPage
                 title={LoadingMessage}
-                error={integrationError || blocksError || billingsError}
-                loading={integrationLoading || blocksLoading || billingsLoading}
+                error={integrationError || billingsError}
+                loading={integrationLoading || billingsLoading}
             />
         )
     }
@@ -63,11 +49,8 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
 
     const PageTitle = get(integration, 'name', AcquiringMessage)
 
-    const descriptionBlocks = blocks.map(block => ({
-        title: block.title,
-        description: block.description,
-        imageSrc: block.image.publicUrl,
-    }))
+    // TODO (2420): Add logic
+    const descriptionBlocks = []
 
     const isAnyBillingConnected = Boolean(billingContexts.length)
 

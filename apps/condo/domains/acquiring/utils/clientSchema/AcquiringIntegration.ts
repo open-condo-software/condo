@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { AcquiringIntegration as AcquiringIntegrationGQL } from '@condo/domains/acquiring/gql'
 import { AcquiringIntegration, AcquiringIntegrationUpdateInput, QueryAllAcquiringIntegrationsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'detailsTitle', 'detailsText', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'shortDescription', 'logo', 'developer', 'partnerUrl', 'instruction', 'connectedMessage', 'appUrl', 'canGroupReceipts', 'hostUrl']
+const FIELDS = ['id', 'deletedAt', 'detailsTitle', 'detailsText', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'shortDescription', 'about', 'logo', 'developer', 'partnerUrl', 'instruction', 'connectedMessage', 'appUrl', 'canGroupReceipts', 'hostUrl']
 const RELATIONS = ['supportedBillingIntegrations']
 
 export interface IAcquiringIntegrationUIState extends AcquiringIntegration {
