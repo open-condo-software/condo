@@ -15,11 +15,11 @@ import { ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { SortDescriptionBlocksBy } from '@app/condo/schema'
 import { NoConnectedBillings } from '@condo/domains/acquiring/components/Alerts/NoConnectedBillings'
 
-interface AboutAcquiringServicePageProps {
+interface AboutAcquiringAppPageProps {
     id: string,
 }
 
-export const AboutAcquiringServicePage: React.FC<AboutAcquiringServicePageProps> = ({ id }) => {
+export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const AcquiringMessage = intl.formatMessage({ id: `services.category.${ACQUIRING_APP_TYPE}` })

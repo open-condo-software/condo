@@ -10,7 +10,7 @@ import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
-const ServicesPage = () => {
+const AllMiniAppsPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'menu.Services' })
     const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
@@ -36,6 +36,6 @@ const ServicesPage = () => {
     )
 }
 
-ServicesPage.requiredAccess = OrganizationRequired
+AllMiniAppsPage.requiredAccess = OrganizationRequired
 
-export default ServicesPage
+export default AllMiniAppsPage

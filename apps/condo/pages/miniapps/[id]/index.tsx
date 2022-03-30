@@ -8,10 +8,10 @@ import get from 'lodash/get'
 import { APP_TYPES, BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import Error from 'next/error'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { IndexBillingServicePage, IndexAcquiringServicePage } from '@condo/domains/miniapp/components/AppIndex'
-import { ServicePageWrapper } from '@condo/domains/miniapp/components/ServicePageWrapper'
+import { IndexBillingAppPage, IndexAcquiringAppPage } from '@condo/domains/miniapp/components/AppIndex'
+import { AppPageWrapper } from '@condo/domains/miniapp/components/AppPageWrapper'
 
-const ServiceIndexPage = () => {
+const MiniAppIndexPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'menu.Services' })
     const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
@@ -23,8 +23,8 @@ const ServiceIndexPage = () => {
 
     const pageContent = useMemo(() => {
         if (Array.isArray(id) || Array.isArray(type) || !APP_TYPES.includes(type)) return <Error statusCode={404}/>
-        if (type === BILLING_APP_TYPE) return <IndexBillingServicePage id={id}/>
-        return <IndexAcquiringServicePage id={id}/>
+        if (type === BILLING_APP_TYPE) return <IndexBillingAppPage id={id}/>
+        return <IndexAcquiringAppPage id={id}/>
     }, [id, type])
 
     if (!canManageIntegrations) {
@@ -32,15 +32,15 @@ const ServiceIndexPage = () => {
     }
 
     return (
-        <ServicePageWrapper>
+        <AppPageWrapper>
             {pageContent}
-        </ServicePageWrapper>
+        </AppPageWrapper>
     )
 }
 
-ServiceIndexPage.requiredAccess = OrganizationRequired
-ServiceIndexPage.headerAction  = <ReturnBackHeaderAction
+MiniAppIndexPage.requiredAccess = OrganizationRequired
+MiniAppIndexPage.headerAction  = <ReturnBackHeaderAction
     descriptor={{ id: 'menu.Services' }}
-    path={'/services'}/>
+    path={'/miniapps'}/>
 
-export default ServiceIndexPage
+export default MiniAppIndexPage

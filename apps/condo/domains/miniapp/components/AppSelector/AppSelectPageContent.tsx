@@ -76,7 +76,7 @@ export const AppSelectPageContent: React.FC = () => {
                                 {
                                     connectedServices.map(service => {
                                         const logo = service.logo || undefined
-                                        const url = `/services/${service.id}?type=${service.type}`
+                                        const url = `/miniapps/${service.id}?type=${service.type}`
                                         return (
                                             <AppCarouselCard
                                                 key={service.name}
@@ -99,7 +99,7 @@ export const AppSelectPageContent: React.FC = () => {
                                     const tag = service.category
                                         ? intl.formatMessage({ id: `services.category.${service.category}` })
                                         : undefined
-                                    const url = `/services/${service.id}/about?type=${service.type}`
+                                    const url = `/miniapps/${service.id}/about?type=${service.type}`
                                     const logo = service.logo || undefined
                                     return (
                                         <AppSelectCard

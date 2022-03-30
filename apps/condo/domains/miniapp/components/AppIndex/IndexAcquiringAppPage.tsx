@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
+import { AcquiringIntegration, AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -9,31 +9,30 @@ import Error from 'next/error'
 import Head from 'next/head'
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import IFrame from '@condo/domains/common/components/IFrame'
-import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
+import { ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { Typography } from 'antd'
 import { AppConnectedPageContent } from './AppConnectedPageContent'
 import { useRouter } from 'next/router'
 
-interface IndexBillingServicePageProps {
+interface IndexAcquiringAppPageProps {
     id: string,
 }
 
-export const IndexBillingServicePage: React.FC<IndexBillingServicePageProps> = ({ id }) => {
+export const IndexAcquiringAppPage: React.FC<IndexAcquiringAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const BillingMessage = intl.formatMessage({ id: 'menu.Billing' })
-    const TagMessage = intl.formatMessage({ id: `services.category.${BILLING_APP_TYPE}` })
+    const AcquiringMessage = intl.formatMessage({ id: `services.category.${ACQUIRING_APP_TYPE}` })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
 
     const router = useRouter()
 
-    const { obj: integration, loading: integrationLoading, error: integrationError } = BillingIntegration.useObject({
+    const { obj: integration, loading: integrationLoading, error: integrationError } = AcquiringIntegration.useObject({
         where: { id },
     })
 
-    const { obj: context, loading: contextLoading, error: contextError } = BillingIntegrationOrganizationContext.useObject({
+    const { obj: context, loading: contextLoading, error: contextError } = AcquiringIntegrationContext.useObject({
         where: {
             organization: { id: organizationId },
             integration: { id },
@@ -45,7 +44,7 @@ export const IndexBillingServicePage: React.FC<IndexBillingServicePageProps> = (
     // If no context and no appUrl -> redirect to about page
     useEffect(() => {
         if (integration && !contextLoading && !contextError && !context && !integration.appUrl) {
-            router.push(`/services/${id}/about?type=${BILLING_APP_TYPE}`)
+            router.push(`/miniapps/${id}/about?type=${ACQUIRING_APP_TYPE}`)
         }
     }, [router, integration, context, id, contextLoading, integrationLoading, contextError])
 
@@ -59,7 +58,7 @@ export const IndexBillingServicePage: React.FC<IndexBillingServicePageProps> = (
         return <Error statusCode={404}/>
     }
 
-    const PageTitle = get(integration, 'name', BillingMessage)
+    const PageTitle = get(integration, 'name', AcquiringMessage)
     const hasFrame = Boolean(get(integration, ['appUrl']))
 
     return (
@@ -85,7 +84,7 @@ export const IndexBillingServicePage: React.FC<IndexBillingServicePageProps> = (
                                 developer={integration.developer}
                                 message={integration.connectedMessage}
                                 logoSrc={get(integration, ['logo', 'publicUrl'])}
-                                tag={TagMessage}
+                                tag={AcquiringMessage}
                                 partnerUrl={get(integration, 'partnerUrl')}
                             />
                         )
