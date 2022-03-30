@@ -21,7 +21,7 @@ import { useOrganization } from '@core/next/organization'
 import { Col, Input, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
-import { get } from 'lodash'
+import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 
@@ -51,7 +51,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     const userOrganization = useOrganization()
 
     const { filters, sorters, offset } = parseQuery(router.query)
-    const hasFilters = Object.keys(filters).length > 0
+    const hasFilters = !isEmpty(filters)
 
     if (hasFilters) {
         shouldApplyDefaultFilter = false
