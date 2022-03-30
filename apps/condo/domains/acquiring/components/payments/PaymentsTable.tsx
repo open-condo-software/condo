@@ -119,6 +119,11 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
         } else {
             shouldApplyDefaultFilter = false
         }
+
+        return () => {
+            isDefaultFilterApplied = false
+            shouldApplyDefaultFilter = true
+        }
     }, [])
 
     return (
