@@ -15,6 +15,7 @@ import dayjs from 'dayjs'
 import { getReviewMessageByValue } from '../../utils/clientSchema/Ticket'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
+import { BaseType } from 'antd/lib/typography/Base'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -102,7 +103,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['placeClassifierDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
         ['statusReopenedCounter', '', { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' }],
-        ['reviewValue', '', { add: 'pages.condo.ticket.TicketChanges.reviewValue.add' }],
+        ['reviewValue', '', { add: 'pages.condo.ticket.TicketChanges.reviewValue.add', change: 'pages.condo.ticket.TicketChanges.reviewValue.add' }],
     ]
 
     const BooleanToString = {
@@ -183,11 +184,13 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay}${problemClassifierToDisplay ? ` → ${problemClassifierToDisplay}` : ''}`
             },
             reviewValue: (field, value) => {
+                const textTypeByReview: { [key: string]: BaseType } = {
+                    [REVIEW_VALUES.BAD]: 'warning',
+                    [REVIEW_VALUES.GOOD]: 'success',
+                }
                 const reviewValueMessage = getReviewMessageByValue(value, intl)
                 const reviewComment = ticketChange['reviewCommentTo']
                 let reviewCommentMessage
-
-                if (!reviewValueMessage) return
 
                 if (reviewComment) {
                     const selectedReviewOptions = reviewComment.split(';').map(option => `«${option.trim()}»`).join(` ${AndMessage} `)
@@ -200,7 +203,12 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     }
                 }
 
-                return `${reviewValueMessage}. ${reviewCommentMessage}`
+                return (
+                    <Typography.Paragraph>
+                        «<Typography.Text type={textTypeByReview[value]}>{reviewValueMessage}</Typography.Text>».&nbsp;
+                        {reviewCommentMessage}
+                    </Typography.Paragraph>
+                )
             },
         }
 
@@ -238,8 +246,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         const isValueToNotEmpty = !isNil(valueTo)
         const formattedValueFrom = formatField(field, valueFrom, TicketChangeFieldMessageType.From)
         const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
-
-        if (!formattedValueFrom && !formattedValueTo) return
 
         if (isValueFromNotEmpty && isValueToNotEmpty) {
             return (
@@ -286,18 +292,25 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             )
         }
     }
-
     // Omit what was not changed
-    const changedFields = fields.filter(([field]) => (
+    let changedFields = fields.filter(([field]) => (
         ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
     ))
+
+    // If we have several changed fields in one changedField object and should display one message.
+    // For example, when returning an ticket by a resident, only the message 'statusReopenedCounter' should be displayed,
+    // and 3 fields are changed: 'statusReopenedCounter', 'statusDisplayName' and 'reviewValue'
+    const priorityFields = ['statusReopenedCounter']
+    const priorityField = priorityFields.find(priorityField => changedFields.find(([field]) => field === priorityField))
+    if (priorityField) {
+        changedFields = changedFields.filter(([changedField]) => changedField === priorityField)
+    }
 
     return changedFields
         .map(([field, message, changeMessage]) => ({
             field,
             message: formatDiffMessage(field, message, ticketChange, changeMessage),
         }))
-        .filter(({ message }) => !isEmpty(message))
 }
 
 const SafeUserMention = ({ createdBy }) => {
