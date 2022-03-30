@@ -34,7 +34,7 @@ jobs:
 
       - name: install packages
         run: |
-          yarn
+          yarn install --frozen-lockfile
           pip3 install django
           pip3 install psycopg2-binary
 
@@ -46,7 +46,6 @@ jobs:
           echo 'DATABASE_URL=undefined' >> .env
           echo 'WORKER_REDIS_URL=undefined' >> .env
           echo 'NODE_ENV=production' >> .env
-
           yarn workspace @app/condo build
 
       - name: run tests for ${{ matrix.database }}
@@ -73,7 +72,7 @@ jobs:
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
 
-          yarn workspace @app/condo test --silent --coverage --testTimeout=15000 --forceExit --maxWorkers=50% --ci
+          yarn workspace @app/condo test --silent --testTimeout=15000 --forceExit --coverage
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
