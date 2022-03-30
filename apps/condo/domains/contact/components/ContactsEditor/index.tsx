@@ -173,10 +173,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleChangeContact = debounce((contact) => {
         // User can manually type phone and name, that will match already existing contact,
         // so, it should be connected with ticket
-        const contactFromFetched = find(fetchedContacts, { ...contact, unitName })
-        const contactToSet = contactFromFetched || contact
+        const fetchedContact = find(fetchedContacts, { ...contact, unitName })
+        const contactToSet = fetchedContact || contact
 
-        triggerOnChange(contactToSet, !contactFromFetched)
+        triggerOnChange(contactToSet, !fetchedContact)
 
         setManuallyTypedContact(contact)
         setEditableFieldsChecked(true)
