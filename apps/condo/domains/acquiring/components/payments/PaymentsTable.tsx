@@ -32,6 +32,7 @@ const DEFAULT_DATE_RANGE_STR: [string, string] = [String(DEFAULT_DATE_RANGE[0]),
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
+const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
 
 let isDefaultFilterApplied = false
 let shouldApplyDefaultFilter = true
@@ -131,12 +132,10 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                             }}
                                         />
                                     </Col>
-                                    <Col xs={24} sm={{ span: 11, offset: 1 }} lg={{ span: 11, offset: 1 }}>
+                                    <Col xs={24} sm={DATE_PICKER_COL_LAYOUT} lg={DATE_PICKER_COL_LAYOUT}>
                                         <DateRangePicker
                                             value={dateRange}
-                                            onChange={(range) => {
-                                                setDateRange(range)
-                                            }}
+                                            onChange={setDateRange}
                                         />
                                     </Col>
                                 </Row>
