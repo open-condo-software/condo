@@ -56,8 +56,6 @@ export type AcquiringIntegration = {
   connectedMessage?: Maybe<Scalars['String']>;
   /**  Url to app page, which will is app starting point and will be opened in iframe  */
   appUrl?: Maybe<Scalars['String']>;
-  /**  Title of confirmation/details page of integration  */
-  detailsTitle?: Maybe<Scalars['String']>;
   /**  Indicates whether the integration is hidden inside the CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
   accessRights: Array<AcquiringIntegrationAccessRight>;
@@ -907,7 +905,6 @@ export type AcquiringIntegrationCreateInput = {
   instruction?: Maybe<Scalars['String']>;
   connectedMessage?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
-  detailsTitle?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
@@ -945,7 +942,6 @@ export type AcquiringIntegrationHistoryRecord = {
   instruction?: Maybe<Scalars['JSON']>;
   connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
-  detailsTitle?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
@@ -975,7 +971,6 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   instruction?: Maybe<Scalars['JSON']>;
   connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
-  detailsTitle?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
@@ -1010,7 +1005,6 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   instruction?: Maybe<Scalars['JSON']>;
   connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
-  detailsTitle?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
@@ -1148,24 +1142,6 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   appUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   appUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsTitle?: Maybe<Scalars['String']>;
-  detailsTitle_not?: Maybe<Scalars['String']>;
-  detailsTitle_contains?: Maybe<Scalars['String']>;
-  detailsTitle_not_contains?: Maybe<Scalars['String']>;
-  detailsTitle_starts_with?: Maybe<Scalars['String']>;
-  detailsTitle_not_starts_with?: Maybe<Scalars['String']>;
-  detailsTitle_ends_with?: Maybe<Scalars['String']>;
-  detailsTitle_not_ends_with?: Maybe<Scalars['String']>;
-  detailsTitle_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_i?: Maybe<Scalars['String']>;
-  detailsTitle_contains_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_contains_i?: Maybe<Scalars['String']>;
-  detailsTitle_starts_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_ends_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
@@ -1290,7 +1266,6 @@ export type AcquiringIntegrationUpdateInput = {
   instruction?: Maybe<Scalars['String']>;
   connectedMessage?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
-  detailsTitle?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
@@ -1455,24 +1430,6 @@ export type AcquiringIntegrationWhereInput = {
   appUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   appUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsTitle?: Maybe<Scalars['String']>;
-  detailsTitle_not?: Maybe<Scalars['String']>;
-  detailsTitle_contains?: Maybe<Scalars['String']>;
-  detailsTitle_not_contains?: Maybe<Scalars['String']>;
-  detailsTitle_starts_with?: Maybe<Scalars['String']>;
-  detailsTitle_not_starts_with?: Maybe<Scalars['String']>;
-  detailsTitle_ends_with?: Maybe<Scalars['String']>;
-  detailsTitle_not_ends_with?: Maybe<Scalars['String']>;
-  detailsTitle_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_i?: Maybe<Scalars['String']>;
-  detailsTitle_contains_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_contains_i?: Maybe<Scalars['String']>;
-  detailsTitle_starts_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_ends_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
   /**  condition must be true for all nodes  */
@@ -3380,14 +3337,6 @@ export type BillingIntegration = {
   connectedMessage?: Maybe<Scalars['String']>;
   /**  Url to app page, which will is app starting point and will be opened in iframe  */
   appUrl?: Maybe<Scalars['String']>;
-  /**  Title of confirmation/details page of integration  */
-  detailsTitle?: Maybe<Scalars['String']>;
-  /**  Text of button, which you click to start integration and create integration context  */
-  detailsConfirmButtonText?: Maybe<Scalars['String']>;
-  /**  Text of button, which you click to redirect to more detailed instruction (pdf, external site, etc)  */
-  detailsInstructionButtonText?: Maybe<Scalars['String']>;
-  /**  Link to external resource, on which you will go by clicking on "Instruction" button  */
-  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   /**  This title is shown on /billing page, usually contains word "Billing"  */
   billingPageTitle?: Maybe<Scalars['String']>;
   /**  Status, which BillingIntegrationOrganizationContext, linked to this integration, will have after creation  */
@@ -3729,10 +3678,6 @@ export type BillingIntegrationCreateInput = {
   instruction?: Maybe<Scalars['String']>;
   connectedMessage?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
-  detailsTitle?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
@@ -3784,10 +3729,6 @@ export type BillingIntegrationHistoryRecord = {
   instruction?: Maybe<Scalars['JSON']>;
   connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
-  detailsTitle?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
@@ -3819,10 +3760,6 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   instruction?: Maybe<Scalars['JSON']>;
   connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
-  detailsTitle?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
@@ -3859,10 +3796,6 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   instruction?: Maybe<Scalars['JSON']>;
   connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
-  detailsTitle?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
@@ -4002,78 +3935,6 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   appUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   appUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsTitle?: Maybe<Scalars['String']>;
-  detailsTitle_not?: Maybe<Scalars['String']>;
-  detailsTitle_contains?: Maybe<Scalars['String']>;
-  detailsTitle_not_contains?: Maybe<Scalars['String']>;
-  detailsTitle_starts_with?: Maybe<Scalars['String']>;
-  detailsTitle_not_starts_with?: Maybe<Scalars['String']>;
-  detailsTitle_ends_with?: Maybe<Scalars['String']>;
-  detailsTitle_not_ends_with?: Maybe<Scalars['String']>;
-  detailsTitle_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_i?: Maybe<Scalars['String']>;
-  detailsTitle_contains_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_contains_i?: Maybe<Scalars['String']>;
-  detailsTitle_starts_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_ends_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsConfirmButtonText?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_contains?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_contains?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_starts_with?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_starts_with?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_ends_with?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_ends_with?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_contains_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_contains_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_starts_with_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_ends_with_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsConfirmButtonText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsInstructionButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_contains?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_contains?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_starts_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_starts_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_ends_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_ends_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_contains_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_contains_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_starts_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_ends_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsInstructionButtonText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_contains?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_contains?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_starts_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_starts_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_ends_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_ends_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_contains_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_contains_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_starts_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_ends_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsInstructionButtonLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   billingPageTitle?: Maybe<Scalars['String']>;
   billingPageTitle_not?: Maybe<Scalars['String']>;
   billingPageTitle_contains?: Maybe<Scalars['String']>;
@@ -4892,10 +4753,6 @@ export type BillingIntegrationUpdateInput = {
   instruction?: Maybe<Scalars['String']>;
   connectedMessage?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
-  detailsTitle?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
@@ -5061,78 +4918,6 @@ export type BillingIntegrationWhereInput = {
   appUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   appUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsTitle?: Maybe<Scalars['String']>;
-  detailsTitle_not?: Maybe<Scalars['String']>;
-  detailsTitle_contains?: Maybe<Scalars['String']>;
-  detailsTitle_not_contains?: Maybe<Scalars['String']>;
-  detailsTitle_starts_with?: Maybe<Scalars['String']>;
-  detailsTitle_not_starts_with?: Maybe<Scalars['String']>;
-  detailsTitle_ends_with?: Maybe<Scalars['String']>;
-  detailsTitle_not_ends_with?: Maybe<Scalars['String']>;
-  detailsTitle_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_i?: Maybe<Scalars['String']>;
-  detailsTitle_contains_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_contains_i?: Maybe<Scalars['String']>;
-  detailsTitle_starts_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_ends_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsConfirmButtonText?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_contains?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_contains?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_starts_with?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_starts_with?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_ends_with?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_ends_with?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_contains_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_contains_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_starts_with_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_ends_with_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsConfirmButtonText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsConfirmButtonText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsInstructionButtonText?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_contains?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_contains?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_starts_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_starts_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_ends_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_ends_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_contains_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_contains_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_starts_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_ends_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsInstructionButtonText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsInstructionButtonLink?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_contains?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_contains?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_starts_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_starts_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_ends_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_ends_with?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_contains_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_contains_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_starts_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_starts_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_ends_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_not_ends_with_i?: Maybe<Scalars['String']>;
-  detailsInstructionButtonLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  detailsInstructionButtonLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   billingPageTitle?: Maybe<Scalars['String']>;
   billingPageTitle_not?: Maybe<Scalars['String']>;
   billingPageTitle_contains?: Maybe<Scalars['String']>;
@@ -29851,8 +29636,6 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   PartnerUrlDesc = 'partnerUrl_DESC',
   AppUrlAsc = 'appUrl_ASC',
   AppUrlDesc = 'appUrl_DESC',
-  DetailsTitleAsc = 'detailsTitle_ASC',
-  DetailsTitleDesc = 'detailsTitle_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
   CanGroupReceiptsAsc = 'canGroupReceipts_ASC',
@@ -29892,8 +29675,6 @@ export enum SortAcquiringIntegrationsBy {
   ConnectedMessageDesc = 'connectedMessage_DESC',
   AppUrlAsc = 'appUrl_ASC',
   AppUrlDesc = 'appUrl_DESC',
-  DetailsTitleAsc = 'detailsTitle_ASC',
-  DetailsTitleDesc = 'detailsTitle_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
   AccessRightsAsc = 'accessRights_ASC',
@@ -30161,14 +29942,6 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   PartnerUrlDesc = 'partnerUrl_DESC',
   AppUrlAsc = 'appUrl_ASC',
   AppUrlDesc = 'appUrl_DESC',
-  DetailsTitleAsc = 'detailsTitle_ASC',
-  DetailsTitleDesc = 'detailsTitle_DESC',
-  DetailsConfirmButtonTextAsc = 'detailsConfirmButtonText_ASC',
-  DetailsConfirmButtonTextDesc = 'detailsConfirmButtonText_DESC',
-  DetailsInstructionButtonTextAsc = 'detailsInstructionButtonText_ASC',
-  DetailsInstructionButtonTextDesc = 'detailsInstructionButtonText_DESC',
-  DetailsInstructionButtonLinkAsc = 'detailsInstructionButtonLink_ASC',
-  DetailsInstructionButtonLinkDesc = 'detailsInstructionButtonLink_DESC',
   BillingPageTitleAsc = 'billingPageTitle_ASC',
   BillingPageTitleDesc = 'billingPageTitle_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
@@ -30285,14 +30058,6 @@ export enum SortBillingIntegrationsBy {
   ConnectedMessageDesc = 'connectedMessage_DESC',
   AppUrlAsc = 'appUrl_ASC',
   AppUrlDesc = 'appUrl_DESC',
-  DetailsTitleAsc = 'detailsTitle_ASC',
-  DetailsTitleDesc = 'detailsTitle_DESC',
-  DetailsConfirmButtonTextAsc = 'detailsConfirmButtonText_ASC',
-  DetailsConfirmButtonTextDesc = 'detailsConfirmButtonText_DESC',
-  DetailsInstructionButtonTextAsc = 'detailsInstructionButtonText_ASC',
-  DetailsInstructionButtonTextDesc = 'detailsInstructionButtonText_DESC',
-  DetailsInstructionButtonLinkAsc = 'detailsInstructionButtonLink_ASC',
-  DetailsInstructionButtonLinkDesc = 'detailsInstructionButtonLink_DESC',
   BillingPageTitleAsc = 'billingPageTitle_ASC',
   BillingPageTitleDesc = 'billingPageTitle_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
