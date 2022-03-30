@@ -1,12 +1,7 @@
 import { BillingIntegrationOrganizationContext, PaymentWhereInput } from '@app/condo/schema'
 import { searchAcquiringIntegration, searchBillingProperty } from '@condo/domains/acquiring/utils/clientSchema/search'
 import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import {
-    getDayRangeFilter,
-    getDecimalFilter,
-    getFilter,
-    getStringContainsFilter,
-} from '@condo/domains/common/utils/tables.utils'
+import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@core/next/intl'
 import { get } from 'lodash'
 import { useMemo } from 'react'
@@ -15,7 +10,7 @@ const addressFilter = getStringContainsFilter(['receipt', 'property', 'address']
 const accountFilter = getStringContainsFilter(['accountNumber'])
 const typeFilter = getStringContainsFilter(['context', 'integration', 'name'])
 const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionId'])
-const dateFilter = getDayRangeFilter(['advancedAt'])
+const dateFilter = getDayRangeFilter('advancedAt')
 const propertyFilter = getFilter(['receipt', 'property', 'id'], 'array', 'string', 'in')
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 
