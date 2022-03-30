@@ -1,5 +1,5 @@
-import React from 'react'
-import { AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
+import React, { useEffect } from 'react'
+import { AcquiringIntegration, AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
@@ -12,6 +12,7 @@ import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { NoConnectedBillings } from '@condo/domains/acquiring/components/Alerts/NoConnectedBillings'
+import { useRouter } from 'next/router'
 
 interface AboutAcquiringAppPageProps {
     id: string,
@@ -25,6 +26,8 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
 
+    const router = useRouter()
+
     const { obj: integration, loading: integrationLoading, error: integrationError } = AcquiringIntegration.useObject({
         where: { id },
     })
@@ -32,6 +35,22 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
     const { objs: billingContexts, loading: billingsLoading, error: billingsError } = BillingIntegrationOrganizationContext.useObjects({
         where: { organization: { id: organizationId } },
     })
+
+    const { obj: context, loading: contextLoading, error: contextError } = AcquiringIntegrationContext.useObject({
+        where: {
+            organization: { id: organizationId },
+            integration: { id },
+        },
+    })
+
+    // NOTE: Page visiting is valid if:
+    // Acquiring context not exist
+    // If context exist -> redirect to app index page
+    useEffect(() => {
+        if (integration && !contextLoading && !contextError && context) {
+            router.push(`/miniapps/${id}?type=${ACQUIRING_APP_TYPE}`)
+        }
+    }, [router, integration, contextLoading, contextError, context, id])
 
     if (integrationLoading || billingsLoading || integrationError || billingsError) {
         return (

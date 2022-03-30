@@ -43,14 +43,10 @@ const InProgressBilling = {
     sender: SENDER,
     name: 'ГИС ЖКХ (IN PROGRESS STATUS)',
     shortDescription: 'Государственная информационная система ЖКХ',
-    detailsTitle: 'Подключение ГИС ЖКХ',
     instruction: 'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
         'В результате, вы будете видеть все данные биллинга внутри платформы «Домá».',
-    detailsConfirmButtonText: 'Подать заявку на интеграцию с ГИС ЖКХ',
-    detailsInstructionButtonText: 'Инструкция на сайте биллинга',
-    detailsInstructionButtonLink: 'https://dom.gosuslugi.ru',
+    connectedMessage: 'Все начисления вы будете видеть в разделе «[Биллинг](/billing)». Данные в разделе будут автоматически обновляться',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
-    billingPageTitle: 'Биллинг ГИС ЖКХ',
     dataFormat: Lvl1DataFormat,
     developer: DEVELOPER_NAME,
 }
@@ -60,10 +56,9 @@ const SuccessfulBilling = {
     sender: SENDER,
     name: 'Интеграция через загрузку вашего реестра (DONE STATUS)',
     shortDescription: 'Поддерживаемые форматы: 1С, СБ Бизнес Онлайн 8_2 и 9_1',
-    detailsTitle: 'Интеграция через загрузку реестров',
     instruction: 'Выберите формат, в котором хотите загружать ваши реестры в Домá.\n' +
         'Мы запомним ваш выбор и в следующий раз не будем спрашивать про формат файлов.',
-    detailsConfirmButtonText: 'Подключить',
+    connectedMessage: 'Все начисления вы будете видеть в разделе «[Биллинг](/billing)». Данные в разделе будут автоматически обновляться',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, реестровый обмен',
     dataFormat: Lvl3DataFormat,
@@ -109,7 +104,6 @@ const ErrorBilling = {
     name: 'Error',
     shortDescription: 'Billing that will never be completed :)',
     appUrl: 'https://github.com/',
-    detailsTitle: 'You won\'t do this',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
     dataFormat: Lvl1DataFormat,
     developer: DEVELOPER_NAME,
@@ -120,7 +114,6 @@ const NoDetailsBilling = {
     sender: SENDER,
     name: 'Lvl 1',
     shortDescription: 'Рублевый биллинг без детализаций',
-    detailsTitle: 'Подключение биллинга с детализацией 1',
     appUrl: 'https://github.com/',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 1',
@@ -133,7 +126,6 @@ const NoDetailsDollarBilling = {
     sender: SENDER,
     name: 'Lvl 1',
     shortDescription: 'Долларовый биллинг без детализаций',
-    detailsTitle: 'Подключение биллинга с детализацией 1 и долларами',
     appUrl: 'https://github.com/',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг "Доллар", уровень 1',
@@ -146,7 +138,6 @@ const ToPayDetailsBilling = {
     sender: SENDER,
     name: 'Lvl 1+',
     shortDescription: 'Рублевый биллинг с детализацией по оплате',
-    detailsTitle: 'Подключение биллинга с детализацией 1+',
     appUrl: 'https://github.com/',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 1+',
@@ -159,7 +150,6 @@ const WithServicesBilling = {
     sender: SENDER,
     name: 'Lvl 2',
     shortDescription: 'Рублевый биллинг с детализацией по оплате и услугами',
-    detailsTitle: 'Подключение биллинга с детализацией 2',
     appUrl: 'https://github.com/',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 2',
@@ -170,9 +160,8 @@ const WithServicesBilling = {
 const WithServicesDetailsBilling = {
     dv: DV,
     sender: SENDER,
-    name: 'Lvl 3',
+    name: 'Lvl 2+',
     shortDescription: 'Рублевый биллинг с детализацией по оплате и услугам',
-    detailsTitle: 'Подключение биллинга с детализацией 3',
     appUrl: 'https://github.com/',
     contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 3',
@@ -222,8 +211,6 @@ class BillingsGenerator {
             })
         }
     }
-
-
 }
 
 const createBillings = async () => {
