@@ -3,16 +3,7 @@ import { Contact } from '../../utils/clientSchema'
 import { ContactFields, ContactsEditor, IContactEditorProps } from './index'
 import { IContactUIState } from '../../utils/clientSchema/Contact'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
-import { Tabs } from 'antd'
-import styled from '@emotion/styled'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { colors } from '@condo/domains/common/constants/style'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
-import { useIntl } from '@core/next/intl'
-import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
-import { OrganizationEmployee } from '../../../organization/utils/clientSchema'
-import { Labels } from './Labels'
-const { TabPane } = Tabs
 
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
