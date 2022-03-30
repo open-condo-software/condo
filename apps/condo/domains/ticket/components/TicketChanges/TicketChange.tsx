@@ -1,6 +1,6 @@
 import React  from 'react'
 import { Row, Col, Typography, Tooltip } from 'antd'
-import { get, has } from 'lodash'
+import { get, has, isEmpty, isNil } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -12,7 +12,6 @@ import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/
 import { FormattedMessage } from 'react-intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import dayjs from 'dayjs'
-import isNil from 'lodash/isNil'
 import { getReviewMessageByValue } from '../../utils/clientSchema/Ticket'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
@@ -188,6 +187,8 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 const reviewComment = ticketChange['reviewCommentTo']
                 let reviewCommentMessage
 
+                if (!reviewValueMessage) return
+
                 if (reviewComment) {
                     const selectedReviewOptions = reviewComment.split(';').map(option => `«${option.trim()}»`).join(` ${AndMessage} `)
                     reviewCommentMessage = `${FilledReviewCommentMessage} ${selectedReviewOptions}`
@@ -202,6 +203,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 return `${reviewValueMessage}. ${reviewCommentMessage}`
             },
         }
+
         return has(formatterFor, field)
             ? formatterFor[field](field, value, type)
             : <Typography.Text>{value}</Typography.Text>
@@ -236,6 +238,8 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         const isValueToNotEmpty = !isNil(valueTo)
         const formattedValueFrom = formatField(field, valueFrom, TicketChangeFieldMessageType.From)
         const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
+
+        if (!formattedValueFrom && !formattedValueTo) return
 
         if (isValueFromNotEmpty && isValueToNotEmpty) {
             return (
@@ -288,10 +292,12 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
     ))
 
-    return changedFields.map(([field, message, changeMessage]) => ({
-        field,
-        message: formatDiffMessage(field, message, ticketChange, changeMessage),
-    }))
+    return changedFields
+        .map(([field, message, changeMessage]) => ({
+            field,
+            message: formatDiffMessage(field, message, ticketChange, changeMessage),
+        }))
+        .filter(({ message }) => !isEmpty(message))
 }
 
 const SafeUserMention = ({ createdBy }) => {
