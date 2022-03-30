@@ -269,7 +269,7 @@ function createschema (argv) {
             let signature = opt
             if (signature.length < 3) throw new Error('<signature> is too short!')
             return signature.split(/[ ]*;+[ ]*/).filter(x => x.includes(':')).map(field => {
-                if (!/^(?:(?<field>[a-z][a-zA-Z0-9]+[?]?):[ ]*?(?<type>[A-Za-z0-9:,]+)[ ]*?)/.test(field)) {
+                if (!/^(?:(?<field>[a-z][a-zA-Z0-9]*[?]?):[ ]*?(?<type>[A-Za-z0-9:,]+)[ ]*?)/.test(field)) {
                     throw new Error(`Unknown filed signature "${field}"`)
                 }
                 const result = field.split(':')
