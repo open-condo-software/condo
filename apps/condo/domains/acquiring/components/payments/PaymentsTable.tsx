@@ -65,9 +65,8 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     if (shouldApplyDefaultFilter) {
         filters.advancedAt = DEFAULT_DATE_RANGE_STR
     }
-    const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
 
-    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
+    const appliedFiltersCount = Object.keys(filters).length
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
 
     const tableColumns = usePaymentsTableColumns(currencyCode)
