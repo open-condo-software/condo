@@ -11,7 +11,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name type } updatedBy { id name } createdAt updatedAt'
 
 const THREE_LVL_CLASSIFIER_FIELDS = 'placeClassifier { id name } categoryClassifier { id name } problemClassifier { id name } classifierRule { id }'
-const TICKET_FIELDS = `{ canReadByResident deadline organization { id name } property { id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone } operator { id name } assignee { id name } executor { id name } watchers { id name } classifier { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid isWarranty meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
+const TICKET_FIELDS = `{ canReadByResident reviewValue reviewComment deadline organization { id name } property { id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone } operator { id name } assignee { id name } executor { id name } watchers { id name } classifier { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid isWarranty meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name colors { primary secondary additional } ${COMMON_FIELDS} }`
@@ -32,6 +32,10 @@ const SHARE_TICKET_MUTATION = gql`
     PS: not exactly by hands, pasted from debugger ;)
 */
 const TICKET_CHANGE_DATA_FIELDS = [
+    'reviewValueFrom',
+    'reviewValueTo',
+    'reviewCommentFrom',
+    'reviewCommentTo',
     'canReadByResidentFrom',
     'canReadByResidentTo',
     'deadlineFrom',
@@ -127,7 +131,7 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'watchersDisplayNamesFrom',
     'watchersDisplayNamesTo',
 ]
-const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
+const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } } id dv sender { dv fingerprint } v createdBy { id name type } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
@@ -167,6 +171,13 @@ const TICKET_FILTER_FIELDS = '{ organization number createdAt status details pro
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_FILTER_TEMPLATE_FIELDS)
 
+
+const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
+    query predictTicketClassification ($data: PredictTicketClassificationInput!) {
+        obj: predictTicketClassification(data: $data) { id place { id name } category { id name }  }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -199,5 +210,8 @@ module.exports = {
     RESIDENT_TICKET_FIELDS,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
     TicketFilterTemplate,
+
+    PREDICT_TICKET_CLASSIFICATION_QUERY,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

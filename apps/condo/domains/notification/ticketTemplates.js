@@ -38,7 +38,7 @@ const getTicketAssigneeConnectedMessagePush = (message) => {
 }
 
 const getTicketAssigneeConnectedMessageSms = (message) => {
-    const { ticketNumber } = get(message, 'meta', {})
+    const { ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -54,7 +54,7 @@ const getTicketAssigneeConnectedMessageSms = (message) => {
 }
 
 const getTicketAssigneeConnectedMessageEmail = (message) => {
-    const { ticketId, ticketNumber } = get(message, 'meta', {})
+    const { ticketId, ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -106,7 +106,7 @@ const getTicketExecutorConnectedMessagePush = (message) => {
 }
 
 const getTicketExecutorConnectedMessageSms = (message) => {
-    const { ticketNumber } = get(message, 'meta', {})
+    const { ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -122,7 +122,7 @@ const getTicketExecutorConnectedMessageSms = (message) => {
 }
 
 const getTicketExecutorConnectedMessageEmail = (message) => {
-    const { ticketId, ticketNumber } = get(message, 'meta', {})
+    const { ticketId, ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:

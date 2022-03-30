@@ -11,7 +11,7 @@ import { TICKET_CHANGE_DATA_FIELDS } from '@condo/domains/ticket/gql'
 import { TicketChange as TicketChangeGQL } from '@condo/domains/ticket/gql'
 import { TicketChange, TicketChangeUpdateInput, QueryAllTicketChangesArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'createdAt', 'createdBy', 'ticket', ...TICKET_CHANGE_DATA_FIELDS]
+const FIELDS = ['id', 'createdAt', 'createdBy', 'ticket', 'sender', ...TICKET_CHANGE_DATA_FIELDS]
 const RELATIONS = ['ticket']
 
 export interface ITicketChangeUIState extends TicketChange {

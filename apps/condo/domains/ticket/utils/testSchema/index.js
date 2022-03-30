@@ -9,7 +9,7 @@ const { get } = require('lodash')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { TICKET_STATUS_TYPES } = require('../../constants')
-const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const {
     TicketStatus: TicketStatusGQL,
@@ -27,6 +27,7 @@ const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql
 const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
 const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
+const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -411,6 +412,16 @@ async function updateTestTicketFilterTemplate (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function predictTicketClassificationByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const attrs = {
+        details: faker.lorem.words(),
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.query(PREDICT_TICKET_CLASSIFICATION_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -447,5 +458,6 @@ module.exports = {
     createResidentTicketByTestClient,
     updateResidentTicketByTestClient,
     TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate,
+    predictTicketClassificationByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

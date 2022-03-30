@@ -539,7 +539,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const templatesTabs = useMemo(() => filtersTemplates.map((filterTemplate, index) => (
         <TabPane
-            tab={`${TemplateMessage} ${index + 1}`}
+            tab={get(filterTemplate, 'name', `${TemplateMessage} ${index + 1}`)}
             key={filterTemplate.id}
             style={TAB_STYLE}
         >

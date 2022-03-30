@@ -18,6 +18,7 @@ import {
     getTicketAttributesFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
@@ -38,7 +39,8 @@ const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
-const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty'])
+const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty', 'statusReopenedCounter'])
+const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
 const filterFloor = getFilter('floorName', 'array', 'string', 'in')
@@ -80,6 +82,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const AttributeLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.Attribute' })
     const AuthorMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.Author' })
     const EnterFullNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterFullName' })
+    const GoodReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.good' })
+    const BadReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.bad' })
+    const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
+    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
 
     const { objs: statuses } = TicketStatus.useObjects({})
     const statusOptions = convertToOptions<ITicketStatusUIState>(statuses, 'name', 'id')
@@ -91,6 +97,11 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
         { label: PaidMessage, value: 'isPaid' },
         { label: EmergencyMessage, value: 'isEmergency' },
         { label: WarrantyMessage, value: 'isWarranty' },
+        { label: ReturnedMessage.toLowerCase(), value: 'statusReopenedCounter' },
+    ]
+    const reviewValueOptions = [
+        { label: GoodReviewMessage, value: REVIEW_VALUES.GOOD },
+        { label: BadReviewMessage, value: REVIEW_VALUES.BAD },
     ]
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')
@@ -331,6 +342,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                     modalFilterComponentWrapper: {
                         label: AttributeLabel,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'reviewValue',
+                filters: [filterReviewValue],
+                component: {
+                    type: ComponentType.Select,
+                    options: reviewValueOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: ReviewValueMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },

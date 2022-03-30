@@ -31,6 +31,8 @@ const { sleep } = require('@condo/domains/common/utils/sleep')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
+const { STATUS_IDS } = require('../constants/statusTransitions')
+const { REVIEW_VALUES } = require('../constants')
 
 describe('Ticket', () => {
     describe('Crud', () => {
@@ -207,7 +209,78 @@ describe('Ticket', () => {
             expect(updatedTicket.details).toEqual(newDetails)
         })
 
-        test('resident: cannot update his Ticket fields other than details', async () => {
+        test('resident: can update his Ticket reviewValue and reviewComment', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const reviewComment = faker.random.alphaNumeric(5)
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                reviewValue: REVIEW_VALUES.GOOD,
+                reviewComment,
+            })
+
+            expect(ticket.id).toEqual(updatedTicket.id)
+            expect(updatedTicket.reviewValue).toEqual(REVIEW_VALUES.GOOD)
+            expect(updatedTicket.reviewComment).toEqual(reviewComment)
+            expect(updatedTicket.status.id).toEqual(STATUS_IDS.CLOSED)
+        })
+
+        test('resident: return to work Ticket when reviewValue is \'returned\'', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                reviewValue: REVIEW_VALUES.RETURN,
+            })
+
+            expect(ticket.id).toEqual(updatedTicket.id)
+            expect(updatedTicket.reviewValue).toEqual(REVIEW_VALUES.RETURN)
+            expect(updatedTicket.status.id).toEqual(STATUS_IDS.OPEN)
+        })
+
+        test('employee: update statusReopenedCounter when update status from completed to open', async () => {
+            const userClient = await makeClientWithProperty()
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            expect(ticket.id).toEqual(updatedTicket.id)
+            expect(updatedTicket.statusReopenedCounter).toEqual(1)
+
+            await updateTestTicket(userClient, ticket.id, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+            const [againUpdatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            expect(againUpdatedTicket.statusReopenedCounter).toEqual(2)
+        })
+
+        test('resident: cannot update his Ticket fields other than accessibleUpdatedFields', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)

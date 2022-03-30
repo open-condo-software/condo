@@ -10,7 +10,7 @@ const addressFilter = getStringContainsFilter(['receipt', 'property', 'address']
 const accountFilter = getStringContainsFilter(['accountNumber'])
 const typeFilter = getStringContainsFilter(['context', 'integration', 'name'])
 const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionId'])
-const dateFilter = getDayRangeFilter(['advancedAt'])
+const dateFilter = getDayRangeFilter('advancedAt')
 const propertyFilter = getFilter(['receipt', 'property', 'id'], 'array', 'string', 'in')
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 
@@ -32,7 +32,7 @@ export function usePaymentsTableFilters (
         return [
             {
                 keyword: 'search',
-                filters: [addressFilter, accountFilter, typeFilter, transactionFilter],
+                filters: [addressFilter, accountFilter, typeFilter, transactionFilter, dateFilter],
                 combineType: 'OR',
             },
             {

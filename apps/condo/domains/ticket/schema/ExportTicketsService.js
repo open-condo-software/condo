@@ -1,4 +1,5 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
+const conf = require('@core/config')
 const access = require('@condo/domains/ticket/access/ExportTicketsService')
 const { TicketStatus, loadTicketsForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
@@ -10,6 +11,9 @@ const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
+const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
+const { REVIEW_VALUES } = require('@condo/domains/ticket/constants')
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -48,6 +52,13 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
                 const statuses = await TicketStatus.getAll(context, {})
                 const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
+                const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                const translations = getTranslations(locale)
+                const reviewValueText = {
+                    [REVIEW_VALUES.BAD]: translations['ticket.reviewValue.bad'],
+                    [REVIEW_VALUES.GOOD]: translations['ticket.reviewValue.good'],
+                }
+
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
                 if (allTickets.length === 0) {
                     throw new GQLError(errors.NOTHING_TO_EXPORT, context)
@@ -82,6 +93,9 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         comments: comments.map(comment => comment.split(':').pop()).join(TICKET_COMMENTS_SEPARATOR),
                         source: ticket.source || '',
                         deadline: ticket.deadline ? formatDate(ticket.deadline) : '',
+                        reviewValue: ticket.reviewValue ? reviewValueText[ticket.reviewValue] : '',
+                        reviewComment: ticket.reviewComment || '',
+                        statusReopenedCounter: ticket.statusReopenedCounter || '',
                     }
                 })
                 const linkToFile = await createExportFile({

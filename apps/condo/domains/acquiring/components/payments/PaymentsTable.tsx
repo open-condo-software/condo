@@ -21,16 +21,24 @@ import { useOrganization } from '@core/next/organization'
 import { Col, Input, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
-import { get } from 'lodash'
+import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
+const DEFAULT_DATE_RANGE_STR: [string, string] = [String(DEFAULT_DATE_RANGE[0]), String(DEFAULT_DATE_RANGE[1])]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
+const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
+
+/**
+ * Next two variables need for keeping data about default filters during component lifetime
+ */
+let isDefaultFilterApplied = false
+let shouldApplyDefaultFilter = true
 
 interface IPaymentsTableProps {
     billingContext: BillingIntegrationOrganizationContext,
@@ -41,15 +49,26 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     const intl = useIntl()
     const searchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const filtersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
+    const startDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
+    const endDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
 
     const { isSmall } = useLayoutContext()
     const router = useRouter()
     const userOrganization = useOrganization()
 
     const { filters, sorters, offset } = parseQuery(router.query)
-    const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
+    const hasFilters = !isEmpty(filters)
 
-    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
+    if (hasFilters) {
+        shouldApplyDefaultFilter = false
+        isDefaultFilterApplied = true
+    }
+
+    if (shouldApplyDefaultFilter) {
+        filters.advancedAt = DEFAULT_DATE_RANGE_STR
+    }
+
+    const appliedFiltersCount = Object.keys(filters).length
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
 
     const tableColumns = usePaymentsTableColumns(currencyCode)
@@ -91,9 +110,20 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [dateRange, setDateRange] = useDateRangeSearch('advancedAt', loading)
 
+    /**
+     * We need to check if default filters should be applied only at first render
+     */
     useEffect(() => {
-        if (!dateRange && appliedFiltersCount < 1 && !search) {
+        if (!hasFilters && shouldApplyDefaultFilter && !isDefaultFilterApplied) {
+            isDefaultFilterApplied = true
             setDateRange(DEFAULT_DATE_RANGE)
+        } else {
+            shouldApplyDefaultFilter = false
+        }
+
+        return () => {
+            isDefaultFilterApplied = false
+            shouldApplyDefaultFilter = true
         }
     }, [])
 
@@ -114,12 +144,11 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                             }}
                                         />
                                     </Col>
-                                    <Col xs={24} sm={{ span: 11, offset: 1 }} lg={{ span: 11, offset: 1 }}>
+                                    <Col xs={24} sm={DATE_PICKER_COL_LAYOUT} lg={DATE_PICKER_COL_LAYOUT}>
                                         <DateRangePicker
                                             value={dateRange}
-                                            onChange={(range) => {
-                                                setDateRange(range)
-                                            }}
+                                            onChange={setDateRange}
+                                            placeholder={[startDateMessage, endDateMessage]}
                                         />
                                     </Col>
                                 </Row>

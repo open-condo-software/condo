@@ -29,6 +29,7 @@ const TicketFilterFields = {
     categoryClassifier: '[String]',
     clientPhone: '[String]',
     author: '[String]',
+    reviewValue: '[String]',
 }
 
 const TICKET_FILTER_TYPE = `

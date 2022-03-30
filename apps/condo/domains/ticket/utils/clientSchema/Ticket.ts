@@ -10,8 +10,9 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '@app/condo/schema'
 import dayjs from 'dayjs'
+import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
-const FIELDS = ['id', 'canReadByResident', 'deadline', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitType', 'unitName', 'sectionName', 'floorName', 'watchers', 'operator', 'assignee', 'classifier', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule', 'details', 'related', 'isEmergency', 'isWarranty', 'isPaid', 'meta', 'source', 'property', 'executor', 'propertyAddress', 'propertyAddressMeta']
+const FIELDS = ['id', 'reviewValue', 'reviewComment', 'canReadByResident', 'deadline', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitType', 'unitName', 'sectionName', 'floorName', 'watchers', 'operator', 'assignee', 'classifier', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule', 'details', 'related', 'isEmergency', 'isWarranty', 'isPaid', 'meta', 'source', 'property', 'executor', 'propertyAddress', 'propertyAddressMeta']
 const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor', 'related', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule']
 const DISCONNECT_ON_NULL = ['problemClassifier', 'executor']
 export interface ITicketUIState extends Ticket {
@@ -89,6 +90,15 @@ function convertToGQLInput (state: ITicketFormState): TicketUpdateInput {
     return result
 }
 
+function getReviewMessageByValue (reviewValue, intl) {
+    switch (reviewValue) {
+        case REVIEW_VALUES.BAD:
+            return intl.formatMessage({ id: 'ticket.reviewValue.bad' })
+        case REVIEW_VALUES.GOOD:
+            return intl.formatMessage({ id: 'ticket.reviewValue.good' })
+    }
+}
+
 const {
     useObject,
     useObjects,
@@ -105,4 +115,5 @@ export {
     useDelete,
     convertToUIFormState,
     extractAttributes,
+    getReviewMessageByValue,
 }

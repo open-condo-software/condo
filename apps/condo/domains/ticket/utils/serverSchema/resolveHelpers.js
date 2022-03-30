@@ -3,12 +3,30 @@ const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/un
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 
-function addOrderToTicket (resolvedData, statusId) {
+function calculateTicketOrder (resolvedData, statusId) {
     if (statusId === STATUS_IDS.OPEN) {
         resolvedData.order = TICKET_ORDER_BY_STATUS[STATUS_IDS.OPEN]
     } else {
         resolvedData.order = null
+    }
+}
+
+async function calculateReopenedCounter (context, existingItem, resolvedData) {
+    const existedStatusId = get(existingItem, 'status')
+    const resolvedStatusId = get(resolvedData, 'status')
+
+    if (existedStatusId) {
+        const existedStatus = await TicketStatus.getOne(context, { id: existedStatusId })
+        const resolvedStatus = await TicketStatus.getOne(context, { id: resolvedStatusId })
+
+        if (get(existedStatus, 'type') === COMPLETED_STATUS_TYPE && get(resolvedStatus, 'type') === NEW_OR_REOPENED_STATUS_TYPE) {
+            const existedStatusReopenedCounter = existingItem['statusReopenedCounter']
+            resolvedData['statusReopenedCounter'] = existedStatusReopenedCounter + 1
+            resolvedData['executor'] = null
+        }
     }
 }
 
@@ -56,6 +74,7 @@ async function addClientInfoToResidentTicket (context, resolvedData) {
 }
 
 module.exports = {
-    addOrderToTicket,
+    calculateReopenedCounter,
+    calculateTicketOrder,
     addClientInfoToResidentTicket,
 }
