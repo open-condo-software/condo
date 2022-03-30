@@ -15,7 +15,7 @@ interface AppDescriptionPageContentProps {
     tag?: string,
     developer: string,
     partnerUrl?: string,
-    descriptionBlocks?: Array<AboutBlockProps>,
+    aboutSections?: Array<AboutBlockProps>,
     instruction?: string,
     appUrl?: string,
     disabledConnect?: boolean,
@@ -29,7 +29,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
     tag,
     developer,
     partnerUrl,
-    descriptionBlocks,
+    aboutSections,
     instruction,
     appUrl,
     children,
@@ -109,10 +109,10 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                 </Row>
             </Col>
             {
-                descriptionBlocks && Boolean(descriptionBlocks.length) && (
+                aboutSections && Boolean(aboutSections.length) && (
                     <Col span={24}>
                         <AboutCard
-                            blocks={descriptionBlocks}
+                            sections={aboutSections}
                         />
                     </Col>
                 )

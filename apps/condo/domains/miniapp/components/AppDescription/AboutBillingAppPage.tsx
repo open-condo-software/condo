@@ -45,8 +45,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
 
     const PageTitle = get(integration, 'name', BillingMessage)
 
-    // TODO (2420): Add logic
-    const descriptionBlocks = []
+    const aboutSections = get(integration, ['about', '0', 'props', 'sections'], [])
 
     const isAnyBillingConnected = Boolean(contexts.length)
 
@@ -65,7 +64,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
                         tag={TagMessage}
                         developer={integration.developer}
                         partnerUrl={get(integration, 'partnerUrl')}
-                        descriptionBlocks={descriptionBlocks}
+                        aboutSections={aboutSections}
                         instruction={integration.instruction}
                         appUrl={integration.appUrl}
                         disabledConnect={isAnyBillingConnected}
