@@ -12,7 +12,7 @@ import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clien
 import { MainContent } from './MainContent'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-const BILLING_SETTINGS_ROUTE = '/settings?tab=billing'
+const BILLING_SETTINGS_ROUTE = '/miniapps'
 
 interface IBillingPageContentProps {
     access: boolean,

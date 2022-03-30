@@ -9,7 +9,7 @@ const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ACQUIRING_INTEGRATION_FIELDS = `{ name shortDescription about logo { publicUrl } developer partnerUrl instruction connectedMessage appUrl detailsTitle canGroupReceipts hostUrl supportedBillingIntegrations { id } ${COMMON_FIELDS} }`
+const ACQUIRING_INTEGRATION_FIELDS = `{ name shortDescription about logo { publicUrl } developer partnerUrl instruction connectedMessage appUrl canGroupReceipts hostUrl supportedBillingIntegrations { id } ${COMMON_FIELDS} }`
 const AcquiringIntegration = generateGqlQueries('AcquiringIntegration', ACQUIRING_INTEGRATION_FIELDS)
 
 const ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ user { id } integration { id } ${COMMON_FIELDS} }`

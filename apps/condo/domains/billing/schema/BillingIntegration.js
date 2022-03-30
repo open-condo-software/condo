@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegration')
-const { DETAILS_TITLE_FIELD, IS_HIDDEN_FIELD } = require('./fields/BillingIntegration/fields')
+const { IS_HIDDEN_FIELD } = require('./fields/BillingIntegration/fields')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const {
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_STATUSES,
@@ -57,26 +57,6 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         connectedMessage: CONNECTED_MESSAGE_FIELD,
 
         appUrl: IFRAME_URL_FIELD,
-
-        detailsTitle: DETAILS_TITLE_FIELD,
-
-        detailsConfirmButtonText: {
-            schemaDoc: 'Text of button, which you click to start integration and create integration context',
-            type: Text,
-            isRequired: false,
-        },
-
-        detailsInstructionButtonText: {
-            schemaDoc: 'Text of button, which you click to redirect to more detailed instruction (pdf, external site, etc)',
-            type: Text,
-            isRequired: false,
-        },
-
-        detailsInstructionButtonLink: {
-            schemaDoc: 'Link to external resource, on which you will go by clicking on "Instruction" button',
-            type: Text,
-            isRequired: false,
-        },
 
         billingPageTitle: {
             schemaDoc: 'This title is shown on /billing page, usually contains word "Billing"',

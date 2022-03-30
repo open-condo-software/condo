@@ -48,15 +48,13 @@ const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST INTEGRATION'
-    const detailsTitle = faker.animal.dog() + ' TEST INTEGRATION'
+    const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST BILLING INTEGRATION'
     const currencyCode = 'RUB'
 
     const attrs = {
         dv: 1,
         sender,
         name,
-        detailsTitle,
         currencyCode,
         instruction: faker.datatype.string(),
         connectedMessage: faker.company.catchPhrase(),
