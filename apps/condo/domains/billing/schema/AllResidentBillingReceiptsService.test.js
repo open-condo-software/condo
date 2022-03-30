@@ -12,6 +12,7 @@ const {
 
 
 const { makeClientWithPropertyAndBilling } = require('@condo/domains/billing/utils/testSchema')
+
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
@@ -24,8 +25,7 @@ const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 describe('AllResidentBillingReceipts', () => {
 
     describe('resident should be able to get all needed fields', () => {
-        let mutationResult
-        beforeAll(async () => {
+        test('has all required fields', async () => {
             const userClient = await makeClientWithProperty()
             const support = await makeClientWithSupportUser()
 
@@ -51,14 +51,11 @@ describe('AllResidentBillingReceipts', () => {
                 organizationId: userClient.organization.id,
             })
             await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
-            mutationResult = await ResidentBillingReceipt.getAll(residentUser)
-        })
+            const residentBillingReceipts = await ResidentBillingReceipt.getAll(residentUser)
 
-        // TODO(DOMA-1768): add more tests
-        test('has all required fields', async () => {
-            expect(mutationResult).toBeDefined()
-            expect(mutationResult).not.toHaveLength(0)
-            mutationResult.forEach(receipt => {
+            expect(residentBillingReceipts).toBeDefined()
+            expect(residentBillingReceipts).not.toHaveLength(0)
+            residentBillingReceipts.forEach(receipt => {
                 expect(receipt).toHaveProperty('id')
                 expect(receipt.id).not.toBeNull()
 
