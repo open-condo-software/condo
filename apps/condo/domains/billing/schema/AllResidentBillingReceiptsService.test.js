@@ -450,7 +450,7 @@ describe('AllResidentBillingReceipts', () => {
         expect(objs).toHaveLength(0)
     })
 
-    test('user with valid serviceAccount gets result filtered by accountNumber and recipientId', async () => {
+    test('user with valid serviceAccount gets result filtered by accountId and recipientId in case of multiple billingRecipients', async () => {
         /**
          * Test that we select only one latest receipt from each receiver + accountNumber by period
          *   Case:
@@ -523,6 +523,72 @@ describe('AllResidentBillingReceipts', () => {
         expect(objs).toHaveLength(2)
         expect(objs[0].id).toEqual(aprilWaterReceipt.id)
         expect(objs[1].id).toEqual(marchElectricityReceipt.id)
+    })
+
+    test('user with valid serviceAccount gets result filtered by accountId and recipientId in case of singleRecipient', async () => {
+        /**
+         * Test that we select only one latest receipt from each receiver + accountNumber by period
+         *   Case:
+         *   1. John pays for cold water
+         *   2. John got the receipt for March for water
+         *   3. John got the receipt for April for water
+         *   4. John got the receipt for May for water
+         *   5. In result of AllResidentBillingReceipts John should get 1 receipt:
+         *     - May water receipt
+         */
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [integration] = await createTestBillingIntegration(adminClient)
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+        await addResidentAccess(userClient.user)
+
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+        const payload = {
+            residentId: resident.id,
+            accountNumber: billingAccountAttrs.number,
+            organizationId: userClient.organization.id,
+        }
+
+        await registerServiceConsumerByTestClient(userClient, payload)
+
+        const MARCH_PERIOD = '2022-03-01'
+        const APRIL_PERIOD = '2022-04-01'
+        const MAY_PERIOD = '2022-05-01'
+
+        const WATER_RECIPIENT = {
+            name: 'Water & co',
+            tin: faker.datatype.number().toString(),
+            iec: faker.datatype.number().toString(),
+            bic: faker.datatype.number().toString(),
+            bankAccount: faker.datatype.number().toString(),
+        }
+
+        // March receipt for water
+        await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
+            period: MARCH_PERIOD,
+            recipient: WATER_RECIPIENT,
+        })
+
+        await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
+            period: APRIL_PERIOD,
+            recipient: WATER_RECIPIENT,
+        })
+
+        const [mayWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
+            period: MAY_PERIOD,
+            recipient: WATER_RECIPIENT,
+        })
+
+        const objs = await ResidentBillingReceipt.getAll(userClient, {})
+
+        expect(objs).toHaveLength(1)
+        expect(objs[0].id).toEqual(mayWaterReceipt.id)
     })
 
     describe('paid field', () => {
