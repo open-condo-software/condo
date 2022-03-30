@@ -17,7 +17,7 @@ interface AppConnectedPageContentProps {
 }
 
 const CONTAINER_STYLE: CSSProperties = {
-    maxHeight: 400,
+    maxHeight: 500,
 }
 
 const IMAGE_STYLE: CSSProperties = {
@@ -51,7 +51,7 @@ export const AppConnectedPageContent: React.FC<AppConnectedPageContentProps> = (
             />
             <BasicEmptyListView
                 containerStyle={CONTAINER_STYLE}
-                image={'/dino/dino-searching.png'}
+                image={'/dino/dino-success.png'}
                 imageStyle={IMAGE_STYLE}
             >
                 <Typography.Title level={2}>
