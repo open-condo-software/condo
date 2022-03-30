@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
@@ -11,6 +11,7 @@ import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { ConnectedBilling } from '@condo/domains/billing/components/Alerts/ConnectedBilling'
+import { useRouter } from 'next/router'
 
 interface AboutBillingAppPageProps {
     id: string,
@@ -25,6 +26,8 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
 
+    const router = useRouter()
+
     const { obj: integration, loading: integrationLoading, error: integrationError } = BillingIntegration.useObject({
         where: { id },
     })
@@ -32,6 +35,17 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
     const { objs: contexts, loading: contextsLoading, error: contextsError } = BillingIntegrationOrganizationContext.useObjects({
         where: { organization: { id: organizationId } },
     })
+
+    // NOTE: Page visiting is valid if:
+    // Billing context not exist
+    // If context exist -> redirect to app index page
+    useEffect(() => {
+        if (integration && !contextsLoading && !contextsError && contexts) {
+            if (contexts.some((context) => get(context, ['integration', 'id']) === integration.id)) {
+                router.push(`/miniapps/${id}?type=${BILLING_APP_TYPE}`)
+            }
+        }
+    }, [router, integration, contextsLoading, contextsError, contexts, id])
 
     if (integrationLoading || contextsLoading || integrationError || contextsError) {
         return (
