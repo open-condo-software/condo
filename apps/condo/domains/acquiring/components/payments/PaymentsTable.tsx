@@ -49,6 +49,8 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     const intl = useIntl()
     const searchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const filtersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
+    const startDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
+    const endDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
 
     const { isSmall } = useLayoutContext()
     const router = useRouter()
@@ -147,6 +149,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                         <DateRangePicker
                                             value={dateRange}
                                             onChange={setDateRange}
+                                            placeholder={[startDateMessage, endDateMessage]}
                                         />
                                     </Col>
                                 </Row>
