@@ -4,11 +4,9 @@
  */
 
 const { AllOrganizationAppsService } = require('./AllOrganizationAppsService')
-const { DescriptionBlock } = require('./DescriptionBlock')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     AllOrganizationAppsService,
-    DescriptionBlock,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -18,11 +18,11 @@ const {
     DEVELOPER_FIELD,
     PARTNER_URL_FIELD,
     SHORT_DESCRIPTION_FIELD,
-    DESCRIPTION_BLOCKS_FIELD,
     INSTRUCTION_TEXT_FIELD,
     IFRAME_URL_FIELD,
     CONNECTED_MESSAGE_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
+const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
@@ -41,10 +41,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
 
         shortDescription: SHORT_DESCRIPTION_FIELD,
 
-        descriptionBlocks: {
-            ...DESCRIPTION_BLOCKS_FIELD,
-            ref: 'DescriptionBlock.acquiringIntegration',
-        },
+        about: ABOUT_DOCUMENT_FIELD,
 
         developer: DEVELOPER_FIELD,
 

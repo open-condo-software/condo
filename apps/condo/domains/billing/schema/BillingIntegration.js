@@ -20,11 +20,11 @@ const {
     DEVELOPER_FIELD,
     PARTNER_URL_FIELD,
     SHORT_DESCRIPTION_FIELD,
-    DESCRIPTION_BLOCKS_FIELD,
     INSTRUCTION_TEXT_FIELD,
     IFRAME_URL_FIELD,
     CONNECTED_MESSAGE_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
+const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -46,10 +46,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
 
         shortDescription: SHORT_DESCRIPTION_FIELD,
 
-        descriptionBlocks: {
-            ...DESCRIPTION_BLOCKS_FIELD,
-            ref: 'DescriptionBlock.billingIntegration',
-        },
+        about: ABOUT_DOCUMENT_FIELD,
 
         developer: DEVELOPER_FIELD,
 

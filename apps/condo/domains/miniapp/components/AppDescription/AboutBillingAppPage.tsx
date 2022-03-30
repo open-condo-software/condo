@@ -1,6 +1,5 @@
 import React from 'react'
 import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
-import { DescriptionBlock } from '@condo/domains/miniapp/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import { AppDescriptionPageContent } from './AppDescriptionPageContent'
@@ -11,7 +10,6 @@ import Error from 'next/error'
 import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
-import { SortDescriptionBlocksBy } from '@app/condo/schema'
 import { ConnectedBilling } from '@condo/domains/billing/components/Alerts/ConnectedBilling'
 
 interface AboutBillingAppPageProps {
@@ -35,21 +33,9 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
         where: { organization: { id: organizationId } },
     })
 
-
-    const { objs: blocks, loading: blocksLoading, error: blocksError } = DescriptionBlock.useObjects({
-        where: {
-            billingIntegration: { id: get(integration, 'id', null) },
-            acquiringIntegration_is_null: true,
-        },
-        sortBy: [
-            SortDescriptionBlocksBy.OrderAsc,
-            SortDescriptionBlocksBy.CreatedAtDesc,
-        ],
-    })
-
-    if (integrationLoading || contextsLoading || integrationError || contextsError || blocksLoading || blocksError) {
+    if (integrationLoading || contextsLoading || integrationError || contextsError) {
         return (
-            <LoadingOrErrorPage title={LoadingMessage} error={integrationError || contextsError || blocksError} loading={integrationLoading || contextsLoading || blocksLoading}/>
+            <LoadingOrErrorPage title={LoadingMessage} error={integrationError || contextsError} loading={integrationLoading || contextsLoading}/>
         )
     }
 
@@ -59,11 +45,8 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
 
     const PageTitle = get(integration, 'name', BillingMessage)
 
-    const descriptionBlocks = blocks.map(block => ({
-        title: block.title,
-        description: block.description,
-        imageSrc: block.image.publicUrl,
-    }))
+    // TODO (2420): Add logic
+    const descriptionBlocks = []
 
     const isAnyBillingConnected = Boolean(contexts.length)
 

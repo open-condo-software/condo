@@ -1,4 +1,4 @@
-const { Text, File, Relationship } = require('@keystonejs/fields')
+const { Text, File } = require('@keystonejs/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Markdown } = require('@keystonejs/fields-markdown')
 
@@ -30,14 +30,6 @@ const APP_IMAGE_FIELD = {
     adapter: APPS_FILE_ADAPTER,
 }
 
-const DESCRIPTION_BLOCKS_FIELD = {
-    schemaDoc: 'Link to app description blocks if exists...You can control order of appearance in CRM by specifying theirs order parameter',
-    type: Relationship,
-    ref: 'DescriptionBlock',
-    isRequired: false,
-    many: true,
-}
-
 const SHORT_DESCRIPTION_FIELD = {
     schemaDoc: 'Short integration description, that would be shown on settings card',
     type: Text,
@@ -67,7 +59,6 @@ module.exports = {
     LOGO_FIELD,
     PARTNER_URL_FIELD,
     APP_IMAGE_FIELD,
-    DESCRIPTION_BLOCKS_FIELD,
     SHORT_DESCRIPTION_FIELD,
     INSTRUCTION_TEXT_FIELD,
     IFRAME_URL_FIELD,
