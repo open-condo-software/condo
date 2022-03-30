@@ -9,7 +9,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const BILLING_INTEGRATION_DATA_FORMAT_FIELDS = '{ hasToPayDetails hasServices hasServicesDetails }'
 const BILLING_INTEGRATION_OPTIONS_FIELDS = `{ title options { name displayName billingPageTitle descriptionDetails { urlText url } dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} } }`
-const BILLING_INTEGRATION_FIELDS = `{ name shortDescription about logo { publicUrl } developer partnerUrl instruction connectedMessage appUrl detailsTitle detailsConfirmButtonText detailsInstructionButtonText detailsInstructionButtonLink contextDefaultStatus dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} currencyCode billingPageTitle isHidden availableOptions ${BILLING_INTEGRATION_OPTIONS_FIELDS} ${COMMON_FIELDS} }`
+const BILLING_INTEGRATION_FIELDS = `{ name shortDescription about logo { publicUrl } developer partnerUrl instruction connectedMessage appUrl contextDefaultStatus dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} isHidden availableOptions ${BILLING_INTEGRATION_OPTIONS_FIELDS} ${COMMON_FIELDS} }`
 const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTEGRATION_FIELDS)
 
 const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id name } user { id name } ${COMMON_FIELDS} }`
