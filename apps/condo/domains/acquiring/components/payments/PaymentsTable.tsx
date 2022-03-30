@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
-const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs().subtract(3, 'days')]
+const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 const DEFAULT_DATE_RANGE_STR: [string, string] = [String(DEFAULT_DATE_RANGE[0]), String(DEFAULT_DATE_RANGE[1])]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
