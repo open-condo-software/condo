@@ -23,6 +23,9 @@ const {
     TICKET_STATUS_IN_WORK,
     TICKET_STATUS_COMPLETED,
     TICKET_STATUS_RETURNED,
+    TICKET_ADD_INDICATE,
+    TICKET_DELETE_INDICATE,
+    TICKET_NEW_COMMENT,
 } = require('./constants/constants')
 
 const {
@@ -31,6 +34,9 @@ const {
     getTicketStatusInWorkMessage,
     getTicketStatusCompletedMessage,
     getTicketStatusReturnedMessage,
+    getTicketAddIndicateMessage,
+    getTicketDeleteIndicateMessage,
+    getTicketNewCommentMessage,
 } = require('./ticketTemplates')
 
 async function renderTemplate (transport, message) {
@@ -302,6 +308,18 @@ async function renderTemplate (transport, message) {
 
     if (message.type === TICKET_STATUS_RETURNED) {
         return getTicketStatusReturnedMessage(message, transport)
+    }
+
+    if (message.type === TICKET_ADD_INDICATE) {
+        return getTicketAddIndicateMessage(message, transport)
+    }
+
+    if (message.type === TICKET_DELETE_INDICATE) {
+        return getTicketDeleteIndicateMessage(message, transport)
+    }
+
+    if (message.type === TICKET_NEW_COMMENT) {
+        return getTicketNewCommentMessage(message, transport)
     }
 
     throw new Error('unknown template or lang')

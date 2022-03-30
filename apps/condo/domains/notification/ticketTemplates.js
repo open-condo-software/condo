@@ -349,10 +349,213 @@ const getTicketStatusReturnedMessage = (message, transport) => {
     }
 }
 
+
+const getTicketAddIndicateMessagePush = (message) => {
+    const { id: notificationId } = message
+    const { ticketId, ticketNumber, userId, typeIndicate } = get(message, 'meta.data', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                notification: {
+                    title: `Ticket #${ticketNumber} changed indicate`,
+                },
+                data: { ticketId, notificationId, userId },
+            }
+
+        case RU_LOCALE:
+            return {
+                notification: {
+                    title: `Заявка №${ticketNumber} стала ${typeIndicate}`,
+                },
+                data: { ticketId, notificationId, userId },
+            }
+    }
+}
+
+const getTicketAddIndicateMessageSms = (message) => {
+    const { ticketNumber, typeIndicate } = get(message, 'meta.data', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                text: `Ticket #${ticketNumber} changed indicate`,
+            }
+
+        case RU_LOCALE:
+            return {
+                text: `Заявка №${ticketNumber} стала ${typeIndicate}`,
+            }
+    }
+}
+
+const getTicketAddIndicateMessageEmail = (message) => {
+    const { ticketId, ticketNumber, typeIndicate } = get(message, 'meta', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                subject: `Ticket #${ticketNumber} changed indicate`,
+                text: `Please follow the link to view the ticket: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+
+        case RU_LOCALE:
+            return {
+                subject: `Заявка №${ticketNumber} стала ${typeIndicate}`,
+                text: `Ознакомиться с заявкой можнжо по ссылке: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+    }
+}
+
+const getTicketAddIndicateMessage = (message, transport) => {
+    switch (transport) {
+        case PUSH_TRANSPORT: return getTicketAddIndicateMessagePush(message)
+        case EMAIL_TRANSPORT: return getTicketAddIndicateMessageEmail(message)
+        case SMS_TRANSPORT: return getTicketAddIndicateMessageSms(message)
+    }
+}
+
+
+const getTicketDeleteIndicateMessagePush = (message) => {
+    const { id: notificationId } = message
+    const { ticketId, ticketNumber, userId, typeIndicate } = get(message, 'meta.data', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                notification: {
+                    title: `Ticket #${ticketNumber} changed indicate`,
+                },
+                data: { ticketId, notificationId, userId },
+            }
+
+        case RU_LOCALE:
+            return {
+                notification: {
+                    title: `Заявка №${ticketNumber} больше не ${typeIndicate}`,
+                },
+                data: { ticketId, notificationId, userId },
+            }
+    }
+}
+
+const getTicketDeleteIndicateMessageSms = (message) => {
+    const { ticketNumber, typeIndicate } = get(message, 'meta.data', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                text: `Ticket #${ticketNumber} changed indicate`,
+            }
+
+        case RU_LOCALE:
+            return {
+                text: `Заявка №${ticketNumber} больше не ${typeIndicate}`,
+            }
+    }
+}
+
+const getTicketDeleteIndicateMessageEmail = (message) => {
+    const { ticketId, ticketNumber, typeIndicate } = get(message, 'meta', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                subject: `Ticket #${ticketNumber} changed indicate`,
+                text: `Please follow the link to view the ticket: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+
+        case RU_LOCALE:
+            return {
+                subject: `Заявка №${ticketNumber} больше не ${typeIndicate}`,
+                text: `Ознакомиться с заявкой можнжо по ссылке: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+    }
+}
+
+const getTicketDeleteIndicateMessage = (message, transport) => {
+    switch (transport) {
+        case PUSH_TRANSPORT: return getTicketDeleteIndicateMessagePush(message)
+        case EMAIL_TRANSPORT: return getTicketDeleteIndicateMessageEmail(message)
+        case SMS_TRANSPORT: return getTicketDeleteIndicateMessageSms(message)
+    }
+}
+
+
+const getTicketNewCommentMessagePush = (message) => {
+    const { id: notificationId } = message
+    const { ticketId, ticketNumber, userId } = get(message, 'meta.data', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                notification: {
+                    title: `New comment on the ticket #${ticketNumber}`,
+                    body: 'See what they answered',
+                },
+                data: { ticketId, notificationId, userId },
+            }
+
+        case RU_LOCALE:
+            return {
+                notification: {
+                    title: `Новый комментарий по заявке №${ticketNumber}`,
+                    body: 'Посмотрите, что вам ответили',
+                },
+                data: { ticketId, notificationId, userId },
+            }
+    }
+}
+
+const getTicketNewCommentMessageSms = (message) => {
+    const { ticketNumber } = get(message, 'meta', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                text: `New comment on the ticket #${ticketNumber}`,
+            }
+
+        case RU_LOCALE:
+            return {
+                text: `Новый комментарий по заявке №${ticketNumber}`,
+            }
+    }
+}
+
+const getTicketNewCommentMessageEmail = (message) => {
+    const { ticketId, ticketNumber } = get(message, 'meta', {})
+
+    switch (message.lang) {
+        case EN_LOCALE:
+            return {
+                subject: `New comment on the ticket #${ticketNumber}`,
+                text: `Please follow the link to view the ticket: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+
+        case RU_LOCALE:
+            return {
+                subject: `Новый комментарий по заявке №${ticketNumber}`,
+                text: `Ознакомиться с заявкой можнжо по ссылке: ${SERVER_URL}/ticket/${ticketId}`,
+            }
+    }
+}
+
+const getTicketNewCommentMessage = (message, transport) => {
+    switch (transport) {
+        case PUSH_TRANSPORT: return getTicketNewCommentMessagePush(message)
+        case EMAIL_TRANSPORT: return getTicketNewCommentMessageEmail(message)
+        case SMS_TRANSPORT: return getTicketNewCommentMessageSms(message)
+    }
+}
+
 module.exports = {
     getTicketAssigneeConnectedMessage,
     getTicketExecutorConnectedMessage,
     getTicketStatusInWorkMessage,
     getTicketStatusCompletedMessage,
     getTicketStatusReturnedMessage,
+    getTicketAddIndicateMessage,
+    getTicketDeleteIndicateMessage,
+    getTicketNewCommentMessage,
 }

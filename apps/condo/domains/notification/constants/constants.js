@@ -27,6 +27,9 @@ const TICKET_EXECUTOR_CONNECTED_TYPE = 'TICKET_EXECUTOR_CONNECTED'
 const TICKET_STATUS_IN_WORK = 'TICKET_STATUS_IN_WORK'
 const TICKET_STATUS_COMPLETED = 'TICKET_STATUS_COMPLETED'
 const TICKET_STATUS_RETURNED = 'TICKET_STATUS_RETURNED'
+const TICKET_ADD_INDICATE = 'TICKET_ADD_INDICATE'
+const TICKET_DELETE_INDICATE = 'TICKET_DELETE_INDICATE'
+const TICKET_NEW_COMMENT = 'TICKET_NEW_COMMENT'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -44,6 +47,9 @@ const MESSAGE_TYPES = [
     TICKET_STATUS_IN_WORK,
     TICKET_STATUS_COMPLETED,
     TICKET_STATUS_RETURNED,
+    TICKET_ADD_INDICATE,
+    TICKET_DELETE_INDICATE,
+    TICKET_NEW_COMMENT,
 ]
 
 const MESSAGE_META = {
@@ -139,6 +145,32 @@ const MESSAGE_META = {
             userId: { defaultValue: '', required: true },
         },
     },
+    [TICKET_ADD_INDICATE]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            typeIndicate: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_DELETE_INDICATE]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            typeIndicate: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_NEW_COMMENT]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+        },
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -197,6 +229,9 @@ module.exports = {
     TICKET_STATUS_IN_WORK,
     TICKET_STATUS_COMPLETED,
     TICKET_STATUS_RETURNED,
+    TICKET_ADD_INDICATE,
+    TICKET_DELETE_INDICATE,
+    TICKET_NEW_COMMENT,
 
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE,
