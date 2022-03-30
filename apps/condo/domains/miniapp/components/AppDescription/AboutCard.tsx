@@ -12,7 +12,7 @@ export type AboutBlockProps = {
 }
 
 interface AboutCardProps {
-    blocks: Array<AboutBlockProps>
+    sections: Array<AboutBlockProps>
 }
 
 const SINGLE_CARD_WIDTH_MARK = 780
@@ -52,7 +52,7 @@ const IMAGE_STYLE: CSSProperties = { objectFit: 'contain', objectPosition: '50% 
 const TEXT_BLOCK_STYLE: CSSProperties = { textAlign: 'center' }
 const DESCRIPTION_TEXT_STYLE: CSSProperties = { height: 72, lineHeight: '24px', fontSize: 16 }
 
-export const AboutCard: React.FC<AboutCardProps> = ({ blocks }) => {
+export const AboutCard: React.FC<AboutCardProps> = ({ sections }) => {
     const intl = useIntl()
     const AboutServiceMessage = intl.formatMessage({ id: 'services.AboutService' })
 
@@ -71,13 +71,13 @@ export const AboutCard: React.FC<AboutCardProps> = ({ blocks }) => {
                     <Col span={24}>
                         <Row gutter={[40, 40]}>
                             {
-                                blocks.map((block, index) => {
+                                sections.map((section, index) => {
                                     return (
                                         <Col span={isSingleRow ? 24 : 12} key={index}>
                                             <Card bordered={false} className={'about-block-card'}>
                                                 <AboutImageWrapper>
                                                     <Image
-                                                        src={block.imageSrc}
+                                                        src={section.imageSrc}
                                                         style={IMAGE_STYLE}
                                                         preview={false}
                                                         className={'about-block-image'}
@@ -86,12 +86,12 @@ export const AboutCard: React.FC<AboutCardProps> = ({ blocks }) => {
                                                 <Row gutter={[0, 8]} style={TEXT_BLOCK_STYLE}>
                                                     <Col span={24}>
                                                         <Typography.Title level={5} ellipsis={true}>
-                                                            {block.title}
+                                                            {section.title}
                                                         </Typography.Title>
                                                     </Col>
                                                     <Col span={24}>
                                                         <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE} ellipsis={{ rows:3 }} type={'secondary'}>
-                                                            {block.description}
+                                                            {section.description}
                                                         </Typography.Paragraph>
                                                     </Col>
                                                 </Row>

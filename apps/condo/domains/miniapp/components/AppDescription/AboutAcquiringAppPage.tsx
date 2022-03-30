@@ -49,8 +49,7 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
 
     const PageTitle = get(integration, 'name', AcquiringMessage)
 
-    // TODO (2420): Add logic
-    const descriptionBlocks = []
+    const aboutSections = get(integration, ['about', '0', 'props', 'sections'], [])
 
     const isAnyBillingConnected = Boolean(billingContexts.length)
 
@@ -69,7 +68,7 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
                         tag={AcquiringMessage}
                         developer={integration.developer}
                         partnerUrl={get(integration, 'partnerUrl')}
-                        descriptionBlocks={descriptionBlocks}
+                        aboutSections={aboutSections}
                         instruction={integration.instruction}
                         appUrl={integration.appUrl}
                         disabledConnect={!isAnyBillingConnected}
