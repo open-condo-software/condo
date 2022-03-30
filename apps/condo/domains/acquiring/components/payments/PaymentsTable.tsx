@@ -27,10 +27,14 @@ import React, { useEffect } from 'react'
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
-const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
+const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs().subtract(3, 'days')]
+const DEFAULT_DATE_RANGE_STR: [string, string] = [String(DEFAULT_DATE_RANGE[0]), String(DEFAULT_DATE_RANGE[1])]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
+
+let isDefaultFilterApplied = false
+let shouldApplyDefaultFilter = true
 
 interface IPaymentsTableProps {
     billingContext: BillingIntegrationOrganizationContext,
@@ -47,6 +51,16 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     const userOrganization = useOrganization()
 
     const { filters, sorters, offset } = parseQuery(router.query)
+    const hasFilters = Object.keys(filters).length > 0
+
+    if (hasFilters) {
+        shouldApplyDefaultFilter = false
+        isDefaultFilterApplied = true
+    }
+
+    if (shouldApplyDefaultFilter) {
+        filters.advancedAt = DEFAULT_DATE_RANGE_STR
+    }
     const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
 
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
@@ -92,8 +106,11 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     const [dateRange, setDateRange] = useDateRangeSearch('advancedAt', loading)
 
     useEffect(() => {
-        if (!dateRange && appliedFiltersCount < 1 && !search) {
+        if (!hasFilters && shouldApplyDefaultFilter && !isDefaultFilterApplied) {
+            isDefaultFilterApplied = true
             setDateRange(DEFAULT_DATE_RANGE)
+        } else {
+            shouldApplyDefaultFilter = false
         }
     }, [])
 
