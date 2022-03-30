@@ -20,7 +20,7 @@ const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
 
-    TICKET_STATUS_IN_WORK,
+    TICKET_STATUS_IN_PROGRESS,
     TICKET_STATUS_COMPLETED,
     TICKET_STATUS_RETURNED,
     TICKET_ADD_INDICATE,
@@ -298,7 +298,7 @@ async function renderTemplate (transport, message) {
         return getTicketExecutorConnectedMessage(message, transport)
     }
 
-    if (message.type === TICKET_STATUS_IN_WORK) {
+    if (message.type === TICKET_STATUS_IN_PROGRESS) {
         return getTicketStatusInWorkMessage(message, transport)
     }
 
