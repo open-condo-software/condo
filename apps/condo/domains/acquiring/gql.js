@@ -29,8 +29,8 @@ const REGISTER_MULTI_PAYMENT_MUTATION = gql`
         result: registerMultiPayment(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl }
     }
 `
-
-const PAYMENTS_FILTER_TEMPLATE_FIELDS = `{ name employee { id } ${COMMON_FIELDS} }`
+const PAYMENTS_FILTER_FIELDS = '{ advancedAt accountNumber address type }'
+const PAYMENTS_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${PAYMENTS_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const PaymentsFilterTemplate = generateGqlQueries('PaymentsFilterTemplate', PAYMENTS_FILTER_TEMPLATE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

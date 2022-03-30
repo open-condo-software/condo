@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { PaymentsFilterTemplate as PaymentsFilterTemplateGQL } from '@condo/domains/acquiring/gql'
 import { PaymentsFilterTemplate, PaymentsFilterTemplateUpdateInput, QueryAllPaymentsFilterTemplatesArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'employee']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'employee', 'fields']
 const RELATIONS = ['employee']
 
 export interface IPaymentsFilterTemplateUIState extends PaymentsFilterTemplate {

@@ -8810,6 +8810,8 @@ export type ExportContactsToExcelOutput = {
 };
 
 export type ExportMeterReadingsInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
   where: MeterReadingWhereInput;
   sortBy?: Maybe<Array<SortMeterReadingsBy>>;
   timeZone: Scalars['String'];
