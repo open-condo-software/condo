@@ -17,8 +17,8 @@ import { colors } from '@condo/domains/common/constants/style'
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
 import { ContactOption } from './ContactOption'
-import { FocusContainer } from '../../../common/components/FocusContainer'
-import { OrganizationEmployee } from '../../../organization/utils/clientSchema'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -71,6 +71,11 @@ const ContactsInfoFocusContainer = styled(FocusContainer)`
 `
 const { TabPane } = Tabs
 
+enum CONTACT_EDITOR_TABS {
+    FROM_RESIDENT = '0',
+    NOT_FROM_RESIDENT = '1',
+}
+
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
@@ -82,6 +87,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
 
     const { form, fields, value: initialValue, onChange, organization, role, property, unitName, allowLandLine } = props
+    const isNotContact = useMemo(() => !initialValue.id && initialValue.phone, [initialValue.id, initialValue.phone])
 
     const [selectedContact, setSelectedContact] = useState(null)
     const [value, setValue] = useState(initialValue)
@@ -181,7 +187,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setSelectedContact(null)
         setEditableFieldsChecked(true)
 
-        if (!initialValue.id && initialValue.phone) {
+        if (isNotContact) {
             handleChangeContact(initialValue)
         }
     }
@@ -228,7 +234,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setSelectedContact(null)
         setEditableFieldsChecked(false)
 
-        if (tab === '2') {
+        if (tab === CONTACT_EDITOR_TABS.NOT_FROM_RESIDENT) {
             handleChangeEmployee(value)
         }
     }, [handleChangeEmployee, value])
@@ -247,8 +253,12 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     return (
         <Col span={24}>
             <ContactsInfoFocusContainer className={props.disabled && 'disabled'}>
-                <Tabs defaultActiveKey={!initialValue.id && initialValue.phone ? '2' : '1'} style={{ width: '100%' }} onChange={handleTabChange}>
-                    <TabPane tab={TicketFromResidentMessage} key="1">
+                <Tabs
+                    defaultActiveKey={isNotContact ? CONTACT_EDITOR_TABS.NOT_FROM_RESIDENT : CONTACT_EDITOR_TABS.FROM_RESIDENT}
+                    style={{ width: '100%' }}
+                    onChange={handleTabChange}
+                >
+                    <TabPane tab={TicketFromResidentMessage} key={CONTACT_EDITOR_TABS.FROM_RESIDENT}>
                         <Row gutter={[40, 25]}>
                             <Labels
                                 left={PhoneLabel}
@@ -313,7 +323,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     </TabPane>
                     <TabPane
                         tab={TicketNotFromResidentMessage}
-                        key="2"
+                        key={CONTACT_EDITOR_TABS.NOT_FROM_RESIDENT}
                     >
                         <Row gutter={[40, 25]}>
                             <Labels
