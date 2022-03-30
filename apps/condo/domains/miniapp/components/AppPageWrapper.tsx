@@ -7,7 +7,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
-export const ServicePageWrapper: React.FC = ({ children }) => {
+export const AppPageWrapper: React.FC = ({ children }) => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'menu.Services' })
     const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })

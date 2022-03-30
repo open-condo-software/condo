@@ -1,9 +1,9 @@
 import { AppConnectedPageContent } from './AppConnectedPageContent'
-import { IndexBillingServicePage } from './IndexBillingServicePage'
-import { IndexAcquiringServicePage } from './IndexAcquiringServicePage'
+import { IndexBillingAppPage } from './IndexBillingAppPage'
+import { IndexAcquiringAppPage } from './IndexAcquiringAppPage'
 
 export default AppConnectedPageContent
 export {
-    IndexBillingServicePage,
-    IndexAcquiringServicePage,
+    IndexBillingAppPage,
+    IndexAcquiringAppPage,
 }

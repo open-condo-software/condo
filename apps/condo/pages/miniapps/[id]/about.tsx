@@ -8,10 +8,10 @@ import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
-import { AboutBillingServicePage, AboutAcquiringServicePage } from '@condo/domains/miniapp/components/AppDescription'
-import { ServicePageWrapper } from '@condo/domains/miniapp/components/ServicePageWrapper'
+import { AboutBillingAppPage, AboutAcquiringAppPage } from '@condo/domains/miniapp/components/AppDescription'
+import { AppPageWrapper } from '@condo/domains/miniapp/components/AppPageWrapper'
 
-const AboutServicePage = () => {
+const AboutMiniAppPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'menu.Services' })
     const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
@@ -23,8 +23,8 @@ const AboutServicePage = () => {
 
     const pageContent = useMemo(() => {
         if (Array.isArray(id) || Array.isArray(type) || !APP_TYPES.includes(type)) return <Error statusCode={404}/>
-        if (type === BILLING_APP_TYPE) return <AboutBillingServicePage id={id}/>
-        return <AboutAcquiringServicePage id={id}/>
+        if (type === BILLING_APP_TYPE) return <AboutBillingAppPage id={id}/>
+        return <AboutAcquiringAppPage id={id}/>
     }, [id, type])
 
     if (!canManageIntegrations) {
@@ -32,15 +32,15 @@ const AboutServicePage = () => {
     }
 
     return (
-        <ServicePageWrapper>
+        <AppPageWrapper>
             {pageContent}
-        </ServicePageWrapper>
+        </AppPageWrapper>
     )
 }
 
-AboutServicePage.requiredAccess = OrganizationRequired
-AboutServicePage.headerAction  = <ReturnBackHeaderAction
+AboutMiniAppPage.requiredAccess = OrganizationRequired
+AboutMiniAppPage.headerAction  = <ReturnBackHeaderAction
     descriptor={{ id: 'menu.Services' }}
-    path={'/services'}/>
+    path={'/miniapps'}/>
 
-export default AboutServicePage
+export default AboutMiniAppPage

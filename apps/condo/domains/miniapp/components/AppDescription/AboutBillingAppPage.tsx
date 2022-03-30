@@ -14,11 +14,11 @@ import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { SortDescriptionBlocksBy } from '@app/condo/schema'
 import { ConnectedBilling } from '@condo/domains/billing/components/Alerts/ConnectedBilling'
 
-interface AboutBillingServicePageProps {
+interface AboutBillingAppPageProps {
     id: string,
 }
 
-export const AboutBillingServicePage: React.FC<AboutBillingServicePageProps> = ({ id }) => {
+export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const BillingMessage = intl.formatMessage({ id: 'menu.Billing' })
