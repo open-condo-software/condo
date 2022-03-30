@@ -137,9 +137,9 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 //
                 const receiptsByAccountAndRecipient = {}
                 for (const receipt of processedReceipts) {
-                    const accountNumber = get(receipt, ['serviceConsumer', 'accountNumber'])
+                    const accountId = get(receipt, ['account', 'id'])
                     const recipientId = get(receipt, ['receiver', 'id'])
-                    const key = accountNumber + recipientId
+                    const key = accountId + recipientId
 
                     const period = dayjs(get(receipt, ['period']), 'YYYY-MM-DD')
 
