@@ -1,7 +1,12 @@
 import { BillingIntegrationOrganizationContext, PaymentWhereInput } from '@app/condo/schema'
 import { searchAcquiringIntegration, searchBillingProperty } from '@condo/domains/acquiring/utils/clientSchema/search'
 import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
+import {
+    getDayRangeFilter,
+    getDecimalFilter,
+    getFilter,
+    getStringContainsFilter,
+} from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@core/next/intl'
 import { get } from 'lodash'
 import { useMemo } from 'react'
@@ -13,6 +18,7 @@ const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionI
 const dateFilter = getDayRangeFilter(['advancedAt'])
 const propertyFilter = getFilter(['receipt', 'property', 'id'], 'array', 'string', 'in')
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
+const amountFilter = getDecimalFilter(['amount'])
 
 export function usePaymentsTableFilters (
     billingContext: BillingIntegrationOrganizationContext,
@@ -32,7 +38,7 @@ export function usePaymentsTableFilters (
         return [
             {
                 keyword: 'search',
-                filters: [addressFilter, accountFilter, typeFilter, transactionFilter, dateFilter],
+                filters: [addressFilter, accountFilter, typeFilter, transactionFilter, dateFilter, amountFilter],
                 combineType: 'OR',
             },
             {
