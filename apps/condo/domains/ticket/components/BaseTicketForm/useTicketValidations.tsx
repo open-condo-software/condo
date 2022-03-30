@@ -1,6 +1,10 @@
 import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
-import { MAX_PHONE_LENGTH, MIN_PHONE_LENGTH } from '../../constants/restrictions'
+import {
+    MAX_PHONE_LENGTH,
+    MIN_PHONE_LENGTH,
+    MIN_DESCRIPTION_LENGTH,
+} from '@condo/domains/ticket/constants/restrictions'
 
 export const NON_DIGITS_REGEXP = /\D/g
 
@@ -78,7 +82,7 @@ export function useTicketValidations (): IFormFieldsRuleMap {
             {
                 whitespace: true,
                 required: true,
-                min: 6,
+                min: MIN_DESCRIPTION_LENGTH,
                 message: intl.formatMessage({ id: 'field.Description.lengthError' }),
             },
         ],

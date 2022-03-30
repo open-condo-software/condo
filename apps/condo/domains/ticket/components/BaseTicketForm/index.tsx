@@ -3,11 +3,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, FormItemProps } from 'antd'
-import get from 'lodash/get'
+import { get, isEmpty }  from 'lodash'
 import styled from '@emotion/styled'
 import { useRouter } from 'next/router'
 import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
-import isEmpty from 'lodash/isEmpty'
 
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -119,7 +118,10 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
 
     const { isSmall } = useLayoutContext()
 
-    const { ClassifiersEditorComponent } = useTicketThreeLevelsClassifierHook({ initialValues })
+    const {
+        ClassifiersEditorComponent,
+        predictTicketClassifier,
+    } = useTicketThreeLevelsClassifierHook({ initialValues })
 
     const details = get(initialValues, 'details')
     const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
@@ -142,6 +144,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                             currentLength={currentDetailsLength}
                                             maxLength={500}
                                             onChange={e => setCurrentDetailsLength(e.target.value.length)}
+                                            onBlur={e => predictTicketClassifier(e.target.value)}
                                             placeholder={DescriptionPlaceholder}
                                             disabled={disableUserInteraction}
                                             style={INPUT_WITH_COUNTER_STYLE}
