@@ -18,7 +18,6 @@ const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionI
 const dateFilter = getDayRangeFilter(['advancedAt'])
 const propertyFilter = getFilter(['receipt', 'property', 'id'], 'array', 'string', 'in')
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
-const amountFilter = getDecimalFilter(['amount'])
 
 export function usePaymentsTableFilters (
     billingContext: BillingIntegrationOrganizationContext,
@@ -38,7 +37,7 @@ export function usePaymentsTableFilters (
         return [
             {
                 keyword: 'search',
-                filters: [addressFilter, accountFilter, typeFilter, transactionFilter, dateFilter, amountFilter],
+                filters: [addressFilter, accountFilter, typeFilter, transactionFilter, dateFilter],
                 combineType: 'OR',
             },
             {
