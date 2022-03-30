@@ -1,8 +1,8 @@
 import { ApolloError } from '@apollo/client'
-import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import NoAcquiringStub from '@condo/domains/acquiring/components/payments/NoAcquiringStub'
 import NoBillingStub from '@condo/domains/acquiring/components/payments/NoBillingStub'
 import PaymentsTable from '@condo/domains/acquiring/components/payments/PaymentsTable'
+import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useOrganization } from '@core/next/organization'
@@ -84,12 +84,12 @@ const PaymentsPageContent = (): JSX.Element => {
         return renderError(acquiringContextError)
     }
 
-    if (!acquiringContextLoading && !acquiringContext) {
-        return <NoAcquiringStub/>
-    }
-
     if (!billingContextLoading && !billingContext) {
         return <NoBillingStub/>
+    }
+
+    if (!acquiringContextLoading && !acquiringContext) {
+        return <NoAcquiringStub/>
     }
 
     return content
