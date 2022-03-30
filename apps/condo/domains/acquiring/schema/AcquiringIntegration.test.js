@@ -3,7 +3,7 @@
  */
 
 import { DV_UNKNOWN_VERSION_ERROR } from '@condo/domains/common/constants/errors'
-import { NO_INSTRUCTION_ERROR } from '@condo/domains/miniapp/constants'
+import { NO_INSTRUCTION_OR_MESSAGE_ERROR } from '@condo/domains/miniapp/constants'
 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
@@ -16,6 +16,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
+const { DOCUMENT_BLOCK_SINGLE_EXAMPLE, DOCUMENT_BLOCK_MULTIPLE_EXAMPLE } = require('@condo/domains/miniapp/utils/testSchema')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 
 describe('AcquiringIntegration', () => {
@@ -215,7 +216,7 @@ describe('AcquiringIntegration', () => {
                 })
             }, INTEGRATION_NO_BILLINGS_ERROR)
         })
-        test('Should have instruction if no iframe url specified', async () => {
+        test('Should have instruction and connectedMessage if no iframe url specified', async () => {
             const admin = await makeLoggedInAdminClient()
             const [billing] = await createTestBillingIntegration(admin)
             await expectToThrowValidationFailureError(async () => {
@@ -223,7 +224,30 @@ describe('AcquiringIntegration', () => {
                     instruction: null,
                     appUrl: null,
                 })
-            }, NO_INSTRUCTION_ERROR)
+            }, NO_INSTRUCTION_OR_MESSAGE_ERROR)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegration(admin, [billing], {
+                    connectedMessage: null,
+                    appUrl: null,
+                })
+            }, NO_INSTRUCTION_OR_MESSAGE_ERROR)
+        })
+    })
+    describe('KS6 Mock', () => {
+        describe('Can be created with about pseudo-document-field', () => {
+            const cases = [
+                [1, DOCUMENT_BLOCK_SINGLE_EXAMPLE],
+                [3, DOCUMENT_BLOCK_MULTIPLE_EXAMPLE],
+            ]
+            test.each(cases)('%p sections', async (amount, block) => {
+                const admin = await makeLoggedInAdminClient()
+                const [billing] = await createTestBillingIntegration(admin)
+                const [integration] = await createTestAcquiringIntegration(admin, [billing], {
+                    about: block,
+                })
+                expect(integration).toBeDefined()
+                expect(integration).toHaveProperty('about', block)
+            })
         })
     })
 })

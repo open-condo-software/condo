@@ -9,6 +9,32 @@ const { throwIfError } = require('@condo/domains/common/utils/codegeneration/gen
 const { ALL_ORGANIZATION_APPS_QUERY } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const DOCUMENT_BLOCK_SINGLE_EXAMPLE = [
+    {
+        type: 'component-block',
+        component: 'aboutAppBlock',
+        props: {
+            sections: [
+                { title: 'Text', description: 'Longer text', imageSrc: faker.image.imageUrl() }
+            ]
+        }
+    }
+]
+
+const DOCUMENT_BLOCK_MULTIPLE_EXAMPLE = [
+    {
+        type: 'component-block',
+        component: 'aboutAppBlock',
+        props: {
+            sections: [
+                { title: 'First card', description: 'Longer text', imageSrc: faker.image.imageUrl() },
+                { title: 'Second card', description: 'Longer text', imageSrc: faker.image.imageUrl() },
+                { title: 'Third card', description: 'Longer text', imageSrc: faker.image.imageUrl() },
+            ]
+        }
+    }
+]
+
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -32,5 +58,7 @@ async function allOrganizationAppsByTestClient(client, organizationId, extraAttr
 
 module.exports = {
     allOrganizationAppsByTestClient,
+    DOCUMENT_BLOCK_SINGLE_EXAMPLE,
+    DOCUMENT_BLOCK_MULTIPLE_EXAMPLE,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
