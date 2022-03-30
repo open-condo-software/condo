@@ -51,7 +51,7 @@ const IMAGE_STYLES: CSSProperties = {
 
 const TEXT_BLOCK_STYLE: CSSProperties = {
     height: 48,
-    margin: 0,
+    margin: '8px 0 0',
 }
 
 const TEXT_STYLE: CSSProperties = {
