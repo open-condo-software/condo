@@ -3,15 +3,15 @@
  */
 
 const { makeClient } = require('@core/keystone/test.utils')
-const { expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
 
 const { predictTicketClassificationByTestClient } = require('@condo/domains/ticket/utils/testSchema')
  
 describe('PredictTicketClassificationService', () => {
     test('anonymous: execute', async () => {
         const client = await makeClient()
-        await expectToThrowAuthenticationErrorToObjects(async () => {
+        await expectToThrowAuthenticationError(async () => {
             await predictTicketClassificationByTestClient(client)
-        })
+        }, 'obj')
     })
 })
