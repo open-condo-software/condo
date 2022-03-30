@@ -32,7 +32,7 @@ export function usePaymentsTableFilters (
         return [
             {
                 keyword: 'search',
-                filters: [addressFilter, accountFilter, typeFilter, transactionFilter],
+                filters: [addressFilter, accountFilter, typeFilter, transactionFilter, dateFilter],
                 combineType: 'OR',
             },
             {
