@@ -171,10 +171,9 @@ const TICKET_FILTER_FIELDS = '{ organization number createdAt status details pro
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_FILTER_TEMPLATE_FIELDS)
 
-// TODO(codegen): write return type result!
- 
+
 const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
-    query getPredictTicketClassification ($data: PredictTicketClassificationInput!) {
+    query predictTicketClassification ($data: PredictTicketClassificationInput!) {
         obj: predictTicketClassification(data: $data) { id place { id name } category { id name }  }
     }
 `

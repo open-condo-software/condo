@@ -8810,6 +8810,8 @@ export type ExportContactsToExcelOutput = {
 };
 
 export type ExportMeterReadingsInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
   where: MeterReadingWhereInput;
   sortBy?: Maybe<Array<SortMeterReadingsBy>>;
   timeZone: Scalars['String'];
@@ -24007,7 +24009,7 @@ export type Query = {
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   allResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
-  executePredictTicketClassification?: Maybe<TicketClassifierRule>;
+  predictTicketClassification?: Maybe<TicketClassifierRule>;
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
@@ -26678,7 +26680,7 @@ export type QueryAllResidentTicketsArgs = {
 };
 
 
-export type QueryExecutePredictTicketClassificationArgs = {
+export type QueryPredictTicketClassificationArgs = {
   data: PredictTicketClassificationInput;
 };
 
