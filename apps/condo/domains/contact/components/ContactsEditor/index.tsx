@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { Col, Form, FormInstance, Input, Row, Skeleton, Tabs } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
@@ -7,7 +7,6 @@ import { useIntl } from '@core/next/intl'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import debounce from 'lodash/debounce'
-import isEmpty from 'lodash/isEmpty'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -19,6 +18,7 @@ import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFiel
 import { ContactOption } from './ContactOption'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { Gutter } from 'antd/lib/grid/row'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -70,6 +70,19 @@ const ContactsInfoFocusContainer = styled(FocusContainer)`
   background: ${colors.backgroundLightGrey};
 `
 const { TabPane } = Tabs
+
+const TAB_PANE_ROW_GUTTERS: [Gutter, Gutter] = [40, 25]
+const TABS_STYLE: CSSProperties = { width: '100%' }
+const BUTTON_ICON_STYLE: CSSProperties = {
+    color: colors.black,
+    fontSize: 21,
+    position: 'relative',
+    top: '2px',
+}
+const BUTTON_STYLE: CSSProperties = {
+    color: colors.black,
+    paddingLeft: '5px',
+}
 
 enum CONTACT_EDITOR_TABS {
     FROM_RESIDENT = '0',
@@ -255,11 +268,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             <ContactsInfoFocusContainer className={props.disabled && 'disabled'}>
                 <Tabs
                     defaultActiveKey={isNotContact ? CONTACT_EDITOR_TABS.NOT_FROM_RESIDENT : CONTACT_EDITOR_TABS.FROM_RESIDENT}
-                    style={{ width: '100%' }}
+                    style={TABS_STYLE}
                     onChange={handleTabChange}
                 >
                     <TabPane tab={TicketFromResidentMessage} key={CONTACT_EDITOR_TABS.FROM_RESIDENT}>
-                        <Row gutter={[40, 25]}>
+                        <Row gutter={TAB_PANE_ROW_GUTTERS}>
                             <Labels
                                 left={PhoneLabel}
                                 right={FullNameLabel}
@@ -300,17 +313,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             <Col span={24}>
                                                 <Button
                                                     type="link"
-                                                    style={{
-                                                        color: colors.black,
-                                                        paddingLeft: '5px',
-                                                    }}
+                                                    style={BUTTON_STYLE}
                                                     onClick={handleClickOnPlusButton}
-                                                    icon={<PlusCircleOutlined style={{
-                                                        color: colors.black,
-                                                        fontSize: 21,
-                                                        position: 'relative',
-                                                        top: '2px',
-                                                    }}/>}
+                                                    icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}
                                                 >
                                                     {AddNewContactLabel}
                                                 </Button>
@@ -325,7 +330,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                         tab={TicketNotFromResidentMessage}
                         key={CONTACT_EDITOR_TABS.NOT_FROM_RESIDENT}
                     >
-                        <Row gutter={[40, 25]}>
+                        <Row gutter={TAB_PANE_ROW_GUTTERS}>
                             <Labels
                                 left={PhoneLabel}
                                 right={FullNameLabel}
@@ -351,7 +356,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     The simplest solution, i currently know, — is to keep it in one place.
                     So, we use hidden inputs here, but reveal validation errors.
                 */}
-            <Row gutter={[40, 25]}>
+            <Row gutter={TAB_PANE_ROW_GUTTERS}>
                 <Col span={10}>
                     <Form.Item name={fields.id} hidden>
                         <Input value={get(value, 'id')}/>
