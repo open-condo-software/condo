@@ -51,7 +51,7 @@ export const PosterWrapper = styled.div`
   height: 90%;
   background-color: ${colors.backgroundLightGrey};
   border-radius: 22px;
-  width: 48%;
+  width: 50%;
   position: fixed;
   margin: 36px 0 36px 36px
 `

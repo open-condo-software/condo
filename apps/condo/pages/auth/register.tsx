@@ -97,11 +97,7 @@ const RegisterPage: AuthPage = () => {
 
     return (
         <RegisterContextProvider>
-            <Row>
-                <Col span={24}>
-                    { steps[state] }
-                </Col>
-            </Row>
+            { steps[state] }
         </RegisterContextProvider>
     )
 }

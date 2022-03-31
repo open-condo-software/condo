@@ -14,9 +14,9 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { JAVASCRIPT_URL_XSS } from '@condo/domains/common/constants/regexps'
 import { colors } from '../../../common/constants/style'
 
-const FORM_LAYOUT = {
-    labelCol: { span: 10 },
-    wrapperCol: { span: 24 },
+const ROW_STYLES: React.CSSProperties = {
+    justifyContent: 'center',
+    textAlign: 'center',
 }
 
 export const SignInForm = (): React.ReactElement => {
@@ -30,6 +30,8 @@ export const SignInForm = (): React.ReactElement => {
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
     const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
 
+    const LOGIN_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
+    const PASSWORD_LABEL = <label style={ { alignSelf:'end' } }>{PasswordMsg}</label>
 
     const { isSmall } = useLayoutContext()
     const [form] = Form.useForm()
@@ -75,22 +77,18 @@ export const SignInForm = (): React.ReactElement => {
     }, [intl, form])
 
     const initialValues = { password: '', phone: '' }
-    const LOGIN_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
-    const PASSWORD_LABEL = <label style={ { alignSelf:'end' } }>{PasswordMsg}</label>
     return (
         <Form
-            {...FORM_LAYOUT}
             form={form}
             name='signin'
             onFinish={onFormSubmit}
             initialValues={initialValues}
             requiredMark={false}
             layout={'vertical'}
-            style={ { textAlign:'center', fontSize: 12, color:colors.textSecondary, lineHeight:'20px' } }
         >
-            <Row justify={'center'}>
-                <Col flex={'0 0 50%'} span={24} >
-                    <Row gutter={[0, 20]}>
+            <Row style={ROW_STYLES}>
+                <Col span={18}>
+                    <Row>
                         <Col span={24}>
                             <Form.Item
                                 name='phone'
@@ -110,7 +108,7 @@ export const SignInForm = (): React.ReactElement => {
                             </Form.Item>
                         </Col>
                         <Col span={24}>
-                            <Typography.Paragraph type='secondary' style={{ marginTop: '10px', textAlign: 'left' }}>
+                            <Typography.Paragraph type='secondary' style={{ textAlign: 'left', margin: '24px 0 40px' }}>
                                 <FormattedMessage
                                     id='pages.auth.signin.ResetPasswordLink'
                                     values={{
@@ -122,7 +120,9 @@ export const SignInForm = (): React.ReactElement => {
                                     }}
                                 />
                             </Typography.Paragraph>
-                        </Col >
+                        </Col>
+                    </Row>
+                    <Row gutter={[0, 20]}>
                         <Col span={24}>
                             <Form.Item>
                                 <Button
@@ -131,7 +131,6 @@ export const SignInForm = (): React.ReactElement => {
                                     htmlType='submit'
                                     loading={isLoading}
                                     block
-                                    style={ { width: '100%' } }
                                 >
                                     {SignInMsg}
                                 </Button>
@@ -147,9 +146,8 @@ export const SignInForm = (): React.ReactElement => {
                                     type='sberAction'
                                     icon={<SberIconWithoutLabel/>}
                                     href={'/api/sbbol/auth'}
-                                    block={isSmall}
+                                    block
                                     disabled={false}
-                                    style={ { width: '100%' } }
                                 >
                                     {SberIdRegisterMsg}
                                 </Button>

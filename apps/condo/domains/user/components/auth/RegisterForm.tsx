@@ -1,4 +1,4 @@
-import { Col, Form, Input, Row } from 'antd'
+import { Col, Form, Input, Row, Typography } from 'antd'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import { useMutation } from '@core/next/apollo'
@@ -17,10 +17,11 @@ import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 import { AuthLayoutContext } from '../containers/AuthLayoutContext'
 import { useRegisterFormValidators } from './hooks'
 import { RegisterContext } from './RegisterContextProvider'
+import { colors } from '../../../common/constants/style'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
-    wrapperCol: { span: 14 },
+    wrapperCol: { span: 24 },
 }
 
 interface IRegisterFormProps {
@@ -42,10 +43,12 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
+    const RegistrationTitle = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
 
-    const PASSWORD_MSG_LABEL = <label style={{ whiteSpace:'break-spaces' }}>{PasswordMsg}</label>
-    const CONFIRM_PASSWORD_MSG_LABEL = <label style={{ whiteSpace:'break-spaces' }}>{ConfirmPasswordMsg}</label>
+    const PASSWORD_MSG_LABEL = <label style={{ whiteSpace: 'break-spaces' }}>{PasswordMsg}</label>
+    const CONFIRM_PASSWORD_MSG_LABEL = <label style={{ whiteSpace: 'break-spaces' }}>{ConfirmPasswordMsg}</label>
 
+    const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
     const validators = useRegisterFormValidators()
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
@@ -114,80 +117,72 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             initialValues={initialValues}
             colon={false}
             requiredMark={true}
-            labelAlign={'left'}
+            layout={'vertical'}
             validateTrigger={['onBlur', 'onSubmit']}
         >
-            <Row gutter={[0, 60]}>
-                <Col span={24}>
-                    <Row gutter={[0, 40]}>
+            <Row gutter={[0, 30]} style={ROW_STYLES}>
+                <Col flex={'0 0 80%'} span={24}>
+                    <Row>
                         <Col span={24}>
-                            <Row gutter={[0, 24]}>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name='phone'
-                                        label={PhoneMsg}
-                                        rules={validators.phone}
-                                    >
-                                        <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} block/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name='name'
-                                        label={NameMsg}
-                                        rules={validators.name}
-                                        data-cy={'register-name-item'}
-                                    >
-                                        <Input placeholder={ExampleNameMsg}/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name='email'
-                                        label={EmailMsg}
-                                        rules={validators.email}
-                                        data-cy={'register-email-item'}
-                                    >
-                                        <Input autoComplete='chrome-off' placeholder={EmailPlaceholder}/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                            <Typography.Title style={{ textAlign: 'start', fontWeight: 700 }}
+                                level={2}>{RegistrationTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <Row gutter={[0, 24]}>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name='password'
-                                        label={PASSWORD_MSG_LABEL}
-                                        rules={validators.password}
-                                        data-cy={'register-password-item'}
-                                    >
-                                        <Input.Password autoComplete='new-password'/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name='confirm'
-                                        label={CONFIRM_PASSWORD_MSG_LABEL}
-                                        dependencies={['password']}
-                                        rules={validators.confirm}
-                                        data-cy={'register-confirmpassword-item'}
-                                    >
-                                        <Input.Password/>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                            <Form.Item
+                                name='phone'
+                                label={PhoneMsg}
+                                rules={validators.phone}
+                            >
+                                <PhoneInput disabled={true} placeholder={ExamplePhoneMsg} block/>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                name='name'
+                                label={NameMsg}
+                                rules={validators.name}
+                            >
+                                <Input placeholder={ExampleNameMsg}/>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                name='email'
+                                label={EmailMsg}
+                                rules={validators.email}
+                            >
+                                <Input autoComplete='chrome-off' placeholder={EmailPlaceholder}/>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                name='password'
+                                label={PASSWORD_MSG_LABEL}
+                                rules={validators.password}
+                            >
+                                <Input.Password autoComplete='new-password'/>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                name='confirm'
+                                label={CONFIRM_PASSWORD_MSG_LABEL}
+                                dependencies={['password']}
+                                rules={validators.confirm}
+                            >
+                                <Input.Password/>
+                            </Form.Item>
                         </Col>
                     </Row>
                 </Col>
-                <Col span={24}>
+                <Col span={20}>
                     <Form.Item>
                         <Button
                             key='submit'
-                            type='sberPrimary'
+                            type='sberDefaultGradient'
                             htmlType='submit'
                             loading={isLoading}
-                            data-cy={'registercomplete-button'}
+                            style={{ width: '100%' }}
                         >
                             {RegisterMsg}
                         </Button>

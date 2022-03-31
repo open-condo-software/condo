@@ -254,6 +254,7 @@
   "pages.auth.register.info.ConsentContent": "consent",
   "pages.auth.register.info.PrivacyPolicyContent": "Privacy policy",
   "pages.auth.register.ResendSmsLabel": "Resend SMS",
+  "pages.auth.register.CodeIsAvailable": "Sms is available",
   "pages.auth.register.PhoneConfirmTokenErrorLabel": "Attempt failed",
   "pages.auth.register.PhoneConfirmTokenErrorMessage": "You can initiate registration again",
   "pages.auth.register.RestartPhoneConfirmLabel": "Retry",

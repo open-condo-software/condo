@@ -254,6 +254,7 @@
   "pages.auth.register.info.ConsentContent": "согласие на обработку персональных данных",
   "pages.auth.register.info.PrivacyPolicyContent": "условия политики конфиденциальности",
   "pages.auth.register.ResendSmsLabel": "Отправить СМС-код ещё раз",
+  "pages.auth.register.CodeIsAvailable": "Код действителен",
   "pages.auth.register.PhoneConfirmTokenErrorLabel": "Не получилось",
   "pages.auth.register.PhoneConfirmTokenErrorMessage": "Вы можете инициировать подтверждение телефона ещё раз",
   "pages.auth.register.RestartPhoneConfirmLabel": "Начать сначала",

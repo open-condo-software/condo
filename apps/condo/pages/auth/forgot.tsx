@@ -20,9 +20,9 @@ import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { Loader } from '@condo/domains/common/components/Loader'
 
-const FORM_LAYOUT = {
-    labelCol: { span: 10 },
-    wrapperCol: { span: 14 },
+const ROW_STYLES: React.CSSProperties = {
+    justifyContent: 'center',
+    textAlign: 'center',
 }
 
 function ResetPageView () {
@@ -35,6 +35,9 @@ function ResetPageView () {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const TooManyRequestsMsg = intl.formatMessage({ id: 'TooManyRequests' })
+
+    //TODO Set global style for ALL Phone Form Label(!!!!)
+    const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
 
     const [form] = Form.useForm()
     const { executeRecaptcha } = useGoogleReCaptcha()
@@ -111,64 +114,66 @@ function ResetPageView () {
         }
         return (
             <>
-                <Col span={24}>
-                    <Typography.Title data-cy={'forgot-success-message'} style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
-                </Col>
-                <Col span={24}>
-                    <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
-                </Col>
-                <Col span={24}>
-                    <Form
-                        {...FORM_LAYOUT}
-                        form={form}
-                        name='forgot-password'
-                        validateTrigger={['onBlur', 'onSubmit']}
-                        initialValues={initialValues}
-                        colon={false}
-                        labelAlign='left'
-                        requiredMark={false}
-                    >
-                        <Row gutter={[0, 60]}>
-                            <Col span={24}>
-                                <Form.Item
-                                    name='phone'
-                                    label={PhoneMsg}
-                                    rules={validations.phone}
-                                    data-cy={'forgot-phone-item'}
-                                >
-                                    <PhoneInput placeholder={ExamplePhoneMsg} />
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item>
-                                    <CountDownTimer action={startConfirmPhoneAction} id={'FORGOT_ACTION'} timeout={SMS_CODE_TTL}>
-                                        {({ countdown, runAction }) => {
-                                            const isCountDownActive = countdown > 0
-                                            return (
-                                                <Button
-                                                    onClick={() => {
-                                                        form.validateFields().then(() => {
-                                                            runAction()
-                                                        }).catch(_ => {
-                                                        // validation check failed - don't invoke runAction
-                                                        })
-                                                    }}
-                                                    type={isCountDownActive ? 'sberGrey' : 'sberPrimary'}
-                                                    disabled={isCountDownActive}
-                                                    loading={isLoading}
-                                                    htmlType='submit'
-                                                    data-cy={'forgot-button'}
-                                                >
-                                                    {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
-                                                </Button>
-                                            )
-                                        }}
-                                    </CountDownTimer>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Form>
-                </Col>
+                <Form
+                    form={form}
+                    name='forgot-password'
+                    validateTrigger={['onBlur', 'onSubmit']}
+                    initialValues={initialValues}
+                    colon={false}
+                    requiredMark={false}
+                    layout={'vertical'}
+                >
+                    <Row style={ROW_STYLES}>
+                        <Col span={18}>
+                            <Row style={ROW_STYLES} gutter={[0, 20]}>
+                                <Col span={24}>
+                                    <Typography.Title level={3} style={{ textAlign: 'left', fontWeight: 700 }}>{ResetTitle}</Typography.Title>
+                                </Col>
+                                <Col span={24}>
+                                    <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
+                                </Col>
+                            </Row>
+                            <Row style={ROW_STYLES} gutter={[0, 40]}>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name='phone'
+                                        label={REGISTER_PHONE_LABEL}
+                                        rules={validations.phone}
+                                    >
+                                        <PhoneInput placeholder={ExamplePhoneMsg} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item>
+                                        <CountDownTimer action={startConfirmPhoneAction} id={'FORGOT_ACTION'} timeout={SMS_CODE_TTL}>
+                                            {({ countdown, runAction }) => {
+                                                const isCountDownActive = countdown > 0
+                                                return (
+                                                    <Button
+                                                        onClick={() => {
+                                                            form.validateFields().then(() => {
+                                                                runAction()
+                                                            }).catch(_ => {
+                                                                // validation check failed - don't invoke runAction
+                                                            })
+                                                        }}
+                                                        type={isCountDownActive ? 'sberGrey' : 'sberDefaultGradient'}
+                                                        disabled={isCountDownActive}
+                                                        loading={isLoading}
+                                                        htmlType='submit'
+                                                        style={{ width: '100%' }}
+                                                    >
+                                                        {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
+                                                    </Button>
+                                                )
+                                            }}
+                                        </CountDownTimer>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Form>
             </>)
     }
 
