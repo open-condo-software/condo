@@ -91,6 +91,7 @@ const RegisterPage: AuthPage = () => {
                 setState('inputPhone')
                 Router.push('/auth/register')
             }}
+            title={RegistrationTitleMsg}
         />,
         register: <RegisterForm onFinish={initOnBoarding} />,
     }

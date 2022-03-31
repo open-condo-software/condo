@@ -19,10 +19,7 @@ import { useRegisterFormValidators } from './hooks'
 import { RegisterContext } from './RegisterContextProvider'
 import { colors } from '../../../common/constants/style'
 
-const FORM_LAYOUT = {
-    labelCol: { span: 10 },
-    wrapperCol: { span: 24 },
-}
+
 
 interface IRegisterFormProps {
     onFinish: (userId: string) => void
@@ -110,7 +107,6 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
 
     return (
         <Form
-            {...FORM_LAYOUT}
             form={form}
             name='register'
             onFinish={registerComplete}

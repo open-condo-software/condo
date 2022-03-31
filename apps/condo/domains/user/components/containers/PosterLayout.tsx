@@ -24,7 +24,7 @@ const FOOTER_STYLES: React.CSSProperties = {
     marginLeft: '5%',
 }
 
-const ROW_STYLE = { margin: '65px 0 65px' }
+const ROW_STYLE = { margin: '65px 0 65px', justifyContent: 'center' }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children,  layoutBgColor }) => {
     const { isSmall } = useLayoutContext()
@@ -51,7 +51,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children,  layoutBg
                     <PageContent isSmall={isSmall}>
                         <ChildrenWrapper isSmall={isSmall}>
                             <Row style={ROW_STYLE}>
-                                <Col lg={15} md={24} push={CHILDREN_COL_PUSH} pull={CHILDREN_COL_PULL}>
+                                <Col lg={13} md={24} >
                                     {children}
                                 </Col>
                             </Row>
