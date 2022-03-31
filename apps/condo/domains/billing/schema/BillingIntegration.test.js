@@ -119,7 +119,6 @@ describe('BillingIntegration', () => {
             const [integration, attrs] = await createTestBillingIntegration(admin)
             expect(integration).toEqual(expect.objectContaining({
                 name: attrs.name,
-                detailsTitle: attrs.detailsTitle,
             }))
         })
 
@@ -155,7 +154,6 @@ describe('BillingIntegration', () => {
             const [updatedIntegration] = await updateTestBillingIntegration(support, objCreated.id, payload)
             expect(updatedIntegration.id).toEqual(objCreated.id)
             expect(updatedIntegration.name).toEqual('super-billing!')
-            expect(updatedIntegration.currencyCode).toBeDefined()
         })
 
         test('user cant update BillingIntegration', async () => {
