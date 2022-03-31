@@ -96,7 +96,7 @@ describe('Notifications', () => {
         expect(result).toEqual(true)
     })
 
-    it('All email templates has subjects translations', () => {
+    it('All email templates have subjects translations', () => {
         let result = true
 
         for (const locale of Object.keys(LOCALES)) {
@@ -117,7 +117,7 @@ describe('Notifications', () => {
         expect(result).toEqual(true)
     })
 
-    it('All push templates has translations for titles', () => {
+    it('All push templates have translations for titles', () => {
         let result = true
 
         for (const locale of Object.keys(LOCALES)) {
