@@ -790,6 +790,8 @@
   "notification.messages.DEVELOPER_IMPORTANT_NOTE_TYPE.push.title": "{type}",
   "notification.messages.CUSTOMER_IMPORTANT_NOTE_TYPE.email.subject": "Новая организация. (СББОЛ)",
   "notification.messages.CUSTOMER_IMPORTANT_NOTE_TYPE.push.title": "Новая организация. (СББОЛ)",
+  "notification.messages.TICKET_ASSIGNEE_CONNECTED.email.subject": "Вы назначены ответственным(-ой) по заявке №{data.ticketNumber}",
+  "notification.messages.TICKET_ASSIGNEE_CONNECTED.push.title": "Вы назначены ответственным(-ой) по заявке №{data.ticketNumber}",
   "TicketDeadline": "Срок выполнения заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",

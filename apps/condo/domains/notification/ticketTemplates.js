@@ -12,74 +12,6 @@ const {
 
 const SERVER_URL = process.env.SERVER_URL || conf.SERVER_URL
 
-const getTicketAssigneeConnectedMessagePush = (message) => {
-    const { id: notificationId } = message
-    const { ticketId, ticketNumber, userId } = get(message, 'meta.data', {})
-
-    switch (message.lang) {
-        case EN_LOCALE:
-            return {
-                notification: {
-                    title: `You were assigned as responsible of ticket #${ticketNumber}`,
-                    body: 'Please read the details.',
-                },
-                data: { ticketId, notificationId, userId },
-            }
-
-        case RU_LOCALE:
-            return {
-                notification: {
-                    title: `Вы назначены ответственным(-ой) по заявке №${ticketNumber}`,
-                    body: 'Посмотрите детали заявки',
-                },
-                data: { ticketId, notificationId, userId },
-            }
-    }
-}
-
-const getTicketAssigneeConnectedMessageSms = (message) => {
-    const { ticketNumber } = get(message, 'meta.data', {})
-
-    switch (message.lang) {
-        case EN_LOCALE:
-            return {
-                text: `You were assigned as responsible of ticket #${ticketNumber}`,
-            }
-
-        case RU_LOCALE:
-            return {
-                text: `Вы назначены ответственным(-ой) по заявке №${ticketNumber}`,
-            }
-    }
-}
-
-const getTicketAssigneeConnectedMessageEmail = (message) => {
-    const { ticketId, ticketNumber } = get(message, 'meta.data', {})
-
-    switch (message.lang) {
-        case EN_LOCALE:
-            return {
-                subject: `You were assigned as responsible of ticket #${ticketNumber}`,
-                text: `Please follow the link to view the ticket: ${SERVER_URL}/ticket/${ticketId}`,
-            }
-
-        case RU_LOCALE:
-            return {
-                subject: `Вы назначены ответственным(-ой) по заявке №${ticketNumber}`,
-                text: `Ознакомиться с заявкой можнжо по ссылке: ${SERVER_URL}/ticket/${ticketId}`,
-            }
-    }
-}
-
-const getTicketAssigneeConnectedMessage = (message, transport) => {
-    switch (transport) {
-        case PUSH_TRANSPORT: return getTicketAssigneeConnectedMessagePush(message)
-        case EMAIL_TRANSPORT: return getTicketAssigneeConnectedMessageEmail(message)
-        case SMS_TRANSPORT: return getTicketAssigneeConnectedMessageSms(message)
-    }
-}
-
-
 const getTicketExecutorConnectedMessagePush = (message) => {
     const { id: notificationId } = message
     const { ticketId, ticketNumber, userId } = get(message, 'meta.data', {})
@@ -148,6 +80,5 @@ const getTicketExecutorConnectedMessage = (message, transport) => {
 }
 
 module.exports = {
-    getTicketAssigneeConnectedMessage,
     getTicketExecutorConnectedMessage,
 }
