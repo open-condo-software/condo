@@ -12,15 +12,10 @@ const {
     SMS_TRANSPORT,
     TELEGRAM_TRANSPORT,
     PUSH_TRANSPORT,
-    TICKET_EXECUTOR_CONNECTED_TYPE,
     DEFAULT_TEMPLATE_FILE_NAME,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
 } = require('./constants/constants')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
-
-const {
-    getTicketExecutorConnectedMessage,
-} = require('./ticketTemplates')
 
 const LANG_DIR_RELATED = '../../lang'
 const TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT = 'D MMMM YYYY'
@@ -131,14 +126,13 @@ function telegramRenderer ({ message, env }) {
 }
 
 function pushRenderer ({ message, env }) {
-    const { lang, meta } = message
+    const { id: notificationId, lang, meta } = message
     return {
         notification: {
             title: i18n(translationStringKeyForPushTitle(message.type), { lang, meta }),
             body: nunjucks.render(getTemplate(message.lang, message.type, PUSH_TRANSPORT), { message, env }),
         },
-        data: get(message, ['meta', 'data'], null),
-        userId: get(message, ['meta', 'userId'], null),
+        data: { ...get(message, ['meta', 'data'], {}), notificationId },
     }
 }
 
@@ -179,10 +173,6 @@ async function renderTemplate (transport, message) {
 
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
     return renderMessage({ message, env })
-
-    if (message.type === TICKET_EXECUTOR_CONNECTED_TYPE) {
-        return getTicketExecutorConnectedMessage(message, transport)
-    }
 }
 
 module.exports = {
