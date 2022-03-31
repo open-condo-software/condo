@@ -16,6 +16,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { BILLING_APP_TYPE, ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { useRouter } from 'next/router'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import styled from '@emotion/styled'
 
 
 const WINDOW_MEDIUM_SELECT_CARD_WIDTH = 870
@@ -25,6 +26,14 @@ const WINDOW_SMALL_CAROUSEL_CARD_WIDTH = 625
 const WINDOW_SMALLEST_CAROUSEL_CARD_WIDTH = 460
 
 const PAGE_CONTENT_STYLES: CSSProperties = { paddingBottom: 60 }
+const TABS_CONTENT_CONTAINER_STYLE: CSSProperties = { overflow: 'visible' }
+const TABS_NAV_STYLE: CSSProperties = { marginBottom: 40 }
+
+const RemoveTabLineWrapper = styled.div`
+  & .ant-tabs-nav::before {
+    content: none;
+  }
+`
 
 export const AppSelectPageContent: React.FC = () => {
     const intl = useIntl()
@@ -128,89 +137,93 @@ export const AppSelectPageContent: React.FC = () => {
                     isAnyAppAvailable && (
                         <Col span={24}>
                             <Section title={AvailableSectionTitle} hideTitle={!isAnyAppConnected}>
-                                <Tabs
-                                    defaultActiveKey={defaultTab}
-                                    activeKey={defaultTab}
-                                    onChange={handleTabChange}
-                                >
-                                    <Tabs.TabPane tab={AllCategoryMessage} key={'all'}>
-                                        <CardsContainer cardsPerRow={appsPerRow}>
-                                            {
-                                                unconnectedApps.map(app => {
-                                                    const tag = app.category
-                                                        ? intl.formatMessage({ id: `services.category.${app.category}` })
-                                                        : undefined
-                                                    const url = `/miniapps/${app.id}/about?type=${app.type}`
-                                                    const logo = app.logo || undefined
-                                                    return (
-                                                        <AppSelectCard
-                                                            key={app.name}
-                                                            title={app.name}
-                                                            description={app.shortDescription}
-                                                            url={url}
-                                                            tag={tag}
-                                                            logoSrc={logo}
-                                                        />
-                                                    )
-                                                })
-                                            }
-                                        </CardsContainer>
-                                    </Tabs.TabPane>
-                                    {
-                                        isAnyBillingAvailable && (
-                                            <Tabs.TabPane tab={BillingCategoryMessage} key={'billing'}>
-                                                <CardsContainer cardsPerRow={appsPerRow}>
-                                                    {
-                                                        unconnectedBillingsApps.map(app => {
-                                                            const tag = app.category
-                                                                ? intl.formatMessage({ id: `services.category.${app.category}` })
-                                                                : undefined
-                                                            const url = `/miniapps/${app.id}/about?type=${app.type}`
-                                                            const logo = app.logo || undefined
-                                                            return (
-                                                                <AppSelectCard
-                                                                    key={app.name}
-                                                                    title={app.name}
-                                                                    description={app.shortDescription}
-                                                                    url={url}
-                                                                    tag={tag}
-                                                                    logoSrc={logo}
-                                                                />
-                                                            )
-                                                        })
-                                                    }
-                                                </CardsContainer>
-                                            </Tabs.TabPane>
-                                        )
-                                    }
-                                    {
-                                        isAnyAcquiringAvailable && (
-                                            <Tabs.TabPane tab={AcquiringCategoryMessage} key={'acquiring'}>
-                                                <CardsContainer cardsPerRow={appsPerRow}>
-                                                    {
-                                                        unconnectedAcquiringApps.map(app => {
-                                                            const tag = app.category
-                                                                ? intl.formatMessage({ id: `services.category.${app.category}` })
-                                                                : undefined
-                                                            const url = `/miniapps/${app.id}/about?type=${app.type}`
-                                                            const logo = app.logo || undefined
-                                                            return (
-                                                                <AppSelectCard
-                                                                    key={app.name}
-                                                                    title={app.name}
-                                                                    description={app.shortDescription}
-                                                                    url={url}
-                                                                    tag={tag}
-                                                                    logoSrc={logo}
-                                                                />
-                                                            )
-                                                        })
-                                                    }
-                                                </CardsContainer>
-                                            </Tabs.TabPane>
-                                        )
-                                    }
-                                </Tabs>
+                                <RemoveTabLineWrapper>
+                                    <Tabs
+                                        defaultActiveKey={defaultTab}
+                                        activeKey={defaultTab}
+                                        onChange={handleTabChange}
+                                        style={TABS_CONTENT_CONTAINER_STYLE}
+                                        tabBarStyle={TABS_NAV_STYLE}
+                                    >
+                                        <Tabs.TabPane tab={AllCategoryMessage} key={'all'}>
+                                            <CardsContainer cardsPerRow={appsPerRow}>
+                                                {
+                                                    unconnectedApps.map(app => {
+                                                        const tag = app.category
+                                                            ? intl.formatMessage({ id: `services.category.${app.category}` })
+                                                            : undefined
+                                                        const url = `/miniapps/${app.id}/about?type=${app.type}`
+                                                        const logo = app.logo || undefined
+                                                        return (
+                                                            <AppSelectCard
+                                                                key={app.name}
+                                                                title={app.name}
+                                                                description={app.shortDescription}
+                                                                url={url}
+                                                                tag={tag}
+                                                                logoSrc={logo}
+                                                            />
+                                                        )
+                                                    })
+                                                }
+                                            </CardsContainer>
+                                        </Tabs.TabPane>
+                                        {
+                                            isAnyBillingAvailable && (
+                                                <Tabs.TabPane tab={BillingCategoryMessage} key={'billing'}>
+                                                    <CardsContainer cardsPerRow={appsPerRow}>
+                                                        {
+                                                            unconnectedBillingsApps.map(app => {
+                                                                const tag = app.category
+                                                                    ? intl.formatMessage({ id: `services.category.${app.category}` })
+                                                                    : undefined
+                                                                const url = `/miniapps/${app.id}/about?type=${app.type}`
+                                                                const logo = app.logo || undefined
+                                                                return (
+                                                                    <AppSelectCard
+                                                                        key={app.name}
+                                                                        title={app.name}
+                                                                        description={app.shortDescription}
+                                                                        url={url}
+                                                                        tag={tag}
+                                                                        logoSrc={logo}
+                                                                    />
+                                                                )
+                                                            })
+                                                        }
+                                                    </CardsContainer>
+                                                </Tabs.TabPane>
+                                            )
+                                        }
+                                        {
+                                            isAnyAcquiringAvailable && (
+                                                <Tabs.TabPane tab={AcquiringCategoryMessage} key={'acquiring'}>
+                                                    <CardsContainer cardsPerRow={appsPerRow}>
+                                                        {
+                                                            unconnectedAcquiringApps.map(app => {
+                                                                const tag = app.category
+                                                                    ? intl.formatMessage({ id: `services.category.${app.category}` })
+                                                                    : undefined
+                                                                const url = `/miniapps/${app.id}/about?type=${app.type}`
+                                                                const logo = app.logo || undefined
+                                                                return (
+                                                                    <AppSelectCard
+                                                                        key={app.name}
+                                                                        title={app.name}
+                                                                        description={app.shortDescription}
+                                                                        url={url}
+                                                                        tag={tag}
+                                                                        logoSrc={logo}
+                                                                    />
+                                                                )
+                                                            })
+                                                        }
+                                                    </CardsContainer>
+                                                </Tabs.TabPane>
+                                            )
+                                        }
+                                    </Tabs>
+                                </RemoveTabLineWrapper>
                             </Section>
                         </Col>
                     )

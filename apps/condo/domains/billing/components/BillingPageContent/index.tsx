@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { useIntl } from '@core/next/intl'
 import { EmptyListView, BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Typography } from 'antd'
@@ -10,9 +10,8 @@ import {
 import { ApolloError } from '@apollo/client'
 import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'
-import { fontSizes } from '@condo/domains/common/constants/style'
 
-const BILLING_SETTINGS_ROUTE = '/miniapps'
+const BILLING_SETTINGS_ROUTE = '/miniapps?tab=billing'
 
 interface IBillingPageContentProps {
     access: boolean,
@@ -25,15 +24,14 @@ export interface IContextProps {
     context: IBillingIntegrationOrganizationContextUIState
 }
 
+const BIG_DINO_STYLE: CSSProperties = { height: 200 }
+
 export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access, contextLoading, contextError, context }) => {
     const intl = useIntl()
     const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
-    const ConnectBillingMessage = intl.formatMessage({ id: 'ConnectBilling' })
-    const AvailableBillingsLabel = intl.formatMessage({ id: 'AvailableBillings' })
-    const YouCanIntegrateWithMessage = intl.formatMessage({ id: 'CanIntegrateWithThisBillings' }, {
-        billingList: AvailableBillingsLabel,
-    })
-    const NoBillingIntegrationYetMessage = intl.formatMessage({ id: 'NoBillingIntegrationYet' })
+    const NoBillingTitle = intl.formatMessage({ id: 'pages.billing.NoBilling.title' })
+    const NoBillingMessage = intl.formatMessage({ id: 'pages.billing.NoBilling.message' })
+    const NoBillingActionLabel = intl.formatMessage({ id: 'pages.billing.NoBilling.button' })
     const ConnectionInProgressMessage = intl.formatMessage({ id:'ConnectionInProgress' })
     const WillBeReadySoonMessage = intl.formatMessage({ id: 'WillBeReadySoon' })
     const ErrorOccurredMessage = intl.formatMessage({ id: 'ErrorOccurred' })
@@ -71,21 +69,21 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     if (!context) {
         return (
             <EmptyListView
-                label={NoBillingIntegrationYetMessage}
-                message={YouCanIntegrateWithMessage}
+                label={NoBillingTitle}
+                message={NoBillingMessage}
                 createRoute={BILLING_SETTINGS_ROUTE}
-                createLabel={ConnectBillingMessage}
+                createLabel={NoBillingActionLabel}
             />
         )
     }
 
     if (context.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS) {
         return (
-            <BasicEmptyListView>
+            <BasicEmptyListView image={'/dino/waiting.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
                 <Typography.Title level={3}>
                     {ConnectionInProgressMessage}
                 </Typography.Title>
-                <Typography.Text style={{ fontSize: fontSizes.content }}>
+                <Typography.Text type={'secondary'}>
                     {WillBeReadySoonMessage}
                 </Typography.Text>
             </BasicEmptyListView>
@@ -94,11 +92,11 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (context.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS) {
         return (
-            <BasicEmptyListView>
+            <BasicEmptyListView image={'/dino/fail.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
                 <Typography.Title level={3}>
                     {ErrorOccurredMessage}
                 </Typography.Title>
-                <Typography.Text style={{ fontSize: fontSizes.content }}>
+                <Typography.Text type={'secondary'}>
                     {ConnectSupportMessage}
                 </Typography.Text>
             </BasicEmptyListView>
