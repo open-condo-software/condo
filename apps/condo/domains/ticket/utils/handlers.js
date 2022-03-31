@@ -12,7 +12,8 @@ const {
     TICKET_STATUS_COMPLETED,
     TICKET_STATUS_RETURNED,
     TICKET_INDICATOR_ADDED,
-    TICKET_DELETE_INDICATE,
+    TICKET_INDICATOR_REMOVED,
+    TICKET_COMMENT_ADDED,
 } = require('@condo/domains/notification/constants/constants')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -193,7 +194,7 @@ const handleTicketEvents = async (requestData) => {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
-            type: !nextWarranty ? TICKET_INDICATOR_ADDED : TICKET_DELETE_INDICATE,
+            type: !nextWarranty ? TICKET_INDICATOR_ADDED : TICKET_INDICATOR_REMOVED,
             meta: {
                 dv: 1,
                 data: {
@@ -211,7 +212,7 @@ const handleTicketEvents = async (requestData) => {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
-            type: !nextPaid ? TICKET_INDICATOR_ADDED : TICKET_DELETE_INDICATE,
+            type: !nextPaid ? TICKET_INDICATOR_ADDED : TICKET_INDICATOR_REMOVED,
             meta: {
                 dv: 1,
                 data: {
@@ -229,7 +230,7 @@ const handleTicketEvents = async (requestData) => {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
-            type: !nextEmergency ? TICKET_INDICATOR_ADDED : TICKET_DELETE_INDICATE,
+            type: !nextEmergency ? TICKET_INDICATOR_ADDED : TICKET_INDICATOR_REMOVED,
             meta: {
                 dv: 1,
                 data: {
@@ -246,9 +247,31 @@ const handleTicketEvents = async (requestData) => {
 
 const handleTicketCommentEvents = async (requestData) => {
     const { operation, existingItem, updatedItem, context } = requestData
-    console.log(updatedItem)
     const [ticket] = await Ticket.getAll(context, { id: updatedItem.ticket })
-    console.log(ticket.client.id)
+    const client = get(ticket, 'client.id')
+    const organizationId = get(ticket, 'organization.id')
+
+    const organization = await getByCondition('Organization', {
+        id: organizationId,
+        deletedAt: null,
+    })
+
+    const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
+
+    await sendMessage(context, {
+        lang,
+        to: { user: { id: client } },
+        type: TICKET_COMMENT_ADDED,
+        meta: {
+            dv: 1,
+            data: {
+                ticketId: ticket.id,
+                ticketNumber: ticket.number,
+                userId: client,
+            },
+        },
+        sender: updatedItem.sender,
+    })
 }
 
 module.exports = {
