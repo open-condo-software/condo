@@ -9,12 +9,11 @@ const NoAcquiringStub = (): JSX.Element => {
     const noAcquiringMessage = intl.formatMessage({ id: 'pages.condo.payments.noAcquiringMessage' })
     const createAcquiringLabel = intl.formatMessage({ id: 'pages.condo.payments.createAcquiringLabel' })
 
-    // TODO: find url to set up acquiring
     return (
         <EmptyListView
             label={noAcquiringLabel}
             message={noAcquiringMessage}
-            createRoute={'/miniapps'}
+            createRoute={'/miniapps?tab=acquiring'}
             createLabel={createAcquiringLabel}
         />
     )
