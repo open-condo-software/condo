@@ -43,7 +43,7 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
         pageView = <Loader fill size={'large'}/>
     }
 
-    if (!link) {
+    if (!link && !isLoading) {
         pageView = (
             <>
                 <Typography.Title style={{ textAlign: 'center' }}>
