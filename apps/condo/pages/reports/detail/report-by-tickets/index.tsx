@@ -146,6 +146,8 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const PresetMonth = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Month' })
     const PresetQuarter = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Quarter' })
     const PresetYear = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Year' })
+    const startDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
+    const endDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -263,6 +265,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                         <DateRangePicker
                             value={dateRange}
                             onChange={onSpecificationChange}
+                            placeholder={[startDateMessage, endDateMessage]}
                         />
                         <Typography.Paragraph>
                             <Radio.Group
