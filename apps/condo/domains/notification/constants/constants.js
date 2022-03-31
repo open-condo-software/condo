@@ -27,9 +27,9 @@ const TICKET_EXECUTOR_CONNECTED_TYPE = 'TICKET_EXECUTOR_CONNECTED'
 const TICKET_STATUS_IN_PROGRESS = 'TICKET_STATUS_IN_PROGRESS'
 const TICKET_STATUS_COMPLETED = 'TICKET_STATUS_COMPLETED'
 const TICKET_STATUS_RETURNED = 'TICKET_STATUS_RETURNED'
-const TICKET_ADD_INDICATE = 'TICKET_ADD_INDICATE'
-const TICKET_DELETE_INDICATE = 'TICKET_DELETE_INDICATE'
-const TICKET_NEW_COMMENT = 'TICKET_NEW_COMMENT'
+const TICKET_INDICATOR_ADDED = 'TICKET_INDICATOR_ADDED'
+const TICKET_INDICATOR_REMOVED = 'TICKET_INDICATOR_REMOVED'
+const TICKET_COMMENT_ADDED = 'TICKET_COMMENT_ADDED'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -47,9 +47,9 @@ const MESSAGE_TYPES = [
     TICKET_STATUS_IN_PROGRESS,
     TICKET_STATUS_COMPLETED,
     TICKET_STATUS_RETURNED,
-    TICKET_ADD_INDICATE,
-    TICKET_DELETE_INDICATE,
-    TICKET_NEW_COMMENT,
+    TICKET_INDICATOR_ADDED,
+    TICKET_INDICATOR_REMOVED,
+    TICKET_COMMENT_ADDED,
 ]
 
 const MESSAGE_META = {
@@ -145,25 +145,25 @@ const MESSAGE_META = {
             userId: { defaultValue: '', required: true },
         },
     },
-    [TICKET_ADD_INDICATE]: {
+    [TICKET_INDICATOR_ADDED]: {
         dv: { defaultValue: '', required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
-            typeIndicate: { defaultValue: '', required: true },
+            indicatorType: { defaultValue: '', required: true },
         },
     },
-    [TICKET_DELETE_INDICATE]: {
+    [TICKET_INDICATOR_REMOVED]: {
         dv: { defaultValue: '', required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
-            typeIndicate: { defaultValue: '', required: true },
+            indicatorType: { defaultValue: '', required: true },
         },
     },
-    [TICKET_NEW_COMMENT]: {
+    [TICKET_COMMENT_ADDED]: {
         dv: { defaultValue: '', required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
@@ -229,9 +229,9 @@ module.exports = {
     TICKET_STATUS_IN_PROGRESS,
     TICKET_STATUS_COMPLETED,
     TICKET_STATUS_RETURNED,
-    TICKET_ADD_INDICATE,
-    TICKET_DELETE_INDICATE,
-    TICKET_NEW_COMMENT,
+    TICKET_INDICATOR_ADDED,
+    TICKET_INDICATOR_REMOVED,
+    TICKET_COMMENT_ADDED,
 
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE,

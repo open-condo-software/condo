@@ -38,7 +38,7 @@ const getTicketAssigneeConnectedMessagePush = (message) => {
 }
 
 const getTicketAssigneeConnectedMessageSms = (message) => {
-    const { ticketNumber } = get(message, 'meta', {})
+    const { ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -54,7 +54,7 @@ const getTicketAssigneeConnectedMessageSms = (message) => {
 }
 
 const getTicketAssigneeConnectedMessageEmail = (message) => {
-    const { ticketId, ticketNumber } = get(message, 'meta', {})
+    const { ticketId, ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -106,7 +106,7 @@ const getTicketExecutorConnectedMessagePush = (message) => {
 }
 
 const getTicketExecutorConnectedMessageSms = (message) => {
-    const { ticketNumber } = get(message, 'meta', {})
+    const { ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -122,7 +122,7 @@ const getTicketExecutorConnectedMessageSms = (message) => {
 }
 
 const getTicketExecutorConnectedMessageEmail = (message) => {
-    const { ticketId, ticketNumber } = get(message, 'meta', {})
+    const { ticketId, ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -148,7 +148,7 @@ const getTicketExecutorConnectedMessage = (message, transport) => {
 }
 
 
-const getTicketStatusInWorkMessagePush = (message) => {
+const getTicketStatusInProgressMessagePush = (message) => {
     const { id: notificationId } = message
     const { ticketId, ticketNumber, userId } = get(message, 'meta.data', {})
 
@@ -173,8 +173,8 @@ const getTicketStatusInWorkMessagePush = (message) => {
     }
 }
 
-const getTicketStatusInWorkMessageSms = (message) => {
-    const { ticketNumber } = get(message, 'meta', {})
+const getTicketStatusInProgressMessageSms = (message) => {
+    const { ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -189,8 +189,8 @@ const getTicketStatusInWorkMessageSms = (message) => {
     }
 }
 
-const getTicketStatusInWorkMessageEmail = (message) => {
-    const { ticketId, ticketNumber } = get(message, 'meta', {})
+const getTicketStatusInProgressMessageEmail = (message) => {
+    const { ticketId, ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -207,11 +207,11 @@ const getTicketStatusInWorkMessageEmail = (message) => {
     }
 }
 
-const getTicketStatusInWorkMessage = (message, transport) => {
+const getTicketStatusInProgressMessage = (message, transport) => {
     switch (transport) {
-        case PUSH_TRANSPORT: return getTicketStatusInWorkMessagePush(message)
-        case EMAIL_TRANSPORT: return getTicketStatusInWorkMessageEmail(message)
-        case SMS_TRANSPORT: return getTicketStatusInWorkMessageSms(message)
+        case PUSH_TRANSPORT: return getTicketStatusInProgressMessagePush(message)
+        case EMAIL_TRANSPORT: return getTicketStatusInProgressMessageEmail(message)
+        case SMS_TRANSPORT: return getTicketStatusInProgressMessageSms(message)
     }
 }
 
@@ -256,7 +256,7 @@ const getTicketStatusCompletedMessageSms = (message) => {
 }
 
 const getTicketStatusCompletedMessageEmail = (message) => {
-    const { ticketId } = get(message, 'meta', {})
+    const { ticketId } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -308,7 +308,7 @@ const getTicketStatusReturnedMessagePush = (message) => {
 }
 
 const getTicketStatusReturnedMessageSms = (message) => {
-    const { ticketNumber } = get(message, 'meta', {})
+    const { ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -324,7 +324,7 @@ const getTicketStatusReturnedMessageSms = (message) => {
 }
 
 const getTicketStatusReturnedMessageEmail = (message) => {
-    const { ticketId, ticketNumber } = get(message, 'meta', {})
+    const { ticketId, ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -350,9 +350,9 @@ const getTicketStatusReturnedMessage = (message, transport) => {
 }
 
 
-const getTicketAddIndicateMessagePush = (message) => {
+const getTicketIndicatorAddedMessagePush = (message) => {
     const { id: notificationId } = message
-    const { ticketId, ticketNumber, userId, typeIndicate } = get(message, 'meta.data', {})
+    const { ticketId, ticketNumber, userId, indicatorType } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -366,15 +366,15 @@ const getTicketAddIndicateMessagePush = (message) => {
         case RU_LOCALE:
             return {
                 notification: {
-                    title: `Заявка №${ticketNumber} стала ${typeIndicate}`,
+                    title: `Заявка №${ticketNumber} стала ${indicatorType}`,
                 },
                 data: { ticketId, notificationId, userId },
             }
     }
 }
 
-const getTicketAddIndicateMessageSms = (message) => {
-    const { ticketNumber, typeIndicate } = get(message, 'meta.data', {})
+const getTicketIndicatorAddedMessageSms = (message) => {
+    const { ticketNumber, indicatorType } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -384,13 +384,13 @@ const getTicketAddIndicateMessageSms = (message) => {
 
         case RU_LOCALE:
             return {
-                text: `Заявка №${ticketNumber} стала ${typeIndicate}`,
+                text: `Заявка №${ticketNumber} стала ${indicatorType}`,
             }
     }
 }
 
-const getTicketAddIndicateMessageEmail = (message) => {
-    const { ticketId, ticketNumber, typeIndicate } = get(message, 'meta', {})
+const getTicketIndicatorAddedMessageEmail = (message) => {
+    const { ticketId, ticketNumber, indicatorType } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -401,24 +401,24 @@ const getTicketAddIndicateMessageEmail = (message) => {
 
         case RU_LOCALE:
             return {
-                subject: `Заявка №${ticketNumber} стала ${typeIndicate}`,
+                subject: `Заявка №${ticketNumber} стала ${indicatorType}`,
                 text: `Ознакомиться с заявкой можнжо по ссылке: ${SERVER_URL}/ticket/${ticketId}`,
             }
     }
 }
 
-const getTicketAddIndicateMessage = (message, transport) => {
+const getTicketIndicatorAddedMessage = (message, transport) => {
     switch (transport) {
-        case PUSH_TRANSPORT: return getTicketAddIndicateMessagePush(message)
-        case EMAIL_TRANSPORT: return getTicketAddIndicateMessageEmail(message)
-        case SMS_TRANSPORT: return getTicketAddIndicateMessageSms(message)
+        case PUSH_TRANSPORT: return getTicketIndicatorAddedMessagePush(message)
+        case EMAIL_TRANSPORT: return getTicketIndicatorAddedMessageEmail(message)
+        case SMS_TRANSPORT: return getTicketIndicatorAddedMessageSms(message)
     }
 }
 
 
-const getTicketDeleteIndicateMessagePush = (message) => {
+const getTicketIndicatorRemovedMessagePush = (message) => {
     const { id: notificationId } = message
-    const { ticketId, ticketNumber, userId, typeIndicate } = get(message, 'meta.data', {})
+    const { ticketId, ticketNumber, userId, indicatorType } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -432,15 +432,15 @@ const getTicketDeleteIndicateMessagePush = (message) => {
         case RU_LOCALE:
             return {
                 notification: {
-                    title: `Заявка №${ticketNumber} больше не ${typeIndicate}`,
+                    title: `Заявка №${ticketNumber} больше не ${indicatorType}`,
                 },
                 data: { ticketId, notificationId, userId },
             }
     }
 }
 
-const getTicketDeleteIndicateMessageSms = (message) => {
-    const { ticketNumber, typeIndicate } = get(message, 'meta.data', {})
+const getTicketIndicatorRemovedMessageSms = (message) => {
+    const { ticketNumber, indicatorType } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -450,13 +450,13 @@ const getTicketDeleteIndicateMessageSms = (message) => {
 
         case RU_LOCALE:
             return {
-                text: `Заявка №${ticketNumber} больше не ${typeIndicate}`,
+                text: `Заявка №${ticketNumber} больше не ${indicatorType}`,
             }
     }
 }
 
-const getTicketDeleteIndicateMessageEmail = (message) => {
-    const { ticketId, ticketNumber, typeIndicate } = get(message, 'meta', {})
+const getTicketIndicatorRemovedMessageEmail = (message) => {
+    const { ticketId, ticketNumber, indicatorType } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -467,22 +467,22 @@ const getTicketDeleteIndicateMessageEmail = (message) => {
 
         case RU_LOCALE:
             return {
-                subject: `Заявка №${ticketNumber} больше не ${typeIndicate}`,
+                subject: `Заявка №${ticketNumber} больше не ${indicatorType}`,
                 text: `Ознакомиться с заявкой можнжо по ссылке: ${SERVER_URL}/ticket/${ticketId}`,
             }
     }
 }
 
-const getTicketDeleteIndicateMessage = (message, transport) => {
+const getTicketIndicatorRemovedMessage = (message, transport) => {
     switch (transport) {
-        case PUSH_TRANSPORT: return getTicketDeleteIndicateMessagePush(message)
-        case EMAIL_TRANSPORT: return getTicketDeleteIndicateMessageEmail(message)
-        case SMS_TRANSPORT: return getTicketDeleteIndicateMessageSms(message)
+        case PUSH_TRANSPORT: return getTicketIndicatorRemovedMessagePush(message)
+        case EMAIL_TRANSPORT: return getTicketIndicatorRemovedMessageEmail(message)
+        case SMS_TRANSPORT: return getTicketIndicatorRemovedMessageSms(message)
     }
 }
 
 
-const getTicketNewCommentMessagePush = (message) => {
+const getTicketCommentAddedMessagePush = (message) => {
     const { id: notificationId } = message
     const { ticketId, ticketNumber, userId } = get(message, 'meta.data', {})
 
@@ -507,8 +507,8 @@ const getTicketNewCommentMessagePush = (message) => {
     }
 }
 
-const getTicketNewCommentMessageSms = (message) => {
-    const { ticketNumber } = get(message, 'meta', {})
+const getTicketCommentAddedMessageSms = (message) => {
+    const { ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -523,8 +523,8 @@ const getTicketNewCommentMessageSms = (message) => {
     }
 }
 
-const getTicketNewCommentMessageEmail = (message) => {
-    const { ticketId, ticketNumber } = get(message, 'meta', {})
+const getTicketCommentAddedMessageEmail = (message) => {
+    const { ticketId, ticketNumber } = get(message, 'meta.data', {})
 
     switch (message.lang) {
         case EN_LOCALE:
@@ -541,21 +541,21 @@ const getTicketNewCommentMessageEmail = (message) => {
     }
 }
 
-const getTicketNewCommentMessage = (message, transport) => {
+const getTicketCommentAddedMessage = (message, transport) => {
     switch (transport) {
-        case PUSH_TRANSPORT: return getTicketNewCommentMessagePush(message)
-        case EMAIL_TRANSPORT: return getTicketNewCommentMessageEmail(message)
-        case SMS_TRANSPORT: return getTicketNewCommentMessageSms(message)
+        case PUSH_TRANSPORT: return getTicketCommentAddedMessagePush(message)
+        case EMAIL_TRANSPORT: return getTicketCommentAddedMessageEmail(message)
+        case SMS_TRANSPORT: return getTicketCommentAddedMessageSms(message)
     }
 }
 
 module.exports = {
     getTicketAssigneeConnectedMessage,
     getTicketExecutorConnectedMessage,
-    getTicketStatusInWorkMessage,
+    getTicketStatusInProgressMessage,
     getTicketStatusCompletedMessage,
     getTicketStatusReturnedMessage,
-    getTicketAddIndicateMessage,
-    getTicketDeleteIndicateMessage,
-    getTicketNewCommentMessage,
+    getTicketIndicatorAddedMessage,
+    getTicketIndicatorRemovedMessage,
+    getTicketCommentAddedMessage,
 }

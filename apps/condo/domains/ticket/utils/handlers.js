@@ -11,11 +11,12 @@ const {
     TICKET_STATUS_IN_PROGRESS,
     TICKET_STATUS_COMPLETED,
     TICKET_STATUS_RETURNED,
-    TICKET_ADD_INDICATE,
+    TICKET_INDICATOR_ADDED,
     TICKET_DELETE_INDICATE,
 } = require('@condo/domains/notification/constants/constants')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { Ticket } = require('./serverSchema')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -46,6 +47,7 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     const nextWarranty = get(updatedItem, 'isWarranty')
     const nextPaid = get(updatedItem, 'isPaid')
     const nextEmergency = get(updatedItem, 'isEmergency')
+    const client = get(updatedItem, 'client')
     const result = {}
 
     /**
@@ -58,28 +60,29 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
      * executor connected within create ticket operation or
      * executor connected/changed within update ticket operation
      */
-    result[EXECUTOR_CONNECTED_EVENT_TYPE] = isCreateOperation && !!nextExecutorId || isUpdateOperation && nextExecutorId && nextExecutorId !== prevExecutorId
+    result[EXECUTOR_CONNECTED_EVENT_TYPE] = isCreateOperation && !!nextExecutorId || isUpdateOperation && !!nextExecutorId && nextExecutorId !== prevExecutorId
 
     /**
      * ticket status changed
      */
-    result[STATUS_CHANGED_EVENT_TYPE] = isCreateOperation && !!nextStatusId || isUpdateOperation && nextStatusId && nextStatusId !== prevStatusId
+    result[STATUS_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextStatusId || isUpdateOperation && nextStatusId && nextStatusId !== prevStatusId)
 
     /**
      * ticket change warranty indicate
      */
-    result[WARRANTY_CHANGED_EVENT_TYPE] = isCreateOperation && !!nextWarranty || isUpdateOperation && nextWarranty && nextWarranty !== prevWarranty
+    result[WARRANTY_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextWarranty || isUpdateOperation && nextWarranty && nextWarranty !== prevWarranty)
 
     /**
      * ticket change paid indicate
      */
-    result[PAID_CHANGED_EVENT_TYPE] = isCreateOperation && !!nextPaid || isUpdateOperation && nextPaid && nextPaid !== prevPaid
+    result[PAID_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextPaid || isUpdateOperation && nextPaid && nextPaid !== prevPaid)
 
     /**
      * ticket change emergency indicate
      */
-    result[EMERGENCY_CHANGED_EVENT_TYPE] = isCreateOperation && !!nextEmergency || isUpdateOperation && nextEmergency && nextEmergency !== prevEmergency
+    result[EMERGENCY_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextEmergency || isUpdateOperation && nextEmergency && nextEmergency !== prevEmergency)
 
+    console.log(result)
     return result
 }
 
@@ -104,6 +107,7 @@ const handleTicketEvents = async (requestData) => {
     const nextPaid = get(updatedItem, 'isPaid')
     const nextEmergency = get(updatedItem, 'isEmergency')
     const nextStatusId = get(updatedItem, 'status')
+    const client = get(updatedItem, 'client')
 
     const organization = await getByCondition('Organization', {
         id: updatedItem.organization,
@@ -170,14 +174,14 @@ const handleTicketEvents = async (requestData) => {
         if (type) {
             await sendMessage(context, {
                 lang,
-                to: { user: { id: nextAssigneeId || prevAssigneeId } },
+                to: { user: { id: client } },
                 type,
                 meta: {
                     dv: 1,
                     data: {
                         ticketId: updatedItem.id,
                         ticketNumber: updatedItem.number,
-                        userId: nextAssigneeId || prevAssigneeId,
+                        userId: client,
                     },
                 },
                 sender: updatedItem.sender,
@@ -188,15 +192,15 @@ const handleTicketEvents = async (requestData) => {
     if (eventTypes[WARRANTY_CHANGED_EVENT_TYPE]) {
         await sendMessage(context, {
             lang,
-            to: { user: { id: nextAssigneeId || prevAssigneeId } },
-            type: !nextWarranty ? TICKET_ADD_INDICATE : TICKET_DELETE_INDICATE,
+            to: { user: { id: client } },
+            type: !nextWarranty ? TICKET_INDICATOR_ADDED : TICKET_DELETE_INDICATE,
             meta: {
                 dv: 1,
                 data: {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
-                    userId: nextAssigneeId || prevAssigneeId,
-                    typeIndicate: 'гарантийной',
+                    userId: client,
+                    indicatorType: 'гарантийной',
                 },
             },
             sender: updatedItem.sender,
@@ -206,15 +210,15 @@ const handleTicketEvents = async (requestData) => {
     if (eventTypes[PAID_CHANGED_EVENT_TYPE]) {
         await sendMessage(context, {
             lang,
-            to: { user: { id: nextAssigneeId || prevAssigneeId } },
-            type: !nextPaid ? TICKET_ADD_INDICATE : TICKET_DELETE_INDICATE,
+            to: { user: { id: client } },
+            type: !nextPaid ? TICKET_INDICATOR_ADDED : TICKET_DELETE_INDICATE,
             meta: {
                 dv: 1,
                 data: {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
-                    userId: nextAssigneeId || prevAssigneeId,
-                    typeIndicate: 'платной',
+                    userId: client,
+                    indicatorType: 'платной',
                 },
             },
             sender: updatedItem.sender,
@@ -224,15 +228,15 @@ const handleTicketEvents = async (requestData) => {
     if (eventTypes[EMERGENCY_CHANGED_EVENT_TYPE]) {
         await sendMessage(context, {
             lang,
-            to: { user: { id: nextAssigneeId || prevAssigneeId } },
-            type: !nextEmergency ? TICKET_ADD_INDICATE : TICKET_DELETE_INDICATE,
+            to: { user: { id: client } },
+            type: !nextEmergency ? TICKET_INDICATOR_ADDED : TICKET_DELETE_INDICATE,
             meta: {
                 dv: 1,
                 data: {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
-                    userId: nextAssigneeId || prevAssigneeId,
-                    typeIndicate: 'аварийной',
+                    userId: client,
+                    indicatorType: 'аварийной',
                 },
             },
             sender: updatedItem.sender,
@@ -240,8 +244,16 @@ const handleTicketEvents = async (requestData) => {
     }
 }
 
+const handleTicketCommentEvents = async (requestData) => {
+    const { operation, existingItem, updatedItem, context } = requestData
+    console.log(updatedItem)
+    const [ticket] = await Ticket.getAll(context, { id: updatedItem.ticket })
+    console.log(ticket.client.id)
+}
+
 module.exports = {
     handleTicketEvents,
+    handleTicketCommentEvents,
     detectEventTypes,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,

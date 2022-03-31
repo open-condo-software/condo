@@ -7,6 +7,14 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketComment')
+const { storeChangesIfUpdated, buildSetOfFieldsToTrackFrom } = require('../../common/utils/serverSchema/changeTrackable')
+const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
+const {
+    createTicketChange,
+    ticketChangeDisplayNameResolversForSingleRelations,
+    relatedManyToManyResolvers,
+} = require('../utils/serverSchema/TicketChange')
+const { handleTicketCommentEvents } = require('../utils/handlers')
 
 
 const TicketComment = new GQLListSchema('TicketComment', {
@@ -48,6 +56,12 @@ const TicketComment = new GQLListSchema('TicketComment', {
 
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    hooks: {
+        afterChange: async (requestData) => {
+            /* NOTE: this sends different kinds of notifications on comment create */
+            await handleTicketCommentEvents(requestData)
+        },
+    },
     access: {
         read: access.canReadTicketComments,
         create: access.canManageTicketComments,

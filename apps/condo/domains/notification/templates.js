@@ -23,20 +23,20 @@ const {
     TICKET_STATUS_IN_PROGRESS,
     TICKET_STATUS_COMPLETED,
     TICKET_STATUS_RETURNED,
-    TICKET_ADD_INDICATE,
-    TICKET_DELETE_INDICATE,
-    TICKET_NEW_COMMENT,
+    TICKET_INDICATOR_ADDED,
+    TICKET_INDICATOR_REMOVED,
+    TICKET_COMMENT_ADDED,
 } = require('./constants/constants')
 
 const {
     getTicketAssigneeConnectedMessage,
     getTicketExecutorConnectedMessage,
-    getTicketStatusInWorkMessage,
+    getTicketStatusInProgressMessage,
     getTicketStatusCompletedMessage,
     getTicketStatusReturnedMessage,
-    getTicketAddIndicateMessage,
-    getTicketDeleteIndicateMessage,
-    getTicketNewCommentMessage,
+    getTicketIndicatorAddedMessage,
+    getTicketIndicatorRemovedMessage,
+    getTicketCommentAddedMessage,
 } = require('./ticketTemplates')
 
 async function renderTemplate (transport, message) {
@@ -290,36 +290,30 @@ async function renderTemplate (transport, message) {
         }
     }
 
-    if (message.type === TICKET_ASSIGNEE_CONNECTED_TYPE) {
-        return getTicketAssigneeConnectedMessage(message, transport)
-    }
+    switch (message.type){
+        case TICKET_ASSIGNEE_CONNECTED_TYPE:
+            return getTicketAssigneeConnectedMessage(message, transport)
 
-    if (message.type === TICKET_EXECUTOR_CONNECTED_TYPE) {
-        return getTicketExecutorConnectedMessage(message, transport)
-    }
+        case TICKET_EXECUTOR_CONNECTED_TYPE:
+            return getTicketExecutorConnectedMessage(message, transport)
 
-    if (message.type === TICKET_STATUS_IN_PROGRESS) {
-        return getTicketStatusInWorkMessage(message, transport)
-    }
+        case TICKET_STATUS_IN_PROGRESS:
+            return getTicketStatusInProgressMessage(message, transport)
 
-    if (message.type === TICKET_STATUS_COMPLETED) {
-        return getTicketStatusCompletedMessage(message, transport)
-    }
+        case TICKET_STATUS_COMPLETED:
+            return getTicketStatusCompletedMessage(message, transport)
 
-    if (message.type === TICKET_STATUS_RETURNED) {
-        return getTicketStatusReturnedMessage(message, transport)
-    }
+        case TICKET_STATUS_RETURNED:
+            return getTicketStatusReturnedMessage(message, transport)
 
-    if (message.type === TICKET_ADD_INDICATE) {
-        return getTicketAddIndicateMessage(message, transport)
-    }
+        case TICKET_INDICATOR_ADDED:
+            return getTicketIndicatorAddedMessage(message, transport)
 
-    if (message.type === TICKET_DELETE_INDICATE) {
-        return getTicketDeleteIndicateMessage(message, transport)
-    }
+        case TICKET_INDICATOR_REMOVED:
+            return getTicketIndicatorRemovedMessage(message, transport)
 
-    if (message.type === TICKET_NEW_COMMENT) {
-        return getTicketNewCommentMessage(message, transport)
+        case TICKET_COMMENT_ADDED:
+            return getTicketCommentAddedMessage(message, transport)
     }
 
     throw new Error('unknown template or lang')
