@@ -71,49 +71,69 @@ const keystone = new Keystone({
 
 const originalCreateList = keystone.createList
 
-const cache = {}
+const itemCache = {}
+const listCache = {}
 
-keystone.createList = (...args) => {
+keystone.createList = async (...args) => {
     const list = originalCreateList.apply(keystone, args)
 
     const originalListQuery = list.listQuery
     list.listQuery = async function (args, context, gqlName, info, from) {
-        const listResult = await originalListQuery.call(list, args, context, gqlName, info, from)
+
+        let key = null
+        const requestId = get(context, ['req', 'headers', 'x-request-id'])
+        if (requestId) {
+            key = `${gqlName}-${JSON.stringify(args)}-${JSON.stringify(context.req.headers['x-request-id'])}}`
+        }
+        
+        //console.log(`CURRENT_LIST_CACHE: ${JSON.stringify(listCache)}`)
+        
+        if (key in listCache) {
+            console.debug(`
+                LIST_QUERY ${gqlName}\r\n
+                ARGS: ${JSON.stringify(args)}\r\n
+                CACHE_HIT: Yes`
+            )
+            return listCache[key]
+        }
 
         console.debug(`
             LIST_QUERY ${gqlName}\r\n
-            ARGS: ${JSON.stringify(args)}\r\n
-            FROM: ${JSON.stringify(from)}`
+            ARGS: ${JSON.stringify(args)}\r\n`
         )
+
+        const listResult = await originalListQuery.call(list, args, context, gqlName, info, from)
+
+        if (key) { listCache[key] = listResult }
 
         return listResult
     }
 
-    const originalItemQuery = list.itemQuery
-    list.itemQuery = async (args, context, gqlName, info, from) => {
-        const req = get(context, 'req')
-
-        const key = JSON.stringify(`${gqlName}_${JSON.stringify(req.authedItem)}_${JSON.stringify(args)}`)
-
-        if (key in cache) {
-            console.debug(`
-            ITEM_QUERY ${gqlName}\r\n
-            KEY: ${key}\r\n
-            CACHE_HIT?: Yes`
-            )
-            return cache[key]
-        }
-
-        const itemQueryResult = await originalItemQuery.call(list, args, context, gqlName, info, from)
-
-        console.debug(`
-            ITEM_QUERY ${gqlName}\r\n
-            KEY: ${key}\r\n
-            CACHE_HIT?: No`
-        )
-
-        return itemQueryResult
-    }
+    // const originalItemQuery = list.itemQuery
+    // list.itemQuery = async (args, context, gqlName, info, from) => {
+    //     const req = get(context, 'req')
+    //
+    //     //const key = JSON.stringify(`${gqlName}_${JSON.stringify(req.authedItem)}_${JSON.stringify(args)}`)
+    //
+    //     // if (key in cache) {
+    //     //     console.debug(`
+    //     //     ITEM_QUERY ${gqlName}\r\n
+    //     //     KEY: ${key}\r\n
+    //     //     CACHE_HIT?: Yes`
+    //     //     )
+    //     //     return cache[key]
+    //     // }
+    //
+    //     const itemQueryResult = await originalItemQuery.call(list, args, context, gqlName, info, from)
+    //
+    //     console.debug(`
+    //         ITEM_QUERY ${gqlName}\r\n
+    //         KEY: ${'what'}\r\n
+    //         CACHE_HIT?: No`
+    //     )
+    //
+    //     return itemQueryResult
+    // }
 
     return list
 }
