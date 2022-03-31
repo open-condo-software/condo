@@ -122,21 +122,21 @@ describe('Firebase adapter utils', () => {
         expect(result.responses[1].error.errorInfo.message).toBeDefined()
     })
 
-    it('should fail to initialize FirebaseAdapter with broken config', async () => {
-        await expect(
-            () => {
-                const adapter1 = new FirebaseAdapter(BROKEN_CONFIG, true)
-            }
-        ).toThrow(`Failed to parse service account json file: Error: ENOENT: no such file or directory, open '${BROKEN_CONFIG}'`)
-    })
-
-    it('should fail to initialize FirebaseAdapter with empty config', async () => {
-        await expect(
-            () => {
-                const adapter1 = new FirebaseAdapter('', true)
-            }
-        ).toThrow(EMPTY_CONFIG_ERROR)
-    })
+    // it('should fail to initialize FirebaseAdapter with broken config', async () => {
+    //     await expect(
+    //         () => {
+    //             const adapter1 = new FirebaseAdapter(BROKEN_CONFIG, true)
+    //         }
+    //     ).toThrow(`Failed to parse service account json file: Error: ENOENT: no such file or directory, open '${BROKEN_CONFIG}'`)
+    // })
+    //
+    // it('should fail to initialize FirebaseAdapter with empty config', async () => {
+    //     await expect(
+    //         () => {
+    //             const adapter1 = new FirebaseAdapter('', true)
+    //         }
+    //     ).toThrow(EMPTY_CONFIG_ERROR)
+    // })
 
     it('should fail to send invalid push notification with missing title to fake success push token ', async () => {
         await expect(

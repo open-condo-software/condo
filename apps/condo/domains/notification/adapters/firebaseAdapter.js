@@ -1,6 +1,7 @@
 const admin = require('firebase-admin')
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
+const get = require('lodash/get')
 const faker = require('faker')
 
 const conf = require('@core/config')
@@ -11,7 +12,7 @@ const { PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL, FIREBASE_CONFIG_ENV } = r
 const { EMPTY_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('../constants/errors')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
-const IS_PRODUCTION = conf.NODE_ENV === 'production'
+// const IS_PRODUCTION = conf.NODE_ENV === 'production'
 const FAKE_SUCCESS_MESSAGE_PREFIX = 'fake-success-message'
 
 let FIREBASE_CONFIG = null
@@ -19,16 +20,23 @@ let FIREBASE_CONFIG = null
 if (!IS_BUILD_PHASE) {
     const FIREBASE_CONFIG_JSON = conf[FIREBASE_CONFIG_ENV] || process.env[FIREBASE_CONFIG_ENV]
 
-    if (!FIREBASE_CONFIG_JSON) throw new Error(EMPTY_CONFIG_ERROR)
+    if (!FIREBASE_CONFIG_JSON) {
+        //throw new Error(EMPTY_CONFIG_ERROR)
+        logger.error(EMPTY_CONFIG_ERROR)
+    }
 
     // JSON.parse would throw for a broken JSON, so we should take care of it here
     try {
         FIREBASE_CONFIG = JSON.parse(FIREBASE_CONFIG_JSON)
     } catch (error) {
-        throw new Error(EMPTY_CONFIG_ERROR)
+        // throw new Error(EMPTY_CONFIG_ERROR)
+        logger.error(EMPTY_CONFIG_ERROR)
     }
 
-    if (isEmpty(FIREBASE_CONFIG)) throw new Error(EMPTY_CONFIG_ERROR)
+    if (isEmpty(FIREBASE_CONFIG)) {
+        // throw new Error(EMPTY_CONFIG_ERROR)
+        logger.error(EMPTY_CONFIG_ERROR)
+    }
 } else {
     FIREBASE_CONFIG = { error: 'Build faze' }
 }
@@ -50,12 +58,12 @@ class FirebaseAdapter {
         } catch (e) {
             // Broken FireBase config on production is critical
             // CI within build faze 'thinks' that it's production :(
-            if (!IS_BUILD_PHASE && IS_PRODUCTION || throwOnError) throw new Error(e)
+            // if (!IS_BUILD_PHASE && IS_PRODUCTION || throwOnError) throw new Error(e)
 
             // For CI/local tests config is useless because of emulation via FAKE tokens
             logger.error(e)
         }
-        this.projectId = config.project_id
+        this.projectId = get(config, 'project_id', null)
         this.messageIdPrefixRegexp = new RegExp(`projects/${this.projectId}/messages`)
     }
 
@@ -192,6 +200,8 @@ class FirebaseAdapter {
 
                 result = this.injectFakeResults(fbResult, fakeNotifications)
             } catch (error) {
+                logger.error(error)
+
                 result = { state: 'error', error }
             }
         }
