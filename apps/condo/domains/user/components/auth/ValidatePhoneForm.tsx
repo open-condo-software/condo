@@ -27,11 +27,12 @@ const FORM_LAYOUT = {
 interface IValidatePhoneFormProps {
     onFinish: () => void
     onReset: () => void
+    title: string
 }
 
 const SMS_CODE_CLEAR_REGEX = /[^0-9]/g
 
-export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IValidatePhoneFormProps> => {
+export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElement<IValidatePhoneFormProps> => {
     const intl = useIntl()
     const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
@@ -154,7 +155,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
         >
             <Row gutter={[0, 40]} >
                 <Col span={24}>
-                    <Typography.Title >{RegistrationTitle}</Typography.Title>
+                    <Typography.Title level={3}>{title}</Typography.Title>
                 </Col>
                 <Col span={18}>
                     <Typography.Text>

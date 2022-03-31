@@ -132,7 +132,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Typography.Paragraph type='secondary' style={{ marginTop: '10px', textAlign: 'left' }}>
+                                    <Typography.Paragraph type='secondary' style={{ margin: '36px 0 40px', textAlign: 'left' }}>
                                         <FormattedMessage
                                             id='pages.auth.register.info.PersonalDataProcessingConsent'
                                             values={{

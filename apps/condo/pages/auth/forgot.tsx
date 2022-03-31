@@ -70,6 +70,7 @@ function ResetPageView () {
             <ValidatePhoneForm
                 onFinish={() => router.push('/auth/change-password?token=' + token)}
                 onReset={() => setStep('inputPhone')}
+                title={ResetTitle}
             />
         )
     }
@@ -161,7 +162,7 @@ function ResetPageView () {
                                                         disabled={isCountDownActive}
                                                         loading={isLoading}
                                                         htmlType='submit'
-                                                        style={{ width: '100%' }}
+                                                        style={{ width: '100%', whiteSpace: 'normal', height: '100%' }}
                                                     >
                                                         {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
                                                     </Button>
