@@ -12,7 +12,6 @@ const {
     SMS_TRANSPORT,
     TELEGRAM_TRANSPORT,
     PUSH_TRANSPORT,
-    TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
     DEFAULT_TEMPLATE_FILE_NAME,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
@@ -20,7 +19,6 @@ const {
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 
 const {
-    getTicketAssigneeConnectedMessage,
     getTicketExecutorConnectedMessage,
 } = require('./ticketTemplates')
 
@@ -181,10 +179,6 @@ async function renderTemplate (transport, message) {
 
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
     return renderMessage({ message, env })
-
-    if (message.type === TICKET_ASSIGNEE_CONNECTED_TYPE) {
-        return getTicketAssigneeConnectedMessage(message, transport)
-    }
 
     if (message.type === TICKET_EXECUTOR_CONNECTED_TYPE) {
         return getTicketExecutorConnectedMessage(message, transport)
