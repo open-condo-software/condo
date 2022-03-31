@@ -14850,7 +14850,7 @@ export type Mutation = {
    * 			"required": true
    * 		}
    * 	},
-   * 	"MESSAGE_FORWARDED_TO_SUPPORT": {
+   * 	"MESSAGE_FORWARDED_TO_SUPPORT_TYPE": {
    * 		"dv": {
    * 			"defaultValue": "",
    * 			"required": true
@@ -27654,7 +27654,7 @@ export enum SendMessageType {
   ShareTicket = 'SHARE_TICKET',
   DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
   CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
-  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
+  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT_TYPE',
   TicketAssigneeConnected = 'TICKET_ASSIGNEE_CONNECTED',
   TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED'
 }

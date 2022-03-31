@@ -5,7 +5,7 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/SendMessageToSupportService')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { MESSAGE_FORWARDED_TO_SUPPORT } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_FORWARDED_TO_SUPPORT_TYPE } = require('@condo/domains/notification/constants/constants')
 const { SUPPORT_EMAIL } = require('@condo/domains/common/constants/requisites')
 const { get } = require('lodash')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
@@ -96,7 +96,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                 const messageAttrs = {
                     sender,
                     lang,
-                    type: MESSAGE_FORWARDED_TO_SUPPORT,
+                    type: MESSAGE_FORWARDED_TO_SUPPORT_TYPE,
                     to: {
                         email: SUPPORT_EMAIL,
                     },
