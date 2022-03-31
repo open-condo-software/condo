@@ -21,8 +21,11 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
-    wrapperCol: { span: 14 },
+    wrapperCol: { span: 24 },
 }
+
+const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
+
 const ChangePasswordPage: AuthPage = () => {
     const [form] = Form.useForm()
     const { token } = getQueryParams()
@@ -138,70 +141,62 @@ const ChangePasswordPage: AuthPage = () => {
     }
 
     return (
-        <Row gutter={[0, 40]}>
-            <Col span={24}>
-                <Typography.Title style={{ textAlign: 'left' }}>{ResetTitle}</Typography.Title>
-            </Col>
-            <Col span={24}>
-                <Typography.Paragraph style={{ textAlign: 'left' }} >{CreateNewPasswordMsg}</Typography.Paragraph>
-            </Col>
-            <Col span={24}>
-                <Form
-                    {...FORM_LAYOUT}
-                    form={form}
-                    name="change-password"
-                    onFinish={onFinish}
-                    initialValues={initialValues}
-                    colon={false}
-                    labelAlign='left'
-                    requiredMark={false}
-                >
-                    <Row gutter={[0, 60]}>
-                        <Form.Item name="token" style={{ display: 'none' }}>
-                            <Input type="hidden" />
-                        </Form.Item>
+        <Form
+            {...FORM_LAYOUT}
+            form={form}
+            name="change-password"
+            onFinish={onFinish}
+            initialValues={initialValues}
+            colon={false}
+            labelAlign='left'
+            requiredMark={false}
+            layout={'vertical'}
+        >
+            <Row gutter={[0, 40]} style={ROW_STYLES}>
+                <Col span={24} flex={'0 0 80%'}>
+                    <Typography.Title level={2} style={{ textAlign:'start', fontWeight: 700, fontSize: 20 }}>{ResetTitle}</Typography.Title>
+                </Col>
+                <Form.Item name="token" style={{ display: 'none' }}>
+                    <Input type="hidden" />
+                </Form.Item>
+                <Col span={24} flex={'0 0 80%'}>
+                    <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Row gutter={[0, 24]}>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name="password"
-                                        label={PasswordMsg}
-                                        rules={validations.password}
-                                    >
-                                        <Input.Password />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name="confirm"
-                                        label={ConfirmPasswordMsg}
-                                        dependencies={['password']}
-                                        rules={validations.confirmPassword}
-                                    >
-                                        <Input.Password />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                            <Form.Item
+                                name="password"
+                                label={CreateNewPasswordMsg}
+                                rules={validations.password}
+                            >
+                                <Input.Password />
+                            </Form.Item>
                         </Col>
                         <Col span={24}>
-                            <Form.Item wrapperCol={{ span: 24 }}>
-                                <Button
-                                    key='submit'
-                                    type='sberPrimary'
-                                    loading={isSaving}
-                                    htmlType="submit"
-                                >
-                                    {SaveMsg}
-                                </Button>
-                                <Typography.Text type='secondary' style={ { marginLeft: 20 } }>
-                                    {AndSignInMsg}
-                                </Typography.Text>
+                            <Form.Item
+                                name="confirm"
+                                label={ConfirmPasswordMsg}
+                                dependencies={['password']}
+                                rules={validations.confirmPassword}
+                            >
+                                <Input.Password />
                             </Form.Item>
                         </Col>
                     </Row>
-                </Form>
-            </Col>
-        </Row>
+                </Col>
+                <Col span={24} flex={'0 0 80%'}>
+                    <Form.Item wrapperCol={{ span: 24 }}>
+                        <Button
+                            key='submit'
+                            type='sberDefaultGradient'
+                            loading={isSaving}
+                            htmlType="submit"
+                            style={{ width: '100%' }}
+                        >
+                            {SaveMsg} {AndSignInMsg}
+                        </Button>
+                    </Form.Item>
+                </Col>
+            </Row>
+        </Form>
     )
 }
 

@@ -37,6 +37,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SmsCodeTitle = intl.formatMessage({ id: 'pages.auth.register.field.SmsCode' })
     const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.register.ResendSmsLabel' })
+    const SMSAvailableLabel = intl.formatMessage({ id: 'pages.auth.register.CodeIsAvailable' })
     const SMSCodeMismatchError = intl.formatMessage({ id: 'pages.auth.register.SMSCodeMismatchError' })
     const SMSExpiredError = intl.formatMessage({ id: 'pages.auth.register.SMSExpiredError' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
@@ -76,7 +77,6 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
     const [phoneValidateError, setPhoneValidateError] = useState(null)
     const [resendSmsMutation] = useMutation(RESEND_CONFIRM_PHONE_SMS_MUTATION)
     const [completeConfirmPhoneMutation] = useMutation(COMPLETE_CONFIRM_PHONE_MUTATION)
-
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
 
 
@@ -152,7 +152,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
             requiredMark={false}
             layout={'vertical'}
         >
-            <Row gutter={[0, 40]}>
+            <Row gutter={[0, 40]} >
                 <Col span={24}>
                     <Typography.Title >{RegistrationTitle}</Typography.Title>
                 </Col>
@@ -199,29 +199,33 @@ export const ValidatePhoneForm = ({ onFinish, onReset }): React.ReactElement<IVa
                         {({ countdown, runAction }) => {
                             const isCountDownActive = countdown > 0
                             return (
-                                <Space direction={'horizontal'} size={8}>
+                                isCountDownActive ?
+
+                                    <Space direction={'horizontal'} size={8}>
+                                        <Typography.Link
+                                            style={{ color: colors.textSecondary }}
+                                            disabled={true}
+                                        >
+                                            {SMSAvailableLabel}
+                                        </Typography.Link>
+                                        <Typography.Text type='secondary'>
+                                            { `${new Date(countdown * 1000).toISOString().substr(14, 5)}` }
+                                        </Typography.Text>
+                                    </Space>
+
+                                    :
+
                                     <Typography.Link
                                         underline
                                         style={{ color: colors.textSecondary }}
-                                        disabled={isCountDownActive}
                                         onClick={runAction}
                                     >
                                         {ResendSmsLabel}
                                     </Typography.Link>
-                                    {isCountDownActive && (
-                                        <Typography.Text type='secondary'>
-                                            { `${new Date(countdown * 1000).toISOString().substr(14, 5)}` }
-                                        </Typography.Text>
-                                    )}
-                                </Space>
+                                
                             )
                         }}
                     </CountDownTimer>
-                </Col>
-                <Col>
-                    <Typography.Link onClick={onReset}>
-                        {ChangePhoneNumberLabel}
-                    </Typography.Link>
                 </Col>
             </Row>
         </Form>
