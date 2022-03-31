@@ -19,9 +19,10 @@ import { COMPLETE_CONFIRM_PHONE_MUTATION, RESEND_CONFIRM_PHONE_SMS_MUTATION } fr
 import { RegisterContext } from './RegisterContextProvider'
 import { colors } from '@condo/domains/common/constants/style'
 
-const FORM_LAYOUT = {
-    labelCol: { span: 10 },
-    wrapperCol: { span: 14 },
+
+const ROW_STYLES: React.CSSProperties = {
+    justifyContent: 'center',
+    textAlign: 'left',
 }
 
 interface IValidatePhoneFormProps {
@@ -144,7 +145,6 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
 
     return (
         <Form
-            {...FORM_LAYOUT}
             form={form}
             name='register-verify-code'
             initialValues={initialValues}
@@ -153,49 +153,57 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
             requiredMark={false}
             layout={'vertical'}
         >
-            <Row gutter={[0, 40]} >
-                <Col span={24}>
-                    <Typography.Title level={3}>{title}</Typography.Title>
+            <Row gutter={[0, 40]} style={ROW_STYLES}>
+                <Col span={20}>
+                    <Row gutter={[0, 24]}>
+                        <Col span={24}>
+                            <Typography.Title level={3}>{title}</Typography.Title>
+                        </Col>
+                        <Col span={24}>
+                            <Typography.Text>
+                                <FormattedMessage
+                                    id='pages.auth.register.info.SmsCodeSent'
+                                    values={{
+                                        phone: (<span style={ { whiteSpace: 'nowrap' } }>{showPhone}<Typography.Link underline style={ { color: 'black' } } onClick={() => setIsPhoneVisible(!isPhoneVisible)}>({PhoneToggleLabel})</Typography.Link></span>),
+                                    }}
+                                />
+                            </Typography.Text>
+                        </Col>
+                        <Col>
+                            <Typography.Link underline style={{ color: colors.textSecondary }} onClick={onReset}>
+                                {ChangePhoneNumberLabel}
+                            </Typography.Link>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                name='smsCode'
+                                label={SmsCodeTitle}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: FieldIsRequiredMsg,
+                                    },
+                                    () => ({
+                                        validator () {
+                                            if (!phoneValidateError) {
+                                                return Promise.resolve()
+                                            }
+                                            return Promise.reject(phoneValidateError)
+                                        },
+                                    }),
+                                ]}
+                            >
+                                <Input
+                                    placeholder=''
+                                    inputMode={'numeric'}
+                                    pattern={'[0-9]*'}
+                                    onChange={handleVerifyCode}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 </Col>
-                <Col span={18}>
-                    <Typography.Text>
-                        <FormattedMessage
-                            id='pages.auth.register.info.SmsCodeSent'
-                            values={{
-                                phone: (<span style={ { whiteSpace: 'nowrap' } }>{showPhone}<Typography.Link underline style={ { color: 'black' } } onClick={() => setIsPhoneVisible(!isPhoneVisible)}>({PhoneToggleLabel})</Typography.Link></span>),
-                            }}
-                        />
-                    </Typography.Text>
-                </Col>
-                <Col span={24}>
-                    <Form.Item
-                        name='smsCode'
-                        label={SmsCodeTitle}
-                        data-cy={'register-smscode-item'}
-                        rules={[
-                            {
-                                required: true,
-                                message: FieldIsRequiredMsg,
-                            },
-                            () => ({
-                                validator () {
-                                    if (!phoneValidateError) {
-                                        return Promise.resolve()
-                                    }
-                                    return Promise.reject(phoneValidateError)
-                                },
-                            }),
-                        ]}
-                    >
-                        <Input
-                            placeholder=''
-                            inputMode={'numeric'}
-                            pattern={'[0-9]*'}
-                            onChange={handleVerifyCode}
-                        />
-                    </Form.Item>
-                </Col>
-                <Col span={24}>
+                <Col span={20}>
                     <CountDownTimer action={resendSms} id={'RESEND_SMS'} timeout={SMS_CODE_TTL} autostart={true}>
                         {({ countdown, runAction }) => {
                             const isCountDownActive = countdown > 0

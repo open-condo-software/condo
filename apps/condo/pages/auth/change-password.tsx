@@ -146,7 +146,7 @@ const ChangePasswordPage: AuthPage = () => {
             layout={'vertical'}
         >
             <Row gutter={[0, 20]} style={ROW_STYLES}>
-                <Col span={20}>
+                <Col span={18}>
                     <Form.Item>
                         <Typography.Title level={2} style={{ textAlign:'start', fontWeight: 700, fontSize: 20 }}>{ResetTitle}</Typography.Title>
                     </Form.Item>
