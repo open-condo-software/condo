@@ -14,7 +14,7 @@ const Holder = styled.div`
   position: relative;
   button.ant-btn {
     position: absolute;
-    right: 4px;
+    right: 7px;
     bottom: 9px;
   }
   .ant-form-item-explain {
