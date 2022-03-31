@@ -552,9 +552,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const ModalFormItems = useCallback(() => {
         return (
-            <Row justify={'space-between'} gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
-                {modalComponents}
-            </Row>
+            <Col span={24}>
+                <Row justify="space-between" gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
+                    {modalComponents}
+                </Row>
+            </Col>
         )
     }, [modalComponents])
 
