@@ -124,7 +124,7 @@ describe('Notifications', () => {
             const strings = getTranslations(locale)
             for (const messageType of MESSAGE_TYPES) {
                 if (!isTemplateNeeded(messageType, PUSH_TRANSPORT)) {
-                    // Skip in case there is no email template needed for some message type.
+                    // Skip in case there is no push template needed for some message type.
                     continue
                 }
                 const targetKey = translationStringKeyForPushTitle(messageType)
