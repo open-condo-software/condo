@@ -5,7 +5,7 @@
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization, makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
-const { allOrganizationAppsByTestClient } = require('@condo/domains/miniapp/utils/testSchema')
+const { allMiniAppsByTestClient } = require('@condo/domains/miniapp/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
@@ -17,7 +17,7 @@ describe('AllOrganizationAppsService', () => {
         describe('User', () => {
             test('Can for his organization', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
-                const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
             })
             test('Cannot for other organizations', async () => {
@@ -25,20 +25,20 @@ describe('AllOrganizationAppsService', () => {
                 const [organization] = await createTestOrganization(admin)
                 const client = await makeEmployeeUserClientWithAbilities()
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    await allOrganizationAppsByTestClient(client, organization.id)
+                    await allMiniAppsByTestClient(client, organization.id)
                 })
             })
         })
         test('Admin can', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeEmployeeUserClientWithAbilities()
-            const [data] = await allOrganizationAppsByTestClient(admin, client.organization.id)
+            const [data] = await allMiniAppsByTestClient(admin, client.organization.id)
             expect(data).toBeDefined()
         })
         test('Support can', async () => {
             const support = await makeClientWithSupportUser()
             const client = await makeEmployeeUserClientWithAbilities()
-            const [data] = await allOrganizationAppsByTestClient(support, client.organization.id)
+            const [data] = await allMiniAppsByTestClient(support, client.organization.id)
             expect(data).toBeDefined()
         })
         test('Anonymous cannot', async () => {
@@ -46,7 +46,7 @@ describe('AllOrganizationAppsService', () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
             await expectToThrowAuthenticationErrorToObjects(async () => {
-                await allOrganizationAppsByTestClient(client, organization.id)
+                await allMiniAppsByTestClient(client, organization.id)
             })
         })
     })
@@ -62,7 +62,7 @@ describe('AllOrganizationAppsService', () => {
             })
             test('Shows unconnected without context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
-                const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
                     id: integration.id,
@@ -76,7 +76,7 @@ describe('AllOrganizationAppsService', () => {
             test('Shows connected with context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
                 await createTestBillingIntegrationOrganizationContext(admin, client.organization, integration)
-                const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([
                     expect.objectContaining({
@@ -92,7 +92,7 @@ describe('AllOrganizationAppsService', () => {
                 await updateTestBillingIntegrationOrganizationContext(admin, context.id, {
                     deletedAt: dayjs().toISOString(),
                 })
-                const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([
                     expect.objectContaining({
@@ -105,7 +105,7 @@ describe('AllOrganizationAppsService', () => {
             test('Doesn\'t shows if hidden integration', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [hiddenIntegration] = await createTestBillingIntegration(admin, { isHidden: true })
-                const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).not.toEqual(expect.arrayContaining([{
                     id: hiddenIntegration.id,
@@ -127,7 +127,7 @@ describe('AllOrganizationAppsService', () => {
             })
             test('Shows unconnected without context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
-                const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
                     id: integration.id,
@@ -141,7 +141,7 @@ describe('AllOrganizationAppsService', () => {
             test('Shows connected with context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
                 await createTestAcquiringIntegrationContext(admin, client.organization, integration)
-                const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([
                     expect.objectContaining({
@@ -157,7 +157,7 @@ describe('AllOrganizationAppsService', () => {
                 await updateTestAcquiringIntegrationContext(admin, context.id, {
                     deletedAt: dayjs().toISOString(),
                 })
-                const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([
                     expect.objectContaining({
@@ -170,7 +170,7 @@ describe('AllOrganizationAppsService', () => {
             test('Doesn\'t shows if hidden integration', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [hiddenIntegration] = await createTestAcquiringIntegration(admin, billings, { isHidden: true })
-                const [data] = await allOrganizationAppsByTestClient(client, client.organization.id)
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).not.toEqual(expect.arrayContaining([{
                     id: hiddenIntegration.id,

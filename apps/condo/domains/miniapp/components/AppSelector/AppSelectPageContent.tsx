@@ -9,12 +9,13 @@ import { AppCarouselCard } from './AppCarouselCard'
 import { AppSelectCard } from './AppSelectCard'
 import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
 import { useQuery } from '@core/next/apollo'
-import { ALL_ORGANIZATION_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
+import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
 import { get } from 'lodash'
 import { useOrganization } from '@core/next/organization'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { BILLING_APP_TYPE, ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { useRouter } from 'next/router'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 
 const WINDOW_MEDIUM_SELECT_CARD_WIDTH = 870
@@ -49,12 +50,14 @@ export const AppSelectPageContent: React.FC = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const { loading, error, data } = useQuery(ALL_ORGANIZATION_APPS_QUERY, {
+    const sender = getClientSideSenderInfo()
+
+    const { loading, error, data } = useQuery(ALL_MINI_APPS_QUERY, {
         fetchPolicy: 'cache-and-network',
         variables: {
             data: {
                 dv: 1,
-                sender: { dv: 1, fingerprint: 'initial' },
+                sender,
                 organization: { id: userOrganizationId },
             },
         },

@@ -3,14 +3,14 @@
  */
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const access = require('@condo/domains/miniapp/access/AllOrganizationAppsService')
+const access = require('@condo/domains/miniapp/access/AllMiniAppsService')
 const { ACQUIRING_APP_TYPE, BILLING_APP_TYPE, APP_TYPES } = require('@condo/domains/miniapp/constants')
 const { find } = require('@core/keystone/schema')
 const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
 const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const get = require('lodash/get')
 
-const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsService', {
+const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
     types: [
         {
             access: true,
@@ -18,18 +18,18 @@ const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsServi
         },
         {
             access: true,
-            type: 'input AllOrganizationAppsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput! }',
+            type: 'input AllMiniAppsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput! }',
         },
         {
             access: true,
-            type: 'type AppInfoOutput { id: ID!, type: AppType!, connected: Boolean!, name: String!, shortDescription: String!, category: String, logo: String }',
+            type: 'type MiniAppOutput { id: ID!, type: AppType!, connected: Boolean!, name: String!, shortDescription: String!, category: String, logo: String }',
         },
     ],
     
     queries: [
         {
-            access: access.canAllOrganizationApps,
-            schema: 'allOrganizationApps (data: AllOrganizationAppsInput!): [AppInfoOutput!]',
+            access: access.canExecuteAllMiniApps,
+            schema: 'allMiniApps (data: AllMiniAppsInput!): [MiniAppOutput!]',
             resolver: async (parent, args, context) => {
                 const { data: { organization } } = args
                 const services = []
@@ -84,5 +84,5 @@ const AllOrganizationAppsService = new GQLCustomSchema('AllOrganizationAppsServi
 })
 
 module.exports = {
-    AllOrganizationAppsService,
+    AllMiniAppsService,
 }

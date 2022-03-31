@@ -3,10 +3,10 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { AllOrganizationAppsService } = require('./AllOrganizationAppsService')
+const { AllMiniAppsService } = require('./AllMiniAppsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
-    AllOrganizationAppsService,
+    AllMiniAppsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -1747,21 +1747,10 @@ export type AdvanceAcceptanceBundleInput = {
   currentState?: Maybe<CurrentStateType>;
 };
 
-export type AllOrganizationAppsInput = {
+export type AllMiniAppsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
-};
-
-export type AppInfoOutput = {
-  __typename?: 'AppInfoOutput';
-  id: Scalars['ID'];
-  type: AppType;
-  connected: Scalars['Boolean'];
-  name: Scalars['String'];
-  shortDescription: Scalars['String'];
-  category?: Maybe<Scalars['String']>;
-  logo?: Maybe<Scalars['String']>;
 };
 
 export enum AppType {
@@ -12561,6 +12550,17 @@ export type MetersCreateInput = {
 export type MetersUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<MeterUpdateInput>;
+};
+
+export type MiniAppOutput = {
+  __typename?: 'MiniAppOutput';
+  id: Scalars['ID'];
+  type: AppType;
+  connected: Scalars['Boolean'];
+  name: Scalars['String'];
+  shortDescription: Scalars['String'];
+  category?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['String']>;
 };
 
 /**  Information about resident's payment for single or multiple services/receipts  */
@@ -24330,7 +24330,7 @@ export type Query = {
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
-  allOrganizationApps?: Maybe<Array<AppInfoOutput>>;
+  allMiniApps?: Maybe<Array<MiniAppOutput>>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -27018,8 +27018,8 @@ export type QueryExportPaymentsToExcelArgs = {
 };
 
 
-export type QueryAllOrganizationAppsArgs = {
-  data: AllOrganizationAppsInput;
+export type QueryAllMiniAppsArgs = {
+  data: AllMiniAppsInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {
