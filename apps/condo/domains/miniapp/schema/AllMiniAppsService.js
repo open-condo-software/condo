@@ -6,9 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/miniapp/access/AllMiniAppsService')
 const { ACQUIRING_APP_TYPE, BILLING_APP_TYPE, APP_TYPES } = require('@condo/domains/miniapp/constants')
 const { find } = require('@core/keystone/schema')
-const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
-const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
-const get = require('lodash/get')
+const { APPS_FILE_ADAPTER } = require('@condo/domains/miniapp/schema/fields/integration')
 
 const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
     types: [
@@ -30,11 +28,11 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         {
             access: access.canExecuteAllMiniApps,
             schema: 'allMiniApps (data: AllMiniAppsInput!): [MiniAppOutput!]',
-            resolver: async (parent, args, context) => {
+            resolver: async (parent, args) => {
                 const { data: { organization } } = args
                 const services = []
 
-                const billingIntegrations = await BillingIntegration.getAll(context, {
+                const billingIntegrations = await find('BillingIntegration', {
                     isHidden: false,
                     deletedAt: null,
                 })
@@ -44,6 +42,8 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 })
                 const connectedBillingIntegrations = billingContexts.map(context => context.integration)
                 for (const billing of billingIntegrations) {
+                    const logoUrl = billing.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: billing.logo.filename }) : null
+                    if (logoUrl) console.log(logoUrl)
                     services.push({
                         id: billing.id,
                         type: BILLING_APP_TYPE,
@@ -51,11 +51,11 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                         shortDescription: billing.shortDescription,
                         connected: connectedBillingIntegrations.includes(billing.id),
                         category: BILLING_APP_TYPE,
-                        logo: get(billing, ['logo', 'publicUrl'], null),
+                        logo: logoUrl,
                     })
                 }
 
-                const acquiringIntegrations = await AcquiringIntegration.getAll(context, {
+                const acquiringIntegrations = await find('AcquiringIntegration', {
                     isHidden: false,
                     deletedAt: null,
                 })
@@ -65,6 +65,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 })
                 const connectedAcquiringIntegrations = acquiringContexts.map(context => context.integration)
                 for (const acquiring of acquiringIntegrations) {
+                    const logoUrl = acquiring.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: acquiring.logo.filename }) : null
                     services.push({
                         id: acquiring.id,
                         type: ACQUIRING_APP_TYPE,
@@ -72,7 +73,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                         shortDescription: acquiring.shortDescription,
                         connected: connectedAcquiringIntegrations.includes(acquiring.id),
                         category: ACQUIRING_APP_TYPE,
-                        logo: get(acquiring, ['logo', 'publicUrl'], null),
+                        logo: logoUrl,
                     })
                 }
 
