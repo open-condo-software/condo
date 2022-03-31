@@ -6,17 +6,13 @@ const { get, template } = require('lodash')
 
 let translations = {}
 
-const loadTranslations = () => {
-    const translationsDir = path.join(process.cwd(), 'lang')
-    const localeFolders = fs.readdirSync(translationsDir)
-    translations = localeFolders
-        .map(languageCode => ({
-            [languageCode]: require(path.join(translationsDir, `${languageCode}/${languageCode}.json`)),
-        }))
-        .reduce((prev, curr) => ({ ...prev, ...curr }))
-}
-
-loadTranslations()
+const translationsDir = path.join(process.cwd(), 'lang')
+const localeFolders = fs.readdirSync(translationsDir)
+translations = localeFolders
+    .map(languageCode => ({
+        [languageCode]: require(path.join(translationsDir, `${languageCode}/${languageCode}.json`)),
+    }))
+    .reduce((prev, curr) => ({ ...prev, ...curr }))
 
 const getTranslations = (lang = conf.DEFAULT_LOCALE) => {
     return translations[lang] || translations[conf.DEFAULT_LOCALE]
@@ -47,7 +43,6 @@ const i18n = (code, { lang = conf.DEFAULT_LOCALE, meta = {} } = {}) => {
 }
 
 module.exports = {
-    loadTranslations,
     getTranslations,
     getAvailableLocales,
     i18n,
