@@ -12,7 +12,7 @@ const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, u
 const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE } = require('@condo/domains/miniapp/constants')
 const dayjs = require('dayjs')
 
-describe('AllOrganizationAppsService', () => {
+describe('AllMiniAppsService', () => {
     describe('Execute', () => {
         describe('User', () => {
             test('Can for his organization', async () => {
@@ -114,18 +114,10 @@ describe('AllOrganizationAppsService', () => {
             })
         })
         describe('Acquiring integration', () => {
-            let integration
-            let billings
-            let admin
-            beforeAll(async () => {
-                admin = await makeLoggedInAdminClient()
-                const [billing] = await createTestBillingIntegration(admin)
-                billings = [billing]
-            })
-            beforeEach(async () => {
-                [integration] = await createTestAcquiringIntegration(admin, billings)
-            })
             test('Shows unconnected without context', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [billing] = await createTestBillingIntegration(admin)
+                const [integration] = await createTestAcquiringIntegration(admin, [billing])
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
@@ -139,6 +131,9 @@ describe('AllOrganizationAppsService', () => {
                 })]))
             })
             test('Shows connected with context', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [billing] = await createTestBillingIntegration(admin)
+                const [integration] = await createTestAcquiringIntegration(admin, [billing])
                 const client = await makeEmployeeUserClientWithAbilities()
                 await createTestAcquiringIntegrationContext(admin, client.organization, integration)
                 const [data] = await allMiniAppsByTestClient(client, client.organization.id)
@@ -152,6 +147,9 @@ describe('AllOrganizationAppsService', () => {
                 ]))
             })
             test('Shows unconnected with deleted context', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [billing] = await createTestBillingIntegration(admin)
+                const [integration] = await createTestAcquiringIntegration(admin, [billing])
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [context] = await createTestAcquiringIntegrationContext(admin, client.organization, integration)
                 await updateTestAcquiringIntegrationContext(admin, context.id, {
@@ -168,8 +166,10 @@ describe('AllOrganizationAppsService', () => {
                 ]))
             })
             test('Doesn\'t shows if hidden integration', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [billing] = await createTestBillingIntegration(admin)
+                const [hiddenIntegration] = await createTestAcquiringIntegration(admin, [billing], { isHidden: true })
                 const client = await makeEmployeeUserClientWithAbilities()
-                const [hiddenIntegration] = await createTestAcquiringIntegration(admin, billings, { isHidden: true })
                 const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).not.toEqual(expect.arrayContaining([{
