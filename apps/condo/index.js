@@ -109,31 +109,36 @@ keystone.createList = async (...args) => {
         return listResult
     }
 
-    // const originalItemQuery = list.itemQuery
-    // list.itemQuery = async (args, context, gqlName, info, from) => {
-    //     const req = get(context, 'req')
-    //
-    //     //const key = JSON.stringify(`${gqlName}_${JSON.stringify(req.authedItem)}_${JSON.stringify(args)}`)
-    //
-    //     // if (key in cache) {
-    //     //     console.debug(`
-    //     //     ITEM_QUERY ${gqlName}\r\n
-    //     //     KEY: ${key}\r\n
-    //     //     CACHE_HIT?: Yes`
-    //     //     )
-    //     //     return cache[key]
-    //     // }
-    //
-    //     const itemQueryResult = await originalItemQuery.call(list, args, context, gqlName, info, from)
-    //
-    //     console.debug(`
-    //         ITEM_QUERY ${gqlName}\r\n
-    //         KEY: ${'what'}\r\n
-    //         CACHE_HIT?: No`
-    //     )
-    //
-    //     return itemQueryResult
-    // }
+    const originalItemQuery = list.itemQuery
+    list.itemQuery = async (args, context, gqlName, info, from) => {
+
+        let key = null
+        const requestId = get(context, ['req', 'headers', 'x-request-id'])
+        if (requestId) {
+            key = `${gqlName}-${JSON.stringify(args)}-${JSON.stringify(context.req.headers['x-request-id'])}}`
+        }
+
+        if (key in itemCache) {
+            console.debug(`
+            ITEM_QUERY ${gqlName}\r\n
+            KEY: ${key}\r\n
+            CACHE_HIT?: Yes`
+            )
+            return itemCache[key]
+        }
+
+        const itemQueryResult = await originalItemQuery.call(list, args, context, gqlName, info, from)
+
+        console.debug(`
+            ITEM_QUERY ${gqlName}\r\n
+            KEY: ${'what'}\r\n
+            CACHE_HIT?: No`
+        )
+
+        if (key) { itemCache[key] = itemQueryResult }
+
+        return itemQueryResult
+    }
 
     return list
 }
