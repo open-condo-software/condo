@@ -4,6 +4,8 @@ const process = require('process')
 const conf = require('@core/config')
 const { get, template, isEmpty } = require('lodash')
 
+const VARIABLE_REGEXP = /{([\s\S]+?)}/g
+
 let translations = {}
 
 const loadTranslations = () => {
@@ -50,7 +52,7 @@ const getAvailableLocales = () => {
  */
 const i18n = (code, { lang = conf.DEFAULT_LOCALE, meta = {} } = {}) => {
     maybeLoadTranslations()
-    return template(get(translations, [lang, code], code), { interpolate: /{([\s\S]+?)}/g })(meta)
+    return template(get(translations, [lang, code], code), { interpolate: VARIABLE_REGEXP })(meta)
 }
 
 module.exports = {
