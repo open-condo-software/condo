@@ -137,7 +137,7 @@ function pushRenderer ({ message, env }) {
             title: i18n(translationStringKeyForPushTitle(message.type), { lang, meta }),
             body: nunjucks.render(getTemplate(message.lang, message.type, PUSH_TRANSPORT), { message, env }),
         },
-        data: get(message, ['meta', 'pushData'], null),
+        data: get(message, ['meta', 'data'], null),
         userId: get(message, ['meta', 'userId'], null),
     }
 }
