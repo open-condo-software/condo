@@ -4,7 +4,7 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canAllOrganizationApps ({ args: { data: { organization: { id } } }, authentication: { item: user } }) {
+async function canExecuteAllMiniApps ({ args: { data: { organization: { id } } }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -17,5 +17,5 @@ async function canAllOrganizationApps ({ args: { data: { organization: { id } } 
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
-    canAllOrganizationApps,
+    canExecuteAllMiniApps,
 }

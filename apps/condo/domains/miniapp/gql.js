@@ -8,15 +8,15 @@ const { gql } = require('graphql-tag')
 
 const APP_FIELDS = '{ id name shortDescription connected type category logo }'
  
-const ALL_ORGANIZATION_APPS_QUERY = gql`
-    query getAllOrganizationApps ($data: AllOrganizationAppsInput!) {
-        objs: allOrganizationApps (data: $data) ${APP_FIELDS}
+const ALL_MINI_APPS_QUERY = gql`
+    query getAllMiniApps ($data: AllMiniAppsInput!) {
+        objs: allMiniApps (data: $data) ${APP_FIELDS}
     }
 `
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    ALL_ORGANIZATION_APPS_QUERY,
+    ALL_MINI_APPS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -6,7 +6,7 @@
 const faker = require('faker')
 const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
-const { ALL_ORGANIZATION_APPS_QUERY } = require('@condo/domains/miniapp/gql')
+const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const DOCUMENT_BLOCK_SINGLE_EXAMPLE = [
@@ -38,7 +38,7 @@ const DOCUMENT_BLOCK_MULTIPLE_EXAMPLE = [
 /* AUTOGENERATE MARKER <CONST> */
 
 
-async function allOrganizationAppsByTestClient(client, organizationId, extraAttrs) {
+async function allMiniAppsByTestClient(client, organizationId, extraAttrs) {
     if (!client) throw new Error('no client')
     if (!organizationId) throw new Error('no organization id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -49,7 +49,7 @@ async function allOrganizationAppsByTestClient(client, organizationId, extraAttr
         organization: { id: organizationId },
         ...extraAttrs,
     }
-    const { data, errors } = await client.query(ALL_ORGANIZATION_APPS_QUERY, { data: attrs })
+    const { data, errors } = await client.query(ALL_MINI_APPS_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.objs, attrs]
 }
@@ -57,7 +57,7 @@ async function allOrganizationAppsByTestClient(client, organizationId, extraAttr
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    allOrganizationAppsByTestClient,
+    allMiniAppsByTestClient,
     DOCUMENT_BLOCK_SINGLE_EXAMPLE,
     DOCUMENT_BLOCK_MULTIPLE_EXAMPLE,
 /* AUTOGENERATE MARKER <EXPORTS> */

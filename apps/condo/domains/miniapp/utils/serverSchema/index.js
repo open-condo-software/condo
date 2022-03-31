@@ -6,7 +6,7 @@
 
 const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
-const { ALL_ORGANIZATION_APPS_MUTATION } = require('@condo/domains/miniapp/gql')
+const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 async function allOrganizationApps (context, data) {
@@ -15,7 +15,7 @@ async function allOrganizationApps (context, data) {
     if (!data.sender) throw new Error('no data.sender')
 
     return await execGqlWithoutAccess(context, {
-        query: ALL_ORGANIZATION_APPS_MUTATION,
+        query: ALL_MINI_APPS_QUERY,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to allOrganizationApps',
         dataPath: 'obj',
