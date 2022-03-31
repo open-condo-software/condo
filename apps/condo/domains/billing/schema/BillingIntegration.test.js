@@ -248,4 +248,17 @@ describe('BillingIntegration', () => {
             })
         })
     })
+
+    describe('Cache', async () => {
+        test('admin can create BillingIntegration and fetch it twice', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [integration] = await createTestBillingIntegration(admin)
+
+            const [integration1] = await BillingIntegration.getAll(admin, { id: integration.id })
+            const [integration2] = await BillingIntegration.getAll(admin, { id: integration.id })
+
+            expect(integration.id).toEqual(integration1.id)
+            expect(integration1.id).toEqual(integration2.id)
+        })
+    })
 })
