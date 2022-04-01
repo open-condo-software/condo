@@ -24,6 +24,7 @@ const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
     textAlign: 'center',
 }
+const FORM_TITLE_STYLES: React.CSSProperties = { textAlign: 'left', fontWeight: 700 }
 
 function ResetPageView () {
     const intl = useIntl()
@@ -129,7 +130,7 @@ function ResetPageView () {
                         <ResponsiveCol span={24}>
                             <Row gutter={[0, 20]}>
                                 <Col span={24}>
-                                    <Typography.Title level={3} style={{ textAlign: 'left', fontWeight: 700 }}>{ResetTitle}</Typography.Title>
+                                    <Typography.Title level={3} style={FORM_TITLE_STYLES}>{ResetTitle}</Typography.Title>
                                 </Col>
                                 <Col span={24}>
                                     <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>

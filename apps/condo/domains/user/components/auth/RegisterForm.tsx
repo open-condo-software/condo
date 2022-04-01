@@ -25,6 +25,9 @@ interface IRegisterFormProps {
     onFinish: (userId: string) => void
 }
 
+const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
+const FORM_TITLE_STYLES: React.CSSProperties = { textAlign: 'start', fontWeight: 700 }
+
 export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const intl = useIntl()
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
@@ -45,7 +48,6 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const PASSWORD_MSG_LABEL = <label style={{ whiteSpace: 'break-spaces' }}>{PasswordMsg}</label>
     const CONFIRM_PASSWORD_MSG_LABEL = <label style={{ whiteSpace: 'break-spaces' }}>{ConfirmPasswordMsg}</label>
 
-    const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
     const validators = useRegisterFormValidators()
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
@@ -120,7 +122,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                 <ResponsiveCol span={18}>
                     <Row>
                         <Col span={24}>
-                            <Typography.Title style={{ textAlign: 'start', fontWeight: 700 }}
+                            <Typography.Title style={FORM_TITLE_STYLES}
                                 level={2}>{RegistrationTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>

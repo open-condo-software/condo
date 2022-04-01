@@ -21,6 +21,7 @@ import { ResponsiveCol } from '../../domains/user/components/containers/Responsi
 
 
 const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
+const FORM_TITLE_STYLES: React.CSSProperties = { textAlign:'start', fontWeight: 700, fontSize: 20 }
 
 const ChangePasswordPage: AuthPage = () => {
     const [form] = Form.useForm()
@@ -150,7 +151,7 @@ const ChangePasswordPage: AuthPage = () => {
                         <Col span={24}>
                             <Row>
                                 <Form.Item>
-                                    <Typography.Title level={2} style={{ textAlign:'start', fontWeight: 700, fontSize: 20 }}>{ResetTitle}</Typography.Title>
+                                    <Typography.Title level={2} style={FORM_TITLE_STYLES}>{ResetTitle}</Typography.Title>
                                 </Form.Item>
                                 <Form.Item name="token" style={{ display: 'none' }}>
                                     <Input type="hidden" />
