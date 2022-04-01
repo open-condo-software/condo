@@ -34,7 +34,7 @@ jobs:
 
       - name: install packages
         run: |
-          yarn
+          yarn install --frozen-lockfile
           pip3 install django
           pip3 install psycopg2-binary
 
@@ -73,13 +73,13 @@ jobs:
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
 
-          yarn workspace @app/condo test --silent --coverage --testTimeout=15000 --forceExit --detectOpenHandles
+          yarn workspace @app/condo test --silent --coverage --testTimeout=15000 --forceExit --maxWorkers=2
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
 
-          yarn jest ./packages/@core.keystone
+          yarn jest ./packages/@core.keystone --maxWorkers=2
 
           yarn workspace @app/condo lint-schema
 
