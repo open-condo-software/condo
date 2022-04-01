@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install --frozen-lockfile
+
+      - name: Install kmigrator dependencies
+        run: |
           pip3 install django
           pip3 install psycopg2-binary
 
@@ -62,7 +65,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    name: test (domain ${{ matrix.chunk }})
+    name: test (chunk №${{ matrix.chunk }})
     needs:
       - setup
 
@@ -121,12 +124,63 @@ jobs:
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
 
-          yarn jest ./packages/@core.keystone --maxWorkers=2
-
-          yarn workspace @app/condo lint-schema
-
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
           DISABLE_LOGGING: true
           CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
+
+  core-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Docker compose up databases
+        run: |
+          cp .env.example .env
+          docker-compose up -d postgresdb redis
+
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+          pip3 install django
+          pip3 install psycopg2-binary
+
+      - name: Run core tests
+        run: |
+          set -x
+          cp .env.example .env
+          export NODE_ENV=test
+          export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
+          export NOTIFICATION__DISABLE_LOGGING=true
+          export WORKER_CONCURRENCY=50
+
+          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
+
+          yarn workspace @app/condo dev &
+          bash ./.github/workflows/waitForLocalhostApiReady.sh
+
+          yarn workspace @app/condo makemigrations --check &> /dev/null
+
+          yarn workspace @app/condo worker &
+          sleep 3
+
+          [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
+          sleep 3
+
+          yarn jest ./packages/@core.keystone --maxWorkers=2
+
+          yarn workspace @app/condo lint-schema
+        env:
+          DATABASE_URL: ${{ matrix.database }}
+          NODE_ENV: development
+          DISABLE_LOGGING: true
