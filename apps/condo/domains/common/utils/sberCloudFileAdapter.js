@@ -5,8 +5,9 @@ const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@core/config')
 const { getItem } = require('@keystonejs/server-side-graphql-client')
 const { isEmpty } = require('lodash')
 
-class SberCloudObsAcl {
+const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
 
+class SberCloudObsAcl {
     constructor (config) {
         if (!isEmpty(config.bucket)) {
             this.bucket = config.bucket
@@ -132,7 +133,7 @@ class SberCloudFileAdapter {
         //    then after 5 minutes, he decides to download the file and click on the URL
         //    the token is expired - user needs to reload the page to generate a new access token
         if (this.shouldResolveDirectUrl) {
-            return this.acl.generateUrl(`${this.folder}/${filename}`)
+            return this.acl.generateUrl(`${this.folder}/${filename}`, PUBLIC_URL_TTL)
         }
         return `${SERVER_URL}/api/files/${this.folder}/${filename}`
     }
