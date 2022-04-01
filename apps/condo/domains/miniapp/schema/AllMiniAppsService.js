@@ -42,7 +42,14 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 })
                 const connectedBillingIntegrations = billingContexts.map(context => context.integration)
                 for (const billing of billingIntegrations) {
-                    const logoUrl = billing.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: billing.logo.filename }) : null
+                    let logoUrl = null
+                    if (billing.logo) {
+                        if (APPS_FILE_ADAPTER.acl && APPS_FILE_ADAPTER.acl.generateUrl) {
+                            logoUrl = APPS_FILE_ADAPTER.acl.generateUrl(`${APPS_FILE_ADAPTER.folder}/${billing.logo.filename}`)
+                        } else {
+                            logoUrl = APPS_FILE_ADAPTER.publicUrl({ filename: billing.logo.filename })
+                        }
+                    }
                     services.push({
                         id: billing.id,
                         type: BILLING_APP_TYPE,
@@ -64,7 +71,14 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 })
                 const connectedAcquiringIntegrations = acquiringContexts.map(context => context.integration)
                 for (const acquiring of acquiringIntegrations) {
-                    const logoUrl = acquiring.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: acquiring.logo.filename }) : null
+                    let logoUrl = null
+                    if (acquiring.logo) {
+                        if (APPS_FILE_ADAPTER.acl && APPS_FILE_ADAPTER.acl.generateUrl) {
+                            logoUrl = APPS_FILE_ADAPTER.acl.generateUrl(`${APPS_FILE_ADAPTER.folder}/${acquiring.logo.filename}`)
+                        } else {
+                            logoUrl = APPS_FILE_ADAPTER.publicUrl({ filename: acquiring.logo.filename })
+                        }
+                    }
                     services.push({
                         id: acquiring.id,
                         type: ACQUIRING_APP_TYPE,
