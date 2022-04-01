@@ -17,7 +17,7 @@ const MyApp = ({ Component, pageProps }) => {
     return (<Component {...pageProps} />)
 }
 
-export default withApollo({ ssr: true })(withIntl({ ssr: true, messagesImporter: (locale) => import(`../lang/${locale}`) })(withAuth({ ssr: false })(MyApp)))
+export default withApollo({ ssr: true })(withIntl({ ssr: true, messagesImporter: (locale) => import(`../lang/${locale}/${locale}`) })(withAuth({ ssr: false })(MyApp)))
 ```
 
 `Auth` and `Intl` example:
