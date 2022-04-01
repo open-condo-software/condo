@@ -175,6 +175,7 @@ export const ContactsPageContent = ({
                                             dataSource={contacts}
                                             columns={tableColumns}
                                             onRow={handleRowAction}
+                                            pageSize={CONTACT_PAGE_SIZE}
                                         />
                                     </Col>
                                     <ExportToExcelActionBar
