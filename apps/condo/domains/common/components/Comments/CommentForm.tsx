@@ -15,7 +15,7 @@ const Holder = styled.div`
   button.ant-btn {
     position: absolute;
     right: 7px;
-    bottom: 9px;
+    bottom: 8px;
   }
   .ant-form-item-explain {
     display: none;
@@ -88,6 +88,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                         <Button
                             type="sberDefaultGradient"
                             size="middle"
+                            style={{ borderRadius: '4px' }}
                             icon={<Icon component={SendMessage} style={{ color: 'white' }}/>}
                             onClick={(e) => {
                                 handleSave(e)
