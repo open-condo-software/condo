@@ -17,7 +17,7 @@ const AlertBody: React.FC = () => {
             <Typography.Text>
                 {AlertMessage}
             </Typography.Text>
-            <Link href={'/miniapps'}>
+            <Link href={'/miniapps?tab=billing'}>
                 <Typography.Link>
                     {AlertLinkMessage}
                 </Typography.Link>
