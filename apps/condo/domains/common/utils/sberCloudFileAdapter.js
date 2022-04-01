@@ -65,6 +65,7 @@ class SberCloudFileAdapter {
         this.s3 = new ObsClient(config.s3Options)
         this.server = config.s3Options.server
         this.folder = config.folder
+        this.shouldResolveDirectUrl = config.isPublic
         this.acl = new SberCloudObsAcl(config)
     }
 
@@ -130,6 +131,9 @@ class SberCloudFileAdapter {
         //    user opens ticket page
         //    then after 5 minutes, he decides to download the file and click on the URL
         //    the token is expired - user needs to reload the page to generate a new access token
+        if (this.shouldResolveDirectUrl) {
+            return this.acl.generateUrl(`${this.folder}/${filename}`)
+        }
         return `${SERVER_URL}/api/files/${this.folder}/${filename}`
     }
 

@@ -29,10 +29,11 @@ class NoFileAdapter {
 
 class FileAdapter {
 
-    constructor (folder) {
+    constructor (folder, isPublic = false) {
         const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
         this.folder = folder
         this.type = type
+        this.isPublic = isPublic
         let Adapter = null
         switch (type) {
             case 'local':
@@ -92,7 +93,7 @@ class FileAdapter {
         if (!config) {
             return null
         }
-        return new SberCloudFileAdapter({ ...config, folder: this.folder })
+        return new SberCloudFileAdapter({ ...config, folder: this.folder, isPublic: this.isPublic })
     }
 
     // TODO(pahaz): DOMA-1569 it's better to create just a function. But we already use FileAdapter in many places. I just want to save a backward compatibility
