@@ -23,6 +23,12 @@ const CUSTOMER_IMPORTANT_NOTE_TYPE = 'CUSTOMER_IMPORTANT_NOTE_TYPE'
 const MESSAGE_FORWARDED_TO_SUPPORT_TYPE = 'MESSAGE_FORWARDED_TO_SUPPORT'
 const TICKET_ASSIGNEE_CONNECTED_TYPE = 'TICKET_ASSIGNEE_CONNECTED'
 const TICKET_EXECUTOR_CONNECTED_TYPE = 'TICKET_EXECUTOR_CONNECTED'
+const TICKET_STATUS_IN_PROGRESS = 'TICKET_STATUS_IN_PROGRESS'
+const TICKET_STATUS_COMPLETED = 'TICKET_STATUS_COMPLETED'
+const TICKET_STATUS_RETURNED = 'TICKET_STATUS_RETURNED'
+const TICKET_INDICATOR_ADDED = 'TICKET_INDICATOR_ADDED'
+const TICKET_INDICATOR_REMOVED = 'TICKET_INDICATOR_REMOVED'
+const TICKET_COMMENT_ADDED = 'TICKET_COMMENT_ADDED'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -36,6 +42,12 @@ const MESSAGE_TYPES = [
     MESSAGE_FORWARDED_TO_SUPPORT_TYPE,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
+    TICKET_STATUS_IN_PROGRESS,
+    TICKET_STATUS_COMPLETED,
+    TICKET_STATUS_RETURNED,
+    TICKET_INDICATOR_ADDED,
+    TICKET_INDICATOR_REMOVED,
+    TICKET_COMMENT_ADDED,
 ]
 
 /**
@@ -123,6 +135,56 @@ const MESSAGE_META = {
             url: { defaultValue: '', required: true },
         },
     },
+    [TICKET_STATUS_IN_PROGRESS]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_STATUS_COMPLETED]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_STATUS_RETURNED]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_INDICATOR_ADDED]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            indicatorType: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_INDICATOR_REMOVED]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            indicatorType: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_COMMENT_ADDED]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+        },
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -189,6 +251,12 @@ module.exports = {
     MESSAGE_FORWARDED_TO_SUPPORT_TYPE,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
+    TICKET_STATUS_IN_PROGRESS,
+    TICKET_STATUS_COMPLETED,
+    TICKET_STATUS_RETURNED,
+    TICKET_INDICATOR_ADDED,
+    TICKET_INDICATOR_REMOVED,
+    TICKET_COMMENT_ADDED,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE,
     PUSH_TRANSPORT_HUAWEI,
