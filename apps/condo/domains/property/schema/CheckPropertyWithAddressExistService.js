@@ -50,6 +50,11 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
         {
             access: access.canCheckPropertyWithAddressExist,
             schema: 'checkPropertyWithAddressExist (data: CheckPropertyWithAddressExistInput!): CheckPropertyWithAddressExistOutput',
+            doc: {
+                summary: 'Tells, whether a Property with given address exists in condo database',
+                description: 'In specified address string a part up to building will be taken into account. So, it will make no sense when something more precise, like apartment number, will be specified.',
+                errors,
+            },
             resolver: async (parent, args, context = {}) => {
                 const { data: inputData } = args
                 // Later we will use "address" without "addressMeta"
