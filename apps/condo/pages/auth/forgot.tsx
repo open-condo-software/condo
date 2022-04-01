@@ -11,7 +11,6 @@ import { WRONG_PHONE_ERROR, TOO_MANY_REQUESTS } from '@condo/domains/user/consta
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { SMS_CODE_TTL } from '@condo/domains/user/constants/common'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
-import { ButtonHeaderActions } from '@condo/domains/common/components/HeaderActions'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
@@ -19,6 +18,7 @@ import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { ResponsiveCol } from '../../domains/user/components/containers/ResponsiveCol'
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
@@ -38,6 +38,7 @@ function ResetPageView () {
 
     //TODO Set global style for ALL Phone Form Label(!!!!)
     const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
+
 
     const [form] = Form.useForm()
     const { executeRecaptcha } = useGoogleReCaptcha()
@@ -125,8 +126,8 @@ function ResetPageView () {
                     layout={'vertical'}
                 >
                     <Row style={ROW_STYLES}>
-                        <Col span={18}>
-                            <Row style={ROW_STYLES} gutter={[0, 20]}>
+                        <ResponsiveCol span={24}>
+                            <Row gutter={[0, 20]}>
                                 <Col span={24}>
                                     <Typography.Title level={3} style={{ textAlign: 'left', fontWeight: 700 }}>{ResetTitle}</Typography.Title>
                                 </Col>
@@ -134,7 +135,7 @@ function ResetPageView () {
                                     <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
                                 </Col>
                             </Row>
-                            <Row style={ROW_STYLES} gutter={[0, 40]}>
+                            <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     <Form.Item
                                         name='phone'
@@ -162,7 +163,7 @@ function ResetPageView () {
                                                         disabled={isCountDownActive}
                                                         loading={isLoading}
                                                         htmlType='submit'
-                                                        style={{ width: '100%', whiteSpace: 'normal', height: '100%' }}
+                                                        style={{ width: '100%' }}
                                                     >
                                                         {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
                                                     </Button>
@@ -172,7 +173,7 @@ function ResetPageView () {
                                     </Form.Item>
                                 </Col>
                             </Row>
-                        </Col>
+                        </ResponsiveCol>
                     </Row>
                 </Form>
             </>)

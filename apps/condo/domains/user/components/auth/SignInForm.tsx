@@ -10,9 +10,11 @@ import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/con
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
+import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { JAVASCRIPT_URL_XSS } from '@condo/domains/common/constants/regexps'
 import { colors } from '../../../common/constants/style'
+import { ResponsiveCol } from '../containers/ResponsiveCol'
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
@@ -33,7 +35,6 @@ export const SignInForm = (): React.ReactElement => {
     const LOGIN_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
     const PASSWORD_LABEL = <label style={ { alignSelf:'end' } }>{PasswordMsg}</label>
 
-    const { isSmall } = useLayoutContext()
     const [form] = Form.useForm()
     const router = useRouter()
     const { query: { next }  } = router
@@ -87,7 +88,7 @@ export const SignInForm = (): React.ReactElement => {
             layout={'vertical'}
         >
             <Row style={ROW_STYLES}>
-                <Col span={18}>
+                <ResponsiveCol span={18}>
                     <Row>
                         <Col span={24}>
                             <Form.Item
@@ -108,7 +109,7 @@ export const SignInForm = (): React.ReactElement => {
                             </Form.Item>
                         </Col>
                         <Col span={24}>
-                            <Typography.Paragraph type='secondary' style={{ textAlign: 'left', margin: '24px 0 40px' }}>
+                            <Typography.Paragraph type='secondary' style={{ textAlign: 'left', marginBottom: '40px' }}>
                                 <FormattedMessage
                                     id='pages.auth.signin.ResetPasswordLink'
                                     values={{
@@ -154,7 +155,7 @@ export const SignInForm = (): React.ReactElement => {
                             </Form.Item>
                         </Col>
                     </Row>
-                </Col>
+                </ResponsiveCol>
             </Row>
         </Form>
     )

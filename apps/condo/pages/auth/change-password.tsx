@@ -13,11 +13,11 @@ import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_Q
 import { PASSWORD_IS_TOO_SHORT } from '@condo/domains/user/constants/errors'
 import { useAuth } from '@core/next/auth'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { ButtonHeaderActions } from '@condo/domains/common/components/HeaderActions'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { ResponsiveCol } from '../../domains/user/components/containers/ResponsiveCol'
 
 
 const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
@@ -34,7 +34,6 @@ const ChangePasswordPage: AuthPage = () => {
 
     const intl = useIntl()
     const SaveMsg = intl.formatMessage({ id: 'Save' })
-    const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
     const CreateNewPasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.CreateNewPasswordMsg' })
     const ConfirmPasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.ConfirmPassword' })
@@ -146,15 +145,13 @@ const ChangePasswordPage: AuthPage = () => {
             layout={'vertical'}
         >
             <Row gutter={[0, 20]} style={ROW_STYLES}>
-                <Col span={18}>
-                    <Form.Item>
-                        <Typography.Title level={2} style={{ textAlign:'start', fontWeight: 700, fontSize: 20 }}>{ResetTitle}</Typography.Title>
-                    </Form.Item>
-                </Col>
-                <Col span={18}>
+                <ResponsiveCol span={18}>
                     <Row style={ROW_STYLES} gutter={[0, 40]}>
                         <Col span={24}>
                             <Row>
+                                <Form.Item>
+                                    <Typography.Title level={2} style={{ textAlign:'start', fontWeight: 700, fontSize: 20 }}>{ResetTitle}</Typography.Title>
+                                </Form.Item>
                                 <Form.Item name="token" style={{ display: 'none' }}>
                                     <Input type="hidden" />
                                 </Form.Item>
@@ -193,7 +190,7 @@ const ChangePasswordPage: AuthPage = () => {
                             </Form.Item>
                         </Col>
                     </Row>
-                </Col>
+                </ResponsiveCol>
             </Row>
         </Form>
     )
