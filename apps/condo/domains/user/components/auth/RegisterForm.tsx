@@ -17,7 +17,7 @@ import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 import { AuthLayoutContext } from '../containers/AuthLayoutContext'
 import { useRegisterFormValidators } from './hooks'
 import { RegisterContext } from './RegisterContextProvider'
-import { colors } from '../../../common/constants/style'
+import { ResponsiveCol } from '../containers/ResponsiveCol'
 
 
 
@@ -117,7 +117,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             validateTrigger={['onBlur', 'onSubmit']}
         >
             <Row gutter={[0, 30]} style={ROW_STYLES}>
-                <Col span={18}>
+                <ResponsiveCol span={18}>
                     <Row>
                         <Col span={24}>
                             <Typography.Title style={{ textAlign: 'start', fontWeight: 700 }}
@@ -170,8 +170,8 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                             </Form.Item>
                         </Col>
                     </Row>
-                </Col>
-                <Col span={18}>
+                </ResponsiveCol>
+                <ResponsiveCol span={18}>
                     <Form.Item>
                         <Button
                             key='submit'
@@ -183,7 +183,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                             {RegisterMsg}
                         </Button>
                     </Form.Item>
-                </Col>
+                </ResponsiveCol>
             </Row>
         </Form>
     )

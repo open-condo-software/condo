@@ -7,18 +7,15 @@ import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Row, Space, Checkbox, Typography } from 'antd'
+import { Col, Form, Row, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { RegisterContext } from './RegisterContextProvider'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { colors } from '@condo/domains/common/constants/style'
-import { textAlign } from 'html2canvas/dist/types/css/property-descriptors/text-align'
-import { marginBottom } from 'html2canvas/dist/types/css/property-descriptors/margin'
 import { TabsAuthAction } from '../../../common/components/HeaderActions'
-import { SignInForm } from './SignInForm'
+import { ResponsiveCol } from '../containers/ResponsiveCol'
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
@@ -34,7 +31,6 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
     const [form] = Form.useForm()
     const intl = useIntl()
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
-    const RegisterHelpMessage = intl.formatMessage({ id: 'pages.auth.reset.RegisterHelp' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
@@ -45,7 +41,6 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
 
     const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
 
-    const { isSmall } = useLayoutContext()
     const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [smsSendError, setSmsSendError] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
@@ -106,7 +101,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                     layout={'vertical'}
                 >
                     <Row style={ROW_STYLES}>
-                        <Col span={18}>
+                        <ResponsiveCol span={18}>
                             <Row>
                                 <Col span={24}>
                                     <Form.Item
@@ -132,7 +127,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Typography.Paragraph type='secondary' style={{ margin: '36px 0 40px', textAlign: 'left' }}>
+                                    <Typography.Paragraph type='secondary' style={{ margin: '34px 0 40px', textAlign: 'left' }}>
                                         <FormattedMessage
                                             id='pages.auth.register.info.PersonalDataProcessingConsent'
                                             values={{
@@ -180,7 +175,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                     </Form.Item>
                                 </Col>
                             </Row>
-                        </Col>
+                        </ResponsiveCol>
                     </Row>
                 </Form>
             </Col>
