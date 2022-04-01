@@ -43,6 +43,7 @@ import {
     useEndTrialSubscriptionReminderPopup,
 } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
+import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -194,11 +195,6 @@ const MyApp = ({ Component, pageProps }) => {
 }
 
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
-
-async function messagesImporter (locale) {
-    const locale_data = await import(`../lang/${locale}/${locale}`)
-    return { ...locale_data.default }
-}
 
 /*
     Configuration for `InMemoryCache` of Apollo
