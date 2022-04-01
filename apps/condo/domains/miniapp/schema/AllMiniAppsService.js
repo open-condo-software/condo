@@ -43,7 +43,6 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 const connectedBillingIntegrations = billingContexts.map(context => context.integration)
                 for (const billing of billingIntegrations) {
                     const logoUrl = billing.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: billing.logo.filename }) : null
-                    if (logoUrl) console.log(logoUrl)
                     services.push({
                         id: billing.id,
                         type: BILLING_APP_TYPE,
