@@ -10,10 +10,11 @@ import { withAuth } from '@core/next/auth'
 import { withIntl } from '@core/next/intl'
 import { withOrganization } from '@core/next/organization'
 
-
 import GlobalStyle from '@app/condo/containers/GlobalStyle'
 import BaseLayout from '@app/condo/containers/BaseLayout'
-import {MenuItem} from "@condo/domains/common/components/MenuItem";
+import {MenuItem} from "@condo/domains/common/components/MenuItem"
+
+import { messagesImporter as condoMessagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -51,9 +52,9 @@ const MyApp = ({ Component, pageProps }) => {
 }
 
 async function messagesImporter (locale) {
-    const base = await import(`../../condo/lang/${locale}/${locale}`)
+    const base = await condoMessagesImporter(locale)
     const override = await import(`../lang/${locale}`)
-    return { ...base.default, ...override.default }
+    return { ...base, ...override.default }
 }
 
 export default (
