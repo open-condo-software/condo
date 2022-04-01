@@ -21,7 +21,7 @@ const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
     textAlign: 'center',
 }
-
+const FORM_PARAGRAPH_STYLES: React.CSSProperties = { margin: '34px 0 40px', textAlign: 'left' }
 
 interface IInputPhoneFormProps {
     onFinish: () => void
@@ -127,7 +127,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Typography.Paragraph type='secondary' style={{ margin: '34px 0 40px', textAlign: 'left' }}>
+                                    <Typography.Paragraph type='secondary' style={FORM_PARAGRAPH_STYLES}>
                                         <FormattedMessage
                                             id='pages.auth.register.info.PersonalDataProcessingConsent'
                                             values={{

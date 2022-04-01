@@ -20,6 +20,8 @@ const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
     textAlign: 'center',
 }
+const FORM_PARAGRAPH_STYLES: React.CSSProperties = { textAlign: 'left', marginBottom: '40px' }
+const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
 
 export const SignInForm = (): React.ReactElement => {
     const intl = useIntl()
@@ -96,7 +98,7 @@ export const SignInForm = (): React.ReactElement => {
                                 label={LOGIN_PHONE_LABEL}
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
                             >
-                                <PhoneInput style={{ borderRadius: 8, borderColor: colors.inputBorderGrey }} placeholder={ExamplePhoneMsg} tabIndex={1} block/>
+                                <PhoneInput style={FORM_PHONE_STYLES} placeholder={ExamplePhoneMsg} tabIndex={1} block/>
                             </Form.Item>
                         </Col>
                         <Col span={24}>
@@ -109,7 +111,7 @@ export const SignInForm = (): React.ReactElement => {
                             </Form.Item>
                         </Col>
                         <Col span={24}>
-                            <Typography.Paragraph type='secondary' style={{ textAlign: 'left', marginBottom: '40px' }}>
+                            <Typography.Paragraph type='secondary' style={FORM_PARAGRAPH_STYLES}>
                                 <FormattedMessage
                                     id='pages.auth.signin.ResetPasswordLink'
                                     values={{

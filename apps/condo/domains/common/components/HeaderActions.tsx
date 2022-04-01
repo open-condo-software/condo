@@ -146,12 +146,13 @@ export const ButtonHeaderActions: React.FC<IRightButtonHeaderActionsProps> = (pr
 export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     const { currentActiveKey } = props
     const intl = useIntl()
+    const TABS_STYLES = { alignItems:'center', fontWeight: 500 }
     const registerTab = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
     const signInTab = intl.formatMessage({ id: 'SignIn' })
     return (
         <Tabs
             defaultActiveKey={currentActiveKey}
-            style={ { alignItems:'center', fontWeight: 500 } }
+            style={TABS_STYLES}
             onChange={(activeKey) => Router.push(activeKey)}
         >
             <Tabs.TabPane key='/auth/register' tab={registerTab}/>
