@@ -4,7 +4,6 @@ import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useIntl } from '@core/next/intl'
-import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import Error from 'next/error'
 import Head from 'next/head'
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
@@ -62,7 +61,7 @@ export const IndexAcquiringAppPage: React.FC<IndexAcquiringAppPageProps> = ({ id
     const hasFrame = Boolean(get(integration, ['appUrl']))
 
     return (
-        <FeatureFlagRequired name={'services'} fallback={<Error statusCode={404}/>}>
+        <>
             <Head>
                 <title>{PageTitle}</title>
             </Head>
@@ -91,6 +90,6 @@ export const IndexAcquiringAppPage: React.FC<IndexAcquiringAppPageProps> = ({ id
                     }
                 </PageContent>
             </PageWrapper>
-        </FeatureFlagRequired>
+        </>
     )
 }

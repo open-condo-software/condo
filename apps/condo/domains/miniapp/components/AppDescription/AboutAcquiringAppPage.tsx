@@ -6,7 +6,6 @@ import { useOrganization } from '@core/next/organization'
 import { AppDescriptionPageContent } from './AppDescriptionPageContent'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useIntl } from '@core/next/intl'
-import { FeatureFlagRequired } from '@condo/domains/common/components/containers/FeatureFlag'
 import Error from 'next/error'
 import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -73,7 +72,7 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
     const isAnyBillingConnected = Boolean(billingContexts.length)
 
     return (
-        <FeatureFlagRequired name={'services'} fallback={<Error statusCode={404}/>}>
+        <>
             <Head>
                 <title>{PageTitle}</title>
             </Head>
@@ -100,6 +99,6 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
                     </AppDescriptionPageContent>
                 </PageContent>
             </PageWrapper>
-        </FeatureFlagRequired>
+        </>
     )
 }
