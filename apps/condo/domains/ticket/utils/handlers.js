@@ -277,20 +277,22 @@ const handleTicketCommentEvents = async (requestData) => {
 
     const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
 
-    await sendMessage(context, {
-        lang,
-        to: { user: { id: client } },
-        type: TICKET_COMMENT_ADDED,
-        meta: {
-            dv: 1,
-            data: {
-                ticketId: ticket.id,
-                ticketNumber: ticket.number,
-                userId: client,
+    if (client) {
+        await sendMessage(context, {
+            lang,
+            to: { user: { id: client } },
+            type: TICKET_COMMENT_ADDED,
+            meta: {
+                dv: 1,
+                data: {
+                    ticketId: ticket.id,
+                    ticketNumber: ticket.number,
+                    userId: client,
+                },
             },
-        },
-        sender: updatedItem.sender,
-    })
+            sender: updatedItem.sender,
+        })
+    }
 }
 
 module.exports = {
