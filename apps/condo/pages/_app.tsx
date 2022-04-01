@@ -6,7 +6,7 @@ import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
 import Head from 'next/head'
-import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled, WalletOutlined } from '@ant-design/icons'
+import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled, WalletOutlined, ShoppingFilled } from '@ant-design/icons'
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
@@ -93,10 +93,6 @@ const MenuItems: React.FC = () => {
         icon: UserIcon,
         label: 'menu.Employees',
     }, {
-        path: 'meter',
-        icon: MeterLog,
-        label: 'menu.Meters',
-    }, {
         path: 'billing',
         icon: ApiFilled,
         label: 'menu.Billing',
@@ -104,6 +100,14 @@ const MenuItems: React.FC = () => {
         path: 'payments',
         icon: WalletOutlined,
         label: 'menu.Payments',
+    }, {
+        path: 'meter',
+        icon: MeterLog,
+        label: 'menu.Meters',
+    }, {
+        path: 'miniapps',
+        icon: ShoppingFilled,
+        label: 'menu.Services',
     }]
 
     return (
