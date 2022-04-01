@@ -256,6 +256,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
 
     const onSpecificationChange = useCallback((e) => setSpecification(e), [])
     const onRangePresetChange = useCallback((preset) => setDateRangePreset(preset.target.value), [])
+    const onDateRangeChange = useCallback((range) => setDateRange(range), [])
 
     return (
         <Form>
@@ -264,7 +265,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                     <Form.Item label={PeriodTitle} {...FORM_ITEM_STYLE}>
                         <DateRangePicker
                             value={dateRange}
-                            onChange={onSpecificationChange}
+                            onChange={onDateRangeChange}
                             placeholder={[startDateMessage, endDateMessage]}
                         />
                         <Typography.Paragraph>
