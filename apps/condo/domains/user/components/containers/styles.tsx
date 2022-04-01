@@ -8,34 +8,38 @@ interface IFooterProps {
 
 export const Footer = styled.div<IFooterProps>`
   ${({ isSmall }) => isSmall
-        ? 'padding: 20px 0 0;'
-        : `
+        ? `
             position: absolute;
-            bottom: 0;
+            bottom: 400px;
+          `
+        : `
+            margin-left: 5%;
+            bottom: 8%;
           `
 }
   width: 100%;
   color: ${colors.lightGrey[7]};
-  background-color: ${colors.white};
   white-space: pre-line;
   font-size: 12px;
   line-height: 20px;
+  background-color: inherit;
+  margin-top: 5px;
+  position: fixed;
 `
 
 export const Header = styled<typeof PageHeader>(PageHeader)`
   position: fixed;
   background: transparent;
-  padding: 20px;
-  margin: 0;
   width: 100%;
   z-index: 1;
+  margin-left: 10%;
+  margin-top: 3%;
 `
 
 export const MobileHeader = styled.div`
-  background: ${colors.zircon};
-  padding: 24px;
+  background: ${colors.backgroundLightGrey};
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   margin: 0;
   width: 100%;
   z-index: 1;
