@@ -10,29 +10,29 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
+  setup:
     runs-on: ubuntu-latest
-
+    outputs:
+      test-chunks: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
+      test-chunk-ids: ${{ steps['set-test-chunk-ids'].outputs['test-chunk-ids'] }}
     strategy:
       matrix:
         node-version: [ 14.x ]
         database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
-
     steps:
       - uses: actions/checkout@v2
-
-      - name: Docker compose up databases
-        run: |
-          cp .env.example .env
-          docker-compose up -d postgresdb redis
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: install packages
+      - name: Docker compose up databases
+        run: |
+          cp .env.example .env
+          docker-compose up -d postgresdb redis
+
+      - name: Install dependencies
         run: |
           yarn install --frozen-lockfile
           pip3 install django
@@ -48,7 +48,50 @@ jobs:
           echo 'NODE_ENV=production' >> .env
           yarn workspace @app/condo build
 
-      - name: run tests for ${{ matrix.database }}
+      - name: Set test chunks name
+        id: set-test-chunks
+        run: |
+          cd ./apps/condo/
+          echo "::set-output name=test-chunks::$(yarn --silent jest --listTests --json | jq -cM '[_nwise(length / 2 | floor)]')"
+
+      - name: Set chunk ids
+        id: set-test-chunk-ids
+        run: echo "::set-output name=test-chunk-ids::$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')"
+        env:
+          CHUNKS: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
+
+  test:
+    runs-on: ubuntu-latest
+    name: test (domain ${{ matrix.chunk }})
+    needs:
+      - setup
+
+    strategy:
+      matrix:
+        chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
+        node-version: [ 14.x ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Docker compose up databases
+        run: |
+          cp .env.example .env
+          docker-compose up -d postgresdb redis
+
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+          pip3 install django
+          pip3 install psycopg2-binary
+
+      - name: run tests for ${{ matrix.chunk }}
         run: |
           set -x
           cp .env.example .env
@@ -72,13 +115,13 @@ jobs:
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
 
-          yarn workspace @app/condo test --silent --testTimeout=15000 --forceExit --coverage --maxWorkers=2
+          echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs yarn workspace @app/condo test --silent --testTimeout=15000 --forceExit --coverage --maxWorkers=2
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
 
-          yarn jest ./packages/@core.keystone
+          yarn jest ./packages/@core.keystone --maxWorkers=2
 
           yarn workspace @app/condo lint-schema
 
@@ -86,3 +129,4 @@ jobs:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
           DISABLE_LOGGING: true
+          CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
