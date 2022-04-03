@@ -818,6 +818,8 @@
   "notification.messages.TICKET_ASSIGNEE_CONNECTED.push.title": "New ticket",
   "notification.messages.TICKET_EXECUTOR_CONNECTED.email.subject": "You were assigned as executor of ticket #{data.ticketNumber}",
   "notification.messages.TICKET_EXECUTOR_CONNECTED.push.title": "New ticket",
+  "notification.messages.TICKET_STATUS_IN_PROGRESS.email.subject": "Ticket status changed #{data.ticketNumber}",
+  "notification.messages.TICKET_STATUS_IN_PROGRESS.push.title": "Ticket status changed #{data.ticketNumber}",
   "TicketDeadline": "Ticket deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
   "ticket.EmptyList.title": "Create the first one, it's simple",
