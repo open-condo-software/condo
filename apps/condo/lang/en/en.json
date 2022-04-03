@@ -820,6 +820,11 @@
   "notification.messages.TICKET_EXECUTOR_CONNECTED.push.title": "New ticket",
   "notification.messages.TICKET_STATUS_IN_PROGRESS.email.subject": "Ticket status changed #{data.ticketNumber}",
   "notification.messages.TICKET_STATUS_IN_PROGRESS.push.title": "Ticket status changed #{data.ticketNumber}",
+  "notification.messages.TICKET_STATUS_COMPLETED.email.subject": "Your ticket has been completed",
+  "notification.messages.TICKET_STATUS_COMPLETED.push.title": "Your ticket has been completed",
+  "notification.messages.TICKET_STATUS_RETURNED.email.subject": "Returned the ticket #{data.ticketNumber} in work",
+  "notification.messages.TICKET_STATUS_RETURNED.push.title": "Returned the ticket #{data.ticketNumber} in work",
+
   "TicketDeadline": "Ticket deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
   "ticket.EmptyList.title": "Create the first one, it's simple",
