@@ -824,7 +824,10 @@
   "notification.messages.TICKET_STATUS_COMPLETED.push.title": "Your ticket has been completed",
   "notification.messages.TICKET_STATUS_RETURNED.email.subject": "Returned the ticket #{data.ticketNumber} in work",
   "notification.messages.TICKET_STATUS_RETURNED.push.title": "Returned the ticket #{data.ticketNumber} in work",
-
+  "notification.messages.TICKET_INDICATOR_ADDED.email.subject": "Ticket #{data.ticketNumber} changed indicate",
+  "notification.messages.TICKET_INDICATOR_ADDED.push.title": "Ticket #{data.ticketNumber} changed indicate",
+  "notification.messages.TICKET_INDICATOR_REMOVED.email.subject": "Ticket #{data.ticketNumber} changed indicate",
+  "notification.messages.TICKET_INDICATOR_REMOVED.push.title": "Ticket #{data.ticketNumber} changed indicate",
   "TicketDeadline": "Ticket deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
   "ticket.EmptyList.title": "Create the first one, it's simple",
