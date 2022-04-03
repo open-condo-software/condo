@@ -828,6 +828,8 @@
   "notification.messages.TICKET_INDICATOR_ADDED.push.title": "Заявка №{data.ticketNumber} стала {data.indicatorType}",
   "notification.messages.TICKET_INDICATOR_REMOVED.email.subject": "Заявка №{data.ticketNumber} больше не {data.indicatorType}",
   "notification.messages.TICKET_INDICATOR_REMOVED.push.title": "Заявка №{data.ticketNumber} больше не {data.indicatorType}",
+  "notification.messages.TICKET_COMMENT_ADDED.email.subject": "Новый комментарий по заявке №{data.ticketNumber}",
+  "notification.messages.TICKET_COMMENT_ADDED.push.title": "Новый комментарий по заявке №{data.ticketNumber}",
   "TicketDeadline": "Срок выполнения заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",

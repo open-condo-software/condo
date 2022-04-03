@@ -828,6 +828,8 @@
   "notification.messages.TICKET_INDICATOR_ADDED.push.title": "Ticket #{data.ticketNumber} changed indicate",
   "notification.messages.TICKET_INDICATOR_REMOVED.email.subject": "Ticket #{data.ticketNumber} changed indicate",
   "notification.messages.TICKET_INDICATOR_REMOVED.push.title": "Ticket #{data.ticketNumber} changed indicate",
+  "notification.messages.TICKET_COMMENT_ADDED.email.subject": "New comment on the ticket #{data.ticketNumber}",
+  "notification.messages.TICKET_COMMENT_ADDED.push.title": "New comment on the ticket #{data.ticketNumber}",
   "TicketDeadline": "Ticket deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
   "ticket.EmptyList.title": "Create the first one, it's simple",
