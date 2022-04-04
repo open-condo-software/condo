@@ -11,7 +11,6 @@ describe('Auth scenarios', () => {
                     .visit()
                     .fillPhone(user.phone)
                     .startPasswordRecoveryClick()
-                    .checkSuccess()
             })
         })
         it('can signin with correct password and phone', () => {
@@ -38,7 +37,6 @@ describe('Auth scenarios', () => {
             registration
                 .visit()
                 .fillPhone(user.phone)
-                .clickCheckbox()
                 .startRegistrationClick()
             cy.url().should('contain', 'token=')
 

@@ -142,6 +142,7 @@ function ResetPageView () {
                                         name='phone'
                                         label={REGISTER_PHONE_LABEL}
                                         rules={validations.phone}
+                                        data-cy={'forgot-phone-item'}
                                     >
                                         <PhoneInput placeholder={ExamplePhoneMsg} />
                                     </Form.Item>
@@ -165,6 +166,7 @@ function ResetPageView () {
                                                         loading={isLoading}
                                                         htmlType='submit'
                                                         style={{ width: '100%' }}
+                                                        data-cy={'forgot-button'}
                                                     >
                                                         {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
                                                     </Button>

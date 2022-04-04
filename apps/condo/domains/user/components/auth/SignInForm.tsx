@@ -97,6 +97,7 @@ export const SignInForm = (): React.ReactElement => {
                                 name='phone'
                                 label={LOGIN_PHONE_LABEL}
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                                data-cy={'signin-phone-item'}
                             >
                                 <PhoneInput style={FORM_PHONE_STYLES} placeholder={ExamplePhoneMsg} tabIndex={1} block/>
                             </Form.Item>
@@ -106,6 +107,7 @@ export const SignInForm = (): React.ReactElement => {
                                 name='password'
                                 label={PASSWORD_LABEL}
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                                data-cy={'signin-password-item'}
                             >
                                 <Input.Password tabIndex={2} />
                             </Form.Item>
@@ -134,6 +136,7 @@ export const SignInForm = (): React.ReactElement => {
                                     htmlType='submit'
                                     loading={isLoading}
                                     block
+                                    data-cy={'signin-button'}
                                 >
                                     {SignInMsg}
                                 </Button>

@@ -72,11 +72,6 @@ class ForgotPassword {
         return this
     }
 
-    checkSuccess () {
-        cy.get('[data-cy=forgot-success-message]')
-        return this
-    }
-
 }
 
 class Registration {
@@ -104,12 +99,6 @@ class Registration {
         cy.get('[data-cy=register-phone-item] input')
             .clear()
             .type(value)
-        return this
-    }
-
-    clickCheckbox () {
-        cy.get('[data-cy=register-personal-data-checkbox]')
-            .click()
         return this
     }
 
