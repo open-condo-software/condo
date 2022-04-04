@@ -67,7 +67,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                         objs: excelRows,
                         i18n: {
                             ...getHeadersTranslations('payments', locale),
-                            sheetName: i18n('menu.Payments', { lang: locale }),
+                            sheetName: i18n('menu.Payments', { locale }),
                         },
                     },
                     meta: {
