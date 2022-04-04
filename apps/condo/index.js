@@ -85,8 +85,12 @@ keystone.createList = async (...args) => {
         if (requestId) {
             key = `${gqlName}-${JSON.stringify(args)}-${JSON.stringify(context.req.headers['x-request-id'])}}`
         }
-        
-        //console.log(`CURRENT_LIST_CACHE: ${JSON.stringify(listCache)}`)
+
+        // Drop the key, if the operation type is mutation
+        const operationType = get(info, ['operation', 'operation'])
+        if (operationType !== 'query') {
+            delete listCache[key]
+        }
         
         if (key in listCache) {
             console.debug(`
@@ -108,6 +112,8 @@ keystone.createList = async (...args) => {
 
         return listResult
     }
+
+    //const originalUpdateQuery = list
 
     const originalItemQuery = list.itemQuery
     list.itemQuery = async (args, context, gqlName, info, from) => {
