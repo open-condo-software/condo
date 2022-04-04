@@ -10,6 +10,11 @@ const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const dayjs = require('dayjs')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema/')
+const { getHeadersTranslations } = require('@condo/domains/common/utils/exportToExcel')
+const { i18n } = require('@condo/domains/common/utils/localesLoader')
+const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const conf = require('@core/config')
+const { EXPORT_TYPE_BUILDINGS } = require('../../common/utils/exportToExcel')
 
 const errors = {
     NOTHING_TO_EXPORT: {
@@ -40,6 +45,8 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
             schema: 'exportPropertiesToExcel (data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, sortBy } = args.data
+                const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+
                 const allProperties = await loadListByChunks({
                     context,
                     list: PropertyAPI,
@@ -62,7 +69,13 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
                 const linkToFile = await createExportFile({
                     fileName: `properties_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: './domains/property/templates/PropertiesExportTemplate.xlsx',
-                    replaces: { properties: excelRows },
+                    replaces: {
+                        properties: excelRows,
+                        i18n: {
+                            ...getHeadersTranslations(EXPORT_TYPE_BUILDINGS, locale),
+                            sheetName: i18n('excelExport.sheetNames.buildings', { locale }),
+                        },
+                    },
                     meta: {
                         listkey: 'Property',
                         id: allProperties[0].id,

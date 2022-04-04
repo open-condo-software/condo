@@ -11,7 +11,7 @@ const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/err
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { exportPayments } = require('@condo/domains/billing/utils/serverSchema')
 const { get } = require('lodash')
-const { getHeadersTranslations } = require('@condo/domains/common/utils/exportToExcel')
+const { getHeadersTranslations, EXPORT_TYPE_PAYMENTS } = require('@condo/domains/common/utils/exportToExcel')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const conf = require('@core/config')
@@ -66,7 +66,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                     replaces: {
                         objs: excelRows,
                         i18n: {
-                            ...getHeadersTranslations('payments', locale),
+                            ...getHeadersTranslations(EXPORT_TYPE_PAYMENTS, locale),
                             sheetName: i18n('menu.Payments', { locale }),
                         },
                     },
