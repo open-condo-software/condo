@@ -33,6 +33,13 @@ export type BuildingUnitArg = BuildingUnit & {
     unitType?: BuildingUnitType
 }
 
+export type BuildingFloorArg = BuildingFloor & {
+    section: BuildingSection['id']
+    floor: number
+    unitCount: number
+    unitType?: BuildingUnitType
+}
+
 type BuildingSelectOption = {
     id: string
     label: string
@@ -464,6 +471,8 @@ class MapView extends Map {
 class MapEdit extends MapView {
     public previewSectionId: string
     public previewParkingId: string
+    public previewSectionFloor: string
+    public previewParkingFloor: string
     public previewUnitId: string
     public previewParkingUnitId: string
     private mode = null
@@ -559,6 +568,12 @@ class MapEdit extends MapView {
                 this.removePreviewParkingUnit()
                 this.removePreviewParking()
                 this.selectedParking = null
+                break
+            case 'addSectionFloor':
+                this.removePreviewSectionFloor()
+                break
+            case 'addParkingFloor':
+                this.removePreviewParkingFloor()
                 break
             default:
                 this.selectedSection = null
@@ -668,6 +683,18 @@ class MapEdit extends MapView {
         }
     }
 
+    public removePreviewSectionFloor (): void {
+        if (this.previewSectionFloor) {
+            this.previewSectionFloor = null
+        }
+    }
+
+    public removePreviewParkingFloor (): void {
+        if (this.previewParkingFloor) {
+            this.previewParkingFloor = null
+        }
+    }
+
     public addPreviewSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitType = BuildingUnitType.Flat): void {
         this.removePreviewSection()
         const newSection = this.generateSection(section, unitType)
@@ -685,6 +712,16 @@ class MapEdit extends MapView {
         this.map.sections.push(newSection)
         this.notifyUpdater()
         this.editMode = 'addSection'
+    }
+
+    public addPreviewSectionFloor (floor: BuildingFloorArg): void {
+        this.removePreviewSectionFloor()
+        // const newSectionFloor = this.generateFloor(floor)
+    }
+
+    public addPreviewParkingFloor (floor: BuildingFloorArg): void {
+        this.removePreviewParkingFloor()
+        // const newParkingFloor = this.generateFloor(floor)
     }
 
     public addPreviewCopySection (sectionId: string): void {
@@ -1174,6 +1211,10 @@ class MapEdit extends MapView {
         }
 
         return newParking
+    }
+
+    private generateFloor (floor: BuildingFloorArg): void {
+        // TODO: return BuildingFloor object
     }
 
     private getNextParkingUnit (id: string): BuildingUnit {
