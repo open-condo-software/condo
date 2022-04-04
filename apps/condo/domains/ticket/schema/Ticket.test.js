@@ -25,6 +25,7 @@ const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE,
+    MESSAGE_DELIVERED_STATUS,
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
@@ -1584,7 +1585,7 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
             const message1 = await Message.getOne(admin, messageWhere)
 
-            expect(message1.status).toEqual('delivered')
+            expect(message1.status).toEqual(MESSAGE_DELIVERED_STATUS)
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
             expect(message1.processingMeta.transport).toEqual('email')
         })
