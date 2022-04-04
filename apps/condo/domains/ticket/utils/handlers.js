@@ -1,4 +1,5 @@
 const get = require('lodash/get')
+import { useIntl } from '@core/next/intl'
 
 const conf = require('@core/config')
 const { getByCondition } = require('@core/keystone/schema')
@@ -109,6 +110,12 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
  * @returns {Promise<void>}
  */
 const handleTicketEvents = async (requestData) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const intl = useIntl()
+    const IndicatorTypeWarranty = intl.formatMessage({ id: 'notification.messages.indicatorType.warranty' })
+    const IndicatorTypePaid = intl.formatMessage({ id: 'notification.messages.indicatorType.paid' })
+    const IndicatorTypeEmergency = intl.formatMessage({ id: 'notification.messages.indicatorType.emergency' })
+
     const eventTypes = detectEventTypes(requestData)
     const { operation, existingItem, updatedItem, context } = requestData
     const isCreateOperation =  operation === 'create'
@@ -220,7 +227,7 @@ const handleTicketEvents = async (requestData) => {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
                     userId: client,
-                    indicatorType: 'гарантийной',
+                    indicatorType: IndicatorTypeWarranty,
                 },
             },
             sender: updatedItem.sender,
@@ -238,7 +245,7 @@ const handleTicketEvents = async (requestData) => {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
                     userId: client,
-                    indicatorType: 'платной',
+                    indicatorType: IndicatorTypePaid,
                 },
             },
             sender: updatedItem.sender,
@@ -256,7 +263,7 @@ const handleTicketEvents = async (requestData) => {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
                     userId: client,
-                    indicatorType: 'аварийной',
+                    indicatorType: IndicatorTypeEmergency,
                 },
             },
             sender: updatedItem.sender,
