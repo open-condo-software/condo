@@ -1045,5 +1045,18 @@
   "excelExport.headers.contacts.address": "Address",
   "excelExport.headers.contacts.unitName": "Unit name",
   "excelExport.headers.contacts.phone": "Phone",
-  "excelExport.headers.contacts.email": "Email"
+  "excelExport.headers.contacts.email": "Email",
+  "excelExport.headers.meters.date": "Reading date",
+  "excelExport.headers.meters.address": "Address",
+  "excelExport.headers.meters.unitName": "Unit",
+  "excelExport.headers.meters.accountNumber": "Account number",
+  "excelExport.headers.meters.resource": "Service",
+  "excelExport.headers.meters.number": "Meter number",
+  "excelExport.headers.meters.place": "Place",
+  "excelExport.headers.meters.value1": "Reading from tariff №1",
+  "excelExport.headers.meters.value2": "Reading from tariff №2",
+  "excelExport.headers.meters.value3": "Reading from tariff №3",
+  "excelExport.headers.meters.value4": "Reading from tariff №4",
+  "excelExport.headers.meters.clientName": "Contact",
+  "excelExport.headers.meters.source": "Source"
 }
