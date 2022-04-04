@@ -10,6 +10,7 @@ import { ChildrenWrapper, Footer, Layout, PageContent, PosterWrapper } from './s
 import { AuthHeader } from './AuthHeader'
 
 interface IPosterLayoutProps {
+    headerAction: React.ReactElement
     layoutBgColor?: string
 }
 
@@ -23,7 +24,7 @@ const FOOTER_STYLES: React.CSSProperties = {
 
 const ROW_STYLE = { margin: '65px 0 65px', justifyContent: 'center' }
 
-export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, layoutBgColor }) => {
+export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor }) => {
     const { isSmall } = useLayoutContext()
 
     const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
@@ -31,7 +32,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, layoutBgC
     return (
         <Layout style={LAYOUT_STYLE}>
             <Row align={'stretch'} justify={'center'}>
-                <AuthHeader/>
+                <AuthHeader headerAction={headerAction}/>
                 <Col lg={12} md={24} hidden={isSmall}>
                     <PosterWrapper>
                         <Poster
