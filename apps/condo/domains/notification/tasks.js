@@ -14,6 +14,13 @@ const { SMS_TRANSPORT, EMAIL_TRANSPORT, PUSH_TRANSPORT, MESSAGE_SENDING_STATUS, 
 
 const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
 const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
+/**
+ * This constant regulates if we should fallback failed push transport bu email.
+ * It is disabled by now due to organization's complaints - some of them have only one responsible and assignee
+ * for all tickets and get tons of emails, which they didn't like at all. :)
+ * @type {boolean}
+ */
+const SHOULD_FALLBACK_PUSH_TRANSPORT = false
 
 const TRANSPORTS = {
     [SMS_TRANSPORT]: sms,
@@ -64,7 +71,7 @@ async function _choseMessageTransport (message) {
         // if (!isEmpty(user.phone) && !transports.includes(SMS_TRANSPORT)) transports.push(SMS_TRANSPORT)
 
         // Fallback transport attempts, if PUSH delivery fails
-        if (!isEmpty(user.email) && !transports.includes(EMAIL_TRANSPORT)) transports.push(EMAIL_TRANSPORT)
+        if (SHOULD_FALLBACK_PUSH_TRANSPORT && !isEmpty(user.email) && !transports.includes(EMAIL_TRANSPORT)) transports.push(EMAIL_TRANSPORT)
     }
 
     // At this point we return whatever non-empty sequence we've got
@@ -154,7 +161,7 @@ async function deliverMessage (messageId) {
             ...baseAttrs,
             status: MESSAGE_ERROR_STATUS,
             deliveredAt: null,
-            processingMeta: failedMeta,
+            processingMeta: { ...processingMeta, failedMeta },
         })
 
         throw new Error(processingMeta.error)
