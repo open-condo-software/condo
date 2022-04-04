@@ -8,13 +8,14 @@ import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/
 
 import { useIntl } from '@core/next/intl'
 import { Typography } from 'antd'
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
 import React, { useContext, useEffect, useState } from 'react'
 import { useMutation } from '@core/next/apollo'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import qs from 'qs'
 
 const RegisterPage: AuthPage = () => {
     const intl = useIntl()
@@ -22,6 +23,7 @@ const RegisterPage: AuthPage = () => {
     const PhoneConfirmTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorLabel' })
     const PhoneConfirmTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorMessage' })
     const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
+    const router = useRouter()
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
     const [step, setStep] = useState('inputPhone')
@@ -56,6 +58,13 @@ const RegisterPage: AuthPage = () => {
             setStep('inputPhone')
         }
     }, [token, isConfirmed])
+
+    useEffect(() => {
+        router.push(router.route + qs.stringify(
+            { ...router.query, step },
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        ))
+    }, [step])
 
     if (tokenError && token) {
         return (
@@ -101,7 +110,16 @@ const RegisterPage: AuthPage = () => {
         </RegisterContextProvider>
     )
 }
-RegisterPage.headerAction = ( <Button>A</Button> )
+
+const HeaderAction = () => {
+    const router = useRouter()
+    return router.query.step == 'inputPhone' && (
+        <Typography.Paragraph>Я — житель!</Typography.Paragraph>
+    )
+}
+
+RegisterPage.headerAction = <HeaderAction/>
+
 RegisterPage.container = AuthLayout
 
 export default RegisterPage
