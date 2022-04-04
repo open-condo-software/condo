@@ -267,6 +267,7 @@
   "pages.auth.SecurityCheckFailed": "Captcha check failed",
   "pages.auth.Registered": "Registered",
   "pages.auth.RegistrationTitle": "Registration",
+  "pages.auth.IAmCustomer": "I'm customer!",
   "pages.auth.reset.AndSignInMsg": "and login to CRM",
   "pages.auth.reset.CheckEmail": "Check your mailbox",
   "pages.auth.reset.CheckPhone": "Check your SMS",

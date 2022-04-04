@@ -5,7 +5,6 @@ import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/co
 import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
 import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
-
 import { useIntl } from '@core/next/intl'
 import { Typography } from 'antd'
 import Router, { useRouter } from 'next/router'
@@ -16,6 +15,14 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import qs from 'qs'
+import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
+
+const HeaderAction = () => {
+    const router = useRouter()
+    return router.query.step == 'inputPhone' && (
+        <WelcomeHeaderTitle/>
+    )
+}
 
 const RegisterPage: AuthPage = () => {
     const intl = useIntl()
@@ -108,13 +115,6 @@ const RegisterPage: AuthPage = () => {
         <RegisterContextProvider>
             { steps[step] }
         </RegisterContextProvider>
-    )
-}
-
-const HeaderAction = () => {
-    const router = useRouter()
-    return router.query.step == 'inputPhone' && (
-        <Typography.Paragraph>Я — житель!</Typography.Paragraph>
     )
 }
 

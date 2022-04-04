@@ -5,11 +5,6 @@ import styled from '@emotion/styled'
 import React from 'react'
 import { Image } from 'antd'
 import { jsx, css, keyframes } from '@emotion/core'
-interface ILogoProps {
-    onClick: (e: React.SyntheticEvent) => void
-    fillColor?: string
-    minified?: boolean
-}
 
 const LogoWrapper = styled.span`
   display: inline-flex;
@@ -18,14 +13,21 @@ const LogoWrapper = styled.span`
 `
 
 const SunKeyFrames = keyframes`
-      from {transform: translate(-30px, -12px)}
-      to {transform: translate(-5px, -15px)}
+      from {transform: translate(-30px, -12px); opacity: 0}
+      to {transform: translate(-5px, -15px); opacity: 1}
 `
 
 
-const SunAnimation = css`
+const SunCSS = css`
   animation: ${SunKeyFrames} 5s ease 1;
+  transform: translate(-5px, -15px);
 `
+
+interface ILogoProps {
+    onClick: (e: React.SyntheticEvent) => void
+    fillColor?: string
+    minified?: boolean
+}
 
 export const Logo: React.FC<ILogoProps> = (props) => {
     const {
@@ -46,8 +48,8 @@ export const Logo: React.FC<ILogoProps> = (props) => {
 
     return (
         <LogoWrapper onClick={onClick}>
-            <Image preview={false} style={{ zIndex: 0 }} src={'/logoHouse.svg'}/>
-            <Image preview={false} style={{ zIndex: 2, transform: 'translate(-5px, -15px)' }} css={SunAnimation} src={'/logoSun.svg'}/>
+            <Image preview={false} src={'/logoHouse.svg'}/>
+            <Image preview={false} css={SunCSS} src={'/logoSun.svg'}/>
             <Image preview={false} src={'/logoDoma.svg'}/>
         </LogoWrapper>
     )
