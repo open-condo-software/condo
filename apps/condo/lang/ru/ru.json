@@ -971,6 +971,7 @@
   "Comments.prompt.description": "Их не увидят жители. Они будут доступны только сотрудникам вашей организации.",
   "Comments.list.description": "Жители не видят. Только для сотрудников вашей организации.",
   "Comments.form.placeholder": "Ваш комментарий",
+  "Comments.form.helper": "Напишите и нажмите Enter",
   "Comments.cannotCreateComments": "Вы не можете писать комментарии",
   "Comments.actions.delete.confirm.title": "Точно удалить?",
   "Comments.actions.delete.confirm.okText": "Да",

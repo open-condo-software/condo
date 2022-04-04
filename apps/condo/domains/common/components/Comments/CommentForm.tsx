@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { FormWithAction } from '../containers/FormList'
-import { Col, Form, Input, Row } from 'antd'
+import { Col, Form, Input, Row, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import Icon from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
@@ -9,6 +9,7 @@ import { SendMessage } from '../icons/SendMessage'
 import { useState } from 'react'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useInputWithCounter } from '../../hooks/useInputWithCounter'
+import { colors } from '@condo/domains/common/constants/style'
 
 const Holder = styled.div`
   position: relative;
@@ -25,6 +26,20 @@ const Holder = styled.div`
   }
 `
 
+const COMMENT_HELPERS_ROW_STYLES: CSSProperties = { padding: '0 8px 8px 8px' }
+
+const CommentHelper = styled(Col)`
+  background-color: ${colors.textSecondary};
+  padding: 2px 10px 4px;
+  margin: 2px;
+  border-radius: 100px;
+
+  .ant-typography {
+    color: ${colors.white};
+    font-weight: 600;
+  }
+`
+
 interface ICommentFormProps {
     action: (formValues) => Promise<any>
     fieldName?: string
@@ -36,8 +51,9 @@ export const MAX_COMMENT_LENGTH = 300
 const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
+    const HelperMessage = intl.formatMessage({ id: 'Comments.form.helper' })
 
-    const { InputWithCounter, Counter, setTextLength: setCommentLength } = useInputWithCounter(Input.TextArea, MAX_COMMENT_LENGTH)
+    const { InputWithCounter, Counter, setTextLength: setCommentLength, textLength: commentLength } = useInputWithCounter(Input.TextArea, MAX_COMMENT_LENGTH)
 
     const handleKeyUp = (event, form) => {
         if (event.keyCode === 13 && !event.shiftKey) {
@@ -52,9 +68,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
         }
     }
 
-    const { requiredValidator, trimValidator }  = useValidations()
-
-
+    const { requiredValidator, trimValidator } = useValidations()
     const validations = {
         comment: [requiredValidator, trimValidator],
     }
@@ -70,6 +84,20 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
             >
                 {({ handleSave, isLoading, form }) => (
                     <Holder>
+                        {
+                            commentLength > 0 ? (
+                                <Row justify={'space-between'} style={COMMENT_HELPERS_ROW_STYLES}>
+                                    <CommentHelper>
+                                        <Typography.Text>
+                                            {HelperMessage}
+                                        </Typography.Text>
+                                    </CommentHelper>
+                                    <CommentHelper>
+                                        <Counter />
+                                    </CommentHelper>
+                                </Row>
+                            ) : null
+                        }
                         <Form.Item
                             name={fieldName}
                             rules={validations.comment}

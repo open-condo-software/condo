@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react'
+import React, { CSSProperties, useEffect, useRef } from 'react'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
-import { Empty, Typography } from 'antd'
+import { Divider, Empty, Typography } from 'antd'
 import { useLayoutContext } from '../LayoutContext'
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
@@ -61,6 +61,7 @@ const Footer = styled.div<{
     hasComments?: boolean
 }>`
   ${({ hasComments }) => hasComments ? 'border-top: solid thin #D9D9D9;' : ''}
+  padding: 8px;
 `
 const EmptyContainer = styled.div`
   text-align: center;
@@ -77,6 +78,8 @@ const DescriptionContainer = styled.div`
   font-size: 12px;
   margin-bottom: 24px;
 `
+
+const COMMENT_FORM_DIVIDER_STYLES: CSSProperties = { margin: 0, padding: 0 }
 
 type ActionsForComment = {
     updateAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
@@ -150,6 +153,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                     })}
                 </Body>
             )}
+            <Divider style={COMMENT_FORM_DIVIDER_STYLES} />
             <Footer hasComments={comments.length > 0}>
                 {canCreateComments ? (
                     <CommentForm action={createAction}/>

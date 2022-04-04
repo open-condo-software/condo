@@ -971,6 +971,7 @@
   "Comments.prompt.description": "They will not been visible for residents. They will be only readable my employees of your organization.",
   "Comments.list.description": "Not visible for residents. Only for employees of your organization.",
   "Comments.form.placeholder": "Your comment",
+  "Comments.form.helper": "Write and press Enter",
   "Comments.cannotCreateComments": "You cannot write comments",
   "Comments.actions.delete.confirm.title": "Are you sure?",
   "Comments.actions.delete.confirm.okText": "Yes",
