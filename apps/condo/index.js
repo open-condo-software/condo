@@ -71,11 +71,23 @@ const keystone = new Keystone({
 
 const originalCreateList = keystone.createList
 
-const itemCache = {}
-const listCache = {}
+let itemCache = {}
+let listCache = {}
+
+// keystone.executeGraphQL = async ({ context, query, variables }) => {
+//     const x = 20
+// }
+
 
 keystone.createList = async (...args) => {
     const list = originalCreateList.apply(keystone, args)
+
+    const originalCreateMutation = list.createMutation
+    list.createMutation = async ( data, context, mutationState ) => {
+        listCache = {}
+        itemCache = {}
+        return await originalCreateMutation.call( list, data, context, mutationState )
+    }
 
     const originalListQuery = list.listQuery
     list.listQuery = async function (args, context, gqlName, info, from) {
@@ -124,6 +136,12 @@ keystone.createList = async (...args) => {
             key = `${gqlName}-${JSON.stringify(args)}-${JSON.stringify(context.req.headers['x-request-id'])}}`
         }
 
+        // Drop the key, if the operation type is mutation
+        const operationType = get(info, ['operation', 'operation'])
+        if (operationType !== 'query') {
+            delete listCache[key]
+        }
+
         if (key in itemCache) {
             console.debug(`
             ITEM_QUERY ${gqlName}\r\n
@@ -137,7 +155,7 @@ keystone.createList = async (...args) => {
 
         console.debug(`
             ITEM_QUERY ${gqlName}\r\n
-            KEY: ${'what'}\r\n
+            KEY: ${key}\r\n
             CACHE_HIT?: No`
         )
 
@@ -199,6 +217,13 @@ class SberBuisnessOnlineMiddleware {
         app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
         app.use(expressErrorHandler)
         return app
+    }
+}
+
+class KeystoneCacheMiddleware {
+    prepareMiddleware ({ keystone, dev, distDir }) {
+        const app = express()
+
     }
 }
 
