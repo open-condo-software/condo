@@ -10,12 +10,12 @@ const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransition
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
-    TICKET_STATUS_IN_PROGRESS,
-    TICKET_STATUS_COMPLETED,
-    TICKET_STATUS_RETURNED,
-    TICKET_INDICATOR_ADDED,
-    TICKET_INDICATOR_REMOVED,
-    TICKET_COMMENT_ADDED,
+    TICKET_STATUS_IN_PROGRESS_TYPE,
+    TICKET_STATUS_COMPLETED_TYPE,
+    TICKET_STATUS_RETURNED_TYPE,
+    TICKET_INDICATOR_ADDED_TYPE,
+    TICKET_INDICATOR_REMOVED_TYPE,
+    TICKET_COMMENT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -186,15 +186,15 @@ const handleTicketEvents = async (requestData) => {
         let type
         switch (nextStatusId) {
             case STATUS_IDS.OPEN:
-                type = prevStatusId === STATUS_IDS.COMPLETED && TICKET_STATUS_RETURNED
+                type = prevStatusId === STATUS_IDS.COMPLETED && TICKET_STATUS_RETURNED_TYPE
                 break
 
             case STATUS_IDS.IN_PROGRESS:
-                type = TICKET_STATUS_IN_PROGRESS
+                type = TICKET_STATUS_IN_PROGRESS_TYPE
                 break
 
             case STATUS_IDS.COMPLETED:
-                type = TICKET_STATUS_COMPLETED
+                type = TICKET_STATUS_COMPLETED_TYPE
                 break
         }
 
@@ -220,7 +220,7 @@ const handleTicketEvents = async (requestData) => {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
-            type: !nextWarranty ? TICKET_INDICATOR_ADDED : TICKET_INDICATOR_REMOVED,
+            type: !nextWarranty ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
             meta: {
                 dv: 1,
                 data: {
@@ -238,7 +238,7 @@ const handleTicketEvents = async (requestData) => {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
-            type: !nextPaid ? TICKET_INDICATOR_ADDED : TICKET_INDICATOR_REMOVED,
+            type: !nextPaid ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
             meta: {
                 dv: 1,
                 data: {
@@ -256,7 +256,7 @@ const handleTicketEvents = async (requestData) => {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
-            type: !nextEmergency ? TICKET_INDICATOR_ADDED : TICKET_INDICATOR_REMOVED,
+            type: !nextEmergency ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
             meta: {
                 dv: 1,
                 data: {
@@ -288,7 +288,7 @@ const handleTicketCommentEvents = async (requestData) => {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
-            type: TICKET_COMMENT_ADDED,
+            type: TICKET_COMMENT_ADDED_TYPE,
             meta: {
                 dv: 1,
                 data: {
