@@ -24,6 +24,11 @@ const REVIEW_VALUES = {
     RETURN: 'returned',
 }
 
+const COMMENT_TYPES = {
+    ORGANIZATION: 'organization',
+    RESIDENT: 'resident',
+}
+
 /*
     To keep everything, we have a `TicketChangeHistoryRecord`, being created by `historical` Keystone plugin for a `Ticket`.
     `TicketChange` – is a feature for an end user and data, that makes sense for end user is kept tracked.
@@ -50,4 +55,5 @@ module.exports = {
     TICKET_STATUS_TYPES,
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS,
     REVIEW_VALUES,
+    COMMENT_TYPES,
 }

@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { TicketComment as TicketCommentGQL } from '@condo/domains/ticket/gql'
 import { TicketComment, TicketCommentUpdateInput, QueryAllTicketCommentsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'ticket', 'user', 'content']
+const FIELDS = ['id', 'deletedAt', 'type', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'ticket', 'user', 'content']
 const RELATIONS = ['ticket', 'user']
 
 export interface ITicketCommentUIState extends TicketComment {
