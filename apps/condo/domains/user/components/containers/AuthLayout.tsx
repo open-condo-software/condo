@@ -10,11 +10,12 @@ import { AuthLayoutContextProvider } from './AuthLayoutContext'
 const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
 
 export interface AuthPage extends React.FC {
+    headerAction: React.ReactElement
     container: React.FC
 }
 
 interface IAuthLayoutProps {
-    header: React.ReactElement
+    headerAction: React.ReactElement
     children: JSX.Element
 }
 
@@ -22,7 +23,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
     const intl = useIntl()
 
     const { children, ...otherProps } = props
-
+    console.debug('AuthLayoutPros', { ...otherProps })
     return (
         <GoogleReCaptchaProvider
             reCaptchaKey={googleCaptcha && googleCaptcha.SITE_KEY}

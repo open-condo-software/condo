@@ -101,7 +101,7 @@ const RegisterPage: AuthPage = () => {
         </RegisterContextProvider>
     )
 }
-
+RegisterPage.headerAction = ( <Button>A</Button> )
 RegisterPage.container = AuthLayout
 
 export default RegisterPage
