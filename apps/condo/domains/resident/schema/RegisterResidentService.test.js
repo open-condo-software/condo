@@ -101,10 +101,13 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         expect(deletedProperty.deletedAt).not.toBeNull()
 
-        await Property.softDelete(organizationClient1, property1.id)
+        const [deletedProperty1] = await Property.softDelete(organizationClient1, property1.id)
+
+        expect(deletedProperty1.deletedAt).not.toBeNull()
+
         await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
 
-        const [resident] = await Resident.getAll(userClient, { id: userClient.id })
+        const resident = await Resident.getOne(userClient, { id: userClient.id })
 
         expect(resident.organization).toBeNull()
         expect(resident.property).toBeNull()
@@ -117,7 +120,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
+        const resident1 = await Resident.getOne(userClient, { id: userClient.id })
 
         expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
         expect(get(resident1, 'property.id')).toEqual(property.id)
