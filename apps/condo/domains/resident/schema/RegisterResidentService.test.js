@@ -41,7 +41,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident] = await Resident.getAll(userClient, { id: userClient.id })
+        const resident = await Resident.getOne(userClient, { id: userClient.id })
 
         expect(get(resident, 'organization.id')).toEqual(organizationClient.organization.id)
         expect(get(resident, 'property.id')).toEqual(property.id)
@@ -68,7 +68,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident] = await Resident.getAll(userClient, { id: userClient.id })
+        const resident = await Resident.getOne(userClient, { id: userClient.id })
 
         expect(resident.organization.id).toEqual(organizationClient.organization.id)
         expect(resident.property.id).toEqual(property.id)
@@ -79,7 +79,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
+        const resident1 = await Resident.getOne(userClient, { id: userClient.id })
 
         expect(resident1.organization.id).toEqual(organizationClient.organization.id)
         expect(resident1.property.id).toEqual(property.id)
@@ -98,16 +98,13 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
 
         const [deletedProperty] = await Property.softDelete(organizationClient, property.id)
-
-        expect(deletedProperty.deletedAt).not.toBeNull()
-
         const [deletedProperty1] = await Property.softDelete(organizationClient1, property1.id)
 
+        expect(deletedProperty.deletedAt).not.toBeNull()
         expect(deletedProperty1.deletedAt).not.toBeNull()
 
-        await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
-
-        const resident = await Resident.getOne(userClient, { id: userClient.id })
+        const [resident] = await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
+        // const resident = await Resident.getOne(userClient, { id: userClient.id })
 
         expect(resident.organization).toBeNull()
         expect(resident.property).toBeNull()
@@ -139,15 +136,13 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         const propertyPayload = { address, addressMeta: orgAddressMeta, map: buildingMapJson }
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
-
         const [deletedProperty] = await Property.softDelete(organizationClient, property.id)
 
         expect(deletedProperty.deletedAt).not.toBeNull()
 
         // Resident #1 should connect to the only non-deleted property1
-        await registerResidentByTestClient(userClient1, { address: addressMeta.value, addressMeta })
-
-        const [resident1] = await Resident.getAll(userClient1, { id: userClient1.id })
+        const [resident1] = await registerResidentByTestClient(userClient1, { address: addressMeta.value, addressMeta })
+        // const resident1 = await Resident.getOne(userClient1, { id: userClient1.id })
 
         expect(get(resident1, 'organization.id')).toEqual(organizationClient1.organization.id)
         expect(get(resident1, 'property.id')).toEqual(property1.id)
@@ -157,7 +152,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1_1] = await Resident.getAll(userClient1, { id: userClient1.id })
+        const resident1_1 = await Resident.getOne(userClient1, { id: userClient1.id })
 
         // after property2 registration resident1 still stays connected to property1
         expect(get(resident1_1, 'organization.id')).toEqual(organizationClient1.organization.id)
@@ -171,7 +166,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1_2] = await Resident.getAll(userClient1, { id: userClient1.id })
+        const resident1_2 = await Resident.getOne(userClient1, { id: userClient1.id })
 
         // after property1 deleted resident1 should reconnect to property2
         expect(get(resident1_2, 'organization.id')).toEqual(organizationClient2.organization.id)
@@ -185,7 +180,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1_3] = await Resident.getAll(userClient1, { id: userClient1.id })
+        const resident1_3 = await Resident.getOne(userClient1, { id: userClient1.id })
 
         // after property1 restored resident1 should reconnect to property1
         expect(get(resident1_3, 'organization.id')).toEqual(organizationClient1.organization.id)
@@ -194,7 +189,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // Resident #2 should connect to the oldest non-deleted property1
         await registerResidentByTestClient(userClient2, { address: addressMeta.value, addressMeta })
 
-        const [resident2] = await Resident.getAll(userClient2, { id: userClient2.id })
+        const resident2 = await Resident.getOne(userClient2, { id: userClient2.id })
 
         expect(get(resident2, 'organization.id')).toEqual(organizationClient1.organization.id)
         expect(get(resident2, 'property.id')).toEqual(property1.id)
@@ -224,7 +219,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await Resident.getAll(userClient, { id: get(userClient, 'id') })
+        const resident1 = await Resident.getOne(userClient, { id: get(userClient, 'id') })
 
         expect(resident1.organization).toBeNull()
         expect(resident1.property).toBeNull()
@@ -257,7 +252,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
+        const resident1 = await Resident.getOne(userClient, { id: userClient.id })
 
         expect(resident1.organization).toBeNull()
         expect(resident1.property).toBeNull()
@@ -288,7 +283,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
+        const resident1 = await Resident.getOne(userClient, { id: userClient.id })
 
         expect(resident1.organization.id).toEqual(organizationClient1.organization.id)
         expect(resident1.property.id).toEqual(property1.id)
@@ -316,8 +311,8 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1000)
 
-        const [resident1] = await Resident.getAll(userClient, { id: userClient.id })
-        const [resident2] = await Resident.getAll(userClient1, { id: userClient1.id })
+        const resident1 = await Resident.getOne(userClient, { id: userClient.id })
+        const resident2 = await Resident.getOne(userClient1, { id: userClient1.id })
 
         expect(get(resident1, 'property.id')).toEqual(property.id)
         expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
@@ -334,8 +329,8 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await sleep(1500)
 
-        const [resident1_1] = await Resident.getAll(userClient, { id: userClient.id })
-        const [resident2_1] = await Resident.getAll(userClient1, { id: userClient1.id })
+        const resident1_1 = await Resident.getOne(userClient, { id: userClient.id })
+        const resident2_1 = await Resident.getOne(userClient1, { id: userClient1.id })
 
         expect(get(resident1_1, 'property.id')).toEqual(property1.id)
         expect(get(resident1_1, 'organization.id')).toEqual(property1.organization.id)
