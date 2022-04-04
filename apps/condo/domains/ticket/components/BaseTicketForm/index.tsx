@@ -18,7 +18,6 @@ import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clie
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { normalizeText } from '@condo/domains/common/utils/text'
-import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
@@ -33,6 +32,16 @@ const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/err
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
+import { useInputWithCounter } from '../../../common/hooks/useInputWithCounter'
+const { TabPane } = Tabs
+
+const ContactsInfoFocusContainer = styled(FocusContainer)`
+  position: relative;
+  left: ${({ padding }) => padding ? padding : '24px'};
+  box-sizing: border-box;
+  width: 100%;
+  background: ${colors.backgroundLightGrey};
+`
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
@@ -50,20 +59,34 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
 
                     return (
-                        <ContactsEditorComponent
-                            form={form}
-                            fields={{
-                                id: 'contact',
-                                phone: 'clientPhone',
-                                name: 'clientName',
-                            }}
-                            value={value}
-                            // Local `property` cannot be used here, because `PropertyAddressSearchInput`
-                            // sets `Property.address` as its value, but we need `Property.id` here
-                            property={selectedPropertyId}
-                            unitName={unitName}
-                            disabled={!property}
-                        />
+                        <ContactsInfoFocusContainer className={!property && 'disabled'}>
+                            <Tabs defaultActiveKey="1" style={{ width: '100%' }}>
+                                <TabPane tab={TicketFromResidentMessage} key="1">
+                                    <ContactsEditorComponent
+                                        form={form}
+                                        fields={{
+                                            id: 'contact',
+                                            phone: 'clientPhone',
+                                            name: 'clientName',
+                                        }}
+                                        value={value}
+                                        // Local `property` cannot be used here, because `PropertyAddressSearchInput`
+                                        // sets `Property.address` as its value, but we need `Property.id` here
+                                        property={selectedPropertyId}
+                                        unitName={unitName}
+                                    />
+                                </TabPane>
+                                <TabPane
+                                    tab={
+                                        <Tooltip title={NotImplementedYetMessage}>
+                                            {TicketNotFromResidentMessage}
+                                        </Tooltip>
+                                    }
+                                    key="2"
+                                    disabled
+                                />
+                            </Tabs>
+                        </ContactsInfoFocusContainer>
                     )
                 }}
             </TicketFormItem>
@@ -95,9 +118,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
         predictTicketClassifier,
     } = useTicketThreeLevelsClassifierHook({ initialValues })
 
-    const details = get(initialValues, 'details')
-    const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
-
+    const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, 500)
 
     return (
         <Col span={24}>
@@ -113,15 +134,13 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                     <TicketFormItem name={'details'} rules={validations.details}>
                                         <InputWithCounter
                                             InputComponent={Input.TextArea}
-                                            currentLength={currentDetailsLength}
-                                            maxLength={500}
-                                            onChange={e => setCurrentDetailsLength(e.target.value.length)}
                                             onBlur={e => predictTicketClassifier(e.target.value)}
                                             placeholder={DescriptionPlaceholder}
                                             disabled={disableUserInteraction}
                                             style={INPUT_WITH_COUNTER_STYLE}
                                             data-cy={'ticket__description-input'}
                                         />
+                                        <Counter style={{ float: 'right' }} />
                                     </TicketFormItem>
                                 </Col>
                                 <Col span={24} style={{ 'padding-top': '24px' }}>

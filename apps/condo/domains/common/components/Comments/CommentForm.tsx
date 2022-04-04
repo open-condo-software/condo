@@ -7,8 +7,8 @@ import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
 import { SendMessage } from '../icons/SendMessage'
 import { useState } from 'react'
-import { InputWithCounter } from '../InputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { useInputWithCounter } from '../../hooks/useInputWithCounter'
 
 const Holder = styled.div`
   position: relative;
@@ -36,7 +36,8 @@ export const MAX_COMMENT_LENGTH = 300
 const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
-    const [commentLength, setCommentLength] = useState<number>(0)
+
+    const { InputWithCounter, Counter, setTextLength: setCommentLength } = useInputWithCounter(Input.TextArea, MAX_COMMENT_LENGTH)
 
     const handleKeyUp = (event, form) => {
         if (event.keyCode === 13 && !event.shiftKey) {
@@ -74,15 +75,12 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                             rules={validations.comment}
                         >
                             <InputWithCounter
-                                InputComponent={Input.TextArea}
-                                currentLength={commentLength}
                                 maxLength={MAX_COMMENT_LENGTH}
                                 placeholder={PlaceholderMessage}
                                 className="white"
                                 autoSize={{ minRows: 1, maxRows: 6 }}
                                 onKeyDown={handleKeyDown}
                                 onKeyUp={(event) => {handleKeyUp(event, form)}}
-                                onChange={e => setCommentLength(e.target.value.length)}
                             />
                         </Form.Item>
                         <Button
