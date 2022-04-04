@@ -37,7 +37,6 @@ function ResetPageView () {
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const TooManyRequestsMsg = intl.formatMessage({ id: 'TooManyRequests' })
 
-    //TODO Set global style for ALL Phone Form Label(!!!!)
     const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
 
 
@@ -194,7 +193,7 @@ const ResetPage: AuthPage = () => {
         <RegisterContextProvider><ResetPageView /></RegisterContextProvider>
     )
 }
-
+ResetPage.headerAction = <></>
 ResetPage.container = AuthLayout
 
 export default ResetPage
