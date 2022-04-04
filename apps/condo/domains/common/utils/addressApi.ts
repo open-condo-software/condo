@@ -70,6 +70,7 @@ export class AddressApi implements IAddressApi {
         from_bound: { value: 'country' },
         to_bound: { value: 'house' },
         restrict_value: true,
+        count: 20,
     }
     private addressMetaCache: Map<string, AddressMetaField> = new Map()
 }
