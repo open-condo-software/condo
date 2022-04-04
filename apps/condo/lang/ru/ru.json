@@ -967,7 +967,6 @@
   "contact.Contact.ContactsEditor.AnotherContact": "Другой контакт",
   "contact.Contact.ContactsEditor.CannotCreateContact": "Контактные данные будут сохранены в заявке, однако, контакт не будет создан, поскольку у текущего пользователя нет на это прав",
   "Comments.title": "Комментарии",
-  "Comments.list.description": "Жители не видят. Только для сотрудников вашей организации.",
   "Comments.tab.organization": "Внутренние",
   "Comments.tab.organization.prompt.title": "Пока нет ни одного внутреннего комментария",
   "Comments.tab.organization.prompt.description": "Можно оставлять внутренние комментарии — их увидят только сотрудники организации",

@@ -37,15 +37,12 @@ const Container = styled.aside<IContainerProps>`
         }
     }}
 
-  > * {
-    padding: 24px
-  }
-
   display: flex;
   flex-flow: column nowrap;
   align-content: space-between;
 `
 const Head = styled.div`
+  padding: 24px;
   border-bottom: solid thin ${colors.lightGrey};
   font-style: normal;
   font-weight: bold;
@@ -54,14 +51,12 @@ const Head = styled.div`
   margin-bottom: -24px;
 `
 const Body = styled.div`
+  padding: 12px 24px 0;
   overflow-y: scroll;
   flex: 1 1 auto;
-  padding-top: 12px;
 `
-const Footer = styled.div<{
-    hasComments?: boolean
-}>`
-  ${({ hasComments }) => hasComments ? 'border-top: solid thin #D9D9D9;' : ''}
+const Footer = styled.div`
+  border-top: 1px solid ${colors.inputBorderGrey};
   padding: 8px;
 `
 const EmptyContainer = styled.div`
@@ -75,13 +70,6 @@ const EmptyContainer = styled.div`
     display: none;
   }
 `
-
-const DescriptionContainer = styled.div`
-  font-size: 12px;
-  margin-bottom: 24px;
-`
-
-const COMMENT_FORM_DIVIDER_STYLES: CSSProperties = { margin: 0, padding: 0 }
 
 type ActionsForComment = {
     updateAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
@@ -99,27 +87,31 @@ interface ICommentsListProps {
 const { TabPane } = Tabs
 
 const CommentsTabsContainer = styled.div`
-    padding: 0 0 24px 0;
+    padding: 0;
     display: flex;
     flex: 1 1 auto;
-  
-    .ant-tabs-nav {
-      border-bottom: 1px solid ${colors.inputBorderGrey};
-      padding: 28px 0;
-    }
+
+    height: calc(100vh - 340px);
+    overflow-y: scroll;
   
     .ant-tabs-card.ant-tabs {
       flex: 1 1 auto;
 
-      & > .ant-tabs-nav .ant-tabs-tab {
-        border: none;
-        background-color: transparent;
-        padding: 9px 20px;
-        border-radius: 4px;
+      & > .ant-tabs-nav {
+        border-bottom: 1px solid ${colors.inputBorderGrey};
+        padding: 28px 0;
+        margin: 0;
         
-        &.ant-tabs-tab-active {
-          background-color: white;
-          box-shadow: ${shadows.main};
+        .ant-tabs-tab {
+          border: none;
+          background-color: transparent;
+          padding: 9px 20px;
+          border-radius: 4px;
+
+          &.ant-tabs-tab-active {
+            background-color: white;
+            box-shadow: ${shadows.main};
+          }
         }
       }
       
@@ -146,7 +138,6 @@ const Comments: React.FC<ICommentsListProps> = ({
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
-    const ListDescriptionMessage = intl.formatMessage({ id: 'Comments.list.description' })
     const CannotCreateCommentsMessage = intl.formatMessage({ id: 'Comments.cannotCreateComments' })
     const InternalCommentsMessage = intl.formatMessage({ id: 'Comments.tab.organization' })
     const PromptInternalCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.organization.prompt.title' })
@@ -192,9 +183,6 @@ const Comments: React.FC<ICommentsListProps> = ({
                             </EmptyContainer>
                         ) : (
                             <Body ref={bodyRef}>
-                                <DescriptionContainer>
-                                    {ListDescriptionMessage}
-                                </DescriptionContainer>
                                 {comments.map(comment => {
                                     const { updateAction, deleteAction } = actionsFor(comment)
                                     return (
@@ -228,9 +216,6 @@ const Comments: React.FC<ICommentsListProps> = ({
                             </EmptyContainer>
                         ) : (
                             <Body ref={bodyRef}>
-                                <DescriptionContainer>
-                                    {ListDescriptionMessage}
-                                </DescriptionContainer>
                                 {comments.map(comment => {
                                     const { updateAction, deleteAction } = actionsFor(comment)
                                     return (
@@ -247,8 +232,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                     </TabPane>
                 </Tabs>
             </CommentsTabsContainer>
-            <Divider style={COMMENT_FORM_DIVIDER_STYLES} />
-            <Footer hasComments={comments.length > 0}>
+            <Footer>
                 {canCreateComments ? (
                     <CommentForm action={createAction}/>
                 ) : (
