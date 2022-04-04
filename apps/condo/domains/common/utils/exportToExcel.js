@@ -1,10 +1,16 @@
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const conf = require('@core/config')
 
+const EXPORT_TYPE_PAYMENTS = 'payments'
+const EXPORT_TYPE_CONTACTS = 'contacts'
+const EXPORT_TYPE_METERS = 'meters'
+const EXPORT_TYPE_BUILDINGS = 'buildings'
+
 const EXCEL_TEMPLATES_HEADERS = {
-    payments: ['date', 'account', 'address', 'unitName', 'type', 'transaction', 'amount'],
-    contacts: ['name', 'address', 'unitName', 'phone', 'email'],
-    meters: ['date', 'address', 'unitName', 'accountNumber', 'resource', 'number', 'place', 'value1', 'value2', 'value3', 'value4', 'clientName', 'source'],
+    [EXPORT_TYPE_PAYMENTS]: ['date', 'account', 'address', 'unitName', 'type', 'transaction', 'amount'],
+    [EXPORT_TYPE_CONTACTS]: ['name', 'address', 'unitName', 'phone', 'email'],
+    [EXPORT_TYPE_METERS]: ['date', 'address', 'unitName', 'accountNumber', 'resource', 'number', 'place', 'value1', 'value2', 'value3', 'value4', 'clientName', 'source'],
+    [EXPORT_TYPE_BUILDINGS]: ['organization', 'address', 'unitsCount', 'uninhabitedUnitsCount', 'ticketsInWork', 'ticketsClosed'],
 }
 
 /**
@@ -29,6 +35,10 @@ function getHeadersTranslations (registry, locale = conf.DEFAULT_LOCALE) {
 }
 
 module.exports = {
+    EXPORT_TYPE_PAYMENTS,
+    EXPORT_TYPE_CONTACTS,
+    EXPORT_TYPE_METERS,
+    EXPORT_TYPE_BUILDINGS,
     EXCEL_TEMPLATES_HEADERS,
     getHeadersTranslations,
     translationStringKeyForExcelExportHeader,
