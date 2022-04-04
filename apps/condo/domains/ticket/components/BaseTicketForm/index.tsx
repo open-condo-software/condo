@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, FormItemProps } from 'antd'
 import { get, isEmpty }  from 'lodash'
@@ -94,7 +94,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     )
 }
 
-const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%' }
+const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%', color: colors.sberGrey[5], fontSize: '12px' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 
 export const TicketFormItem: React.FC<FormItemProps> = (props) => (

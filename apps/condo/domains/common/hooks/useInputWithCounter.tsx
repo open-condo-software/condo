@@ -6,8 +6,6 @@ import { get } from 'lodash'
 
 type AntdInputProps = InputProps | TextAreaProps
 
-const COUNTER_STYLES: CSSProperties = { color: colors.sberGrey[5], fontSize: '12px' }
-
 export const useInputWithCounter = (InputComponent, maxLength) => {
     const [textLength, setTextLength] = useState<number>(0)
 
@@ -25,10 +23,10 @@ export const useInputWithCounter = (InputComponent, maxLength) => {
     ), [InputComponent, maxLength])
 
     const Counter = useCallback((props) => (
-        <Typography.Text style={{ ...COUNTER_STYLES, ...props.style }}>
+        <Typography.Text {...props}>
             {textLength}/{maxLength}
         </Typography.Text>
     ), [maxLength, textLength])
 
-    return { InputWithCounter, Counter, setTextLength }
+    return { InputWithCounter, Counter, textLength, setTextLength }
 }
