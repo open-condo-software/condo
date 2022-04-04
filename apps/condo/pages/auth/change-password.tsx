@@ -128,7 +128,7 @@ const ChangePasswordPage: AuthPage = () => {
                 <Typography.Title level={3}>{ChangePasswordTokenErrorLabel}</Typography.Title>
                 <Typography.Text style={{ fontSize: fontSizes.content }}>{ChangePasswordTokenErrorMessage}</Typography.Text>
                 <Button
-                    type='sberPrimary'
+                    type='sberDefaultGradient'
                     style={{ marginTop: '16px' }}
                     onClick={() => Router.push('/auth/forgot')}
                 >{ChangePasswordTokenErrorConfirmLabel}</Button>
@@ -197,7 +197,7 @@ const ChangePasswordPage: AuthPage = () => {
     )
 }
 
-
+ChangePasswordPage.headerAction = <></>
 ChangePasswordPage.container = AuthLayout
 
 export default ChangePasswordPage
