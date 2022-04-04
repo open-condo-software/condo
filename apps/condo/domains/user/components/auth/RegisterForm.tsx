@@ -139,6 +139,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                 name='name'
                                 label={NameMsg}
                                 rules={validators.name}
+                                data-cy={'register-name-item'}
                             >
                                 <Input placeholder={ExampleNameMsg}/>
                             </Form.Item>
@@ -148,6 +149,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                 name='email'
                                 label={EmailMsg}
                                 rules={validators.email}
+                                data-cy={'register-email-item'}
                             >
                                 <Input autoComplete='chrome-off' placeholder={EmailPlaceholder}/>
                             </Form.Item>
@@ -157,6 +159,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                 name='password'
                                 label={PASSWORD_MSG_LABEL}
                                 rules={validators.password}
+                                data-cy={'register-password-item'}
                             >
                                 <Input.Password autoComplete='new-password'/>
                             </Form.Item>
@@ -167,6 +170,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                 label={CONFIRM_PASSWORD_MSG_LABEL}
                                 dependencies={['password']}
                                 rules={validators.confirm}
+                                data-cy={'register-confirmpassword-item'}
                             >
                                 <Input.Password/>
                             </Form.Item>
@@ -181,6 +185,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                             htmlType='submit'
                             loading={isLoading}
                             style={{ width: '100%' }}
+                            data-cy={'registercomplete-button'}
                         >
                             {RegisterMsg}
                         </Button>

@@ -180,6 +180,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                             <Form.Item
                                 name='smsCode'
                                 label={SmsCodeTitle}
+                                data-cy={'register-smscode-item'}
                                 rules={[
                                     {
                                         required: true,
