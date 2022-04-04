@@ -11,6 +11,10 @@ const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/err
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { exportPayments } = require('@condo/domains/billing/utils/serverSchema')
 const { get } = require('lodash')
+const { getHeadersTranslations } = require('@condo/domains/common/utils/exportToExcel')
+const { i18n } = require('@condo/domains/common/utils/localesLoader')
+const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const conf = require('@core/config')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
@@ -32,6 +36,8 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
             schema: 'exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { dv, sender, where, sortBy, timeZone: timeZoneFromUser } = args.data
+
+                const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
@@ -57,7 +63,13 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                 const linkToFile = await createExportFile({
                     fileName: `payments_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: './domains/acquiring/templates/PaymentsExportTemplate.xlsx',
-                    replaces: { objs: excelRows },
+                    replaces: {
+                        objs: excelRows,
+                        i18n: {
+                            ...getHeadersTranslations('payments', locale),
+                            sheetName: i18n('menu.Payments', { lang: locale }),
+                        },
+                    },
                     meta: {
                         listkey: 'Payment',
                         id: objs[0].id,
