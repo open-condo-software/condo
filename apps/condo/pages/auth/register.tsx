@@ -24,7 +24,7 @@ const RegisterPage: AuthPage = () => {
     const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
-    const [state, setState] = useState('inputPhone')
+    const [step, setStep] = useState('inputPhone')
 
     const [createOnBoarding] = useMutation(CREATE_ONBOARDING_MUTATION, {
         onCompleted: () => {
@@ -49,11 +49,11 @@ const RegisterPage: AuthPage = () => {
 
     useEffect(() => {
         if (token && isConfirmed) {
-            setState('register')
+            setStep('register')
         } else if (token) {
-            setState('validatePhone')
+            setStep('validatePhone')
         } else {
-            setState('inputPhone')
+            setStep('inputPhone')
         }
     }, [token, isConfirmed])
 
@@ -72,7 +72,7 @@ const RegisterPage: AuthPage = () => {
                     onClick={() => {
                         setToken(null)
                         setTokenError(null)
-                        setState('inputPhone')
+                        setStep('inputPhone')
                         Router.push('/auth/register')
                     }}
                 >
@@ -83,11 +83,11 @@ const RegisterPage: AuthPage = () => {
     }
 
     const steps = {
-        inputPhone: <InputPhoneForm onFinish={() => setState('validatePhone')} />,
+        inputPhone: <InputPhoneForm onFinish={() => setStep('validatePhone')} />,
         validatePhone: <ValidatePhoneForm
-            onFinish={() => setState('register')}
+            onFinish={() => setStep('register')}
             onReset={() => {
-                setState('inputPhone')
+                setStep('inputPhone')
                 Router.push('/auth/register')
             }}
             title={RegistrationTitleMsg}
@@ -97,7 +97,7 @@ const RegisterPage: AuthPage = () => {
 
     return (
         <RegisterContextProvider>
-            { steps[state] }
+            { steps[step] }
         </RegisterContextProvider>
     )
 }
