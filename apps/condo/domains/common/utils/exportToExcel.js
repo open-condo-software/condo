@@ -3,6 +3,7 @@ const conf = require('@core/config')
 
 const EXCEL_TEMPLATES_HEADERS = {
     payments: ['date', 'account', 'address', 'unitName', 'type', 'transaction', 'amount'],
+    contacts: ['name', 'address', 'unitName', 'phone', 'email'],
 }
 
 /**
