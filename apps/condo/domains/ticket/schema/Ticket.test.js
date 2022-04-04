@@ -24,7 +24,7 @@ const {
     PUSH_FAKE_TOKEN_FAIL,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
-    TICKET_STATUS_IN_PROGRESS,
+    TICKET_STATUS_IN_PROGRESS_TYPE,
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
@@ -1581,7 +1581,7 @@ describe('Ticket', () => {
 
             await sleep(1000)
 
-            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS }
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
             const message1 = await Message.getOne(admin, messageWhere)
 
             expect(message1.status).toEqual('delivered')

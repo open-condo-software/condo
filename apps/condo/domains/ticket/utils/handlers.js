@@ -1,5 +1,5 @@
 const get = require('lodash/get')
-import { useIntl } from '@core/next/intl'
+const { i18n } = require('@condo/domains/common/utils/localesLoader')
 
 const conf = require('@core/config')
 const { getByCondition } = require('@core/keystone/schema')
@@ -20,6 +20,7 @@ const {
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Ticket } = require('./serverSchema')
+const { PUSH_TRANSPORT } = require('../../notification/constants/constants')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -86,19 +87,23 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     /**
      * ticket change warranty indicate
      */
-    result[WARRANTY_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextWarranty || isUpdateOperation && nextWarranty && nextWarranty !== prevWarranty)
+    result[WARRANTY_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextWarranty || isUpdateOperation && nextWarranty !== prevWarranty)
 
     /**
      * ticket change paid indicate
      */
-    result[PAID_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextPaid || isUpdateOperation && nextPaid && nextPaid !== prevPaid)
+    result[PAID_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextPaid || isUpdateOperation && nextPaid !== prevPaid)
 
     /**
      * ticket change emergency indicate
      */
-    result[EMERGENCY_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextEmergency || isUpdateOperation && nextEmergency && nextEmergency !== prevEmergency)
+    result[EMERGENCY_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextEmergency || isUpdateOperation  && nextEmergency !== prevEmergency)
 
     return result
+}
+
+function translationStringKeyForIndicatorType (messageType) {
+    return `notification.messages.${messageType}.indicatorType`
 }
 
 /**
@@ -110,12 +115,6 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
  * @returns {Promise<void>}
  */
 const handleTicketEvents = async (requestData) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const intl = useIntl()
-    const IndicatorTypeWarranty = intl.formatMessage({ id: 'notification.messages.indicatorType.warranty' })
-    const IndicatorTypePaid = intl.formatMessage({ id: 'notification.messages.indicatorType.paid' })
-    const IndicatorTypeEmergency = intl.formatMessage({ id: 'notification.messages.indicatorType.emergency' })
-
     const eventTypes = detectEventTypes(requestData)
     const { operation, existingItem, updatedItem, context } = requestData
     const isCreateOperation =  operation === 'create'
@@ -220,14 +219,14 @@ const handleTicketEvents = async (requestData) => {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
-            type: !nextWarranty ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
+            type: nextWarranty ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
             meta: {
                 dv: 1,
                 data: {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
                     userId: client,
-                    indicatorType: IndicatorTypeWarranty,
+                    indicatorType: i18n(translationStringKeyForIndicatorType(WARRANTY_CHANGED_EVENT_TYPE), { lang }),
                 },
             },
             sender: updatedItem.sender,
@@ -238,14 +237,14 @@ const handleTicketEvents = async (requestData) => {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
-            type: !nextPaid ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
+            type: nextPaid ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
             meta: {
                 dv: 1,
                 data: {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
                     userId: client,
-                    indicatorType: IndicatorTypePaid,
+                    indicatorType: i18n(translationStringKeyForIndicatorType(PAID_CHANGED_EVENT_TYPE), { lang }),
                 },
             },
             sender: updatedItem.sender,
@@ -256,14 +255,14 @@ const handleTicketEvents = async (requestData) => {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
-            type: !nextEmergency ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
+            type: nextEmergency ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
             meta: {
                 dv: 1,
                 data: {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
                     userId: client,
-                    indicatorType: IndicatorTypeEmergency,
+                    indicatorType: i18n(translationStringKeyForIndicatorType(EMERGENCY_CHANGED_EVENT_TYPE), { lang }),
                 },
             },
             sender: updatedItem.sender,
