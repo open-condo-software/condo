@@ -32,15 +32,14 @@ export const Header = styled<typeof PageHeader>(PageHeader)`
   background: transparent;
   width: 100%;
   z-index: 1;
-  margin-left: 10%;
-  margin-top: 3%;
+  pointer-events: none;
+  padding: 50px 10px 40px 60px;
 `
 
 export const MobileHeader = styled.div`
   background: ${colors.backgroundLightGrey};
   display: flex;
   flex-direction: column;
-  margin: 0;
   width: 100%;
   z-index: 1;
 `
@@ -48,7 +47,6 @@ export const MobileHeader = styled.div`
 export const ActionContainer = styled.div`
   display: flex;
   justify-content: center;
-  padding: 16px 20px 0;
 `
 
 export const PosterWrapper = styled.div`

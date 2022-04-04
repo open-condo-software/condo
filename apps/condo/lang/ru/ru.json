@@ -267,6 +267,7 @@
   "pages.auth.SecurityCheckFailed": "Вы не прошли проверку CAPTCHA",
   "pages.auth.Registered": "Зарегистрирован",
   "pages.auth.RegistrationTitle": "Регистрация",
+  "pages.auth.IAmCustomer": "Я — житель!",
   "pages.auth.reset.AndSignInMsg": "и войти в CRM",
   "pages.auth.reset.CheckEmail": "Проверьте почту",
   "pages.auth.reset.CheckPhone": "Проверьте СМС",
