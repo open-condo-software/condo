@@ -1,12 +1,13 @@
 import React, { CSSProperties, useEffect, useRef } from 'react'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
-import { Divider, Empty, Typography } from 'antd'
+import { Divider, Empty, Tabs, Typography } from 'antd'
 import { useLayoutContext } from '../LayoutContext'
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
-import { colors } from '@condo/domains/common/constants/style'
-import { ITicketCommentFormState, ITicketCommentUIState } from '../../../ticket/utils/clientSchema/TicketComment'
+import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
+import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
+import { COMMENT_TYPES } from '@condo/domains/ticket/constants'
 
 export type TComment = {
     id: string,
@@ -68,6 +69,7 @@ const EmptyContainer = styled.div`
   flex: 1 1;
   display: flex;
   align-items: center;
+  justify-content: center;
 
   .ant-empty-image {
     display: none;
@@ -94,6 +96,48 @@ interface ICommentsListProps {
     canCreateComments: boolean,
 }
 
+const { TabPane } = Tabs
+
+const CommentsTabsContainer = styled.div`
+    padding: 0 0 24px 0;
+    display: flex;
+    flex: 1 1 auto;
+  
+    .ant-tabs-nav {
+      border-bottom: 1px solid ${colors.inputBorderGrey};
+      padding: 28px 0;
+    }
+  
+    .ant-tabs-card.ant-tabs {
+      flex: 1 1 auto;
+
+      & > .ant-tabs-nav .ant-tabs-tab {
+        border: none;
+        background-color: transparent;
+        padding: 9px 20px;
+        border-radius: 4px;
+        
+        &.ant-tabs-tab-active {
+          background-color: white;
+          box-shadow: ${shadows.main};
+        }
+      }
+      
+      & > .ant-tabs-content-holder {
+        display: flex;
+        
+        .ant-tabs-content.ant-tabs-content-top {
+          display: flex;
+          flex: 1 1;
+          
+          .ant-tabs-tabpane {
+            display: flex;
+          }
+        }
+      }
+    }
+`
+
 const Comments: React.FC<ICommentsListProps> = ({
     comments,
     createAction,
@@ -102,10 +146,14 @@ const Comments: React.FC<ICommentsListProps> = ({
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
-    const PromptTitleMessage = intl.formatMessage({ id: 'Comments.prompt.title' })
-    const PromptDescriptionMessage = intl.formatMessage({ id: 'Comments.prompt.description' })
     const ListDescriptionMessage = intl.formatMessage({ id: 'Comments.list.description' })
     const CannotCreateCommentsMessage = intl.formatMessage({ id: 'Comments.cannotCreateComments' })
+    const InternalCommentsMessage = intl.formatMessage({ id: 'Comments.tab.organization' })
+    const PromptInternalCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.organization.prompt.title' })
+    const PromptInternalCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.organization.prompt.description' })
+    const ResidentCommentsMessage = intl.formatMessage({ id: 'Comments.tab.resident' })
+    const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
+    const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
 
     const bodyRef = useRef(null)
     const { isSmall } = useLayoutContext()
@@ -123,36 +171,82 @@ const Comments: React.FC<ICommentsListProps> = ({
     return (
         <Container isSmall={isSmall}>
             <Head>{TitleMessage}</Head>
-            {comments.length === 0 ? (
-                <EmptyContainer>
-                    <Empty
-                        image={null}
-                        description={
-                            <>
-                                <Typography.Text strong>{PromptTitleMessage}</Typography.Text><br/>
-                                <Typography.Text>{PromptDescriptionMessage}</Typography.Text>
-                            </>
-                        }
-                    />
-                </EmptyContainer>
-            ) : (
-                <Body ref={bodyRef}>
-                    <DescriptionContainer>
-                        {ListDescriptionMessage}
-                    </DescriptionContainer>
-                    {comments.map(comment => {
-                        const { updateAction, deleteAction } = actionsFor(comment)
-                        return (
-                            <Comment
-                                key={comment.id}
-                                comment={comment}
-                                updateAction={updateAction}
-                                deleteAction={deleteAction}
-                            />
-                        )
-                    })}
-                </Body>
-            )}
+            <CommentsTabsContainer className="card-container">
+                <Tabs defaultActiveKey="1" centered type={'card'} tabBarGutter={4}>
+                    <TabPane tab={InternalCommentsMessage} key={COMMENT_TYPES.ORGANIZATION}>
+                        {comments.length === 0 ? (
+                            <EmptyContainer>
+                                <Empty
+                                    image={null}
+                                    description={
+                                        <>
+                                            <Typography.Paragraph strong style={{ fontSize: fontSizes.content }}>
+                                                {PromptInternalCommentsTitleMessage}
+                                            </Typography.Paragraph>
+                                            <Typography.Paragraph type={'secondary'} style={{ fontSize: fontSizes.content }}>
+                                                {PromptInternalCommentsDescriptionMessage}
+                                            </Typography.Paragraph>
+                                        </>
+                                    }
+                                />
+                            </EmptyContainer>
+                        ) : (
+                            <Body ref={bodyRef}>
+                                <DescriptionContainer>
+                                    {ListDescriptionMessage}
+                                </DescriptionContainer>
+                                {comments.map(comment => {
+                                    const { updateAction, deleteAction } = actionsFor(comment)
+                                    return (
+                                        <Comment
+                                            key={comment.id}
+                                            comment={comment}
+                                            updateAction={updateAction}
+                                            deleteAction={deleteAction}
+                                        />
+                                    )
+                                })}
+                            </Body>
+                        )}
+                    </TabPane>
+                    <TabPane tab={ResidentCommentsMessage} key={COMMENT_TYPES.RESIDENT}>
+                        {comments.length === 0 ? (
+                            <EmptyContainer>
+                                <Empty
+                                    image={null}
+                                    description={
+                                        <>
+                                            <Typography.Paragraph strong style={{ fontSize: fontSizes.content }}>
+                                                {PromptResidentCommentsTitleMessage}
+                                            </Typography.Paragraph>
+                                            <Typography.Paragraph type={'secondary'} style={{ fontSize: fontSizes.content }}>
+                                                {PromptResidentCommentsDescriptionMessage}
+                                            </Typography.Paragraph>
+                                        </>
+                                    }
+                                />
+                            </EmptyContainer>
+                        ) : (
+                            <Body ref={bodyRef}>
+                                <DescriptionContainer>
+                                    {ListDescriptionMessage}
+                                </DescriptionContainer>
+                                {comments.map(comment => {
+                                    const { updateAction, deleteAction } = actionsFor(comment)
+                                    return (
+                                        <Comment
+                                            key={comment.id}
+                                            comment={comment}
+                                            updateAction={updateAction}
+                                            deleteAction={deleteAction}
+                                        />
+                                    )
+                                })}
+                            </Body>
+                        )}
+                    </TabPane>
+                </Tabs>
+            </CommentsTabsContainer>
             <Divider style={COMMENT_FORM_DIVIDER_STYLES} />
             <Footer hasComments={comments.length > 0}>
                 {canCreateComments ? (
