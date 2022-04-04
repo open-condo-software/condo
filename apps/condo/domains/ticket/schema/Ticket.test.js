@@ -24,6 +24,7 @@ const {
     PUSH_FAKE_TOKEN_FAIL,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
+    MESSAGE_ERROR_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 const { Message, syncDeviceByTestClient } = require('@condo/domains/notification/utils/testSchema')
@@ -1287,9 +1288,12 @@ describe('Ticket', () => {
 
             const message1 = await Message.getOne(admin, messageWhere)
 
-            expect(message1.status).toEqual('delivered')
+            expect(message1.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
-            expect(message1.processingMeta.transport).toEqual('email')
+            expect(message1.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message1.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message1.processingMeta.transport).toEqual('sms')
         })
@@ -1319,9 +1323,12 @@ describe('Ticket', () => {
 
             const message1 = await Message.getOne(admin, messageWhere)
 
-            expect(message1.status).toEqual('delivered')
+            expect(message1.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
-            expect(message1.processingMeta.transport).toEqual('email')
+            expect(message1.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message1.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message1.processingMeta.transport).toEqual('sms')
 
@@ -1375,9 +1382,12 @@ describe('Ticket', () => {
 
             const message1 = await Message.getOne(admin, messageWhere)
 
-            expect(message1.status).toEqual('delivered')
+            expect(message1.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
-            expect(message1.processingMeta.transport).toEqual('email')
+            expect(message1.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message1.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message1.processingMeta.transport).toEqual('sms')
         })
@@ -1407,9 +1417,12 @@ describe('Ticket', () => {
 
             const message1 = await Message.getOne(admin, messageWhere)
 
-            expect(message1.status).toEqual('delivered')
+            expect(message1.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
-            expect(message1.processingMeta.transport).toEqual('email')
+            expect(message1.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message1.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message1.processingMeta.transport).toEqual('sms')
         })
