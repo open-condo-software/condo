@@ -24,6 +24,7 @@ const {
     PUSH_FAKE_TOKEN_FAIL,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
+    TICKET_STATUS_IN_PROGRESS,
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
@@ -1555,6 +1556,37 @@ describe('Ticket', () => {
             // expect(message1.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message1.processingMeta.transport).toEqual('sms')
+        })
+
+    })
+
+    describe( 'NotificationChangeStatus', () => {
+        test('resident: update status ticket and send email message', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS }
+            const message1 = await Message.getOne(admin, messageWhere)
+
+            expect(message1.status).toEqual('delivered')
+            expect(message1.meta.data.ticketId).toEqual(ticket.id)
+            expect(message1.processingMeta.transport).toEqual('email')
         })
 
     })
