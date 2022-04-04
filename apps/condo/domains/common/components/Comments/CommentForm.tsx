@@ -79,7 +79,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                 initialValues={{
                     [fieldName]: initialValue,
                 }}
-                action={action}
+                action={(values) => action({ ...values, type: 'organization' })}
                 resetOnComplete={true}
             >
                 {({ handleSave, isLoading, form }) => (
