@@ -132,6 +132,14 @@ async function canSetUserField ({ authentication: { item: user }, originalInput 
     return get(originalInput, ['user', 'connect', 'id']) === user.id
 }
 
+async function canReadUserField ({ authentication: { item: user }, existingItem }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin || user.type === STAFF) return true
+
+    return get(existingItem, 'user') === user.id
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -140,4 +148,5 @@ module.exports = {
     canReadTicketComments,
     canManageTicketComments,
     canSetUserField,
+    canReadUserField,
 }
