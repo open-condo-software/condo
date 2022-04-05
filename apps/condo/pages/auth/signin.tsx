@@ -13,7 +13,7 @@ const SignInPage: AuthPage = () => {
                     <TabsAuthAction currentActiveKey={'/auth/signin'}/>
                 </Col>
                 <Col span={24}>
-                    <SignInForm />
+                    <SignInForm/>
                 </Col>
             </Row>
         </>

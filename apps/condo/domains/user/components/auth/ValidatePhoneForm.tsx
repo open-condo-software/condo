@@ -17,7 +17,7 @@ import {
 import { COMPLETE_CONFIRM_PHONE_MUTATION, RESEND_CONFIRM_PHONE_SMS_MUTATION } from '@condo/domains/user/gql'
 import { RegisterContext } from './RegisterContextProvider'
 import { colors } from '@condo/domains/common/constants/style'
-import { ResponsiveCol } from '../containers/ResponsiveCol'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
 
 const ROW_STYLES: React.CSSProperties = {

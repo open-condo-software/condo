@@ -21,7 +21,7 @@ import { ResponsiveCol } from '../../domains/user/components/containers/Responsi
 
 
 const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
-const FORM_TITLE_STYLES: React.CSSProperties = { textAlign:'start', fontWeight: 700, fontSize: 20 }
+const FORM_TITLE_STYLES: React.CSSProperties = { textAlign: 'start', fontWeight: 700, fontSize: 20 }
 const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
 
 const ChangePasswordPage: AuthPage = () => {
@@ -87,7 +87,7 @@ const ChangePasswordPage: AuthPage = () => {
                 }, () => {
                     auth.refetch().then(() => {
                         setIsSaving(false)
-                        Router.push( '/')
+                        Router.push('/')
                     })
                 })
             },
@@ -119,15 +119,16 @@ const ChangePasswordPage: AuthPage = () => {
             .then(captcha => checkConfirmPhoneActionToken({ variables: { data: { token, captcha } } }))
     }, [executeRecaptcha, token])
 
-    if (isLoading){
-        return <Loader size="large" delay={0} fill />
+    if (isLoading) {
+        return <Loader size="large" delay={0} fill/>
     }
 
     if (recoveryTokenError) {
         return (
             <BasicEmptyListView>
                 <Typography.Title level={3}>{ChangePasswordTokenErrorLabel}</Typography.Title>
-                <Typography.Text style={{ fontSize: fontSizes.content }}>{ChangePasswordTokenErrorMessage}</Typography.Text>
+                <Typography.Text
+                    style={{ fontSize: fontSizes.content }}>{ChangePasswordTokenErrorMessage}</Typography.Text>
                 <Button
                     type='sberDefaultGradient'
                     style={{ marginTop: '16px' }}
@@ -152,10 +153,11 @@ const ChangePasswordPage: AuthPage = () => {
                         <Col span={24}>
                             <Row>
                                 <Form.Item>
-                                    <Typography.Title level={2} style={FORM_TITLE_STYLES}>{ResetTitle}</Typography.Title>
+                                    <Typography.Title level={2}
+                                        style={FORM_TITLE_STYLES}>{ResetTitle}</Typography.Title>
                                 </Form.Item>
                                 <Form.Item name="token" style={{ display: 'none' }}>
-                                    <Input type="hidden" />
+                                    <Input type="hidden"/>
                                 </Form.Item>
                                 <Col span={24}>
                                     <Form.Item
@@ -163,7 +165,7 @@ const ChangePasswordPage: AuthPage = () => {
                                         label={CreateNewPasswordMsg}
                                         rules={validations.password}
                                     >
-                                        <Input.Password />
+                                        <Input.Password/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
@@ -173,7 +175,7 @@ const ChangePasswordPage: AuthPage = () => {
                                         dependencies={['password']}
                                         rules={validations.confirmPassword}
                                     >
-                                        <Input.Password />
+                                        <Input.Password/>
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -185,7 +187,7 @@ const ChangePasswordPage: AuthPage = () => {
                                     type='sberDefaultGradient'
                                     loading={isSaving}
                                     htmlType="submit"
-                                    style={{ width:'100%' }}
+                                    style={{ width: '100%' }}
                                 >
                                     {SaveMsg} {AndSignInMsg}
                                 </Button>

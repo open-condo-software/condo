@@ -13,8 +13,8 @@ import { useAuth } from '@core/next/auth'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { JAVASCRIPT_URL_XSS } from '@condo/domains/common/constants/regexps'
-import { colors } from '../../../common/constants/style'
-import { ResponsiveCol } from '../containers/ResponsiveCol'
+import { colors } from '@condo/domains/common/constants/style'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
@@ -35,8 +35,8 @@ export const SignInForm = (): React.ReactElement => {
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
     const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
 
-    const LOGIN_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
-    const PASSWORD_LABEL = <label style={ { alignSelf:'end' } }>{PasswordMsg}</label>
+    const LOGIN_PHONE_LABEL = <label style={{ alignSelf: 'end' }}>{PhoneMsg}</label>
+    const PASSWORD_LABEL = <label style={{ alignSelf: 'end' }}>{PasswordMsg}</label>
 
     const [form] = Form.useForm()
     const router = useRouter()
@@ -110,7 +110,7 @@ export const SignInForm = (): React.ReactElement => {
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
                                 data-cy={'signin-password-item'}
                             >
-                                <Input.Password tabIndex={2} />
+                                <Input.Password tabIndex={2}/>
                             </Form.Item>
                         </Col>
                         <Col span={24}>
@@ -119,7 +119,8 @@ export const SignInForm = (): React.ReactElement => {
                                     id='pages.auth.signin.ResetPasswordLink'
                                     values={{
                                         link: (
-                                            <Typography.Link style={ { color:colors.black } } onClick={() => Router.push('/auth/forgot')}>
+                                            <Typography.Link style={{ color: colors.black }}
+                                                onClick={() => Router.push('/auth/forgot')}>
                                                 {ResetMsg}
                                             </Typography.Link>
                                         ),

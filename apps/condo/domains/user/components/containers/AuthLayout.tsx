@@ -1,4 +1,4 @@
-import React  from 'react'
+import React from 'react'
 import { formInputFixCss } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { Global } from '@emotion/core'
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
