@@ -57,10 +57,10 @@ function getConfig (namespace) {
         PROJECT_NAME: getEnv(namespace, 'PROJECT_NAME', 'noname-project'),
         SERVER_URL: getEnv(namespace, 'SERVER_URL', 'http://localhost:3000'),
         DATABASE_URL: getEnv(namespace, 'DATABASE_URL'),
-        // LOCAL MEDIA FILES
+        // LOCAL MEDIA FILES 
         MEDIA_ROOT: process.env.MEDIA_ROOT || path.join(root, '__media'),
         MEDIA_URL: process.env.MEDIA_URL || '/media',
-        DEFAULT_LOCALE: String(process.env.DEFAULT_LOCALE || 'en'),
+        DEFAULT_LOCALE: process.env.DEFAULT_LOCALE || 'en',
         PROJECT_ROOT: root,
     }
     const getter = (obj, name) => {

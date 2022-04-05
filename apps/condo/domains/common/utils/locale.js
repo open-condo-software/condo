@@ -1,9 +1,5 @@
 const nextCookie = require('next-cookies')
 
-/**
- * @param req
- * @returns {null|string}
- */
 const extractReqLocale = (req) => {
     try {
         const cookieLocale = nextCookie({ req }).locale
