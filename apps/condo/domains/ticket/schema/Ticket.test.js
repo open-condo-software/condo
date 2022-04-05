@@ -1566,7 +1566,6 @@ describe('Ticket', () => {
         })
 
     })
-
     describe( 'NotificationWhen', () => {
         it('update status to TICKET_STATUS_IN_PROGRESS and send push for resident with registered pushToken', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -1628,11 +1627,14 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-            expect(message.processingMeta.transport).toEqual('email')
+            expect(message.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message1.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message.processingMeta.transport).toEqual('sms')
         })
@@ -1667,11 +1669,14 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-            expect(message.processingMeta.transport).toEqual('email')
+            expect(message.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message1.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message.processingMeta.transport).toEqual('sms')
         })
@@ -1759,11 +1764,14 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-            expect(message.processingMeta.transport).toEqual('email')
+            expect(message.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message.processingMeta.transport).toEqual('sms')
         })
@@ -1798,11 +1806,14 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-            expect(message.processingMeta.transport).toEqual('email')
+            expect(message.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message.processingMeta.transport).toEqual('sms')
         })
@@ -1892,11 +1903,14 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-            expect(message.processingMeta.transport).toEqual('email')
+            expect(message.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message.processingMeta.transport).toEqual('sms')
         })
@@ -1932,11 +1946,14 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-            expect(message.processingMeta.transport).toEqual('email')
+            expect(message.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message.processingMeta.transport).toEqual('sms')
         })
@@ -2038,15 +2055,18 @@ describe('Ticket', () => {
             const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_REMOVED_TYPE }
             const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
 
-            expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
-            expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(messageAddIndicate.status).toEqual(MESSAGE_ERROR_STATUS)
+            expect(messageDeleteIndicate.status).toEqual(MESSAGE_ERROR_STATUS)
 
             expect(messageAddIndicate.meta.data.ticketId).toEqual(ticket.id)
             expect(messageDeleteIndicate.meta.data.ticketId).toEqual(ticket.id)
             expect(messageDeleteIndicate.meta.data.indicatorType).toEqual(messageAddIndicate.meta.data.indicatorType)
 
-            expect(messageAddIndicate.processingMeta.transport).toEqual('email')
-            expect(messageDeleteIndicate.processingMeta.transport).toEqual('email')
+            expect(messageAddIndicate.processingMeta.transport).toEqual('push')
+            expect(messageDeleteIndicate.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message.processingMeta.transport).toEqual('sms')
         })
@@ -2085,15 +2105,18 @@ describe('Ticket', () => {
             const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_REMOVED_TYPE }
             const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
 
-            expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
-            expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(messageAddIndicate.status).toEqual(MESSAGE_ERROR_STATUS)
+            expect(messageDeleteIndicate.status).toEqual(MESSAGE_ERROR_STATUS)
 
             expect(messageAddIndicate.meta.data.ticketId).toEqual(ticket.id)
             expect(messageDeleteIndicate.meta.data.ticketId).toEqual(ticket.id)
             expect(messageDeleteIndicate.meta.data.indicatorType).toEqual(messageAddIndicate.meta.data.indicatorType)
 
-            expect(messageAddIndicate.processingMeta.transport).toEqual('email')
-            expect(messageDeleteIndicate.processingMeta.transport).toEqual('email')
+            expect(messageAddIndicate.processingMeta.transport).toEqual('push')
+            expect(messageDeleteIndicate.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message.processingMeta.transport).toEqual('sms')
         })
@@ -2154,8 +2177,12 @@ describe('Ticket', () => {
             const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_REMOVED_TYPE }
             const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
 
-            expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
-            expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(messageAddIndicate.status).toEqual(MESSAGE_ERROR_STATUS)
+            expect(messageDeleteIndicate.status).toEqual(MESSAGE_ERROR_STATUS)
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            // expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
 
             expect(messageAddIndicate.meta.data.ticketId).toEqual(ticket.id)
             expect(messageDeleteIndicate.meta.data.ticketId).toEqual(ticket.id)
@@ -2190,8 +2217,12 @@ describe('Ticket', () => {
             const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_REMOVED_TYPE }
             const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
 
-            expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
-            expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(messageAddIndicate.status).toEqual(MESSAGE_ERROR_STATUS)
+            expect(messageDeleteIndicate.status).toEqual(MESSAGE_ERROR_STATUS)
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            // expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
 
             expect(messageAddIndicate.meta.data.ticketId).toEqual(ticket.id)
             expect(messageDeleteIndicate.meta.data.ticketId).toEqual(ticket.id)
@@ -2255,11 +2286,14 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-            expect(message.processingMeta.transport).toEqual('email')
+            expect(message.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message.processingMeta.transport).toEqual('sms')
         })
@@ -2292,11 +2326,14 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-            expect(message.processingMeta.transport).toEqual('email')
+            expect(message.processingMeta.transport).toEqual('push')
+
+            // EMAIL was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('email')
             // SMS was disabled for a while as main fallback transport for push
             // expect(message.processingMeta.transport).toEqual('sms')
         })
