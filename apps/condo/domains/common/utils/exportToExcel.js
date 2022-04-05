@@ -42,9 +42,7 @@ const EXCEL_TEMPLATES_HEADERS = {
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_DAY_GROUP}`]: [
         'address', 'date', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
     ],
-    [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_EXECUTOR}`]: [
-        'executor', 'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
-    ],
+    [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_EXECUTOR}`]: [],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_PROPERTY}`]: [],
 }
 
