@@ -190,6 +190,20 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         )
     }
 
+const COMMENTS_COUNT_STYLES: CSSProperties = { padding: '2px', fontSize: '8px' }
+
+const CommentsTabPaneLabel = ({ label, commentsCount }) => (
+    <>
+        <Typography.Text>
+            {label}
+        </Typography.Text>
+        <sup>
+            <Typography.Text style={COMMENTS_COUNT_STYLES}>
+                {commentsCount}
+            </Typography.Text>
+        </sup>
+    </>
+)
 
 const Comments: React.FC<ICommentsListProps> = ({
     comments,
@@ -226,7 +240,10 @@ const Comments: React.FC<ICommentsListProps> = ({
                     tabBarGutter={4}
                     onChange={tab => setCommentType(tab)}
                 >
-                    <TabPane tab={InternalCommentsMessage} key={COMMENT_TYPE.ORGANIZATION}>
+                    <TabPane
+                        tab={<CommentsTabPaneLabel label={InternalCommentsMessage} commentsCount={commentsWithOrganization.length} />}
+                        key={COMMENT_TYPE.ORGANIZATION}
+                    >
                         <CommentsTabContent
                             comments={commentsWithOrganization}
                             PromptTitleMessage={PromptInternalCommentsTitleMessage}
@@ -234,7 +251,10 @@ const Comments: React.FC<ICommentsListProps> = ({
                             actionsFor={actionsFor}
                         />
                     </TabPane>
-                    <TabPane tab={ResidentCommentsMessage} key={COMMENT_TYPE.RESIDENT}>
+                    <TabPane
+                        tab={<CommentsTabPaneLabel label={ResidentCommentsMessage} commentsCount={commentsWithResident.length} />}
+                        key={COMMENT_TYPE.RESIDENT}
+                    >
                         <CommentsTabContent
                             comments={commentsWithResident}
                             PromptTitleMessage={PromptResidentCommentsTitleMessage}
