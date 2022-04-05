@@ -1,7 +1,7 @@
 const { composeHook } = require('./utils')
 const { plugin } = require('./utils/typing')
 
-const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', updatedAtField = 'updatedAt', updatedByField = 'updatedBy' } = {}) => plugin(({ fields = {}, hooks = {}, ...rest }) => {
+const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', relationshipAccess, updatedAtField = 'updatedAt', updatedByField = 'updatedBy' } = {}) => plugin(({ fields = {}, hooks = {}, ...rest }) => {
     const datedOptions = {
         type: 'DateTimeUtc',
         kmigratorOptions: { db_index: true },
@@ -16,7 +16,7 @@ const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', u
         type: 'AuthedRelationship',
         ref: 'User',
         kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-        access: {
+        access: relationshipAccess || {
             read: true,
             create: false,
             update: false,
