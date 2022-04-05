@@ -74,53 +74,77 @@ const originalCreateList = keystone.createList
 let itemCache = {}
 let listCache = {}
 
-// keystone.executeGraphQL = async ({ context, query, variables }) => {
-//     const x = 20
-// }
+const cache = {}
 
+const parseContext = (context) => {
+    const req = get(context, 'req')
+    if (!req) { return null }
+
+    const requestId = get(req, ['headers', 'x-request-id'])
+    if (!requestId) { return null }
+
+    return {
+        requestId: requestId,
+        authedItem: get(req, ['headers', 'x-request-id']),
+        operationName: get(req, ['body', 'operationName']),
+        args: JSON.stringify(get(req, ['body', 'variables'])),
+    }
+}
+
+const getKeyFromParsedContext = ({ requestId, authedItem, operationName, args }) => {
+    return `${requestId}#${authedItem}#${operationName}#${args}`
+}
 
 keystone.createList = async (...args) => {
     const list = originalCreateList.apply(keystone, args)
 
+    // Ensure that if there is a mutation -- we delete cache item!
     const originalCreateMutation = list.createMutation
     list.createMutation = async ( data, context, mutationState ) => {
-        listCache = {}
-        itemCache = {}
+        const parsedContext = parseContext(context)
+        if (parsedContext) { delete cache[getKeyFromParsedContext(parsedContext)] }
         return await originalCreateMutation.call( list, data, context, mutationState )
+    }
+
+    const originalUpdateMutation = list.updateMutation
+    list.updateMutation = async ( data, context, mutationState ) => {
+        const parsedContext = parseContext(context)
+        if (parsedContext) { delete cache[getKeyFromParsedContext(parsedContext)] }
+        return await originalUpdateMutation.call( list, data, context, mutationState )
+    }
+
+    const originalDeleteMutation = list.deleteMutation
+    list.deleteMutation = async ( data, context, mutationState ) => {
+        const parsedContext = parseContext(context)
+        if (parsedContext) { delete cache[getKeyFromParsedContext(parsedContext)] }
+        return await originalDeleteMutation.call( list, data, context, mutationState )
     }
 
     const originalListQuery = list.listQuery
     list.listQuery = async function (args, context, gqlName, info, from) {
 
         let key = null
-        const requestId = get(context, ['req', 'headers', 'x-request-id'])
-        if (requestId) {
-            key = `${gqlName}-${JSON.stringify(args)}-${JSON.stringify(context.req.headers['x-request-id'])}}`
-        }
-
-        // Drop the key, if the operation type is mutation
-        const operationType = get(info, ['operation', 'operation'])
-        if (operationType !== 'query') {
-            delete listCache[key]
-        }
+        const parsedContext = parseContext(context)
+        if (parsedContext) { key = getKeyFromParsedContext(parsedContext) }
         
-        if (key in listCache) {
+        if (key in cache) {
             console.debug(`
                 LIST_QUERY ${gqlName}\r\n
-                ARGS: ${JSON.stringify(args)}\r\n
+                KEY: ${key}\r\n
                 CACHE_HIT: Yes`
             )
-            return listCache[key]
+            return cache[key]
         }
 
         console.debug(`
             LIST_QUERY ${gqlName}\r\n
-            ARGS: ${JSON.stringify(args)}\r\n`
+            KEY: ${key}\r\n
+            CACHE_HIT: No`
         )
 
         const listResult = await originalListQuery.call(list, args, context, gqlName, info, from)
 
-        if (key) { listCache[key] = listResult }
+        if (key) { cache[key] = listResult }
 
         return listResult
     }
@@ -131,24 +155,22 @@ keystone.createList = async (...args) => {
     list.itemQuery = async (args, context, gqlName, info, from) => {
 
         let key = null
-        const requestId = get(context, ['req', 'headers', 'x-request-id'])
-        if (requestId) {
-            key = `${gqlName}-${JSON.stringify(args)}-${JSON.stringify(context.req.headers['x-request-id'])}}`
-        }
+        const parsedContext = parseContext(context)
+        if (parsedContext) { key = getKeyFromParsedContext(parsedContext) }
 
         // Drop the key, if the operation type is mutation
         const operationType = get(info, ['operation', 'operation'])
         if (operationType !== 'query') {
-            delete listCache[key]
+            delete cache[key]
         }
 
-        if (key in itemCache) {
+        if (key in cache) {
             console.debug(`
             ITEM_QUERY ${gqlName}\r\n
             KEY: ${key}\r\n
             CACHE_HIT?: Yes`
             )
-            return itemCache[key]
+            return cache[key]
         }
 
         const itemQueryResult = await originalItemQuery.call(list, args, context, gqlName, info, from)
@@ -159,7 +181,7 @@ keystone.createList = async (...args) => {
             CACHE_HIT?: No`
         )
 
-        if (key) { itemCache[key] = itemQueryResult }
+        if (key) { cache[key] = itemQueryResult }
 
         return itemQueryResult
     }
