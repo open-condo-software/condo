@@ -57,121 +57,78 @@ class KeystoneCacheMiddleware {
     }
 }
 
+const generateRequestKey = (gqlName, args) => (
+    `${gqlName}-${JSON.stringify(args)}`
+)
+
+const getRequestIdFromContext = (context) => {
+    return get(context, ['req', 'headers', 'x-request-id'], null)
+}
+
+const patchMutation = (mutationContext, mutation, isUpdateMutation, cache) => {
+    return async (data, context, mutationState) => {
+        let requestId
+        if (isUpdateMutation) {
+            requestId = getRequestIdFromContext(mutationState)
+        } else {
+            requestId = getRequestIdFromContext(context)
+        }
+        if (requestId) { delete cache[requestId] }
+        return await mutation.call(mutationContext, data, context,
+            mutationState)
+    }
+}
+
+const patchQuery = (queryContext, query, cache) => {
+    return async function (args, context, gqlName, info, from) {
+        let key = null
+        const requestId = getRequestIdFromContext(context)
+
+        if (requestId) {
+            key = generateRequestKey(gqlName, args)
+
+            if (!(requestId in cache)) {
+                cache[requestId] = {}
+            }
+
+            // Drop the key, if the operation type is mutation
+            const operationType = get(info, ['operation', 'operation'])
+            if (operationType !== 'query') {
+                delete cache[requestId][key]
+            }
+
+            if (key in cache[requestId]) {
+                return cache[requestId][key]
+            }
+        }
+        const listResult = await query.call(queryContext, args, context, gqlName, info, from)
+
+        if (requestId && key) { cache[requestId][key] = listResult }
+
+        return listResult
+    }
+}
+
 const initCache = (keystone, cache) => {
 
     const originalCreateList = keystone.createList
 
     console.debug('INITIATING KEYSTONE-LEVEL-CACHE')
 
-    const generateRequestKey = (gqlName, args) => (
-        `${gqlName}-${JSON.stringify(args)}`
-    )
-
-    const getRequestIdFromContext = (context) => {
-        return get(context, ['req', 'headers', 'x-request-id'], null)
-    }
-
     keystone.createList = async (...args) => {
         const list = originalCreateList.apply(keystone, args)
 
-        // Ensure that if there is a mutation -- we delete cache item!
-        const originalCreateMutation = list.createMutation
-        list.createMutation = async ( data, context, mutationState ) => {
-            const requestId = getRequestIdFromContext(context)
-            if (requestId) { delete cache[requestId] }
-            return await originalCreateMutation.call( list, data, context, mutationState )
-        }
+        list.createMutation = patchMutation(list, list.createMutation, false, cache)
+        list.createManyMutation = patchMutation(list, list.createManyMutation, false, cache)
 
-        const originalCreateManyMutation = list.createManyMutation
-        list.createManyMutation = async ( data, context, mutationState ) => {
-            const requestId = getRequestIdFromContext(context)
-            if (requestId) { delete cache[requestId] }
-            return await originalCreateManyMutation.call( list, data, context, mutationState )
-        }
+        list.updateMutation = patchMutation(list, list.updateMutation, true, cache)
+        list.updateManyMutation = patchMutation(list, list.updateManyMutation, true, cache)
 
-        // For some reason mutationState == context in case of update. Ask Keystone!
-        const originalUpdateMutation = list.updateMutation
-        list.updateMutation = async ( data, context, mutationState ) => {
-            const requestId = getRequestIdFromContext(mutationState)
-            if (requestId) { delete cache[requestId] }
-            return await originalUpdateMutation.call( list, data, context, mutationState )
-        }
+        list.deleteMutation = patchMutation(list, list.deleteMutation, true, cache)
+        list.deleteManyMutation = patchMutation(list, list.deleteManyMutation, true, cache)
 
-        const originalUpdateManyMutation = list.updateManyMutation
-        list.updateManyMutation = async ( data, context, mutationState ) => {
-            const requestId = getRequestIdFromContext(mutationState)
-            if (requestId) { delete cache[requestId] }
-            return await originalUpdateManyMutation.call( list, data, context, mutationState )
-        }
-
-        const originalDeleteMutation = list.deleteMutation
-        list.deleteMutation = async ( data, context, mutationState ) => {
-            const requestId = getRequestIdFromContext(mutationState)
-            if (requestId) { delete cache[requestId] }
-            return await originalDeleteMutation.call( list, data, context, mutationState )
-        }
-
-        const originalListQuery = list.listQuery
-        list.listQuery = async function (args, context, gqlName, info, from) {
-
-            let key = null
-            const requestId = getRequestIdFromContext(context)
-
-            if (requestId) {
-                key = generateRequestKey(gqlName, args)
-
-                if (!(requestId in cache)) {
-                    cache[requestId] = {}
-                }
-
-                // Drop the key, if the operation type is mutation
-                const operationType = get(info, ['operation', 'operation'])
-                if (operationType !== 'query') {
-                    delete cache[requestId][key]
-                }
-
-                if (key in cache[requestId]) {
-                    return cache[requestId][key]
-                }
-            }
-
-            const listResult = await originalListQuery.call(list, args, context, gqlName, info, from)
-
-            if (requestId && key) { cache[requestId][key] = listResult }
-
-            return listResult
-        }
-
-        const originalItemQuery = list.itemQuery
-        list.itemQuery = async (args, context, gqlName, info, from) => {
-
-            let key = null
-            const requestId = getRequestIdFromContext(context)
-
-            if (requestId) {
-                key = generateRequestKey(gqlName, args)
-
-                if (!(requestId in cache)) {
-                    cache[requestId] = {}
-                }
-
-                // Drop the key, if the operation type is mutation
-                const operationType = get(info, ['operation', 'operation'])
-                if (operationType !== 'query') {
-                    delete cache[requestId][key]
-                }
-
-                if (key in cache[requestId]) {
-                    return cache[requestId][key]
-                }
-            }
-
-            const itemQuery = await originalItemQuery.call(list, args, context, gqlName, info, from)
-
-            if (requestId && key) { cache[requestId][key] = itemQuery }
-
-            return itemQuery
-        }
+        list.listQuery = patchQuery(list, list.listQuery, cache)
+        list.itemQuery = patchQuery(list, list.itemQuery, cache)
 
         return list
     }
