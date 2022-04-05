@@ -36,8 +36,9 @@ const getAvailableLocales = () => {
 
 /**
  * @param {string} code - the translation code written in en.json, ru.json, ...
- * @param {string} locale - the language code
- * @param {Object} meta - variables passing to the translation string
+ * @param {{locale: string?, meta: Object?}?} options
+ * @param {string?} options.locale - the language code
+ * @param {Object?} options.meta - variables passing to the translation string
  * @returns {string} translated string
  * @example
  * // en.json:
@@ -50,8 +51,9 @@ const getAvailableLocales = () => {
  * i18n('greeting', { meta: { name: 'World' } })
  * // => "Hello, World!"
  */
-const i18n = (code, { locale = conf.DEFAULT_LOCALE, meta = {} } = {}) => {
+const i18n = (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) => {
     maybeLoadTranslations()
+    const { locale, meta } = options
     return template(get(translations, [locale, code], code), { interpolate: VARIABLE_REGEXP })(meta)
 }
 
