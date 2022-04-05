@@ -17,12 +17,12 @@ function translationStringKeyForExcelExportHeader (registry, column) {
 
 /**
  * @param {string} registry
- * @param {string} locale
+ * @param {string} lang
  * @returns {Object<string, string>}
  */
-function getHeadersTranslations (registry, locale = conf.DEFAULT_LOCALE) {
+function getHeadersTranslations (registry, lang = conf.DEFAULT_LOCALE) {
     return EXCEL_TEMPLATES_HEADERS[registry].reduce((acc, curr) => {
-        return { ...acc, [curr]: i18n(translationStringKeyForExcelExportHeader(registry, curr), { locale }) }
+        return { ...acc, [curr]: i18n(translationStringKeyForExcelExportHeader(registry, curr), { lang }) }
     }, {})
 }
 

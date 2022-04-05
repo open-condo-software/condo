@@ -56,7 +56,7 @@ function isTemplateNeeded (messageType, transport) {
     return !isEmpty(transports[transport])
 }
 
-describe('Templates', () => {
+describe('Notifications', () => {
     it('All messages types have enough templates', () => {
         let result = true
         for (const locale of Object.keys(LOCALES)) {

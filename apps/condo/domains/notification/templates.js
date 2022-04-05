@@ -26,15 +26,15 @@ nunjucks.addFilter('dateFormat', function (dateStr, locale, format) {
 })
 
 /**
- * @param {string} locale
+ * @param {string} lang
  * @param {string} messageType
  * @param {string} transportType
  *
  * @returns {string}
  */
-function getTemplate (locale, messageType, transportType) {
-    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
-    const transportTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${transportType}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+function getTemplate (lang, messageType, transportType) {
+    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${lang}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
+    const transportTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${lang}/messages/${messageType}/${transportType}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
 
     if (fs.existsSync(transportTemplatePath)) {
         return transportTemplatePath
@@ -44,20 +44,20 @@ function getTemplate (locale, messageType, transportType) {
         return defaultTemplatePath
     }
 
-    throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${transportType}"`)
+    throw new Error(`There is no "${lang}" template for "${messageType}" to send by "${transportType}"`)
 }
 
 /**
  * Separated function for email templates, because we have to detect html format
- * @param {string} locale
+ * @param {string} lang
  * @param {string} messageType
  *
  * @returns {{templatePathText: ?string, templatePathHtml: ?string}}
  */
-function getEmailTemplate (locale, messageType) {
-    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
-    const emailTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${EMAIL_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
-    const emailHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${EMAIL_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+function getEmailTemplate (lang, messageType) {
+    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${lang}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
+    const emailTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${lang}/messages/${messageType}/${EMAIL_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    const emailHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${lang}/messages/${messageType}/${EMAIL_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
 
     let templatePathText = null
     let templatePathHtml = null
@@ -78,7 +78,7 @@ function getEmailTemplate (locale, messageType) {
         return { templatePathText, templatePathHtml }
     }
 
-    throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${EMAIL_TRANSPORT}"`)
+    throw new Error(`There is no "${lang}" template for "${messageType}" to send by "${EMAIL_TRANSPORT}"`)
 }
 
 /**
@@ -104,10 +104,10 @@ function smsRenderer ({ message, env }) {
 }
 
 function emailRenderer ({ message, env }) {
-    const { lang: locale, type, meta } = message
-    const { templatePathText, templatePathHtml } = getEmailTemplate(locale, type)
+    const { lang, meta } = message
+    const { templatePathText, templatePathHtml } = getEmailTemplate(message.lang, message.type)
     const ret = {
-        subject: i18n(translationStringKeyForEmailSubject(type), { locale, meta }),
+        subject: i18n(translationStringKeyForEmailSubject(message.type), { lang, meta }),
     }
 
     if (templatePathText) {
@@ -126,11 +126,11 @@ function telegramRenderer ({ message, env }) {
 }
 
 function pushRenderer ({ message, env }) {
-    const { id: notificationId, lang: locale, type, meta } = message
+    const { id: notificationId, lang, meta } = message
     return {
         notification: {
-            title: i18n(translationStringKeyForPushTitle(type), { locale, meta }),
-            body: nunjucks.render(getTemplate(locale, type, PUSH_TRANSPORT), { message, env }),
+            title: i18n(translationStringKeyForPushTitle(message.type), { lang, meta }),
+            body: nunjucks.render(getTemplate(message.lang, message.type, PUSH_TRANSPORT), { message, env }),
         },
         data: { ...get(message, ['meta', 'data'], {}), notificationId },
     }
