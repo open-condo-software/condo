@@ -96,35 +96,35 @@ keystone.createList = async (...args) => {
     // Ensure that if there is a mutation -- we delete cache item!
     const originalCreateMutation = list.createMutation
     list.createMutation = async ( data, context, mutationState ) => {
-        const requestId = getRequestIdFromContext(context)
+        const requestId = getRequestIdFromContext(mutationState)
         if (requestId) { delete cache[requestId] }
         return await originalCreateMutation.call( list, data, context, mutationState )
     }
 
     const originalCreateManyMutation = list.createManyMutation
     list.createManyMutation = async ( data, context, mutationState ) => {
-        const requestId = getRequestIdFromContext(context)
+        const requestId = getRequestIdFromContext(mutationState)
         if (requestId) { delete cache[requestId] }
         return await originalCreateManyMutation.call( list, data, context, mutationState )
     }
 
     const originalUpdateMutation = list.updateMutation
     list.updateMutation = async ( data, context, mutationState ) => {
-        const requestId = getRequestIdFromContext(context)
+        const requestId = getRequestIdFromContext(mutationState)
         if (requestId) { delete cache[requestId] }
         return await originalUpdateMutation.call( list, data, context, mutationState )
     }
 
     const originalUpdateManyMutation = list.updateManyMutation
     list.updateManyMutation = async ( data, context, mutationState ) => {
-        const requestId = getRequestIdFromContext(context)
+        const requestId = getRequestIdFromContext(mutationState)
         if (requestId) { delete cache[requestId] }
         return await originalUpdateManyMutation.call( list, data, context, mutationState )
     }
 
     const originalDeleteMutation = list.deleteMutation
     list.deleteMutation = async ( data, context, mutationState ) => {
-        const requestId = getRequestIdFromContext(context)
+        const requestId = getRequestIdFromContext(mutationState)
         if (requestId) { delete cache[requestId] }
         return await originalDeleteMutation.call( list, data, context, mutationState )
     }
@@ -142,21 +142,16 @@ keystone.createList = async (...args) => {
                 cache[requestId] = {}
             }
 
+            // Drop the key, if the operation type is mutation
+            const operationType = get(info, ['operation', 'operation'])
+            if (operationType !== 'query') {
+                delete cache[requestId][key]
+            }
+
             if (key in cache[requestId]) {
-                console.debug(`
-                LIST_QUERY ${gqlName}\r\n
-                KEY: ${key}\r\n
-                CACHE_HIT: Yes`
-                )
                 return cache[requestId][key]
             }
         }
-
-        console.debug(`
-            LIST_QUERY ${gqlName}\r\n
-            KEY: ${key}\r\n
-            CACHE_HIT: No`
-        )
 
         const listResult = await originalListQuery.call(list, args, context, gqlName, info, from)
 
@@ -178,21 +173,16 @@ keystone.createList = async (...args) => {
                 cache[requestId] = {}
             }
 
+            // Drop the key, if the operation type is mutation
+            const operationType = get(info, ['operation', 'operation'])
+            if (operationType !== 'query') {
+                delete cache[requestId][key]
+            }
+
             if (key in cache[requestId]) {
-                console.debug(`
-                LIST_QUERY ${gqlName}\r\n
-                KEY: ${key}\r\n
-                CACHE_HIT: Yes`
-                )
                 return cache[requestId][key]
             }
         }
-
-        console.debug(`
-            LIST_QUERY ${gqlName}\r\n
-            KEY: ${key}\r\n
-            CACHE_HIT: No`
-        )
 
         const itemQuery = await originalItemQuery.call(list, args, context, gqlName, info, from)
 
