@@ -1,9 +1,6 @@
 const OIDC_SENDER_FIELD_VALUE = {
     dv: 1,
-    sender: {
-        dv: 1,
-        fingerprint: 'oidc',
-    },
+    fingerprint: 'oidc',
 }
 
 module.exports = {

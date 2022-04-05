@@ -5,16 +5,15 @@
 const { Text, Integer, Checkbox, Password } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@miniapp/domains/common/schema/fields')
+
+// TODO(pahaz): move it to core? or vendor this plugin?
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const access = require('@miniapp/domains/condo/access/User')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'condo.User (exported from condo API)',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         v: {
             schemaDoc: 'condo.User.v',
             type: Integer,
@@ -53,7 +52,7 @@ const User = new GQLListSchema('User', {
             access: access.canAccessToIsAdminField,
         },
     },
-    plugins: [uuided(), tracked(), softDeleted()],
+    plugins: [uuided(), tracked(), softDeleted(), dvAndSender()],
     access: {
         read: access.canReadUsers,
         create: access.canManageUsers,
