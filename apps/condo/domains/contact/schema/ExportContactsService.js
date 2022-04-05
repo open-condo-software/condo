@@ -5,12 +5,9 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const dayjs = require('dayjs')
 const timezone = require('dayjs/plugin/timezone')
 const utc = require('dayjs/plugin/utc')
+const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
-const { getHeadersTranslations } = require('@condo/domains/common/utils/exportToExcel')
-const { i18n } = require('@condo/domains/common/utils/localesLoader')
-const { extractReqLocale } = require('@condo/domains/common/utils/locale')
-const conf = require('@core/config')
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -44,8 +41,6 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
             schema: 'exportContactsToExcel(data: ExportContactsToExcelInput!): ExportContactsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, sortBy } = args.data
-                const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
-
                 const contacts = await loadContactsForExcelExport({ where, sortBy })
                 if (contacts.length === 0) {
                     throw new GQLError(errors.NOTHING_TO_EXPORT)
@@ -62,13 +57,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
                 const linkToFile = await createExportFile({
                     fileName: `contacts_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: CONTACTS_EXPORT_TEMPLATE_PATH,
-                    replaces: {
-                        contacts: excelRows,
-                        i18n: {
-                            ...getHeadersTranslations('contacts', locale),
-                            sheetName: i18n('menu.Contacts', { locale }),
-                        },
-                    },
+                    replaces: { contacts: excelRows },
                     meta: {
                         listkey: 'Contact',
                         id: contacts[0].id,
