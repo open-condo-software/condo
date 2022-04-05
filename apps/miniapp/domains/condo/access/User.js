@@ -15,7 +15,8 @@ async function canManageUsers ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     // All users should be exported from condo API!
     // By default this service doesn't need to update User model!
-    return false
+    // Except the tests!
+    return user.isAdmin
 }
 
 const canAccessToIsAdminField = {
