@@ -12,10 +12,8 @@ const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
-const { i18n } = require('@condo/domains/common/utils/localesLoader')
+const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 const { REVIEW_VALUES } = require('@condo/domains/ticket/constants')
-const { getHeadersTranslations, EXPORT_TYPE_TICKETS } = require('@condo/domains/common/utils/exportToExcel')
-const { ticketStatusesTranslations } = require('@condo/domains/common/utils/exportToExcel')
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -55,9 +53,10 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const statuses = await TicketStatus.getAll(context, {})
                 const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                const translations = getTranslations(locale)
                 const reviewValueText = {
-                    [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
-                    [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
+                    [REVIEW_VALUES.BAD]: translations['ticket.reviewValue.bad'],
+                    [REVIEW_VALUES.GOOD]: translations['ticket.reviewValue.good'],
                 }
 
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
@@ -99,31 +98,22 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         statusReopenedCounter: ticket.statusReopenedCounter || '',
                     }
                 })
-
                 const linkToFile = await createExportFile({
                     fileName: `tickets_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
-                    replaces: {
-                        tickets: excelRows,
-                        i18n: {
-                            ...getHeadersTranslations(EXPORT_TYPE_TICKETS, locale),
-                            sheetName: i18n('excelExport.sheetNames.tickets', { locale }),
-
-                            // These statuses are needed to set cell color using conditional formatting by status name.
-                            statusNames: ticketStatusesTranslations(locale),
-                        },
-                    },
+                    replaces: { tickets: excelRows },
                     meta: {
                         listkey: 'Ticket',
                         id: allTickets[0].id,
                     },
                 })
-
                 return { status: 'ok', linkToFile }
             },
         },
     ],
-    mutations: [],
+    mutations: [
+
+    ],
 })
 
 module.exports = {
