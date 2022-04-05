@@ -19,6 +19,7 @@ const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQ
 const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE_RECAPTCHA_CONFIG'])
 const yandexMetrikaID = conf['YANDEX_METRIKA_ID']
 const defaultLocale = conf.DEFAULT_LOCALE
+const insuranceAppUrl = conf['INSURANCE_APP_URL']
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -33,6 +34,7 @@ module.exports = withTM(withLess(withCSS({
         docsConfig,
         yandexMetrikaID,
         defaultLocale,
+        insuranceAppUrl,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

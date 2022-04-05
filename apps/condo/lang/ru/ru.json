@@ -641,6 +641,7 @@
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Executor": "Исполнитель не назначен",
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Assignee": "Ответственный не назначен",
   "pages.condo.analytics.TicketAnalyticsPage.TicketChartView.LoadMoreTitle": "Загрузить больше {entity}",
+  "pages.condo.insurance.IndexInsurancePage.PageTitle": "Страхование",
   "pages.organizations.CreateOrganizationButtonLabel": "Создать организацию",
   "pages.organizations.CreateOrganizationModalTitle": "Создание организации",
   "pages.organizations.CreateOrganizationPlaceholder": "Например, ООО «УК №1»",
