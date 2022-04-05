@@ -7,6 +7,7 @@ export const ResponsiveCol = ({ style, children, ...otherProps }: ColProps) => {
         ...style,
         maxWidth: isSmall ? '600px' : '320px',
     }
+
     return (
         <Col style={modifiedStyle} {...otherProps}>
             {children}

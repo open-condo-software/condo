@@ -41,7 +41,6 @@ function ResetPageView () {
 
     const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
 
-
     const [form] = Form.useForm()
     const { executeRecaptcha } = useGoogleReCaptcha()
     const { token, setToken, setPhone } = useContext(RegisterContext)
@@ -116,6 +115,7 @@ function ResetPageView () {
         if (isLoading) {
             return <Loader size="large" />
         }
+
         return (
             <>
                 <Form
@@ -153,6 +153,7 @@ function ResetPageView () {
                                         <CountDownTimer action={startConfirmPhoneAction} id={'FORGOT_ACTION'} timeout={SMS_CODE_TTL}>
                                             {({ countdown, runAction }) => {
                                                 const isCountDownActive = countdown > 0
+
                                                 return (
                                                     <Button
                                                         onClick={() => {
