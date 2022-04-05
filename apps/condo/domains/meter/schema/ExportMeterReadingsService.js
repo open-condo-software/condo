@@ -20,7 +20,7 @@ const {
     MeterResource,
     MeterReadingSource,
 } = require('../utils/serverSchema')
-const { getHeadersTranslations, EXPORT_TYPE_METERS } = require('@condo/domains/common/utils/exportToExcel')
+const { getHeadersTranslations } = require('@condo/domains/common/utils/exportToExcel')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const conf = require('@core/config')
@@ -117,7 +117,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                     replaces: {
                         meter: excelRows,
                         i18n: {
-                            ...getHeadersTranslations(EXPORT_TYPE_METERS, locale),
+                            ...getHeadersTranslations('meters', locale),
                             sheetName: i18n('menu.Meters', { locale }),
                         },
                     },

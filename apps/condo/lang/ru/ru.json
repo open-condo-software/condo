@@ -1058,12 +1058,5 @@
   "excelExport.headers.meters.value3": "Показание по тарифу №3",
   "excelExport.headers.meters.value4": "Показание по тарифу №4",
   "excelExport.headers.meters.clientName": "Житель",
-  "excelExport.headers.meters.source": "Источник",
-  "excelExport.headers.buildings.organization": "Наименование УК",
-  "excelExport.headers.buildings.address": "Адрес",
-  "excelExport.headers.buildings.unitsCount": "Квартир",
-  "excelExport.headers.buildings.uninhabitedUnitsCount": "Нежилых помещений",
-  "excelExport.headers.buildings.ticketsInWork": "Заявок в работе",
-  "excelExport.headers.buildings.ticketsClosed": "Заявок закрыто",
-  "excelExport.sheetNames.buildings": "Список домов"
+  "excelExport.headers.meters.source": "Источник"
 }

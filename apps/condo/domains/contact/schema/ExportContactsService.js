@@ -7,7 +7,7 @@ const timezone = require('dayjs/plugin/timezone')
 const utc = require('dayjs/plugin/utc')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
-const { getHeadersTranslations, EXPORT_TYPE_CONTACTS } = require('@condo/domains/common/utils/exportToExcel')
+const { getHeadersTranslations } = require('@condo/domains/common/utils/exportToExcel')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const conf = require('@core/config')
@@ -65,7 +65,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
                     replaces: {
                         contacts: excelRows,
                         i18n: {
-                            ...getHeadersTranslations(EXPORT_TYPE_CONTACTS, locale),
+                            ...getHeadersTranslations('contacts', locale),
                             sheetName: i18n('menu.Contacts', { locale }),
                         },
                     },

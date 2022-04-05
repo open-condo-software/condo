@@ -1058,12 +1058,5 @@
   "excelExport.headers.meters.value3": "Reading from tariff №3",
   "excelExport.headers.meters.value4": "Reading from tariff №4",
   "excelExport.headers.meters.clientName": "Contact",
-  "excelExport.headers.meters.source": "Source",
-  "excelExport.headers.buildings.organization": "Organization",
-  "excelExport.headers.buildings.address": "Address",
-  "excelExport.headers.buildings.unitsCount": "Units count",
-  "excelExport.headers.buildings.uninhabitedUnitsCount": "Uninhabited units count",
-  "excelExport.headers.buildings.ticketsInWork": "Tickets in work",
-  "excelExport.headers.buildings.ticketsClosed": "Closed tickets",
-  "excelExport.sheetNames.buildings": "Properties"
+  "excelExport.headers.meters.source": "Source"
 }
