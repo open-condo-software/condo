@@ -25,6 +25,17 @@ const canAccessToIsAdminField = {
     update: access.userIsAdmin,
 }
 
+const canAccessToPasswordField = {
+    read: false,
+    create: access.userIsAdmin,
+    update: ({ existingItem, authentication: { item: user } }) => {
+        if (!user || !existingItem || !existingItem.id) return false
+        if (user.isAdmin) return true
+        // Note: allow to local users to change their password
+        return user.isLocal && existingItem.id === user.id
+    },
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -33,4 +44,5 @@ module.exports = {
     canReadUsers,
     canManageUsers,
     canAccessToIsAdminField,
+    canAccessToPasswordField,
 }

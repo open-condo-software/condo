@@ -61,16 +61,16 @@ async function makeClientWithNewRegisteredAndLoggedInUser (extraAttrs = {}) {
     return client
 }
 
-async function makeClientWithSupportUser() {
-    return await makeClientWithNewRegisteredAndLoggedInUser({ isSupport: true, type: STAFF_USER_TYPE })
+async function makeClientWithSupportUser(extraAttrs = {}) {
+    return await makeClientWithNewRegisteredAndLoggedInUser({ isSupport: true, type: STAFF_USER_TYPE, ...extraAttrs })
 }
 
-async function makeClientWithResidentUser() {
-    return await makeClientWithNewRegisteredAndLoggedInUser({ type: RESIDENT_USER_TYPE })
+async function makeClientWithResidentUser(extraAttrs = {}) {
+    return await makeClientWithNewRegisteredAndLoggedInUser({ type: RESIDENT_USER_TYPE, ...extraAttrs })
 }
 
-async function makeClientWithStaffUser() {
-    return await makeClientWithNewRegisteredAndLoggedInUser({ type: STAFF_USER_TYPE })
+async function makeClientWithStaffUser(extraAttrs = {}) {
+    return await makeClientWithNewRegisteredAndLoggedInUser({ type: STAFF_USER_TYPE, ...extraAttrs })
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */

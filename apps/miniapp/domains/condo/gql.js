@@ -10,7 +10,7 @@ const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const USER_FIELDS = `{ name isAdmin isSupport type ${COMMON_FIELDS} }`
+const USER_FIELDS = `{ name isAdmin isSupport isLocal type ${COMMON_FIELDS} }`
 const User = generateGqlQueries('User', USER_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
