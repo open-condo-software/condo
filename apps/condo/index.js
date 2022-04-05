@@ -96,18 +96,19 @@ keystone.createList = async (...args) => {
     // Ensure that if there is a mutation -- we delete cache item!
     const originalCreateMutation = list.createMutation
     list.createMutation = async ( data, context, mutationState ) => {
-        const requestId = getRequestIdFromContext(mutationState)
+        const requestId = getRequestIdFromContext(context)
         if (requestId) { delete cache[requestId] }
         return await originalCreateMutation.call( list, data, context, mutationState )
     }
 
     const originalCreateManyMutation = list.createManyMutation
     list.createManyMutation = async ( data, context, mutationState ) => {
-        const requestId = getRequestIdFromContext(mutationState)
+        const requestId = getRequestIdFromContext(context)
         if (requestId) { delete cache[requestId] }
         return await originalCreateManyMutation.call( list, data, context, mutationState )
     }
 
+    // For some reason mutationState == context in case of update. Ask Keystone!
     const originalUpdateMutation = list.updateMutation
     list.updateMutation = async ( data, context, mutationState ) => {
         const requestId = getRequestIdFromContext(mutationState)
