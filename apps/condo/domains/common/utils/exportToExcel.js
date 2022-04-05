@@ -1,5 +1,5 @@
-const conf = require('@core/config')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
+const conf = require('@core/config')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 
 const EXPORT_TYPE_PAYMENTS = 'payments'
