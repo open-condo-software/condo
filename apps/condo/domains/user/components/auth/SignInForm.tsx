@@ -1,4 +1,4 @@
-import { Col, Form, Input, Row, Typography } from 'antd'
+import { Col, Form, Input, Row, RowProps, Typography } from 'antd'
 import Router, { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
@@ -22,6 +22,7 @@ const ROW_STYLES: React.CSSProperties = {
 }
 const FORM_PARAGRAPH_STYLES: React.CSSProperties = { textAlign: 'left', marginBottom: '40px' }
 const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
+const FORM_BUTTONS_GUTTER: RowProps['gutter'] = [0, 20]
 
 export const SignInForm = (): React.ReactElement => {
     const intl = useIntl()
@@ -127,7 +128,7 @@ export const SignInForm = (): React.ReactElement => {
                             </Typography.Paragraph>
                         </Col>
                     </Row>
-                    <Row gutter={[0, 20]}>
+                    <Row gutter={FORM_BUTTONS_GUTTER}>
                         <Col span={24}>
                             <Form.Item>
                                 <Button

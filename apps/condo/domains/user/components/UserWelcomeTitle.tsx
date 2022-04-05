@@ -1,7 +1,7 @@
 /** @jsx jsx */
 
 import React from 'react'
-import { Image, Row, Typography } from 'antd'
+import { Image, Row, RowProps, Typography } from 'antd'
 import { jsx, css, keyframes } from '@emotion/core'
 import { useIntl } from 'react-intl'
 
@@ -46,11 +46,13 @@ const WomanPictureCSS = css`
   width: 80%
 `
 
+const ITEMS_HEADER_GUTTER: RowProps['gutter'] = [5, 0]
+
 export const WelcomeHeaderTitle: React.FC = () => {
     const intl = useIntl()
     const WelcomeTitleMessage = intl.formatMessage({ id: 'pages.auth.IAmCustomer' })
     return (
-        <Row style={{ display: 'inline-flex' }} gutter={[5, 0]}>
+        <Row style={{ display: 'inline-flex' }} gutter={ITEMS_HEADER_GUTTER}>
             <Image src={'/WomanHeaderWelcome.png'} css={WomanPictureCSS}/>
             <Image src={'/ManHeaderWelcome.png'} css={ManPictureCSS}/>
             <Typography.Text css={WelcomeAnimation} underline>{WelcomeTitleMessage}</Typography.Text>

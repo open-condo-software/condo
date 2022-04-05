@@ -1,7 +1,7 @@
 import Router from 'next/router'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Input, Row, Typography } from 'antd'
+import { Col, Form, Input, Row, RowProps, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import React, { useState, useEffect, useContext } from 'react'
@@ -22,6 +22,7 @@ import { ResponsiveCol } from '../../domains/user/components/containers/Responsi
 
 const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
 const FORM_TITLE_STYLES: React.CSSProperties = { textAlign:'start', fontWeight: 700, fontSize: 20 }
+const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
 
 const ChangePasswordPage: AuthPage = () => {
     const [form] = Form.useForm()
@@ -145,9 +146,9 @@ const ChangePasswordPage: AuthPage = () => {
             requiredMark={false}
             layout={'vertical'}
         >
-            <Row gutter={[0, 20]} style={ROW_STYLES}>
+            <Row style={ROW_STYLES}>
                 <ResponsiveCol span={18}>
-                    <Row style={ROW_STYLES} gutter={[0, 40]}>
+                    <Row style={ROW_STYLES} gutter={BUTTON_FORM_GUTTER}>
                         <Col span={24}>
                             <Row>
                                 <Form.Item>
