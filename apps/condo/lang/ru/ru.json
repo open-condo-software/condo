@@ -823,7 +823,7 @@
   "notification.messages.TICKET_STATUS_COMPLETED.email.subject": "Ваша заявка выполнена",
   "notification.messages.TICKET_STATUS_COMPLETED.push.title": "Ваша заявка выполнена",
   "notification.messages.TICKET_STATUS_RETURNED.email.subject": "Вернули заявку №{data.ticketNumber} в работу",
-  "notification.messages.TICKET_STATUS_RETURNED.push.title": "Вернули заявку №{message.meta.data.ticketNumber} в работу",
+  "notification.messages.TICKET_STATUS_RETURNED.push.title": "Вернули заявку №{data.ticketNumber} в работу",
   "notification.messages.TICKET_INDICATOR_ADDED.email.subject": "Заявка №{data.ticketNumber} стала {data.indicatorType}",
   "notification.messages.TICKET_INDICATOR_ADDED.push.title": "Заявка №{data.ticketNumber} стала {data.indicatorType}",
   "notification.messages.TICKET_INDICATOR_REMOVED.email.subject": "Заявка №{data.ticketNumber} больше не {data.indicatorType}",

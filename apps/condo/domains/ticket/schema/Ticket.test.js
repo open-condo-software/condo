@@ -25,6 +25,9 @@ const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE,
+    TICKET_STATUS_COMPLETED_TYPE,
+    TICKET_STATUS_RETURNED_TYPE,
+    TICKET_INDICATOR_ADDED_TYPE,
     MESSAGE_DELIVERED_STATUS,
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
@@ -1561,8 +1564,45 @@ describe('Ticket', () => {
 
     })
 
-    describe( 'NotificationChangeStatus', () => {
-        test('resident: update status ticket and send email message', async () => {
+    describe( 'NotificationWhenStatusChange', () => {
+        it('update status to TICKET_STATUS_IN_PROGRESS and send push for resident with registered pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(userClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('push')
+        })
+
+        it('update status to TICKET_STATUS_IN_PROGRESS and send sms for resident with no registered pushToken', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
@@ -1583,12 +1623,576 @@ describe('Ticket', () => {
             await sleep(1000)
 
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
-            const message1 = await Message.getOne(admin, messageWhere)
+            const message = await Message.getOne(admin, messageWhere)
 
-            expect(message1.status).toEqual(MESSAGE_DELIVERED_STATUS)
-            expect(message1.meta.data.ticketId).toEqual(ticket.id)
-            expect(message1.processingMeta.transport).toEqual('email')
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('sms')
         })
 
+        it('update status to TICKET_STATUS_IN_PROGRESS and send sms for resident with registered invalid pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_FAIL}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(userClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('sms')
+        })
+
+        it('update status to TICKET_STATUS_IN_PROGRESS and can`t send notification there is no resident', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client).toEqual(null)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
+            const messageCount = await Message.count(admin, messageWhere)
+
+            expect(messageCount).toEqual(0)
+        })
+
+        it('update status to TICKET_STATUS_COMPLETED and send push for resident with registered pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(userClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('push')
+        })
+
+        it('update status to TICKET_STATUS_COMPLETED and send sms for resident with no registered pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('sms')
+        })
+
+        it('update status to TICKET_STATUS_COMPLETED and send sms for resident with registered invalid pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_FAIL}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(userClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('sms')
+        })
+
+        it('update status to TICKET_STATUS_COMPLETED and can`t send notification there is no resident', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client).toEqual(null)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
+            const messageCount = await Message.count(admin, messageWhere)
+
+            expect(messageCount).toEqual(0)
+        })
+
+        it('update status to TICKET_STATUS_RETURNED and send push for resident with registered pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(userClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('push')
+        })
+
+        it('update status to TICKET_STATUS_RETURNED and send sms for resident with no registered pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('sms')
+        })
+
+        it('update status to TICKET_STATUS_RETURNED and send sms for resident with registered invalid pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_FAIL}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(userClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('sms')
+        })
+
+        it('update status to TICKET_STATUS_RETURNED and can`t send notification there is no resident', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            expect(ticket.client).toEqual(null)
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
+            const messageCount = await Message.count(admin, messageWhere)
+
+            expect(messageCount).toEqual(0)
+        })
+
+        it('update indicator waranty and send push for resident with registered pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(userClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                isWarranty: true,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                isWarranty: false,
+            })
+
+            await sleep(1000)
+
+            const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageAddIndicate = await Message.getOne(admin, messageWhereAddIndicate)
+
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
+
+            expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+
+            expect(messageAddIndicate.meta.data.ticketId).toEqual(ticket.id)
+            expect(messageDeleteIndicate.meta.data.ticketId).toEqual(ticket.id)
+            expect(messageDeleteIndicate.meta.data.indicatorType).toEqual(messageAddIndicate.meta.data.indicatorType)
+
+            expect(messageAddIndicate.processingMeta.transport).toEqual('push')
+            expect(messageDeleteIndicate.processingMeta.transport).toEqual('push')
+        })
+
+        it('update indicator waranty and send sms for resident with no registered pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                isWarranty: true,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                isWarranty: false,
+            })
+
+            await sleep(1000)
+
+            const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageAddIndicate = await Message.getOne(admin, messageWhereAddIndicate)
+
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
+
+            expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+
+            expect(messageAddIndicate.meta.data.ticketId).toEqual(ticket.id)
+            expect(messageDeleteIndicate.meta.data.ticketId).toEqual(ticket.id)
+            expect(messageDeleteIndicate.meta.data.indicatorType).toEqual(messageAddIndicate.meta.data.indicatorType)
+
+            expect(messageAddIndicate.processingMeta.transport).toEqual('email')
+            expect(messageDeleteIndicate.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('sms')
+        })
+
+        it('update indicator waranty and send sms for resident with registered invalid pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_FAIL}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(userClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                isWarranty: true,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                isWarranty: false,
+            })
+
+            await sleep(1000)
+
+            const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageAddIndicate = await Message.getOne(admin, messageWhereAddIndicate)
+
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
+
+            expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+
+            expect(messageAddIndicate.meta.data.ticketId).toEqual(ticket.id)
+            expect(messageDeleteIndicate.meta.data.ticketId).toEqual(ticket.id)
+            expect(messageDeleteIndicate.meta.data.indicatorType).toEqual(messageAddIndicate.meta.data.indicatorType)
+
+            expect(messageAddIndicate.processingMeta.transport).toEqual('email')
+            expect(messageDeleteIndicate.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('sms')
+        })
+
+        it('update indicator waranty and can`t send notification there is no resident', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                isWarranty: true,
+            })
+
+            expect(ticket.client).toEqual(null)
+
+            await updateTestTicket(admin, ticket.id, {
+                isWarranty: false,
+            })
+
+            await sleep(1000)
+
+            const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageAddIndicateCount = await Message.count(admin, messageWhereAddIndicate)
+
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageDeleteIndicateCount = await Message.count(admin, messageWhereDeleteIndicate)
+
+            expect(messageAddIndicateCount).toEqual(0)
+            expect(messageDeleteIndicateCount).toEqual(0)
+        })
+
+        it('update indicator paid and create message with TICKET_INDICATOR_ADDED and TICKET_INDICATOR_REMOVED type', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                isPaid: true,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                isPaid: false,
+            })
+
+            await sleep(1000)
+
+            const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageAddIndicate = await Message.getOne(admin, messageWhereAddIndicate)
+
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
+
+            expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+
+            expect(messageAddIndicate.meta.data.ticketId).toEqual(ticket.id)
+            expect(messageDeleteIndicate.meta.data.ticketId).toEqual(ticket.id)
+            expect(messageDeleteIndicate.meta.data.indicatorType).toEqual(messageAddIndicate.meta.data.indicatorType)
+        })
+
+        it('update indicator emergency and create message with TICKET_INDICATOR_ADDED and TICKET_INDICATOR_REMOVED type', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                isEmergency: true,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await updateTestTicket(admin, ticket.id, {
+                isEmergency: false,
+            })
+
+            await sleep(1000)
+
+            const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageAddIndicate = await Message.getOne(admin, messageWhereAddIndicate)
+
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
+
+            expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(messageDeleteIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
+
+            expect(messageAddIndicate.meta.data.ticketId).toEqual(ticket.id)
+            expect(messageDeleteIndicate.meta.data.ticketId).toEqual(ticket.id)
+            expect(messageDeleteIndicate.meta.data.indicatorType).toEqual(messageAddIndicate.meta.data.indicatorType)
+        })
     })
 })
