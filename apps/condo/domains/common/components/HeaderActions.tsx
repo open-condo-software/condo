@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { colors } from '../constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 import { MessageDescriptor } from '@formatjs/intl/src/types'
 import Router, { useRouter } from 'next/router'
 import get from 'lodash/get'
@@ -28,9 +28,11 @@ interface IRightButtonHeaderActionsProps {
     path: string
 }
 
-interface ITabsActionsProps{
+interface ITabsActionsProps {
     currentActiveKey: string
 }
+
+const TABS_STYLES = { alignItems: 'center', fontWeight: 500 }
 
 const IconContainer = styled.div`
   width: 24px;
@@ -57,7 +59,11 @@ const StyledButton = styled(Button)`
   }
 `
 
-export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = ({ descriptor, path, useBrowserHistory = true }) => {
+export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = ({
+    descriptor,
+    path,
+    useBrowserHistory = true,
+}) => {
     const intl = useIntl()
     const BackMessage = intl.formatMessage(descriptor)
     const [hasBrowserHistory, setHasBrowserHistory] = useState<boolean>(false)
@@ -113,6 +119,7 @@ export const ButtonHeaderActions: React.FC<IRightButtonHeaderActionsProps> = (pr
     const SbbolButtonMessage = intl.formatMessage(sbbolButtonDescriptor)
     const { isMobile } = useContext(AuthLayoutContext)
     const { isSmall } = useLayoutContext()
+
     return (
         <Row justify={'space-between'} gutter={[5, 10]}>
             <Col>
@@ -146,9 +153,9 @@ export const ButtonHeaderActions: React.FC<IRightButtonHeaderActionsProps> = (pr
 export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     const { currentActiveKey } = props
     const intl = useIntl()
-    const TABS_STYLES = { alignItems:'center', fontWeight: 500 }
     const registerTab = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
     const signInTab = intl.formatMessage({ id: 'SignIn' })
+
     return (
         <Tabs
             defaultActiveKey={currentActiveKey}

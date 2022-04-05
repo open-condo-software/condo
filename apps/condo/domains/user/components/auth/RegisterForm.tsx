@@ -14,11 +14,10 @@ import {
     PHONE_ALREADY_REGISTERED_ERROR,
 } from '@condo/domains/user/constants/errors'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
-import { AuthLayoutContext } from '../containers/AuthLayoutContext'
+import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { useRegisterFormValidators } from './hooks'
 import { RegisterContext } from './RegisterContextProvider'
-import { ResponsiveCol } from '../containers/ResponsiveCol'
-
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
 
 interface IRegisterFormProps {

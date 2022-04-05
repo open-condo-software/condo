@@ -14,8 +14,8 @@ import { FormattedMessage } from 'react-intl'
 import { RegisterContext } from './RegisterContextProvider'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { colors } from '@condo/domains/common/constants/style'
-import { TabsAuthAction } from '../../../common/components/HeaderActions'
-import { ResponsiveCol } from '../containers/ResponsiveCol'
+import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
@@ -28,19 +28,19 @@ interface IInputPhoneFormProps {
     onFinish: () => void
 }
 
-export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
+export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => {
     const [form] = Form.useForm()
     const intl = useIntl()
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
+    const FieldIsRequiredMsg = intl.formzatMessage({ id: 'FieldIsRequired' })
     const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
     const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
     const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
 
-    const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
+    const REGISTER_PHONE_LABEL = <label style={{ alignSelf: 'end' }}>{PhoneMsg}</label>
 
     const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [smsSendError, setSmsSendError] = useState(null)
@@ -124,7 +124,9 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                             }),
                                         ]}
                                     >
-                                        <PhoneInput style={{ borderRadius: 8, borderColor: colors.inputBorderGrey }} placeholder={ExamplePhoneMsg} onChange={()  => setSmsSendError(null)} block/>
+                                        <PhoneInput style={{ borderRadius: 8, borderColor: colors.inputBorderGrey }}
+                                            placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)}
+                                            block/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
@@ -133,10 +135,14 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                             id='pages.auth.register.info.PersonalDataProcessingConsent'
                                             values={{
                                                 consentLink: (
-                                                    <Typography.Link style={ { color: colors.black } } target='_blank' href={'/pdpc.pdf'} rel='noreferrer'>{ConsentContent}</Typography.Link>
+                                                    <Typography.Link style={{ color: colors.black }} target='_blank'
+                                                        href={'/pdpc.pdf'}
+                                                        rel='noreferrer'>{ConsentContent}</Typography.Link>
                                                 ),
                                                 privacyPolicyLink: (
-                                                    <Typography.Link style={ { color: colors.black } } target='_blank' href={'/policy.pdf'} rel='noreferrer'>{PrivacyPolicyContent}</Typography.Link>
+                                                    <Typography.Link style={{ color: colors.black }} target='_blank'
+                                                        href={'/policy.pdf'}
+                                                        rel='noreferrer'>{PrivacyPolicyContent}</Typography.Link>
                                                 ),
                                             }}
                                         />

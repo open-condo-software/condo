@@ -26,7 +26,6 @@ const ROW_STYLE = { margin: '65px 0 65px', justifyContent: 'center' }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor }) => {
     const { isSmall } = useLayoutContext()
-
     const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
 
     return (

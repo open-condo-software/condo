@@ -99,7 +99,7 @@ const RegisterPage: AuthPage = () => {
     }
 
     const steps = {
-        inputPhone: <InputPhoneForm onFinish={() => setStep('validatePhone')} />,
+        inputPhone: <InputPhoneForm onFinish={() => setStep('validatePhone')}/>,
         validatePhone: <ValidatePhoneForm
             onFinish={() => setStep('register')}
             onReset={() => {
@@ -108,12 +108,12 @@ const RegisterPage: AuthPage = () => {
             }}
             title={RegistrationTitleMsg}
         />,
-        register: <RegisterForm onFinish={initOnBoarding} />,
+        register: <RegisterForm onFinish={initOnBoarding}/>,
     }
 
     return (
         <RegisterContextProvider>
-            { steps[step] }
+            {steps[step]}
         </RegisterContextProvider>
     )
 }
