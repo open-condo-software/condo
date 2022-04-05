@@ -43,7 +43,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
             access: {
-                read: true,
+                read: access.canReadUserField,
                 update: access.canSetUserField,
                 create: access.canSetUserField,
             },
