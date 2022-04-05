@@ -5,16 +5,21 @@
 const faker = require('faker')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { TicketComment, createTestTicketComment, updateTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { COMMENT_TYPE } = require('../constants')
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { updateTestTicket } = require('../utils/testSchema')
+const { STATUS_IDS } = require('../constants/statusTransitions')
 
 describe('TicketComment', () => {
     describe('employee', () => {
@@ -133,7 +138,28 @@ describe('TicketComment', () => {
                 })
             })
 
-            it.todo('can create comment with resident')
+            it('can create comment with resident type', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+                const content = faker.lorem.sentence()
+                const [ticket] = await createTestTicket(userClient, organization, property)
+                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content,
+                })
+
+                expect(ticketComment.id).toMatch(UUID_RE)
+                expect(ticketComment.type).toMatch(COMMENT_TYPE.RESIDENT)
+                expect(ticketComment.content).toMatch(content)
+            })
         })
 
         describe('read', () => {
@@ -197,10 +223,6 @@ describe('TicketComment', () => {
                 const comments = await TicketComment.getAll(clientTo)
                 expect(comments).toHaveLength(0)
             })
-
-            it.todo('can read own comment with resident')
-
-            it.todo('can read resident comment')
         })
 
         describe('update', () => {
@@ -393,35 +415,543 @@ describe('TicketComment', () => {
 
     describe('resident', () => {
         describe('create', () => {
-            it.todo('can create comment with resident type in ticket which created by this resident')
+            it('can create comment with resident type in ticket which created by this resident', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
 
-            it.todo('can create comment with resident type in ticket where contact phone and address matches to resident phone and address')
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
 
-            it.todo('cannot create comment in not resident ticket')
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content,
+                })
 
-            it.todo('cannot create comment with organization type')
+                expect(ticketComment.id).toMatch(UUID_RE)
+                expect(ticketComment.type).toMatch(COMMENT_TYPE.RESIDENT)
+                expect(ticketComment.content).toMatch(content)
+            })
 
-            it.todo('cannot create comment in completed or deferred types')
+            it('can create comment with resident type in ticket where contact phone and address matches to resident phone and address', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const { phone } = residentClient.userAttrs
+                const content = faker.lorem.sentence()
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [contact] = await createTestContact(admin, organization, property, {
+                    phone,
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(admin, organization, property, {
+                    unitName,
+                    contact: { connect: { id: contact.id } },
+                    canReadByResident: true,
+                })
+                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content,
+                })
+
+                expect(ticketComment.id).toMatch(UUID_RE)
+                expect(ticketComment.type).toMatch(COMMENT_TYPE.RESIDENT)
+                expect(ticketComment.content).toMatch(content)
+            })
+
+            it('cannot create comment in not his resident ticket', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(userClient, organization, property)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                        type: COMMENT_TYPE.RESIDENT,
+                        content,
+                    })
+                })
+            })
+
+            it('cannot create comment with organization type', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                        type: COMMENT_TYPE.ORGANIZATION,
+                        content,
+                    })
+                })
+            })
+
+            it('cannot create comment in completed or declined types', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+                const completedTicket = await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestTicketComment(residentClient, completedTicket, residentClient.user, {
+                        type: COMMENT_TYPE.RESIDENT,
+                        content,
+                    })
+                })
+
+                const declinedTicket = await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.DECLINED } },
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestTicketComment(residentClient, declinedTicket, residentClient.user, {
+                        type: COMMENT_TYPE.RESIDENT,
+                        content,
+                    })
+                })
+            })
         })
 
         describe('read', () => {
-            it.todo('can read comments with type resident in organization where user is resident')
+            it('can read comments with type resident in own ticket', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
 
-            it.todo('cannot read comments with type resident in organization where user is not resident')
+                const unitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
 
-            it.todo('cannot read comments with type organization')
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
 
-            it.todo('cannot read other comments authors')
+                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content1,
+                })
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content2,
+                })
+
+                const comments = await TicketComment.getAll(residentClient, { sortBy: 'createdAt_ASC' })
+
+                expect(comments).toHaveLength(2)
+                expect(comments[0].id).toEqual(commentFromResident.id)
+                expect(comments[0].content).toEqual(content1)
+                expect(comments[1].id).toEqual(commentFromEmployee.id)
+                expect(comments[1].content).toEqual(content2)
+            })
+
+            it('can read comments with resident type in ticket where contact phone and address matches to resident phone and address', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
+                const { phone } = residentClient.userAttrs
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [contact] = await createTestContact(adminClient, organization, property, {
+                    phone,
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(employeeClient, organization, property, {
+                    unitName,
+                    contact: { connect: { id: contact.id } },
+                    canReadByResident: true,
+                })
+
+                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content1,
+                })
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content2,
+                })
+
+                const comments = await TicketComment.getAll(residentClient, { sortBy: 'createdAt_ASC' })
+
+                expect(comments).toHaveLength(2)
+                expect(comments[0].id).toEqual(commentFromResident.id)
+                expect(comments[0].content).toEqual(content1)
+                expect(comments[1].id).toEqual(commentFromEmployee.id)
+                expect(comments[1].content).toEqual(content2)
+            })
+
+            it('cannot read comments in not his resident ticket', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+                const anotherResidentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const anotherUnitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                await createTestResident(adminClient, anotherResidentClient.user, organization, property, {
+                    unitName: anotherUnitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content1,
+                })
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content2,
+                })
+
+                const comments = await TicketComment.getAll(anotherResidentClient)
+
+                expect(comments).toHaveLength(0)
+            })
+
+            it('cannot read comments with resident type in ticket where contact phone and address did not matches to resident phone and address', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+                const anotherResidentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const anotherUnitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
+                const { phone } = residentClient.userAttrs
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                await createTestResident(adminClient, anotherResidentClient.user, organization, property, {
+                    unitName: anotherUnitName,
+                })
+                const [contact] = await createTestContact(adminClient, organization, property, {
+                    phone,
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(employeeClient, organization, property, {
+                    unitName,
+                    contact: { connect: { id: contact.id } },
+                    canReadByResident: true,
+                })
+
+                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content1,
+                })
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content2,
+                })
+
+                const comments = await TicketComment.getAll(anotherResidentClient)
+
+                expect(comments).toHaveLength(0)
+            })
+
+            it('cannot read comments with resident type in ticket where canReadByResident is false', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const content2 = faker.lorem.sentence()
+                const { phone } = residentClient.userAttrs
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [contact] = await createTestContact(adminClient, organization, property, {
+                    phone,
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(employeeClient, organization, property, {
+                    unitName,
+                    contact: { connect: { id: contact.id } },
+                    canReadByResident: false,
+                })
+
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content2,
+                })
+
+                const comments = await TicketComment.getAll(residentClient)
+
+                expect(comments).toHaveLength(0)
+            })
+
+            it('cannot read comments with type organization in own ticket', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const content2 = faker.lorem.sentence()
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: COMMENT_TYPE.ORGANIZATION,
+                    content: content2,
+                })
+
+                const comments = await TicketComment.getAll(residentClient)
+
+                expect(comments).toHaveLength(0)
+            })
+
+            it('cannot read other comments authors', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content1,
+                })
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content2,
+                })
+
+                const comments = await TicketComment.getAll(residentClient, { sortBy: 'createdAt_ASC' })
+
+                expect(comments).toHaveLength(2)
+                expect(comments[0].user).toEqual(residentClient.user)
+                expect(comments[0].createdBy).toEqual(residentClient.user)
+                expect(comments[1].user).toEqual(null)
+                expect(comments[1].createdBy).toEqual(null)
+            })
         })
 
         describe('update', () => {
-            it.todo('can update own comment')
+            it('can update own comment', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
 
-            it.todo('cannot update not his own comment')
+                const unitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content1,
+                })
+
+                const [updatedCommentFromResident] = await updateTestTicketComment(residentClient, commentFromResident, {
+                    content: content2,
+                })
+
+                expect(updatedCommentFromResident.id).toEqual(commentFromResident.id)
+                expect(updatedCommentFromResident.content).toEqual(content2)
+            })
+
+            it('cannot update not his own comment', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: COMMENT_TYPE.RESIDENT,
+                    content: content1,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestTicketComment(residentClient, commentFromEmployee, {
+                        content: content2,
+                    })
+                })
+            })
         })
 
         describe('delete', () => {
-            it.todo('cannot delete comment')
+            it('cannot delete comment', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    const adminClient = await makeLoggedInAdminClient()
+                    const residentClient = await makeClientWithResidentUser()
+
+                    const unitName = faker.random.alphaNumeric(5)
+                    const content1 = faker.lorem.sentence()
+
+                    const [organization] = await createTestOrganization(adminClient)
+                    const [property] = await createTestProperty(adminClient, organization)
+                    await createTestResident(adminClient, residentClient.user, organization, property, {
+                        unitName,
+                    })
+                    const [ticket] = await createTestTicket(residentClient, organization, property, {
+                        unitName,
+                    })
+
+                    const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                        type: COMMENT_TYPE.RESIDENT,
+                        content: content1,
+                    })
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await TicketComment.delete(residentClient, commentFromResident.id)
+                    })
+                })
+            })
         })
     })
 })
