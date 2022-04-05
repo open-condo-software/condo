@@ -283,7 +283,7 @@ const handleTicketCommentEvents = async (requestData) => {
 
     const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
 
-    if (client) {
+    if (client && updatedItem.createdBy !== client) {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
