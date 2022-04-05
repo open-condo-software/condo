@@ -105,9 +105,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         expect(deletedProperty1.deletedAt).not.toBeNull()
 
-        await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
-
-        const resident = await Resident.getOne(userClient, { id: userClient.id })
+        const [resident] = await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
 
         expect(resident.organization).toBeNull()
         expect(resident.property).toBeNull()
