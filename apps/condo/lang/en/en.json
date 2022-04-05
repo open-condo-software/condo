@@ -1118,6 +1118,14 @@
   "excelExport.headers.ticket_report_status_categoryClassifier.deferred": "Deferred",
   "excelExport.headers.ticket_report_status_categoryClassifier.closed": "Closed",
   "excelExport.headers.ticket_report_status_categoryClassifier.new_or_reopened": "Opened",
+  "excelExport.headers.ticket_report_status_dayGroup.address": "Address",
+  "excelExport.headers.ticket_report_status_dayGroup.date": "Date",
+  "excelExport.headers.ticket_report_status_dayGroup.processing": "Processing",
+  "excelExport.headers.ticket_report_status_dayGroup.completed": "Completed",
+  "excelExport.headers.ticket_report_status_dayGroup.canceled": "Canceled",
+  "excelExport.headers.ticket_report_status_dayGroup.deferred": "Deferred",
+  "excelExport.headers.ticket_report_status_dayGroup.closed": "Closed",
+  "excelExport.headers.ticket_report_status_dayGroup.new_or_reopened": "New or reopened",
   "excelExport.sheetNames.buildings": "Properties",
   "excelExport.sheetNames.tickets": "Tickets"
 }
