@@ -1095,13 +1095,6 @@
   "excelExport.headers.tickets.reviewValue": "Review score",
   "excelExport.headers.tickets.reviewComment": "Review comment",
   "excelExport.headers.tickets.statusReopenedCounter": "Number of reopens",
-  "excelExport.headers.ticket_report_property_status.address": "Address",
-  "excelExport.headers.ticket_report_property_status.processing": "Processing",
-  "excelExport.headers.ticket_report_property_status.completed": "Completed",
-  "excelExport.headers.ticket_report_property_status.canceled": "Canceled",
-  "excelExport.headers.ticket_report_property_status.deferred": "Deferred",
-  "excelExport.headers.ticket_report_property_status.closed": "Closed",
-  "excelExport.headers.ticket_report_property_status.new_or_reopened": "New or reopened",
   "excelExport.sheetNames.buildings": "Properties",
   "excelExport.sheetNames.tickets": "Tickets"
 }

@@ -10,10 +10,11 @@ const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const dayjs = require('dayjs')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema/')
-const { getHeadersTranslations, EXPORT_TYPE_BUILDINGS } = require('@condo/domains/common/utils/exportToExcel')
+const { getHeadersTranslations } = require('@condo/domains/common/utils/exportToExcel')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const conf = require('@core/config')
+const { EXPORT_TYPE_BUILDINGS } = require('../../common/utils/exportToExcel')
 
 const errors = {
     NOTHING_TO_EXPORT: {
