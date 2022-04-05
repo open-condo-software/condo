@@ -40,6 +40,9 @@ const assigneePercentSingleDataMapper = require('@condo/domains/ticket/utils/ser
 const assigneePercentSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneePercentSummaryDataMapper')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { UNKNOWN_GROUP_BY_FILTER } = require('../constants/errors')
+const { getHeadersTranslations, TICKETS_REPORTS_PREFIX } = require('@condo/domains/common/utils/exportToExcel')
+const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const conf = require('@core/config')
 
 const NULLABLE_GROUP_KEYS = ['categoryClassifier', 'executor', 'assignee']
 
@@ -65,14 +68,16 @@ const createPropertyRange = async (organizationWhereInput, whereIn) => {
     }
     const propertyLoader = new GqlWithKnexLoadList(gqlLoaderOptions)
     const properties = await propertyLoader.load()
-    return properties.map( property => ({ label: property.address, value: property.id }))
+    return properties.map(property => ({ label: property.address, value: property.id }))
 }
 
 const createStatusRange = async (context, organizationWhereInput, labelKey = 'name') => {
-    const statuses = await TicketStatusServerUtils.getAll(context, { OR: [
-        { organization: organizationWhereInput },
-        { organization_is_null: true },
-    ] })
+    const statuses = await TicketStatusServerUtils.getAll(context, {
+        OR: [
+            { organization: organizationWhereInput },
+            { organization_is_null: true },
+        ],
+    })
     // We use organization specific statuses if they exists
     // or default if there is no organization specific status with a same type
     const allStatuses = statuses.filter(status => {
@@ -82,7 +87,11 @@ const createStatusRange = async (context, organizationWhereInput, labelKey = 'na
         return !statuses
             .find(organizationStatus => organizationStatus.organization !== null && organizationStatus.type === status.type)
     })
-    return sortStatusesByType(allStatuses).map(status => ({ label: status[labelKey], value: status.id, color: status.colors.primary }))
+    return sortStatusesByType(allStatuses).map(status => ({
+        label: status[labelKey],
+        value: status.id,
+        color: status.colors.primary,
+    }))
 }
 
 const createCategoryClassifierRange = async (organizationWhereInput, whereIn) => {
@@ -161,19 +170,19 @@ const getTicketCounts = async ({ context, where, groupBy, extraLabels = {}, null
                 break
             case 'status':
                 translates[group] = await createStatusRange(
-                    context, where.organization, isEmpty(extraLabels) ? 'name' :  extraLabels[group]
+                    context, where.organization, isEmpty(extraLabels) ? 'name' : extraLabels[group],
                 )
                 options[group] = translates[group].map(({ label }) => label)
                 break
             case 'day':
             case 'week':
                 options['dayGroup'] = enumerateDaysBetweenDates(
-                    ticketGqlToKnexAdapter.dateRange.from, ticketGqlToKnexAdapter.dateRange.to, group
+                    ticketGqlToKnexAdapter.dateRange.from, ticketGqlToKnexAdapter.dateRange.to, group,
                 )
                 break
             case 'categoryClassifier':
                 translates[group] = await createCategoryClassifierRange(
-                    where.organization,  ticketGqlToKnexAdapter.whereIn
+                    where.organization, ticketGqlToKnexAdapter.whereIn,
                 )
                 options[group] = translates[group].map(({ label }) => label)
                 break
@@ -190,8 +199,7 @@ const getTicketCounts = async ({ context, where, groupBy, extraLabels = {}, null
         }
     }
     const ticketGqlResult = ticketGqlToKnexAdapter
-        .getResult(({ count, dayGroup, ...searchResult }) =>
-        {
+        .getResult(({ count, dayGroup, ...searchResult }) => {
             if (!isEmpty(translates)) {
                 Object.entries(searchResult).forEach(([groupName, value]) => {
                     const translateMapping = get(translates, groupName, false)
@@ -242,7 +250,7 @@ const getTicketCounts = async ({ context, where, groupBy, extraLabels = {}, null
             return ticketCount
         })
         .sort((a, b) =>
-            dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix()
+            dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix(),
         )
     return { ticketCounts, translates }
 }
@@ -346,6 +354,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
             schema: 'exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where = {}, groupBy = [], translates = {}, nullReplaces } } = args
+
                 const { ticketCounts } = await getTicketCounts({
                     context, where, groupBy, nullReplaces, extraLabels: { status: 'type' },
                 })
@@ -357,6 +366,8 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                 const organization = await getByCondition('Organization', {
                     id: where.organization.id,
                 })
+
+                const locale = organization.country || extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 let rowColumns = []
                 const groupByToken = groupBy.join('-')
@@ -472,10 +483,13 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
 
                 const link = await createExportFile({
                     fileName: `ticket_analytics_${dayjs().format('DD_MM')}.xlsx`,
-                    templatePath: `./domains/ticket/templates/${organization.country}/TicketAnalyticsExportTemplate[${groupBy1}_${groupBy2}].xlsx`,
-                    replaces: { tickets },
+                    templatePath: `./domains/ticket/templates/TicketAnalyticsExportTemplate[${groupBy1}_${groupBy2}].xlsx`,
+                    replaces: {
+                        tickets,
+                        i18n: getHeadersTranslations(`${TICKETS_REPORTS_PREFIX}${groupBy1}_${groupBy2}`, locale),
+                    },
                     meta: {
-                        listkey: 'Ticket',
+                        listkey: `ticket_${groupBy1}_${groupBy2}`,
                         id: ticketAccessCheck[0].id,
                     },
                 })
