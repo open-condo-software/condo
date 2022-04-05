@@ -101,9 +101,7 @@ class CondoOIDCMiddleware {
                 }
 
                 const userInfo = await helper.completeAuth(req, checks)
-                console.log(userInfo)
-
-                const user = await createOrUpdateUser(userInfo)
+                const user = await createOrUpdateUser(keystone, userInfo)
                 await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
 
                 delete req.session[oidcSessionKey]
