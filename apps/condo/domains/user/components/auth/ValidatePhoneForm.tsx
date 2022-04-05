@@ -1,4 +1,4 @@
-import { Col, Form, Row, Space, Typography, Input } from 'antd'
+import { Col, Form, Row, Space, Typography, Input, RowProps } from 'antd'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useMutation } from '@core/next/apollo'
@@ -32,6 +32,9 @@ interface IValidatePhoneFormProps {
 }
 
 const SMS_CODE_CLEAR_REGEX = /[^0-9]/g
+
+const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
+const FORM_ITEMS_GUTTER: RowProps['gutter'] = [0, 24]
 
 export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElement<IValidatePhoneFormProps> => {
     const intl = useIntl()
@@ -152,9 +155,9 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
             requiredMark={false}
             layout={'vertical'}
         >
-            <Row gutter={[0, 40]} style={ROW_STYLES}>
+            <Row gutter={BUTTON_FORM_GUTTER} style={ROW_STYLES}>
                 <ResponsiveCol span={18}>
-                    <Row gutter={[0, 24]}>
+                    <Row gutter={FORM_ITEMS_GUTTER}>
                         <Col span={24}>
                             <Typography.Title level={3}>{title}</Typography.Title>
                         </Col>

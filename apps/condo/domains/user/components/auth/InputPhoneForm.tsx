@@ -7,7 +7,7 @@ import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Row, Typography } from 'antd'
+import { Col, Form, Row, RowProps, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
@@ -22,6 +22,7 @@ const ROW_STYLES: React.CSSProperties = {
     textAlign: 'center',
 }
 const FORM_PARAGRAPH_STYLES: React.CSSProperties = { margin: '34px 0 40px', textAlign: 'left' }
+const FORM_BUTTONS_GUTTER: RowProps['gutter'] = [0, 20]
 
 interface IInputPhoneFormProps {
     onFinish: () => void
@@ -142,7 +143,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish })=> {
                                     </Typography.Paragraph>
                                 </Col>
                             </Row>
-                            <Row gutter={[0, 20]}>
+                            <Row gutter={FORM_BUTTONS_GUTTER}>
                                 <Col span={24}>
                                     <Form.Item>
                                         <Button

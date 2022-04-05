@@ -1,4 +1,4 @@
-import { Col, Form, Input, Row, Typography } from 'antd'
+import { Col, Form, Input, Row, RowProps, Typography } from 'antd'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import { useMutation } from '@core/next/apollo'
@@ -27,6 +27,7 @@ interface IRegisterFormProps {
 
 const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
 const FORM_TITLE_STYLES: React.CSSProperties = { textAlign: 'start', fontWeight: 700 }
+const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
 
 export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const intl = useIntl()
@@ -118,7 +119,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             layout={'vertical'}
             validateTrigger={['onBlur', 'onSubmit']}
         >
-            <Row gutter={[0, 30]} style={ROW_STYLES}>
+            <Row gutter={BUTTON_FORM_GUTTER} style={ROW_STYLES}>
                 <ResponsiveCol span={18}>
                     <Row>
                         <Col span={24}>
