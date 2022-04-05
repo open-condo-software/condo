@@ -247,13 +247,6 @@ class SberBuisnessOnlineMiddleware {
     }
 }
 
-class KeystoneCacheMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
-        const app = express()
-
-    }
-}
-
 /**
  * We need a custom body parser for custom file upload limit
  */
@@ -266,11 +259,33 @@ class CustomBodyParserMiddleware {
     }
 }
 
+class KeystoneCacheMiddleware {
+    prepareMiddleware ({ keystone, dev, distDir }) {
+        const app = express()
+        app.use((req, res, next) => {
+            console.log(`${req.method} ${req.originalUrl} [STARTED]`)
+
+            const requestId = get()
+
+            // res.on('finish', () => {
+            //     console.log(`${req.method} ${req.originalUrl} [FINISHED]`)
+            // })
+
+            res.on('close', () => {
+                console.log('lol')
+            })
+
+            next()
+        })
+    }
+}
+
 module.exports = {
     keystone,
     apps: [
         new OIDCMiddleware(),
         new CustomBodyParserMiddleware(),
+        new KeystoneCacheMiddleware(),
         new GraphQLApp({
             apollo: {
                 formatError,
