@@ -14,16 +14,7 @@ const dayjs = require('dayjs')
 const meterReadingDataMapper = require('../utils/serverSchema/meterReadingDataMapper')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
-const {
-    loadMeterReadingsForExcelExport,
-    loadMetersForExcelExport,
-    MeterResource,
-    MeterReadingSource,
-} = require('../utils/serverSchema')
-const { getHeadersTranslations } = require('@condo/domains/common/utils/exportToExcel')
-const { i18n } = require('@condo/domains/common/utils/localesLoader')
-const { extractReqLocale } = require('@condo/domains/common/utils/locale')
-const conf = require('@core/config')
+const { loadMeterReadingsForExcelExport, loadMetersForExcelExport, MeterResource, MeterReadingSource } = require('../utils/serverSchema')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
@@ -48,7 +39,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
             type: 'type ExportMeterReadingsOutput { status: String!, linkToFile: String! }',
         },
     ],
-
+    
     queries: [
         {
             access: access.canExportMeterReadings,
@@ -60,8 +51,6 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                 const [organization] = await Organization.getAll(context, {
                     id: where.organization.id,
                 })
-
-                const locale = organization.country || extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 const meterReadings = await loadMeterReadingsForExcelExport({ where, sortBy })
 
@@ -113,14 +102,8 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
 
                 const linkToFile = await createExportFile({
                     fileName: `tickets_${dayjs().format('DD_MM')}.xlsx`,
-                    templatePath: './domains/meter/templates/MeterReadingsExportTemplate.xlsx',
-                    replaces: {
-                        meter: excelRows,
-                        i18n: {
-                            ...getHeadersTranslations('meters', locale),
-                            sheetName: i18n('menu.Meters', { locale }),
-                        },
-                    },
+                    templatePath: `./domains/meter/templates/${organization.country}/MeterReadingsExportTemplate.xlsx`,
+                    replaces: { meter: excelRows },
                     meta: {
                         listkey: 'MeterReading',
                         id: meterReadings[0].id,
@@ -130,6 +113,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
             },
         },
     ],
+    
 })
 
 module.exports = {

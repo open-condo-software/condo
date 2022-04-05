@@ -4,7 +4,6 @@ const conf = require('@core/config')
 const EXCEL_TEMPLATES_HEADERS = {
     payments: ['date', 'account', 'address', 'unitName', 'type', 'transaction', 'amount'],
     contacts: ['name', 'address', 'unitName', 'phone', 'email'],
-    meters: ['date', 'address', 'unitName', 'accountNumber', 'resource', 'number', 'place', 'value1', 'value2', 'value3', 'value4', 'clientName', 'source'],
 }
 
 /**

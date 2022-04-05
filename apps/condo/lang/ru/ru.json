@@ -1045,18 +1045,5 @@
   "excelExport.headers.contacts.address": "Адрес",
   "excelExport.headers.contacts.unitName": "Квартира",
   "excelExport.headers.contacts.phone": "Телефон",
-  "excelExport.headers.contacts.email": "Почта",
-  "excelExport.headers.meters.date": "Дата снятия",
-  "excelExport.headers.meters.address": "Адрес",
-  "excelExport.headers.meters.unitName": "Квартира",
-  "excelExport.headers.meters.accountNumber": "Лицевой счет",
-  "excelExport.headers.meters.resource": "Услуга",
-  "excelExport.headers.meters.number": "Номер прибора",
-  "excelExport.headers.meters.place": "Место",
-  "excelExport.headers.meters.value1": "Показание по тарифу №1",
-  "excelExport.headers.meters.value2": "Показание по тарифу №2",
-  "excelExport.headers.meters.value3": "Показание по тарифу №3",
-  "excelExport.headers.meters.value4": "Показание по тарифу №4",
-  "excelExport.headers.meters.clientName": "Житель",
-  "excelExport.headers.meters.source": "Источник"
+  "excelExport.headers.contacts.email": "Почта"
 }
