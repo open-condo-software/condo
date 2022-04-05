@@ -1134,13 +1134,6 @@
   "excelExport.headers.ticket_report_status_executor.deferred": "Отложена",
   "excelExport.headers.ticket_report_status_executor.closed": "Закрыта",
   "excelExport.headers.ticket_report_status_executor.new_or_reopened": "Открыта",
-  "excelExport.headers.ticket_report_status_property.address": "Адрес",
-  "excelExport.headers.ticket_report_status_property.processing": "В работе",
-  "excelExport.headers.ticket_report_status_property.completed": "Выполнена",
-  "excelExport.headers.ticket_report_status_property.canceled": "Отменена",
-  "excelExport.headers.ticket_report_status_property.deferred": "Отложена",
-  "excelExport.headers.ticket_report_status_property.closed": "Закрыта",
-  "excelExport.headers.ticket_report_status_property.new_or_reopened": "Открыта",
   "excelExport.sheetNames.buildings": "Список домов",
   "excelExport.sheetNames.tickets": "Заявки"
 }

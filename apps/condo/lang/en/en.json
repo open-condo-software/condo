@@ -1134,13 +1134,6 @@
   "excelExport.headers.ticket_report_status_executor.deferred": "Deferred",
   "excelExport.headers.ticket_report_status_executor.closed": "Closed",
   "excelExport.headers.ticket_report_status_executor.new_or_reopened": "Opened",
-  "excelExport.headers.ticket_report_status_property.address": "Address",
-  "excelExport.headers.ticket_report_status_property.processing": "In progress",
-  "excelExport.headers.ticket_report_status_property.completed": "Done",
-  "excelExport.headers.ticket_report_status_property.canceled": "Canceled",
-  "excelExport.headers.ticket_report_status_property.deferred": "Deferred",
-  "excelExport.headers.ticket_report_status_property.closed": "Closed",
-  "excelExport.headers.ticket_report_status_property.new_or_reopened": "New or reopened",
   "excelExport.sheetNames.buildings": "Properties",
   "excelExport.sheetNames.tickets": "Tickets"
 }
