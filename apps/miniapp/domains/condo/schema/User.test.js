@@ -10,7 +10,6 @@ const { expectToThrowAuthenticationErrorToObj } = require('@miniapp/domains/comm
 const { expectToThrowAccessDeniedErrorToObj } = require('@miniapp/domains/common/utils/testSchema')
 
 const { makeClientWithStaffUser } = require('../utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('User', () => {
     test('user: create User', async () => {
@@ -75,6 +74,15 @@ describe('User', () => {
 
     test('user: update self User password', async () => {
         const client = await makeClientWithStaffUser()
+        const password = getRandomString()
+        const payload = { password }
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestUser(client, client.user.id, payload)
+        })
+    })
+
+    test('user: update self User password for local user', async () => {
+        const client = await makeClientWithStaffUser({ isLocal: true })
         const password = getRandomString()
         const payload = { password }
         await expectToThrowAccessDeniedErrorToObj(async () => {

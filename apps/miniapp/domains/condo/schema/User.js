@@ -82,7 +82,7 @@ const User = new GQLListSchema('User', {
         password: {
             schemaDoc: 'Password. Update only (for local auth without oidc)',
             type: Password,
-            access: access.canAccessToIsAdminField,
+            access: access.canAccessToPasswordField,
         },
     },
     plugins: [uuided(), tracked(), softDeleted(), dvAndSender()],
