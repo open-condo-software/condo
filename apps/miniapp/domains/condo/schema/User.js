@@ -5,18 +5,18 @@
 const { Text, Integer, Checkbox, Password } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { SENDER_FIELD, DV_FIELD } = require('@miniapp/domains/common/schema/fields')
+
 const access = require('@miniapp/domains/condo/access/User')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'condo.User (exported from condo API)',
     fields: {
+        dv: DV_FIELD,
+        sender: SENDER_FIELD,
+
         v: {
             schemaDoc: 'condo.User.v',
-            type: Integer,
-            isRequired: true,
-        },
-        dv: {
-            schemaDoc: 'condo.User.dv',
             type: Integer,
             isRequired: true,
         },
