@@ -185,7 +185,7 @@ test('oidc', async () => {
 test('oidc auth by mini app', async () => {
     const c = await makeClientWithNewRegisteredAndLoggedInUser()
 
-    const uri = `${c.serverUrl}/.well-known/apollo/server-health`
+    const uri = 'https://jwt.io/'
     const clientId = getRandomString()
     const clientSecret = getRandomString()
 
@@ -235,7 +235,6 @@ test('oidc auth by mini app', async () => {
     console.log(redirectUrl)
     const res1 = await request(redirectUrl, c.getCookie(), 100)
     expect(res1.status).toEqual(200)
-    expect(res1.data).toMatchObject({ 'status': 'pass' })
 
     console.log(res1.url)
     const params = client.callbackParams(res1.url)
