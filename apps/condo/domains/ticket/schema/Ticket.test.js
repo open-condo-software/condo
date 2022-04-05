@@ -28,6 +28,8 @@ const {
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_INDICATOR_ADDED_TYPE,
+    TICKET_INDICATOR_REMOVED_TYPE,
+    TICKET_COMMENT_ADDED_TYPE,
     MESSAGE_DELIVERED_STATUS,
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
@@ -40,6 +42,7 @@ const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser, 
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const { REVIEW_VALUES } = require('../constants')
+const { createTestTicketComment } = require('../utils/testSchema')
 
 describe('Ticket', () => {
     describe('Crud', () => {
@@ -1564,7 +1567,7 @@ describe('Ticket', () => {
 
     })
 
-    describe( 'NotificationWhenStatusChange', () => {
+    describe( 'NotificationWhen', () => {
         it('update status to TICKET_STATUS_IN_PROGRESS and send push for resident with registered pushToken', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
@@ -1993,7 +1996,7 @@ describe('Ticket', () => {
             const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
             const messageAddIndicate = await Message.getOne(admin, messageWhereAddIndicate)
 
-            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_REMOVED_TYPE }
             const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
 
             expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
@@ -2032,7 +2035,7 @@ describe('Ticket', () => {
             const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
             const messageAddIndicate = await Message.getOne(admin, messageWhereAddIndicate)
 
-            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_REMOVED_TYPE }
             const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
 
             expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
@@ -2079,7 +2082,7 @@ describe('Ticket', () => {
             const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
             const messageAddIndicate = await Message.getOne(admin, messageWhereAddIndicate)
 
-            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_REMOVED_TYPE }
             const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
 
             expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
@@ -2116,7 +2119,7 @@ describe('Ticket', () => {
             const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
             const messageAddIndicateCount = await Message.count(admin, messageWhereAddIndicate)
 
-            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_REMOVED_TYPE }
             const messageDeleteIndicateCount = await Message.count(admin, messageWhereDeleteIndicate)
 
             expect(messageAddIndicateCount).toEqual(0)
@@ -2148,7 +2151,7 @@ describe('Ticket', () => {
             const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
             const messageAddIndicate = await Message.getOne(admin, messageWhereAddIndicate)
 
-            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_REMOVED_TYPE }
             const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
 
             expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
@@ -2184,7 +2187,7 @@ describe('Ticket', () => {
             const messageWhereAddIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
             const messageAddIndicate = await Message.getOne(admin, messageWhereAddIndicate)
 
-            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_ADDED_TYPE }
+            const messageWhereDeleteIndicate = { user: { id: userClient.user.id }, type: TICKET_INDICATOR_REMOVED_TYPE }
             const messageDeleteIndicate = await Message.getOne(admin, messageWhereDeleteIndicate)
 
             expect(messageAddIndicate.status).toEqual(MESSAGE_DELIVERED_STATUS)
@@ -2193,6 +2196,158 @@ describe('Ticket', () => {
             expect(messageAddIndicate.meta.data.ticketId).toEqual(ticket.id)
             expect(messageDeleteIndicate.meta.data.ticketId).toEqual(ticket.id)
             expect(messageDeleteIndicate.meta.data.indicatorType).toEqual(messageAddIndicate.meta.data.indicatorType)
+        })
+
+        it('admin create new comment and send push for resident with registered pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(userClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await createTestTicketComment(admin, ticket, userClient.user)
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('push')
+        })
+
+        it('admin create new comment and send sms for resident with no registered pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await createTestTicketComment(admin, ticket, userClient.user)
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('sms')
+        })
+
+        it('admin create new comment and send sms for resident with registered invalid pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_FAIL}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(userClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client.id).toEqual(userClient.user.id)
+
+            await createTestTicketComment(admin, ticket, userClient.user)
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.meta.data.userId).toEqual(userClient.user.id)
+            expect(message.meta.data.ticketId).toEqual(ticket.id)
+            expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+            expect(message.processingMeta.transport).toEqual('email')
+            // SMS was disabled for a while as main fallback transport for push
+            // expect(message.processingMeta.transport).toEqual('sms')
+        })
+
+        it('admin create new comment and can`t send notification there is no resident', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            expect(ticket.client).toEqual(null)
+
+            await createTestTicketComment(admin, ticket, userClient.user)
+
+            await sleep(1000)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+            const messageCount = await Message.count(admin, messageWhere)
+
+            expect(messageCount).toEqual(0)
+        })
+
+        it('resident create new comment and can`t send push to myself', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                canManageTickets: true,
+                canManageTicketComments: true,
+            })
+            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+            await createTestResident(adminClient, userClient.user, organization, property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, organization, property, {
+                unitName,
+            })
+
+            await createTestTicketComment(userClient, ticket, userClient.user)
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+            const messageCount = await Message.count(userClient, messageWhere)
+
+            expect(messageCount).toEqual(0)
         })
     })
 })
