@@ -155,7 +155,6 @@ export const SignInForm = (): React.ReactElement => {
                                     icon={<SberIconWithoutLabel/>}
                                     href={'/api/sbbol/auth'}
                                     block
-                                    disabled={false}
                                 >
                                     {SberIdRegisterMsg}
                                 </Button>

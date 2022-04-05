@@ -28,12 +28,14 @@ interface IInputPhoneFormProps {
     onFinish: () => void
 }
 
+const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
+
 export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => {
     const [form] = Form.useForm()
     const intl = useIntl()
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const FieldIsRequiredMsg = intl.formzatMessage({ id: 'FieldIsRequired' })
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
@@ -46,6 +48,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const [smsSendError, setSmsSendError] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
+
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
             [TOO_MANY_REQUESTS]: {
@@ -54,6 +57,18 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
             },
         }
     }, [intl])
+
+    const PHONE_VALIDATOR = useCallback(() => ({
+        validator () {
+            if (!smsSendError) {
+                return Promise.resolve()
+            }
+            return Promise.reject(smsSendError)
+        },
+    }), [smsSendError])
+
+    const REGISTER_PHONE_RULES = useMemo(() => [
+        { required: true, message: FieldIsRequiredMsg }, PHONE_VALIDATOR], [FieldIsRequiredMsg, PHONE_VALIDATOR])
 
     const startConfirmPhone = useCallback(async () => {
         const registerExtraData = {
@@ -109,22 +124,9 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         name='phone'
                                         label={REGISTER_PHONE_LABEL}
                                         data-cy={'register-phone-item'}
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message: FieldIsRequiredMsg,
-                                            },
-                                            () => ({
-                                                validator () {
-                                                    if (!smsSendError) {
-                                                        return Promise.resolve()
-                                                    }
-                                                    return Promise.reject(smsSendError)
-                                                },
-                                            }),
-                                        ]}
+                                        rules={REGISTER_PHONE_RULES}
                                     >
-                                        <PhoneInput style={{ borderRadius: 8, borderColor: colors.inputBorderGrey }}
+                                        <PhoneInput style={FORM_PHONE_STYLES}
                                             placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)}
                                             block/>
                                     </Form.Item>
@@ -175,7 +177,6 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                             icon={<SberIconWithoutLabel/>}
                                             href={'/api/sbbol/auth'}
                                             block
-                                            disabled={false}
                                         >
                                             {SberIdRegisterMsg}
                                         </Button>

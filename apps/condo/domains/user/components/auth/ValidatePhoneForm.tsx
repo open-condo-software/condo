@@ -83,6 +83,17 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
     const [completeConfirmPhoneMutation] = useMutation(COMPLETE_CONFIRM_PHONE_MUTATION)
     const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
 
+    const SMS_VALIDATOR = useCallback(() => ({
+        validator () {
+            if (!phoneValidateError) {
+                return Promise.resolve()
+            }
+            return Promise.reject(phoneValidateError)
+        },
+    }), [phoneValidateError])
+
+    const SMS_CODE_VALIDATOR_RULES = useMemo(() => [
+        { required: true, message: FieldIsRequiredMsg }, SMS_VALIDATOR], [FieldIsRequiredMsg, SMS_VALIDATOR])
 
     const resendSms = useCallback(async () => {
         const sender = getClientSideSenderInfo()
@@ -184,20 +195,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                                 name='smsCode'
                                 label={SmsCodeTitle}
                                 data-cy={'register-smscode-item'}
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: FieldIsRequiredMsg,
-                                    },
-                                    () => ({
-                                        validator () {
-                                            if (!phoneValidateError) {
-                                                return Promise.resolve()
-                                            }
-                                            return Promise.reject(phoneValidateError)
-                                        },
-                                    }),
-                                ]}
+                                rules={SMS_CODE_VALIDATOR_RULES}
                             >
                                 <Input
                                     placeholder=''
