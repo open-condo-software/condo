@@ -3,11 +3,15 @@ import { TComment } from './index'
 import { useIntl } from '@core/next/intl'
 import { formatDate } from '@condo/domains/ticket/utils/helpers'
 import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { green, red, grey } from '@ant-design/colors'
 import { MAX_COMMENT_LENGTH } from './CommentForm'
+import { colors } from '@condo/domains/common/constants/style'
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
+import { User } from '@app/condo/schema'
+import dayjs from 'dayjs'
 
 
 interface ICommentProps {
@@ -57,21 +61,19 @@ const CommentStyle = css`
       .ant-comment-content {
         display: flex;
         flex-flow: column nowrap;
-
-        .ant-comment-content-detail {
-          order: 1;
-        }
+        
         .ant-comment-content-author {
-          order: 2;
+          display: block;
           margin-top: 0.6em;
           font-size: 12px;
           
           .ant-comment-content-author-name {
-            color: ${green[6]};
+            display: block;
+            color: ${colors.textSecondary};
           }
 
           .ant-comment-content-author-time > div > span {
-            color: ${grey[2]};
+            color: ${colors.textSecondary};
           }
         }
         .ant-comment-actions {
@@ -86,6 +88,8 @@ const CommentStyle = css`
     }
 `
 
+const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
+
 export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, deleteAction }) => {
     const intl = useIntl()
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'Comments.actions.delete.confirm.title' })
@@ -93,9 +97,22 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
     const ConfirmDeleteCancelText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.cancelText' })
     const CommentDeletedText = intl.formatMessage({ id: 'Comments.deleted' })
     const MetaUpdatedText = intl.formatMessage({ id: 'Comments.meta.updated' })
+    const ResidentMessage = intl.formatMessage({ id: 'Contact' }).toLowerCase()
+    const EmployeeMessage = intl.formatMessage({ id: 'Employee' }).toLowerCase()
 
     const [mode, setMode] = useState<CommentMode>('display')
     const [content, setContent] = useState(comment.content)
+
+    const getCommentAuthorRoleMessage = useCallback((author: User) => {
+        switch (author.type) {
+            case RESIDENT: {
+                return ResidentMessage
+            }
+            case STAFF: {
+                return EmployeeMessage
+            }
+        }
+    }, [EmployeeMessage, ResidentMessage])
 
     const [dateShowMode, setDateShowMode] = useState<'created' | 'updated'>('created')
     const handleSave = (newContent) => {
@@ -198,14 +215,21 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                     {content}
                 </Typography.Text>
             }
-            author={comment.user.name}
+            author={
+                <Typography.Text type={'secondary'}>
+                    <Typography.Text type={'secondary'} underline style={{ paddingRight: '2px' }}>
+                        {comment.user.name}
+                    </Typography.Text>
+                    ({getCommentAuthorRoleMessage(comment.user)}),
+                </Typography.Text>
+            }
             datetime={
                 <div
                     onMouseOut={() => setDateShowMode('created')}
                     onMouseOver={() => setDateShowMode('updated')}
                 >
                     <Typography.Text title={MetaUpdatedText}>
-                        {dateShowMode === 'created' ?  formatDate(intl, comment.createdAt) : formatDate(intl, comment.updatedAt)}
+                        {dateShowMode === 'created' ?  dayjs(comment.createdAt).format(COMMENT_DATE_FORMAT) : dayjs(intl, comment.updatedAt).format(COMMENT_DATE_FORMAT)}
                     </Typography.Text>
                 </div>
             }
