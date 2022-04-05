@@ -29,6 +29,9 @@ const WARRANTY_CHANGED_EVENT_TYPE = 'WARRANTY_CHANGED'
 const PAID_CHANGED_EVENT_TYPE = 'PAID_CHANGED'
 const EMERGENCY_CHANGED_EVENT_TYPE = 'EMERGENCY_CHANGED'
 
+const TICKET_DOMAIN = 'ticket'
+const TICKET_COMMENT_DOMAIN = 'ticketComment'
+
 /**
  * Detects possible events within Ticket schema request
  * @param operation
@@ -208,6 +211,7 @@ const handleTicketEvents = async (requestData) => {
                         ticketId: updatedItem.id,
                         ticketNumber: updatedItem.number,
                         userId: client,
+                        domain: TICKET_DOMAIN,
                     },
                 },
                 sender: updatedItem.sender,
@@ -227,6 +231,7 @@ const handleTicketEvents = async (requestData) => {
                     ticketNumber: updatedItem.number,
                     userId: client,
                     indicatorType: i18n(translationStringKeyForIndicatorType(WARRANTY_CHANGED_EVENT_TYPE), { lang }),
+                    domain: TICKET_DOMAIN,
                 },
             },
             sender: updatedItem.sender,
@@ -245,6 +250,7 @@ const handleTicketEvents = async (requestData) => {
                     ticketNumber: updatedItem.number,
                     userId: client,
                     indicatorType: i18n(translationStringKeyForIndicatorType(PAID_CHANGED_EVENT_TYPE), { lang }),
+                    domain: TICKET_DOMAIN,
                 },
             },
             sender: updatedItem.sender,
@@ -263,6 +269,7 @@ const handleTicketEvents = async (requestData) => {
                     ticketNumber: updatedItem.number,
                     userId: client,
                     indicatorType: i18n(translationStringKeyForIndicatorType(EMERGENCY_CHANGED_EVENT_TYPE), { lang }),
+                    domain: TICKET_DOMAIN,
                 },
             },
             sender: updatedItem.sender,
@@ -296,6 +303,7 @@ const handleTicketCommentEvents = async (requestData) => {
                     ticketNumber: ticket.number,
                     userId: client,
                     commentId: updatedItem.id,
+                    domain: TICKET_COMMENT_DOMAIN,
                 },
             },
             sender: updatedItem.sender,

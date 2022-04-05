@@ -141,6 +141,8 @@ const MESSAGE_META = {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
+            domain: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
         },
     },
     [TICKET_STATUS_COMPLETED_TYPE]: {
@@ -149,6 +151,8 @@ const MESSAGE_META = {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
+            domain: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
         },
     },
     [TICKET_STATUS_RETURNED_TYPE]: {
@@ -157,6 +161,8 @@ const MESSAGE_META = {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
+            domain: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
         },
     },
     [TICKET_INDICATOR_ADDED_TYPE]: {
@@ -166,6 +172,8 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             indicatorType: { defaultValue: '', required: true },
+            domain: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
         },
     },
     [TICKET_INDICATOR_REMOVED_TYPE]: {
@@ -175,6 +183,8 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             indicatorType: { defaultValue: '', required: true },
+            domain: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
         },
     },
     [TICKET_COMMENT_ADDED_TYPE]: {
@@ -184,6 +194,8 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             commentId: { defaultValue: '', required: true },
+            domain: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
         },
     },
 }
