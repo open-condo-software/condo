@@ -45,6 +45,9 @@ const createOrUpdateUser = async (keystone, userInfo) => {
             type: userInfo.type,
             isSupport: userInfo.isSupport,
             isAdmin: userInfo.isAdmin,
+            email: userInfo.email || null,
+            isLocal: false,
+            password: null,
         })
     } else {
         const createdUser = await User.create(context, {
@@ -55,6 +58,9 @@ const createOrUpdateUser = async (keystone, userInfo) => {
             type: userInfo.type,
             isSupport: userInfo.isSupport,
             isAdmin: userInfo.isAdmin,
+            email: userInfo.email || null,
+            isLocal: false,
+            password: null,
         })
         // UserCreateInput does not have `id` field, so, update it manually
         return await keystone.lists.User.adapter.update(createdUser.id, { id: userInfo.sub })

@@ -16,9 +16,35 @@ const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/KSv5v6/v5/registerSchema')
 
 const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
+const { createItems } = require('@keystonejs/server-side-graphql-client')
+const { formatError } = require('@miniapp/domains/common/utils/apolloErrorFormatter')
+
+const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
+const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+
+// NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
+// WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
+const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 
 const keystone = new Keystone({
     ...prepareDefaultKeystoneConfig(conf),
+    onConnect: async () => {
+        // Initialise some data
+        if (conf.NODE_ENV !== 'development' && conf.NODE_ENV !== 'test') return // Just for dev env purposes!
+        // This function can be called before tables are created! (we just ignore this)
+        const users = await keystone.lists.User.adapter.findAll()
+        if (!users.length) {
+            const initialData = require('./initialData')
+            for (let { listKey, items } of initialData) {
+                console.log(`🗿 createItems(${listKey}) -> ${items.length}`)
+                await createItems({
+                    keystone,
+                    listKey,
+                    items,
+                })
+            }
+        }
+    },
 })
 
 registerSchemas(keystone, [
@@ -29,7 +55,7 @@ let authStrategy = keystone.createAuthStrategy({
     type: PasswordAuthStrategy,
     list: 'User',
     config: {
-        protectIdentities: false,
+        protectIdentities: true,
     },
 })
 
@@ -107,8 +133,7 @@ class CondoOIDCMiddleware {
                 delete req.session[oidcSessionKey]
                 await req.session.save()
 
-                return res.status(200).send(JSON.stringify(userInfo))
-                // return res.redirect('/')
+                return res.redirect('/')
             } catch (error) {
                 return next(error)
             }
@@ -121,7 +146,14 @@ module.exports = {
     keystone,
     apps: [
         new CondoOIDCMiddleware(),
-        new GraphQLApp({ apollo: { debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test' } }),
+        new GraphQLApp({
+            apollo: {
+                formatError,
+                debug: IS_ENABLE_APOLLO_DEBUG,
+                introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+            },
+        }),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',

@@ -4,10 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const { getRandomString } = require('@core/keystone/test.utils')
+const { getRandomString, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@miniapp/domains/common/utils/codegeneration/generate.test.utils')
-const { STAFF_USER_TYPE } = require('@miniapp/domains/condo/constants/user')
+const { STAFF_USER_TYPE, RESIDENT_USER_TYPE } = require('@miniapp/domains/condo/constants/user')
 
 const { User: UserGQL } = require('@miniapp/domains/condo/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -23,17 +23,14 @@ async function createTestUser (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
     const email = createTestEmail()
-    const phone = createTestPhone()
     const password = getRandomString()
-    const meta = {
-        dv: 1, city: faker.address.city(), county: faker.address.county(),
-    }
 
     const attrs = {
         dv: 1,
         sender,
-        name, email, phone,
-        password, meta,
+        name,
+        email,
+        password,
         type: STAFF_USER_TYPE,
         ...extraAttrs,
     }
@@ -55,10 +52,32 @@ async function updateTestUser (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function makeClientWithNewRegisteredAndLoggedInUser (extraAttrs = {}) {
+    const admin = await makeLoggedInAdminClient()
+    const [user, userAttrs] = await createTestUser(admin, extraAttrs)
+    const client = await makeLoggedInClient(userAttrs)
+    client.user = user
+    client.userAttrs = userAttrs
+    return client
+}
+
+async function makeClientWithSupportUser() {
+    return await makeClientWithNewRegisteredAndLoggedInUser({ isSupport: true, type: STAFF_USER_TYPE })
+}
+
+async function makeClientWithResidentUser() {
+    return await makeClientWithNewRegisteredAndLoggedInUser({ type: RESIDENT_USER_TYPE })
+}
+
+async function makeClientWithStaffUser() {
+    return await makeClientWithNewRegisteredAndLoggedInUser({ type: STAFF_USER_TYPE })
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     createTestEmail, createTestPhone,
     User, createTestUser, updateTestUser,
+    makeClientWithSupportUser, makeClientWithStaffUser, makeClientWithResidentUser,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }

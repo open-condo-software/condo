@@ -4,9 +4,6 @@ const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
 
 const { createOidcClient } = require('@condo/domains/user/oidc')
 
-// const uri = `http://localhost:3001/oidc/callback`
-// const clientId = 'client1'
-// const clientSecret = 'secret1'
 
 async function main (args) {
     const [clientId, clientSecret, redirectUri] = args
