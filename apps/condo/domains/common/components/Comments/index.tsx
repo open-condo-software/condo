@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useRef } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import { Divider, Empty, Tabs, Typography } from 'antd'
@@ -7,10 +7,11 @@ import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
-import { COMMENT_TYPES } from '@condo/domains/ticket/constants'
+import { COMMENT_TYPE } from '@condo/domains/ticket/constants'
 
 export type TComment = {
     id: string,
+    type: COMMENT_TYPE,
     content: string,
     user: {
         id: string,
@@ -130,6 +131,66 @@ const CommentsTabsContainer = styled.div`
     }
 `
 
+type CommentsTabContentProps = {
+    comments: TComment[],
+    PromptTitleMessage: string,
+    PromptDescriptionMessage: string,
+    actionsFor: (comment: TComment) => ActionsForComment,
+}
+
+const CommentsTabContent: React.FC<CommentsTabContentProps> =
+    ({ comments, PromptTitleMessage, PromptDescriptionMessage, actionsFor }) => {
+        const bodyRef = useRef(null)
+
+        const scrollToBottom = () => {
+            if (bodyRef.current) {
+                bodyRef.current.scrollTop = 0
+            }
+        }
+
+        useEffect(() => {
+            scrollToBottom()
+        }, [comments.length])
+
+        return (
+            <>
+                {comments.length === 0 ? (
+                    <EmptyContainer>
+                        <Empty
+                            image={null}
+                            description={
+                                <>
+                                    <Typography.Paragraph strong style={{ fontSize: fontSizes.content }}>
+                                        {PromptTitleMessage}
+                                    </Typography.Paragraph>
+                                    <Typography.Paragraph type={'secondary'} style={{ fontSize: fontSizes.content }}>
+                                        {PromptDescriptionMessage}
+                                    </Typography.Paragraph>
+                                </>
+                            }
+                        />
+                    </EmptyContainer>
+                ) : (
+                    <Body ref={bodyRef}>
+                        {comments.map(comment => {
+                            const { updateAction, deleteAction } = actionsFor(comment)
+
+                            return (
+                                <Comment
+                                    key={comment.id}
+                                    comment={comment}
+                                    updateAction={updateAction}
+                                    deleteAction={deleteAction}
+                                />
+                            )
+                        })}
+                    </Body>
+                )}
+            </>
+        )
+    }
+
+
 const Comments: React.FC<ICommentsListProps> = ({
     comments,
     createAction,
@@ -146,95 +207,46 @@ const Comments: React.FC<ICommentsListProps> = ({
     const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
 
-    const bodyRef = useRef(null)
     const { isSmall } = useLayoutContext()
+    const [commentType, setCommentType] = useState<COMMENT_TYPE>(COMMENT_TYPE.ORGANIZATION)
+    const action = useCallback(async (values) => createAction({ ...values, type: commentType }),
+        [commentType, createAction])
 
-    const scrollToBottom = () => {
-        if (bodyRef.current) {
-            bodyRef.current.scrollTop = 0
-        }
-    }
-
-    useEffect(() => {
-        scrollToBottom()
-    }, [comments.length])
+    const commentsWithOrganization = comments.filter(comment => comment.type === COMMENT_TYPE.ORGANIZATION)
+    const commentsWithResident = comments.filter(comment => comment.type === COMMENT_TYPE.RESIDENT)
 
     return (
         <Container isSmall={isSmall}>
             <Head>{TitleMessage}</Head>
             <CommentsTabsContainer className="card-container">
-                <Tabs defaultActiveKey="1" centered type={'card'} tabBarGutter={4}>
-                    <TabPane tab={InternalCommentsMessage} key={COMMENT_TYPES.ORGANIZATION}>
-                        {comments.length === 0 ? (
-                            <EmptyContainer>
-                                <Empty
-                                    image={null}
-                                    description={
-                                        <>
-                                            <Typography.Paragraph strong style={{ fontSize: fontSizes.content }}>
-                                                {PromptInternalCommentsTitleMessage}
-                                            </Typography.Paragraph>
-                                            <Typography.Paragraph type={'secondary'} style={{ fontSize: fontSizes.content }}>
-                                                {PromptInternalCommentsDescriptionMessage}
-                                            </Typography.Paragraph>
-                                        </>
-                                    }
-                                />
-                            </EmptyContainer>
-                        ) : (
-                            <Body ref={bodyRef}>
-                                {comments.map(comment => {
-                                    const { updateAction, deleteAction } = actionsFor(comment)
-                                    return (
-                                        <Comment
-                                            key={comment.id}
-                                            comment={comment}
-                                            updateAction={updateAction}
-                                            deleteAction={deleteAction}
-                                        />
-                                    )
-                                })}
-                            </Body>
-                        )}
+                <Tabs
+                    defaultActiveKey={COMMENT_TYPE.ORGANIZATION}
+                    centered
+                    type={'card'}
+                    tabBarGutter={4}
+                    onChange={tab => setCommentType(tab)}
+                >
+                    <TabPane tab={InternalCommentsMessage} key={COMMENT_TYPE.ORGANIZATION}>
+                        <CommentsTabContent
+                            comments={commentsWithOrganization}
+                            PromptTitleMessage={PromptInternalCommentsTitleMessage}
+                            PromptDescriptionMessage={PromptInternalCommentsDescriptionMessage}
+                            actionsFor={actionsFor}
+                        />
                     </TabPane>
-                    <TabPane tab={ResidentCommentsMessage} key={COMMENT_TYPES.RESIDENT}>
-                        {comments.length === 0 ? (
-                            <EmptyContainer>
-                                <Empty
-                                    image={null}
-                                    description={
-                                        <>
-                                            <Typography.Paragraph strong style={{ fontSize: fontSizes.content }}>
-                                                {PromptResidentCommentsTitleMessage}
-                                            </Typography.Paragraph>
-                                            <Typography.Paragraph type={'secondary'} style={{ fontSize: fontSizes.content }}>
-                                                {PromptResidentCommentsDescriptionMessage}
-                                            </Typography.Paragraph>
-                                        </>
-                                    }
-                                />
-                            </EmptyContainer>
-                        ) : (
-                            <Body ref={bodyRef}>
-                                {comments.map(comment => {
-                                    const { updateAction, deleteAction } = actionsFor(comment)
-                                    return (
-                                        <Comment
-                                            key={comment.id}
-                                            comment={comment}
-                                            updateAction={updateAction}
-                                            deleteAction={deleteAction}
-                                        />
-                                    )
-                                })}
-                            </Body>
-                        )}
+                    <TabPane tab={ResidentCommentsMessage} key={COMMENT_TYPE.RESIDENT}>
+                        <CommentsTabContent
+                            comments={commentsWithResident}
+                            PromptTitleMessage={PromptResidentCommentsTitleMessage}
+                            PromptDescriptionMessage={PromptResidentCommentsDescriptionMessage}
+                            actionsFor={actionsFor}
+                        />
                     </TabPane>
                 </Tabs>
             </CommentsTabsContainer>
             <Footer>
                 {canCreateComments ? (
-                    <CommentForm action={createAction}/>
+                    <CommentForm action={action}/>
                 ) : (
                     <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>
                 )}

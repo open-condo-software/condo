@@ -52,6 +52,7 @@ const CommentStyle = css`
 
     .ant-comment-inner {
       padding: 12px;
+      margin-bottom: 12px;
 
       .ant-comment-content {
         display: flex;
