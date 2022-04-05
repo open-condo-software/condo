@@ -481,12 +481,13 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     })
                 }
 
-                const i18n = getHeadersTranslations(`${TICKETS_REPORTS_PREFIX}${groupBy1}_${groupBy2}`, locale)
-
                 const link = await createExportFile({
                     fileName: `ticket_analytics_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: `./domains/ticket/templates/TicketAnalyticsExportTemplate[${groupBy1}_${groupBy2}].xlsx`,
-                    replaces: { tickets, i18n },
+                    replaces: {
+                        tickets,
+                        i18n: getHeadersTranslations(`${TICKETS_REPORTS_PREFIX}${groupBy1}_${groupBy2}`, locale),
+                    },
                     meta: {
                         listkey: `ticket_${groupBy1}_${groupBy2}`,
                         id: ticketAccessCheck[0].id,
