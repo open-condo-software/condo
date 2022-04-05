@@ -1,7 +1,7 @@
 import { Col, Form, Input, Row, Space, Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { User } from '@condo/domains/user/utils/clientSchema'
 import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
@@ -10,7 +10,6 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { UserAvatar } from './UserAvatar'
-import { UserPasswordResetButton } from './UserPasswordResetButton'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
 
@@ -26,6 +25,8 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 
+const RESET_PASSWORD_URL = '/auth/forgot'
+
 export const UserProfileForm = () => {
     const intl = useIntl()
     const router = useRouter()
@@ -37,6 +38,7 @@ export const UserProfileForm = () => {
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
+    const ChangePasswordLabel = intl.formatMessage({ id: 'profile.ChangePassword' })
 
     const { user } = useAuth()
     const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
@@ -61,6 +63,10 @@ export const UserProfileForm = () => {
             errors: [EmailIsAlreadyRegisteredMsg],
         },
     }
+
+    const handleResetPasswordAction = useCallback(() => {
+        return router.push(RESET_PASSWORD_URL)
+    }, [router])
 
     return (
         <FormWithAction
@@ -110,7 +116,12 @@ export const UserProfileForm = () => {
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} label={PasswordLabel}>
-                                        <UserPasswordResetButton/>
+                                        <Button
+                                            type={'inlineLink'}
+                                            onClick={handleResetPasswordAction}
+                                        >
+                                            {ChangePasswordLabel}
+                                        </Button>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
