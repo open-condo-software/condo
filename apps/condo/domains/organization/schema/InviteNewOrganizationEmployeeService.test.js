@@ -1,16 +1,30 @@
+const faker = require('faker')
+const { pick } = require('lodash')
+
+const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
+
+const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { sleep } = require('@condo/domains/common/utils/sleep')
+
+const {
+    DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+    MESSAGE_DELIVERED_STATUS,
+    EMAIL_TRANSPORT,
+    SMS_TRANSPORT,
+} = require('@condo/domains/notification/constants/constants')
+const { Message } = require('@condo/domains/notification/utils/testSchema')
+
 const {
     inviteNewOrganizationEmployee,
     reInviteNewOrganizationEmployee,
     makeClientWithRegisteredOrganization,
     acceptOrRejectOrganizationInviteById,
 } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
-const faker = require('faker')
+
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { pick } = require('lodash')
-const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 
 describe('InviteNewOrganizationEmployeeService', () => {
     describe('inviteNewOrganizationEmployee', () => {
@@ -51,6 +65,21 @@ describe('InviteNewOrganizationEmployeeService', () => {
                             expect.objectContaining(pick(categoryClassifier2, ['id', 'name'])),
                         ])
                     )
+
+                    /**
+                     * Check that notification about invitation as employee was sent
+                     */
+                    const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
+
+                    expect(message.id).toMatch(UUID_RE)
+
+                    await sleep(1000)
+
+                    const message1 = await Message.getOne(admin, messageWhere)
+
+                    expect(message1.status).toEqual(MESSAGE_DELIVERED_STATUS)
+                    expect(message1.processingMeta.transport).toEqual(SMS_TRANSPORT)
                 })
 
                 it('tries to find employee first by phone first', async () => {
@@ -243,6 +272,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
         describe('called by organization owner', () => {
             describe('for not registered User', () => {
                 test('returns employee, already created after invitation', async () => {
+                    const admin = await makeLoggedInAdminClient()
                     const userAttrs = {
                         name: faker.name.firstName(),
                         email: createTestEmail(),
@@ -253,6 +283,22 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     const [reInvitedEmployee] = await reInviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
                     expect(reInvitedEmployee.id).toStrictEqual(employee.id)
+
+                    /**
+                     * Give worker task some time
+                     */
+                    await sleep(1000)
+
+                    /**
+                     * Check that notifications about invitation as employee were sent
+                     */
+                    const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
+                    const messages = await Message.getAll(admin, messageWhere)
+
+                    expect(messages[0].status).toEqual(MESSAGE_DELIVERED_STATUS)
+                    expect(messages[0].processingMeta.transport).toEqual(SMS_TRANSPORT)
+                    expect(messages[1].status).toEqual(MESSAGE_DELIVERED_STATUS)
+                    expect(messages[1].processingMeta.transport).toEqual(SMS_TRANSPORT)
                 })
             })
 

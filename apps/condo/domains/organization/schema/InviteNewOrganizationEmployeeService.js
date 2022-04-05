@@ -157,6 +157,8 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         user: {
                             id: user.id,
                         },
+                        phone,
+                        email,
                     },
                     type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
                     meta: {
@@ -185,7 +187,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     throw new GQLError(errors.reInviteOrganizationEmployee.WRONG_PHONE_FORMAT)
                 }
 
-                const [employeeOrganization] = await Organization.getAll(context, { id: organization.id })
+                const employeeOrganization = await Organization.getOne(context, { id: organization.id })
 
                 if (!employeeOrganization) {
                     throw new GQLError(errors.reInviteOrganizationEmployee.ORGANIZATION_NOT_FOUND)
@@ -214,6 +216,8 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         user: {
                             id: existedUser.id,
                         },
+                        phone,
+                        email,
                     },
                     type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
                     meta: {
