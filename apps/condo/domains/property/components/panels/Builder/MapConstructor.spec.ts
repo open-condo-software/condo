@@ -415,6 +415,31 @@ describe('Map constructor', () => {
         })
     })
 
+    describe('Floor operations',  () => {
+        describe('Add section floor', () => {
+            it('should add floor to passed section index', () => {
+                const Building = createBuildingMap(5)
+                const buildingFloors = Building.sections[0].floors.length
+                Building.addSectionFloor({
+                    section: 0,
+                    unitCount: 2,
+                    unitType: BuildingUnitType.Commercial,
+                    index: 5,
+                })
+                Building.validate()
+                const modifiedSection = Building.sections[0]
+
+                expect(Building.isMapValid).toBeTruthy()
+                expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
+                expect(modifiedSection.floors[5].units).toHaveLength(2)
+                expect(modifiedSection.floors[5].index).toEqual(5)
+                const floorIndexes = modifiedSection.floors.map(({ index }) => index)
+                console.log(floorIndexes)
+                expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
+            })
+        })
+    })
+
     describe('Parking operations', () => {
         describe('Add parking', () => {
             it('should have valid structure on parking add', () => {

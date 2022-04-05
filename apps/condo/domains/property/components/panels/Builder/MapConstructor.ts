@@ -1,15 +1,22 @@
-import { BuildingMap, BuildingMapEntityType, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
+import {
+    BuildingFloor,
+    BuildingMap,
+    BuildingMapEntityType,
+    BuildingSection,
+    BuildingUnit,
+    BuildingUnitType,
+} from '@app/condo/schema'
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
 import Ajv from 'ajv'
 import cloneDeep from 'lodash/cloneDeep'
 import compact from 'lodash/compact'
+import find from 'lodash/find'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import isObjectEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import uniq from 'lodash/uniq'
-import find from 'lodash/find'
 import MapSchemaJSON from './MapJsonSchema.json'
 
 const ajv = new Ajv()
@@ -33,9 +40,8 @@ export type BuildingUnitArg = BuildingUnit & {
     unitType?: BuildingUnitType
 }
 
-export type BuildingFloorArg = BuildingFloor & {
-    section: BuildingSection['id']
-    floor: number
+export type BuildingFloorArg = Omit<BuildingFloor, 'id' | 'type' | '__typename' | 'units' | 'name'> & {
+    section: number
     unitCount: number
     unitType?: BuildingUnitType
 }
@@ -716,12 +722,26 @@ class MapEdit extends MapView {
 
     public addPreviewSectionFloor (floor: BuildingFloorArg): void {
         this.removePreviewSectionFloor()
-        // const newSectionFloor = this.generateFloor(floor)
+        const newSectionFloor = this.generateFloor(floor, true)
+        this.insertFloor(newSectionFloor, 'sections', floor.section)
     }
 
     public addPreviewParkingFloor (floor: BuildingFloorArg): void {
         this.removePreviewParkingFloor()
-        // const newParkingFloor = this.generateFloor(floor)
+        const newParkingFloor = this.generateFloor(floor, true)
+        this.insertFloor(newParkingFloor, 'parking', floor.section)
+    }
+
+    public addSectionFloor (floor: BuildingFloorArg): void {
+        this.removePreviewSectionFloor()
+        const newSectionFloor = this.generateFloor(floor)
+        this.insertFloor(newSectionFloor, 'sections', floor.section)
+    }
+
+    public addParkingFloor (floor: BuildingFloorArg): void {
+        this.removePreviewSectionFloor()
+        const newParkingFloor = this.generateFloor(floor)
+        this.insertFloor(newParkingFloor, 'parking', floor.section)
     }
 
     public addPreviewCopySection (sectionId: string): void {
@@ -1213,8 +1233,31 @@ class MapEdit extends MapView {
         return newParking
     }
 
-    private generateFloor (floor: BuildingFloorArg): void {
-        // TODO: return BuildingFloor object
+    private generateFloor (floor: BuildingFloorArg, preview = false): BuildingFloor {
+        const unitNumber = this.nextUnitNumber
+        return {
+            id: String(++this.autoincrement),
+            index: floor.index,
+            name: String(floor.index),
+            type: BuildingMapEntityType.Floor,
+            units: Array.from({ length: floor.unitCount }, (_, unitIndex) => ({
+                id: String(++this.autoincrement),
+                label: String(unitNumber + unitIndex),
+                unitType: floor.unitType,
+                preview,
+                type: BuildingMapEntityType.Unit,
+
+            })),
+        }
+    }
+
+    private insertFloor (floor: BuildingFloor, destination: 'sections' | 'parking', sectionIndex: number): void {
+        this.map[destination][sectionIndex].floors.splice(floor.index, 0, floor)
+
+        const floorsCount = this.map[destination][sectionIndex].floors.length
+        // this.map[destination][sectionIndex].floors.forEach((floor, floorIndex) => {
+        //     floor.index = floorsCount - floorIndex
+        // })
     }
 
     private getNextParkingUnit (id: string): BuildingUnit {
