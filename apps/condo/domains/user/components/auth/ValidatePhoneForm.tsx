@@ -178,9 +178,17 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                                     id='pages.auth.register.info.SmsCodeSent'
                                     values={{
                                         phone: (
-                                            <span style={{ whiteSpace: 'nowrap' }}>{showPhone}<Typography.Link underline
-                                                style={{ color: 'black' }}
-                                                onClick={() => setIsPhoneVisible(!isPhoneVisible)}>({PhoneToggleLabel})</Typography.Link></span>),
+                                            <span style={{ whiteSpace: 'nowrap' }}>
+                                                {showPhone}
+                                                <Typography.Link
+                                                    underline
+                                                    style={{ color: 'black' }}
+                                                    onClick={() =>
+                                                        setIsPhoneVisible(!isPhoneVisible)}
+                                                >
+                                                    ({PhoneToggleLabel})
+                                                </Typography.Link>
+                                            </span>),
                                     }}
                                 />
                             </Typography.Text>

@@ -100,7 +100,12 @@ export const SignInForm = (): React.ReactElement => {
                                 rules={[{ required: true, message: FieldIsRequiredMsg }]}
                                 data-cy={'signin-phone-item'}
                             >
-                                <PhoneInput style={FORM_PHONE_STYLES} placeholder={ExamplePhoneMsg} tabIndex={1} block/>
+                                <PhoneInput
+                                    style={FORM_PHONE_STYLES}
+                                    placeholder={ExamplePhoneMsg}
+                                    tabIndex={1}
+                                    block
+                                />
                             </Form.Item>
                         </Col>
                         <Col span={24}>
@@ -119,7 +124,8 @@ export const SignInForm = (): React.ReactElement => {
                                     id='pages.auth.signin.ResetPasswordLink'
                                     values={{
                                         link: (
-                                            <Typography.Link style={{ color: colors.black }}
+                                            <Typography.Link
+                                                style={{ color: colors.black }}
                                                 onClick={() => Router.push('/auth/forgot')}>
                                                 {ResetMsg}
                                             </Typography.Link>

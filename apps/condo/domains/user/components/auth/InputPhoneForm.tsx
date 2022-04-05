@@ -126,9 +126,12 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         data-cy={'register-phone-item'}
                                         rules={REGISTER_PHONE_RULES}
                                     >
-                                        <PhoneInput style={FORM_PHONE_STYLES}
-                                            placeholder={ExamplePhoneMsg} onChange={() => setSmsSendError(null)}
-                                            block/>
+                                        <PhoneInput
+                                            style={FORM_PHONE_STYLES}
+                                            placeholder={ExamplePhoneMsg}
+                                            onChange={() => setSmsSendError(null)}
+                                            block
+                                        />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
@@ -137,14 +140,22 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                             id='pages.auth.register.info.PersonalDataProcessingConsent'
                                             values={{
                                                 consentLink: (
-                                                    <Typography.Link style={{ color: colors.black }} target='_blank'
+                                                    <Typography.Link
+                                                        style={{ color: colors.black }}
+                                                        target='_blank'
                                                         href={'/pdpc.pdf'}
-                                                        rel='noreferrer'>{ConsentContent}</Typography.Link>
+                                                        rel='noreferrer'>
+                                                        {ConsentContent}
+                                                    </Typography.Link>
                                                 ),
                                                 privacyPolicyLink: (
-                                                    <Typography.Link style={{ color: colors.black }} target='_blank'
+                                                    <Typography.Link
+                                                        style={{ color: colors.black }}
+                                                        target='_blank'
                                                         href={'/policy.pdf'}
-                                                        rel='noreferrer'>{PrivacyPolicyContent}</Typography.Link>
+                                                        rel='noreferrer'>
+                                                        {PrivacyPolicyContent}
+                                                    </Typography.Link>
                                                 ),
                                             }}
                                         />
