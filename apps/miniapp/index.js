@@ -2,6 +2,7 @@ const { generators } = require('openid-client') // certified openid client will 
 const { Issuer } = require('openid-client') // certified openid client will all checks
 const express = require('express')
 const { isObject } = require('lodash')
+
 const { Keystone } = require('@keystonejs/keystone')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
@@ -13,6 +14,8 @@ const conf = require('@core/config')
 const { EmptyApp } = require('@core/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/KSv5v6/v5/registerSchema')
+
+const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
 
 const keystone = new Keystone({
     ...prepareDefaultKeystoneConfig(conf),
@@ -100,8 +103,8 @@ class CondoOIDCMiddleware {
                 const userInfo = await helper.completeAuth(req, checks)
                 console.log(userInfo)
 
-                // const user = await createOrUpdateUser(userInfo)
-                // await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
+                const user = await createOrUpdateUser(userInfo)
+                await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
 
                 delete req.session[oidcSessionKey]
                 await req.session.save()
