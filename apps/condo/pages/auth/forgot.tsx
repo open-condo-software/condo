@@ -18,13 +18,15 @@ import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { ResponsiveCol } from '../../domains/user/components/containers/ResponsiveCol'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { colors } from '@condo/domains/common/constants/style'
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
     textAlign: 'center',
 }
 const FORM_TITLE_STYLES: React.CSSProperties = { textAlign: 'left', fontWeight: 700 }
+const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
 
 function ResetPageView () {
     const intl = useIntl()
@@ -143,7 +145,7 @@ function ResetPageView () {
                                         rules={validations.phone}
                                         data-cy={'forgot-phone-item'}
                                     >
-                                        <PhoneInput placeholder={ExamplePhoneMsg} />
+                                        <PhoneInput style={FORM_PHONE_STYLES} placeholder={ExamplePhoneMsg} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
