@@ -272,6 +272,7 @@ const handleTicketEvents = async (requestData) => {
 
 const handleTicketCommentEvents = async (requestData) => {
     const { updatedItem, context } = requestData
+    console.log(context)
     const [ticket] = await Ticket.getAll(context, { id: updatedItem.ticket })
     const client = get(ticket, 'client.id')
     const organizationId = get(ticket, 'organization.id')
@@ -294,6 +295,7 @@ const handleTicketCommentEvents = async (requestData) => {
                     ticketId: ticket.id,
                     ticketNumber: ticket.number,
                     userId: client,
+                    commentId: updatedItem.id,
                 },
             },
             sender: updatedItem.sender,

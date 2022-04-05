@@ -183,6 +183,7 @@ const MESSAGE_META = {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
+            commentId: { defaultValue: '', required: true },
         },
     },
 }
