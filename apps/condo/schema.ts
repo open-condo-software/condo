@@ -450,10 +450,10 @@ export type AcquiringIntegrationContext = {
   state?: Maybe<Scalars['JSON']>;
   /**  Contract number and date. Basis for invoicing  */
   reason?: Maybe<Scalars['String']>;
-  /**  Email. To send acquiring payments report  */
+  /**  Acquiring payments report will be sent to this email  */
   email?: Maybe<Scalars['String']>;
-  /**  Requisites from contract. Are used for invoicing in case of transit accounts or missing requisites in billing receipts  */
-  recipient?: Maybe<BillingReceiptsRecipientField>;
+  /**  Requisites from contract. Are used for invoicing in case of transit accounts or missing requisites  */
+  recipient?: Maybe<RecipientField>;
   /**  Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored  */
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   id: Scalars['ID'];
@@ -475,7 +475,7 @@ export type AcquiringIntegrationContextCreateInput = {
   state?: Maybe<Scalars['JSON']>;
   reason?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
-  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
+  recipient?: Maybe<RecipientFieldInput>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -742,7 +742,7 @@ export type AcquiringIntegrationContextUpdateInput = {
   state?: Maybe<Scalars['JSON']>;
   reason?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
-  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
+  recipient?: Maybe<RecipientFieldInput>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -816,10 +816,10 @@ export type AcquiringIntegrationContextWhereInput = {
   email_not_ends_with_i?: Maybe<Scalars['String']>;
   email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
-  recipient_not?: Maybe<BillingReceiptsRecipientFieldInput>;
-  recipient_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
-  recipient_not_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
+  recipient?: Maybe<RecipientFieldInput>;
+  recipient_not?: Maybe<RecipientFieldInput>;
+  recipient_in?: Maybe<Array<Maybe<RecipientFieldInput>>>;
+  recipient_not_in?: Maybe<Array<Maybe<RecipientFieldInput>>>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   implicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   implicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
@@ -5658,7 +5658,7 @@ export type BillingReceipt = {
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   /**  Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4  */
   services?: Maybe<Array<BillingReceiptServiceField>>;
-  /**  Billing account recipient. Should contain all meta information to identify the organization  */
+  /**  Recipient. Should contain all meta information to identify the organization  */
   recipient?: Maybe<BillingReceiptsRecipientField>;
   /**  Relation to the BillingRecipient. Going to override recipient field, has the same meaning  */
   receiver?: Maybe<BillingRecipient>;
@@ -26839,6 +26839,29 @@ export type ReInviteOrganizationEmployeeInput = {
   organization: OrganizationWhereUniqueInput;
   email?: Maybe<Scalars['String']>;
   phone: Scalars['String'];
+};
+
+export type RecipientField = {
+  __typename?: 'RecipientField';
+  name?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  tin: Scalars['String'];
+  iec: Scalars['String'];
+  bic: Scalars['String'];
+  bankAccount: Scalars['String'];
+};
+
+export type RecipientFieldInput = {
+  name?: Maybe<Scalars['String']>;
+  bankName?: Maybe<Scalars['String']>;
+  territoryCode?: Maybe<Scalars['String']>;
+  offsettingAccount?: Maybe<Scalars['String']>;
+  tin: Scalars['String'];
+  iec: Scalars['String'];
+  bic: Scalars['String'];
+  bankAccount: Scalars['String'];
 };
 
 export type RegisterMultiPaymentInput = {
