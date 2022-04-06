@@ -8,7 +8,7 @@ const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema'
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const get = require('lodash/get')
-const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS, PAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
 
 async function canReadPayments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -19,7 +19,7 @@ async function canReadPayments ({ authentication: { item: user } }) {
     if (user.type === RESIDENT) {
         return {
             multiPayment: { user: { id: user.id } },
-            status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
+            status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS, PAYMENT_INIT_STATUS],
         }
     }
 
