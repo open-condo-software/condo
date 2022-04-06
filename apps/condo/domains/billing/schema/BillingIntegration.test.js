@@ -255,7 +255,7 @@ describe('BillingIntegration', () => {
             const [integration] = await createTestBillingIntegration(admin)
 
             const [integration1] = await BillingIntegration.getAll(admin, { id: integration.id })
-            const [updatedIntegration] = await updateTestBillingIntegration(admin, integration.id, {name: 'Kitten!'})
+            const [updatedIntegration] = await updateTestBillingIntegration(admin, integration.id, { name: 'Kitten!' })
             const [integration2] = await BillingIntegration.getAll(admin, { id: integration.id })
 
             expect(integration.id).toEqual(integration1.id)
