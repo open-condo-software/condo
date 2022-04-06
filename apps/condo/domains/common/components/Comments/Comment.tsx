@@ -15,7 +15,7 @@ import { Button } from '../Button'
 
 interface ICommentProps {
     comment: TComment,
-    updateAction?: (formValues, obj) => Promise<any>,
+    setEditableComment
     deleteAction?: (formValues, obj) => Promise<any>,
 }
 
@@ -106,7 +106,7 @@ const CommentStyle = css`
 
 const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 
-export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, deleteAction }) => {
+export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, deleteAction }) => {
     const intl = useIntl()
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'Comments.actions.delete.confirm.title' })
     const ConfirmDeleteOkText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.okText' })
@@ -115,8 +115,6 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
     const MetaUpdatedText = intl.formatMessage({ id: 'Comments.meta.updated' })
     const ResidentMessage = intl.formatMessage({ id: 'Contact' }).toLowerCase()
     const EmployeeMessage = intl.formatMessage({ id: 'Employee' }).toLowerCase()
-
-    const [content, setContent] = useState(comment.content)
 
     const getCommentAuthorRoleMessage = useCallback((author: User) => {
         switch (author.type) {
@@ -154,6 +152,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
             size="large"
             css={UpdateButtonStyle}
             icon={<EditFilled />}
+            onClick={() => setEditableComment(comment)}
         />,
     ]
 
@@ -172,7 +171,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
         <AntComment
             content={
                 <Typography.Text>
-                    {content}
+                    {comment.content}
                 </Typography.Text>
             }
             author={
