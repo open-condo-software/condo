@@ -41,7 +41,7 @@ class KeystoneCacheMiddleware {
         // Add cache
         initCache(keystone, this.cache)
 
-        // Add a middleware which resets cache after end of each request
+        // Add a middleware which resets cache after end of each request to avoid memory leak errors
         const app = express()
         app.use((req, res, next) => {
             const requestId = get(req, ['headers', 'x-request-id'])
