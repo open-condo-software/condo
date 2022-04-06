@@ -94,6 +94,7 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+    let ticket
 
     if (user.type === RESIDENT) {
         let unitName, propertyId
@@ -104,12 +105,9 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         } else if (operation === 'update') {
             if (!itemId) return false
 
-            const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'details', 'reviewValue', 'reviewComment'])
-            if (!isEmpty(inaccessibleUpdatedFields)) return false
-
-            const ticket = await getById('Ticket', itemId)
+            ticket = await getById('Ticket', itemId)
             if (!ticket) return false
-            if (ticket.createdBy !== user.id) return false
+
             propertyId = get(ticket, 'property', null)
             unitName = get(ticket, 'unitName', null)
         }
@@ -123,7 +121,39 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
             deletedAt: null,
         })
 
-        return residents.length > 0
+        if (residents.length === 0) {
+            return false
+        }
+
+        if (operation === 'create') {
+            return true
+        } else if (operation === 'update') {
+            let inaccessibleUpdatedFields
+
+            if (ticket.createdBy === user.id) {
+                inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'details', 'reviewValue', 'reviewComment'])
+            } else {
+                const ticketContactId = get(ticket, 'contact')
+                if (!ticket.canReadByResident) return false
+                if (!ticketContactId) return false
+
+                const ticketContact = await getById('Contact', ticketContactId)
+                if (user.phone !== ticketContact.phone) {
+                    return false
+                }
+
+                const residentMatchesTicketContact = residents.find(resident =>
+                    resident.property === ticketContact.property && resident.unitName === ticketContact.unitName
+                )
+                if (!residentMatchesTicketContact) {
+                    return false
+                }
+
+                inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'reviewValue', 'reviewComment'])
+            }
+
+            return isEmpty(inaccessibleUpdatedFields)
+        }
     }
     if (user.type === STAFF) {
         let organizationId

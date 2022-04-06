@@ -235,6 +235,71 @@ describe('Ticket', () => {
             expect(updatedTicket.status.id).toEqual(STATUS_IDS.CLOSED)
         })
 
+        test('resident: can update reviewComment and reviewValue ticket with a contact whose phone number and address matches the resident phone number and address', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone } = residentClient.userAttrs
+            const reviewComment = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone,
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            const [updatedTicket] = await updateTestTicket(residentClient, ticket.id, {
+                reviewValue: REVIEW_VALUES.GOOD,
+                reviewComment,
+            })
+
+            expect(ticket.id).toEqual(updatedTicket.id)
+            expect(updatedTicket.reviewValue).toEqual(REVIEW_VALUES.GOOD)
+            expect(updatedTicket.reviewComment).toEqual(reviewComment)
+            expect(updatedTicket.status.id).toEqual(STATUS_IDS.CLOSED)
+        })
+
+        test('resident: cannot update details in ticket with a contact whose phone number and address matches the resident phone number and address', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const { phone } = residentClient.userAttrs
+            const details = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [contact] = await createTestContact(admin, organization, property, {
+                phone,
+                unitName,
+            })
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                unitName,
+                contact: { connect: { id: contact.id } },
+                canReadByResident: true,
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestTicket(residentClient, ticket.id, {
+                    details,
+                })
+            })
+        })
+
         test('resident: return to work Ticket when reviewValue is \'returned\'', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
