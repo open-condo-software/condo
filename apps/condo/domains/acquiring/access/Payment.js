@@ -17,10 +17,7 @@ async function canReadPayments ({ authentication: { item: user } }) {
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-        return {
-            multiPayment: { user: { id: user.id } },
-            status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS, PAYMENT_INIT_STATUS],
-        }
+        return { multiPayment: { user: { id: user.id } } }
     }
 
     return {

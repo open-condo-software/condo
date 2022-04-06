@@ -1,5 +1,6 @@
 import { FilterFilled } from '@ant-design/icons'
 import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
+import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
@@ -89,6 +90,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
         ...filtersToWhere(filters),
         organization: { id: organizationId },
         deletedAt: null,
+        status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
     }
 
     const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
