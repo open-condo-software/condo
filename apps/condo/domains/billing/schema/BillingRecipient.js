@@ -18,6 +18,7 @@ const { INTEGRATION_CONTEXT_FIELD } = require('@condo/domains/billing/schema/fie
 
 const BillingRecipient = new GQLListSchema('BillingRecipient', {
     schemaDoc: 'Organization\' billing information: bank account, bic, and so on',
+    labelResolver: item => item.tin,
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
