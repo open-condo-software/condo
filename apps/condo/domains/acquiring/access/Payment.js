@@ -7,7 +7,8 @@ const { checkOrganizationPermission } = require('@condo/domains/organization/uti
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const get = require('lodash/get')
+const { get } = require('lodash')
+const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 
 async function canReadPayments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -16,7 +17,10 @@ async function canReadPayments ({ authentication: { item: user } }) {
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-        return { multiPayment: { user: { id: user.id } } }
+        return {
+            multiPayment: { user: { id: user.id } },
+            status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
+        }
     }
 
     return {
