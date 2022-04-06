@@ -64,7 +64,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         },
 
         email: {
-            schemaDoc: 'Email. To send acquiring payments report',
+            schemaDoc: 'Acquiring payments report will be sent to this email',
             type: Text,
             kmigratorOptions: { null: true, unique: false },
             hooks: {

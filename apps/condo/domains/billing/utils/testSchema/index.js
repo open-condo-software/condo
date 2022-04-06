@@ -419,13 +419,14 @@ async function createTestBillingRecipient(client, context, extraAttrs = {}) {
     if (!context.id) throw new Error('no context')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const recipient = createTestRecipient()
     const attrs = {
         dv: 1,
         sender,
         context: { connect: { id: context.id } },
         importId: faker.datatype.uuid(),
-        ...createTestRecipient(),
-        purpose: `Payment for service from ${companyName}`,
+        ...recipient,
+        purpose: `Payment for service from ${recipient.name}`,
         isApproved: false,
         ...extraAttrs,
     }
