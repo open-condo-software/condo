@@ -22,7 +22,7 @@ const User = new GQLListSchema('User', {
             type: Integer,
             isRequired: true,
             defaultValue: 1,
-            access: access.canAccessToIsAdminField,
+            access: access.canReadByAnyAndChangeByAdmin,
             hooks: {
                 resolveInput: ({ resolvedData, existingItem }) => {
                     if (get(existingItem, 'isLocal') || get(resolvedData, 'isLocal')) {
@@ -37,7 +37,7 @@ const User = new GQLListSchema('User', {
         name: {
             schemaDoc: 'condo.User.name',
             type: Text,
-            access: access.canAccessToIsAdminField,
+            access: access.canReadByAnyAndChangeByAdmin,
         },
         type: {
             schemaDoc: 'condo.User.type',
@@ -46,19 +46,19 @@ const User = new GQLListSchema('User', {
             options: USER_TYPES,
             defaultValue: SERVICE_USER_TYPE,
             isRequired: true,
-            access: access.canAccessToIsAdminField,
+            access: access.canReadByAnyAndChangeByAdmin,
         },
         isAdmin: {
             schemaDoc: 'condo.User.isAdmin',
             type: Checkbox,
             defaultValue: false,
-            access: access.canAccessToIsAdminField,
+            access: access.canReadByAnyAndChangeByAdmin,
         },
         isSupport: {
             schemaDoc: 'condo.User.isSupport',
             type: Checkbox,
             defaultValue: false,
-            access: access.canAccessToIsAdminField,
+            access: access.canReadByAnyAndChangeByAdmin,
         },
 
         // NOTE: this field should be validated by OIDC server and we just copy it.
@@ -66,7 +66,7 @@ const User = new GQLListSchema('User', {
         email: {
             schemaDoc: 'condo.User.email',
             type: Text,
-            access: access.canAccessToIsAdminField,
+            access: access.canReadByAnyAndChangeByAdmin,
         },
 
         // NOTE: We need some way to create admin users for test purposes.
@@ -75,7 +75,7 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'Is this a local user (not from oidc auth)',
             type: Checkbox,
             defaultValue: true,
-            access: access.canAccessToIsAdminField,
+            access: access.canReadByAnyAndChangeByAdmin,
         },
 
         // NOTE: This field is required for local (non oidc) auth
@@ -86,6 +86,15 @@ const User = new GQLListSchema('User', {
         },
     },
     plugins: [uuided(), tracked(), softDeleted(), dvAndSender()],
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['type', 'email'],
+                name: 'unique_type_and_email',
+            },
+        ],
+    },
     access: {
         read: access.canReadUsers,
         create: access.canManageUsers,

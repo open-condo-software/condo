@@ -19,7 +19,7 @@ async function canManageUsers ({ authentication: { item: user } }) {
     return user.isAdmin
 }
 
-const canAccessToIsAdminField = {
+const canReadByAnyAndChangeByAdmin = {
     read: true,
     create: access.userIsAdmin,
     update: access.userIsAdmin,
@@ -43,6 +43,6 @@ const canAccessToPasswordField = {
 module.exports = {
     canReadUsers,
     canManageUsers,
-    canAccessToIsAdminField,
+    canReadByAnyAndChangeByAdmin,
     canAccessToPasswordField,
 }
