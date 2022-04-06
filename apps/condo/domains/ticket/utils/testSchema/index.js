@@ -29,6 +29,7 @@ const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
 const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
 const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
+const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -48,6 +49,7 @@ const TicketProblemClassifier = generateGQLTestUtils(TicketProblemClassifierGQL)
 const TicketClassifierRule = generateGQLTestUtils(TicketClassifierRuleGQL)
 const ResidentTicket = generateGQLTestUtils(ResidentTicketGQL)
 const TicketFilterTemplate = generateGQLTestUtils(TicketFilterTemplateGQL)
+const TicketCommentFile = generateGQLTestUtils(TicketCommentFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -425,6 +427,39 @@ async function predictTicketClassificationByTestClient(client, extraAttrs = {}) 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestTicketCommentFile (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTicketCommentFile logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await TicketCommentFile.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketCommentFile (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTicketCommentFile logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketCommentFile.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -462,5 +497,6 @@ module.exports = {
     updateResidentTicketByTestClient,
     TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate,
     predictTicketClassificationByTestClient,
+    TicketCommentFile, createTestTicketCommentFile, updateTestTicketCommentFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
