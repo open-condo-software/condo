@@ -296,9 +296,9 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     const messages = await Message.getAll(admin, messageWhere)
 
                     expect(messages[0].status).toEqual(MESSAGE_DELIVERED_STATUS)
-                    expect(messages[0].processingMeta.transport).toEqual(SMS_TRANSPORT)
+                    expect(messages[0].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
                     expect(messages[1].status).toEqual(MESSAGE_DELIVERED_STATUS)
-                    expect(messages[1].processingMeta.transport).toEqual(SMS_TRANSPORT)
+                    expect(messages[1].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
                 })
             })
 
