@@ -988,7 +988,7 @@
   "FeatureFlags.Modal.Title": "Флаги функций",
   "FeatureFlags.Modal.Description": "Все изменения будут применены только после перезагрузки страницы",
   "RecordsLoaded": "{count, plural, =0 {# записей} one {# запись} few {# записи} many {# записей} other {# записей}}",
-  "ThousandsRecordsLoaded": "{count, plural, one {# тясяча} few {# тысячи} many {# тысяч} other {# тысяч}} записей",
+  "ThousandsRecordsLoaded": "{count, plural, one {# тысяча} few {# тысячи} many {# тысяч} other {# тысяч}} записей",
   "DataWasUploadedOnPrefix": "Данные загружены",
   "DataWasUploadedOnSuffix": ", в",
   "DebtOverpayment": "Долг/Переплата",
