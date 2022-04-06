@@ -1,12 +1,14 @@
 const { Relationship, Select, Integer, Text } = require('@keystonejs/fields')
 const { Decimal } = require('@keystonejs/fields')
 const { Json, SignedDecimal } = require('@core/keystone/fields')
-
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES, ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
+
+const { getValidator, render } = require('@condo/domains/common/schema/json.utils.js')
+const Ajv = require('ajv')
 
 const { ISO_CODES } = require('../constants/currencies')
 const { UNIT_TYPES, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -172,7 +174,55 @@ const UNIT_TYPE_FIELD = {
 }
 
 
+const RECIPIENT_FIELDS_DEFINITION = {
+    name: 'String',
+    bankName: 'String',
+    territoryCode: 'String',
+    offsettingAccount: 'String',
+    tin: 'String!',
+    iec: 'String!',
+    bic: 'String!',
+    bankAccount: 'String!',
+}
 
+const RecipientSchema = {
+    type: 'object',
+    properties: Object.assign({},
+        ...Object.keys(RECIPIENT_FIELDS_DEFINITION).map((field) => ({ [field]: { type: 'string' } })),
+    ),
+    required: Object.keys(RECIPIENT_FIELDS_DEFINITION).filter(fieldName => RECIPIENT_FIELDS_DEFINITION[fieldName].slice(-1) === '!'),
+    additionalProperties: false,
+}
+
+const ajv = new Ajv()
+const RecipientValidator = ajv.compile(RecipientSchema)
+const RECIPIENT_QUERY_LIST = Object.keys(RECIPIENT_FIELDS_DEFINITION).join(' ')
+
+const RECIPIENT_FIELD_NAME = 'RecipientField'
+const RECIPIENT_INPUT_NAME = 'RecipientFieldInput'
+
+const RECIPIENT_GRAPHQL_TYPES = `
+    type ${RECIPIENT_FIELD_NAME} {
+        ${render(RECIPIENT_FIELDS_DEFINITION)}
+    }
+    
+    input ${RECIPIENT_INPUT_NAME} {
+        ${render(RECIPIENT_FIELDS_DEFINITION)}
+    }
+`
+
+const RECIPIENT_FIELD = {
+    schemaDoc: 'Recipient. Should contain all meta information to identify the organization',
+    type: Json,
+    isRequired: true,
+    graphQLAdminFragment: `{ ${RECIPIENT_QUERY_LIST} }`,
+    extendGraphQLTypes: [RECIPIENT_GRAPHQL_TYPES],
+    graphQLReturnType: RECIPIENT_FIELD_NAME,
+    graphQLInputType: RECIPIENT_INPUT_NAME,
+    hooks: {
+        validateInput: getValidator(RecipientValidator),
+    },
+}
 
 
 module.exports = {
@@ -191,4 +241,7 @@ module.exports = {
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
     UNIT_TYPE_FIELD,
+    RECIPIENT_FIELD,
+    RECIPIENT_FIELDS_DEFINITION,
+    RECIPIENT_QUERY_LIST,
 }

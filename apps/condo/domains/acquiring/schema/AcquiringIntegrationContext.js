@@ -15,7 +15,7 @@ const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/dom
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { isEmpty, isUndefined, isNull } = require('lodash')
-const { RECIPIENT_FIELD } = require('@condo/domains/billing/schema/fields/BillingReceipt/Recipient')
+const { RECIPIENT_FIELD } = require('@condo/domains/common/schema/fields.js')
 
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
@@ -78,7 +78,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
 
         recipient: {
             ...RECIPIENT_FIELD,
-            schemaDoc: 'Requisites from contract. Are used for invoicing in case of transit accounts or missing requisites in billing receipts',
+            schemaDoc: 'Requisites from contract. Are used for invoicing in case of transit accounts or missing requisites',
             isRequired: false,
         },
 
