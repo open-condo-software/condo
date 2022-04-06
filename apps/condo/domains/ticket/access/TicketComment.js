@@ -14,6 +14,7 @@ const compact = require('lodash/compact')
 const uniq = require('lodash/uniq')
 const omit = require('lodash/omit')
 const { COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('../constants')
+const { getTicketFieldsMatchesResidentFieldsQuery } = require('../utils/accessSchema')
 
 async function canReadTicketComments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -27,8 +28,7 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
         if (isEmpty(residents)) return false
 
         const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
-        const residentAddressOrStatement = residents.map(resident =>
-            ({ AND: [{ canReadByResident: true, contact: { phone: user.phone } }, { property: { id: resident.property } }, { unitName: resident.unitName }] }))
+        const residentAddressOrStatement = getTicketFieldsMatchesResidentFieldsQuery(user, residents)
 
         return {
             type: COMMENT_TYPE.RESIDENT,

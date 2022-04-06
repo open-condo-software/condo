@@ -8,4 +8,18 @@ function checkAccessToResidentTicketActions ({ item: user }) {
     return { user: { id: user.id } }
 }
 
-module.exports = { checkAccessToResidentTicketActions }
+function getTicketFieldsMatchesResidentFieldsQuery (residentUser, residents) {
+    return residents.map(resident =>
+        ({
+            AND: [
+                { canReadByResident: true },
+                { contact: { phone: residentUser.phone } },
+                { property: { id: resident.property } },
+                { unitName: resident.unitName },
+                { unitType: resident.unitType },
+            ],
+        })
+    )
+}
+
+module.exports = { checkAccessToResidentTicketActions, getTicketFieldsMatchesResidentFieldsQuery }
