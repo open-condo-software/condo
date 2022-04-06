@@ -92,8 +92,9 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     })
     if (raw) return { data, errors }
 
-
-    // expect(errors).toEqual(undefined)
+    if (typeof expect === 'function') {
+        expect(errors).toEqual(undefined)
+    }
     return [data.user, attrs]
 }
 
