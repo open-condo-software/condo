@@ -10,8 +10,7 @@ const {
     createTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 
-
-const { makeClientWithPropertyAndBilling } = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithPropertyAndBilling, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -483,21 +482,9 @@ describe('AllResidentBillingReceipts', () => {
         const MARCH_PERIOD = '2022-03-01'
         const APRIL_PERIOD = '2022-04-01'
 
-        const WATER_RECIPIENT = {
-            name: 'Water & co',
-            tin: faker.datatype.number().toString(),
-            iec: faker.datatype.number().toString(),
-            bic: faker.datatype.number().toString(),
-            bankAccount: faker.datatype.number().toString(),
-        }
+        const WATER_RECIPIENT = createTestRecipient({ name: 'Water & co' })
+        const ELECTRICITY_RECIPIENT = createTestRecipient({ name: 'Electricity & co' })
 
-        const ELECTRICITY_RECIPIENT = {
-            name: 'Electricity & co',
-            tin: WATER_RECIPIENT + '1',
-            iec: faker.datatype.number().toString(),
-            bic: faker.datatype.number().toString(),
-            bankAccount: faker.datatype.number().toString(),
-        }
 
         // March receipt for water
         await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
@@ -558,13 +545,7 @@ describe('AllResidentBillingReceipts', () => {
         const APRIL_PERIOD = '2022-04-01'
         const MAY_PERIOD = '2022-05-01'
 
-        const WATER_RECIPIENT = {
-            name: 'Water & co',
-            tin: faker.datatype.number().toString(),
-            iec: faker.datatype.number().toString(),
-            bic: faker.datatype.number().toString(),
-            bankAccount: faker.datatype.number().toString(),
-        }
+        const WATER_RECIPIENT = createTestRecipient({ name: 'Water & co'})
 
         // March receipt for water
         await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
