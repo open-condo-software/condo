@@ -5,7 +5,6 @@
 const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 const compact = require('lodash/compact')
-const flatten = require('lodash/flatten')
 const omit = require('lodash/omit')
 const isEmpty = require('lodash/isEmpty')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
@@ -14,8 +13,8 @@ const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@con
 const { getById, find } = require('@core/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { Division, getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
+const { getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
+const { getTicketFieldsMatchesResidentFieldsQuery } = require('../utils/accessSchema')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -29,8 +28,7 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
         if (isEmpty(residents)) return false
 
         const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
-        const residentAddressOrStatement = residents.map(resident =>
-            ({ AND: [{ canReadByResident: true, contact: { phone: user.phone } }, { property: { id: resident.property } }, { unitName: resident.unitName }] }))
+        const residentAddressOrStatement = getTicketFieldsMatchesResidentFieldsQuery(user, residents)
 
         return {
             organization: {
