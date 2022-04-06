@@ -110,8 +110,6 @@ const initCache = (keystone, cache) => {
 
     const originalCreateList = keystone.createList
 
-    console.debug('INITIATING KEYSTONE-LEVEL-CACHE')
-
     keystone.createList = async (...args) => {
         const list = originalCreateList.apply(keystone, args)
 
