@@ -145,5 +145,4 @@ describe('Ticket request event detection', () => {
 
         expect(detectEventTypes(requestData)).toMatchObject({ [STATUS_CHANGED_EVENT_TYPE]: true } )
     })
-
 })

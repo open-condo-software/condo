@@ -10,9 +10,11 @@ const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransition
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
+    TICKET_STATUS_OPENED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE,
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
+    TICKET_STATUS_DECLINED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
@@ -79,10 +81,6 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     return result
 }
 
-function translationStringKeyForIndicatorType (messageType) {
-    return `notification.messages.${messageType}.indicatorType`
-}
-
 /**
  * Basically sends different kinds of notifications when assignee/executable added to Ticket, status changed, etc.
  * @param operation
@@ -97,11 +95,12 @@ const handleTicketEvents = async (requestData) => {
     const isCreateOperation =  operation === 'create'
     const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
     const prevExecutorId = !isCreateOperation && get(existingItem, 'executor')
-    const prevStatusId = !isCreateOperation && get(existingItem, 'status')
     const nextAssigneeId = get(updatedItem, 'assignee')
     const nextExecutorId = get(updatedItem, 'executor')
     const nextStatusId = get(updatedItem, 'status')
     const client = get(updatedItem, 'client')
+    const statusReopenedCounter = get(updatedItem, 'statusReopenedCounter')
+    const createdBy = get(updatedItem, 'createdBy')
 
     const organization = await getByCondition('Organization', {
         id: updatedItem.organization,
@@ -159,7 +158,10 @@ const handleTicketEvents = async (requestData) => {
         let type
         switch (nextStatusId) {
             case STATUS_IDS.OPEN:
-                type = prevStatusId === STATUS_IDS.COMPLETED && TICKET_STATUS_RETURNED_TYPE
+                if (statusReopenedCounter > 0){
+                    type = TICKET_STATUS_RETURNED_TYPE}
+                else
+                    type = createdBy !== client && TICKET_STATUS_OPENED_TYPE
                 break
 
             case STATUS_IDS.IN_PROGRESS:
@@ -168,6 +170,10 @@ const handleTicketEvents = async (requestData) => {
 
             case STATUS_IDS.COMPLETED:
                 type = TICKET_STATUS_COMPLETED_TYPE
+                break
+
+            case STATUS_IDS.DECLINED:
+                type = TICKET_STATUS_DECLINED_TYPE
                 break
         }
 
@@ -193,7 +199,8 @@ const handleTicketEvents = async (requestData) => {
 
 const handleTicketCommentEvents = async (requestData) => {
     const { updatedItem, context } = requestData
-    console.log(context)
+    const createdBy = get(updatedItem, 'createdBy')
+
     const [ticket] = await Ticket.getAll(context, { id: updatedItem.ticket })
     const client = get(ticket, 'client.id')
     const organizationId = get(ticket, 'organization.id')
@@ -205,7 +212,7 @@ const handleTicketCommentEvents = async (requestData) => {
 
     const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
 
-    if (client && updatedItem.createdBy !== client) {
+    if (client && createdBy !== client) {
         await sendMessage(context, {
             lang,
             to: { user: { id: client } },
