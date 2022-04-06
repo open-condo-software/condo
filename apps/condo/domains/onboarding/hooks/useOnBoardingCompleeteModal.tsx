@@ -22,7 +22,7 @@ export const useOnBoardingCompleteModal = (): IApplySubscriptionModal => {
     const router = useRouter()
 
     const OnBoardingCompleteTitle = intl.formatMessage({ id: 'onboarding.complete.title' })
-    const OnBoardingCompleteSubTitle = intl.formatMessage({ id: 'onboarding.complete.title' })
+    const OnBoardingCompleteSubTitle = intl.formatMessage({ id: 'onboarding.complete.subtitle' })
     const OnBoardingCompleteDescription = intl.formatMessage({ id: 'onboarding.complete.description' })
     const OnBoardingCompleteButton = intl.formatMessage({ id: 'onboarding.complete.button' })
 
