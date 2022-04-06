@@ -1,6 +1,6 @@
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useEffect } from 'react'
 import { FormWithAction } from '../containers/FormList'
-import { Col, Form, Input, Row, Typography } from 'antd'
+import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
 import Icon from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
@@ -44,16 +44,25 @@ interface ICommentFormProps {
     action: (formValues) => Promise<any>
     fieldName?: string
     initialValue?: string
+    editableComment
+    setEditableComment
 }
 
 export const MAX_COMMENT_LENGTH = 300
 
-const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName }) => {
+const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName, editableComment, setEditableComment }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
     const HelperMessage = intl.formatMessage({ id: 'Comments.form.helper' })
 
     const { InputWithCounter, Counter, setTextLength: setCommentLength, textLength: commentLength } = useInputWithCounter(Input.TextArea, MAX_COMMENT_LENGTH)
+    const [form, setForm] = useState<FormInstance>()
+
+    useEffect(() => {
+        if (editableComment && form) {
+            form.setFieldsValue({ [fieldName]: editableComment.content })
+        }
+    }, [editableComment, fieldName, form])
 
     const handleKeyUp = (event, form) => {
         if (event.keyCode === 13 && !event.shiftKey) {
@@ -82,48 +91,54 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                 action={action}
                 resetOnComplete={true}
             >
-                {({ handleSave, isLoading, form }) => (
-                    <Holder>
-                        {
-                            commentLength > 0 ? (
-                                <Row justify={'space-between'} style={COMMENT_HELPERS_ROW_STYLES}>
-                                    <CommentHelper>
-                                        <Typography.Text>
-                                            {HelperMessage}
-                                        </Typography.Text>
-                                    </CommentHelper>
-                                    <CommentHelper>
-                                        <Counter />
-                                    </CommentHelper>
-                                </Row>
-                            ) : null
-                        }
-                        <Form.Item
-                            name={fieldName}
-                            rules={validations.comment}
-                        >
-                            <InputWithCounter
-                                maxLength={MAX_COMMENT_LENGTH}
-                                placeholder={PlaceholderMessage}
-                                className="white"
-                                autoSize={{ minRows: 1, maxRows: 6 }}
-                                onKeyDown={handleKeyDown}
-                                onKeyUp={(event) => {handleKeyUp(event, form)}}
+                {({ handleSave, isLoading, form: formInstance }) => {
+                    if (!form) {
+                        setForm(formInstance)
+                    }
+
+                    return (
+                        <Holder>
+                            {
+                                commentLength > 0 ? (
+                                    <Row justify={'space-between'} style={COMMENT_HELPERS_ROW_STYLES}>
+                                        <CommentHelper>
+                                            <Typography.Text>
+                                                {HelperMessage}
+                                            </Typography.Text>
+                                        </CommentHelper>
+                                        <CommentHelper>
+                                            <Counter />
+                                        </CommentHelper>
+                                    </Row>
+                                ) : null
+                            }
+                            <Form.Item
+                                name={fieldName}
+                                rules={validations.comment}
+                            >
+                                <InputWithCounter
+                                    maxLength={MAX_COMMENT_LENGTH}
+                                    placeholder={PlaceholderMessage}
+                                    className="white"
+                                    autoSize={{ minRows: 1, maxRows: 6 }}
+                                    onKeyDown={handleKeyDown}
+                                    onKeyUp={(event) => {handleKeyUp(event, form)}}
+                                />
+                            </Form.Item>
+                            <Button
+                                type="sberDefaultGradient"
+                                size="middle"
+                                style={{ borderRadius: '4px' }}
+                                icon={<Icon component={SendMessage} style={{ color: 'white' }}/>}
+                                onClick={(e) => {
+                                    handleSave(e)
+                                    setCommentLength(0)
+                                }}
+                                loading={isLoading}
                             />
-                        </Form.Item>
-                        <Button
-                            type="sberDefaultGradient"
-                            size="middle"
-                            style={{ borderRadius: '4px' }}
-                            icon={<Icon component={SendMessage} style={{ color: 'white' }}/>}
-                            onClick={(e) => {
-                                handleSave(e)
-                                setCommentLength(0)
-                            }}
-                            loading={isLoading}
-                        />
-                    </Holder>
-                )}
+                        </Holder>
+                    )
+                }}
             </FormWithAction>
         </>
 

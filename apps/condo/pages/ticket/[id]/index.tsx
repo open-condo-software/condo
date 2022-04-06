@@ -485,7 +485,9 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         // @ts-ignore
         sortBy: ['createdAt_DESC'],
     })
-    const updateComment = TicketComment.useUpdate({})
+    const updateComment = TicketComment.useUpdate({}, () => {
+        refetchComments()
+    })
     const deleteComment = TicketComment.useSoftDelete({}, () => {
         refetchComments()
     })
@@ -699,6 +701,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                 <Comments
                                     // @ts-ignore
                                     createAction={createCommentAction}
+                                    updateAction={updateComment}
                                     comments={comments}
                                     canCreateComments={get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments'])}
                                     actionsFor={comment => {
