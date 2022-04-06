@@ -7,7 +7,7 @@ const { checkOrganizationPermission } = require('@condo/domains/organization/uti
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { get } = require('lodash')
+const get = require('lodash/get')
 const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 
 async function canReadPayments ({ authentication: { item: user } }) {
