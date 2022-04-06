@@ -94,7 +94,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     )
 }
 
-const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%', color: colors.sberGrey[5], fontSize: '12px' }
+const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 
 export const TicketFormItem: React.FC<FormItemProps> = (props) => (
@@ -140,8 +140,8 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                             style={INPUT_WITH_COUNTER_STYLE}
                                             data-cy={'ticket__description-input'}
                                         />
-                                        <Counter style={{ float: 'right' }} />
                                     </TicketFormItem>
+                                    <Counter style={{ float: 'right' }} />
                                 </Col>
                                 <Col span={24} style={{ 'padding-top': '24px' }}>
                                     <TicketFormItem>
