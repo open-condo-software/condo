@@ -1,17 +1,16 @@
-import { Comment as AntComment, Popconfirm, Typography, Button } from 'antd'
+import { Comment as AntComment, Popconfirm, Typography } from 'antd'
 import { TComment } from './index'
 import { useIntl } from '@core/next/intl'
-import { formatDate } from '@condo/domains/ticket/utils/helpers'
-import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons'
+import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import React, { useCallback, useState } from 'react'
-import { green, red, grey } from '@ant-design/colors'
-import { MAX_COMMENT_LENGTH } from './CommentForm'
-import { colors } from '@condo/domains/common/constants/style'
+import { red, grey } from '@ant-design/colors'
+import { colors, shadows } from '@condo/domains/common/constants/style'
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { User } from '@app/condo/schema'
 import dayjs from 'dayjs'
+import { Button } from '../Button'
 
 
 interface ICommentProps {
@@ -20,12 +19,29 @@ interface ICommentProps {
     deleteAction?: (formValues, obj) => Promise<any>,
 }
 
-type CommentMode = 'display' | 'edit' | 'deleted'
-
-const WhiteStyle = css`
+const DeleteButtonStyle = css`
     border: none;
-    box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);
+    color: ${colors.red[5]};
+    background-color: ${colors.black};
+    box-shadow: ${shadows.small};
+  
+  &:hover {
+    background-color: ${colors.white};
+    color: ${colors.red[5]};
+  }
+`
+
+const UpdateButtonStyle = css`
+    border: none;
+    color: ${colors.white};
+    background-color: ${colors.black};
+    box-shadow: ${shadows.small};
     margin-left: 4px;
+  
+  &:hover {
+    background-color: ${colors.white};
+    color: ${colors.black};
+  }
 `
 
 const DeletedTextStyle = css`
@@ -100,7 +116,6 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
     const ResidentMessage = intl.formatMessage({ id: 'Contact' }).toLowerCase()
     const EmployeeMessage = intl.formatMessage({ id: 'Employee' }).toLowerCase()
 
-    const [mode, setMode] = useState<CommentMode>('display')
     const [content, setContent] = useState(comment.content)
 
     const getCommentAuthorRoleMessage = useCallback((author: User) => {
@@ -115,76 +130,32 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
     }, [EmployeeMessage, ResidentMessage])
 
     const [dateShowMode, setDateShowMode] = useState<'created' | 'updated'>('created')
-    const handleSave = (newContent) => {
-        updateAction({ content: newContent }, comment)
-            .then(() => {
-                setMode('display')
-                setContent(newContent)
-            })
-    }
-
-    const handleCancelSave = () => {
-        setMode('display')
-    }
 
     const handleDelete = () => {
         deleteAction({}, comment)
     }
 
-    const actions = []
-    if (mode === 'display') {
-        if (updateAction) {
-            actions.push(
-                <Button
-                    key="update"
-                    size="middle"
-                    css={WhiteStyle}
-                    icon={<EditFilled />}
-                    onClick={() => { setMode('edit') }}
-                    style={{ color: green[7] }}
-                />
-            )
-        }
-        if (deleteAction) {
-            actions.push(
-                <Popconfirm
-                    title={ConfirmDeleteTitle}
-                    okText={ConfirmDeleteOkText}
-                    cancelText={ConfirmDeleteCancelText}
-                    onConfirm={handleDelete}
-                >
-                    <Button
-                        key="delete"
-                        size="middle"
-                        css={WhiteStyle}
-                        icon={<DeleteFilled />}
-                        style={{ color: red[5] }}
-                    />
-                </Popconfirm>
-            )
-        }
-    } else if (mode === 'edit') {
-        actions.push(
+    const actions = [
+        <Popconfirm
+            key="delete"
+            title={ConfirmDeleteTitle}
+            okText={ConfirmDeleteOkText}
+            cancelText={ConfirmDeleteCancelText}
+            onConfirm={handleDelete}
+        >
             <Button
-                key="save"
-                size="middle"
-                css={WhiteStyle}
-                icon={<CloseOutlined />}
-                onClick={handleCancelSave}
-                style={{ color: grey[3] }}
+                size="large"
+                css={DeleteButtonStyle}
+                icon={<DeleteFilled/>}
             />
-        )
-        actions.push(
-            <Button
-                key="save"
-                size="middle"
-                css={WhiteStyle}
-                icon={<CheckOutlined />}
-                onClick={handleSave}
-                style={{ color: green[7] }}
-            />
-        )
-    }
+        </Popconfirm>,
+        <Button
+            key="update"
+            size="large"
+            css={UpdateButtonStyle}
+            icon={<EditFilled />}
+        />,
+    ]
 
     if (comment.deletedAt) {
         return (
@@ -200,18 +171,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
     return (
         <AntComment
             content={
-                <Typography.Text
-                    editable={{
-                        editing: mode === 'edit',
-                        icon: <></>, // `null` does't removes icon
-                        autoSize: {
-                            minRows: 1,
-                            maxRows: 6,
-                        },
-                        maxLength: MAX_COMMENT_LENGTH,
-                        onChange: handleSave,
-                    }}
-                >
+                <Typography.Text>
                     {content}
                 </Typography.Text>
             }
@@ -229,7 +189,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
                     onMouseOver={() => setDateShowMode('updated')}
                 >
                     <Typography.Text title={MetaUpdatedText}>
-                        {dateShowMode === 'created' ?  dayjs(comment.createdAt).format(COMMENT_DATE_FORMAT) : dayjs(intl, comment.updatedAt).format(COMMENT_DATE_FORMAT)}
+                        {dateShowMode === 'created' ?  dayjs(comment.createdAt).format(COMMENT_DATE_FORMAT) : dayjs(comment.updatedAt).format(COMMENT_DATE_FORMAT)}
                     </Typography.Text>
                 </div>
             }
