@@ -10,7 +10,6 @@ import { useState } from 'react'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useInputWithCounter } from '../../hooks/useInputWithCounter'
 import { colors } from '@condo/domains/common/constants/style'
-import { COMMENT_TYPE } from '@condo/domains/ticket/constants'
 
 const Holder = styled.div`
   position: relative;

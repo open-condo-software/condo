@@ -7,12 +7,12 @@ import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
-import { COMMENT_TYPE } from '@condo/domains/ticket/constants'
+import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { UserTypeType } from '@app/condo/schema'
 
 export type TComment = {
     id: string,
-    type: COMMENT_TYPE,
+    type: ORGANIZATION_COMMENT_TYPE | RESIDENT_COMMENT_TYPE,
     content: string,
     user: {
         id: string,
@@ -224,19 +224,19 @@ const Comments: React.FC<ICommentsListProps> = ({
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
 
     const { isSmall } = useLayoutContext()
-    const [commentType, setCommentType] = useState<COMMENT_TYPE>(COMMENT_TYPE.ORGANIZATION)
+    const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const action = useCallback(async (values) => createAction({ ...values, type: commentType }),
         [commentType, createAction])
 
-    const commentsWithOrganization = comments.filter(comment => comment.type === COMMENT_TYPE.ORGANIZATION)
-    const commentsWithResident = comments.filter(comment => comment.type === COMMENT_TYPE.RESIDENT)
+    const commentsWithOrganization = comments.filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE)
+    const commentsWithResident = comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE)
 
     return (
         <Container isSmall={isSmall}>
             <Head>{TitleMessage}</Head>
             <CommentsTabsContainer className="card-container">
                 <Tabs
-                    defaultActiveKey={COMMENT_TYPE.ORGANIZATION}
+                    defaultActiveKey={ORGANIZATION_COMMENT_TYPE}
                     centered
                     type={'card'}
                     tabBarGutter={4}
@@ -244,7 +244,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                 >
                     <TabPane
                         tab={<CommentsTabPaneLabel label={InternalCommentsMessage} commentsCount={commentsWithOrganization.length} />}
-                        key={COMMENT_TYPE.ORGANIZATION}
+                        key={ORGANIZATION_COMMENT_TYPE}
                     >
                         <CommentsTabContent
                             comments={commentsWithOrganization}
@@ -255,7 +255,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                     </TabPane>
                     <TabPane
                         tab={<CommentsTabPaneLabel label={ResidentCommentsMessage} commentsCount={commentsWithResident.length} />}
-                        key={COMMENT_TYPE.RESIDENT}
+                        key={RESIDENT_COMMENT_TYPE}
                     >
                         <CommentsTabContent
                             comments={commentsWithResident}
