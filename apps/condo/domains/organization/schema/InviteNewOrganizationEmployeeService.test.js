@@ -79,7 +79,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     const message1 = await Message.getOne(admin, messageWhere)
 
                     expect(message1.status).toEqual(MESSAGE_DELIVERED_STATUS)
-                    expect(message1.processingMeta.transport).toEqual(SMS_TRANSPORT)
+                    expect(message1.processingMeta.transport).toEqual(EMAIL_TRANSPORT)
                 })
 
                 it('tries to find employee first by phone first', async () => {
