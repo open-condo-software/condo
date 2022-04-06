@@ -448,6 +448,12 @@ export type AcquiringIntegrationContext = {
   settings?: Maybe<Scalars['JSON']>;
   /**  The current state of the integration process. Some integration need to store past state here, additional data and etc.  */
   state?: Maybe<Scalars['JSON']>;
+  /**  Contract number and date. Basis for invoicing  */
+  reason?: Maybe<Scalars['String']>;
+  /**  Email. To send acquiring payments report  */
+  email?: Maybe<Scalars['String']>;
+  /**  Requisites from contract. Are used for invoicing in case of transit accounts or missing requisites in billing receipts  */
+  recipient?: Maybe<BillingReceiptsRecipientField>;
   /**  Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored  */
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   id: Scalars['ID'];
@@ -467,6 +473,9 @@ export type AcquiringIntegrationContextCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  reason?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -494,6 +503,9 @@ export type AcquiringIntegrationContextHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  reason?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  recipient?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -515,6 +527,9 @@ export type AcquiringIntegrationContextHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  reason?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  recipient?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -541,6 +556,9 @@ export type AcquiringIntegrationContextHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  reason?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  recipient?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -585,6 +603,46 @@ export type AcquiringIntegrationContextHistoryRecordWhereInput = {
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  reason?: Maybe<Scalars['String']>;
+  reason_not?: Maybe<Scalars['String']>;
+  reason_contains?: Maybe<Scalars['String']>;
+  reason_not_contains?: Maybe<Scalars['String']>;
+  reason_starts_with?: Maybe<Scalars['String']>;
+  reason_not_starts_with?: Maybe<Scalars['String']>;
+  reason_ends_with?: Maybe<Scalars['String']>;
+  reason_not_ends_with?: Maybe<Scalars['String']>;
+  reason_i?: Maybe<Scalars['String']>;
+  reason_not_i?: Maybe<Scalars['String']>;
+  reason_contains_i?: Maybe<Scalars['String']>;
+  reason_not_contains_i?: Maybe<Scalars['String']>;
+  reason_starts_with_i?: Maybe<Scalars['String']>;
+  reason_not_starts_with_i?: Maybe<Scalars['String']>;
+  reason_ends_with_i?: Maybe<Scalars['String']>;
+  reason_not_ends_with_i?: Maybe<Scalars['String']>;
+  reason_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  reason_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  email?: Maybe<Scalars['String']>;
+  email_not?: Maybe<Scalars['String']>;
+  email_contains?: Maybe<Scalars['String']>;
+  email_not_contains?: Maybe<Scalars['String']>;
+  email_starts_with?: Maybe<Scalars['String']>;
+  email_not_starts_with?: Maybe<Scalars['String']>;
+  email_ends_with?: Maybe<Scalars['String']>;
+  email_not_ends_with?: Maybe<Scalars['String']>;
+  email_i?: Maybe<Scalars['String']>;
+  email_not_i?: Maybe<Scalars['String']>;
+  email_contains_i?: Maybe<Scalars['String']>;
+  email_not_contains_i?: Maybe<Scalars['String']>;
+  email_starts_with_i?: Maybe<Scalars['String']>;
+  email_not_starts_with_i?: Maybe<Scalars['String']>;
+  email_ends_with_i?: Maybe<Scalars['String']>;
+  email_not_ends_with_i?: Maybe<Scalars['String']>;
+  email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipient?: Maybe<Scalars['JSON']>;
+  recipient_not?: Maybe<Scalars['JSON']>;
+  recipient_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  recipient_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -682,6 +740,9 @@ export type AcquiringIntegrationContextUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
   state?: Maybe<Scalars['JSON']>;
+  reason?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -719,6 +780,46 @@ export type AcquiringIntegrationContextWhereInput = {
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  reason?: Maybe<Scalars['String']>;
+  reason_not?: Maybe<Scalars['String']>;
+  reason_contains?: Maybe<Scalars['String']>;
+  reason_not_contains?: Maybe<Scalars['String']>;
+  reason_starts_with?: Maybe<Scalars['String']>;
+  reason_not_starts_with?: Maybe<Scalars['String']>;
+  reason_ends_with?: Maybe<Scalars['String']>;
+  reason_not_ends_with?: Maybe<Scalars['String']>;
+  reason_i?: Maybe<Scalars['String']>;
+  reason_not_i?: Maybe<Scalars['String']>;
+  reason_contains_i?: Maybe<Scalars['String']>;
+  reason_not_contains_i?: Maybe<Scalars['String']>;
+  reason_starts_with_i?: Maybe<Scalars['String']>;
+  reason_not_starts_with_i?: Maybe<Scalars['String']>;
+  reason_ends_with_i?: Maybe<Scalars['String']>;
+  reason_not_ends_with_i?: Maybe<Scalars['String']>;
+  reason_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  reason_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  email?: Maybe<Scalars['String']>;
+  email_not?: Maybe<Scalars['String']>;
+  email_contains?: Maybe<Scalars['String']>;
+  email_not_contains?: Maybe<Scalars['String']>;
+  email_starts_with?: Maybe<Scalars['String']>;
+  email_not_starts_with?: Maybe<Scalars['String']>;
+  email_ends_with?: Maybe<Scalars['String']>;
+  email_not_ends_with?: Maybe<Scalars['String']>;
+  email_i?: Maybe<Scalars['String']>;
+  email_not_i?: Maybe<Scalars['String']>;
+  email_contains_i?: Maybe<Scalars['String']>;
+  email_not_contains_i?: Maybe<Scalars['String']>;
+  email_starts_with_i?: Maybe<Scalars['String']>;
+  email_not_starts_with_i?: Maybe<Scalars['String']>;
+  email_ends_with_i?: Maybe<Scalars['String']>;
+  email_not_ends_with_i?: Maybe<Scalars['String']>;
+  email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
+  recipient_not?: Maybe<BillingReceiptsRecipientFieldInput>;
+  recipient_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
+  recipient_not_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   implicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   implicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
@@ -14850,7 +14951,7 @@ export type Mutation = {
    * 			"required": true
    * 		}
    * 	},
-   * 	"MESSAGE_FORWARDED_TO_SUPPORT_TYPE": {
+   * 	"MESSAGE_FORWARDED_TO_SUPPORT": {
    * 		"dv": {
    * 			"defaultValue": "",
    * 			"required": true
@@ -24001,6 +24102,39 @@ export type Query = {
    */
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
+  /**
+   * Tells, whether a Property with given address exists in condo database
+   *
+   * In specified address string a part up to building will be taken into account. So, it will make no sense when something more precise, like apartment number, will be specified.
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "query": "checkPropertyWithAddressExist",
+   *   "variable": [
+   *     "data",
+   *     "addressMeta",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Version number value {dv} is incorrect"
+   * }`
+   *
+   * `{
+   *   "query": "checkPropertyWithAddressExist",
+   *   "variable": [
+   *     "data",
+   *     "addressMeta",
+   *     "flatType"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "FLAT_WITHOUT_FLAT_TYPE",
+   *   "message": "Flat type is not specified"
+   * }`
+   */
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
@@ -27654,7 +27788,7 @@ export enum SendMessageType {
   ShareTicket = 'SHARE_TICKET',
   DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
   CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
-  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT_TYPE',
+  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
   TicketAssigneeConnected = 'TICKET_ASSIGNEE_CONNECTED',
   TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED'
 }
@@ -29230,6 +29364,10 @@ export enum SortAcquiringIntegrationAccessRightsBy {
 export enum SortAcquiringIntegrationContextHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  ReasonAsc = 'reason_ASC',
+  ReasonDesc = 'reason_DESC',
+  EmailAsc = 'email_ASC',
+  EmailDesc = 'email_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -29253,6 +29391,10 @@ export enum SortAcquiringIntegrationContextsBy {
   IntegrationDesc = 'integration_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  ReasonAsc = 'reason_ASC',
+  ReasonDesc = 'reason_DESC',
+  EmailAsc = 'email_ASC',
+  EmailDesc = 'email_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
