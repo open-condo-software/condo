@@ -157,7 +157,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         user: {
                             id: user.id,
                         },
-                        phone,
+                        phone: !email ? phone : undefined,
                         email,
                     },
                     type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -216,7 +216,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         user: {
                             id: existedUser.id,
                         },
-                        phone,
+                        phone: !email ? phone : undefined,
                         email,
                     },
                     type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
