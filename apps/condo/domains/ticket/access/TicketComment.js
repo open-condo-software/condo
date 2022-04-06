@@ -92,11 +92,13 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
 
         const propertyId = get(ticket, 'property', null)
         const unitName = get(ticket, 'unitName', null)
+        const unitType = get(ticket, 'unitType', null)
 
         const residents = await find('Resident', {
             user: { id: user.id },
             property: { id: propertyId, deletedAt: null },
             unitName,
+            unitType,
             deletedAt: null,
         })
 
