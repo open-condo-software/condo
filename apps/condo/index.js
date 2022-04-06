@@ -72,11 +72,6 @@ const keystone = new Keystone({
     },
 })
 
-const cache = {}
-if (IS_ENABLE_CACHE) {
-    initCache(keystone, cache)
-}
-
 if (!IS_BUILD_PHASE) {
     registerSchemas(keystone, [
         require('@condo/domains/user/schema'),
@@ -147,7 +142,7 @@ module.exports = {
     apps: [
         new OIDCMiddleware(),
         new CustomBodyParserMiddleware(),
-        new KeystoneCacheMiddleware(cache),
+        new KeystoneCacheMiddleware(),
         new GraphQLApp({
             apollo: {
                 formatError,

@@ -35,16 +35,14 @@ const express = require('express')
 const { get } = require('lodash')
 
 class KeystoneCacheMiddleware {
-
-    constructor (cache) {
-        if (!(typeof cache === 'object') || cache === null) {
-            throw new Error('Cache should be dict!')
-        }
-        this.cache = cache
-    }
+    cache = {}
 
     prepareMiddleware ({ keystone, dev, distDir }) {
 
+        // Add cache
+        initCache(keystone, this.cache)
+
+        // Add a middleware which resets cache after end of each request
         const app = express()
         app.use((req, res, next) => {
             const requestId = get(req, ['headers', 'x-request-id'])
