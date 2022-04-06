@@ -13,8 +13,6 @@ const {
     TICKET_STATUS_IN_PROGRESS_TYPE,
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
-    TICKET_INDICATOR_ADDED_TYPE,
-    TICKET_INDICATOR_REMOVED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
@@ -25,9 +23,6 @@ const { PUSH_TRANSPORT } = require('../../notification/constants/constants')
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
 const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
-const WARRANTY_CHANGED_EVENT_TYPE = 'WARRANTY_CHANGED'
-const PAID_CHANGED_EVENT_TYPE = 'PAID_CHANGED'
-const EMERGENCY_CHANGED_EVENT_TYPE = 'EMERGENCY_CHANGED'
 
 const TICKET_DOMAIN = 'ticket'
 const TICKET_COMMENT_DOMAIN = 'ticketComment'
@@ -45,9 +40,6 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
     const prevExecutorId = !isCreateOperation && get(existingItem, 'executor')
     const prevStatusId = !isCreateOperation && get(existingItem, 'status')
-    const prevWarranty = !isCreateOperation && get(existingItem, 'isWarranty')
-    const prevPaid = !isCreateOperation && get(existingItem, 'isPaid')
-    const prevEmergency = !isCreateOperation && get(existingItem, 'isEmergency')
     const nextAssigneeId = get(updatedItem, 'assignee')
     const nextExecutorId = get(updatedItem, 'executor')
     const areBothSame = nextAssigneeId === nextExecutorId
@@ -58,9 +50,6 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     const nextStatusId = get(updatedItem, 'status')
     const isStatusAdded = isCreateOperation && !!nextStatusId
     const isStatusUpdated = isUpdateOperation && nextStatusId && nextStatusId !== prevStatusId
-    const nextWarranty = get(updatedItem, 'isWarranty')
-    const nextPaid = get(updatedItem, 'isPaid')
-    const nextEmergency = get(updatedItem, 'isEmergency')
     const client = get(updatedItem, 'client')
     const result = {}
 
@@ -87,21 +76,6 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
      */
     result[STATUS_CHANGED_EVENT_TYPE] = isStatusAdded || isStatusUpdated
 
-    /**
-     * ticket change warranty indicate
-     */
-    result[WARRANTY_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextWarranty || isUpdateOperation && nextWarranty !== prevWarranty)
-
-    /**
-     * ticket change paid indicate
-     */
-    result[PAID_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextPaid || isUpdateOperation && nextPaid !== prevPaid)
-
-    /**
-     * ticket change emergency indicate
-     */
-    result[EMERGENCY_CHANGED_EVENT_TYPE] = !!client && (isCreateOperation && !!nextEmergency || isUpdateOperation  && nextEmergency !== prevEmergency)
-
     return result
 }
 
@@ -126,9 +100,6 @@ const handleTicketEvents = async (requestData) => {
     const prevStatusId = !isCreateOperation && get(existingItem, 'status')
     const nextAssigneeId = get(updatedItem, 'assignee')
     const nextExecutorId = get(updatedItem, 'executor')
-    const nextWarranty = get(updatedItem, 'isWarranty')
-    const nextPaid = get(updatedItem, 'isPaid')
-    const nextEmergency = get(updatedItem, 'isEmergency')
     const nextStatusId = get(updatedItem, 'status')
     const client = get(updatedItem, 'client')
 
@@ -218,63 +189,6 @@ const handleTicketEvents = async (requestData) => {
             })
         }
     }
-
-    if (eventTypes[WARRANTY_CHANGED_EVENT_TYPE]) {
-        await sendMessage(context, {
-            lang,
-            to: { user: { id: client } },
-            type: nextWarranty ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
-            meta: {
-                dv: 1,
-                data: {
-                    ticketId: updatedItem.id,
-                    ticketNumber: updatedItem.number,
-                    userId: client,
-                    indicatorType: i18n(translationStringKeyForIndicatorType(WARRANTY_CHANGED_EVENT_TYPE), { lang }),
-                    domain: TICKET_DOMAIN,
-                },
-            },
-            sender: updatedItem.sender,
-        })
-    }
-
-    if (eventTypes[PAID_CHANGED_EVENT_TYPE]) {
-        await sendMessage(context, {
-            lang,
-            to: { user: { id: client } },
-            type: nextPaid ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
-            meta: {
-                dv: 1,
-                data: {
-                    ticketId: updatedItem.id,
-                    ticketNumber: updatedItem.number,
-                    userId: client,
-                    indicatorType: i18n(translationStringKeyForIndicatorType(PAID_CHANGED_EVENT_TYPE), { lang }),
-                    domain: TICKET_DOMAIN,
-                },
-            },
-            sender: updatedItem.sender,
-        })
-    }
-
-    if (eventTypes[EMERGENCY_CHANGED_EVENT_TYPE]) {
-        await sendMessage(context, {
-            lang,
-            to: { user: { id: client } },
-            type: nextEmergency ? TICKET_INDICATOR_ADDED_TYPE : TICKET_INDICATOR_REMOVED_TYPE,
-            meta: {
-                dv: 1,
-                data: {
-                    ticketId: updatedItem.id,
-                    ticketNumber: updatedItem.number,
-                    userId: client,
-                    indicatorType: i18n(translationStringKeyForIndicatorType(EMERGENCY_CHANGED_EVENT_TYPE), { lang }),
-                    domain: TICKET_DOMAIN,
-                },
-            },
-            sender: updatedItem.sender,
-        })
-    }
 }
 
 const handleTicketCommentEvents = async (requestData) => {
@@ -318,7 +232,4 @@ module.exports = {
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,
     STATUS_CHANGED_EVENT_TYPE,
-    WARRANTY_CHANGED_EVENT_TYPE,
-    PAID_CHANGED_EVENT_TYPE,
-    EMERGENCY_CHANGED_EVENT_TYPE,
 }
