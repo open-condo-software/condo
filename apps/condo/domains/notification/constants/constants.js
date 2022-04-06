@@ -26,8 +26,6 @@ const TICKET_EXECUTOR_CONNECTED_TYPE = 'TICKET_EXECUTOR_CONNECTED'
 const TICKET_STATUS_IN_PROGRESS_TYPE = 'TICKET_STATUS_IN_PROGRESS'
 const TICKET_STATUS_COMPLETED_TYPE = 'TICKET_STATUS_COMPLETED'
 const TICKET_STATUS_RETURNED_TYPE = 'TICKET_STATUS_RETURNED'
-const TICKET_INDICATOR_ADDED_TYPE = 'TICKET_INDICATOR_ADDED'
-const TICKET_INDICATOR_REMOVED_TYPE = 'TICKET_INDICATOR_REMOVED'
 const TICKET_COMMENT_ADDED_TYPE = 'TICKET_COMMENT_ADDED'
 
 const MESSAGE_TYPES = [
@@ -45,8 +43,6 @@ const MESSAGE_TYPES = [
     TICKET_STATUS_IN_PROGRESS_TYPE,
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
-    TICKET_INDICATOR_ADDED_TYPE,
-    TICKET_INDICATOR_REMOVED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
 ]
 
@@ -165,28 +161,6 @@ const MESSAGE_META = {
             url: { defaultValue: '', required: true },
         },
     },
-    [TICKET_INDICATOR_ADDED_TYPE]: {
-        dv: { defaultValue: '', required: true },
-        data: {
-            ticketId: { defaultValue: '', required: true },
-            ticketNumber: { defaultValue: '', required: true },
-            userId: { defaultValue: '', required: true },
-            indicatorType: { defaultValue: '', required: true },
-            domain: { defaultValue: '', required: true },
-            url: { defaultValue: '', required: true },
-        },
-    },
-    [TICKET_INDICATOR_REMOVED_TYPE]: {
-        dv: { defaultValue: '', required: true },
-        data: {
-            ticketId: { defaultValue: '', required: true },
-            ticketNumber: { defaultValue: '', required: true },
-            userId: { defaultValue: '', required: true },
-            indicatorType: { defaultValue: '', required: true },
-            domain: { defaultValue: '', required: true },
-            url: { defaultValue: '', required: true },
-        },
-    },
     [TICKET_COMMENT_ADDED_TYPE]: {
         dv: { defaultValue: '', required: true },
         data: {
@@ -267,8 +241,6 @@ module.exports = {
     TICKET_STATUS_IN_PROGRESS_TYPE,
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
-    TICKET_INDICATOR_ADDED_TYPE,
-    TICKET_INDICATOR_REMOVED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE,
