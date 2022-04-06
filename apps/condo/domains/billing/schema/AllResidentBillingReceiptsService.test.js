@@ -545,7 +545,7 @@ describe('AllResidentBillingReceipts', () => {
         const APRIL_PERIOD = '2022-04-01'
         const MAY_PERIOD = '2022-05-01'
 
-        const WATER_RECIPIENT = createTestRecipient({ name: 'Water & co'})
+        const WATER_RECIPIENT = createTestRecipient({ name: 'Water & co' })
 
         // March receipt for water
         await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
