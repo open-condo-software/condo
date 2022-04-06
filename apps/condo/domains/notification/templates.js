@@ -1,6 +1,6 @@
 const conf = require('@core/config')
 const dayjs = require('dayjs')
-const { get } = require('lodash')
+const { get, unescape } = require('lodash')
 const Nunjucks = require('nunjucks')
 const path = require('path')
 const fs = require('fs')
@@ -14,11 +14,13 @@ const {
     PUSH_TRANSPORT,
     DEFAULT_TEMPLATE_FILE_NAME,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
+    SMS_FORBIDDEN_SYMBOLS_REGEXP,
 } = require('./constants/constants')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 
 const LANG_DIR_RELATED = '../../lang'
 const TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT = 'D MMMM YYYY'
+const SERVER_URL = conf.SERVER_URL
 
 const nunjucks = new Nunjucks.Environment(new Nunjucks.FileSystemLoader(path.resolve(__dirname, LANG_DIR_RELATED)))
 nunjucks.addFilter('dateFormat', function (dateStr, locale, format) {
@@ -97,9 +99,13 @@ function translationStringKeyForPushTitle (messageType) {
     return `notification.messages.${messageType}.${PUSH_TRANSPORT}.title`
 }
 
+function normalizeSMSText (text) {
+    return unescape(text).replace(SMS_FORBIDDEN_SYMBOLS_REGEXP, '*')
+}
+
 function smsRenderer ({ message, env }) {
     return {
-        text: nunjucks.render(getTemplate(message.lang, message.type, SMS_TRANSPORT), { message, env }),
+        text: normalizeSMSText(nunjucks.render(getTemplate(message.lang, message.type, SMS_TRANSPORT), { message, env })),
     }
 }
 
@@ -164,12 +170,10 @@ async function renderTemplate (transport, message) {
         throw new Error(`No renderer for ${transport} messages`)
     }
 
-    const serverUrl = conf.SERVER_URL
-
     /**
      * @type {MessageTemplateEnvironment}
      */
-    const env = { serverUrl }
+    const env = { serverUrl: SERVER_URL }
 
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
     return renderMessage({ message, env })
