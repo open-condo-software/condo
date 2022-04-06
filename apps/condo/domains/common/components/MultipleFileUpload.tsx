@@ -10,6 +10,7 @@ import { UploadRequestOption } from 'rc-upload/lib/interface'
 import { File } from '@app/condo/schema'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import { isEmpty } from 'lodash'
+import { Loader } from './Loader'
 
 type DBFile = {
     id: string
@@ -63,6 +64,7 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
 
 interface IUploadComponentProps {
     initialFileList: DBFile[]
+    UploadButton?: React.FC
 }
 interface IMultipleFileUploadHookArgs {
     Model: Module
@@ -105,12 +107,13 @@ export const useMultipleFileUploadHook = ({
     }
 
     const UploadComponent: React.FC<IUploadComponentProps> = useMemo(() => {
-        const UploadWrapper = () => (
+        const UploadWrapper = (props) => (
             <MultipleFileUpload
                 fileList={initialFileList}
                 initialCreateValues={{ ...initialCreateValues, [relationField]: null }}
                 Model={Model}
                 onFilesChange={dispatch}
+                {...props}
             />
         )
         return UploadWrapper
@@ -126,7 +129,8 @@ interface IMultipleFileUploadProps {
     fileList: DBFile[]
     initialCreateValues: Record<string, unknown>
     Model: Module
-    onFilesChange: React.Dispatch<{ type: string, payload: DBFile }>,
+    onFilesChange: React.Dispatch<{ type: string, payload: DBFile }>
+    UploadButton?: React.FC
 }
 
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
@@ -140,6 +144,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         initialCreateValues,
         Model,
         onFilesChange,
+        UploadButton,
     } = props
 
     const [listFiles, setListFiles] = useState<UploadListFile[]>([])
@@ -201,16 +206,23 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
             })
         },
     }
+
     return (
         <div className={'upload-control-wrapper'}>
             <Upload { ...options } >
-                <Button
-                    type={'sberDefaultGradient'}
-                    secondary
-                    icon={<EditFilled />}
-                >
-                    {AddFileLabel}
-                </Button>
+                {
+                    UploadButton ? (
+                        <UploadButton />
+                    ) : (
+                        <Button
+                            type={'sberDefaultGradient'}
+                            secondary
+                            icon={<EditFilled />}
+                        >
+                            {AddFileLabel}
+                        </Button>
+                    )
+                }
             </Upload>
         </div>
     )
