@@ -92,6 +92,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     })
     if (raw) return { data, errors }
 
+    // This test util used by cypress task of which context 'expect' method is missing
     if (typeof expect === 'function') {
         expect(errors).toEqual(undefined)
     }
