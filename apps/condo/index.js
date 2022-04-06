@@ -23,7 +23,7 @@ const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatte
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { KeystoneCacheMiddleware, initCache } = require('@core/keystone/cache')
+const { KeystoneCacheMiddleware } = require('@core/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
