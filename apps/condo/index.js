@@ -142,7 +142,7 @@ module.exports = {
     apps: [
         new OIDCMiddleware(),
         new CustomBodyParserMiddleware(),
-        new KeystoneCacheMiddleware(),
+        IS_ENABLE_CACHE ? new KeystoneCacheMiddleware() : undefined,
         new GraphQLApp({
             apollo: {
                 formatError,
