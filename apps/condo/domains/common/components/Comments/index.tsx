@@ -8,7 +8,7 @@ import { CommentForm } from './CommentForm'
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
 import { COMMENT_TYPE } from '@condo/domains/ticket/constants'
-import { UserTypeType } from '../../../../schema'
+import { UserTypeType } from '@app/condo/schema'
 
 export type TComment = {
     id: string,

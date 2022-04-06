@@ -15,7 +15,8 @@ const FIELDS = ['id', 'deletedAt', 'type', 'createdAt', 'updatedAt', 'createdBy'
 const RELATIONS = ['ticket', 'user']
 
 export interface ITicketCommentUIState extends TicketComment {
-    id: string
+    id: string,
+    type: string,
     content: string,
     user: {
         id: string,
