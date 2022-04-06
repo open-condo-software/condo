@@ -1,8 +1,14 @@
 const fs = require('fs')
 const path = require('path')
+const dayjs = require('dayjs')
+const faker = require('faker')
 const { escape, isEmpty, get } = require('lodash')
+
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+
 const { LOCALES, EN_LOCALE, RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
+
 const {
     MESSAGE_TYPES,
     MESSAGE_TRANSPORTS,
@@ -11,6 +17,9 @@ const {
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     DEFAULT_TEMPLATE_FILE_NAME,
     PUSH_TRANSPORT,
+    DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+    DEVELOPER_IMPORTANT_NOTE_TYPE,
+    SMS_FORBIDDEN_SYMBOLS_REGEXP,
 } = require('@condo/domains/notification/constants/constants')
 const {
     translationStringKeyForEmailSubject,
@@ -18,14 +27,13 @@ const {
     templateEngine,
     TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT,
 } = require('@condo/domains/notification/templates')
-const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const emailTransport = require('@condo/domains/notification/transports/email')
+const smsTransport = require('@condo/domains/notification/transports/sms')
+
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+
 const { SHARE_TICKET_MESSAGE_TYPE, CUSTOMER_IMPORTANT_NOTE_TYPE } = require('./constants/constants')
-const dayjs = require('dayjs')
-const faker = require('faker')
-const { makeClientWithRegisteredOrganization } = require('../organization/utils/testSchema/Organization')
 
 /**
  * The *Relative* path to templates folder
@@ -56,7 +64,9 @@ function isTemplateNeeded (messageType, transport) {
     return !isEmpty(transports[transport])
 }
 
-describe('Notifications', () => {
+const ORGANIZATION_NAME_WITH_QUOTES = 'ООО "УК "РЕЗИДЕНЦИЯ У МОРЯ"'
+
+describe('Templates', () => {
     it('All messages types have enough templates', () => {
         let result = true
         for (const locale of Object.keys(LOCALES)) {
@@ -209,4 +219,21 @@ describe('Notifications', () => {
         expect(preparedMessage.subject).toEqual('Новая организация. (СББОЛ)')
         expect(preparedMessage.text.trim()).toEqual(`Название: ${escape(client.organization.name)},\nИНН: ${client.organization.meta.inn},`)
     })
+
+    it('Rendered SMS message does not contain forbidden symbols (value is normalized)', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [message] = await createTestMessage(admin, {
+            type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+            lang: RU_LOCALE,
+            phone: '+79999999999',
+            meta: {
+                dv: 1,
+                organizationName: ORGANIZATION_NAME_WITH_QUOTES,
+            },
+        })
+        const preparedMessage = await smsTransport.prepareMessageToSend(message)
+
+        expect(preparedMessage.message).not.toMatch(SMS_FORBIDDEN_SYMBOLS_REGEXP)
+    })
+
 })

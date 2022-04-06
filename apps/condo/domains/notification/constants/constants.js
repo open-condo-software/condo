@@ -48,6 +48,8 @@ const MESSAGE_TYPES_TRANSPORTS = {
     [SHARE_TICKET_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
 }
 
+const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[\&\#\|\?\«\»]+/gim
+
 //todo: maybe we should to gather all data about messages types in the single object
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
@@ -185,4 +187,5 @@ module.exports = {
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     DEFAULT_TEMPLATE_FILE_NAME,
     MESSAGE_TYPES_TRANSPORTS,
+    SMS_FORBIDDEN_SYMBOLS_REGEXP,
 }
