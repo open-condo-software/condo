@@ -8,8 +8,7 @@
  *
  * Installation:
  * 1. Have a custom keystone server
- * 2. Somewhere in index.js call initCache(keystone, cache)
- * 3. Add a middleware KeystoneLevelCache(cache) before keystone AdminApp or GraphQL app
+ * 2. Add a middleware KeystoneLevelCache(cache) before keystone AdminApp or GraphQL app
  *
  * How it works:
  *                           -> [GQL Request] -> [DB]
