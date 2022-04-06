@@ -178,6 +178,9 @@ const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
     }
 `
 
+const TICKET_COMMENT_FILE_FIELDS = `{ organization { id } file ticketComment { id } ${COMMON_FIELDS} }`
+const TicketCommentFile = generateGqlQueries('TicketCommentFile', TICKET_COMMENT_FILE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -213,5 +216,6 @@ module.exports = {
 
     PREDICT_TICKET_CLASSIFICATION_QUERY,
 
+    TicketCommentFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
