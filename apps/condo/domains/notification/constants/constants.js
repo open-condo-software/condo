@@ -23,9 +23,11 @@ const CUSTOMER_IMPORTANT_NOTE_TYPE = 'CUSTOMER_IMPORTANT_NOTE_TYPE'
 const MESSAGE_FORWARDED_TO_SUPPORT_TYPE = 'MESSAGE_FORWARDED_TO_SUPPORT'
 const TICKET_ASSIGNEE_CONNECTED_TYPE = 'TICKET_ASSIGNEE_CONNECTED'
 const TICKET_EXECUTOR_CONNECTED_TYPE = 'TICKET_EXECUTOR_CONNECTED'
+const TICKET_STATUS_OPENED_TYPE = 'TICKET_STATUS_OPENED'
 const TICKET_STATUS_IN_PROGRESS_TYPE = 'TICKET_STATUS_IN_PROGRESS'
 const TICKET_STATUS_COMPLETED_TYPE = 'TICKET_STATUS_COMPLETED'
 const TICKET_STATUS_RETURNED_TYPE = 'TICKET_STATUS_RETURNED'
+const TICKET_STATUS_DECLINED_TYPE = 'TICKET_STATUS_DECLINED'
 const TICKET_COMMENT_ADDED_TYPE = 'TICKET_COMMENT_ADDED'
 
 const MESSAGE_TYPES = [
@@ -40,9 +42,11 @@ const MESSAGE_TYPES = [
     MESSAGE_FORWARDED_TO_SUPPORT_TYPE,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
+    TICKET_STATUS_OPENED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE,
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
+    TICKET_STATUS_DECLINED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
 ]
 
@@ -131,6 +135,16 @@ const MESSAGE_META = {
             url: { defaultValue: '', required: true },
         },
     },
+    [TICKET_STATUS_OPENED_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            domain: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
+        },
+    },
     [TICKET_STATUS_IN_PROGRESS_TYPE]: {
         dv: { defaultValue: '', required: true },
         data: {
@@ -152,6 +166,16 @@ const MESSAGE_META = {
         },
     },
     [TICKET_STATUS_RETURNED_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            domain: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_STATUS_DECLINED_TYPE]: {
         dv: { defaultValue: '', required: true },
         data: {
             ticketId: { defaultValue: '', required: true },
@@ -238,9 +262,11 @@ module.exports = {
     MESSAGE_FORWARDED_TO_SUPPORT_TYPE,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
+    TICKET_STATUS_OPENED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE,
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
+    TICKET_STATUS_DECLINED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE,
