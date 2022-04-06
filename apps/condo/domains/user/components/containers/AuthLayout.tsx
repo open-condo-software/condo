@@ -21,9 +21,8 @@ interface IAuthLayoutProps {
 
 const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
     const intl = useIntl()
-
     const { children, ...otherProps } = props
-    console.debug('AuthLayoutPros', { ...otherProps })
+
     return (
         <GoogleReCaptchaProvider
             reCaptchaKey={googleCaptcha && googleCaptcha.SITE_KEY}
