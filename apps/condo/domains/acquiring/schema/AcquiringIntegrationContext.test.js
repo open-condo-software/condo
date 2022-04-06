@@ -415,7 +415,6 @@ describe('AcquiringIntegrationContext', () => {
             const email = faker.internet.email()
             const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration, { email, reason, recipient })
             expect(context.reason).toEqual(reason)
-            expect(context.email).toEqual(email.toLowerCase())
             expect(context.recipient.bankAccount).toEqual(recipient.bankAccount)
             expect(context.recipient.iec).toEqual(recipient.iec)
             expect(context.recipient.tin).toEqual(recipient.tin)
