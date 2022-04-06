@@ -362,13 +362,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         period: '2021-12-01',
         importId: faker.random.alphaNumeric(8),
         toPay: (faker.datatype.number() + 50).toString(),
-        recipient: {
-            name: faker.random.boolean ? faker.vehicle.manufacturer() : undefined,
-            tin: faker.datatype.number().toString(),
-            iec: faker.datatype.number().toString(),
-            bic: faker.datatype.number().toString(),
-            bankAccount: faker.datatype.number().toString(),
-        },
+        recipient: createTestRecipient(),
         services: [
             {
                 id: faker.datatype.number().toString(),
@@ -425,18 +419,12 @@ async function createTestBillingRecipient(client, context, extraAttrs = {}) {
     if (!context.id) throw new Error('no context')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const companyName = faker.company.companyName()
-
     const attrs = {
         dv: 1,
         sender,
         context: { connect: { id: context.id } },
         importId: faker.datatype.uuid(),
-        name: companyName,
-        iec: faker.random.alphaNumeric(6),
-        tin: faker.random.alphaNumeric(6),
-        bic: faker.finance.bic(),
-        bankAccount: faker.finance.account(12),
+        ...createTestRecipient(),
         purpose: `Payment for service from ${companyName}`,
         isApproved: false,
         ...extraAttrs,
@@ -544,6 +532,25 @@ async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs,
     return { organizationClient: client, integrationClient: integrationClient }
 }
 
+function createTestRecipient (extra = {}) {
+    const range = (length) => ({ min: Math.pow(10,length - 1), max: Math.pow(10,length)-1 })
+    const validRecipient = {
+        name: faker.company.companyName(),
+        tin: faker.datatype.number(range(10)).toString(),
+        iec: faker.datatype.number(range(9)).toString(),
+        bic: faker.finance.bic().toString(),
+        bankAccount: faker.finance.account(12).toString(),
+        bankName: faker.company.companyName(),
+        territoryCode: faker.datatype.number().toString(),
+        offsettingAccount: faker.finance.account(12).toString(),
+    }
+    return {
+        ...validRecipient,
+        ...extra,
+    }
+}
+
+
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
@@ -563,6 +570,7 @@ module.exports = {
     createReceiptsReader,
     makeClientWithPropertyAndBilling,
     BillingRecipient, createTestBillingRecipient, updateTestBillingRecipient,
+    createTestRecipient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
