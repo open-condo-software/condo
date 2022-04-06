@@ -21,5 +21,5 @@ export const useSearch = <F> (loading: boolean): [string, (search: string) => vo
         searchChange(value)
     }
 
-    return [search || searchValueFromQuery, handleSearchChange]
+    return [search, handleSearchChange]
 }
