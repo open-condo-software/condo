@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
 import { Divider, Empty, Tabs, Typography } from 'antd'
@@ -82,6 +82,7 @@ type ActionsForComment = {
 interface ICommentsListProps {
     comments: TComment[],
     createAction?: (formValues) => Promise<void>,
+    updateAction
     // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
     actionsFor: (comment: TComment) => ActionsForComment,
     canCreateComments: boolean,
@@ -138,10 +139,12 @@ type CommentsTabContentProps = {
     PromptTitleMessage: string,
     PromptDescriptionMessage: string,
     actionsFor: (comment: TComment) => ActionsForComment,
+    editableComment
+    setEditableComment
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
-    ({ comments, PromptTitleMessage, PromptDescriptionMessage, actionsFor }) => {
+    ({ comments, PromptTitleMessage, PromptDescriptionMessage, actionsFor, editableComment, setEditableComment }) => {
         const bodyRef = useRef(null)
 
         const scrollToBottom = () => {
@@ -153,6 +156,22 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         useEffect(() => {
             scrollToBottom()
         }, [comments.length])
+
+        const commentsToRender = useMemo(() =>
+            comments
+                .filter(comment => editableComment ? comment.id !== editableComment.id : true)
+                .map(comment => {
+                    const { deleteAction } = actionsFor(comment)
+
+                    return (
+                        <Comment
+                            key={comment.id}
+                            comment={comment}
+                            deleteAction={deleteAction}
+                            setEditableComment={setEditableComment}
+                        />
+                    )
+                }), [actionsFor, comments, editableComment, setEditableComment])
 
         return (
             <>
@@ -174,18 +193,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                     </EmptyContainer>
                 ) : (
                     <Body ref={bodyRef}>
-                        {comments.map(comment => {
-                            const { updateAction, deleteAction } = actionsFor(comment)
-
-                            return (
-                                <Comment
-                                    key={comment.id}
-                                    comment={comment}
-                                    updateAction={updateAction}
-                                    deleteAction={deleteAction}
-                                />
-                            )
-                        })}
+                        {commentsToRender}
                     </Body>
                 )}
             </>
@@ -210,6 +218,7 @@ const CommentsTabPaneLabel = ({ label, commentsCount }) => (
 const Comments: React.FC<ICommentsListProps> = ({
     comments,
     createAction,
+    updateAction,
     canCreateComments,
     actionsFor,
 }) => {
@@ -225,8 +234,21 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     const { isSmall } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
-    const action = useCallback(async (values) => createAction({ ...values, type: commentType }),
-        [commentType, createAction])
+    const [editableComment, setEditableComment] = useState()
+
+    const action = useCallback(async (values) => {
+        if (editableComment) {
+            updateAction(values, editableComment)
+            setEditableComment(null)
+        } else {
+            createAction({ ...values, type: commentType })
+        }
+    },
+    [commentType, createAction, editableComment, updateAction])
+
+    useEffect(() => {
+        setEditableComment(null)
+    }, [commentType])
 
     const commentsWithOrganization = comments.filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE)
     const commentsWithResident = comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE)
@@ -251,6 +273,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                             PromptTitleMessage={PromptInternalCommentsTitleMessage}
                             PromptDescriptionMessage={PromptInternalCommentsDescriptionMessage}
                             actionsFor={actionsFor}
+                            editableComment={editableComment}
+                            setEditableComment={setEditableComment}
                         />
                     </TabPane>
                     <TabPane
@@ -262,13 +286,19 @@ const Comments: React.FC<ICommentsListProps> = ({
                             PromptTitleMessage={PromptResidentCommentsTitleMessage}
                             PromptDescriptionMessage={PromptResidentCommentsDescriptionMessage}
                             actionsFor={actionsFor}
+                            editableComment={editableComment}
+                            setEditableComment={setEditableComment}
                         />
                     </TabPane>
                 </Tabs>
             </CommentsTabsContainer>
             <Footer>
                 {canCreateComments ? (
-                    <CommentForm action={action}/>
+                    <CommentForm
+                        action={action}
+                        editableComment={editableComment}
+                        setEditableComment={setEditableComment}
+                    />
                 ) : (
                     <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>
                 )}
