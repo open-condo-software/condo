@@ -21,6 +21,7 @@ const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/
 
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
 
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
@@ -39,6 +40,7 @@ async function createTestResident (client, user, organization, property, extraAt
         sender,
         user: { connect: { id: user.id } },
         unitName: faker.random.alphaNumeric(3),
+        unitType: FLAT_UNIT_TYPE,
         address,
         addressMeta,
         ...extraAttrs,

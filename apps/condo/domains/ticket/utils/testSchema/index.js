@@ -28,6 +28,7 @@ const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
 const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
 const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
+const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -60,6 +61,7 @@ async function createTestTicket (client, organization, property, extraAttrs = {}
         dv: 1,
         sender,
         details,
+        unitType: FLAT_UNIT_TYPE,
         organization: { connect: { id: organization.id } },
         property: { connect: { id: property.id } },
         status: { connect: { id: TICKET_OPEN_STATUS_ID } },

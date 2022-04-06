@@ -94,10 +94,11 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
     if (user.isAdmin) return true
 
     if (user.type === RESIDENT) {
-        let unitName, propertyId
+        let unitName, unitType, propertyId
 
         if (operation === 'create') {
             unitName = get(originalInput, 'unitName', null)
+            unitType = get(originalInput, 'unitType')
             propertyId = get(originalInput, ['property', 'connect', 'id'])
         } else if (operation === 'update') {
             if (!itemId) return false
@@ -110,14 +111,16 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
             if (ticket.createdBy !== user.id) return false
             propertyId = get(ticket, 'property', null)
             unitName = get(ticket, 'unitName', null)
+            unitType = get(ticket, 'unitType', null)
         }
 
-        if (!unitName || !propertyId) return false
+        if (!unitName || !unitType || !propertyId) return false
 
         const residents = await find('Resident', {
             user: { id: user.id },
             property: { id: propertyId, deletedAt: null },
             unitName,
+            unitType,
             deletedAt: null,
         })
 
