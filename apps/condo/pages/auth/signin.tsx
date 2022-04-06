@@ -8,8 +8,8 @@ import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTi
 const SignInPage: AuthPage = () => {
     return (
         <>
-            <Row>
-                <Col span={24}>
+            <Row justify={'center'}>
+                <Col span={16}>
                     <TabsAuthAction currentActiveKey={'/auth/signin'}/>
                 </Col>
                 <Col span={24}>

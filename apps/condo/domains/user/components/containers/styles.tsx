@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import { colors } from '@condo/domains/common/constants/style'
-import { Layout as AntLayout, PageHeader } from 'antd'
+import { Layout as AntLayout } from 'antd'
 
 interface IFooterProps {
     isSmall: boolean
@@ -27,13 +27,14 @@ export const Footer = styled.div<IFooterProps>`
   position: fixed;
 `
 
-export const Header = styled<typeof PageHeader>(PageHeader)`
+export const Header = styled.div`
   position: fixed;
+  display: flex;
   background: transparent;
-  width: 100%;
+  width: 50%;
   z-index: 1;
   pointer-events: none;
-  padding: 50px 10px 40px 60px;
+  padding: 60px 10px 10px 80px;
 `
 
 export const MobileHeader = styled.div`
@@ -53,7 +54,7 @@ export const PosterWrapper = styled.div`
   height: 90%;
   background-color: ${colors.backgroundLightGrey};
   border-radius: 22px;
-  width: 50%;
+  width: 47%;
   position: fixed;
   margin: 36px 0 36px 36px
 `

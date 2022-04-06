@@ -104,8 +104,8 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     }, [intl, form, handleReCaptchaVerify])
 
     return (
-        <Row>
-            <Col span={24}>
+        <Row justify={'center'}>
+            <Col span={16}>
                 <TabsAuthAction currentActiveKey={'/auth/register'}/>
             </Col>
             <Col span={24}>

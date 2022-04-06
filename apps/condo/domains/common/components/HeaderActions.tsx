@@ -32,8 +32,6 @@ interface ITabsActionsProps {
     currentActiveKey: string
 }
 
-const TABS_STYLES = { alignItems: 'center', fontWeight: 500 }
-
 const IconContainer = styled.div`
   width: 24px;
   height: 24px;
@@ -159,8 +157,8 @@ export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     return (
         <Tabs
             defaultActiveKey={currentActiveKey}
-            style={TABS_STYLES}
             onChange={(activeKey) => Router.push(activeKey)}
+            centered
         >
             <Tabs.TabPane key='/auth/register' tab={registerTab}/>
             <Tabs.TabPane key='/auth/signin' tab={signInTab}/>

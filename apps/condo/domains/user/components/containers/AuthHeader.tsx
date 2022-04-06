@@ -7,7 +7,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { colors } from '@condo/domains/common/constants/style'
 import { ActionContainer, Header, MobileHeader } from './styles'
 
-const LOGO_HEADER_STYLES = { marginTop: '15px', width: '95%', alignSelf: 'center' }
+const LOGO_HEADER_STYLES = { marginTop: '15px', width: '95%', alignSelf: 'center', justifyContent: 'space-between' }
 const MINI_POSTER_STYLES = { maxWidth: '15%', marginBottom: '-5px' }
 const HEADER_ACTION_STYLES = { alignSelf: 'center' }
 
@@ -33,7 +33,7 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
             ? (
                 <>
                     <MobileHeader>
-                        <Row justify={'space-between'} style={LOGO_HEADER_STYLES}>
+                        <Row style={LOGO_HEADER_STYLES}>
                             <Col>
                                 <Logo fillColor={colors.backgroundLightGrey} onClick={handleLogoClick}/>
                             </Col>
@@ -50,10 +50,18 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
                 </>
             )
             : (
-                <Header
-                    title={<Logo fillColor={colors.scampi} onClick={handleLogoClick}/>}
-                    extra={headerAction}
-                />
+                <Row>
+                    <Header>
+                        <Row style={LOGO_HEADER_STYLES}>
+                            <Col>
+                                <Logo fillColor={colors.scampi} onClick={handleLogoClick}/>
+                            </Col>
+                            <Col style={{ alignSelf:'center', marginTop: '10px' }}>
+                                {headerAction}
+                            </Col>
+                        </Row>
+                    </Header>
+                </Row>
             )
     )
 }
