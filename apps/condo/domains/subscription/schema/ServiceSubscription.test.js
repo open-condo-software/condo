@@ -507,20 +507,10 @@ describe('ServiceSubscription', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
 
-            const [obj, attrs] = await createTestServiceSubscription(adminClient, organization)
+            await createTestServiceSubscription(adminClient, organization)
 
             const objs = await ServiceSubscription.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs.length >= 1).toBeTruthy()
-            expect(objs[0].id).toMatch(obj.id)
-            expect(objs[0].dv).toEqual(1)
-            expect(objs[0].sender).toEqual(attrs.sender)
-            expect(objs[0].v).toEqual(1)
-            expect(objs[0].newId).toEqual(null)
-            expect(objs[0].deletedAt).toEqual(null)
-            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-            expect(objs[0].createdAt).toMatch(obj.createdAt)
-            expect(objs[0].updatedAt).toMatch(obj.updatedAt)
         })
 
         it('can be read by user from the same organization', async () => {
