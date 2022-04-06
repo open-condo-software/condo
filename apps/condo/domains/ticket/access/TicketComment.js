@@ -101,8 +101,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
         })
 
         return residents.length > 0
-    }
-    else if (user.type === STAFF) {
+    } else if (user.type === STAFF) {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
             const ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
