@@ -57,11 +57,12 @@ interface ICommentFormProps {
     initialValue?: string
     editableComment
     setEditableComment
+    sending
 }
 
 export const MAX_COMMENT_LENGTH = 300
 
-const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName, editableComment, setEditableComment }) => {
+const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName, editableComment, sending }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
     const HelperMessage = intl.formatMessage({ id: 'Comments.form.helper' })
@@ -103,12 +104,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
         comment: [requiredValidator, trimValidator],
     }
 
-    const [sending, setSending] = useState(false)
-
     const actionWithSyncComments = useCallback(async (values) => {
-        setSending(true)
         await action(values, syncModifiedFiles)
-        setSending(false)
         resetModifiedFiles()
     }, [action, resetModifiedFiles, syncModifiedFiles])
 
@@ -132,7 +129,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                 action={actionWithSyncComments}
                 resetOnComplete={true}
             >
-                {({ handleSave: handleFormSave, isLoading, form: formInstance }) => {
+                {({ handleSave, isLoading, form: formInstance }) => {
                     if (!form) {
                         setForm(formInstance)
                     }
@@ -140,7 +137,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                     return (
                         <Holder>
                             {
-                                commentLength > 0 ? (
+                                commentLength > 0 || editableComment ? (
                                     <Row justify={'space-between'} style={COMMENT_HELPERS_ROW_STYLES}>
                                         <CommentHelper>
                                             <Typography.Text>
