@@ -153,7 +153,11 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const hasPredictionFeature = hasFeature('classifier')
 
     const stopPredict = useCallback(() => {
-        hasUserSetClassifier.current = true
+        if (!ruleRef.current.category && !ruleRef.current.place) {
+            hasUserSetClassifier.current = false
+        } else {
+            hasUserSetClassifier.current = true
+        }
     }, [hasUserSetClassifier])
 
     const predictTicketClassifier = async (details) => {
