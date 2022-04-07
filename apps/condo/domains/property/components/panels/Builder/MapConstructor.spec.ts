@@ -417,24 +417,48 @@ describe('Map constructor', () => {
 
     describe('Floor operations',  () => {
         describe('Add section floor', () => {
-            it('should add floor to passed section index', () => {
+            it('should add floor into passed section index & update existing indexes', () => {
                 const Building = createBuildingMap(5)
                 const buildingFloors = Building.sections[0].floors.length
+                const modifiedSection = Building.sections[0]
                 Building.addSectionFloor({
                     section: 0,
                     unitCount: 2,
                     unitType: BuildingUnitType.Commercial,
-                    index: 5,
+                    index: 0,
                 })
+                const floorIndexes = modifiedSection.floors.map(({ index }) => index)
                 Building.validate()
-                const modifiedSection = Building.sections[0]
 
                 expect(Building.isMapValid).toBeTruthy()
                 expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
                 expect(modifiedSection.floors[5].units).toHaveLength(2)
                 expect(modifiedSection.floors[5].index).toEqual(5)
-                const floorIndexes = modifiedSection.floors.map(({ index }) => index)
+                expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
+            })
+
+            it('should add negative floor into section & update only negative floor labels', () => {
+                const Building = createBuildingMap(5)
+                const buildingFloors = Building.sections[0].floors.length
+                const modifiedSection = Building.sections[0]
+
+                let floorIndexes = modifiedSection.floors.map(({ index }) => index)
                 console.log(floorIndexes)
+
+                Building.addSectionFloor({
+                    section: 0,
+                    unitCount: 2,
+                    unitType: BuildingUnitType.Commercial,
+                    index: -2,
+                })
+                floorIndexes = modifiedSection.floors.map(({ index }) => index)
+                console.log(floorIndexes)
+
+                Building.validate()
+                expect(Building.isMapValid).toBeTruthy()
+                expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
+                expect(modifiedSection.floors[11].units).toHaveLength(2)
+                expect(modifiedSection.floors[11].index).toEqual(5)
                 expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
             })
         })

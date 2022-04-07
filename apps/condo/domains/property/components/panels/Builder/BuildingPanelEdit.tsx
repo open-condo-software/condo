@@ -1,5 +1,4 @@
 /** @jsx jsx */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CloseOutlined, DeleteFilled, DownOutlined } from '@ant-design/icons'
 import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
@@ -18,7 +17,6 @@ import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/p
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { useIntl } from '@core/next/intl'
-import { useRouter } from 'next/router'
 import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import {
@@ -38,10 +36,12 @@ import {
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
-import isFunction from 'lodash/isFunction'
 import isEmpty from 'lodash/isEmpty'
+import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
 import last from 'lodash/last'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -51,7 +51,8 @@ import {
     BuildingViewModeSelect,
     EmptyBuildingBlock,
     EmptyFloor,
-    MapSectionContainer, UnitTypeLegendItem,
+    MapSectionContainer,
+    UnitTypeLegendItem,
 } from './BuildingPanelCommon'
 
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
@@ -338,8 +339,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     {AddSection}
                 </Button>
             </Menu.Item>
-            <Menu.Item key={'addFloor'}>
-                <Button type={'sberDefaultGradient'} secondary disabled icon={<FloorIcon />}>
+            <Menu.Item key={'addSectionFloor'}>
+                <Button type={'sberDefaultGradient'} secondary icon={<FloorIcon />}>
                     {AddFloor}
                 </Button>
             </Menu.Item>
@@ -471,6 +472,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             addParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
                             editParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
                             editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
+                            addSectionFloor: <AddSectionFloor builder={mapEdit} refresh={refresh} />,
                         }[mode] || null), [mode, mapEdit, refresh])
                     }
                 </BuildingPanelTopModal>
@@ -823,7 +825,7 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
 }
 
 
-interface IAddSectionFormProps {
+interface IPropertyMapModalForm {
     builder: MapEdit
     refresh(): void
 }
@@ -831,7 +833,7 @@ const MODAL_FORM_ROW_GUTTER: RowProps['gutter'] = [0, 24]
 const MODAL_FORM_ROW_BUTTONS_GUTTER: RowProps['gutter'] = [0, 16]
 const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '12px' }
 
-const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) => {
+const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.numberOfSection' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
@@ -999,14 +1001,10 @@ const AddSectionForm: React.FC<IAddSectionFormProps> = ({ builder, refresh }) =>
     )
 }
 
-interface IUnitFormProps {
-    builder: MapEdit
-    refresh(): void
-}
 const IS_NUMERIC_REGEXP = /^\d+$/
 const BUTTON_SPACE_SIZE = 40
 
-const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
+const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const mode = builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === 'editUnit' ? 'Save' : 'Add' })
@@ -1163,14 +1161,10 @@ const UnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
     )
 }
 
-interface IEditSectionFormProps {
-    builder: MapEdit
-    refresh(): void
-}
 const MODAL_FORM_EDIT_GUTTER: RowProps['gutter'] = [0, 40]
 const MODAL_FORM_BUTTON_GUTTER: RowProps['gutter'] = [0, 16]
 
-const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) => {
+const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
@@ -1234,13 +1228,9 @@ const EditSectionForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
     )
 }
 
-interface IAddParkingFormProps {
-    builder: MapEdit
-    refresh(): void
-}
 const TEXT_BUTTON_STYLE: React.CSSProperties = { cursor: 'pointer', marginTop: '8px', display: 'block' }
 
-const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) => {
+const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const ParkingNameLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.numberOfParkingSection' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
@@ -1395,7 +1385,7 @@ const AddParkingForm: React.FC<IAddParkingFormProps> = ({ builder, refresh }) =>
     )
 }
 
-const EditParkingForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) => {
+const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.numberOfParkingSection' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
@@ -1460,7 +1450,7 @@ const EditParkingForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
     )
 }
 
-const ParkingUnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
+const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const mode = builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === 'editParkingUnit' ? 'Save' : 'Add' })
@@ -1594,3 +1584,114 @@ const ParkingUnitForm: React.FC<IUnitFormProps> = ({ builder, refresh }) => {
         </Row>
     )
 }
+
+const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
+    const intl = useIntl()
+    const SaveLabel = intl.formatMessage({ id: 'Add' })
+    const UnitTypeAtFloorLabel = intl.formatMessage({ id: 'pages.condo.property.modal.title.unitTypeAtFloor' })
+    const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
+    const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.parkingSection.name' })
+    const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
+
+    const [sections, setSections] = useState([])
+    const [section, setSection] = useState(null)
+
+    const [unitType, setUnitType] = useState<BuildingUnitType>(BuildingUnitType.Flat)
+    const [unitsOnFloor, setUnitsOnFloor] = useState<number>()
+    const [floor, setFloor] = useState<string>('')
+
+    const setFloorNumber = useCallback((value) => setFloor(value ? value.toString() : ''), [])
+    const setUnitsOnFloorNumber = useCallback((value) => setUnitsOnFloor(value ? value.toString() : ''), [])
+
+    useEffect(() => {
+        setSections(builder.getSectionOptions())
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [builder])
+
+    useEffect(() => {
+        if (floor && section !== null && unitsOnFloor > 0) {
+            builder.addPreviewSectionFloor({
+                section: Number(section),
+                index: Number(floor),
+                unitType,
+                unitCount: unitsOnFloor,
+            })
+        } else {
+            builder.removePreviewSectionFloor()
+        }
+        refresh()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [floor, section, unitsOnFloor])
+
+    const resetForm = useCallback(() => {
+        setUnitsOnFloor(null)
+        setFloor(null)
+        setSection('')
+    }, [])
+
+    const applyChanges = useCallback(() => {
+        refresh()
+    }, [builder, refresh, resetForm, floor, section])
+
+    return (
+        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
+                    <Typography.Text type={'secondary'}>{UnitTypeAtFloorLabel}</Typography.Text>
+                    <Select value={unitType} onSelect={setUnitType}>
+                        {Object.values(BuildingUnitType)
+                            .filter(unitType => unitType !== BuildingUnitType.Parking)
+                            .map((unitType, key) => (
+                                <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
+                                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                                </Select.Option>
+                            ))
+                        }
+                    </Select>
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
+                    <Typography.Text type={'secondary'}>{SectionLabel}</Typography.Text>
+                    <Select value={section} onSelect={setSection} style={INPUT_STYLE}>
+                        {sections.map((sec, index) => {
+                            return <Option key={sec.id} value={index}>{SectionTitlePrefix} {sec.label}</Option>
+                        })}
+                    </Select>
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
+                    <Typography.Text type={'secondary'}>{FloorLabel}</Typography.Text>
+                    <InputNumber value={floor} onChange={setFloorNumber} type={'number'} style={INPUT_STYLE} />
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Space direction={'vertical'} size={BUTTON_SPACE_SIZE}>
+                    <Space direction={'vertical'} size={8}>
+                        <Typography.Text type={'secondary'}>{UnitsOnFloorLabel}</Typography.Text>
+                        <InputNumber
+                            value={unitsOnFloor}
+                            onChange={setUnitsOnFloorNumber}
+                            style={INPUT_STYLE}
+                            type={'number'}
+                            min={1}
+                        />
+                    </Space>
+                    <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
+                        <Col span={24}>
+                            <Button
+                                secondary
+                                onClick={applyChanges}
+                                type='sberDefaultGradient'
+                                disabled={!(floor && section)}
+                            > {SaveLabel} </Button>
+                        </Col>
+                    </Row>
+                </Space>
+            </Col>
+        </Row>
+    )
+}
+
