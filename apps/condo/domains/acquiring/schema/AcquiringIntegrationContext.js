@@ -16,6 +16,8 @@ const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquirin
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { isEmpty, isUndefined, isNull } = require('lodash')
 const { RECIPIENT_FIELD } = require('@condo/domains/common/schema/fields.js')
+const { RECIPIENT_VALIDATE_HOOK } = require('@condo/domains/common/schema/json.validators')
+
 
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
@@ -80,6 +82,9 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             ...RECIPIENT_FIELD,
             schemaDoc: 'Requisites from contract. Are used for invoicing in case of transit accounts or missing requisites',
             isRequired: false,
+            hooks: {
+                validateInput: RECIPIENT_VALIDATE_HOOK,
+            },
         },
 
         implicitFeeDistributionSchema: {
