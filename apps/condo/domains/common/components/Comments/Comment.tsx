@@ -1,8 +1,8 @@
-import { Comment as AntComment, Popconfirm, Typography } from 'antd'
+import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
 import { TComment } from './index'
 import { useIntl } from '@core/next/intl'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { red, grey } from '@ant-design/colors'
 import { colors, shadows } from '@condo/domains/common/constants/style'
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
@@ -11,7 +11,11 @@ import { css, jsx } from '@emotion/core'
 import { User } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import { Button } from '../Button'
-
+import get from 'lodash/get'
+import { fontSize } from 'html2canvas/dist/types/css/property-descriptors/font-size'
+import { ImageIcon } from '../icons/ImageIcon'
+import { VideoIcon } from '../icons/VideoIcon'
+import { DocIcon } from '../icons/DocIcon'
 
 interface ICommentProps {
     comment: TComment,
@@ -69,6 +73,10 @@ const CommentStyle = css`
         }
       }
     }
+  
+  .ant-image {
+    display: none;
+  }
 
     .ant-comment-inner {
       padding: 12px;
@@ -103,6 +111,61 @@ const CommentStyle = css`
       }
     }
 `
+
+const getIconByMimetype = (mimetype) => {
+    if (mimetype.startsWith('image')) {
+        return <ImageIcon />
+    } else if (mimetype.startsWith('video')) {
+        return <VideoIcon />
+    } else {
+        return <DocIcon />
+    }
+}
+
+const CommentFileList = ({ comment }) => {
+    const files = get(comment, ['meta', 'files'])
+    const [openedImageSrc, setOpenedImageSrc] = useState()
+
+    console.log('openedImageSrc', openedImageSrc)
+
+    if (!Array.isArray(files)) {
+        return <></>
+    }
+
+    const otherImages = files.filter(({ id,  file }) => id !== openedImageSrc && file.mimetype.startsWith('image'))
+
+    return (
+        <>
+            {
+                files.map(({ id, file }) => (
+                    <>
+                        <Typography.Paragraph
+                            key={id}
+                            onClick={() => setOpenedImageSrc(file.publicUrl)}
+                            style={{ display: 'flex' }}
+                        >
+                            {getIconByMimetype(get(file, 'mimetype'))}
+                            <Typography.Text>
+                                {file.originalFilename}
+                            </Typography.Text>
+                        </Typography.Paragraph>
+                    </>
+                ))
+            }
+            {
+                openedImageSrc && (
+                    <Image
+                        preview={{
+                            visible: true,
+                            src: openedImageSrc,
+                            onVisibleChange: (visible, prevVisible) => setOpenedImageSrc(null),
+                        }}
+                    />
+                )
+            }
+        </>
+    )
+}
 
 const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 
@@ -170,9 +233,12 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     return (
         <AntComment
             content={
-                <Typography.Text>
-                    {comment.content}
-                </Typography.Text>
+                <>
+                    <Typography.Text>
+                        {comment.content}
+                    </Typography.Text>
+                    <CommentFileList comment={comment} />
+                </>
             }
             author={
                 <Typography.Text type={'secondary'}>

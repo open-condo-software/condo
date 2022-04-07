@@ -14,14 +14,21 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useMultipleFileUploadHook } from '../MultipleFileUpload'
 import { TicketCommentFile, TicketFile } from '../../../ticket/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
+import { ClipIcon } from '../icons/ClipIcon'
 
 const Holder = styled.div`
-  //position: relative;
-  //button.ant-btn {
-  //  position: absolute;
-  //  right: 7px;
-  //  bottom: 8px;
-  //}
+  .wrapper {
+    position: relative;
+
+    button.ant-btn {
+      position: absolute;
+      right: 8px;
+      top: 2px;
+      padding: 0;
+    }
+  }
+
+  
   .ant-form-item-explain {
     display: none;
   }
@@ -45,7 +52,7 @@ const CommentHelper = styled(Col)`
 `
 
 interface ICommentFormProps {
-    action: (formValues) => Promise<any>
+    action: (formValues, syncModifiedFiles) => Promise<any>
     fieldName?: string
     initialValue?: string
     editableComment
@@ -110,7 +117,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
             initialFileList={editableComment?.meta?.files}
             UploadButton={() => (
                 <Button type={'text'}>
-                    <PaperClipOutlined />
+                    <ClipIcon />
                 </Button>
             )}
         />
@@ -146,20 +153,22 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                                     </Row>
                                 ) : null
                             }
-                            <Form.Item
-                                name={fieldName}
-                                rules={validations.comment}
-                            >
-                                <InputWithCounter
-                                    maxLength={MAX_COMMENT_LENGTH}
-                                    placeholder={PlaceholderMessage}
-                                    className="white"
-                                    autoSize={{ minRows: 1, maxRows: 6 }}
-                                    onKeyDown={handleKeyDown}
-                                    onKeyUp={(event) => {handleKeyUp(event, form)}}
-                                />
-                            </Form.Item>
-                            <Mem />
+                            <div className={'wrapper'}>
+                                <Form.Item
+                                    name={fieldName}
+                                    rules={validations.comment}
+                                >
+                                    <InputWithCounter
+                                        maxLength={MAX_COMMENT_LENGTH}
+                                        placeholder={PlaceholderMessage}
+                                        className="white"
+                                        autoSize={{ minRows: 1, maxRows: 6 }}
+                                        onKeyDown={handleKeyDown}
+                                        onKeyUp={(event) => {handleKeyUp(event, form)}}
+                                    />
+                                </Form.Item>
+                                <Mem />
+                            </div>
                         </Holder>
                     )
                 }}
