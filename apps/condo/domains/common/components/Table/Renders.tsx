@@ -174,12 +174,15 @@ export const renderMeterReading = (values: string[], resourceId: string, measure
     // ELECTRICITY multi-tariff meter
     if (resourceId === ELECTRICITY_METER_RESOURCE_ID) {
         const formatMeter = (value, index) => <>{`T${index + 1} - ${getIntegerPartOfReading(value)} ${measure}`}<br /></>
+        const nonEmptyValues = values.filter(Boolean)
+        if (nonEmptyValues.length) return nonEmptyValues.map(formatMeter)
 
-        return values.filter(Boolean).map(formatMeter)
+        return <EmptyTableCell/>
     }
 
     // other resource 1-tariff meter
-    return `${getIntegerPartOfReading(values[0])} ${measure}`
+    if (get(values, '0')) return `${getIntegerPartOfReading(values[0])} ${measure}`
+    return <EmptyTableCell/>
 }
 
 const dimText = (text: string, index: number) => (
