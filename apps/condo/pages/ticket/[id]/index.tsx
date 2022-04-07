@@ -495,7 +495,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const createCommentAction = TicketComment.useCreate({
         ticket: id,
         user: auth.user && auth.user.id,
-    }, () => { refetchComments() })
+    }, () => Promise.resolve())
 
     const canShareTickets = get(employee, 'role.canShareTickets')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
