@@ -3,13 +3,15 @@ import { Typography } from 'antd'
 import ReactMarkdown from 'react-markdown'
 
 import { useIntl } from '@core/next/intl'
+import { useAuth } from '@core/next/auth'
 
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageContent, PageHeader, PageWrapper } from '@miniapp/domains/common/components/BaseLayout'
 
 const IndexPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.index.PageTitle' })
-    const WeAreStillDevelopingThisPageMsg = intl.formatMessage({ id: 'WeAreStillDevelopingThisPage' })
+
+    const auth = useAuth()
 
     return <>
         <Head>
@@ -19,7 +21,7 @@ const IndexPage = () => {
             <PageHeader title={PageTitleMsg}/>
             <PageContent>
                 <Typography.Paragraph>
-                    <ReactMarkdown source={WeAreStillDevelopingThisPageMsg}/>
+                    <ReactMarkdown source={JSON.stringify(auth)}/>
                 </Typography.Paragraph>
             </PageContent>
         </PageWrapper>
