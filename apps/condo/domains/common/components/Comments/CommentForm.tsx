@@ -64,7 +64,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
 
     const { organization } = useOrganization()
 
-    const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
+    const { UploadComponent, syncModifiedFiles, resetModifiedFiles } = useMultipleFileUploadHook({
         Model: TicketCommentFile,
         relationField: 'ticketComment',
         initialFileList: editableComment?.meta?.files,
@@ -80,9 +80,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
 
     const handleKeyUp = async (event, form) => {
         if (event.keyCode === 13 && !event.shiftKey) {
-            if (editableComment) {
-                await syncModifiedFiles(editableComment.id)
-            }
             form.submit()
             setCommentLength(0)
         }
@@ -99,6 +96,15 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
         comment: [requiredValidator, trimValidator],
     }
 
+    const [sending, setSending] = useState(false)
+
+    const actionWithSyncComments = useCallback(async (values) => {
+        setSending(true)
+        await action(values, syncModifiedFiles)
+        setSending(false)
+        resetModifiedFiles()
+    }, [action, resetModifiedFiles, syncModifiedFiles])
+
     const Mem = useCallback(() => (
         <UploadComponent
             initialFileList={editableComment?.meta?.files}
@@ -108,7 +114,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                 </Button>
             )}
         />
-    ), [UploadComponent, editableComment])
+    ), [UploadComponent, editableComment, sending])
 
     return (
         <>
@@ -116,10 +122,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                 initialValues={{
                     [fieldName]: initialValue,
                 }}
-                action={action}
+                action={actionWithSyncComments}
                 resetOnComplete={true}
             >
-                {({ handleSave, isLoading, form: formInstance }) => {
+                {({ handleSave: handleFormSave, isLoading, form: formInstance }) => {
                     if (!form) {
                         setForm(formInstance)
                     }

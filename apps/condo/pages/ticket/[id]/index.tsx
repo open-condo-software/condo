@@ -495,7 +495,6 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const createCommentAction = TicketComment.useCreate({
         ticket: id,
         user: auth.user && auth.user.id,
-        type: ORGANIZATION_COMMENT_TYPE,
     }, () => { refetchComments() })
 
     const canShareTickets = get(employee, 'role.canShareTickets')
@@ -702,6 +701,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     // @ts-ignore
                                     createAction={createCommentAction}
                                     updateAction={updateComment}
+                                    refetchComments={refetchComments}
                                     comments={comments}
                                     canCreateComments={get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments'])}
                                     actionsFor={comment => {
