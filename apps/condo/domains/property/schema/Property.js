@@ -263,11 +263,11 @@ const Property = new GQLListSchema('Property', {
         },
 
         isApproved: {
-            schemaDoc: 'Whether or not this organization can manage this property. Usually set by support',
+            schemaDoc: 'Whether or not this organization can manage this property. Usually set by support. Defaults to False. Field is dropped to false if address is updated',
             type: Checkbox,
             access: {
-                create: access.canManageProperties,
-                update: access.canManageProperties,
+                create: access.canManageIsApprovedField,
+                update: access.canManageIsApprovedField,
             },
         },
 
@@ -319,7 +319,11 @@ const Property = new GQLListSchema('Property', {
             }
         },
         resolveInput: async ({ operation, resolvedData }) => {
-            const
+            // If address is being updated -> drop isApproved!
+            if (operation === 'update' && 'address' in resolvedData) {
+                resolvedData.isApproved = false
+            }
+            return resolvedData
         },
         afterChange: async ({ operation, existingItem, updatedItem }) => {
             const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
