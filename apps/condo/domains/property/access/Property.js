@@ -40,7 +40,7 @@ async function canReadProperties ({ authentication: { item: user } }) {
 async function canManageProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
@@ -58,6 +58,17 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
     return false
 }
 
+async function canManageIsApprovedField ({ authentication: { item: user }, originalInput, operation, itemId }) {
+    if (user.isAdmin || user.isSupport) return true
+
+    // If user is not support, then he only can drop isApproved field
+    if ('isApproved' in originalInput) {
+        return get(originalInput, 'isApproved') === false
+    }
+
+    return true
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -65,4 +76,5 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
 module.exports = {
     canReadProperties,
     canManageProperties,
+    canManageIsApprovedField
 }
