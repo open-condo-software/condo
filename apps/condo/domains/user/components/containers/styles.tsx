@@ -47,10 +47,6 @@ export const ActionContainer = styled.div`
   padding: 16px 20px 0;
 `
 
-export const PosterWrapper = styled.div`
-  height: 100vh;
-`
-
 interface IContentProps {
     isSmall: boolean
 }
