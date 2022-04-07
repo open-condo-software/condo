@@ -90,10 +90,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
         data: attrs,
     })
-    if (raw) return { data, errors }
-
-
-    // expect(errors).toEqual(undefined)
+    throwIfError(data, errors)
     return [data.user, attrs]
 }
 
