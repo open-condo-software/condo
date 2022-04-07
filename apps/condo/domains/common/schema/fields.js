@@ -1,3 +1,4 @@
+const Ajv = require('ajv')
 const { Relationship, Select, Integer, Text } = require('@keystonejs/fields')
 const { Decimal } = require('@keystonejs/fields')
 const { Json, SignedDecimal } = require('@core/keystone/fields')
@@ -6,9 +7,7 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES, ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
-
-const { render } = require('@condo/domains/common/schema/json.utils.js')
-
+const { render, getValidator } = require('@condo/domains/common/schema/json.utils.js')
 const { ISO_CODES } = require('../constants/currencies')
 const { UNIT_TYPES, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
@@ -184,10 +183,19 @@ const RECIPIENT_FIELDS_DEFINITION = {
     bankAccount: 'String!',
 }
 
-const RECIPIENT_QUERY_LIST = Object.keys(RECIPIENT_FIELDS_DEFINITION).join(' ')
-
 const RECIPIENT_FIELD_NAME = 'RecipientField'
 const RECIPIENT_INPUT_NAME = 'RecipientFieldInput'
+
+const ajv = new Ajv()
+
+const RecipientSchema = {
+    type: 'object',
+    properties: Object.assign({},
+        ...Object.keys(RECIPIENT_FIELDS_DEFINITION).map((field) => ({ [field]: { type: 'string' } })),
+    ),
+    required: Object.keys(RECIPIENT_FIELDS_DEFINITION).filter(fieldName => RECIPIENT_FIELDS_DEFINITION[fieldName].slice(-1) === '!'),
+    additionalProperties: false,
+}
 
 const RECIPIENT_GRAPHQL_TYPES = `
     type ${RECIPIENT_FIELD_NAME} {
@@ -203,12 +211,14 @@ const RECIPIENT_FIELD = {
     schemaDoc: 'Recipient. Should contain all meta information to identify the organization',
     type: Json,
     isRequired: true,
-    graphQLAdminFragment: `{ ${RECIPIENT_QUERY_LIST} }`,
+    graphQLAdminFragment: `{ ${Object.keys(RECIPIENT_FIELDS_DEFINITION).join(' ')} }`,
     extendGraphQLTypes: [RECIPIENT_GRAPHQL_TYPES],
     graphQLReturnType: RECIPIENT_FIELD_NAME,
     graphQLInputType: RECIPIENT_INPUT_NAME,
+    hooks: {
+        validateInput: getValidator(ajv.compile(RecipientSchema))
+    },
 }
-
 
 module.exports = {
     DV_FIELD,
@@ -228,5 +238,4 @@ module.exports = {
     UNIT_TYPE_FIELD,
     RECIPIENT_FIELD,
     RECIPIENT_FIELDS_DEFINITION,
-    RECIPIENT_QUERY_LIST,
 }
