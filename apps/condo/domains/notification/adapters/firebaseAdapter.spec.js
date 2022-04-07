@@ -1,4 +1,5 @@
 const dayjs = require('dayjs')
+const faker = require('faker')
 
 const conf = require('@core/config')
 
@@ -11,14 +12,12 @@ const {
 const {
     FirebaseAdapter,
     FAKE_SUCCESS_MESSAGE_PREFIX,
-    EMPTY_CONFIG_ERROR,
     EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
 } = require('./firebaseAdapter')
 
 const adapter = new FirebaseAdapter()
 const FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP = new RegExp(`^${FAKE_SUCCESS_MESSAGE_PREFIX}`)
 const FIREBASE_TEST_PUSHTOKEN = conf[FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV] || null
-const BROKEN_CONFIG = '{ someField: xxx,'
 
 describe('Firebase adapter utils', () => {
     it('should succeed sending push notification to fake success push token ', async () => {
@@ -167,5 +166,17 @@ describe('Firebase adapter utils', () => {
             })
         ).rejects.toThrow(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
     })
+
+    it('PUSH notification data fields are all of string type (converted & normalized)', async () => {
+        const data = {
+            ticketId: faker.datatype.uuid(),
+            ticketNumber: faker.datatype.number(8), // number type
+            userId: faker.datatype.uuid(),
+        }
+        const preparedData = FirebaseAdapter.prepareData(data)
+
+        expect(typeof preparedData.ticketNumber).toEqual('string')
+    })
+
 
 })

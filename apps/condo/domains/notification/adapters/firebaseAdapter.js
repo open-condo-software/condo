@@ -2,6 +2,7 @@ const admin = require('firebase-admin')
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
 const get = require('lodash/get')
+const isString = require('lodash/isString')
 const faker = require('faker')
 
 const conf = require('@core/config')
@@ -119,6 +120,32 @@ class FirebaseAdapter {
     }
 
     /**
+     * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
+     * @param data
+     */
+    static prepareData (data = {}) {
+        const result = {}
+        const invalidFields = []
+
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                result[key] = data[key]
+
+                if (!isString(data[key])) {
+                    result[key] = data[key].toString()
+                    invalidFields.push([key, data[key]])
+                }
+            }
+        }
+
+        if (!isEmpty(invalidFields)) {
+            logger.error(new Error('Push notification data fields should be strings.' + JSON.stringify(invalidFields)))
+        }
+
+        return result
+    }
+
+    /**
      * Prepares notification for either/both sending to FireBase and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
      * @param notificationRaw
@@ -137,7 +164,7 @@ class FirebaseAdapter {
 
             target.push({
                 token: pushToken,
-                data,
+                data: this.prepareData(data),
                 notification,
             })
         })
