@@ -40,6 +40,11 @@ const reducer = (state, action) => {
                 ...state,
                 added: [...state.added, file],
             }
+        case 'reset':
+            return {
+                added: [],
+                deleted: [],
+            }
         default:
             throw new Error(`unknown action ${type}`)
     }
@@ -76,6 +81,7 @@ interface IMultipleFileUploadHookArgs {
 interface IMultipleFileUploadHookResult {
     UploadComponent: React.FC<IUploadComponentProps>,
     syncModifiedFiles: (id: string) => Promise<void>
+    resetModifiedFiles
 }
 
 export const useMultipleFileUploadHook = ({
@@ -106,6 +112,10 @@ export const useMultipleFileUploadHook = ({
         }
     }
 
+    const resetModifiedFiles = async () => {
+        dispatch({ type: 'reset' })
+    }
+
     const UploadComponent: React.FC<IUploadComponentProps> = useMemo(() => {
         const UploadWrapper = (props) => (
             <MultipleFileUpload
@@ -122,6 +132,7 @@ export const useMultipleFileUploadHook = ({
     return {
         UploadComponent,
         syncModifiedFiles,
+        resetModifiedFiles,
     }
 }
 

@@ -86,6 +86,7 @@ interface ICommentsListProps {
     // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
     actionsFor: (comment: TComment) => ActionsForComment,
     canCreateComments: boolean,
+    refetchComments
 }
 
 const { TabPane } = Tabs
@@ -219,6 +220,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     comments,
     createAction,
     updateAction,
+    refetchComments,
     canCreateComments,
     actionsFor,
 }) => {
@@ -236,15 +238,19 @@ const Comments: React.FC<ICommentsListProps> = ({
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const [editableComment, setEditableComment] = useState<TComment>()
 
-    const action = useCallback(async (values) => {
+    const action = useCallback(async (values, syncModifiedFiles) => {
         if (editableComment) {
             updateAction(values, editableComment)
+            await syncModifiedFiles(editableComment.id)
             setEditableComment(null)
         } else {
-            createAction({ ...values, type: commentType })
+            const comment = await createAction({ ...values, type: commentType })
+            await syncModifiedFiles(comment.id)
         }
+
+        await refetchComments()
     },
-    [commentType, createAction, editableComment, updateAction])
+    [commentType, createAction, editableComment, refetchComments, updateAction])
 
     useEffect(() => {
         setEditableComment(null)
