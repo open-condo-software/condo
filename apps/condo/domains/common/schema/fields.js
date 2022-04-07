@@ -7,8 +7,7 @@ const { hasValidJsonStructure } = require('@condo/domains/common/utils/validatio
 const { JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES, ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
-const { getValidator, render } = require('@condo/domains/common/schema/json.utils.js')
-const Ajv = require('ajv')
+const { render } = require('@condo/domains/common/schema/json.utils.js')
 
 const { ISO_CODES } = require('../constants/currencies')
 const { UNIT_TYPES, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -185,17 +184,6 @@ const RECIPIENT_FIELDS_DEFINITION = {
     bankAccount: 'String!',
 }
 
-const RecipientSchema = {
-    type: 'object',
-    properties: Object.assign({},
-        ...Object.keys(RECIPIENT_FIELDS_DEFINITION).map((field) => ({ [field]: { type: 'string' } })),
-    ),
-    required: Object.keys(RECIPIENT_FIELDS_DEFINITION).filter(fieldName => RECIPIENT_FIELDS_DEFINITION[fieldName].slice(-1) === '!'),
-    additionalProperties: false,
-}
-
-const ajv = new Ajv()
-const RecipientValidator = ajv.compile(RecipientSchema)
 const RECIPIENT_QUERY_LIST = Object.keys(RECIPIENT_FIELDS_DEFINITION).join(' ')
 
 const RECIPIENT_FIELD_NAME = 'RecipientField'
@@ -219,9 +207,6 @@ const RECIPIENT_FIELD = {
     extendGraphQLTypes: [RECIPIENT_GRAPHQL_TYPES],
     graphQLReturnType: RECIPIENT_FIELD_NAME,
     graphQLInputType: RECIPIENT_INPUT_NAME,
-    hooks: {
-        validateInput: getValidator(RecipientValidator),
-    },
 }
 
 
