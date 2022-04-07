@@ -51,6 +51,32 @@ class FirebaseAdapter {
     app = null
     projectId = null
 
+    /**
+     * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
+     * @param data
+     */
+    static prepareData (data = {}) {
+        const result = {}
+        const invalidFields = []
+
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                result[key] = data[key]
+
+                if (!isString(data[key])) {
+                    result[key] = data[key].toString()
+                    invalidFields.push([key, data[key]])
+                }
+            }
+        }
+
+        if (!isEmpty(invalidFields)) {
+            logger.error(new Error('Push notification data fields should be strings.' + JSON.stringify(invalidFields)))
+        }
+
+        return result
+    }
+
     constructor (config = FIREBASE_CONFIG, throwOnError = false) {
         try {
             if (isEmpty(config)) throw new Error(EMPTY_CONFIG_ERROR)
@@ -120,32 +146,6 @@ class FirebaseAdapter {
     }
 
     /**
-     * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
-     * @param data
-     */
-    static prepareData (data = {}) {
-        const result = {}
-        const invalidFields = []
-
-        for (const key in data) {
-            if (data.hasOwnProperty(key)) {
-                result[key] = data[key]
-
-                if (!isString(data[key])) {
-                    result[key] = data[key].toString()
-                    invalidFields.push([key, data[key]])
-                }
-            }
-        }
-
-        if (!isEmpty(invalidFields)) {
-            logger.error(new Error('Push notification data fields should be strings.' + JSON.stringify(invalidFields)))
-        }
-
-        return result
-    }
-
-    /**
      * Prepares notification for either/both sending to FireBase and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
      * @param notificationRaw
@@ -164,7 +164,7 @@ class FirebaseAdapter {
 
             target.push({
                 token: pushToken,
-                data: this.prepareData(data),
+                data: FirebaseAdapter.prepareData(data),
                 notification,
             })
         })
