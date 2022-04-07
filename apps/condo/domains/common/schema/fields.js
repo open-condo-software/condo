@@ -216,7 +216,7 @@ const RECIPIENT_FIELD = {
     graphQLReturnType: RECIPIENT_FIELD_NAME,
     graphQLInputType: RECIPIENT_INPUT_NAME,
     hooks: {
-        validateInput: getValidator(ajv.compile(RecipientSchema))
+        validateInput: getValidator(ajv.compile(RecipientSchema)),
     },
 }
 
