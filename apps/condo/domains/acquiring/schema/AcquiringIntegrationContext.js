@@ -5,7 +5,7 @@ const { Text, Relationship } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { SENDER_FIELD, DV_FIELD, RECIPIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
 const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
@@ -15,8 +15,6 @@ const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/dom
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { isEmpty, isUndefined, isNull } = require('lodash')
-const { RECIPIENT_FIELD } = require('@condo/domains/common/schema/fields.js')
-const { RECIPIENT_VALIDATE_HOOK } = require('@condo/domains/common/schema/json.validators')
 
 
 
@@ -82,9 +80,6 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             ...RECIPIENT_FIELD,
             schemaDoc: 'Requisites from contract. Are used for invoicing in case of transit accounts or missing requisites',
             isRequired: false,
-            hooks: {
-                validateInput: RECIPIENT_VALIDATE_HOOK,
-            },
         },
 
         implicitFeeDistributionSchema: {

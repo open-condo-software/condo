@@ -15,8 +15,7 @@ const AcquiringIntegration = generateGqlQueries('AcquiringIntegration', ACQUIRIN
 const ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ user { id } integration { id } ${COMMON_FIELDS} }`
 const AcquiringIntegrationAccessRight = generateGqlQueries('AcquiringIntegrationAccessRight', ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
-const { RECIPIENT_QUERY_LIST } = require('@condo/domains/common/schema/fields')
-const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ integration { id name explicitFeeDistributionSchema { recipient percent } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { recipient percent } email reason recipient { ${RECIPIENT_QUERY_LIST} } }`
+const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ integration { id name explicitFeeDistributionSchema { recipient percent } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { recipient percent } }`
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
 const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } ${COMMON_FIELDS} }`
@@ -51,5 +50,5 @@ module.exports = {
     REGISTER_MULTI_PAYMENT_MUTATION,
     EXPORT_PAYMENTS_TO_EXCEL,
     PaymentsFilterTemplate,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }
