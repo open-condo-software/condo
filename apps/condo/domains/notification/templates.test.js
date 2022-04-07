@@ -18,6 +18,7 @@ const {
     DEFAULT_TEMPLATE_FILE_NAME,
     PUSH_TRANSPORT,
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+    RESET_PASSWORD_MESSAGE_TYPE,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
 } = require('@condo/domains/notification/constants/constants')
@@ -65,6 +66,7 @@ function isTemplateNeeded (messageType, transport) {
 }
 
 const ORGANIZATION_NAME_WITH_QUOTES = 'ООО "УК "РЕЗИДЕНЦИЯ У МОРЯ"'
+const TOKEN_URL_PART = 'auth/change-password?token='
 
 describe('Templates', () => {
     it('All messages types have enough templates', () => {
@@ -220,7 +222,7 @@ describe('Templates', () => {
         expect(preparedMessage.text.trim()).toEqual(`Название: ${escape(client.organization.name)},\nИНН: ${client.organization.meta.inn},`)
     })
 
-    it('Rendered SMS message does not contain forbidden symbols (value is normalized)', async () => {
+    it('Employee inviting rendered SMS message does not contain forbidden symbols (value is normalized)', async () => {
         const admin = await makeLoggedInAdminClient()
         const [message] = await createTestMessage(admin, {
             type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -234,6 +236,24 @@ describe('Templates', () => {
         const preparedMessage = await smsTransport.prepareMessageToSend(message)
 
         expect(preparedMessage.message).not.toMatch(SMS_FORBIDDEN_SYMBOLS_REGEXP)
+    })
+
+    it('Password restoration rendered SMS message is not broken and does not contain forbidden symbols (value is normalized)', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const token = faker.datatype.uuid()
+        const [message] = await createTestMessage(admin, {
+            type: RESET_PASSWORD_MESSAGE_TYPE,
+            lang: RU_LOCALE,
+            phone: '+79999999999',
+            meta: {
+                dv: 1,
+                token,
+            },
+        })
+        const preparedMessage = await smsTransport.prepareMessageToSend(message)
+
+        expect(preparedMessage.message).not.toMatch(SMS_FORBIDDEN_SYMBOLS_REGEXP)
+        expect(preparedMessage.message).toMatch(`${TOKEN_URL_PART}${token}`)
     })
 
 })

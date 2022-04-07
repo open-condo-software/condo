@@ -48,7 +48,7 @@ const MESSAGE_TYPES_TRANSPORTS = {
     [SHARE_TICKET_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
 }
 
-const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|?«»]+/gim
+const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
 //todo: maybe we should to gather all data about messages types in the single object
 const MESSAGE_META = {
