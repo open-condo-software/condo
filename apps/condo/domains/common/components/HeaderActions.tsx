@@ -1,16 +1,13 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import { MessageDescriptor } from '@formatjs/intl/src/types'
 import Router, { useRouter } from 'next/router'
 import get from 'lodash/get'
-import { Row, Col, Space, Typography, Tabs } from 'antd'
-import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
+import { Space, Typography, Tabs } from 'antd'
 import { Button } from './Button'
 import styled from '@emotion/styled'
-import { SberIconWithoutLabel } from './icons/SberIcon'
-import { useLayoutContext } from './LayoutContext'
 
 interface IReturnBackHeaderActionProps {
     descriptor: MessageDescriptor
@@ -20,12 +17,6 @@ interface IReturnBackHeaderActionProps {
 
 interface ITitleHeaderActionProps {
     descriptor: MessageDescriptor
-}
-
-interface IRightButtonHeaderActionsProps {
-    sbbolButtonDescriptor?: MessageDescriptor
-    descriptor: MessageDescriptor
-    path: string
 }
 
 interface ITabsActionsProps {
@@ -100,51 +91,13 @@ export const TitleHeaderAction: React.FC<ITitleHeaderActionProps> = (props) => {
     const { descriptor } = props
     const intl = useIntl()
     const TitleMessage = intl.formatMessage(descriptor)
+
     return (
         <Space>
             <Typography.Text style={{ fontSize: '12px' }}>
                 {TitleMessage}
             </Typography.Text>
         </Space>
-    )
-}
-
-export const ButtonHeaderActions: React.FC<IRightButtonHeaderActionsProps> = (props) => {
-    const { descriptor, path } = props
-    const sbbolButtonDescriptor = props.sbbolButtonDescriptor || { id: 'LoginBySBBOL' }
-    const intl = useIntl()
-    const ButtonMessage = intl.formatMessage(descriptor)
-    const SbbolButtonMessage = intl.formatMessage(sbbolButtonDescriptor)
-    const { isMobile } = useContext(AuthLayoutContext)
-    const { isSmall } = useLayoutContext()
-
-    return (
-        <Row justify={'space-between'} gutter={[5, 10]}>
-            <Col>
-                <Button
-                    key='submit'
-                    type='sberAction'
-                    icon={<SberIconWithoutLabel/>}
-                    href={'/api/sbbol/auth'}
-                    block={isSmall}
-                >
-                    {SbbolButtonMessage}
-                </Button>
-            </Col>
-            <Col>
-                <Button
-                    key='submit'
-                    onClick={() => Router.push(path)}
-                    type='sberPrimary'
-                    secondary={true}
-                    size={isMobile ? 'middle' : 'large'}
-                    block
-                >
-                    {ButtonMessage}
-                </Button>
-            </Col>
-        </Row>
-
     )
 }
 

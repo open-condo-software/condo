@@ -33,7 +33,7 @@ export const SignInForm = (): React.ReactElement => {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
-    const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
+    const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
 
     const LOGIN_PHONE_LABEL = <label style={{ alignSelf: 'end' }}>{PhoneMsg}</label>
     const PASSWORD_LABEL = <label style={{ alignSelf: 'end' }}>{PasswordMsg}</label>
@@ -81,6 +81,7 @@ export const SignInForm = (): React.ReactElement => {
     }, [intl, form])
 
     const initialValues = { password: '', phone: '' }
+
     return (
         <Form
             form={form}
@@ -157,12 +158,13 @@ export const SignInForm = (): React.ReactElement => {
                             <Form.Item>
                                 <Button
                                     key='submit'
-                                    type='sberAction'
+                                    type={'sberAction'}
+                                    secondary
                                     icon={<SberIconWithoutLabel/>}
                                     href={'/api/sbbol/auth'}
                                     block
                                 >
-                                    {SberIdRegisterMsg}
+                                    {LoginBySBBOLMsg}
                                 </Button>
                             </Form.Item>
                         </Col>
