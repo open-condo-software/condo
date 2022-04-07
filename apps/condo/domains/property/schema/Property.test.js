@@ -11,6 +11,8 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const faker = require('faker')
+const { makeClientWithSupportUser } = require(
+    '@condo/domains/user/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 
 
@@ -184,6 +186,47 @@ describe('Property', () => {
             expect(errors).toHaveLength(1)
             expect(errors[0].data.messages[0]).toContain(`${UNIQUE_ALREADY_EXISTS_ERROR}address]`)
         })
+    })
+
+    test('user: can not create approved property', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        await catchErrorFrom(async () => {
+            await createTestProperty(client, client.organization, { isApproved: true })
+        }, ({ errors }) => {
+            expect(errors).toHaveLength(1)
+            expect(errors[0].message).toContain('access to this resource')
+        })
+    })
+
+    test('user: can not set isApproved to true on property', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        await createTestProperty(client, client.organization)
+        await catchErrorFrom(async () => {
+            await createTestProperty(client, client.organization, { isApproved: true })
+        }, ({ errors }) => {
+            expect(errors).toHaveLength(1)
+            expect(errors[0].message).toContain('access to this resource')
+        })
+    })
+
+    test('user: can set isApproved to false on property', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        await createTestProperty(client, client.organization)
+        const [updatedProperty] = await createTestProperty(client, client.organization, { isApproved: false })
+        expect(updatedProperty.isApproved).toEqual(false)
+    })
+
+    test('user: when changing address - isApproved drops to false', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        const support = await makeClientWithSupportUser()
+        const [property] = await createTestProperty(client, client.organization)
+        const [approvedProperty] = await updateTestProperty(support, property.id,  { isApproved: true })
+        const [updatedProperty] = await updateTestProperty(client, property.id, { address: faker.address.streetAddress(true) })
+
+        expect(approvedProperty.id).toEqual(updatedProperty.id)
+        expect(approvedProperty.address).not.toEqual(updatedProperty.address)
+        expect(approvedProperty.isApproved).toEqual(true)
+        expect(updatedProperty.isApproved).toEqual(false)
     })
 
     test('user: can create Property when same address exist in other organization', async () => {
