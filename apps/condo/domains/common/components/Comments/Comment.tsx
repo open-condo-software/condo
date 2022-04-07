@@ -89,6 +89,7 @@ const CommentStyle = css`
         .ant-comment-content-author {
           display: block;
           margin-top: 0.6em;
+          margin-bottom: 8px;
           font-size: 12px;
           
           .ant-comment-content-author-name {
@@ -96,10 +97,28 @@ const CommentStyle = css`
             color: ${colors.textSecondary};
           }
 
-          .ant-comment-content-author-time > div > span {
-            color: ${colors.textSecondary};
+          .ant-comment-content-author-time {
+            padding: 0;
+            
+            & > div > span {
+              color: ${colors.textSecondary};
+            }
           }
         }
+        
+        .ant-comment-content-detail > div {
+          margin-top: 10px;
+          
+          & > .ant-typography {
+            margin-bottom: 4px;
+            cursor: pointer;
+
+            & > .ant-typography {
+              margin-left: 8px;
+            }
+          }
+        }
+        
         .ant-comment-actions {
           position: absolute;
           right: -5px;
@@ -135,22 +154,31 @@ const CommentFileList = ({ comment }) => {
     const otherImages = files.filter(({ id,  file }) => id !== openedImageSrc && file.mimetype.startsWith('image'))
 
     return (
-        <>
+        <div>
             {
-                files.map(({ id, file }) => (
-                    <>
-                        <Typography.Paragraph
-                            key={id}
-                            onClick={() => setOpenedImageSrc(file.publicUrl)}
-                            style={{ display: 'flex' }}
-                        >
-                            {getIconByMimetype(get(file, 'mimetype'))}
-                            <Typography.Text>
-                                {file.originalFilename}
-                            </Typography.Text>
-                        </Typography.Paragraph>
-                    </>
-                ))
+                files.map(({ id, file }) => {
+                    const fileNameArr = file.originalFilename.split('.')
+                    const fileExt = fileNameArr.pop()
+                    const fileName = fileNameArr.join('.')
+
+                    return (
+                        <>
+                            <Typography.Paragraph
+                                key={id}
+                                onClick={() => setOpenedImageSrc(file.publicUrl)}
+                                style={{ display: 'flex' }}
+                            >
+                                {getIconByMimetype(get(file, 'mimetype'))}
+                                <Typography.Text>
+                                    {fileName}
+                                    <Typography.Text type={'secondary'}>
+                                        .{fileExt}
+                                    </Typography.Text>
+                                </Typography.Text>
+                            </Typography.Paragraph>
+                        </>
+                    )
+                })
             }
             {
                 openedImageSrc && (
@@ -163,7 +191,7 @@ const CommentFileList = ({ comment }) => {
                     />
                 )
             }
-        </>
+        </div>
     )
 }
 
