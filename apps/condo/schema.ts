@@ -23492,6 +23492,8 @@ export type Property = {
   ticketsClosed?: Maybe<Scalars['String']>;
   /**  Counter for not closed tickets  */
   ticketsInWork?: Maybe<Scalars['String']>;
+  /**  Whether or not this organization can manage this property. Usually set by support. Defaults to False. Field is dropped to false if address is updated  */
+  isApproved?: Maybe<Scalars['Boolean']>;
   /**  Year of the property was built  */
   yearOfConstruction?: Maybe<Scalars['String']>;
   /**  Property area in square meters  */
@@ -23517,6 +23519,7 @@ export type PropertyCreateInput = {
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -23551,6 +23554,7 @@ export type PropertyHistoryRecord = {
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -23579,6 +23583,7 @@ export type PropertyHistoryRecordCreateInput = {
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -23612,6 +23617,7 @@ export type PropertyHistoryRecordUpdateInput = {
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -23731,6 +23737,8 @@ export type PropertyHistoryRecordWhereInput = {
   ticketsInWork_not?: Maybe<Scalars['JSON']>;
   ticketsInWork_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   ticketsInWork_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  isApproved?: Maybe<Scalars['Boolean']>;
+  isApproved_not?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   yearOfConstruction_not?: Maybe<Scalars['String']>;
   yearOfConstruction_lt?: Maybe<Scalars['String']>;
@@ -23858,6 +23866,7 @@ export type PropertyUpdateInput = {
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -23950,6 +23959,8 @@ export type PropertyWhereInput = {
   uninhabitedUnitsCount_gte?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   uninhabitedUnitsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  isApproved?: Maybe<Scalars['Boolean']>;
+  isApproved_not?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   yearOfConstruction_not?: Maybe<Scalars['String']>;
   yearOfConstruction_lt?: Maybe<Scalars['String']>;
@@ -32442,6 +32453,8 @@ export enum SortPropertiesBy {
   UnitsCountDesc = 'unitsCount_DESC',
   UninhabitedUnitsCountAsc = 'uninhabitedUnitsCount_ASC',
   UninhabitedUnitsCountDesc = 'uninhabitedUnitsCount_DESC',
+  IsApprovedAsc = 'isApproved_ASC',
+  IsApprovedDesc = 'isApproved_DESC',
   YearOfConstructionAsc = 'yearOfConstruction_ASC',
   YearOfConstructionDesc = 'yearOfConstruction_DESC',
   AreaAsc = 'area_ASC',
@@ -32475,6 +32488,8 @@ export enum SortPropertyHistoryRecordsBy {
   UnitsCountDesc = 'unitsCount_DESC',
   UninhabitedUnitsCountAsc = 'uninhabitedUnitsCount_ASC',
   UninhabitedUnitsCountDesc = 'uninhabitedUnitsCount_DESC',
+  IsApprovedAsc = 'isApproved_ASC',
+  IsApprovedDesc = 'isApproved_DESC',
   YearOfConstructionAsc = 'yearOfConstruction_ASC',
   YearOfConstructionDesc = 'yearOfConstruction_DESC',
   AreaAsc = 'area_ASC',
