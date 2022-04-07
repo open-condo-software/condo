@@ -27,6 +27,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 
 const access = require('@condo/domains/property/access/Property')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
+const { Checkbox } = require('@keystonejs/fields')
 
 const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
 const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
@@ -261,6 +262,15 @@ const Property = new GQLListSchema('Property', {
             },
         },
 
+        isApproved: {
+            schemaDoc: 'Whether or not this organization can manage this property. Usually set by support',
+            type: Checkbox,
+            access: {
+                create: access.canManageProperties,
+                update: access.canManageProperties,
+            },
+        },
+
         yearOfConstruction: {
             schemaDoc: 'Year of the property was built',
             type: CalendarDay,
@@ -307,6 +317,9 @@ const Property = new GQLListSchema('Property', {
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown 'dv'`)
             }
+        },
+        resolveInput: async ({ operation, resolvedData }) => {
+            const
         },
         afterChange: async ({ operation, existingItem, updatedItem }) => {
             const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
