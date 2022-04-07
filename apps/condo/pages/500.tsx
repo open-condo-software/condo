@@ -2,8 +2,7 @@ import React from 'react'
 import { Col, Row, Typography } from 'antd'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
-
-import { colors, fontSizes } from '@condo/domains/common/constants/style'
+import { fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
@@ -11,8 +10,9 @@ export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
 `
 
 const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
+const Src500 = { poster: '/500Poster.png', placeholder: '/500PosterPlaceholder.png' }
 
-export default function Custom500 () {
+export default function Custom500 (): React.ReactElement {
     const intl = useIntl()
     const PageTitle = intl.formatMessage( { id: 'pages.condo.error.PageTitle' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.Description' })
@@ -35,6 +35,6 @@ export default function Custom500 () {
     )
 }
 
-export const ErrorLayout = (props) => <PosterLayout {...props} layoutBgColor={colors.backgroundLightGrey} />
+export const ErrorLayout = (props): React.ReactElement => <PosterLayout {...props} layoutBgImage={Src500} />
 
 Custom500.container = ErrorLayout

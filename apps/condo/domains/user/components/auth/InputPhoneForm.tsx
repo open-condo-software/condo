@@ -38,7 +38,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const SberIdRegisterMsg = intl.formatMessage({ id: 'SberIdRegister' })
+    const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
     const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
     const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
 
@@ -184,12 +184,13 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                     <Form.Item>
                                         <Button
                                             key='submit'
-                                            type='sberAction'
+                                            type={'sberAction'}
+                                            secondary
                                             icon={<SberIconWithoutLabel/>}
                                             href={'/api/sbbol/auth'}
                                             block
                                         >
-                                            {SberIdRegisterMsg}
+                                            {LoginBySBBOLMsg}
                                         </Button>
                                     </Form.Item>
                                 </Col>

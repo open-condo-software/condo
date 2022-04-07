@@ -1,17 +1,16 @@
 import React from 'react'
 import { Col, Row, Typography } from 'antd'
-
 import { Poster } from '@condo/domains/common/components/Poster'
 import { colors } from '@condo/domains/common/constants/style'
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '@condo/domains/common/constants/requisites'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-
 import { ChildrenWrapper, Footer, Layout, PageContent, PosterWrapper } from './styles'
 import { AuthHeader } from './AuthHeader'
 
 interface IPosterLayoutProps {
     headerAction: React.ReactElement
     layoutBgColor?: string
+    layoutBgImage?: { poster: string, placeholder: string }
 }
 
 const FOOTER_STYLES: React.CSSProperties = {
@@ -24,9 +23,11 @@ const FOOTER_STYLES: React.CSSProperties = {
 
 const ROW_STYLE = { margin: '65px 0 65px', justifyContent: 'center' }
 
-export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor }) => {
+export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor, layoutBgImage }) => {
     const { isSmall } = useLayoutContext()
     const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
+    const BG_POSTER = layoutBgImage ? layoutBgImage.poster : '/authPoster.png'
+    const BG_POSTER_PLACEHOLDER = layoutBgImage ? layoutBgImage.placeholder : '/authPosterPlaceholder.png'
 
     return (
         <Layout style={LAYOUT_STYLE}>
@@ -35,8 +36,8 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                 <Col lg={12} md={24} hidden={isSmall}>
                     <PosterWrapper>
                         <Poster
-                            src={'/authPoster.png'}
-                            placeholderSrc={'/authPosterPlaceholder.png'}
+                            src={BG_POSTER}
+                            placeholderSrc={BG_POSTER_PLACEHOLDER}
                             placeholderColor={colors.black}
                         />
                     </PosterWrapper>

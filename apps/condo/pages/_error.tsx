@@ -1,7 +1,7 @@
 import React from 'react'
 import Custom500, { ErrorLayout } from './500'
 
-export default function ErrorPage () {
+export default function ErrorPage (): React.ReactElement {
     return <Custom500 />
 }
 
@@ -13,6 +13,13 @@ ErrorPage.getInitialProps = ({ res, err }) => {
     if (statusCode >= 500 && statusCode < 600) {
         res.writeHead(302, {
             Location: '/500',
+        })
+        res.end()
+    }
+
+    if (statusCode === 404){
+        res.writeHead(302, {
+            Location: '/404',
         })
         res.end()
     }

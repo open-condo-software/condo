@@ -33,8 +33,7 @@ export const Header = styled.div`
   background: transparent;
   width: 50%;
   z-index: 1;
-  pointer-events: none;
-  padding: 60px 10px 10px 80px;
+  padding: 76px 40px 10px 76px;
 `
 
 export const MobileHeader = styled.div`
@@ -43,6 +42,7 @@ export const MobileHeader = styled.div`
   flex-direction: column;
   width: 100%;
   z-index: 1;
+  padding: 20px 20px 0 20px ;
 `
 
 export const ActionContainer = styled.div`
