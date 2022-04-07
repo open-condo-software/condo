@@ -5,7 +5,6 @@ import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { useIntl } from '@core/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { green } from '@ant-design/colors'
@@ -14,7 +13,6 @@ import { FormattedMessage } from 'react-intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import dayjs from 'dayjs'
 import { getReviewMessageByValue } from '../../utils/clientSchema/Ticket'
-import { RESIDENT } from '@condo/domains/user/constants/common'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { BaseType } from 'antd/lib/typography/Base'
 
@@ -85,8 +83,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const GoodReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.goodReview' })
     const AutoClosedMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoCloseTicket' })
     const AndMessage = intl.formatMessage(( { id: 'And' }))
-
-    const organizationId = get(ticketChange, ['ticket', 'organization', 'id'], null)
 
     const { objs: ticketStatuses } = TicketStatus.useObjects({})
 
@@ -226,7 +222,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
             return (
                 <>
-                    <SafeUserMention createdBy={ticketChange.createdBy} organizationId={organizationId}/>
+                    <SafeUserMention ticketChange={ticketChange}/>
                     &nbsp;
                     <FormattedMessage
                         id={ customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.boolean.change' }
@@ -253,7 +249,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         if (isValueFromNotEmpty && isValueToNotEmpty) {
             return (
                 <>
-                    <SafeUserMention createdBy={ticketChange.createdBy} organizationId={organizationId}/>
+                    <SafeUserMention ticketChange={ticketChange}/>
                     &nbsp;
                     <FormattedMessage
                         id={ customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.change' }
@@ -268,7 +264,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         } else if (isValueToNotEmpty) { // only "to" part
             return (
                 <>
-                    <SafeUserMention createdBy={ticketChange.createdBy} organizationId={organizationId} />
+                    <SafeUserMention ticketChange={ticketChange}/>
                     &nbsp;
                     <FormattedMessage
                         id={ customMessages.add ? customMessages.add : 'pages.condo.ticket.TicketChanges.add' }
@@ -282,7 +278,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         } else if (isValueFromNotEmpty) {
             return (
                 <>
-                    <SafeUserMention createdBy={ticketChange.createdBy} organizationId={organizationId}/>
+                    <SafeUserMention ticketChange={ticketChange}/>
                     &nbsp;
                     <FormattedMessage
                         id={ customMessages.remove ? customMessages.remove : 'pages.condo.ticket.TicketChanges.remove' }
@@ -316,27 +312,15 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         }))
 }
 
-const SafeUserMention = ({ createdBy, organizationId }) => {
+const SafeUserMention = ({ ticketChange }) => {
     const intl = useIntl()
     const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
     const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
-    const DeletedEmployeeMessage = intl.formatMessage({ id: 'DeletedEmployee' })
-    const Resident = intl.formatMessage({ id: 'Contact' })
-
-    const { obj } = OrganizationEmployee.useObject({
-        where: {
-            organization: { id: organizationId },
-            user: { id: createdBy.id },
-        },
-    })
-
-    const roleName = get(obj, ['role', 'name'], DeletedEmployeeMessage)
-    const userTypeMessage = createdBy.type === RESIDENT ? Resident : roleName
 
     return (
-        createdBy ? (
+        ticketChange.createdBy ? (
             <>
-                {userTypeMessage} {createdBy.name}
+                {ticketChange.changedByRole} {ticketChange.createdBy.name}
             </>
         ) : (
             <Tooltip placement="top" title={DeletedCreatedAtNoticeDescription}>

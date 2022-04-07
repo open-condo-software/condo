@@ -662,6 +662,7 @@
   "employee.role.Technician.name": "Техник",
   "employee.role.Technician.description": "Техник работает с задачами и выполняет работы. Техник не имеет доступа до других разделов и возможностей системы, кроме заявок.",
   "DeletedEmployee": "Удаленный сотрудник",
+  "ContactCenterEmployee": "Сотрудник КЦ",
   "meterReadingSource.Call.name": "Звонок",
   "meterReadingSource.MobileApp.name": "Мобильное приложение жителя",
   "meterReadingSource.Billing.name": "Биллинг",

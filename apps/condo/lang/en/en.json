@@ -662,6 +662,7 @@
   "employee.role.Technician.name": "Technician",
   "employee.role.Technician.description": "The technician works with tasks and performs work. The technician does not have access to other sections and capabilities of the system, except for applications.",
   "DeletedEmployee": "Deleted employee",
+  "ContactCenterEmployee": "Contact center employee",
   "meterReadingSource.Call.name": "Call",
   "meterReadingSource.MobileApp.name": "Resident's mobile app",
   "meterReadingSource.Billing.name": "Billing",

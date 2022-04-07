@@ -14850,7 +14850,7 @@ export type Mutation = {
    * 			"required": true
    * 		}
    * 	},
-   * 	"MESSAGE_FORWARDED_TO_SUPPORT_TYPE": {
+   * 	"MESSAGE_FORWARDED_TO_SUPPORT": {
    * 		"dv": {
    * 			"defaultValue": "",
    * 			"required": true
@@ -24001,6 +24001,39 @@ export type Query = {
    */
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
+  /**
+   * Tells, whether a Property with given address exists in condo database
+   *
+   * In specified address string a part up to building will be taken into account. So, it will make no sense when something more precise, like apartment number, will be specified.
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "query": "checkPropertyWithAddressExist",
+   *   "variable": [
+   *     "data",
+   *     "addressMeta",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Version number value {dv} is incorrect"
+   * }`
+   *
+   * `{
+   *   "query": "checkPropertyWithAddressExist",
+   *   "variable": [
+   *     "data",
+   *     "addressMeta",
+   *     "flatType"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "FLAT_WITHOUT_FLAT_TYPE",
+   *   "message": "Flat type is not specified"
+   * }`
+   */
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
@@ -27654,7 +27687,7 @@ export enum SendMessageType {
   ShareTicket = 'SHARE_TICKET',
   DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
   CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
-  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT_TYPE',
+  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
   TicketAssigneeConnected = 'TICKET_ASSIGNEE_CONNECTED',
   TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED'
 }
@@ -33372,6 +33405,8 @@ export type TicketChange = {
   watchersDisplayNamesFrom?: Maybe<Scalars['JSON']>;
   /**  New version of display names of related entities. Staff/person who want to watch ticket changes  */
   watchersDisplayNamesTo?: Maybe<Scalars['JSON']>;
+  /**  Type of employee who changed the ticket, can be employee role from same organization or from related, resident or null if ticket or user no longer exist  */
+  changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
