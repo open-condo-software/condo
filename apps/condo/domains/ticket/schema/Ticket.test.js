@@ -34,6 +34,7 @@ const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser }
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const { REVIEW_VALUES } = require('../constants')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 describe('Ticket', () => {
     describe('Crud', () => {
@@ -169,6 +170,27 @@ describe('Ticket', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestTicket(userClient, userClient.organization, userClient.property, {
                     unitName: unitName2,
+                })
+            })
+        })
+
+        test('resident: cannot create Ticket in other organization', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [residentOrganization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [residentProperty] = await createTestProperty(admin, residentOrganization)
+            const unitName = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, residentClient.user, residentOrganization, residentProperty, {
+                unitName,
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestTicket(residentClient, organization, property, {
+                    unitName,
                 })
             })
         })
