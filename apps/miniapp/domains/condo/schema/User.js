@@ -72,7 +72,7 @@ const User = new GQLListSchema('User', {
         // NOTE: We need some way to create admin users for test purposes.
         // We don't want to use importId and importRemoteSystem because it's already used by condo.User.
         isLocal: {
-            schemaDoc: 'Is this a local user (not from oidc auth)',
+            schemaDoc: 'Is this a local user (not from oidc auth). We use such users for test purposes. Usecase: you need to check the app locally without the OIDC server or you need to run tests',
             type: Checkbox,
             defaultValue: true,
             access: access.canReadByAnyAndChangeByAdmin,
@@ -80,7 +80,7 @@ const User = new GQLListSchema('User', {
 
         // NOTE: This field is required for local (non oidc) auth
         password: {
-            schemaDoc: 'Password. Update only (for local auth without oidc)',
+            schemaDoc: 'Password. Update only (for local auth without oidc). Check the `isLocal` field docs',
             type: Password,
             access: access.canAccessToPasswordField,
         },
