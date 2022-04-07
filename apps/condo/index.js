@@ -156,7 +156,7 @@ module.exports = {
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
         app.set('trust proxy', true)
-        
+
         const requestIdHeaderName = 'X-Request-Id'
         app.use(function reqId (req, res, next) {
             req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = v4()
