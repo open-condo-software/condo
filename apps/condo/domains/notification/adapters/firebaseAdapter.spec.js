@@ -167,7 +167,7 @@ describe('Firebase adapter utils', () => {
         ).rejects.toThrow(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
     })
 
-    it('PUSH notification data fields are all of string type (converted & normalized)', async () => {
+    it('makes sure that PUSH notification data fields are all of string type (converted & normalized)', async () => {
         const data = {
             ticketId: faker.datatype.uuid(),
             ticketNumber: faker.datatype.number(8), // number type
