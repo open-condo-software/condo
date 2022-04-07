@@ -126,9 +126,10 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     const formatField = (field, value, type: TicketChangeFieldMessageType) => {
         const formatterFor = {
-            statusDisplayName: (field, value) => {
-                const statusIdTo = get(ticketChange, 'statusIdTo')
-                const ticketStatus = ticketStatuses.find(status => status.id === statusIdTo)
+            statusDisplayName: (field, value, type) => {
+                const prefix = type ? 'To' : 'From'
+                const statusId = get(ticketChange, `statusId${prefix}`)
+                const ticketStatus = ticketStatuses.find(status => status.id === statusId)
                 const ticketStatusColor = get(ticketStatus, ['colors', 'primary'])
                 const ticketStatusChangeTextStyle = { color: ticketStatusColor }
 
