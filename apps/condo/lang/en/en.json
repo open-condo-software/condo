@@ -706,6 +706,7 @@
   "meter.import.error.UnitNameNotFound": "Unit was not found in property",
   "meter.import.error.WrongDateFormatMessage": "Incorrect date format in column \"{columnName}\". Use either value of String type in format: \"{format}\", or value of Date type",
   "meter.import.error.WrongDateOrMonthFormatMessage": "Wrong date format in column \"{columnName}\". Use either value of String formats \"{format1}\", \"{format2}\" (for month-only); or value of Date type",
+  "meter.import.error.ZeroValuesSpecified": "At least one of values must be specified",
   "meter.import.value.meterResourceType.hotWater": "HW",
   "meter.import.value.meterResourceType.coldWater": "CW",
   "meter.import.value.meterResourceType.electricity": "EL",

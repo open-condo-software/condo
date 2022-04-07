@@ -85,6 +85,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const HeatSupplyResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.heatSupply' })
     const GasSupplyResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.gasSupply' })
 
+    const NoValuesErrorMessage = intl.formatMessage({ id: 'meter.import.error.ZeroValuesSpecified' })
+
     const userOrganization = useOrganization()
     const client = useApolloClient()
     const { addressApi } = useAddressApi()
@@ -118,7 +120,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     ]
 
     const meterReadingNormalizer: RowNormalizer = async (row) => {
-        const addons = { address: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null, invalidReadingSubmissionDate: null }
+        const addons = { address: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null, invalidReadingSubmissionDate: null, valuesAmount: 0 }
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [
             address,
@@ -133,6 +135,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             value4,
             readingSubmissionDate,
         ] = map(row, 'value')
+
+        addons.valuesAmount = [value1, value2, value3, value4].filter(Boolean).length
 
         // Current suggestion API provider returns no suggestions for address with flat number
         const suggestionOptions = await addressApi.getSuggestions(String(address))
@@ -193,6 +197,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!get(processedRow, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
         if (!get(processedRow, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
         if (!get(processedRow, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
+        if (!get(processedRow, ['addons', 'valuesAmount'])) errors.push(NoValuesErrorMessage)
         // TODO(mrfoxpro): Implement custom validation https://github.com/open-condo-software/condo/pull/978
 
         const propertyMap = get(processedRow, ['addons', 'propertyMap'])
