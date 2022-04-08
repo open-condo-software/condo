@@ -462,7 +462,7 @@ export type AcquiringIntegrationContext = {
   reason?: Maybe<Scalars['String']>;
   /**  Acquiring payments report will be sent to this email  */
   email?: Maybe<Scalars['String']>;
-  /**  Requisites from contract. Are used for invoicing in case of transit accounts or missing requisites  */
+  /**  Requisites from agreement. Are used for invoicing in case of not confirmed billing recipient in receipt  */
   recipient?: Maybe<RecipientField>;
   /**  Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored  */
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
