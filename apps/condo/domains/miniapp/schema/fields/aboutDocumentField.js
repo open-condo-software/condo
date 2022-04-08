@@ -46,7 +46,7 @@ const ajv = new Ajv()
 const AboutDocumentJsonValidator = ajv.compile(AboutDocumentJsonSchema)
 
 const ABOUT_DOCUMENT_FIELD = {
-    schemaDoc: 'JSON interpretation of visual about app field written in KS6 document-field notation',
+    schemaDoc: 'JSON interpretation of visual about app field written in KS6 document-field notation (https://keystonejs.com/docs/guides/document-fields). For now only aboutAppBlock implemented',
     type: Json,
     isRequired: false,
     hooks: {
