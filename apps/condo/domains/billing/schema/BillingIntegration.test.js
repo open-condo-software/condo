@@ -251,7 +251,7 @@ describe('BillingIntegration', () => {
     })
 
     describe('Cache', async () => {
-        test('cache works with itemQuery', async () => {
+        test('cache resets if it detects mutation with itemQuery', async () => {
             const admin = await makeLoggedInAdminClient()
             const [integration] = await createTestBillingIntegration(admin)
 
@@ -264,7 +264,7 @@ describe('BillingIntegration', () => {
             expect(integration2.name).toEqual('Kitten!')
         })
 
-        test('cache works with listQuery', async () => {
+        test('cache resets if it detects mutation with listQuery', async () => {
             const admin = await makeLoggedInAdminClient()
 
             const integrationName = v4()
