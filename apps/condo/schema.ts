@@ -33734,7 +33734,7 @@ export type TicketChange = {
   watchersDisplayNamesFrom?: Maybe<Scalars['JSON']>;
   /**  New version of display names of related entities. Staff/person who want to watch ticket changes  */
   watchersDisplayNamesTo?: Maybe<Scalars['JSON']>;
-  /**  Type of employee who changed the ticket, can be employee role from same organization or from related, resident or null if ticket or user no longer exist  */
+  /**  Type of employee who changed the ticket, can be employee role from same organization or related, resident or deleted employee  */
   changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
