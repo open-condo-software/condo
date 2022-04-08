@@ -78,7 +78,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
 
         recipient: {
             ...RECIPIENT_FIELD,
-            schemaDoc: 'Requisites from contract. Are used for invoicing in case of transit accounts or missing requisites',
+            schemaDoc: 'Requisites from agreement. Are used for invoicing in case of not confirmed billing recipient in receipt',
             isRequired: false,
         },
 
