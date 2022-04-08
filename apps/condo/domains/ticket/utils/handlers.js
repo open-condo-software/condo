@@ -101,6 +101,7 @@ const handleTicketEvents = async (requestData) => {
     const client = get(updatedItem, 'client')
     const statusReopenedCounter = get(updatedItem, 'statusReopenedCounter')
     const createdBy = get(updatedItem, 'createdBy')
+    const updatedBy = get(updatedItem, 'updatedBy')
 
     const organization = await getByCondition('Organization', {
         id: updatedItem.organization,
@@ -158,8 +159,8 @@ const handleTicketEvents = async (requestData) => {
         let type
         switch (nextStatusId) {
             case STATUS_IDS.OPEN:
-                if (statusReopenedCounter > 0){
-                    type = TICKET_STATUS_RETURNED_TYPE}
+                if (statusReopenedCounter > 0)
+                    type = updatedBy !== client && TICKET_STATUS_RETURNED_TYPE
                 else
                     type = createdBy !== client && TICKET_STATUS_OPENED_TYPE
                 break
