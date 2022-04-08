@@ -1596,13 +1596,27 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const [sections, setSections] = useState([])
     const [section, setSection] = useState(null)
-
     const [unitType, setUnitType] = useState<BuildingUnitType>(BuildingUnitType.Flat)
     const [unitsOnFloor, setUnitsOnFloor] = useState<number>()
     const [floor, setFloor] = useState<string>('')
 
     const setFloorNumber = useCallback((value) => setFloor(value ? value.toString() : ''), [])
     const setUnitsOnFloorNumber = useCallback((value) => setUnitsOnFloor(value ? value.toString() : ''), [])
+    const applyChanges = useCallback(() => {
+        if (floor && section !== null && unitsOnFloor > 0) {
+            builder.addSectionFloor({
+                section: Number(section),
+                index: Number(floor),
+                unitType,
+                unitCount: Number(unitsOnFloor),
+            })
+        }
+        refresh()
+
+        setUnitsOnFloor(null)
+        setFloor(null)
+        setSection('')
+    }, [builder, refresh, floor, section])
 
     useEffect(() => {
         setSections(builder.getSectionOptions())
@@ -1623,16 +1637,6 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         refresh()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [floor, section, unitsOnFloor, unitType])
-
-    const resetForm = useCallback(() => {
-        setUnitsOnFloor(null)
-        setFloor(null)
-        setSection('')
-    }, [])
-
-    const applyChanges = useCallback(() => {
-        refresh()
-    }, [builder, refresh, resetForm, floor, section])
 
     const maxFloor = builder.maxFloor + 1
 

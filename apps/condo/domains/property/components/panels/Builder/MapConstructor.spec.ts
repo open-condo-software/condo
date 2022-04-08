@@ -429,12 +429,14 @@ describe('Map constructor', () => {
                     index: 11,
                 })
                 const floorIndexes = modifiedSection.floors.map(({ index }) => index)
+                const floorUnitTypes = modifiedSection.floors[0].units.map(unit => unit.unitType)
                 Building.validate()
 
                 expect(Building.isMapValid).toBeTruthy()
                 expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
                 expect(modifiedSection.floors[0].units).toHaveLength(2)
                 expect(modifiedSection.floors[0].index).toEqual(11)
+                expect(floorUnitTypes).toStrictEqual(Array.from({ length: 2 }, () => BuildingUnitType.Commercial))
                 expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
             })
 
@@ -442,24 +444,19 @@ describe('Map constructor', () => {
                 const Building = createBuildingMap(5)
                 const buildingFloors = Building.sections[0].floors.length
                 const modifiedSection = Building.sections[0]
-
-                let floorIndexes = modifiedSection.floors.map(({ index }) => index)
-                console.log(floorIndexes)
-
                 Building.addSectionFloor({
                     section: 0,
                     unitCount: 2,
-                    unitType: BuildingUnitType.Commercial,
-                    index: -2,
+                    unitType: BuildingUnitType.Warehouse,
+                    index: -7,
                 })
-                floorIndexes = modifiedSection.floors.map(({ index }) => index)
-                console.log(floorIndexes)
+                const floorIndexes = modifiedSection.floors.map(({ index }) => index)
 
                 Building.validate()
                 expect(Building.isMapValid).toBeTruthy()
                 expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
-                expect(modifiedSection.floors[11].units).toHaveLength(2)
-                expect(modifiedSection.floors[11].index).toEqual(5)
+                expect(modifiedSection.floors[15].units).toHaveLength(2)
+                expect(modifiedSection.floors[15].index).toEqual(-7)
                 expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
             })
         })
