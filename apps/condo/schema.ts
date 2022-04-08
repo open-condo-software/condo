@@ -44,7 +44,7 @@ export type AcquiringIntegration = {
   logo?: Maybe<File>;
   /**  Short integration description, that would be shown on settings card  */
   shortDescription?: Maybe<Scalars['String']>;
-  /**  JSON interpretation of visual about app field written in KS6 document-field notation  */
+  /**  JSON interpretation of visual about app field written in KS6 document-field notation (https://keystonejs.com/docs/guides/document-fields). For now only aboutAppBlock implemented  */
   about?: Maybe<Scalars['JSON']>;
   /**  Developer company name  */
   developer?: Maybe<Scalars['String']>;
@@ -3314,7 +3314,7 @@ export type BillingIntegration = {
   logo?: Maybe<File>;
   /**  Short integration description, that would be shown on settings card  */
   shortDescription?: Maybe<Scalars['String']>;
-  /**  JSON interpretation of visual about app field written in KS6 document-field notation  */
+  /**  JSON interpretation of visual about app field written in KS6 document-field notation (https://keystonejs.com/docs/guides/document-fields). For now only aboutAppBlock implemented  */
   about?: Maybe<Scalars['JSON']>;
   /**  Developer company name  */
   developer?: Maybe<Scalars['String']>;
