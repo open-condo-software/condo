@@ -76,5 +76,5 @@ async function canManageIsApprovedField ({ authentication: { item: user }, origi
 module.exports = {
     canReadProperties,
     canManageProperties,
-    canManageIsApprovedField
+    canManageIsApprovedField,
 }
