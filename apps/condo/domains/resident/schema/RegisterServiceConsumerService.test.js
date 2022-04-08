@@ -119,7 +119,7 @@ describe('RegisterServiceConsumerService', () => {
         const adminClient = await makeLoggedInAdminClient()
 
         const USER_UNIT_NAME = String(faker.datatype.number())
-        const USER_ACCOUNT_NUMBER = String(faker.datatype.number())
+        const USER_ACCOUNT_NUMBER = ' ' + String(faker.datatype.number()) + ' '
 
         const { billingIntegration, billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, userClient.organization)
         const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext)
