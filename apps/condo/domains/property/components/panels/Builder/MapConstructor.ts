@@ -257,6 +257,10 @@ class MapView extends Map {
         }
     }
 
+    public getSectionMaxFloor (sectionIdx: number): number {
+        return sectionIdx ? Math.max(...this.map.sections[sectionIdx].floors.map(floor => floor.index)) : 0
+    }
+
     get maxFloor (): number {
         return Math.max(...this.map.sections
             .map(section => section.floors
@@ -476,8 +480,8 @@ class MapView extends Map {
 class MapEdit extends MapView {
     public previewSectionId: string
     public previewParkingId: string
-    public previewSectionFloor: number
-    public previewParkingFloor: string
+    public previewSectionFloor: number | null = null
+    public previewParkingFloor: number | null = null
     public previewUnitId: string
     public previewParkingUnitId: string
     private mode = null
@@ -691,17 +695,10 @@ class MapEdit extends MapView {
     }
 
     public removePreviewSectionFloor (): void {
-        if (this.previewSectionId && this.previewSectionFloor) {
-            const section = this.sections.find((section) => section.id === this.previewSectionId)
-            section.floors.splice(this.previewSectionFloor, 1)
+        if (this.sectionFloorIndex !== null && this.previewSectionFloor !== null) {
+            this.removeFloor(this.sectionFloorIndex, this.previewSectionFloor)
 
-            for (let floorIndex = 0; floorIndex <= this.previewSectionFloor; floorIndex++) {
-                if (this.sectionFloorMap[floorIndex] > 0) {
-                    section.floors[floorIndex].index = this.sectionFloorMap[floorIndex]
-                }
-            }
-
-            this.previewSectionId = null
+            this.sectionFloorIndex = null
             this.previewSectionFloor = null
             this.sectionFloorMap = {}
         }
@@ -734,7 +731,7 @@ class MapEdit extends MapView {
 
     public addPreviewSectionFloor (floor: BuildingFloorArg): void {
         this.removePreviewSectionFloor()
-        this.previewSectionId = this.sections[floor.section].id
+        this.sectionFloorIndex = this.sections[floor.section].index
         const newSectionFloor = this.generateFloor(floor, true)
         this.insertFloor(newSectionFloor, 'sections', floor.section)
     }
@@ -1170,6 +1167,8 @@ class MapEdit extends MapView {
 
     private selectedParkingUnit: BuildingUnit
 
+    private sectionFloorIndex: number | null = null
+
     private sectionFloorMap: Record<number, number> = {}
 
     private generateSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitType): BuildingSection {
@@ -1257,11 +1256,10 @@ class MapEdit extends MapView {
             type: BuildingMapEntityType.Floor,
             units: Array.from({ length: floor.unitCount }, (_, unitIndex) => ({
                 id: String(++this.autoincrement),
-                label: String(unitNumber + unitIndex),
+                label: preview ? '' : String(unitNumber + unitIndex),
                 unitType: floor.unitType,
                 preview,
                 type: BuildingMapEntityType.Unit,
-
             })),
         }
     }
@@ -1269,17 +1267,20 @@ class MapEdit extends MapView {
     private insertFloor (floor: BuildingFloor, destination: 'sections' | 'parking', sectionIndex: number): void {
         const modifiedSection = this.map[destination][sectionIndex]
         modifiedSection.floors.forEach(({ index }, dataIndex) => {
-            this.sectionFloorMap[dataIndex] = index
+            this.sectionFloorMap[index] = dataIndex
         })
 
-        if (floor.index > 0) {
-            modifiedSection.floors.splice(floor.index, 0, floor)
-            for (let dataIndex = 0; dataIndex <= floor.index; dataIndex++) {
-                if (this.sectionFloorMap[dataIndex] > 0) {
-                    modifiedSection.floors[dataIndex].index = this.sectionFloorMap[dataIndex] + 1
-                }
+        const insertIndex = this.sectionFloorMap[floor.index] === undefined ? 0 : this.sectionFloorMap[floor.index] + 1
+        modifiedSection.floors.splice(insertIndex, 0, floor)
+
+        // If we need to add positive floor -> rename all positive floor indexes
+        if (floor.index >= 0) {
+            const positiveFloorsCount = modifiedSection.floors.map(floor => floor.index).filter(index => index >= 0).length
+
+            for (let dataIndex = 0; dataIndex < positiveFloorsCount; dataIndex++) {
+                modifiedSection.floors[dataIndex].index = positiveFloorsCount - dataIndex
             }
-            this.previewSectionFloor = floor.index
+            this.previewSectionFloor = insertIndex
         } else {
             throw 'Not implemented'
         }
@@ -1302,6 +1303,7 @@ class MapEdit extends MapView {
     }
 
     private removeFloor (sectionIdx: number, floorIndex: number): void {
+        console.log(`remove floor from section id = ${sectionIdx} with floorIndex = ${floorIndex}`)
         if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)) {
             return
         }
