@@ -421,19 +421,20 @@ describe('Map constructor', () => {
                 const Building = createBuildingMap(5)
                 const buildingFloors = Building.sections[0].floors.length
                 const modifiedSection = Building.sections[0]
+
                 Building.addSectionFloor({
                     section: 0,
                     unitCount: 2,
                     unitType: BuildingUnitType.Commercial,
-                    index: 0,
+                    index: 11,
                 })
                 const floorIndexes = modifiedSection.floors.map(({ index }) => index)
                 Building.validate()
 
                 expect(Building.isMapValid).toBeTruthy()
                 expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
-                expect(modifiedSection.floors[5].units).toHaveLength(2)
-                expect(modifiedSection.floors[5].index).toEqual(5)
+                expect(modifiedSection.floors[0].units).toHaveLength(2)
+                expect(modifiedSection.floors[0].index).toEqual(11)
                 expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
             })
 

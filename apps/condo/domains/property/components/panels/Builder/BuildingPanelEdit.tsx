@@ -1615,14 +1615,14 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 section: Number(section),
                 index: Number(floor),
                 unitType,
-                unitCount: unitsOnFloor,
+                unitCount: Number(unitsOnFloor),
             })
         } else {
             builder.removePreviewSectionFloor()
         }
         refresh()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [floor, section, unitsOnFloor])
+    }, [floor, section, unitsOnFloor, unitType])
 
     const resetForm = useCallback(() => {
         setUnitsOnFloor(null)
@@ -1633,6 +1633,8 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const applyChanges = useCallback(() => {
         refresh()
     }, [builder, refresh, resetForm, floor, section])
+
+    const maxFloor = builder.maxFloor + 1
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
@@ -1664,7 +1666,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             <Col span={24}>
                 <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
                     <Typography.Text type={'secondary'}>{FloorLabel}</Typography.Text>
-                    <InputNumber value={floor} onChange={setFloorNumber} type={'number'} style={INPUT_STYLE} />
+                    <InputNumber value={floor} onChange={setFloorNumber} max={maxFloor} type={'number'} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col span={24}>
