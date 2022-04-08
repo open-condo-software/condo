@@ -1,18 +1,17 @@
 import { Col, Form, Input, Row, Typography } from 'antd'
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
-import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { JAVASCRIPT_URL_XSS } from '@condo/domains/common/constants/regexps'
 
 const FORM_LAYOUT = {
     labelCol: { span: 10 },
@@ -32,7 +31,9 @@ export const SignInForm = (): React.ReactElement => {
 
     const { isSmall } = useLayoutContext()
     const [form] = Form.useForm()
-    const { next } = getQueryParams()
+    const router = useRouter()
+    const { query: { next }  } = router
+    const redirectUrl = (next && !Array.isArray(next) && !next.match(JAVASCRIPT_URL_XSS)) ? next : '/'
     const { refetch } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [signinByPhoneAndPassword] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
@@ -57,7 +58,7 @@ export const SignInForm = (): React.ReactElement => {
             variables: values,
             onCompleted: () => {
                 refetch().then(() => {
-                    Router.push(next ? next : '/')
+                    return router.push(redirectUrl)
                 })
             },
             onFinally: () => {
