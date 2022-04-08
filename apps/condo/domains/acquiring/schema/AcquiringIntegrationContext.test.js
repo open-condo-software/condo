@@ -7,7 +7,7 @@ const { createTestOrganizationEmployee } = require('@condo/domains/organization/
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const {
     AcquiringIntegrationContext,
     createTestAcquiringIntegrationContext,
@@ -414,6 +414,7 @@ describe('AcquiringIntegrationContext', () => {
             const reason = faker.lorem.sentence(1)
             const email = faker.internet.email()
             const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration, { email, reason, recipient })
+            expect(context.email).toEqual(normalizeEmail(email))
             expect(context.reason).toEqual(reason)
             expect(context.recipient.bankAccount).toEqual(recipient.bankAccount)
             expect(context.recipient.iec).toEqual(recipient.iec)
