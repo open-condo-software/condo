@@ -25,6 +25,7 @@ const { UpdateResidentTicketService } = require('./UpdateResidentTicketService')
 const { TicketFilterTemplate } = require('./TicketFilterTemplate')
 const { PredictTicketClassificationService } = require('./PredictTicketClassificationService')
 const { TicketCommentFile } = require('./TicketCommentFile')
+const { UserTicketCommentRead } = require('./UserTicketCommentRead')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -49,5 +50,6 @@ module.exports = {
     TicketFilterTemplate,
     PredictTicketClassificationService,
     TicketCommentFile,
+    UserTicketCommentRead,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

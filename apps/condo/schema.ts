@@ -14717,6 +14717,30 @@ export type Mutation = {
   deleteTicketCommentFile?: Maybe<TicketCommentFile>;
   /**  Delete multiple TicketCommentFile items by ID.  */
   deleteTicketCommentFiles?: Maybe<Array<Maybe<TicketCommentFile>>>;
+  /**  Create a single UserTicketCommentReadHistoryRecord item.  */
+  createUserTicketCommentReadHistoryRecord?: Maybe<UserTicketCommentReadHistoryRecord>;
+  /**  Create multiple UserTicketCommentReadHistoryRecord items.  */
+  createUserTicketCommentReadHistoryRecords?: Maybe<Array<Maybe<UserTicketCommentReadHistoryRecord>>>;
+  /**  Update a single UserTicketCommentReadHistoryRecord item by ID.  */
+  updateUserTicketCommentReadHistoryRecord?: Maybe<UserTicketCommentReadHistoryRecord>;
+  /**  Update multiple UserTicketCommentReadHistoryRecord items by ID.  */
+  updateUserTicketCommentReadHistoryRecords?: Maybe<Array<Maybe<UserTicketCommentReadHistoryRecord>>>;
+  /**  Delete a single UserTicketCommentReadHistoryRecord item by ID.  */
+  deleteUserTicketCommentReadHistoryRecord?: Maybe<UserTicketCommentReadHistoryRecord>;
+  /**  Delete multiple UserTicketCommentReadHistoryRecord items by ID.  */
+  deleteUserTicketCommentReadHistoryRecords?: Maybe<Array<Maybe<UserTicketCommentReadHistoryRecord>>>;
+  /**  Create a single UserTicketCommentRead item.  */
+  createUserTicketCommentRead?: Maybe<UserTicketCommentRead>;
+  /**  Create multiple UserTicketCommentRead items.  */
+  createUserTicketCommentReads?: Maybe<Array<Maybe<UserTicketCommentRead>>>;
+  /**  Update a single UserTicketCommentRead item by ID.  */
+  updateUserTicketCommentRead?: Maybe<UserTicketCommentRead>;
+  /**  Update multiple UserTicketCommentRead items by ID.  */
+  updateUserTicketCommentReads?: Maybe<Array<Maybe<UserTicketCommentRead>>>;
+  /**  Delete a single UserTicketCommentRead item by ID.  */
+  deleteUserTicketCommentRead?: Maybe<UserTicketCommentRead>;
+  /**  Delete multiple UserTicketCommentRead items by ID.  */
+  deleteUserTicketCommentReads?: Maybe<Array<Maybe<UserTicketCommentRead>>>;
   /**  Create a single MessageHistoryRecord item.  */
   createMessageHistoryRecord?: Maybe<MessageHistoryRecord>;
   /**  Create multiple MessageHistoryRecord items.  */
@@ -18257,6 +18281,68 @@ export type MutationDeleteTicketCommentFileArgs = {
 
 
 export type MutationDeleteTicketCommentFilesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateUserTicketCommentReadHistoryRecordArgs = {
+  data?: Maybe<UserTicketCommentReadHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateUserTicketCommentReadHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<UserTicketCommentReadHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateUserTicketCommentReadHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<UserTicketCommentReadHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateUserTicketCommentReadHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<UserTicketCommentReadHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteUserTicketCommentReadHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserTicketCommentReadHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateUserTicketCommentReadArgs = {
+  data?: Maybe<UserTicketCommentReadCreateInput>;
+};
+
+
+export type MutationCreateUserTicketCommentReadsArgs = {
+  data?: Maybe<Array<Maybe<UserTicketCommentReadsCreateInput>>>;
+};
+
+
+export type MutationUpdateUserTicketCommentReadArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<UserTicketCommentReadUpdateInput>;
+};
+
+
+export type MutationUpdateUserTicketCommentReadsArgs = {
+  data?: Maybe<Array<Maybe<UserTicketCommentReadsUpdateInput>>>;
+};
+
+
+export type MutationDeleteUserTicketCommentReadArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserTicketCommentReadsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -24960,6 +25046,22 @@ export type Query = {
   _allTicketCommentFilesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the TicketCommentFile list.  */
   _TicketCommentFilesMeta?: Maybe<_ListMeta>;
+  /**  Search for all UserTicketCommentReadHistoryRecord items which match the where clause.  */
+  allUserTicketCommentReadHistoryRecords?: Maybe<Array<Maybe<UserTicketCommentReadHistoryRecord>>>;
+  /**  Search for the UserTicketCommentReadHistoryRecord item with the matching ID.  */
+  UserTicketCommentReadHistoryRecord?: Maybe<UserTicketCommentReadHistoryRecord>;
+  /**  Perform a meta-query on all UserTicketCommentReadHistoryRecord items which match the where clause.  */
+  _allUserTicketCommentReadHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the UserTicketCommentReadHistoryRecord list.  */
+  _UserTicketCommentReadHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all UserTicketCommentRead items which match the where clause.  */
+  allUserTicketCommentReads?: Maybe<Array<Maybe<UserTicketCommentRead>>>;
+  /**  Search for the UserTicketCommentRead item with the matching ID.  */
+  UserTicketCommentRead?: Maybe<UserTicketCommentRead>;
+  /**  Perform a meta-query on all UserTicketCommentRead items which match the where clause.  */
+  _allUserTicketCommentReadsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the UserTicketCommentRead list.  */
+  _UserTicketCommentReadsMeta?: Maybe<_ListMeta>;
   /**  Search for all MessageHistoryRecord items which match the where clause.  */
   allMessageHistoryRecords?: Maybe<Array<Maybe<MessageHistoryRecord>>>;
   /**  Search for the MessageHistoryRecord item with the matching ID.  */
@@ -27017,6 +27119,56 @@ export type Query_AllTicketCommentFilesMetaArgs = {
   where?: Maybe<TicketCommentFileWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortTicketCommentFilesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllUserTicketCommentReadHistoryRecordsArgs = {
+  where?: Maybe<UserTicketCommentReadHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserTicketCommentReadHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryUserTicketCommentReadHistoryRecordArgs = {
+  where: UserTicketCommentReadHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllUserTicketCommentReadHistoryRecordsMetaArgs = {
+  where?: Maybe<UserTicketCommentReadHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserTicketCommentReadHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllUserTicketCommentReadsArgs = {
+  where?: Maybe<UserTicketCommentReadWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserTicketCommentReadsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryUserTicketCommentReadArgs = {
+  where: UserTicketCommentReadWhereUniqueInput;
+};
+
+
+export type Query_AllUserTicketCommentReadsMetaArgs = {
+  where?: Maybe<UserTicketCommentReadWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserTicketCommentReadsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -33360,6 +33512,10 @@ export enum SortTicketChangesBy {
   UnitTypeFromDesc = 'unitTypeFrom_DESC',
   UnitTypeToAsc = 'unitTypeTo_ASC',
   UnitTypeToDesc = 'unitTypeTo_DESC',
+  LastResidentCommentAtFromAsc = 'lastResidentCommentAtFrom_ASC',
+  LastResidentCommentAtFromDesc = 'lastResidentCommentAtFrom_DESC',
+  LastResidentCommentAtToAsc = 'lastResidentCommentAtTo_ASC',
+  LastResidentCommentAtToDesc = 'lastResidentCommentAtTo_DESC',
   OrganizationIdFromAsc = 'organizationIdFrom_ASC',
   OrganizationIdFromDesc = 'organizationIdFrom_DESC',
   OrganizationIdToAsc = 'organizationIdTo_ASC',
@@ -33801,6 +33957,8 @@ export enum SortTicketHistoryRecordsBy {
   UnitNameDesc = 'unitName_DESC',
   UnitTypeAsc = 'unitType_ASC',
   UnitTypeDesc = 'unitType_DESC',
+  LastResidentCommentAtAsc = 'lastResidentCommentAt_ASC',
+  LastResidentCommentAtDesc = 'lastResidentCommentAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -34078,6 +34236,8 @@ export enum SortTicketsBy {
   UnitTypeDesc = 'unitType_DESC',
   SourceAsc = 'source_ASC',
   SourceDesc = 'source_DESC',
+  LastResidentCommentAtAsc = 'lastResidentCommentAt_ASC',
+  LastResidentCommentAtDesc = 'lastResidentCommentAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -34205,6 +34365,52 @@ export enum SortUserHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortUserTicketCommentReadHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  ReadResidentCommentAtAsc = 'readResidentCommentAt_ASC',
+  ReadResidentCommentAtDesc = 'readResidentCommentAt_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortUserTicketCommentReadsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  TicketAsc = 'ticket_ASC',
+  TicketDesc = 'ticket_DESC',
+  ReadResidentCommentAtAsc = 'readResidentCommentAt_ASC',
+  ReadResidentCommentAtDesc = 'readResidentCommentAt_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
 }
 
 export enum SortUsersBy {
@@ -34376,6 +34582,8 @@ export type Ticket = {
   source?: Maybe<TicketSource>;
   /**  In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...  */
   sourceMeta?: Maybe<Scalars['JSON']>;
+  /**  Time of last resident comment in this ticket  */
+  lastResidentCommentAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -34899,6 +35107,10 @@ export type TicketChange = {
   sourceMetaFrom?: Maybe<Scalars['JSON']>;
   /**  In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...  */
   sourceMetaTo?: Maybe<Scalars['JSON']>;
+  /**  Time of last resident comment in this ticket  */
+  lastResidentCommentAtFrom?: Maybe<Scalars['String']>;
+  /**  Time of last resident comment in this ticket  */
+  lastResidentCommentAtTo?: Maybe<Scalars['String']>;
   /**  Old id of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organizationIdFrom?: Maybe<Scalars['ID']>;
   /**  New id of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist  */
@@ -35081,6 +35293,8 @@ export type TicketChangeCreateInput = {
   unitTypeTo?: Maybe<Scalars['String']>;
   sourceMetaFrom?: Maybe<Scalars['JSON']>;
   sourceMetaTo?: Maybe<Scalars['JSON']>;
+  lastResidentCommentAtFrom?: Maybe<Scalars['String']>;
+  lastResidentCommentAtTo?: Maybe<Scalars['String']>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
   organizationIdTo?: Maybe<Scalars['ID']>;
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -35210,6 +35424,8 @@ export type TicketChangeUpdateInput = {
   unitTypeTo?: Maybe<Scalars['String']>;
   sourceMetaFrom?: Maybe<Scalars['JSON']>;
   sourceMetaTo?: Maybe<Scalars['JSON']>;
+  lastResidentCommentAtFrom?: Maybe<Scalars['String']>;
+  lastResidentCommentAtTo?: Maybe<Scalars['String']>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
   organizationIdTo?: Maybe<Scalars['ID']>;
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -35774,6 +35990,22 @@ export type TicketChangeWhereInput = {
   sourceMetaTo_not?: Maybe<Scalars['JSON']>;
   sourceMetaTo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sourceMetaTo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastResidentCommentAtFrom?: Maybe<Scalars['String']>;
+  lastResidentCommentAtFrom_not?: Maybe<Scalars['String']>;
+  lastResidentCommentAtFrom_lt?: Maybe<Scalars['String']>;
+  lastResidentCommentAtFrom_lte?: Maybe<Scalars['String']>;
+  lastResidentCommentAtFrom_gt?: Maybe<Scalars['String']>;
+  lastResidentCommentAtFrom_gte?: Maybe<Scalars['String']>;
+  lastResidentCommentAtFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastResidentCommentAtFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastResidentCommentAtTo?: Maybe<Scalars['String']>;
+  lastResidentCommentAtTo_not?: Maybe<Scalars['String']>;
+  lastResidentCommentAtTo_lt?: Maybe<Scalars['String']>;
+  lastResidentCommentAtTo_lte?: Maybe<Scalars['String']>;
+  lastResidentCommentAtTo_gt?: Maybe<Scalars['String']>;
+  lastResidentCommentAtTo_gte?: Maybe<Scalars['String']>;
+  lastResidentCommentAtTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastResidentCommentAtTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
   organizationIdFrom_not?: Maybe<Scalars['ID']>;
   organizationIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -37923,6 +38155,7 @@ export type TicketCreateInput = {
   unitType?: Maybe<Scalars['String']>;
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  lastResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38697,6 +38930,7 @@ export type TicketHistoryRecord = {
   unitType?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  lastResidentCommentAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -38752,6 +38986,7 @@ export type TicketHistoryRecordCreateInput = {
   unitType?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  lastResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38812,6 +39047,7 @@ export type TicketHistoryRecordUpdateInput = {
   unitType?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  lastResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -39171,6 +39407,14 @@ export type TicketHistoryRecordWhereInput = {
   sourceMeta_not?: Maybe<Scalars['JSON']>;
   sourceMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sourceMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastResidentCommentAt?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_not?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_lt?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_lte?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_gt?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_gte?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastResidentCommentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -40809,6 +41053,7 @@ export type TicketUpdateInput = {
   unitType?: Maybe<Scalars['String']>;
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  lastResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -41117,6 +41362,14 @@ export type TicketWhereInput = {
   sourceMeta_not?: Maybe<Scalars['JSON']>;
   sourceMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sourceMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastResidentCommentAt?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_not?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_lt?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_lte?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_gt?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_gte?: Maybe<Scalars['String']>;
+  lastResidentCommentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastResidentCommentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -42174,6 +42427,334 @@ export type UserRelateToOneInput = {
   connect?: Maybe<UserWhereUniqueInput>;
   disconnect?: Maybe<UserWhereUniqueInput>;
   disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+/**  Last date the comment was read in the ticket by the user  */
+export type UserTicketCommentRead = {
+  __typename?: 'UserTicketCommentRead';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the UserTicketCommentRead List config, or
+   *  2. As an alias to the field set on 'labelField' in the UserTicketCommentRead List config, or
+   *  3. As an alias to a 'name' field on the UserTicketCommentRead List (if one exists), or
+   *  4. As an alias to the 'id' field on the UserTicketCommentRead List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  /**  The user who read the comment  */
+  user?: Maybe<User>;
+  /**  Ticket in which the user read the comment  */
+  ticket?: Maybe<Ticket>;
+  /**  Date when the last comment was read by the user  */
+  readResidentCommentAt?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type UserTicketCommentReadCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  user?: Maybe<UserRelateToOneInput>;
+  ticket?: Maybe<TicketRelateToOneInput>;
+  readResidentCommentAt?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type UserTicketCommentReadHistoryRecord = {
+  __typename?: 'UserTicketCommentReadHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the UserTicketCommentReadHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the UserTicketCommentReadHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the UserTicketCommentReadHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the UserTicketCommentReadHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  user?: Maybe<Scalars['String']>;
+  ticket?: Maybe<Scalars['String']>;
+  readResidentCommentAt?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserTicketCommentReadHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type UserTicketCommentReadHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  user?: Maybe<Scalars['String']>;
+  ticket?: Maybe<Scalars['String']>;
+  readResidentCommentAt?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserTicketCommentReadHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum UserTicketCommentReadHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type UserTicketCommentReadHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  user?: Maybe<Scalars['String']>;
+  ticket?: Maybe<Scalars['String']>;
+  readResidentCommentAt?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserTicketCommentReadHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type UserTicketCommentReadHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<UserTicketCommentReadHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<UserTicketCommentReadHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticket?: Maybe<Scalars['String']>;
+  ticket_not?: Maybe<Scalars['String']>;
+  ticket_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticket_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  readResidentCommentAt?: Maybe<Scalars['String']>;
+  readResidentCommentAt_not?: Maybe<Scalars['String']>;
+  readResidentCommentAt_lt?: Maybe<Scalars['String']>;
+  readResidentCommentAt_lte?: Maybe<Scalars['String']>;
+  readResidentCommentAt_gt?: Maybe<Scalars['String']>;
+  readResidentCommentAt_gte?: Maybe<Scalars['String']>;
+  readResidentCommentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  readResidentCommentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<UserTicketCommentReadHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<UserTicketCommentReadHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<UserTicketCommentReadHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<UserTicketCommentReadHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type UserTicketCommentReadHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type UserTicketCommentReadHistoryRecordsCreateInput = {
+  data?: Maybe<UserTicketCommentReadHistoryRecordCreateInput>;
+};
+
+export type UserTicketCommentReadHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<UserTicketCommentReadHistoryRecordUpdateInput>;
+};
+
+export type UserTicketCommentReadUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  user?: Maybe<UserRelateToOneInput>;
+  ticket?: Maybe<TicketRelateToOneInput>;
+  readResidentCommentAt?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type UserTicketCommentReadWhereInput = {
+  AND?: Maybe<Array<Maybe<UserTicketCommentReadWhereInput>>>;
+  OR?: Maybe<Array<Maybe<UserTicketCommentReadWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  ticket?: Maybe<TicketWhereInput>;
+  ticket_is_null?: Maybe<Scalars['Boolean']>;
+  readResidentCommentAt?: Maybe<Scalars['String']>;
+  readResidentCommentAt_not?: Maybe<Scalars['String']>;
+  readResidentCommentAt_lt?: Maybe<Scalars['String']>;
+  readResidentCommentAt_lte?: Maybe<Scalars['String']>;
+  readResidentCommentAt_gt?: Maybe<Scalars['String']>;
+  readResidentCommentAt_gte?: Maybe<Scalars['String']>;
+  readResidentCommentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  readResidentCommentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type UserTicketCommentReadWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type UserTicketCommentReadsCreateInput = {
+  data?: Maybe<UserTicketCommentReadCreateInput>;
+};
+
+export type UserTicketCommentReadsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<UserTicketCommentReadUpdateInput>;
 };
 
 export enum UserTypeType {

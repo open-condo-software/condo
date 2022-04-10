@@ -181,6 +181,9 @@ const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
 const TICKET_COMMENT_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticketComment { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketCommentFile = generateGqlQueries('TicketCommentFile', TICKET_COMMENT_FILE_FIELDS)
 
+const USER_TICKET_COMMENT_READ_FIELDS = `{ user { id } ticket { id } readResidentCommentAt ${COMMON_FIELDS} }`
+const UserTicketCommentRead = generateGqlQueries('UserTicketCommentRead', USER_TICKET_COMMENT_READ_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -217,5 +220,6 @@ module.exports = {
     PREDICT_TICKET_CLASSIFICATION_QUERY,
 
     TicketCommentFile,
+    UserTicketCommentRead,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
