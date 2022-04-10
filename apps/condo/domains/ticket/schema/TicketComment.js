@@ -5,14 +5,14 @@ const isNull = require('lodash/isNull')
 const get = require('lodash/get')
 
 const { Text, Relationship, Select } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, find } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketComment')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { COMMENT_TYPES, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
-const { sendTicketCommentNotifications } = require('@condo/domains/ticket/utils/handlers')
+const { COMMENT_TYPES } = require('@condo/domains/ticket/constants')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { Ticket, UserTicketCommentRead } = require('../utils/serverSchema')
 
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
@@ -73,15 +73,41 @@ const TicketComment = new GQLListSchema('TicketComment', {
             schemaDoc: 'Plain text content',
             type: Text,
         },
-
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
+        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
+            const user = get(context, ['req', 'user'])
+            const userType = get(user, 'type')
+
+            if (operation === 'create') {
+                const ticketId = get(resolvedData, 'ticket')
+                const createdAt = get(resolvedData, 'createdAt')
+
+                if (userType === RESIDENT) {
+                    await Ticket.update(context.createContext({ skipAccessControl: true }), ticketId, {
+                        lastResidentCommentAt: createdAt,
+                    })
+                } else if (userType === STAFF) {
+                    const userTicketCommentReadObjects = await find('UserTicketCommentRead', {
+                        where: {
+                            ticket: { id: ticketId },
+                        },
+                    })
+
+                    for (const { id } of userTicketCommentReadObjects) {
+                        UserTicketCommentRead.update(context, id, {
+                            readResidentCommentAt: createdAt,
+                        })
+                    }
+                }
+            }
+        },
         afterChange: async (requestData) => {
             // NOTE: disabled at 2022-04-25 because of @MikhailRumanovskii request until ticket comments will be implemented in all mobile applications for all platforms
             // await sendTicketCommentNotifications(requestData)
         },
     },
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketComments,
         create: access.canManageTicketComments,
