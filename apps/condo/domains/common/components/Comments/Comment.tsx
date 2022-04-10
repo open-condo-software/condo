@@ -142,7 +142,8 @@ const getIconByMimetype = (mimetype) => {
 }
 
 const CommentFileList = ({ comment }) => {
-    const files = get(comment, ['meta', 'files'])
+    const files = get(comment, 'files')
+    console.log(files)
     const [openedImageSrc, setOpenedImageSrc] = useState()
 
     if (!Array.isArray(files)) {
@@ -220,7 +221,7 @@ export const CommentPlaceholder = ({ content }) => {
                     <Typography.Text>
                         {content}
                     </Typography.Text>
-                    {/*<CommentFileList comment={comment} />*/}
+                    <CommentFileList comment={comment} />
                 </>
             }
             author={

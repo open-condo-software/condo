@@ -75,7 +75,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
     const { UploadComponent, syncModifiedFiles, resetModifiedFiles } = useMultipleFileUploadHook({
         Model: TicketCommentFile,
         relationField: 'ticketComment',
-        initialFileList: editableComment?.meta?.files,
+        initialFileList: editableComment?.files,
         initialCreateValues: { organization: organization.id },
         dependenciesForRerenderUploadComponent: [editableComment],
     })
