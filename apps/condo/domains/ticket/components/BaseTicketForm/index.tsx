@@ -32,7 +32,7 @@ const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/err
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
-import { useInputWithCounter } from '../../../common/hooks/useInputWithCounter'
+import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 const { TabPane } = Tabs
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`

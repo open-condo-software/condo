@@ -82,7 +82,7 @@ type ActionsForComment = {
 interface ICommentsListProps {
     comments: TComment[],
     createAction?: (formValues) => Promise<void>,
-    updateAction
+    updateAction?: (attrs, obj: TComment) => Promise<TComment>
     // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
     actionsFor: (comment: TComment) => ActionsForComment,
     canCreateComments: boolean,
@@ -139,8 +139,8 @@ type CommentsTabContentProps = {
     PromptTitleMessage: string,
     PromptDescriptionMessage: string,
     actionsFor: (comment: TComment) => ActionsForComment,
-    editableComment
-    setEditableComment
+    editableComment: TComment
+    setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
@@ -234,7 +234,7 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     const { isSmall } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
-    const [editableComment, setEditableComment] = useState()
+    const [editableComment, setEditableComment] = useState<TComment>()
 
     const action = useCallback(async (values) => {
         if (editableComment) {
