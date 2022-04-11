@@ -15,7 +15,7 @@ import { Button } from '../Button'
 
 interface ICommentProps {
     comment: TComment,
-    setEditableComment
+    setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
     deleteAction?: (formValues, obj) => Promise<any>,
 }
 
