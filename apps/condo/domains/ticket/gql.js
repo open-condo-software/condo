@@ -178,7 +178,7 @@ const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
     }
 `
 
-const TICKET_COMMENT_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticketComment { id } ${COMMON_FIELDS} }`
+const TICKET_COMMENT_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticketComment { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketCommentFile = generateGqlQueries('TicketCommentFile', TICKET_COMMENT_FILE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

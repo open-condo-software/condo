@@ -13,16 +13,17 @@ import {
     TicketCommentFileUpdateInput,
     QueryAllTicketCommentFilesArgs,
     File,
-    Organization, TicketComment,
+    Organization, TicketComment, Ticket,
 } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'file', 'ticketComment']
-const RELATIONS = ['organization', 'ticketComment']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'file', 'ticketComment', 'ticket']
+const RELATIONS = ['organization', 'ticketComment', 'ticket']
 
 export interface ITicketCommentFileUIState extends TicketCommentFile {
     id: string
     file: File
     organization?: Organization
+    ticket?: Ticket
     ticketComment?: TicketComment
 }
 
