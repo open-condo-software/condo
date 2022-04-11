@@ -440,6 +440,27 @@ describe('Map constructor', () => {
                 expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
             })
 
+            it('should add positive floor instead of an existing one', () => {
+                const Building = createBuildingMap(5)
+                const modifiedSection = Building.sections[0]
+                const buildingFloors = Building.sections[0].floors.length
+
+                Building.addSectionFloor({
+                    section: 0,
+                    unitCount: 22,
+                    unitType: BuildingUnitType.Flat,
+                    index: 3,
+                })
+                const floorIndexes = modifiedSection.floors.map(({ index }) => index)
+                Building.validate()
+
+                expect(Building.isMapValid).toBeTruthy()
+                expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
+                expect(modifiedSection.floors[8].units).toHaveLength(22)
+                expect(modifiedSection.floors[8].index).toEqual(3)
+                expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
+            })
+
             it('should add negative floor into section & update only negative floor labels', () => {
                 const Building = createBuildingMap(5)
                 const buildingFloors = Building.sections[0].floors.length
