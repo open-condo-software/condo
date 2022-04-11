@@ -59,7 +59,7 @@ const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/t
 const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
-const { REVIEW_VALUES } = require('../constants')
+const { REVIEW_VALUES, RESIDENT_COMMENT_TYPE } = require('../constants')
 
 describe('Ticket', () => {
     describe('Crud', () => {
@@ -143,6 +143,31 @@ describe('Ticket', () => {
             expect(obj.clientName).toEqual(name)
             expect(obj.clientPhone).toEqual(phone)
             expect(obj.clientEmail).toEqual(email)
+        })
+
+        test('resident: lastResidentCommentAt in Ticket updated when resident write comment', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const unitName = faker.random.alphaNumeric(5)
+            const content = faker.lorem.sentence()
+
+            await createTestResident(admin, residentClient.user, organization, property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(residentClient, organization, property, {
+                unitName,
+            })
+            const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                type: RESIDENT_COMMENT_TYPE,
+                content,
+            })
+
+            const readTicket = await Ticket.getOne(admin, { id: ticket.id })
+
+            expect(readTicket.lastResidentCommentAt).toBeDefined()
         })
 
         test('user with 2 residents: can create Ticket for each resident', async () => {

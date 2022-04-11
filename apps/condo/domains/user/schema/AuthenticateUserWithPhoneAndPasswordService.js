@@ -59,7 +59,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 if (!phone) {
                     throw new GQLError(errors.WRONG_PHONE_FORMAT, context)
                 }
-                const users = await UserServerUtils.getAll(context, { phone, type: STAFF })
+                const users = await UserServerUtils.getAll(context, { phone })
                 if (users.length !== 1) {
                     throw new GQLError(errors.USER_NOT_FOUND, context)
                 }

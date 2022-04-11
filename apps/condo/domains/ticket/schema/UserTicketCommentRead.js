@@ -39,7 +39,6 @@ const UserTicketCommentRead = new GQLListSchema('UserTicketCommentRead', {
             type: DateTimeUtc,
             isRequired: true,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

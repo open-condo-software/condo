@@ -544,6 +544,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const statusUpdatedAt = get(ticket, 'statusUpdatedAt')
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
     const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
+    const lastResidentCommentAt = useMemo(() => get(ticket,  'lastResidentCommentAt'), [ticket])
 
     const getTimeSinceCreation = useCallback(() => {
         const diffInMinutes = dayjs().diff(dayjs(statusUpdatedAt), 'minutes')
@@ -719,6 +720,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                         <Col lg={7} xs={24} offset={isSmall ? 0 : 1}>
                             <Affix offsetTop={40}>
                                 <Comments
+                                    lastResidentCommentAt={lastResidentCommentAt}
+                                    ticketId={id}
                                     // @ts-ignore
                                     createAction={createCommentAction}
                                     updateAction={updateComment}
