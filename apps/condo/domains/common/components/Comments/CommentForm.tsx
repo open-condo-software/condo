@@ -1,20 +1,19 @@
 import React, { CSSProperties, useCallback, useEffect } from 'react'
 import { FormWithAction } from '../containers/FormList'
 import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
-import { PaperClipOutlined } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
-import Icon from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
-import { SendMessage } from '../icons/SendMessage'
 import { useState } from 'react'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useInputWithCounter } from '../../hooks/useInputWithCounter'
 import { colors } from '@condo/domains/common/constants/style'
 import { useMultipleFileUploadHook } from '../MultipleFileUpload'
-import { TicketCommentFile, TicketFile } from '../../../ticket/utils/clientSchema'
+import { TicketCommentFile } from '@condo/domains/ticket/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
 import { ClipIcon } from '../icons/ClipIcon'
+import { TComment } from './index'
+import { ITicketCommentUIState } from '../../../ticket/utils/clientSchema/TicketComment'
 
 const Holder = styled.div`
   .wrapper {
@@ -55,9 +54,9 @@ interface ICommentFormProps {
     action: (formValues, syncModifiedFiles) => Promise<any>
     fieldName?: string
     initialValue?: string
-    editableComment
-    setEditableComment
-    sending
+    editableComment: TComment
+    setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
+    sending: boolean
 }
 
 export const MAX_COMMENT_LENGTH = 300
@@ -109,9 +108,9 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
         resetModifiedFiles()
     }, [action, resetModifiedFiles, syncModifiedFiles])
 
-    const Mem = useCallback(() => (
+    const MemoizedUploadComponent = useCallback(() => (
         <UploadComponent
-            initialFileList={editableComment?.meta?.files}
+            initialFileList={editableComment?.files}
             UploadButton={() => (
                 <Button type={'text'}>
                     <ClipIcon />
@@ -164,7 +163,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
                                         onKeyUp={(event) => {handleKeyUp(event, form)}}
                                     />
                                 </Form.Item>
-                                <Mem />
+                                <MemoizedUploadComponent />
                             </div>
                         </Holder>
                     )

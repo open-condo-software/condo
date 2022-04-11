@@ -8,7 +8,14 @@ import { CommentForm } from './CommentForm'
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
-import { UserTypeType } from '@app/condo/schema'
+import { File, Organization, UserTypeType } from '@app/condo/schema'
+
+export type TCommentFile = {
+    id: string
+    file: File
+    organization?: Organization
+    comment?: TComment
+}
 
 export type TComment = {
     id: string,
@@ -19,6 +26,7 @@ export type TComment = {
         name: string,
         type: UserTypeType,
     },
+    files: TCommentFile[],
     createdAt: string,
     updatedAt: string,
     deletedAt: string,
@@ -82,7 +90,7 @@ type ActionsForComment = {
 interface ICommentsListProps {
     comments: TComment[],
     createAction?: (formValues) => Promise<TComment>,
-    updateAction
+    updateAction?: (attrs, obj: TComment) => Promise<TComment>
     // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
     actionsFor: (comment: TComment) => ActionsForComment,
     canCreateComments: boolean,
@@ -140,8 +148,8 @@ type CommentsTabContentProps = {
     PromptTitleMessage: string,
     PromptDescriptionMessage: string,
     actionsFor: (comment: TComment) => ActionsForComment,
-    editableComment
-    setEditableComment
+    editableComment: TComment
+    setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
