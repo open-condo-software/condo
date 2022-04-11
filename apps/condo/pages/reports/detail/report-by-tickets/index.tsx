@@ -45,7 +45,6 @@ import {
     searchOrganizationProperty,
     searchProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
 import {
@@ -1037,13 +1036,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         </PageWrapper>
     </>
 }
-
-TicketAnalyticsPage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' }}
-        path={'/reports/'}
-    />
-)
 
 TicketAnalyticsPage.requiredAccess = OrganizationRequired
 

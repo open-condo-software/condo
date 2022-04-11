@@ -4,7 +4,6 @@ import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { UpdateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/UpdateEmployeeForm'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 export const EmployeeUpdatePage = () => {
     const intl = useIntl()
@@ -23,13 +22,6 @@ export const EmployeeUpdatePage = () => {
         </>
     )
 }
-
-EmployeeUpdatePage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id: 'Back' }}
-        path={(id) => `/employee/${id}/`}
-    />
-)
 
 EmployeeUpdatePage.requiredAccess = OrganizationRequired
 

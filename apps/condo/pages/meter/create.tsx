@@ -5,7 +5,6 @@ import { useOrganization } from '@core/next/organization'
 import { Gutter } from 'antd/es/grid/row'
 import { useIntl } from '@core/next/intl'
 
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { CreateMeterReadingsForm } from '@condo/domains/meter/components/CreateMeterReadingsForm'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -47,9 +46,6 @@ const CreateMeterPage: ICreateContactPage = () => {
     )
 }
 
-CreateMeterPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'meter.MeterReadingsLog' }}
-    path={'/meter'}/>
 CreateMeterPage.requiredAccess = OrganizationRequired
 
 export default CreateMeterPage

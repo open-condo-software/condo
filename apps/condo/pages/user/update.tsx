@@ -5,7 +5,6 @@ import { useAuth } from '@core/next/auth'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { UserProfileForm } from '@condo/domains/user/components/UserProfileForm'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 export const UserInfoPage = () => {
     const { user } = useAuth()
@@ -25,7 +24,6 @@ export const UserInfoPage = () => {
     )
 }
 
-UserInfoPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'Back' }} path={'/user/'}/>
 UserInfoPage.requiredAccess = AuthRequired
 
 export default UserInfoPage

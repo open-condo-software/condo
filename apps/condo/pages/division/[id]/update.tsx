@@ -5,7 +5,6 @@ import { DivisionForm } from '@condo/domains/division/components/DivisionForm'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useRouter } from 'next/router'
 
 interface IUpdateDivisionPage extends React.FC {
@@ -38,12 +37,6 @@ const UpdateDivisionPage: IUpdateDivisionPage = () => {
     )
 }
 
-UpdateDivisionPage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id: 'menu.AllDivisions' }}
-        path={'/property?tab=divisions'}
-    />
-)
 UpdateDivisionPage.requiredAccess = OrganizationRequired
 
 export default UpdateDivisionPage

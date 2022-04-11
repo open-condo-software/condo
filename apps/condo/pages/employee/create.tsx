@@ -6,7 +6,6 @@ import { useIntl } from 'react-intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { CreateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/CreateEmployeeForm'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { jsx } from '@emotion/core'
 
 interface IPageWithHeaderAction extends React.FC {
@@ -41,12 +40,6 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
     )
 }
 
-CreateEmployeePage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id: 'pages.condo.employee.PageTitle' }}
-        path={'/employee/'}
-    />
-)
 CreateEmployeePage.requiredAccess = OrganizationRequired
 
 export default CreateEmployeePage
