@@ -28,36 +28,53 @@ class FixTicketClients {
     async fixBrokenTickets () {
         if (!get(this.brokenTickets, 'length')) return
 
+        const ticketsProperties = this.brokenTickets.map(ticket => ticket.property)
+
+        const contactsInTicketsProperty = await find('Contact', {
+            property: { id_in: ticketsProperties },
+        })
+        const residentsInTicketsProperty = await find('Resident', {
+            property: { id_in: ticketsProperties },
+        })
+        const residentsUsers = await find('User', {
+            id_in: residentsInTicketsProperty.map(resident => resident.user),
+        })
+
         for (const ticket of this.brokenTickets) {
             const ticketContactId = get(ticket, 'contact')
 
             // if ticket have a contact -> find resident matches contact.phone, ticket.property, ticket.unitName and ticket.unitType fields
             if (ticketContactId) {
-                const ticketContact = await getById('Contact', ticketContactId, null)
+                const ticketContact = contactsInTicketsProperty.find(contact => contact.id === ticketContactId)
                 const ticketContactPhone = get(ticketContact, 'phone', null)
                 const ticketPropertyId = get(ticket, 'property', null)
                 const ticketUnitName = get(ticket, 'unitName', null)
                 const ticketUnitType = get(ticket, 'unitType', null)
 
-                const resident = await getByCondition('Resident', {
-                    user: { phone: ticketContactPhone },
-                    property: { id: ticketPropertyId },
-                    unitName: ticketUnitName,
-                    unitType: ticketUnitType,
+                const resident = residentsInTicketsProperty.find(resident => {
+                    const residentUser = residentsUsers.find(user => user.id === resident.user)
+                    const residentUserPhone = get(residentUser, 'phone')
+                    const residentPropertyId = get(resident, 'property')
+                    const residentUnitName = get(resident, 'unitName')
+                    const residentUnitType = get(resident, 'unitType')
+
+                    return  residentUserPhone === ticketContactPhone &&
+                            residentPropertyId === ticketPropertyId &&
+                            residentUnitName === ticketUnitName &&
+                            residentUnitType === ticketUnitType
                 })
 
                 if (resident) {
-                    const residentUserId = get(resident, 'user', null)
-                    const user = await getById('User', residentUserId)
-                    const userPhone = get(user, 'phone', null)
-                    const userName = get(user, 'name', null)
-                    const userEmail = get(user, 'email', null)
+                    const residentUser = residentsUsers.find(user => user.id === resident.user)
+                    const userPhone = get(residentUser, 'phone', null)
+                    const userName = get(residentUser, 'name', null)
+                    const userEmail = get(residentUser, 'email', null)
 
                     await Ticket.update(this.context, ticket.id, {
                         clientName: userName,
                         clientPhone: userPhone,
                         clientEmail: userEmail,
-                        client: { connect: { id: residentUserId } },
+                        client: { connect: { id: residentUser.id } },
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'fixTicketScript' },
                     })
