@@ -3,7 +3,7 @@
  */
 
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox, Select } = require('@keystonejs/fields')
-const { GQLListSchema, getByCondition } = require('@core/keystone/schema')
+const { GQLListSchema, getByCondition, getById } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const get = require('lodash/get')
@@ -104,7 +104,45 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { unique: true, null: false },
         },
 
-        client: CLIENT_FIELD,
+        client: {
+            schemaDoc: 'Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client',
+            type: Relationship,
+            ref: 'User',
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            hooks: {
+                resolveInput: async ({ operation, resolvedData, existingItem, fieldPath }) => {
+                    const contactId = get(resolvedData, 'contact')
+                    if (!contactId) return resolvedData[fieldPath]
+
+                    const contact = await getById('Contact', contactId)
+                    const contactPhone = get(contact, 'phone')
+
+                    let ticketUnitName
+                    let ticketUnitType
+                    let ticketPropertyId
+
+                    if (operation === 'create') {
+                        ticketUnitName = get(resolvedData, 'unitName', null)
+                        ticketUnitType = get(resolvedData, 'unitType', null)
+                        ticketPropertyId = get(resolvedData, 'property', null)
+                    } else if (operation === 'update' && existingItem) {
+                        ticketUnitName = get(resolvedData, 'unitName') || existingItem.unitName || null
+                        ticketUnitType = get(resolvedData, 'unitType') || existingItem.unitType || null
+                        ticketPropertyId = get(resolvedData, 'property') || existingItem.property || null
+                    }
+
+                    const resident = await getByCondition('Resident', {
+                        user: { phone: contactPhone },
+                        property: { id: ticketPropertyId },
+                        unitName: ticketUnitName,
+                        unitType: ticketUnitType,
+                        deletedAt: null,
+                    })
+
+                    return get(resident, 'user') || resolvedData[fieldPath]
+                },
+            },
+        },
         contact: CONTACT_FIELD,
         clientName: CLIENT_NAME_FIELD,
         clientEmail:  CLIENT_EMAIL_FIELD,
