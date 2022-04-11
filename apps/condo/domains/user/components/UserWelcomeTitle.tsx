@@ -70,8 +70,8 @@ export const WelcomeHeaderTitle: React.FC = () => {
 
     return (
         <Row style={{ display: 'inline-flex' }} gutter={ITEMS_HEADER_GUTTER}>
-            <Image src={'/WomanHeaderWelcome.png'} css={WomanPictureCSS}/>
-            <Image src={'/ManHeaderWelcome.png'} css={ManPictureCSS}/>
+            <Image preview={false} src={'/WomanHeaderWelcome.png'} css={WomanPictureCSS}/>
+            <Image preview={false} src={'/ManHeaderWelcome.png'} css={ManPictureCSS}/>
             <Typography.Text css={WelcomeAnimation} underline>{WelcomeTitleMessage}</Typography.Text>
         </Row>
     )
