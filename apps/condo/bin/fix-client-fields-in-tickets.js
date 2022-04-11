@@ -1,13 +1,12 @@
 const path = require('path')
-const { find, getByCondition, getById } = require('@core/keystone/schema')
+const { find } = require('@core/keystone/schema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const get = require('lodash/get')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 class FixTicketClients {
     context = null
-    brokenTickets = []
+    clientIsNullTickets = []
 
     async connect () {
         const resolved = path.resolve('./index.js')
@@ -20,15 +19,23 @@ class FixTicketClients {
 
     async findBrokenTickets () {
         // Tickets where client is null
-        this.brokenTickets = await find('Ticket', {
+        this.clientIsNullTickets = await find('Ticket', {
             client_is_null: true,
+        })
+
+        // Tickets where client is not null, but client fields is null
+        this.clientIsNotNullTickets = await find('Ticket', {
+            client_is_null: false,
+            clientName: null,
+            clientPhone: null,
+            clientEmail: null,
         })
     }
 
-    async fixBrokenTickets () {
-        if (!get(this.brokenTickets, 'length')) return
+    async fixClientIsNullTickets () {
+        if (!get(this.clientIsNullTickets, 'length')) return
 
-        const ticketsProperties = this.brokenTickets.map(ticket => ticket.property)
+        const ticketsProperties = this.clientIsNullTickets.map(ticket => ticket.property)
 
         const contactsInTicketsProperty = await find('Contact', {
             property: { id_in: ticketsProperties },
@@ -40,17 +47,20 @@ class FixTicketClients {
             id_in: residentsInTicketsProperty.map(resident => resident.user),
         })
 
-        for (const ticket of this.brokenTickets) {
+        for (const ticket of this.clientIsNullTickets) {
             const ticketContactId = get(ticket, 'contact')
 
-            // if ticket have a contact -> find resident matches contact.phone, ticket.property, ticket.unitName and ticket.unitType fields
+            // if ticket have a contact
             if (ticketContactId) {
                 const ticketContact = contactsInTicketsProperty.find(contact => contact.id === ticketContactId)
                 const ticketContactPhone = get(ticketContact, 'phone', null)
+                const ticketContactEmail = get(ticketContact, 'email', null)
+                const ticketContactName = get(ticketContact, 'name', null)
                 const ticketPropertyId = get(ticket, 'property', null)
                 const ticketUnitName = get(ticket, 'unitName', null)
                 const ticketUnitType = get(ticket, 'unitType', null)
 
+                // find resident matches contact.phone, ticket.property, ticket.unitName and ticket.unitType fields
                 const resident = residentsInTicketsProperty.find(resident => {
                     const residentUser = residentsUsers.find(user => user.id === resident.user)
                     const residentUserPhone = get(residentUser, 'phone')
@@ -65,6 +75,7 @@ class FixTicketClients {
                 })
 
                 if (resident) {
+                    // if resident founded fill ticket client fields by resident fields
                     const residentUser = residentsUsers.find(user => user.id === resident.user)
                     const userPhone = get(residentUser, 'phone', null)
                     const userName = get(residentUser, 'name', null)
@@ -78,8 +89,40 @@ class FixTicketClients {
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'fixTicketScript' },
                     })
+                } else {
+                    // if resident not founded fill ticket client fields by contact fields
+                    await Ticket.update(this.context, ticket.id, {
+                        clientName: ticketContactName,
+                        clientPhone: ticketContactPhone,
+                        clientEmail: ticketContactEmail,
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'fixTicketScript' },
+                    })
                 }
             }
+        }
+    }
+
+    async fixClientIsNotNullTickets () {
+        if (!get(this.clientIsNotNullTickets, 'length')) return
+
+        const clientUsers = await find('User', {
+            id_in: this.clientIsNotNullTickets.map(ticket => ticket.client),
+        })
+
+        for (const ticket of this.clientIsNotNullTickets) {
+            const ticketClientUser = clientUsers.find(user => user.id === ticket.client)
+            const userName = get(ticketClientUser, 'name', null)
+            const userPhone = get(ticketClientUser, 'phone', null)
+            const userEmail = get(ticketClientUser, 'email', null)
+
+            await Ticket.update(this.context, ticket.id, {
+                clientName: userName,
+                clientPhone: userPhone,
+                clientEmail: userEmail,
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'fixTicketScript' },
+            })
         }
     }
 }
@@ -90,9 +133,11 @@ const fixTickets = async () => {
     await fixer.connect()
     console.info('[INFO] Finding broken tickets...')
     await fixer.findBrokenTickets()
-    console.info(`[INFO] Following tickets will be fixed: [${fixer.brokenTickets.map(ticket => `"${ticket.id}"`).join(', ')}]`)
-    await fixer.fixBrokenTickets()
-    console.info('[INFO] Broken tickets are fixed...')
+    console.info(`[INFO] Following tickets with client is null will be fixed: [${fixer.clientIsNullTickets.map(ticket => `"${ticket.id}"`).join(', ')}]`)
+    await fixer.fixClientIsNullTickets()
+    console.info(`[INFO] Following tickets with client fields is null will be fixed: [${fixer.clientIsNotNullTickets.map(ticket => `"${ticket.id}"`).join(', ')}]`)
+    await fixer.fixClientIsNotNullTickets()
+    console.info('[INFO] Tickets are fixed...')
 }
 
 fixTickets().then(() => {
