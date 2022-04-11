@@ -13,14 +13,6 @@ interface IPosterLayoutProps {
     layoutBgImage?: { poster: string, placeholder: string }
 }
 
-const FOOTER_STYLES: React.CSSProperties = {
-    backgroundColor: 'inherit',
-    marginTop: 5,
-    position: 'fixed',
-    bottom: '8%',
-    marginLeft: '5%',
-}
-
 const ROW_STYLE = { margin: '65px 0 65px', justifyContent: 'center' }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor, layoutBgImage }) => {
@@ -54,7 +46,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                     </PageContent>
                 </Col>
                 <Col span={24}>
-                    <Footer isSmall={isSmall} style={FOOTER_STYLES}>
+                    <Footer isSmall={isSmall}>
                         <Typography.Link
                             href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}
                         </Typography.Link>,

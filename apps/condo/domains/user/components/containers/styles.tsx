@@ -10,11 +10,11 @@ export const Footer = styled.div<IFooterProps>`
   ${({ isSmall }) => isSmall
         ? `
             position: absolute;
-            bottom: 400px;
+            bottom: 0px;
           `
         : `
-            margin-left: 5%;
             bottom: 8%;
+            position: fixed;
           `
 }
   width: 100%;
@@ -24,7 +24,7 @@ export const Footer = styled.div<IFooterProps>`
   line-height: 20px;
   background-color: inherit;
   margin-top: 5px;
-  position: fixed;
+  margin-left: 5%;
 `
 
 export const Header = styled.div`
