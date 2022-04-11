@@ -8,7 +8,7 @@ const { createTestOrganizationWithAccessToAnotherOrganization } = require('@cond
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
@@ -16,7 +16,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { TicketComment, createTestTicketComment, updateTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('../constants')
-const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { updateTestTicket } = require('../utils/testSchema')
 const { STATUS_IDS } = require('../constants/statusTransitions')
@@ -856,11 +856,46 @@ describe('TicketComment', () => {
                 expect(comments[1].createdBy).toEqual(null)
             })
 
-            it.todo('cannot read ticket comments after resident is deleted')
+            it('cannot read ticket comments after resident is deleted', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
 
-            it.todo('cannot read ticket comments after ticket property is deleted')
+                const unitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
 
-            it.todo('cannot read ticket comments after ticket is deleted')
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                const [resident] = await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content: content1,
+                })
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content: content2,
+                })
+
+                await updateTestResident(adminClient, resident.id, {
+                    deletedAt: new Date().toISOString(),
+                })
+
+                const comments = await TicketComment.getAll(residentClient, {})
+
+                expect(comments).toHaveLength(0)
+            })
         })
 
         describe('update', () => {
