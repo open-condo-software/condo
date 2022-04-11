@@ -7,7 +7,6 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { AboutBillingAppPage, AboutAcquiringAppPage } from '@condo/domains/miniapp/components/AppDescription'
 import { AppPageWrapper } from '@condo/domains/miniapp/components/AppPageWrapper'
 
@@ -39,8 +38,5 @@ const AboutMiniAppPage = () => {
 }
 
 AboutMiniAppPage.requiredAccess = OrganizationRequired
-AboutMiniAppPage.headerAction  = <ReturnBackHeaderAction
-    descriptor={{ id: 'menu.Services' }}
-    path={'/miniapps'}/>
 
 export default AboutMiniAppPage
