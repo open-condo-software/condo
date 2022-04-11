@@ -25,8 +25,6 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
     if (user.type === RESIDENT) {
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
 
-        if (isEmpty(residents)) return false
-
         const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
         const residentAddressOrStatement = getTicketFieldsMatchesResidentFieldsQuery(user, residents)
 
