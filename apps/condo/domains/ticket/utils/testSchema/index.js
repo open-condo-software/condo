@@ -427,18 +427,17 @@ async function predictTicketClassificationByTestClient(client, extraAttrs = {}) 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
-async function createTestTicketCommentFile (client, organization, ticket, extraAttrs = {}) {
+async function createTestTicketCommentFile (client, organization, ticket, ticketComment, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestTicketCommentFile logic for generate fields
 
     const attrs = {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
-        ticket: { connect: { id: ticket.id} },
+        ticket: { connect: { id: ticket.id } },
+        ticketComment: { connect: { id: ticketComment.id} },
         ...extraAttrs,
     }
     const obj = await TicketCommentFile.create(client, attrs)
