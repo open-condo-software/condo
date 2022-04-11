@@ -27,24 +27,9 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
 
         if (isEmpty(residents)) return false
 
-        const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
-        const residentAddressOrStatement = residents.map(resident =>
-            ({ AND: [{ canReadByResident: true, contact: { phone: user.phone } }, { property: { id: resident.property } }, { unitName: resident.unitName }] }))
-
         return {
-            organization: {
-                id_in: uniq(organizationsIds),
-                deletedAt: null,
-            },
-            OR: [
-                { createdBy: { id: user.id } },
-                {
-                    AND: [
-                        { client: { id: user.id } },
-                        { canReadByResident: true },
-                    ],
-                },
-            ],
+            client: { id: user.id },
+            canReadByResident: true,
         }
     }
 
