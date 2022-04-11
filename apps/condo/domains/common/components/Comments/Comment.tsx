@@ -2,8 +2,8 @@ import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
 import { TComment } from './index'
 import { useIntl } from '@core/next/intl'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
-import React, { useCallback, useMemo, useState } from 'react'
-import { red, grey } from '@ant-design/colors'
+import React, { useState } from 'react'
+import { grey } from '@ant-design/colors'
 import { colors, shadows } from '@condo/domains/common/constants/style'
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 /** @jsx jsx */
@@ -12,10 +12,9 @@ import { User } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import { Button } from '../Button'
 import get from 'lodash/get'
-import { ImageIcon } from '../icons/ImageIcon'
-import { VideoIcon } from '../icons/VideoIcon'
-import { DocIcon } from '../icons/DocIcon'
-import { useAuth } from '@core/next/auth'
+import { ImageIcon } from '@condo/domains/common/components/icons/ImageIcon'
+import { VideoIcon } from '@condo/domains/common/components/icons/VideoIcon'
+import { DocIcon } from '@condo/domains/common/components/icons/DocIcon'
 
 interface ICommentProps {
     comment: TComment,
@@ -143,14 +142,11 @@ const getIconByMimetype = (mimetype) => {
 
 const CommentFileList = ({ comment }) => {
     const files = get(comment, 'files')
-    console.log(files)
     const [openedImageSrc, setOpenedImageSrc] = useState()
 
     if (!Array.isArray(files)) {
         return <></>
     }
-
-    const otherImages = files.filter(({ id,  file }) => id !== openedImageSrc && file.mimetype.startsWith('image'))
 
     return (
         <div>
@@ -208,33 +204,6 @@ const getCommentAuthorRoleMessage = (author: User, intl) => {
             return EmployeeMessage
         }
     }
-}
-
-export const CommentPlaceholder = ({ content }) => {
-    const intl = useIntl()
-    const { user } = useAuth()
-
-    return (
-        <AntComment
-            content={
-                <>
-                    <Typography.Text>
-                        {content}
-                    </Typography.Text>
-                    <CommentFileList comment={comment} />
-                </>
-            }
-            author={
-                <Typography.Text type={'secondary'}>
-                    <Typography.Text type={'secondary'} underline style={{ paddingRight: '2px' }}>
-                        {user.name}
-                    </Typography.Text>
-                    ({getCommentAuthorRoleMessage(user, intl)}),
-                </Typography.Text>
-            }
-            css={CommentStyle}
-        />
-    )
 }
 
 export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, deleteAction }) => {
