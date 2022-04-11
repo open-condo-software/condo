@@ -47,16 +47,18 @@ const errors = {
 }
 
 async function getResidentBillingAccount (context, billingIntegrationContext, accountNumber, unitName) {
-    let applicableBillingAccounts = await BillingAccount.getAll(context, {
+    const billingAccountsInUnit = await BillingAccount.getAll(context, {
         context: { id: billingIntegrationContext.id },
         unitName: unitName,
     })
-    if (!Array.isArray(applicableBillingAccounts)) {
+    if (!Array.isArray(billingAccountsInUnit)) {
         return [] // No accounts are found for this user
     }
-    applicableBillingAccounts = applicableBillingAccounts.filter(
+    const applicableBillingAccounts = billingAccountsInUnit.filter(
         (billingAccount) => {
-            return accountNumber === billingAccount.number || accountNumber === billingAccount.globalId
+            return (accountNumber === billingAccount.number) ||
+                   (accountNumber.trim() === billingAccount.number) ||
+                   (accountNumber === billingAccount.globalId)
         }
     )
     return applicableBillingAccounts
@@ -113,7 +115,6 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
                 if (billingIntegrationContext) {
-
                     const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
                     const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
                     attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
