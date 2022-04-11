@@ -49,7 +49,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 const [property] = await PropertyAPI.getAll(
                     context,
                     { address_i: propertyAddress, deletedAt: null },
-                    { sortBy: ['isApproved_DESC', 'createdAt_ASC'], first: 1 }
+                    { sortBy: ['isApproved_ASC', 'createdAt_ASC'], first: 1 }
                 )
 
                 if (property) {
