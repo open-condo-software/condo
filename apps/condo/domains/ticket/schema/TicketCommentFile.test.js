@@ -4,129 +4,168 @@
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { TicketCommentFile, createTestTicketCommentFile, updateTestTicketCommentFile } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { TicketCommentFile, createTestTicketCommentFile, updateTestTicketCommentFile,
+    createTestTicket,
+    createTestTicketComment, TicketComment,
+} = require('@condo/domains/ticket/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
+} = require('@condo/domains/common/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+    createTestOrganizationWithAccessToAnotherOrganization,
+    updateTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { RESIDENT_COMMENT_TYPE } = require('../constants')
 
 describe('TicketCommentFile', () => {
-    test('user: create TicketCommentFile', async () => {
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
+    describe('employee', () => {
+        describe('create', () => {
+            test('can be created by user, who has "canManageTicketComments" ability', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
-        const [obj, attrs] = await createTestTicketCommentFile(client)  // TODO(codegen): write 'user: create TicketCommentFile' test
-        expect(obj.id).toMatch(UUID_RE)
-        expect(obj.dv).toEqual(1)
-        expect(obj.sender).toEqual(attrs.sender)
-        expect(obj.v).toEqual(1)
-        expect(obj.newId).toEqual(null)
-        expect(obj.deletedAt).toEqual(null)
-        expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(obj.createdAt).toMatch(DATETIME_RE)
-        expect(obj.updatedAt).toMatch(DATETIME_RE)
-    })
+                const [ticket] = await createTestTicket(userClient, organization, property)
+                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
+                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, organization, ticket, ticketComment)
 
-    test('anonymous: create TicketCommentFile', async () => {
-        const client = await makeClient()
-        await expectToThrowAuthenticationErrorToObjects(async () => {
-            await createTestTicketCommentFile(client)  // TODO(codegen): check the 'anonymous: create TicketCommentFile' test!
+                expect(ticketCommentFile.id).toMatch(UUID_RE)
+            })
+
+            test('cannot be created by user, who does not have "canManageTicketComments" ability', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: false,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+                const [ticket] = await createTestTicket(userClient, organization, property)
+                const [ticketComment] = await createTestTicketComment(adminClient, ticket, userClient.user)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestTicketCommentFile(userClient, organization, ticket, ticketComment)
+                })
+            })
+
+            test('can be created by admin', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [ticket] = await createTestTicket(adminClient, organization, property)
+
+                const [ticketComment] = await createTestTicketComment(adminClient, ticket, adminClient.user)
+                const [ticketCommentFile] = await createTestTicketCommentFile(adminClient, organization, ticket, ticketComment)
+
+                expect(ticketCommentFile.id).toMatch(UUID_RE)
+            })
+
+            test('cannot be created by anonymous', async () => {
+                const anonymous = await makeClient()
+
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(client, client.organization, client.property)
+                const [ticketComment] = await createTestTicketComment(client, ticket, client.user)
+
+                await expectToThrowAuthenticationErrorToObj(async () => {
+                    await createTestTicketCommentFile(anonymous, client.organization, ticket, ticketComment)
+                })
+            })
+
+            test('can be created by employee from "from" relation organization', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+                const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
+                    canManageTickets: true,
+                })
+                await updateTestOrganizationEmployee(admin, employeeFrom.id, {
+                    role: { connect: { id: role.id } },
+                })
+                const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
+                const [ticketComment] = await createTestTicketComment(clientFrom, ticket, clientFrom.user)
+
+                const [ticketCommentFile] = await createTestTicketCommentFile(clientFrom, organizationTo, ticket, ticketComment)
+                expect(ticketCommentFile.id).toMatch(UUID_RE)
+            })
+
+            test('cannot be created by employee from "to" relation organization', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const { clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+                const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
+                const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestTicketCommentFile(clientTo, organizationFrom, ticket, ticketComment)
+                })
+            })
         })
-    })
 
-    test('user: read TicketCommentFile', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [obj, attrs] = await createTestTicketCommentFile(admin)  // TODO(codegen): check create function!
+        describe('read', () => {
+            test('can be read by admin', async () => {
+                const adminClient = await makeLoggedInAdminClient()
 
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const objs = await TicketCommentFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                const userClient1 = await makeClientWithProperty()
+                const [ticket1] = await createTestTicket(userClient1, userClient1.organization, userClient1.property)
+                const [ticketComment] = await createTestTicketComment(userClient1, ticket1, userClient1.user)
+                await createTestTicketCommentFile(userClient1, userClient1.organization, ticket1, ticketComment)
 
-        // TODO(codegen): check 'user: read TicketCommentFile' test!
-        expect(objs).toHaveLength(1)
-        // expect(objs.length >= 1).toBeTruthy()
-        expect(objs[0].id).toMatch(obj.id)
-        expect(objs[0].dv).toEqual(1)
-        expect(objs[0].sender).toEqual(attrs.sender)
-        expect(objs[0].v).toEqual(1)
-        expect(objs[0].newId).toEqual(null)
-        expect(objs[0].deletedAt).toEqual(null)
-        expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-        expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-        expect(objs[0].createdAt).toMatch(obj.createdAt)
-        expect(objs[0].updatedAt).toMatch(obj.updatedAt)
-    })
-
-    test('anonymous: read TicketCommentFile', async () => {
-        const client = await makeClient()
-
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
-            await TicketCommentFile.getAll(client)
-})
-    })
-
-    test('user: update TicketCommentFile', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestTicketCommentFile(admin)  // TODO(codegen): check create function!
-
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const payload = {}  // TODO(codegen): change the 'user: update TicketCommentFile' payload
-        const [objUpdated, attrs] = await updateTestTicketCommentFile(client, objCreated.id, payload)
-
-        // TODO(codegen): white checks for 'user: update TicketCommentFile' test
-        expect(objUpdated.id).toEqual(objCreated.id)
-        expect(objUpdated.dv).toEqual(1)
-        expect(objUpdated.sender).toEqual(attrs.sender)
-        expect(objUpdated.v).toEqual(2)
-        expect(objUpdated.newId).toEqual(null)
-        expect(objUpdated.deletedAt).toEqual(null)
-        expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(objUpdated.createdAt).toMatch(DATETIME_RE)
-        expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
-        expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
-    })
-
-    test('anonymous: update TicketCommentFile', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestTicketCommentFile(admin)  // TODO(codegen): check create function!
-
-        const client = await makeClient()
-        const payload = {}  // TODO(codegen): change the 'anonymous: update TicketCommentFile' payload
-        await expectToThrowAuthenticationErrorToObjects(async () => {
-            await updateTestTicketCommentFile(client, objCreated.id, payload)
-})
-    })
-
-    test('user: delete TicketCommentFile', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestTicketCommentFile(admin)  // TODO(codegen): check create function!
-
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        try {
-            // TODO(codegen): check 'user: delete TicketCommentFile' test!
-            await TicketCommentFile.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
+                const objs = await TicketCommentFile.getAll(adminClient, {})
+                expect(objs.length).toBeGreaterThan(0)
             })
-            expect(e.data).toEqual({ 'obj': null })
-        }
-    })
 
-    test('anonymous: delete TicketCommentFile', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestTicketCommentFile(admin)  // TODO(codegen): check create function!
+            test('cannot be read by anonymous', async () => {
+                const anonymous = await makeClient()
 
-        const client = await makeClient()
-        try {
-            // TODO(codegen): check 'anonymous: delete TicketCommentFile' test!
-            await TicketCommentFile.delete(client, objCreated.id)
-        } catch (e) {
-            expect(e.errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['obj'],
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(client, client.organization, client.property)
+                await createTestTicketComment(client, ticket, client.user)
+
+                await expectToThrowAuthenticationErrorToObjects(async () => {
+                    await TicketComment.getAll(anonymous)
+                })
             })
-            expect(e.data).toEqual({ 'obj': null })
-        }
+
+            it('can be read by employee from "from" relation organization', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
+                const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
+                await createTestTicketComment(admin, ticket, clientFrom.user)
+
+                const comments = await TicketComment.getAll(clientFrom)
+                expect(comments).toHaveLength(1)
+            })
+
+            it('cannot be read by employee from "to" relation organization', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+                const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
+                await createTestTicketComment(admin, ticket, clientFrom.user)
+
+                const comments = await TicketComment.getAll(clientTo)
+                expect(comments).toHaveLength(0)
+            })
+        })
+
     })
+
+    describe('resident', () => {
+
+    })
+
+
 })
