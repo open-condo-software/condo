@@ -99,6 +99,7 @@
     "react-phone-input-2": "^2.14.0",
     "react-progressive-image": "^0.6.0",
     "react-test-renderer": "^16.13.1",
+    "rehype-raw": "5.1.0",
     "remark-gfm": "^1.0.0",
     "use-immer": "^0.4.1",
     "uuid": "^8.3.0",
