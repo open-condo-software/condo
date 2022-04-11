@@ -30,6 +30,13 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
             adapter: Adapter,
         },
 
+        ticket: {
+            schemaDoc: 'Link to ticket',
+            type: Relationship,
+            ref: 'Ticket',
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
         ticketComment: {
             schemaDoc: 'Link to ticket comment',
             type: Relationship,
@@ -44,7 +51,7 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
                 const { id, file } = updatedItem
 
                 if (file) {
-                    const { filename, mimetype, originalFilename } = file
+                    const { filename } = file
                     const key = `${TICKET_COMMENT_FILE_FOLDER_NAME}/${filename}`
 
                     const metaToSet = {

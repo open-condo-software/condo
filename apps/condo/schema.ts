@@ -33142,6 +33142,8 @@ export enum SortTicketCommentFilesBy {
   DvDesc = 'dv_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  TicketAsc = 'ticket_ASC',
+  TicketDesc = 'ticket_DESC',
   TicketCommentAsc = 'ticketComment_ASC',
   TicketCommentDesc = 'ticketComment_DESC',
   IdAsc = 'id_ASC',
@@ -36755,6 +36757,8 @@ export type TicketCommentFile = {
   organization?: Maybe<Organization>;
   /**  File object with meta information and publicUrl  */
   file?: Maybe<File>;
+  /**  Link to ticket  */
+  ticket?: Maybe<Ticket>;
   /**  Link to ticket comment  */
   ticketComment?: Maybe<TicketComment>;
   id: Scalars['ID'];
@@ -36772,6 +36776,7 @@ export type TicketCommentFileCreateInput = {
   sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   file?: Maybe<Scalars['Upload']>;
+  ticket?: Maybe<TicketRelateToOneInput>;
   ticketComment?: Maybe<TicketCommentRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -36797,6 +36802,7 @@ export type TicketCommentFileHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
+  ticket?: Maybe<Scalars['String']>;
   ticketComment?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -36816,6 +36822,7 @@ export type TicketCommentFileHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
+  ticket?: Maybe<Scalars['String']>;
   ticketComment?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -36840,6 +36847,7 @@ export type TicketCommentFileHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
+  ticket?: Maybe<Scalars['String']>;
   ticketComment?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -36876,6 +36884,10 @@ export type TicketCommentFileHistoryRecordWhereInput = {
   file_not?: Maybe<Scalars['JSON']>;
   file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  ticket?: Maybe<Scalars['String']>;
+  ticket_not?: Maybe<Scalars['String']>;
+  ticket_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticket_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticketComment?: Maybe<Scalars['String']>;
   ticketComment_not?: Maybe<Scalars['String']>;
   ticketComment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -36964,6 +36976,7 @@ export type TicketCommentFileUpdateInput = {
   sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   file?: Maybe<Scalars['Upload']>;
+  ticket?: Maybe<TicketRelateToOneInput>;
   ticketComment?: Maybe<TicketCommentRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -36995,6 +37008,8 @@ export type TicketCommentFileWhereInput = {
   file_not?: Maybe<Scalars['String']>;
   file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticket?: Maybe<TicketWhereInput>;
+  ticket_is_null?: Maybe<Scalars['Boolean']>;
   ticketComment?: Maybe<TicketCommentWhereInput>;
   ticketComment_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
