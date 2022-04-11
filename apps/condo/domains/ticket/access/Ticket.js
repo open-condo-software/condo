@@ -85,11 +85,20 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
     if (user.isAdmin) return true
 
     if (user.type === RESIDENT) {
-        let unitName, propertyId
-
         if (operation === 'create') {
-            unitName = get(originalInput, 'unitName', null)
-            propertyId = get(originalInput, ['property', 'connect', 'id'])
+            const unitName = get(originalInput, 'unitName', null)
+            const propertyId = get(originalInput, ['property', 'connect', 'id'])
+
+            if (!unitName || !propertyId) return false
+
+            const residents = await find('Resident', {
+                user: { id: user.id },
+                property: { id: propertyId, deletedAt: null },
+                unitName,
+                deletedAt: null,
+            })
+
+            return residents.length > 0
         } else if (operation === 'update') {
             if (!itemId) return false
 
@@ -98,21 +107,9 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
 
             const ticket = await getById('Ticket', itemId)
             if (!ticket) return false
-            if (ticket.createdBy !== user.id || ticket.client !== user.id) return false
-            propertyId = get(ticket, 'property', null)
-            unitName = get(ticket, 'unitName', null)
+
+            return ticket.client === user.id
         }
-
-        if (!unitName || !propertyId) return false
-
-        const residents = await find('Resident', {
-            user: { id: user.id },
-            property: { id: propertyId, deletedAt: null },
-            unitName,
-            deletedAt: null,
-        })
-
-        return residents.length > 0
     }
     if (user.type === STAFF) {
         let organizationId
