@@ -1,4 +1,4 @@
-import React, { CSSProperties, useMemo } from 'react'
+import React, { CSSProperties, useEffect, useMemo, useState } from 'react'
 import { Typography, Row, Col, Tabs } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
@@ -8,11 +8,10 @@ import { CardsContainer, CardsPerRowType } from './CardsContainer'
 import { AppCarouselCard } from './AppCarouselCard'
 import { AppSelectCard } from './AppSelectCard'
 import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
-import { useQuery } from '@core/next/apollo'
+import { useLazyQuery } from '@core/next/apollo'
 import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
 import { get } from 'lodash'
 import { useOrganization } from '@core/next/organization'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { BILLING_APP_TYPE, ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { useRouter } from 'next/router'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -37,7 +36,6 @@ const RemoveTabLineWrapper = styled.div`
 
 export const AppSelectPageContent: React.FC = () => {
     const intl = useIntl()
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const PageTitle = intl.formatMessage({ id: 'menu.Services' })
     const AlreadyConnectedSectionTitle = intl.formatMessage({ id: 'services.AlreadyConnected' })
     const AvailableSectionTitle = intl.formatMessage({ id: 'services.Available' })
@@ -56,25 +54,41 @@ export const AppSelectPageContent: React.FC = () => {
     else if (width && width < WINDOW_SMALL_CAROUSEL_CARD_WIDTH) slidesToShow = 2
     else if (width && width < WINDOW_MEDIUM_CAROUSEL_CARD_WIDTH) slidesToShow = 3
 
+    const [apps, setApps] = useState([])
+
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const sender = getClientSideSenderInfo()
 
-    const { loading, error, data } = useQuery(ALL_MINI_APPS_QUERY, {
-        fetchPolicy: 'cache-and-network',
-        variables: {
-            data: {
-                dv: 1,
-                sender,
-                organization: { id: userOrganizationId },
-            },
+    const [loadApps] = useLazyQuery(ALL_MINI_APPS_QUERY, {
+        onCompleted: (data) => {
+            const fetchedApps = get(data, 'objs', [])
+            setApps(fetchedApps)
+        },
+        onError: () => {
+            setApps([])
         },
     })
 
+    useEffect(() => {
+        if (userOrganizationId) {
+            loadApps({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender,
+                        organization: { id: userOrganizationId },
+                    },
+                },
+            })
+        } else {
+            setApps([])
+        }
+    }, [userOrganizationId])
+
     const router = useRouter()
 
-    const apps = get(data, 'objs', [])
     const connectedApps = apps.filter(app => app.connected)
     const unconnectedApps = apps.filter(app => !app.connected)
     const unconnectedBillingsApps = unconnectedApps.filter(app => app.type === BILLING_APP_TYPE)
@@ -101,10 +115,6 @@ export const AppSelectPageContent: React.FC = () => {
     }
 
     const pageHeaderStyles: CSSProperties = { paddingBottom: isAnyAppConnected ? 60 : 44 }
-
-    if (loading || error) {
-        return <LoadingOrErrorPage title={LoadingMessage} error={error} loading={loading}/>
-    }
 
     return (
         <>

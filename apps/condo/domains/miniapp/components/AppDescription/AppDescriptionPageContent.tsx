@@ -80,7 +80,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                     {
                         instruction && (
                             <Col span={24}>
-                                <MarkDown text={instruction}/>
+                                <MarkDown text={instruction} fontSize={16} shouldParseHtml/>
                             </Col>
                         )
                     }
