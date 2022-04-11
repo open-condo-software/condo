@@ -6,7 +6,6 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketsWidget } from '@condo/domains/ticket/components/TicketsWidget'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const IndexPage = () => {
     const intl = useIntl()
@@ -27,7 +26,6 @@ const IndexPage = () => {
     )
 }
 
-IndexPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.analytics.index.PageTitle' }} />
 IndexPage.requiredAccess = OrganizationRequired
 
 export default IndexPage

@@ -15,10 +15,6 @@ interface IReturnBackHeaderActionProps {
     useBrowserHistory?: boolean
 }
 
-interface ITitleHeaderActionProps {
-    descriptor: MessageDescriptor
-}
-
 interface ITabsActionsProps {
     currentActiveKey: string
 }
@@ -84,20 +80,6 @@ export const ReturnBackHeaderAction: React.FC<IReturnBackHeaderActionProps> = ({
                 </Typography.Text>
             </Space>
         </StyledButton>
-    )
-}
-
-export const TitleHeaderAction: React.FC<ITitleHeaderActionProps> = (props) => {
-    const { descriptor } = props
-    const intl = useIntl()
-    const TitleMessage = intl.formatMessage(descriptor)
-
-    return (
-        <Space>
-            <Typography.Text style={{ fontSize: '12px' }}>
-                {TitleMessage}
-            </Typography.Text>
-        </Space>
     )
 }
 

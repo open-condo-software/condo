@@ -6,7 +6,6 @@ import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -245,7 +244,6 @@ const ContactsPage = () => {
     )
 }
 
-ContactsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.contact.PageTitle' }}/>
 ContactsPage.requiredAccess = OrganizationRequired
 
 export default ContactsPage

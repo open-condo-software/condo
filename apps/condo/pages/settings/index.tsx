@@ -5,7 +5,6 @@ import { Typography, Tabs, Tooltip, Col } from 'antd'
 
 import { useIntl } from '@core/next/intl'
 
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -88,6 +87,5 @@ const SettingsPage = () => {
     )
 }
 
-SettingsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Settings' }}/>
 
 export default SettingsPage
