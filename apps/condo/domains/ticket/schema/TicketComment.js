@@ -10,7 +10,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketComment')
-const { COMMENT_TYPES } = require('@condo/domains/ticket/constants')
+const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const { Ticket, UserTicketCommentRead } = require('../utils/serverSchema')
 
@@ -78,29 +78,34 @@ const TicketComment = new GQLListSchema('TicketComment', {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
+            const commentType = get(resolvedData, 'type')
 
-            if (operation === 'create') {
+            if (operation === 'create' && commentType === RESIDENT_COMMENT_TYPE) {
                 const ticketId = get(resolvedData, 'ticket')
-                const createdAt = get(resolvedData, 'createdAt')
+                const sender = get(resolvedData, 'sender')
 
                 if (userType === RESIDENT) {
-                    await Ticket.update(context.createContext({ skipAccessControl: true }), ticketId, {
-                        lastResidentCommentAt: createdAt,
+                    await Ticket.update(context, ticketId, {
+                        dv: 1,
+                        sender,
+                        lastResidentCommentAt: new Date().toISOString(),
                     })
                 } else if (userType === STAFF) {
                     const userTicketCommentReadObjects = await find('UserTicketCommentRead', {
-                        where: {
-                            ticket: { id: ticketId },
-                        },
+                        ticket: { id: ticketId },
                     })
 
                     for (const { id } of userTicketCommentReadObjects) {
-                        UserTicketCommentRead.update(context, id, {
-                            readResidentCommentAt: createdAt,
+                        await UserTicketCommentRead.update(context, id, {
+                            dv: 1,
+                            sender,
+                            readResidentCommentAt: new Date().toISOString(),
                         })
                     }
                 }
             }
+
+            return resolvedData
         },
         afterChange: async (requestData) => {
             // NOTE: disabled at 2022-04-25 because of @MikhailRumanovskii request until ticket comments will be implemented in all mobile applications for all platforms

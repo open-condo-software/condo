@@ -9,13 +9,17 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 
 import { UserTicketCommentRead as UserTicketCommentReadGQL } from '@condo/domains/ticket/gql'
 import { UserTicketCommentRead, UserTicketCommentReadUpdateInput, QueryAllUserTicketCommentReadsArgs } from '../../../../schema'
+import { IUserUIState } from '../../../user/utils/clientSchema/User'
+import { ITicketUIState } from './Ticket'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user', 'ticket', 'readResidentCommentAt']
 const RELATIONS = ['user', 'ticket']
 
 export interface IUserTicketCommentReadUIState extends UserTicketCommentRead {
     id: string
-    // TODO(codegen): write IUserTicketCommentReadUIState or extends it from
+    user?: IUserUIState
+    ticket?: ITicketUIState
+    readResidentCommentAt?: string
 }
 
 function convertToUIState (item: UserTicketCommentRead): IUserTicketCommentReadUIState {
@@ -24,8 +28,10 @@ function convertToUIState (item: UserTicketCommentRead): IUserTicketCommentReadU
 }
 
 export interface IUserTicketCommentReadFormState {
-    id?: undefined
-    // TODO(codegen): write IUserTicketCommentReadUIFormState or extends it from
+    id?: string
+    user?: string
+    ticket?: string
+    readResidentCommentAt?: Date
 }
 
 function convertToUIFormState (state: IUserTicketCommentReadUIState): IUserTicketCommentReadFormState | undefined {

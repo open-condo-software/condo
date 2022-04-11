@@ -9,6 +9,10 @@ import { colors, shadows, fontSizes } from '@condo/domains/common/constants/styl
 import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { File, Organization, UserTypeType } from '@app/condo/schema'
+import { UserTicketCommentRead } from '@condo/domains/ticket/utils/clientSchema'
+import { useAuth } from '@core/next/auth'
+import { get } from 'lodash'
+import dayjs from 'dayjs'
 
 export type TCommentFile = {
     id: string
@@ -85,16 +89,6 @@ const EmptyContainer = styled.div`
 type ActionsForComment = {
     updateAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
     deleteAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
-}
-
-interface ICommentsListProps {
-    comments: TComment[],
-    createAction?: (formValues) => Promise<TComment>,
-    updateAction?: (attrs, obj: TComment) => Promise<TComment>
-    // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
-    actionsFor: (comment: TComment) => ActionsForComment,
-    canCreateComments: boolean,
-    refetchComments
 }
 
 const { TabPane } = Tabs
@@ -211,7 +205,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
 
 const COMMENTS_COUNT_STYLES: CSSProperties = { padding: '2px', fontSize: '8px' }
 
-const CommentsTabPaneLabel = ({ label, commentsCount }) => (
+const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) => (
     <>
         <Typography.Text>
             {label}
@@ -221,10 +215,31 @@ const CommentsTabPaneLabel = ({ label, commentsCount }) => (
                 {commentsCount}
             </Typography.Text>
         </sup>
+        {
+            newCommentsIndicator && (
+                <sup>
+                    newComments
+                </sup>
+            )
+        }
     </>
 )
 
+interface ICommentsListProps {
+    ticketId: string
+    lastResidentCommentAt: string
+    comments: TComment[],
+    createAction?: (formValues) => Promise<TComment>,
+    updateAction?: (attrs, obj: TComment) => Promise<TComment>
+    // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
+    actionsFor: (comment: TComment) => ActionsForComment,
+    canCreateComments: boolean,
+    refetchComments
+}
+
 const Comments: React.FC<ICommentsListProps> = ({
+    ticketId,
+    lastResidentCommentAt,
     comments,
     createAction,
     updateAction,
@@ -271,6 +286,39 @@ const Comments: React.FC<ICommentsListProps> = ({
     const commentsWithOrganization = comments.filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE)
     const commentsWithResident = comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE)
 
+    const { user } = useAuth()
+
+    const { obj: userTicketCommentRead, refetch } = UserTicketCommentRead.useObject({
+        where: {
+            user: { id: user.id },
+            ticket: { id: ticketId },
+        },
+    })
+    const createUserTicketCommentRead = UserTicketCommentRead.useCreate({
+        user: user.id,
+        ticket: ticketId,
+        readResidentCommentAt: new Date(),
+    }, () => refetch())
+    const updateUserTicketCommentRead = UserTicketCommentRead.useUpdate({
+        user: user.id,
+        ticket: ticketId,
+        readResidentCommentAt: new Date(),
+    }, () => refetch())
+
+    const handleTabChange = useCallback((tab) => {
+        setCommentType(tab)
+
+        if (tab === RESIDENT_COMMENT_TYPE) {
+            if (userTicketCommentRead) {
+                updateUserTicketCommentRead({}, userTicketCommentRead)
+            } else {
+                createUserTicketCommentRead({})
+            }
+        }
+    }, [createUserTicketCommentRead, updateUserTicketCommentRead, userTicketCommentRead])
+
+    const lastEmployeeReadResidentComment = get(userTicketCommentRead, 'readResidentCommentAt')
+
     return (
         <Container isSmall={isSmall}>
             <Head>{TitleMessage}</Head>
@@ -280,10 +328,16 @@ const Comments: React.FC<ICommentsListProps> = ({
                     centered
                     type={'card'}
                     tabBarGutter={4}
-                    onChange={tab => setCommentType(tab)}
+                    onChange={handleTabChange}
                 >
                     <TabPane
-                        tab={<CommentsTabPaneLabel label={InternalCommentsMessage} commentsCount={commentsWithOrganization.length} />}
+                        tab={
+                            <CommentsTabPaneLabel
+                                newCommentsIndicator={false}
+                                label={InternalCommentsMessage}
+                                commentsCount={commentsWithOrganization.length}
+                            />
+                        }
                         key={ORGANIZATION_COMMENT_TYPE}
                     >
                         <CommentsTabContent
@@ -296,7 +350,17 @@ const Comments: React.FC<ICommentsListProps> = ({
                         />
                     </TabPane>
                     <TabPane
-                        tab={<CommentsTabPaneLabel label={ResidentCommentsMessage} commentsCount={commentsWithResident.length} />}
+                        tab={
+                            <CommentsTabPaneLabel
+                                label={ResidentCommentsMessage}
+                                commentsCount={commentsWithResident.length}
+                                newCommentsIndicator={
+                                    lastEmployeeReadResidentComment && lastResidentCommentAt && (
+                                        dayjs(lastResidentCommentAt).isAfter(lastEmployeeReadResidentComment)
+                                    )
+                                }
+                            />
+                        }
                         key={RESIDENT_COMMENT_TYPE}
                     >
                         <CommentsTabContent
