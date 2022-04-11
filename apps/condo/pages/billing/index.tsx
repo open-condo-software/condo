@@ -1,6 +1,5 @@
 import React from 'react'
 import Head from 'next/head'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -59,7 +58,6 @@ const BillingPage = () => {
     )
 }
 
-BillingPage.headerAction = <TitleHeaderAction descriptor={{ id:'menu.Billing' }}/>
 BillingPage.requiredAccess = OrganizationRequired
 
 export default BillingPage

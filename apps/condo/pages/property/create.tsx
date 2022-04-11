@@ -5,7 +5,6 @@ import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const PROPERTY_CREATE_PAGE_GUTTER: RowProps['gutter'] = [0, 40]
 const PROPERTY_CREATE_PAGE_TITLE_STYLE: React.CSSProperties = { margin: 0 }
@@ -36,10 +35,5 @@ export default function CreatePropertyPage () {
     )
 }
 
-CreatePropertyPage.headerAction = <ReturnBackHeaderAction
-    path={'/property/'}
-    descriptor={{ id: 'menu.AllProperties' }}
-    useBrowserHistory={false}
-/>
 CreatePropertyPage.requiredAccess = OrganizationRequired
 

@@ -3,7 +3,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
@@ -221,7 +220,6 @@ const EmployeesPage = () => {
     )
 }
 
-EmployeesPage.headerAction = <TitleHeaderAction descriptor={{ id: 'pages.condo.employee.PageTitle' }}/>
 EmployeesPage.requiredAccess = OrganizationRequired
 
 export default EmployeesPage

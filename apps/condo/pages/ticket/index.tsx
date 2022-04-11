@@ -18,7 +18,6 @@ import { Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/client
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -282,7 +281,6 @@ const TicketsPage: ITicketIndexPage = () => {
     )
 }
 
-TicketsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.ControlRoom' }}/>
 TicketsPage.requiredAccess = OrganizationRequired
 
 export default TicketsPage

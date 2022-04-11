@@ -12,7 +12,6 @@ import { useRouter } from 'next/router'
 import { useOrganization } from '@core/next/organization'
 
 import { GetServerSideProps } from 'next'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import DivisionTable from '@condo/domains/division/components/DivisionsTable'
@@ -222,5 +221,4 @@ export default function PropertiesPage (props: PropertiesPageProps) {
     )
 }
 
-PropertiesPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Property' }} />
 PropertiesPage.requiredAccess = OrganizationRequired

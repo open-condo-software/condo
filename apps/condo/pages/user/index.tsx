@@ -12,7 +12,6 @@ import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/commo
 import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useOrganization } from '@core/next/organization'
 import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
 
@@ -120,7 +119,6 @@ export const UserInfoPage = () => {
     )
 }
 
-UserInfoPage.headerAction = <TitleHeaderAction descriptor={{ id: 'Account' }}/>
 UserInfoPage.requiredAccess = AuthRequired
 
 export default UserInfoPage

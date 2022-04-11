@@ -1,7 +1,6 @@
 import PaymentsPageContent from '@condo/domains/acquiring/components/payments/PaymentsPageContent'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { TitleHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useIntl } from '@core/next/intl'
 import { Typography } from 'antd'
@@ -33,7 +32,6 @@ const PaymentsPage = () => {
     )
 }
 
-PaymentsPage.headerAction = <TitleHeaderAction descriptor={{ id: 'menu.Payments' }}/>
 PaymentsPage.requiredAccess = OrganizationRequired
 
 export default PaymentsPage
