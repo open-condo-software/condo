@@ -1,10 +1,9 @@
-import React, { CSSProperties, useCallback } from 'react'
+import React, { CSSProperties } from 'react'
 import { Card, Image, Space, Typography, Row, Col } from 'antd'
 import styled from '@emotion/styled'
 import dayjs from 'dayjs'
 import { colors } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
-import { useRouter } from 'next/router'
 import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
 import { TagContainer } from '../TagContainer'
 
@@ -127,12 +126,6 @@ export const TopCard: React.FC<TopCardProps> = ({
     const { width } = useWindowSize()
     const isSmallLayout = Boolean(width && width < TITLE_VERTICAL_MARK)
 
-    const router = useRouter()
-
-    const handlePartnerClick = useCallback(() => {
-        router.push(partnerUrl)
-    }, [router, partnerUrl])
-
     return (
         <CardWrapper centered={isSmallLayout}>
             <Card bordered={true} title={<TopCardTitle title={title} description={description} partnerUrl={partnerUrl} tag={tag} logoSrc={logoSrc}/>}>
@@ -155,9 +148,11 @@ export const TopCard: React.FC<TopCardProps> = ({
                     </Typography.Text>
                     {
                         partnerUrl && (
-                            <Typography.Link onClick={handlePartnerClick}>
-                                {PartnerSiteMessage}
-                            </Typography.Link>
+                            <a href={partnerUrl} target='_blank' rel='noreferrer'>
+                                <Typography.Link>
+                                    {PartnerSiteMessage}
+                                </Typography.Link>
+                            </a>
                         )
                     }
                 </Space>
