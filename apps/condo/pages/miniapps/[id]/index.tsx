@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
@@ -39,8 +38,5 @@ const MiniAppIndexPage = () => {
 }
 
 MiniAppIndexPage.requiredAccess = OrganizationRequired
-MiniAppIndexPage.headerAction  = <ReturnBackHeaderAction
-    descriptor={{ id: 'menu.Services' }}
-    path={'/miniapps'}/>
 
 export default MiniAppIndexPage
