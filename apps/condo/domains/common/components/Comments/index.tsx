@@ -139,8 +139,8 @@ type CommentsTabContentProps = {
     PromptTitleMessage: string,
     PromptDescriptionMessage: string,
     actionsFor: (comment: TComment) => ActionsForComment,
-    editableComment
-    setEditableComment
+    editableComment: TComment
+    setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
@@ -234,7 +234,7 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     const { isSmall } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
-    const [editableComment, setEditableComment] = useState()
+    const [editableComment, setEditableComment] = useState<TComment>()
 
     const action = useCallback(async (values) => {
         if (editableComment) {

@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useInputWithCounter } from '../../hooks/useInputWithCounter'
 import { colors } from '@condo/domains/common/constants/style'
+import { TComment } from './index'
 
 const Holder = styled.div`
   position: relative;
@@ -44,8 +45,8 @@ interface ICommentFormProps {
     action: (formValues) => Promise<any>
     fieldName?: string
     initialValue?: string
-    editableComment
-    setEditableComment
+    editableComment: TComment
+    setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
 }
 
 export const MAX_COMMENT_LENGTH = 300
