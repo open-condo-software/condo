@@ -1595,15 +1595,17 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
 
     const [sections, setSections] = useState([])
-    const [section, setSection] = useState(null)
+    const [section, setSection] = useState<number | null>(null)
     const [unitType, setUnitType] = useState<BuildingUnitType>(BuildingUnitType.Flat)
     const [unitsOnFloor, setUnitsOnFloor] = useState<number>()
     const [floor, setFloor] = useState<string>('')
 
+    const maxFloor = useRef<number>(0)
+
     const setFloorNumber = useCallback((value) => setFloor(value ? value.toString() : ''), [])
     const setUnitsOnFloorNumber = useCallback((value) => setUnitsOnFloor(value ? value.toString() : ''), [])
     const applyChanges = useCallback(() => {
-        if (floor && section !== null && unitsOnFloor > 0) {
+        if (floor !== '' && section !== null && unitsOnFloor > 0) {
             builder.addSectionFloor({
                 section: Number(section),
                 index: Number(floor),
@@ -1615,8 +1617,14 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
         setUnitsOnFloor(null)
         setFloor(null)
-        setSection('')
+        setSection(null)
     }, [builder, refresh, floor, section])
+
+    useEffect(() => {
+        if (section !== null) {
+            maxFloor.current = builder.getSectionMaxFloor(section) + 1
+        }
+    }, [section])
 
     useEffect(() => {
         setSections(builder.getSectionOptions())
@@ -1637,8 +1645,6 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         refresh()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [floor, section, unitsOnFloor, unitType])
-
-    const maxFloor = builder.maxFloor + 1
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
@@ -1670,7 +1676,13 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             <Col span={24}>
                 <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
                     <Typography.Text type={'secondary'}>{FloorLabel}</Typography.Text>
-                    <InputNumber value={floor} onChange={setFloorNumber} max={maxFloor} type={'number'} style={INPUT_STYLE} />
+                    <InputNumber
+                        value={floor}
+                        onChange={setFloorNumber}
+                        max={maxFloor.current}
+                        type={'number'}
+                        style={INPUT_STYLE}
+                    />
                 </Space>
             </Col>
             <Col span={24}>
@@ -1691,7 +1703,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                 secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={!(floor && section)}
+                                disabled={!(floor && section && unitsOnFloor)}
                             > {SaveLabel} </Button>
                         </Col>
                     </Row>
