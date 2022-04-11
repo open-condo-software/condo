@@ -695,7 +695,6 @@
   "meterResource.GasSupply.measure": "cubic meter",
   "contact.AddContact": "Add contact",
   "meter.AddMeterReadings": "Add meter readings",
-  "meter.MeterReadingsLog": "Meter Readings",
   "meter.modal.ChooseAccountNumber": "Choose account number",
   "meter.modal.CreateAccountNumber": "Create new account number",
   "meter.import.MeterReading.objectsName.many": "Meter readings",

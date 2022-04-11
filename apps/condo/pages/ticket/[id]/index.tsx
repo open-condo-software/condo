@@ -6,7 +6,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { Comments } from '@condo/domains/common/components/Comments'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
@@ -719,7 +718,6 @@ const TicketIdPage = () => {
     return <TicketPageContent organization={organization} employee={link} TicketContent={TicketContent} />
 }
 
-TicketIdPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.ControlRoom' }} path={'/ticket'}/>
 TicketIdPage.requiredAccess = OrganizationRequired
 
 export default TicketIdPage

@@ -6,7 +6,6 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useRouter } from 'next/router'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 interface IUpdatePropertyPage extends React.FC {
     headerAction?: JSX.Element
@@ -38,9 +37,6 @@ const UpdatePropertyPage: IUpdatePropertyPage = () => {
     )
 }
 
-UpdatePropertyPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'Back' }}
-    path={(id) => `/property/${id}/`}/>
 UpdatePropertyPage.requiredAccess = OrganizationRequired
 
 export default UpdatePropertyPage

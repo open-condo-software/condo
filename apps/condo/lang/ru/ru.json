@@ -695,7 +695,6 @@
   "meterResource.GasSupply.measure": "куб. м.",
   "contact.AddContact": "Добавление жителя",
   "meter.AddMeterReadings": "Подача показаний",
-  "meter.MeterReadingsLog": "ИПУ",
   "meter.modal.ChooseAccountNumber": "Выбрать ЛС",
   "meter.modal.CreateAccountNumber": "Создать новый лицевой счет",
   "meter.import.MeterReading.objectsName.many": "Показания ИПУ",

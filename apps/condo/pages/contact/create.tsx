@@ -5,7 +5,6 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { Typography, Row, Col } from 'antd'
 import React from 'react'
 import { CreateContactForm } from '@condo/domains/contact/components/CreateContactForm'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 interface ICreateContactPage extends React.FC {
     headerAction?: JSX.Element
@@ -37,12 +36,6 @@ const CreateContactPage: ICreateContactPage = () => {
     )
 }
 
-CreateContactPage.headerAction = (
-    <ReturnBackHeaderAction
-        descriptor={{ id:'pages.condo.contact.PageTitle' }}
-        path={'/contact'}
-    />
-)
 CreateContactPage.requiredAccess = OrganizationRequired
 
 export default CreateContactPage

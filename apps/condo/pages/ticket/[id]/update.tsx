@@ -6,7 +6,6 @@ import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const TicketUpdatePage = () => {
     const intl = useIntl()
@@ -32,9 +31,6 @@ const TicketUpdatePage = () => {
     )
 }
 
-TicketUpdatePage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'Back' }}
-    path={(id) => `/ticket/${id}/`}/>
 TicketUpdatePage.requiredAccess = OrganizationRequired
 
 export default TicketUpdatePage

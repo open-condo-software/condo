@@ -18,7 +18,6 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React from 'react'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { map } from 'lodash'
@@ -296,11 +295,6 @@ export const EmployeeInfoPage = () => {
     )
 }
 
-EmployeeInfoPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'pages.condo.employee.PageTitle' }}
-    path={'/employee/'}
-    useBrowserHistory={false}
-/>
 EmployeeInfoPage.requiredAccess = OrganizationRequired
 
 export default EmployeeInfoPage

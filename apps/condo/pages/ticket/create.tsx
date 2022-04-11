@@ -5,7 +5,6 @@ import React from 'react'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 const CreateTicketPage = () => {
     const intl = useIntl()
@@ -30,7 +29,6 @@ const CreateTicketPage = () => {
     )
 }
 
-CreateTicketPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllTickets' }} path={'/ticket'} />
 CreateTicketPage.requiredAccess = OrganizationRequired
 
 export default CreateTicketPage

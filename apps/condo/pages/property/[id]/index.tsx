@@ -20,7 +20,6 @@ import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
 import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import {
     DeleteButtonWithConfirmModal,
     IDeleteActionButtonWithConfirmModal,
@@ -213,11 +212,6 @@ const PropertyIdPage: IPropertyIdPage = () => {
     </>
 }
 
-PropertyIdPage.headerAction = <ReturnBackHeaderAction
-    descriptor={PROPERTY_PAGE_DESCRIPTOR}
-    path={'/property/'}
-    useBrowserHistory={false}
-/>
 PropertyIdPage.requiredAccess = OrganizationRequired
 
 export default PropertyIdPage

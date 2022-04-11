@@ -17,7 +17,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@core/next/organization'
 import  { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { canManageContacts } from '@condo/domains/organization/permissions'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 
 const FieldPairRow = (props) => {
@@ -197,9 +196,6 @@ const ContactInfoPage = () => {
     )
 }
 
-ContactInfoPage.headerAction = <ReturnBackHeaderAction
-    descriptor={{ id: 'pages.condo.contact.PageTitle' }}
-    path={'/contact/'}/>
 ContactInfoPage.requiredAccess = OrganizationRequired
 
 export default ContactInfoPage

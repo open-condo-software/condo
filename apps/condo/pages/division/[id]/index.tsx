@@ -8,7 +8,6 @@ import { Row, Col, Typography } from 'antd'
 import { EditFilled } from '@ant-design/icons'
 import { green } from '@ant-design/colors'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { Button } from '@condo/domains/common/components/Button'
@@ -207,7 +206,6 @@ function DivisionPage () {
     )
 }
 
-DivisionPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllDivisions' }} path={'/property?tab=divisions'} />
 DivisionPage.requiredAccess = OrganizationRequired
 
 export default DivisionPage

@@ -5,7 +5,6 @@ import { DivisionForm } from '@condo/domains/division/components/DivisionForm'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ReturnBackHeaderAction } from '@condo/domains/common/components/HeaderActions'
 
 interface ICreateDivisionPage extends React.FC {
     headerAction?: JSX.Element
@@ -36,7 +35,6 @@ const CreateDivisionPage: ICreateDivisionPage = () => {
     )
 }
 
-CreateDivisionPage.headerAction = <ReturnBackHeaderAction descriptor={{ id: 'menu.AllDivisions' }} path={'/property?tab=divisions'}/>
 CreateDivisionPage.requiredAccess = OrganizationRequired
 
 export default CreateDivisionPage
