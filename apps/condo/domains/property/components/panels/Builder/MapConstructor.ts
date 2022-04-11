@@ -259,7 +259,7 @@ class MapView extends Map {
     }
 
     public getSectionMaxFloor (sectionIdx: number): number {
-        return sectionIdx ? Math.max(...this.map.sections[sectionIdx].floors.map(floor => floor.index)) : 0
+        return Math.max(...this.map.sections[sectionIdx].floors.map(floor => floor.index))
     }
 
     get maxFloor (): number {
@@ -730,7 +730,17 @@ class MapEdit extends MapView {
     public addSectionFloor (floor: BuildingFloorArg): void {
         this.removePreviewSectionFloor()
         const newSectionFloor = this.generateFloor(floor)
-        this.insertFloor(newSectionFloor, floor.section)
+        const floorIndex = this.insertFloor(newSectionFloor, floor.section)
+
+        let previousFloorIndex = floorIndex
+        if (floorIndex < this.sections[floor.section].floors.length - 1) {
+            previousFloorIndex++
+        }
+
+        const previousUnit = last(this.sections[floor.section].floors[previousFloorIndex].units)
+        if (previousUnit && Number(get(invert(this.sectionFloorMap), floorIndex, -1)) > 0) {
+            this.updateUnitNumbers(previousUnit)
+        }
     }
 
     public addPreviewCopySection (sectionId: string): void {
@@ -1243,7 +1253,7 @@ class MapEdit extends MapView {
         }
     }
 
-    private insertFloor (floor: BuildingFloor, sectionIndex: number): void {
+    private insertFloor (floor: BuildingFloor, sectionIndex: number): number {
         const modifiedSection = this.map.sections[sectionIndex]
         modifiedSection.floors.forEach(({ index }, dataIndex) => {
             this.sectionFloorMap[index] = dataIndex
@@ -1269,7 +1279,9 @@ class MapEdit extends MapView {
                 modifiedSection.floors[insertIndex - 1].index--
             }
         }
+
         this.previewSectionFloor = insertIndex
+        return insertIndex
     }
 
     private getNextParkingUnit (id: string): BuildingUnit {
