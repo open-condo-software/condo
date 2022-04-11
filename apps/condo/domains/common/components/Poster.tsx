@@ -12,8 +12,7 @@ export const PosterContainer = styled.div<IImageProps>`
   background: url(${({ src }) => src}) center no-repeat;
   width: 100%;
   height: 100%;
-  background-size: 40%;
-  transition: ${transitions.easeInOut };
+  transition: ${transitions.elevateTransition };
 `
 
 interface IPoster {
