@@ -463,10 +463,10 @@ describe('Map constructor', () => {
 
             it('should add negative floor into section & update only negative floor labels', () => {
                 const Building = createBuildingMap(5)
-                const buildingFloors = Building.sections[0].floors.length
-                const modifiedSection = Building.sections[0]
+                const buildingFloors = Building.sections[1].floors.length
+                const modifiedSection = Building.sections[1]
                 Building.addSectionFloor({
-                    section: 0,
+                    section: 1,
                     unitCount: 2,
                     unitType: BuildingUnitType.Warehouse,
                     index: -7,
@@ -500,6 +500,29 @@ describe('Map constructor', () => {
                 expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
                 expect(modifiedSection.floors[0].units).toHaveLength(2)
                 expect(modifiedSection.floors[0].index).toEqual(11)
+                expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
+                expect(sectionUnitNames.every(label => label !== '')).toBeTruthy()
+            })
+
+            it('should keep unit numbers up to date if floor was added to the start of the first section', () => {
+                const Building = createBuildingMap(5)
+                const buildingFloors = Building.sections[0].floors.length
+                const modifiedSection = Building.sections[0]
+
+                Building.addSectionFloor({
+                    section: 0,
+                    unitCount: 2,
+                    unitType: BuildingUnitType.Flat,
+                    index: 1,
+                })
+                const floorIndexes = modifiedSection.floors.map(({ index }) => index)
+                const sectionUnitNames = modifiedSection.floors.map((floor) => floor.units.map(({ label }) => label)).flat(2)
+                Building.validate()
+
+                expect(Building.isMapValid).toBeTruthy()
+                expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
+                expect(modifiedSection.floors[10].units).toHaveLength(2)
+                expect(modifiedSection.floors[10].index).toEqual(1)
                 expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
                 expect(sectionUnitNames.every(label => label !== '')).toBeTruthy()
             })
