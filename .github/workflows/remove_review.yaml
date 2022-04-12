@@ -4,6 +4,14 @@ on:
   workflow_dispatch:
     branches:
       - '/^review-.*$/'
+  pull_request:
+    types:
+      - closed
+    branches:
+      - '/^review-.*$/'
+  delete:
+    branches:
+      - '/^review-.*$/'
 jobs:
   converge:
     name: "Remove review"
