@@ -57,6 +57,8 @@ async function manageResidentToPropertyAndOrganizationConnections (address) {
     }
 }
 
+// NOTE: This task is called when Resident is created, which increases the connectivity of the Resident and Ticket domains
+//       It's can cause difficulties when dividing the app into services.
 /**
  * Connects resident user to tickets whose phone number matches the ticket contact's phone number and address matches the ticket address
  * @param propertyId {string} Resident property id
