@@ -179,7 +179,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                                     values={{
                                         phone: (
                                             <span style={{ whiteSpace: 'nowrap' }}>
-                                                {showPhone}
+                                                {`${showPhone} `}
                                                 <Typography.Link
                                                     underline
                                                     style={{ color: 'black' }}
