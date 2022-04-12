@@ -15,6 +15,7 @@ const { getById, find } = require('@core/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const { getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
+const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -79,7 +80,7 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
     }
 }
 
-async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput }) {
+async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -91,14 +92,14 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
 
             if (!unitName || !propertyId) return false
 
-            const residents = await find('Resident', {
+            const residentsCount = await Resident.count(context, {
                 user: { id: user.id },
                 property: { id: propertyId, deletedAt: null },
                 unitName,
                 deletedAt: null,
             })
 
-            return residents.length > 0
+            return residentsCount > 0
         } else if (operation === 'update') {
             if (!itemId) return false
 
