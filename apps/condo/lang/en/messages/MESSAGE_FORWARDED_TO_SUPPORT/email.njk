@@ -1,7 +1,7 @@
 Mobile OS: {{ message.meta.os }}
 App version: {{ message.meta.appVersion }}
 Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}N/A{% endif %}
-Message text: {{ message.meta.text }}
+Message text: {{ message.meta.text | safe }}
 Organizations:
 {%- if message.meta.organizationsData.length == 0 -%}
   no
