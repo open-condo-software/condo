@@ -8,7 +8,7 @@ const faker = require('faker')
 const { get } = require('lodash')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { TICKET_STATUS_TYPES, COMMENT_TYPE } = require('../../constants')
+const { TICKET_STATUS_TYPES, ORGANIZATION_COMMENT_TYPE } = require('../../constants')
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const {
@@ -218,7 +218,7 @@ async function createTestTicketComment (client, ticket, user, extraAttrs = {}) {
         sender,
         ticket: { connect: { id: ticket.id } },
         user: { connect: { id: user.id } },
-        type: COMMENT_TYPE.ORGANIZATION,
+        type: ORGANIZATION_COMMENT_TYPE,
         content,
         ...extraAttrs,
     }
