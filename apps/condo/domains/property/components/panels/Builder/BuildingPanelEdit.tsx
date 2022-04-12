@@ -2,15 +2,6 @@
 import { CloseOutlined, DeleteFilled, DownOutlined } from '@ant-design/icons'
 import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
-import {
-    FlatIcon,
-    FloorIcon,
-    InterFloorIcon,
-    ParkingFloorIcon,
-    ParkingIcon,
-    ParkingPlaceIcon,
-    SectionIcon,
-} from '@condo/domains/common/components/icons/PropertyMapIcons'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
@@ -21,11 +12,8 @@ import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import {
     Col,
-    Dropdown,
-    DropDownProps,
     Input,
     InputNumber,
-    Menu,
     notification,
     Row,
     RowProps,
@@ -44,6 +32,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
+import BuildingEditTopMenu from './BuildingEditTopMenu'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import {
     BuildingAxisY,
@@ -61,7 +50,6 @@ import { MapEdit, MapViewMode } from './MapConstructor'
 const { Option } = Select
 
 const INPUT_STYLE = { width: '100%' }
-const DROPDOWN_TRIGGER: DropDownProps['trigger'] = ['hover', 'click']
 const DEBOUNCE_TIMEOUT = 800
 const INSTANT_ACTIONS = ['addBasement', 'addAttic']
 
@@ -92,54 +80,6 @@ const TopRowCss = css`
   & .ant-select.ant-select-single.ant-select-open .ant-select-selection-item,
   & .ant-select.ant-select-single.ant-select-open .ant-select-arrow {
     color: white;
-  }
-`
-
-const DropdownCss = css`
-  padding: 12px 26px 12px 20px;
-  
-  & span:last-child {
-    margin-left: 28px;
-  }
-`
-
-const MenuCss = css`
-  padding: 0;
-
-  & .ant-dropdown-menu-item {
-    padding: 4px 16px;
-  }
-  & .ant-dropdown-menu-item:first-child {
-    padding: 16px 16px 4px 16px;
-  }
-  & .ant-dropdown-menu-item:last-child {
-    padding: 4px 16px 16px 16px;
-  }
-  & .ant-dropdown-menu-item,
-  & .ant-dropdown-menu-item .ant-dropdown-menu-title-content {
-    width: 100%;
-  }
-  & .ant-dropdown-menu-item:hover,
-  & .ant-dropdown-menu-item-active {
-    background-color: unset;
-  }
-  & .ant-dropdown-menu-item button {
-    text-align: left;
-    width: 100%;
-    padding: 0 18px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    border: 1px solid ${colors.backgroundWhiteSecondary};
-  }
-  & .ant-dropdown-menu-item button:disabled {
-    background-color: transparent;
-    color: ${colors.black};
-    opacity: 0.5;
-  }
-  & .ant-dropdown-menu-item button svg {
-    margin-right: 8px;
-    z-index: 1;
   }
 `
 
@@ -228,14 +168,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
     const ChangesSaved = intl.formatMessage({ id: 'ChangesSaved' })
-    const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
-    const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
-    const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
-    const AddParkingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
-    const AddParkingFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingFloor' })
-    const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
-    const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
     const AllSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.AllTitle' })
     const AllParkingSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.AllTitle' })
     const SectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.OptionPrefix' })
@@ -332,46 +264,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         refresh()
     }, [mapEdit, refresh])
 
-    const menuOverlay = useMemo(() => (
-        <Menu css={MenuCss} onClick={menuClick}>
-            <Menu.Item key={'addSection'}>
-                <Button type={'sberDefaultGradient'} secondary icon={<SectionIcon />}>
-                    {AddSection}
-                </Button>
-            </Menu.Item>
-            <Menu.Item key={'addSectionFloor'}>
-                <Button type={'sberDefaultGradient'} secondary icon={<FloorIcon />}>
-                    {AddFloor}
-                </Button>
-            </Menu.Item>
-            <Menu.Item key={'addUnit'}>
-                <Button type={'sberDefaultGradient'} secondary disabled={mapEdit.isEmptySections} icon={<FlatIcon />}>
-                    {AddUnit}
-                </Button>
-            </Menu.Item>
-            <Menu.Item key={'addInterFloorRoom'}>
-                <Button type={'sberDefaultGradient'} secondary disabled icon={<InterFloorIcon />}>
-                    {AddInterFloorRoom}
-                </Button>
-            </Menu.Item>
-            <Menu.Item key={'addParking'}>
-                <Button type={'sberDefaultGradient'} secondary icon={<ParkingIcon />}>
-                    {AddParkingLabel}
-                </Button>
-            </Menu.Item>
-            <Menu.Item key={'addParkingFloor'}>
-                <Button type={'sberDefaultGradient'} secondary disabled icon={<ParkingFloorIcon />}>
-                    {AddParkingFloor}
-                </Button>
-            </Menu.Item>
-            <Menu.Item key={'addParkingUnit'}>
-                <Button type={'sberDefaultGradient'} secondary disabled={mapEdit.isEmptyParking} icon={<ParkingPlaceIcon />}>
-                    {AddParkingPlace}
-                </Button>
-            </Menu.Item>
-        </Menu>
-    ), [menuClick])
-
     const { isSmall } = useLayoutContext()
 
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
@@ -424,14 +316,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                     />
                                 )
                             }
-                            <Dropdown
-                                trigger={DROPDOWN_TRIGGER}
-                                overlay={menuOverlay}
-                                css={DropdownCss}
-                                mouseEnterDelay={0}
-                            >
-                                <Button type='sberDefaultGradient' secondary>{AddElementTitle}<span>...</span></Button>
-                            </Dropdown>
+                            <BuildingEditTopMenu menuClick={menuClick} mapEdit={mapEdit} />
                         </Space>
                     </Col>
                 </Row>
