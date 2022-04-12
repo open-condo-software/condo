@@ -1,0 +1,129 @@
+/** @jsx jsx */
+import React, { useMemo } from 'react'
+import { css, jsx } from '@emotion/core'
+import { Dropdown, DropDownProps, Menu, MenuProps } from 'antd'
+import { Button } from '@condo/domains/common/components/Button'
+import { useIntl } from '@core/next/intl'
+import {
+    FlatIcon,
+    FloorIcon,
+    InterFloorIcon, ParkingFloorIcon,
+    ParkingIcon, ParkingPlaceIcon,
+    SectionIcon,
+} from '@condo/domains/common/components/icons/PropertyMapIcons'
+import { colors } from '@condo/domains/common/constants/style'
+import { MapEdit } from './MapConstructor'
+
+const DROPDOWN_TRIGGER: DropDownProps['trigger'] = ['hover', 'click']
+const DropdownCss = css`
+  padding: 12px 26px 12px 20px;
+  
+  & span:last-child {
+    margin-left: 28px;
+  }
+`
+
+const MenuCss = css`
+  padding: 0;
+
+  & .ant-dropdown-menu-item {
+    padding: 4px 16px;
+  }
+  & .ant-dropdown-menu-item:first-child {
+    padding: 16px 16px 4px 16px;
+  }
+  & .ant-dropdown-menu-item:last-child {
+    padding: 4px 16px 16px 16px;
+  }
+  & .ant-dropdown-menu-item,
+  & .ant-dropdown-menu-item .ant-dropdown-menu-title-content {
+    width: 100%;
+  }
+  & .ant-dropdown-menu-item:hover,
+  & .ant-dropdown-menu-item-active {
+    background-color: unset;
+  }
+  & .ant-dropdown-menu-item button {
+    text-align: left;
+    width: 100%;
+    padding: 0 18px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    border: 1px solid ${colors.backgroundWhiteSecondary};
+  }
+  & .ant-dropdown-menu-item button svg {
+    margin-right: 8px;
+    z-index: 1;
+  }
+`
+
+interface IBuildingTopModalProps {
+    menuClick: MenuProps['onClick']
+    mapEdit: MapEdit
+}
+
+const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapEdit }) => {
+    const intl = useIntl()
+    const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
+    const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
+    const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
+    const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
+    const AddParkingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
+    const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
+    const AddParkingFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingFloor' })
+    const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
+
+    const menuOverlay = useMemo(() => (
+        <Menu css={MenuCss} onClick={menuClick}>
+            <Menu.Item key={'addSection'}>
+                <Button type={'sberDefaultGradient'} secondary icon={<SectionIcon />}>
+                    {AddSection}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addSectionFloor'}>
+                <Button type={'sberDefaultGradient'} secondary icon={<FloorIcon />}>
+                    {AddFloor}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addUnit'}>
+                <Button type={'sberDefaultGradient'} secondary disabled={mapEdit.isEmptySections} icon={<FlatIcon />}>
+                    {AddUnit}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addInterFloorRoom'}>
+                <Button type={'sberDefaultGradient'} secondary disabled icon={<InterFloorIcon />}>
+                    {AddInterFloorRoom}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addParking'}>
+                <Button type={'sberDefaultGradient'} secondary icon={<ParkingIcon />}>
+                    {AddParkingLabel}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addParkingFloor'}>
+                <Button type={'sberDefaultGradient'} secondary disabled icon={<ParkingFloorIcon />}>
+                    {AddParkingFloor}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key={'addParkingUnit'}>
+                <Button type={'sberDefaultGradient'} secondary disabled={mapEdit.isEmptyParking} icon={<ParkingPlaceIcon />}>
+                    {AddParkingPlace}
+                </Button>
+            </Menu.Item>
+        </Menu>
+    ), [menuClick, mapEdit])
+
+    return (
+        <Dropdown
+            trigger={DROPDOWN_TRIGGER}
+            overlay={menuOverlay}
+            css={DropdownCss}
+            mouseEnterDelay={0}
+        >
+            <Button type='sberDefaultGradient' secondary>{AddElementTitle}<span>...</span></Button>
+        </Dropdown>
+    )
+}
+
+export default BuildingEditTopMenu
