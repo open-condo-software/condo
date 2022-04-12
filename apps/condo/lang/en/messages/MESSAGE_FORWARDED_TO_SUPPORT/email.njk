@@ -7,6 +7,6 @@ Organizations:
   no
 {%- else -%}
   {% for org in message.meta.organizationsData %}
-    - {{org.name}}. TIN: {{org.inn}}
+    - {{org.name | safe}}. TIN: {{org.inn}}
   {% endfor %}
 {% endif %}
