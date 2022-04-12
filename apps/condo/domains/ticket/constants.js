@@ -24,7 +24,7 @@ const REVIEW_VALUES = {
     RETURN: 'returned',
 }
 
-const COMMENT_TYPES = {
+const COMMENT_TYPE = {
     ORGANIZATION: 'organization',
     RESIDENT: 'resident',
 }
@@ -55,5 +55,5 @@ module.exports = {
     TICKET_STATUS_TYPES,
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS,
     REVIEW_VALUES,
-    COMMENT_TYPES,
+    COMMENT_TYPE: COMMENT_TYPE,
 }
