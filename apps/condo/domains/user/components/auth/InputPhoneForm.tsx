@@ -19,16 +19,23 @@ import { ResponsiveCol } from '@condo/domains/user/components/containers/Respons
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
-    textAlign: 'center',
+    textAlign: 'start',
 }
-const FORM_PARAGRAPH_STYLES: React.CSSProperties = { margin: '34px 0 40px', textAlign: 'left' }
+const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
+    margin: '34px 0 40px',
+}
+const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
+    textAlign:'center',
+}
+const FORM_PHONE_STYLES: React.CSSProperties = {
+    borderRadius: 8,
+    borderColor: colors.inputBorderGrey,
+}
 const FORM_BUTTONS_GUTTER: RowProps['gutter'] = [0, 20]
 
 interface IInputPhoneFormProps {
     onFinish: () => void
 }
-
-const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
 
 export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => {
     const [form] = Form.useForm()
@@ -177,7 +184,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         </Button>
                                     </Form.Item>
                                 </Col>
-                                <Col span={24}>
+                                <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
                                     <FormattedMessage id='Or'/>
                                 </Col>
                                 <Col span={24}>
