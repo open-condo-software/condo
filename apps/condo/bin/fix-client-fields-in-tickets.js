@@ -23,7 +23,7 @@ class FixTicketClients {
             client_is_null: true,
         })
 
-        // Tickets where client is not null, but client fields is null
+        // Tickets where client is not null, but client fields are null
         this.clientIsNotNullTickets = await find('Ticket', {
             client_is_null: false,
             clientName: null,
@@ -50,7 +50,7 @@ class FixTicketClients {
         for (const ticket of this.clientIsNullTickets) {
             const ticketContactId = get(ticket, 'contact')
 
-            // if ticket have a contact
+            // if ticket has a contact
             if (ticketContactId) {
                 const ticketContact = contactsInTicketsProperty.find(contact => contact.id === ticketContactId)
                 const ticketContactPhone = get(ticketContact, 'phone', null)

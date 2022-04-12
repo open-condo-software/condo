@@ -7,7 +7,7 @@ const { sleep } = require('@condo/domains/common/utils/sleep')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { disconnectResidents, connectResidents } = require('@condo/domains/resident/utils/helpers')
-const { Ticket } = require('../ticket/utils/serverSchema')
+const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
 /**
  * Reconnects residents to oldest (dominating) non-deleted property with same address

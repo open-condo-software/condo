@@ -192,7 +192,7 @@ const Resident = new GQLListSchema('Resident', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         validateInput: async ({ resolvedData, operation, addValidationError, context }) => {
-            const { address, addressMeta, unitName, unitType, property: propertyId, user: userId } = resolvedData
+            const { address, addressMeta, unitName, user: userId } = resolvedData
             if (operation === 'create') {
                 const addressUpToBuilding = getAddressUpToBuildingFrom(addressMeta)
                 const [resident] = await ResidentAPI.getAll(context, {
@@ -207,12 +207,17 @@ const Resident = new GQLListSchema('Resident', {
                 if (resident) {
                     return addValidationError('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
                 }
-
-                await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId)
             } else if (operation === 'update') {
                 if (address || addressMeta || unitName) {
                     return addValidationError('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
                 }
+            }
+        },
+        resolveInput: async ({ resolvedData, operation }) => {
+            const { unitName, unitType, property: propertyId, user: userId } = resolvedData
+
+            if (operation === 'create') {
+                await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId)
             }
         },
     },
