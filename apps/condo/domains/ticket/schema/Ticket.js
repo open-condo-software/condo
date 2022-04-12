@@ -105,7 +105,11 @@ const Ticket = new GQLListSchema('Ticket', {
         },
 
         client: {
-            schemaDoc: 'Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client',
+            schemaDoc: `
+                Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client.
+                When creating or updating a ticket with a contact, we find a registered user with a phone number that matches the contact's phone number and an address that matches the ticket address.
+                When a resident registers, tickets (whose phone number matches the contact's phone number and address matches the ticket address) have the client = resident.user field set. 
+            `,
             type: Relationship,
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
