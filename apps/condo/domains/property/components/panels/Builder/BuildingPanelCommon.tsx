@@ -233,6 +233,7 @@ const BuildingViewModeSelectCss = css`
   background-color: ${colors.backgroundWhiteSecondary};
   height: 48px;
   border-radius: 8px;
+  white-space: nowrap;
 
   & label.ant-radio-button-wrapper {
     background-color: ${colors.backgroundWhiteSecondary};
