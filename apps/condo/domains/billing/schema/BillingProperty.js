@@ -44,6 +44,12 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             isRequired: true,
         },
 
+        normalizedAddress: {
+            schemaDoc: 'Normalized address from `billing data source`. Used to map Properties to BillingProperties',
+            type: Text,
+            isRequired: false,
+        },
+
         meta: {
             schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
                 'Examples of data keys: `total space of building`, `property beginning of exploitation year`, `has cultural heritage status`, `number of underground floors`, `number of above-ground floors`',
@@ -55,7 +61,7 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
         property: {
             schemaDoc: 'Link to the property model',
             type: Virtual,
-            graphQLReturnType: 'JSON',
+            graphQLReturnType: 'Property',
             resolver: async (item, _, context) => {
                 const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
                 const organizationId = billingContext.organization
