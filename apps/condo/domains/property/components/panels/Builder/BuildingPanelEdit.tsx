@@ -40,7 +40,7 @@ import {
     BuildingViewModeSelect,
     EmptyBuildingBlock,
     EmptyFloor,
-    MapSectionContainer,
+    MapSectionContainer, PropertyMapFloor,
     UnitTypeLegendItem,
 } from './BuildingPanelCommon'
 
@@ -363,40 +363,38 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 </BuildingPanelTopModal>
             </FullscreenHeader>
             <Row align='middle' style={{ height: '100%' }}>
-                {
-                    <ChessBoard
-                        builder={mapEdit}
-                        refresh={refresh}
-                        scrollToForm={scrollToForm}
-                        isFullscreen
-                    >
-                        <Space size={20} align={'center'}>
-                            <Button
-                                key='submit'
-                                onClick={handleSave}
-                                type='sberDefaultGradient'
-                                disabled={!address}
-                            >
-                                {SaveLabel}
-                            </Button>
-                            <Button
-                                key='cancel'
-                                onClick={onCancel}
-                                type='sberDefaultGradient'
-                                secondary
-                            >
-                                {CancelLabel}
-                            </Button>
-                            {
-                                mapValidationError ? (
-                                    <Typography.Paragraph type="danger" style={{ width: '100%', textAlign: 'center' }}>
-                                        {mapValidationError}
-                                    </Typography.Paragraph>
-                                ) : null
-                            }
-                        </Space>
-                    </ChessBoard>
-                }
+                <ChessBoard
+                    builder={mapEdit}
+                    refresh={refresh}
+                    scrollToForm={scrollToForm}
+                    isFullscreen
+                >
+                    <Space size={20} align={'center'}>
+                        <Button
+                            key='submit'
+                            onClick={handleSave}
+                            type='sberDefaultGradient'
+                            disabled={!address}
+                        >
+                            {SaveLabel}
+                        </Button>
+                        <Button
+                            key='cancel'
+                            onClick={onCancel}
+                            type='sberDefaultGradient'
+                            secondary
+                        >
+                            {CancelLabel}
+                        </Button>
+                        {
+                            mapValidationError ? (
+                                <Typography.Paragraph type="danger" style={{ width: '100%', textAlign: 'center' }}>
+                                    {mapValidationError}
+                                </Typography.Paragraph>
+                            ) : null
+                        }
+                    </Space>
+                </ChessBoard>
             </Row>
         </FullscreenWrapper>
     )
@@ -660,14 +658,6 @@ const PropertyMapFloorContainer: React.FC<IPropertyMapSectionProps> = (props) =>
                 })
             }
         </>
-    )
-}
-
-const PropertyMapFloor: React.FC = ({ children }) => {
-    return (
-        <div style={{ display: 'block' }}>
-            {children}
-        </div>
     )
 }
 
@@ -1531,6 +1521,8 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [floor, section, unitsOnFloor, unitType])
 
+    const isSubmitDisabled = !(floor && section !== null && unitsOnFloor)
+
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
@@ -1588,7 +1580,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                 secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={!(floor && section && unitsOnFloor)}
+                                disabled={isSubmitDisabled}
                             > {SaveLabel} </Button>
                         </Col>
                     </Row>

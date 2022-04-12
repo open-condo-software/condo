@@ -737,11 +737,19 @@ class MapEdit extends MapView {
             previousFloorIndex++
         }
 
+        if (floor.section === 0 && floor.index === 1) {
+            const hasNegativeFloors = Object.keys(this.sectionFloorMap).some(floorLabel => Number(floorLabel) < 0)
+            const updateIndex = hasNegativeFloors ? floorIndex : previousFloorIndex
+            this.updateUnitNumbers(this.sections[0].floors[updateIndex].units[0])
+            return
+        }
+
         const previousUnit = last(this.sections[floor.section].floors[previousFloorIndex].units)
         if (previousUnit && Number(get(invert(this.sectionFloorMap), floorIndex, -1)) > 0) {
             this.updateUnitNumbers(previousUnit)
         }
     }
+
 
     public addPreviewCopySection (sectionId: string): void {
         this.removePreviewSection()
@@ -1237,19 +1245,25 @@ class MapEdit extends MapView {
     }
 
     private generateFloor (floor: BuildingFloorArg, preview = false): BuildingFloor {
-        //const unitNumber = this.nextUnitNumber
         return {
             id: String(++this.autoincrement),
             index: floor.index,
             name: String(floor.index),
             type: BuildingMapEntityType.Floor,
-            units: Array.from({ length: floor.unitCount }, (_, unitIndex) => ({
-                id: String(++this.autoincrement),
-                label: '', //preview ? '' : String(unitNumber + unitIndex),
-                unitType: floor.unitType,
-                preview,
-                type: BuildingMapEntityType.Unit,
-            })),
+            units: Array.from({ length: floor.unitCount }, (_, unitIndex) => {
+                let label = ''
+                if (!preview && floor.section === 0 && floor.index === 1) {
+                    label = String(unitIndex + 1)
+                }
+
+                return {
+                    id: String(++this.autoincrement),
+                    label,
+                    unitType: floor.unitType,
+                    preview,
+                    type: BuildingMapEntityType.Unit,
+                }
+            }),
         }
     }
 
