@@ -480,6 +480,29 @@ describe('Map constructor', () => {
                 expect(modifiedSection.floors[15].index).toEqual(-7)
                 expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
             })
+
+            it('should keep unit numbers up to date with section if added floor has positive number', () => {
+                const Building = createBuildingMap(5)
+                const buildingFloors = Building.sections[0].floors.length
+                const modifiedSection = Building.sections[0]
+
+                Building.addSectionFloor({
+                    section: 0,
+                    unitCount: 2,
+                    unitType: BuildingUnitType.Flat,
+                    index: 11,
+                })
+                const floorIndexes = modifiedSection.floors.map(({ index }) => index)
+                const sectionUnitNames = modifiedSection.floors.map((floor) => floor.units.map(({ label }) => label)).flat(2)
+                Building.validate()
+
+                expect(Building.isMapValid).toBeTruthy()
+                expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
+                expect(modifiedSection.floors[0].units).toHaveLength(2)
+                expect(modifiedSection.floors[0].index).toEqual(11)
+                expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
+                expect(sectionUnitNames.every(label => label !== '')).toBeTruthy()
+            })
         })
     })
 
