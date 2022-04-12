@@ -16,6 +16,7 @@ import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import qs from 'qs'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
+import Head from 'next/head'
 
 const HeaderAction = () => {
     const router = useRouter()
@@ -112,9 +113,12 @@ const RegisterPage: AuthPage = () => {
     }
 
     return (
-        <RegisterContextProvider>
-            {steps[step]}
-        </RegisterContextProvider>
+        <>
+            <Head><title>{RegistrationTitleMsg}</title></Head>
+            <RegisterContextProvider>
+                {steps[step]}
+            </RegisterContextProvider>
+        </>
     )
 }
 

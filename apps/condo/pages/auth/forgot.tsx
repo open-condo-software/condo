@@ -20,6 +20,7 @@ import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/co
 import { Loader } from '@condo/domains/common/components/Loader'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { colors } from '@condo/domains/common/constants/style'
+import Head from 'next/head'
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
@@ -32,7 +33,7 @@ function ResetPageView () {
     const intl = useIntl()
     const router = useRouter()
     const RestorePasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.RestorePasswordTitle' })
-    const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
+    const ResetTitleMsg = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
     const InstructionsMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
     const PhoneIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotRegistered' })
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
@@ -72,7 +73,7 @@ function ResetPageView () {
             <ValidatePhoneForm
                 onFinish={() => router.push('/auth/change-password?token=' + token)}
                 onReset={() => setStep('inputPhone')}
-                title={ResetTitle}
+                title={ResetTitleMsg}
             />
         )
     }
@@ -118,6 +119,7 @@ function ResetPageView () {
 
         return (
             <>
+                <Head><title>{ResetTitleMsg}</title></Head>
                 <Form
                     form={form}
                     name='forgot-password'
@@ -131,7 +133,7 @@ function ResetPageView () {
                         <ResponsiveCol span={24}>
                             <Row gutter={[0, 20]}>
                                 <Col span={24}>
-                                    <Typography.Title level={3} style={FORM_TITLE_STYLES}>{ResetTitle}</Typography.Title>
+                                    <Typography.Title level={3} style={FORM_TITLE_STYLES}>{ResetTitleMsg}</Typography.Title>
                                 </Col>
                                 <Col span={24}>
                                     <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
