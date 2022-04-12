@@ -1,7 +1,7 @@
 Система: {{ message.meta.os }}
 Версия приложения: {{ message.meta.appVersion }}
 Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}не указан{% endif %}
-Сообщение: {{ message.meta.text }}
+Сообщение: {{ message.meta.text | safe }}
 УК:
 {%- if message.meta.organizationsData.length == 0 -%}
   нет
