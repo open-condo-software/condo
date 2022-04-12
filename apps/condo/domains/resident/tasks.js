@@ -75,6 +75,8 @@ async function manageResidentToTicketClientConnections (propertyId, unitType, un
     const residentUserName = get(residentUser, 'name', null)
     const residentUserEmail = get(residentUser, 'email', null)
 
+    if (!residentUserPhone) return
+
     const tickets = await find('Ticket', {
         property: { id: propertyId },
         contact: { phone: residentUserPhone },
