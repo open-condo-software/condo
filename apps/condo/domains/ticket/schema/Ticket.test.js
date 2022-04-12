@@ -372,14 +372,14 @@ describe('Ticket', () => {
             expect(readTicket.id).toEqual(ticket.id)
         })
 
-        test('resident: if no client data but with contact data, client data fills from contact', async () => {
+        test('resident: if no client data but with contact data, client data fills from resident', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const unitName = faker.random.alphaNumeric(5)
-            const { phone } = residentClient.userAttrs
+            const { phone, email, name } = residentClient.userAttrs
 
             await createTestResident(admin, residentClient.user, organization, property, {
                 unitName,
@@ -396,9 +396,9 @@ describe('Ticket', () => {
 
             const [readTicket] = await Ticket.getAll(residentClient, { id: ticket.id })
 
-            expect(readTicket.clientPhone).toEqual(contact.phone)
-            expect(readTicket.clientEmail).toEqual(contact.email)
-            expect(readTicket.clientName).toEqual(contact.name)
+            expect(readTicket.clientPhone).toEqual(phone)
+            expect(readTicket.clientEmail).toEqual(email)
+            expect(readTicket.clientName).toEqual(name)
         })
 
         test('admin: if client data and contact data sended, client data not overwritted', async () => {
