@@ -49,7 +49,9 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                 <Col span={24}>
                     <Footer isSmall={isSmall}>
                         <Typography.Link
-                            href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL_MSG}
+                            href={`mailto:${SUPPORT_EMAIL}`}
+                        >
+                            {SUPPORT_EMAIL_MSG}
                         </Typography.Link>
                         <Typography.Link
                             href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}
