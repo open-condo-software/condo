@@ -44,6 +44,7 @@ import isNull from 'lodash/isNull'
 import last from 'lodash/last'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import {
     BuildingAxisY,
     BuildingChooseSections,
@@ -365,6 +366,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         </Menu>
     ), [menuClick])
 
+    const { isSmall } = useLayoutContext()
+
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
     const showSectionFilter = mapEdit.viewMode === MapViewMode.section && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
     const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && mapEdit.parking.length >= MIN_SECTIONS_TO_SHOW_FILTER
@@ -405,7 +408,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         </Col>
                     )}
                     <Col flex={0}>
-                        <Space size={20}>
+                        <Space size={20} style={{ flexDirection: isSmall ? 'column-reverse' : 'row' }}>
                             {
                                 showViewModeSelect && (
                                     <BuildingViewModeSelect
