@@ -488,7 +488,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     templatePath: `./domains/ticket/templates/TicketAnalyticsExportTemplate[${groupBy1}_${groupBy2}].xlsx`,
                     replaces: { tickets, i18n },
                     meta: {
-                        listkey: `ticket_${groupBy1}_${groupBy2}`,
+                        listkey: 'Ticket',
                         id: ticketAccessCheck[0].id,
                     },
                 })
