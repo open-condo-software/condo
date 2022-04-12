@@ -2,9 +2,9 @@ exports.up = async (knex) => {
     await knex.raw(`
         BEGIN;
             UPDATE "Ticket"
-            SET canReadByResident = true
-            JOIN "User" ON "User".id = "Ticket".createdBy
-            WHERE "User".type = 'resident';
+            SET "canReadByResident" = true
+            FROM "User"
+            WHERE "Ticket"."createdBy" = "User"."id" AND "User"."type" = 'resident';
         COMMIT;
     `)
 }
@@ -13,9 +13,9 @@ exports.down = async (knex) => {
     await knex.raw(`
        BEGIN;
             UPDATE "Ticket"
-            SET canReadByResident = false
-            JOIN "User" ON "User".id = "Ticket".createdBy
-            WHERE "User".type = 'resident';
+            SET "canReadByResident" = false
+            FROM "User"
+            WHERE "Ticket"."createdBy" = "User".id AND "User"."type" = 'resident';
         COMMIT;
     `)
 }
