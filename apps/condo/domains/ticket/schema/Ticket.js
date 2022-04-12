@@ -30,13 +30,12 @@ const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/uti
 const { JSON_EXPECT_OBJECT_ERROR, DV_UNKNOWN_VERSION_ERROR, STATUS_UPDATED_AT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { normalizeText } = require('@condo/domains/common/utils/text')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { calculateTicketOrder, calculateReopenedCounter, createContactIfNotExists,
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
-    overrideTicketFieldsForResidentUserType,
+    overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
-
 const { handleTicketEvents } = require('../utils/handlers')
 
 const Ticket = new GQLListSchema('Ticket', {
@@ -104,49 +103,7 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { unique: true, null: false },
         },
 
-        client: {
-            schemaDoc: `
-                Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client.
-                When creating or updating a ticket with a contact, we find a registered user with a phone number that matches the contact's phone number and an address that matches the ticket address.
-                When a resident registers, tickets (whose phone number matches the contact's phone number and address matches the ticket address) have the client = resident.user field set. 
-            `,
-            type: Relationship,
-            ref: 'User',
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-            hooks: {
-                resolveInput: async ({ operation, resolvedData, existingItem, fieldPath }) => {
-                    const contactId = get(resolvedData, 'contact')
-                    if (!contactId) return resolvedData[fieldPath]
-
-                    const contact = await getById('Contact', contactId)
-                    const contactPhone = get(contact, 'phone')
-
-                    let ticketUnitName
-                    let ticketUnitType
-                    let ticketPropertyId
-
-                    if (operation === 'create') {
-                        ticketUnitName = get(resolvedData, 'unitName', null)
-                        ticketUnitType = get(resolvedData, 'unitType', null)
-                        ticketPropertyId = get(resolvedData, 'property', null)
-                    } else if (operation === 'update' && existingItem) {
-                        ticketUnitName = get(resolvedData, 'unitName') || existingItem.unitName || null
-                        ticketUnitType = get(resolvedData, 'unitType') || existingItem.unitType || null
-                        ticketPropertyId = get(resolvedData, 'property') || existingItem.property || null
-                    }
-
-                    const resident = await getByCondition('Resident', {
-                        user: { phone: contactPhone },
-                        property: { id: ticketPropertyId },
-                        unitName: ticketUnitName,
-                        unitType: ticketUnitType,
-                        deletedAt: null,
-                    })
-
-                    return get(resident, 'user') || resolvedData[fieldPath]
-                },
-            },
-        },
+        client: CLIENT_FIELD,
         contact: CONTACT_FIELD,
         clientName: CLIENT_NAME_FIELD,
         clientEmail:  CLIENT_EMAIL_FIELD,
@@ -373,6 +330,19 @@ const Ticket = new GQLListSchema('Ticket', {
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
                 await calculateReopenedCounter(context, existingItem, resolvedData)
+            }
+
+            // When creating ticket or updating ticket address,
+            // we find a registered user with a phone number that matches the contact's phone number
+            // and an address that matches the ticket address.
+            if (userType === STAFF) {
+                const contactId = get(resolvedData, 'contact')
+                const propertyId = get(resolvedData, 'property')
+                const unitName = get(resolvedData, 'unitName')
+
+                if (contactId || propertyId || unitName) {
+                    await setClientIfContactPhoneAndTicketAddressMatchesResidentFields(operation, resolvedData, existingItem)
+                }
             }
 
             if (userType === RESIDENT && operation === 'create') {

@@ -5,6 +5,7 @@ const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
+const { getById, getByCondition } = require('@core/keystone/schema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 function calculateTicketOrder (resolvedData, statusId) {
@@ -88,6 +89,49 @@ function overrideTicketFieldsForResidentUserType (context, resolvedData) {
     resolvedData.unitType = resolvedData.unitType || FLAT_UNIT_TYPE
 }
 
+async function setClientIfContactPhoneAndTicketAddressMatchesResidentFields (operation, resolvedData, existingItem) {
+    let contactPhone
+    let ticketUnitName
+    let ticketUnitType
+    let ticketPropertyId
+
+    if (operation === 'create') {
+        const contactId = get(resolvedData, 'contact')
+        if (!contactId) return
+
+        const contact = await getById('Contact', contactId)
+        contactPhone = get(contact, 'phone')
+        ticketUnitName = get(resolvedData, 'unitName', null)
+        ticketUnitType = get(resolvedData, 'unitType', null)
+        ticketPropertyId = get(resolvedData, 'property', null)
+    } else if (operation === 'update' && existingItem) {
+        const contactId = get(resolvedData, 'contact') || existingItem.contact || null
+        if (!contactId) return
+
+        const contact = await getById('Contact', contactId)
+        contactPhone = get(contact, 'phone')
+        ticketUnitName = get(resolvedData, 'unitName') || existingItem.unitName || null
+        ticketUnitType = get(resolvedData, 'unitType') || existingItem.unitType || null
+        ticketPropertyId = get(resolvedData, 'property') || existingItem.property || null
+    }
+
+    const resident = await getByCondition('Resident', {
+        user: { phone: contactPhone },
+        property: { id: ticketPropertyId },
+        unitName: ticketUnitName,
+        unitType: ticketUnitType,
+        deletedAt: null,
+    })
+
+    const residentUserId = get(resident, 'user')
+
+    if (residentUserId) {
+        const residentUser = await getById('User', residentUserId)
+
+        setClientNamePhoneEmailFieldsByDataFromUser(residentUser, resolvedData)
+    }
+}
+
 module.exports = {
     calculateReopenedCounter,
     calculateTicketOrder,
@@ -95,4 +139,5 @@ module.exports = {
     setSectionAndFloorFieldsByDataFromPropertyMap,
     setClientNamePhoneEmailFieldsByDataFromUser,
     overrideTicketFieldsForResidentUserType,
+    setClientIfContactPhoneAndTicketAddressMatchesResidentFields,
 }
