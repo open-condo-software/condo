@@ -37,6 +37,7 @@ const { calculateTicketOrder, calculateReopenedCounter, createContactIfNotExists
     overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const { handleTicketEvents } = require('../utils/handlers')
+const isNull = require('lodash/isNull')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user',
@@ -336,11 +337,11 @@ const Ticket = new GQLListSchema('Ticket', {
             // we find a registered user with a phone number that matches the contact's phone number
             // and an address that matches the ticket address.
             if (userType === STAFF) {
-                const contactId = get(resolvedData, 'contact')
-                const propertyId = get(resolvedData, 'property')
-                const unitName = get(resolvedData, 'unitName')
+                const contactId = get(resolvedData, 'contact', null)
+                const propertyId = get(resolvedData, 'property', null)
+                const unitName = get(resolvedData, 'unitName', null)
 
-                if (contactId || propertyId || unitName) {
+                if (isNull(contactId) || isNull(propertyId) || isNull(unitName)) {
                     await setClientIfContactPhoneAndTicketAddressMatchesResidentFields(operation, resolvedData, existingItem)
                 }
             }
