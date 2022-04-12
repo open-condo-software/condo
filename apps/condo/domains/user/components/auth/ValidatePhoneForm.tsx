@@ -22,7 +22,6 @@ import { ResponsiveCol } from '@condo/domains/user/components/containers/Respons
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
-    textAlign: 'left',
 }
 
 interface IValidatePhoneFormProps {
@@ -32,7 +31,6 @@ interface IValidatePhoneFormProps {
 }
 
 const SMS_CODE_CLEAR_REGEX = /[^0-9]/g
-
 const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
 const FORM_ITEMS_GUTTER: RowProps['gutter'] = [0, 24]
 

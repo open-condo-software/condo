@@ -17,9 +17,13 @@ import { ResponsiveCol } from '@condo/domains/user/components/containers/Respons
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
-    textAlign: 'center',
 }
-const FORM_PARAGRAPH_STYLES: React.CSSProperties = { textAlign: 'left', marginBottom: '40px' }
+const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
+    textAlign:'center',
+}
+const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
+    marginBottom: '40px',
+}
 const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
 const FORM_BUTTONS_GUTTER: RowProps['gutter'] = [0, 20]
 
@@ -150,7 +154,7 @@ export const SignInForm = (): React.ReactElement => {
                                 </Button>
                             </Form.Item>
                         </Col>
-                        <Col span={24}>
+                        <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
                             <FormattedMessage id='Or'/>
                         </Col>
                         <Col span={24}>

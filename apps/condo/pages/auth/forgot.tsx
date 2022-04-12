@@ -24,10 +24,14 @@ import Head from 'next/head'
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
-    textAlign: 'center',
 }
-const FORM_TITLE_STYLES: React.CSSProperties = { textAlign: 'left', fontWeight: 700 }
-const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
+const FORM_TITLE_STYLES: React.CSSProperties = {
+    fontWeight: 700,
+}
+const FORM_PHONE_STYLES: React.CSSProperties = {
+    borderRadius: 8,
+    borderColor: colors.inputBorderGrey,
+}
 
 function ResetPageView () {
     const intl = useIntl()
