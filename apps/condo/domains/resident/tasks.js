@@ -1,11 +1,13 @@
-const { getSchemaCtx } = require('@core/keystone/schema')
+const { getSchemaCtx, getById, find } = require('@core/keystone/schema')
 const { createTask } = require('@core/keystone/tasks')
+const get = require('lodash/get')
 
 const { sleep } = require('@condo/domains/common/utils/sleep')
 
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { disconnectResidents, connectResidents } = require('@condo/domains/resident/utils/helpers')
+const { Ticket } = require('../ticket/utils/serverSchema')
 
 /**
  * Reconnects residents to oldest (dominating) non-deleted property with same address
@@ -55,6 +57,42 @@ async function manageResidentToPropertyAndOrganizationConnections (address) {
     }
 }
 
+/**
+ * Connects resident user to tickets whose phone number matches the ticket contact's phone number and address matches the ticket address
+ * @param propertyId {string} Resident property id
+ * @param unitType {string} Resident unitType
+ * @param unitName: {string} Resident unitName
+ * @param userId: {string} Resident user id
+ * @returns {Promise<void>}
+ */
+async function manageResidentToTicketClientConnections (propertyId, unitType, unitName, userId) {
+    const { keystone } = await getSchemaCtx('Message')
+
+    const residentUser = await getById('User', userId)
+    const residentUserPhone = get(residentUser, 'phone', null)
+    const residentUserName = get(residentUser, 'name', null)
+    const residentUserEmail = get(residentUser, 'email', null)
+
+    const tickets = await find('Ticket', {
+        property: { id: propertyId },
+        contact: { phone: residentUserPhone },
+        unitName: unitName,
+        unitType: unitType,
+    })
+
+    for (const ticket of tickets) {
+        await Ticket.update(keystone, ticket.id, {
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'connect-resident-to-client' },
+            client: { connect: { id: userId } },
+            clientName: residentUserName,
+            clientPhone: residentUserPhone,
+            clientEmail: residentUserEmail,
+        })
+    }
+}
+
 module.exports = {
     manageResidentToPropertyAndOrganizationConnections: createTask('manageResidentToPropertyAndOrganizationConnections', manageResidentToPropertyAndOrganizationConnections),
+    manageResidentToTicketClientConnections: createTask('manageResidentToTicketClientConnections', manageResidentToTicketClientConnections),
 }
