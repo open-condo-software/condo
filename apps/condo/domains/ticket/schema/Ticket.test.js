@@ -1318,8 +1318,45 @@ describe('Ticket', () => {
                 expect(readTicket.clientEmail).toEqual(email)
                 expect(readTicket.clientPhone).toEqual(phone)
             })
+
+            test('should be filled automatically on create resident with same contact phone and same ticket address', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const { phone, name, email } = residentClient.userAttrs
+
+                const [contact] = await createTestContact(admin, organization, property, {
+                    phone,
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(admin, organization, property, {
+                    unitName,
+                    unitType,
+                    contact: { connect: { id: contact.id } },
+                    canReadByResident: true,
+                })
+
+                expect(ticket.client).toBeNull()
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const [readTicket] = await Ticket.getAll(residentClient, { id: ticket.id })
+
+                expect(readTicket.client.id).toEqual(residentClient.user.id)
+                expect(readTicket.clientName).toEqual(name)
+                expect(readTicket.clientEmail).toEqual(email)
+                expect(readTicket.clientPhone).toEqual(phone)
+            })
         })
     })
+
     describe( 'Notification', () => {
         test('assignee with registered pushToken and connected to ticket on create receives push notification', async () => {
             const admin = await makeLoggedInAdminClient()
