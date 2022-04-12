@@ -6,7 +6,7 @@ const dayjs = require('dayjs')
 
 const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
-const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { createTestContact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowUserInputError } = require('@condo/domains/common/utils/testSchema')
@@ -31,7 +31,7 @@ const { getRandomTokenData } = require('@condo/domains/notification/utils/testSc
 const { Message, syncDeviceByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const { REVIEW_VALUES } = require('../constants')
@@ -371,6 +371,7 @@ describe('Ticket', () => {
 
             expect(readTicket.id).toEqual(ticket.id)
         })
+
         test('resident: if no client data but with contact data, client data fills from contact', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
@@ -399,6 +400,7 @@ describe('Ticket', () => {
             expect(readTicket.clientEmail).toEqual(contact.email)
             expect(readTicket.clientName).toEqual(contact.name)
         })
+
         test('admin: if client data and contact data sended, client data not overwritted', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
@@ -427,6 +429,7 @@ describe('Ticket', () => {
             expect(readTicket.clientEmail).toEqual(email)
             expect(readTicket.clientName).toEqual(name)
         })
+
         test('admin: if client data sended without contact data, client data not overwritted', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
@@ -453,6 +456,7 @@ describe('Ticket', () => {
             expect(readTicket.clientEmail).toEqual(email)
             expect(readTicket.clientName).toEqual(name)
         })
+
         test('resident: cannot read ticket with a contact whose phone number did not matches the resident phone number', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient1 = await makeClientWithResidentUser()
@@ -1239,6 +1243,80 @@ describe('Ticket', () => {
                 expect(refetchTicket).toBeDefined()
                 expect(refetchTicket).toHaveProperty('propertyAddress', client.property.address)
                 expect(refetchTicket).toHaveProperty('propertyAddressMeta', client.property.addressMeta)
+            })
+        })
+
+        describe('client', () => {
+            test('should be filled automatically on ticket creation if contact phone number and ticket address matches the resident phone number and address', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const { phone, name, email } = residentClient.userAttrs
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                    unitType,
+                })
+                const [contact] = await createTestContact(admin, organization, property, {
+                    phone,
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(admin, organization, property, {
+                    unitName,
+                    unitType,
+                    contact: { connect: { id: contact.id } },
+                    canReadByResident: true,
+                })
+
+                const [readTicket] = await Ticket.getAll(residentClient, { id: ticket.id })
+
+                expect(readTicket.client.id).toEqual(residentClient.user.id)
+                expect(readTicket.clientName).toEqual(name)
+                expect(readTicket.clientEmail).toEqual(email)
+                expect(readTicket.clientPhone).toEqual(phone)
+            })
+
+            test('should be filled automatically on ticket update if contact phone number and updated ticket address matches the resident phone number and address', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const unitName1 = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const { phone, name, email } = residentClient.userAttrs
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                    unitType,
+                })
+                const [contact] = await createTestContact(admin, organization, property, {
+                    phone,
+                })
+                const [ticket] = await createTestTicket(admin, organization, property, {
+                    unitName: unitName1,
+                    unitType,
+                    contact: { connect: { id: contact.id } },
+                    canReadByResident: true,
+                })
+
+                expect(ticket.client).toBeNull()
+
+                await updateTestTicket(admin, ticket.id, {
+                    unitName,
+                })
+
+                const [readTicket] = await Ticket.getAll(residentClient, { id: ticket.id })
+
+                expect(readTicket.client.id).toEqual(residentClient.user.id)
+                expect(readTicket.clientName).toEqual(name)
+                expect(readTicket.clientEmail).toEqual(email)
+                expect(readTicket.clientPhone).toEqual(phone)
             })
         })
     })
