@@ -58,13 +58,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
     },
     plugins: [
         uuided(), versioned(),
-        tracked({
-            relationshipAccess: {
-                read: access.canReadUserField,
-                update: false,
-                create: false,
-            },
-        }),
+        tracked(),
         softDeleted(), historical(),
     ],
     access: {

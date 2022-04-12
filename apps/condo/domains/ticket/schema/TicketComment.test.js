@@ -815,47 +815,6 @@ describe('TicketComment', () => {
                 expect(comments).toHaveLength(0)
             })
 
-            it('cannot read other comments authors', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const residentClient = await makeClientWithResidentUser()
-
-                const unitName = faker.random.alphaNumeric(5)
-                const content1 = faker.lorem.sentence()
-                const content2 = faker.lorem.sentence()
-
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageTickets: true,
-                    canManageTicketComments: true,
-                })
-                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
-                await createTestResident(adminClient, residentClient.user, organization, property, {
-                    unitName,
-                })
-                const [ticket] = await createTestTicket(residentClient, organization, property, {
-                    unitName,
-                })
-
-                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                    type: RESIDENT_COMMENT_TYPE,
-                    content: content1,
-                })
-                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
-                    type: RESIDENT_COMMENT_TYPE,
-                    content: content2,
-                })
-
-                const { data: { objs: comments } } = await TicketComment.getAll(residentClient, {}, { sortBy: 'createdAt_ASC', raw: true })
-
-                expect(comments).toHaveLength(2)
-                expect(comments[0].user.id).toEqual(residentClient.user.id)
-                expect(comments[0].createdBy.id).toEqual(residentClient.user.id)
-                expect(comments[1].user).toEqual(null)
-                expect(comments[1].createdBy).toEqual(null)
-            })
-
             it('cannot read ticket comments after resident is deleted', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
