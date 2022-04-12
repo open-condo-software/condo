@@ -25,11 +25,17 @@ interface IRegisterFormProps {
     onFinish: (userId: string) => void
 }
 
-const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
-const FORM_TITLE_STYLES: React.CSSProperties = { textAlign: 'start', fontWeight: 700 }
+const ROW_STYLES: React.CSSProperties = {
+    justifyContent: 'center',
+}
+const FORM_TITLE_STYLES: React.CSSProperties = {
+    fontWeight: 700,
+}
+const FORM_PHONE_STYLES: React.CSSProperties = {
+    borderRadius: 8,
+    borderColor: colors.inputBorderGrey,
+}
 const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
-const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
-
 
 export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const intl = useIntl()

@@ -20,8 +20,12 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { ResponsiveCol } from '../../domains/user/components/containers/ResponsiveCol'
 
 
-const ROW_STYLES: React.CSSProperties = { justifyContent: 'center', textAlign: 'center' }
-const FORM_TITLE_STYLES: React.CSSProperties = { textAlign: 'start', fontWeight: 700, fontSize: 20 }
+const ROW_STYLES: React.CSSProperties = {
+    justifyContent: 'center',
+}
+const FORM_TITLE_STYLES: React.CSSProperties = {
+    fontWeight: 700, fontSize: 20,
+}
 const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
 
 const ChangePasswordPage: AuthPage = () => {

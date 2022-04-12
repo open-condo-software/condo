@@ -19,7 +19,6 @@ import { ResponsiveCol } from '@condo/domains/user/components/containers/Respons
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
-    textAlign: 'start',
 }
 const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
     margin: '34px 0 40px',

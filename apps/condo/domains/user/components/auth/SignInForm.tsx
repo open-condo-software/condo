@@ -11,16 +11,19 @@ import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@core/next/apollo'
 import { useAuth } from '@core/next/auth'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { JAVASCRIPT_URL_XSS } from '@condo/domains/common/constants/regexps'
 import { colors } from '@condo/domains/common/constants/style'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
-    textAlign: 'center',
 }
-const FORM_PARAGRAPH_STYLES: React.CSSProperties = { textAlign: 'left', marginBottom: '40px' }
+const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
+    textAlign:'center',
+}
+const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
+    marginBottom: '40px',
+}
 const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
 const FORM_BUTTONS_GUTTER: RowProps['gutter'] = [0, 20]
 
@@ -151,7 +154,7 @@ export const SignInForm = (): React.ReactElement => {
                                 </Button>
                             </Form.Item>
                         </Col>
-                        <Col span={24}>
+                        <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
                             <FormattedMessage id='Or'/>
                         </Col>
                         <Col span={24}>
