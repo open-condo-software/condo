@@ -24,6 +24,7 @@ const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/
 const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')
 
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+const { manageResidentToTicketClientConnections } = require('../tasks')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
@@ -191,7 +192,7 @@ const Resident = new GQLListSchema('Resident', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         validateInput: async ({ resolvedData, operation, addValidationError, context }) => {
-            const { address, addressMeta, unitName, unitType, user: userId } = resolvedData
+            const { address, addressMeta, unitName, unitType, property: propertyId, user: userId } = resolvedData
             if (operation === 'create') {
                 const addressUpToBuilding = getAddressUpToBuildingFrom(addressMeta)
                 const [resident] = await ResidentAPI.getAll(context, {
@@ -206,6 +207,8 @@ const Resident = new GQLListSchema('Resident', {
                 if (resident) {
                     return addValidationError('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
                 }
+
+                await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId)
             } else if (operation === 'update') {
                 if (address || addressMeta || unitName) {
                     return addValidationError('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
