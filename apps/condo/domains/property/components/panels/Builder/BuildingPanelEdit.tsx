@@ -1439,15 +1439,6 @@ const EditParkingForm: React.FC<IEditSectionFormProps> = ({ builder, refresh }) 
                 <Col span={24}>
                     <Button
                         secondary
-                        onClick={updateParkingSection}
-                        type={'sberDefaultGradient'}
-                    >
-                        {SaveLabel}
-                    </Button>
-                </Col>
-                <Col span={24}>
-                    <Button
-                        secondary
                         onClick={deleteParking}
                         type='sberDangerGhost'
                         icon={<DeleteFilled />}
