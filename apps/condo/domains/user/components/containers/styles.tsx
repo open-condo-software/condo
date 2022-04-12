@@ -17,7 +17,7 @@ export const Footer = styled.div<IFooterProps>`
             position: fixed;
           `
 }
-  width: 100%;
+  width: 95%;
   color: ${colors.lightGrey[7]};
   white-space: pre-line;
   font-size: 12px;
