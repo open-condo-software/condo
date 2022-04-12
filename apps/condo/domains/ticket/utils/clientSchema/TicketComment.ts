@@ -34,6 +34,7 @@ export interface ITicketCommentFormState {
     id?: undefined
     user?: string
     ticket?: string
+    type?: string
 }
 
 function convertToUIFormState (state: ITicketCommentUIState): ITicketCommentFormState | undefined {

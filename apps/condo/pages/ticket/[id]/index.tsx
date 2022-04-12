@@ -29,6 +29,7 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
+import { ORGANIZATION_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
 import { Affix, Breadcrumb, Col, Row, Space, Typography } from 'antd'
@@ -486,6 +487,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const createCommentAction = TicketComment.useCreate({
         ticket: id,
         user: auth.user && auth.user.id,
+        type: ORGANIZATION_COMMENT_TYPE,
     }, () => { refetchComments() })
 
     const canShareTickets = get(employee, 'role.canShareTickets')
