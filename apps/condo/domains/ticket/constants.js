@@ -24,10 +24,9 @@ const REVIEW_VALUES = {
     RETURN: 'returned',
 }
 
-const COMMENT_TYPE = {
-    ORGANIZATION: 'organization',
-    RESIDENT: 'resident',
-}
+const ORGANIZATION_COMMENT_TYPE = 'organization'
+const RESIDENT_COMMENT_TYPE = 'resident'
+const COMMENT_TYPES = [ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE]
 
 /*
     To keep everything, we have a `TicketChangeHistoryRecord`, being created by `historical` Keystone plugin for a `Ticket`.
@@ -55,5 +54,7 @@ module.exports = {
     TICKET_STATUS_TYPES,
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS,
     REVIEW_VALUES,
-    COMMENT_TYPE: COMMENT_TYPE,
+    COMMENT_TYPES,
+    ORGANIZATION_COMMENT_TYPE,
+    RESIDENT_COMMENT_TYPE,
 }

@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketComment')
-const { COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { COMMENT_TYPES } = require('@condo/domains/ticket/constants')
 
 
 const TicketComment = new GQLListSchema('TicketComment', {
@@ -21,7 +21,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
             isRequired: true,
             type: Select,
             dataType: 'string',
-            options: Object.values(COMMENT_TYPE).join(','),
+            options: COMMENT_TYPES,
         },
 
         ticket: {

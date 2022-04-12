@@ -15,7 +15,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 const { TicketComment, createTestTicketComment, updateTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { COMMENT_TYPE } = require('../constants')
+const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('../constants')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { updateTestTicket } = require('../utils/testSchema')
@@ -152,12 +152,12 @@ describe('TicketComment', () => {
                 const content = faker.lorem.sentence()
                 const [ticket] = await createTestTicket(userClient, organization, property)
                 const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content,
                 })
 
                 expect(ticketComment.id).toMatch(UUID_RE)
-                expect(ticketComment.type).toMatch(COMMENT_TYPE.RESIDENT)
+                expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
                 expect(ticketComment.content).toMatch(content)
             })
         })
@@ -431,12 +431,12 @@ describe('TicketComment', () => {
                     unitName,
                 })
                 const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content,
                 })
 
                 expect(ticketComment.id).toMatch(UUID_RE)
-                expect(ticketComment.type).toMatch(COMMENT_TYPE.RESIDENT)
+                expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
                 expect(ticketComment.content).toMatch(content)
             })
 
@@ -463,12 +463,12 @@ describe('TicketComment', () => {
                     canReadByResident: true,
                 })
                 const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content,
                 })
 
                 expect(ticketComment.id).toMatch(UUID_RE)
-                expect(ticketComment.type).toMatch(COMMENT_TYPE.RESIDENT)
+                expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
                 expect(ticketComment.content).toMatch(content)
             })
 
@@ -494,7 +494,7 @@ describe('TicketComment', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                        type: COMMENT_TYPE.RESIDENT,
+                        type: RESIDENT_COMMENT_TYPE,
                         content,
                     })
                 })
@@ -518,7 +518,7 @@ describe('TicketComment', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                        type: COMMENT_TYPE.ORGANIZATION,
+                        type: ORGANIZATION_COMMENT_TYPE,
                         content,
                     })
                 })
@@ -545,7 +545,7 @@ describe('TicketComment', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestTicketComment(residentClient, completedTicket, residentClient.user, {
-                        type: COMMENT_TYPE.RESIDENT,
+                        type: RESIDENT_COMMENT_TYPE,
                         content,
                     })
                 })
@@ -556,7 +556,7 @@ describe('TicketComment', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestTicketComment(residentClient, declinedTicket, residentClient.user, {
-                        type: COMMENT_TYPE.RESIDENT,
+                        type: RESIDENT_COMMENT_TYPE,
                         content,
                     })
                 })
@@ -588,11 +588,11 @@ describe('TicketComment', () => {
                 })
 
                 const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content1,
                 })
                 const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content2,
                 })
 
@@ -636,11 +636,11 @@ describe('TicketComment', () => {
                 })
 
                 const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content1,
                 })
                 const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content2,
                 })
 
@@ -682,11 +682,11 @@ describe('TicketComment', () => {
                 })
 
                 const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content1,
                 })
                 const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content2,
                 })
 
@@ -731,11 +731,11 @@ describe('TicketComment', () => {
                 })
 
                 const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content1,
                 })
                 const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content2,
                 })
 
@@ -774,7 +774,7 @@ describe('TicketComment', () => {
                 })
 
                 const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content2,
                 })
 
@@ -806,7 +806,7 @@ describe('TicketComment', () => {
                 })
 
                 const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
-                    type: COMMENT_TYPE.ORGANIZATION,
+                    type: ORGANIZATION_COMMENT_TYPE,
                     content: content2,
                 })
 
@@ -839,11 +839,11 @@ describe('TicketComment', () => {
                 })
 
                 const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content1,
                 })
                 const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content2,
                 })
 
@@ -855,6 +855,12 @@ describe('TicketComment', () => {
                 expect(comments[1].user).toEqual(null)
                 expect(comments[1].createdBy).toEqual(null)
             })
+
+            it.todo('cannot read ticket comments after resident is deleted')
+
+            it.todo('cannot read ticket comments after ticket property is deleted')
+
+            it.todo('cannot read ticket comments after ticket is deleted')
         })
 
         describe('update', () => {
@@ -876,7 +882,7 @@ describe('TicketComment', () => {
                 })
 
                 const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content1,
                 })
 
@@ -912,7 +918,7 @@ describe('TicketComment', () => {
                 })
 
                 const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content1,
                 })
 
@@ -942,7 +948,7 @@ describe('TicketComment', () => {
                 })
 
                 const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                    type: COMMENT_TYPE.RESIDENT,
+                    type: RESIDENT_COMMENT_TYPE,
                     content: content1,
                 })
 

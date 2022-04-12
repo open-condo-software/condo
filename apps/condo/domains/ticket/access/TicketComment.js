@@ -13,7 +13,7 @@ const isEmpty = require('lodash/isEmpty')
 const compact = require('lodash/compact')
 const uniq = require('lodash/uniq')
 const omit = require('lodash/omit')
-const { COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('../constants')
+const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('../constants')
 const { getTicketFieldsMatchesResidentFieldsQuery } = require('../utils/accessSchema')
 
 async function canReadTicketComments ({ authentication: { item: user } }) {
@@ -31,7 +31,7 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
         const residentAddressOrStatement = getTicketFieldsMatchesResidentFieldsQuery(user, residents)
 
         return {
-            type: COMMENT_TYPE.RESIDENT,
+            type: RESIDENT_COMMENT_TYPE,
             ticket: {
                 organization: {
                     id_in: uniq(organizationsIds),
@@ -82,7 +82,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
             commentType = get(comment, 'type')
         }
 
-        if (!ticket || !commentType || commentType !== COMMENT_TYPE.RESIDENT) return false
+        if (!ticket || !commentType || commentType !== RESIDENT_COMMENT_TYPE) return false
 
         const ticketStatusId = get(ticket, 'status')
         const ticketStatus = await getById('TicketStatus', ticketStatusId)
