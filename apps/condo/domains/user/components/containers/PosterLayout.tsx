@@ -20,6 +20,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
     const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
     const BG_POSTER = layoutBgImage ? layoutBgImage.poster : '/authPoster.png'
     const BG_POSTER_PLACEHOLDER = layoutBgImage ? layoutBgImage.placeholder : '/authPosterPlaceholder.png'
+    const SUPPORT_EMAIL_MSG = `${SUPPORT_EMAIL}, `
 
     return (
         <Layout style={LAYOUT_STYLE}>
@@ -48,8 +49,8 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                 <Col span={24}>
                     <Footer isSmall={isSmall}>
                         <Typography.Link
-                            href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}
-                        </Typography.Link>,
+                            href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL_MSG}
+                        </Typography.Link>
                         <Typography.Link
                             href={`tel:${SUPPORT_PHONE}`}>{SUPPORT_PHONE}
                         </Typography.Link>
