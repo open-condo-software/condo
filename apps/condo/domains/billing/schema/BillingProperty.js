@@ -8,9 +8,13 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingProperty')
-const { Checkbox } = require('@keystonejs/fields')
+const { find } = require('@core/keystone/schema')
+const { getById } = require('@core/keystone/schema')
+const { Virtual } = require('@keystonejs/fields')
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
 const { RAW_DATA_FIELD } = require('./fields/common')
+
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 
 const BillingProperty = new GQLListSchema('BillingProperty', {
@@ -46,6 +50,23 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             // TODO(pahaz): research keys!
             type: Json,
             isRequired: true,
+        },
+
+        property: {
+            schemaDoc: 'Link to the property model',
+            type: Virtual,
+            graphQLReturnType: 'JSON',
+            resolver: async (item, _, context) => {
+                const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
+                const organizationId = billingContext.organization
+
+                const [ property ] = await find('Property', {
+                    organization: { id: organizationId },
+                    address: item.address,
+                })
+
+                return property
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
