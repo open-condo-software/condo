@@ -21,7 +21,7 @@ const RELATIONS = ['organization', 'ticketComment']
 
 export interface ITicketCommentFileUIState extends TicketCommentFile {
     id: string
-    file?: File
+    file: File
     organization?: Organization
     ticketComment?: TicketComment
 }
