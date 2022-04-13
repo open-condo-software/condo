@@ -65,12 +65,16 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
                             }
                         }
 
+                        console.log('ticketCommentMeta before', ticketCommentMeta, fileMeta)
+
                         const files = ticketCommentMeta.files
                         if (updatedItem.deletedAt) {
-                            ticketCommentMeta.files = omitBy(files, obj => obj.file.id === id)
+                            ticketCommentMeta.files = files.filter(file => file.id !== id)
                         } else {
-                            ticketCommentMeta.files = uniqBy([...files, fileMeta], obj => obj.file.id)
+                            ticketCommentMeta.files = uniqBy([...files, fileMeta], obj => obj.id)
                         }
+
+                        console.log('ticketCommentMeta', ticketCommentMeta)
 
                         await TicketComment.update(context, ticketComment.id, {
                             meta: ticketCommentMeta,
