@@ -266,10 +266,4 @@ describe('TicketCommentFile', () => {
         })
 
     })
-
-    describe('resident', () => {
-
-    })
-
-
 })
