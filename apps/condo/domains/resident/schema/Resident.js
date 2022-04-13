@@ -219,6 +219,8 @@ const Resident = new GQLListSchema('Resident', {
             if (operation === 'create') {
                 await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId)
             }
+
+            return resolvedData
         },
     },
     access: {
