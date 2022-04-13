@@ -135,7 +135,7 @@ const TICKET_CHANGE_FIELDS = `{ changedByRole ticket { id property { address } o
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
-const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name type } type content meta ${COMMON_FIELDS} }`
+const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name type } type content ${COMMON_FIELDS} }`
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 const TICKET_ANALYTICS_REPORT_QUERY = gql`
     query ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
