@@ -6,7 +6,7 @@ import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 
-import { BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
+import { BuildingSection, BuildingUnit, BuildingUnitSubType, BuildingUnitType } from '@app/condo/schema'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { LabeledValue } from 'antd/lib/select'
 
@@ -18,11 +18,11 @@ export interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange
 }
 interface IGetOptionGroupBySectionType {
     ({ sections, unitType, groupLabel }: {
-        sections: BuildingSection[], unitType: BuildingUnitType, groupLabel: string
+        sections: BuildingSection[], unitType: BuildingUnitSubType, groupLabel: string
     }): React.ReactNode
 }
 
-export type UnitNameInputOption = LabeledValue & { 'data-unitType': BuildingUnitType, 'data-unitName': string }
+export type UnitNameInputOption = LabeledValue & { 'data-unitType': BuildingUnitSubType, 'data-unitName': string }
 const BASE_UNIT_NAME_INPUT_OPTION_STYLE: React.CSSProperties = { paddingLeft: '12px' }
 
 
@@ -39,8 +39,8 @@ const getOptionGroupBySectionType: IGetOptionGroupBySectionType = (props) => {
     const flattenUnits: Array<BuildingUnit> = flattenDeep(unflattenUnits)
 
     const filteredUnits = flattenUnits.filter((unit) => {
-        if (unitType === BuildingUnitType.Flat) {
-            return unit.unitType === null || unit.unitType === BuildingUnitType.Flat
+        if (unitType === BuildingUnitSubType.Flat) {
+            return unit.unitType === null || unit.unitType === BuildingUnitSubType.Flat
         }
         return unit.unitType === unitType
     })
@@ -93,19 +93,19 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             {...restInputProps}
         >
             {getOptionGroupBySectionType({
-                sections, unitType: BuildingUnitType.Flat, groupLabel: FlatGroupLabel,
+                sections, unitType: BuildingUnitSubType.Flat, groupLabel: FlatGroupLabel,
             })}
             {getOptionGroupBySectionType({
-                sections, unitType: BuildingUnitType.Apartment, groupLabel: ApartmentGroupLabel,
+                sections, unitType: BuildingUnitSubType.Apartment, groupLabel: ApartmentGroupLabel,
             })}
             {getOptionGroupBySectionType({
-                sections: parking, unitType: BuildingUnitType.Parking, groupLabel: ParkingGroupLabel,
+                sections: parking, unitType: BuildingUnitSubType.Parking, groupLabel: ParkingGroupLabel,
             })}
             {getOptionGroupBySectionType({
-                sections, unitType: BuildingUnitType.Warehouse, groupLabel: WarehouseGroupLabel,
+                sections, unitType: BuildingUnitSubType.Warehouse, groupLabel: WarehouseGroupLabel,
             })}
             {getOptionGroupBySectionType({
-                sections, unitType: BuildingUnitType.Commercial, groupLabel: CommercialGroupLabel,
+                sections, unitType: BuildingUnitSubType.Commercial, groupLabel: CommercialGroupLabel,
             })}
         </Select>
     )

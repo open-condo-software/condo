@@ -6,25 +6,25 @@ import get from 'lodash/get'
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
-import { BuildingSection, BuildingUnitType } from '@app/condo/schema'
+import { BuildingSection, BuildingUnitSubType, BuildingUnitType } from '@app/condo/schema'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 interface IGetSectionAndFloorByUnit {
-    (unitName: string, sections: BuildingSection[], unitType: BuildingUnitType): {
+    (unitName: string, sections: BuildingSection[], unitType: BuildingUnitSubType): {
         sectionName: null | string, floorName: null | string
     }
 }
 
-const getSectionAndFloorByUnit: IGetSectionAndFloorByUnit = (unitName, sections, unitType = BuildingUnitType.Flat) => {
+const getSectionAndFloorByUnit: IGetSectionAndFloorByUnit = (unitName, sections, unitType = BuildingUnitSubType.Flat) => {
     const sectionAndFloor = { sectionName: null, floorName: null }
 
     if (sections) {
         for (const section of sections) {
             for (const floor of section.floors) {
                 const floorUnits = floor.units.filter((unit) => {
-                    if (unitType === BuildingUnitType.Flat) {
-                        return unit.unitType === null || unit.unitType === BuildingUnitType.Flat
+                    if (unitType === BuildingUnitSubType.Flat) {
+                        return unit.unitType === null || unit.unitType === BuildingUnitSubType.Flat
                     }
                     return unit.unitType === unitType
                 })
@@ -47,7 +47,7 @@ interface IUnitInfo {
         form: FormInstance
         loading: boolean,
         setSelectedUnitName: React.Dispatch<React.SetStateAction<string>>,
-        setSelectedUnitType?: React.Dispatch<React.SetStateAction<BuildingUnitType>>,
+        setSelectedUnitType?: React.Dispatch<React.SetStateAction<BuildingUnitSubType>>,
     }): React.ReactElement
 }
 
@@ -60,9 +60,9 @@ export const UnitInfo: IUnitInfo = (props) => {
 
     const { isSmall } = useLayoutContext()
 
-    const updateSectionAndFloor = (form, unitName: string, unitType = BuildingUnitType.Flat) => {
+    const updateSectionAndFloor = (form, unitName: string, unitType = BuildingUnitSubType.Flat) => {
         if (unitName) {
-            const unitDestination = unitType === BuildingUnitType.Parking ? 'parking' : 'sections'
+            const unitDestination = unitType === BuildingUnitSubType.Parking ? 'parking' : 'sections'
             const sections = get(property, ['map', unitDestination], [])
             const { sectionName, floorName } = getSectionAndFloorByUnit(unitName, sections, unitType)
 
@@ -84,10 +84,10 @@ export const UnitInfo: IUnitInfo = (props) => {
                             onChange={(_, option: UnitNameInputOption) => {
                                 if (!option) {
                                     setSelectedUnitName(null)
-                                    setSelectedUnitType && setSelectedUnitType(BuildingUnitType.Flat)
+                                    setSelectedUnitType && setSelectedUnitType(BuildingUnitSubType.Flat)
                                     updateSectionAndFloor(form, null)
                                 } else {
-                                    const unitType = get(option, 'data-unitType', BuildingUnitType.Flat)
+                                    const unitType = get(option, 'data-unitType', BuildingUnitSubType.Flat)
                                     const unitName = get(option, 'data-unitName')
                                     setSelectedUnitType && setSelectedUnitType(unitType)
                                     setSelectedUnitName(unitName)

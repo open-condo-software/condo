@@ -13,7 +13,7 @@ import {
 } from './BuildingPanelCommon'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapView, MapViewMode } from './MapConstructor'
-import { BuildingMap, BuildingUnitType } from '@app/condo/schema'
+import { BuildingMap, BuildingUnitSubType, BuildingUnitType } from '@app/condo/schema'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
@@ -90,7 +90,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
         hidden={builder.viewMode === MapViewMode.parking}
     >
         {unitTypeOptions
-            .filter(unitType => unitType !== BuildingUnitType.Flat)
+            .filter(unitType => unitType !== BuildingUnitSubType.Flat)
             .map((unitType, unitTypeKey) => (
                 <Col key={unitTypeKey} flex={0}>
                     <UnitTypeLegendItem unitType={unitType}>

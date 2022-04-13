@@ -7507,18 +7507,23 @@ export type BillingRecipientsUpdateInput = {
 export type BuildingFloor = {
   __typename?: 'BuildingFloor';
   id: Scalars['String'];
-  type: BuildingMapEntityType;
+  type: BuildingFloorType;
   index: Scalars['Int'];
   name: Scalars['String'];
   units: Array<Maybe<BuildingUnit>>;
 };
 
+export enum BuildingFloorType {
+  Floor = 'floor'
+}
+
+/** Technical map of the 'building' type Property object. We assume that there will be different maps for different property types.  */
 export type BuildingMap = {
   __typename?: 'BuildingMap';
   dv: Scalars['Int'];
   sections?: Maybe<Array<Maybe<BuildingSection>>>;
   parking?: Maybe<Array<Maybe<BuildingSection>>>;
-  type?: Maybe<BuildingMapEntityType>;
+  type?: Maybe<BuildingMapType>;
 };
 
 export enum BuildingMapEntityType {
@@ -7529,32 +7534,44 @@ export enum BuildingMapEntityType {
   Village = 'village'
 }
 
+export enum BuildingMapType {
+  Building = 'building'
+}
+
 export type BuildingSection = {
   __typename?: 'BuildingSection';
   id: Scalars['String'];
-  type: BuildingMapEntityType;
+  type: BuildingSectionType;
   index: Scalars['Int'];
   name: Scalars['String'];
   floors: Array<Maybe<BuildingFloor>>;
   preview?: Maybe<Scalars['Boolean']>;
 };
 
+export enum BuildingSectionType {
+  Section = 'section'
+}
+
 export type BuildingUnit = {
   __typename?: 'BuildingUnit';
   id: Scalars['String'];
-  type: BuildingMapEntityType;
-  unitType?: Maybe<BuildingUnitType>;
+  type: BuildingUnitType;
+  unitType?: Maybe<BuildingUnitSubType>;
   name?: Maybe<Scalars['String']>;
   label: Scalars['String'];
   preview?: Maybe<Scalars['Boolean']>;
 };
 
-export enum BuildingUnitType {
+export enum BuildingUnitSubType {
   Parking = 'parking',
   Flat = 'flat',
   Apartment = 'apartment',
   Commercial = 'commercial',
   Warehouse = 'warehouse'
+}
+
+export enum BuildingUnitType {
+  Unit = 'unit'
 }
 
 export enum CacheControlScope {
@@ -23808,6 +23825,8 @@ export type PropertyHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<PropertyHistoryRecordUpdateInput>;
 };
+
+export type PropertyMap = BuildingMap | VillageMap;
 
 export type PropertyRelateToManyInput = {
   create?: Maybe<Array<Maybe<PropertyCreateInput>>>;
@@ -41905,6 +41924,17 @@ export type UsersUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<UserUpdateInput>;
 };
+
+/** Technical map of the 'village' type Property object. We assume that there will be different maps for different property types.  */
+export type VillageMap = {
+  __typename?: 'VillageMap';
+  dv: Scalars['Int'];
+  type?: Maybe<VillageMapType>;
+};
+
+export enum VillageMapType {
+  Village = 'village'
+}
 
 export type _ListAccess = {
   __typename?: '_ListAccess';

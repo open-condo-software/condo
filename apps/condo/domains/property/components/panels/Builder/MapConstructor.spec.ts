@@ -1,4 +1,4 @@
-import { BuildingMap, BuildingMapEntityType, BuildingUnitType } from '@app/condo/schema'
+import { BuildingMap, BuildingMapEntityType, BuildingSectionType, BuildingUnitSubType } from '@app/condo/schema'
 import {
     autoFixBuildingMapJson,
     buildingMapJson,
@@ -21,7 +21,7 @@ const createBuildingMap = (sections: number, sectionTemplate = testSection): Map
     const PropertyMap = new MapEdit(null, () => null )
     for (let i = 0; i < sections; i++){
         const name = (i + 1).toString()
-        PropertyMap.addSection({ ...sectionTemplate, name, type: BuildingMapEntityType.Section })
+        PropertyMap.addSection({ ...sectionTemplate, name, type: BuildingSectionType.Section })
     }
     return PropertyMap
 }
@@ -30,7 +30,7 @@ const createBuildingParking = (parkingSections: number): MapEdit => {
     const propertyMap = new MapEdit(null, () => null)
     for (let i = 0; i < parkingSections; i++) {
         const name = (i + 1).toString()
-        propertyMap.addParking({ ...testSection, name, type: BuildingMapEntityType.Section })
+        propertyMap.addParking({ ...testSection, name, type: BuildingSectionType.Section })
     }
     return propertyMap
 }
@@ -354,13 +354,13 @@ describe('Map constructor', () => {
                 const Building = createBuildingMap(5)
                 Building.addSection({
                     id: '', minFloor: -10, maxFloor: 10, unitsOnFloor: 10, name: sectionName(),
-                }, BuildingUnitType.Commercial)
+                }, BuildingUnitSubType.Commercial)
                 expect(Building.sections).toHaveLength(6)
                 Building.validate()
                 const newSectionUnitTypes = Building.sections[5].floors
                     .map(floor => floor.units.map(unit => unit.unitType)).flat(2)
                 expect(Building.isMapValid).toBeTruthy()
-                expect(newSectionUnitTypes.every(unitType => unitType === BuildingUnitType.Commercial)).toBeTruthy()
+                expect(newSectionUnitTypes.every(unitType => unitType === BuildingUnitSubType.Commercial)).toBeTruthy()
             })
         })
         describe('Edit section', () => {
