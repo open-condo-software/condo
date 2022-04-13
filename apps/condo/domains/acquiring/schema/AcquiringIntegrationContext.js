@@ -24,7 +24,14 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        integration: ACQUIRING_INTEGRATION_FIELD,
+        integration: {
+            ...ACQUIRING_INTEGRATION_FIELD,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
 
         organization: {
             schemaDoc: 'Service provider (organization)',
@@ -33,6 +40,11 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
         },
 
         settings: {
