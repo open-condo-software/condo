@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     branches:
       - '/^review-.*$/'
-  delete
+  delete:
 
 jobs:
   check_ns:
