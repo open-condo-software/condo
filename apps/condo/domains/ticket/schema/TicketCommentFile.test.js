@@ -182,14 +182,13 @@ describe('TicketCommentFile', () => {
                 const [ticket] = await createTestTicket(userClient, organization, property)
 
                 const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
-                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, organization, ticket, ticketComment)
+                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, organization, ticket)
 
                 const payload = {
                     content: faker.random.alphaNumeric(10),
                 }
 
-                const [objUpdated, attrs] = await updateTestTicketCommentFile(userClient, objCreated.id, payload)
-
+                const [objUpdated, attrs] = await updateTestTicketCommentFile(userClient, ticketCommentFile.id, payload)
             })
 
             it('cannot be updated by user, who has created it, but does not have "canManageTicketComments" ability', async () => {
