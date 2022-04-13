@@ -34,6 +34,18 @@ describe('BillingIntegrationOrganizationContext', () => {
             expect(context).toHaveProperty(['organization', 'id'], organization.id)
         })
 
+        test('support: create BillingIntegrationOrganizationContext', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [integration] = await createTestBillingIntegration(admin)
+            const [organization] = await  registerNewOrganization(admin)
+
+            const support = await makeClientWithSupportUser()
+            const [context] = await createTestBillingIntegrationOrganizationContext(support, organization, integration)
+
+            expect(context).toHaveProperty(['integration', 'id'], integration.id)
+            expect(context).toHaveProperty(['organization', 'id'], organization.id)
+        })
+
         test('user: create BillingIntegrationOrganizationContext', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()

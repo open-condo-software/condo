@@ -39,6 +39,11 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
         organization: ORGANIZATION_OWNED_FIELD,
