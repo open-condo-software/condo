@@ -66,7 +66,7 @@ async function setSectionAndFloorFieldsByDataFromPropertyMap (context, resolvedD
     const unitName = get(resolvedData, 'unitName', null)
     const propertyId = get(resolvedData, 'property', null)
 
-    const [property] = await Property.getAll(context, {
+    const property = await Property.getOne(context, {
         id: propertyId,
     })
 
