@@ -334,14 +334,16 @@ const Ticket = new GQLListSchema('Ticket', {
             }
 
             // When creating ticket or updating ticket address,
+            // if client is not passed in resolvedData,
             // we find a registered user with a phone number that matches the contact's phone number
             // and an address that matches the ticket address.
             if (userType === STAFF) {
                 const contactId = get(resolvedData, 'contact', null)
                 const propertyId = get(resolvedData, 'property', null)
                 const unitName = get(resolvedData, 'unitName', null)
+                const client = get(resolvedData, 'client', null)
 
-                if (!isNull(contactId) || !isNull(propertyId) || !isNull(unitName)) {
+                if (isNull(client) && (!isNull(contactId) || !isNull(propertyId) || !isNull(unitName))) {
                     await setClientIfContactPhoneAndTicketAddressMatchesResidentFields(operation, resolvedData, existingItem)
                 }
             }
