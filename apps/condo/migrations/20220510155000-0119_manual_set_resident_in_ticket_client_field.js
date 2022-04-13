@@ -6,14 +6,16 @@ exports.up = async (knex) => {
                 "clientName" = "User"."name",
                 "clientPhone" = "User"."phone",
                 "clientEmail" = "User"."email"
-            FROM "Resident"
-            JOIN "User" ON "Resident"."user" = "User"."id"
-            JOIN "Contact" ON "Contact"."phone" = "User"."phone" AND
-                "Ticket"."contact" = "Contact"."id"
+            FROM "Contact"
+            JOIN "User" ON
+                "Contact"."phone" = "User"."phone"
+            JOIN "Resident" ON
+                "Resident"."user" = "User"."id"
             WHERE "Ticket"."client" IS NULL AND
-                "Resident"."property" = "Ticket"."property" AND
-                "Resident"."unitName" = "Ticket"."unitName" AND
-                "Resident"."unitType" = "Ticket"."unitType"
+                  "Ticket"."contact" = "Contact"."id" AND
+                  "Resident"."property" = "Ticket"."property" AND
+                  "Resident"."unitName" = "Ticket"."unitName" AND
+                  "Resident"."unitType" = "Ticket"."unitType";
         COMMIT;
     `)
 }
@@ -23,14 +25,16 @@ exports.down = async (knex) => {
         BEGIN;
             UPDATE "Ticket"
             SET "client" = NULL
-            FROM "Resident"
-            JOIN "User" ON "Resident"."user" = "User"."id"
-            JOIN "Contact" ON "Contact"."phone" = "User"."phone" AND
-                "Ticket"."contact" = "Contact"."id"
+            FROM "Contact"
+            JOIN "User" ON
+                "Contact"."phone" = "User"."phone"
+            JOIN "Resident" ON
+                "Resident"."user" = "User"."id"
             WHERE "Ticket"."client" IS NULL AND
-                "Resident"."property" = "Ticket"."property" AND
-                "Resident"."unitName" = "Ticket"."unitName" AND
-                "Resident"."unitType" = "Ticket"."unitType"
+                  "Ticket"."contact" = "Contact"."id" AND
+                  "Resident"."property" = "Ticket"."property" AND
+                  "Resident"."unitName" = "Ticket"."unitName" AND
+                  "Resident"."unitType" = "Ticket"."unitType";
         COMMIT;
     `)
 }

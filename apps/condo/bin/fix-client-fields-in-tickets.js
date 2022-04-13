@@ -135,7 +135,7 @@ const fixTickets = async () => {
     await fixer.findBrokenTickets()
     console.info(`[INFO] Following tickets with client is null will be fixed: [${fixer.clientIsNullTickets.map(ticket => `"${ticket.id}"`).join(', ')}]`)
     await fixer.fixClientIsNullTickets()
-    console.info(`[INFO] Following tickets with client fields is null will be fixed: [${fixer.clientIsNotNullTickets.map(ticket => `"${ticket.id}"`).join(', ')}]`)
+    console.info(`[INFO] Following tickets with client fields is not null will be fixed: [${fixer.clientIsNotNullTickets.map(ticket => `"${ticket.id}"`).join(', ')}]`)
     await fixer.fixClientIsNotNullTickets()
     console.info('[INFO] Tickets are fixed...')
 }
