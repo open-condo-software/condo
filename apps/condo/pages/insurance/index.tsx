@@ -1,9 +1,9 @@
-import Head from 'next/head'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { Typography } from 'antd'
+import { IFrame, IFrameWrapper } from '@condo/domains/common/components/IFrame'
 import { useIntl } from '@core/next/intl'
-import { IFrame } from '@condo/domains/common/components/IFrame'
+import { Typography } from 'antd'
 import getConfig from 'next/config'
+import Head from 'next/head'
 
 const {
     publicRuntimeConfig: { insuranceAppUrl },
@@ -19,7 +19,9 @@ const IndexInsurancePage = () => {
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
-                <IFrame pageUrl={insuranceAppUrl}/>
+                <IFrameWrapper>
+                    <IFrame pageUrl={`${insuranceAppUrl}/oidc/auth`}/>
+                </IFrameWrapper>
             </PageWrapper>
         </>
     )
