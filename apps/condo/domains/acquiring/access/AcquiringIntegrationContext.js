@@ -31,7 +31,7 @@ async function canReadAcquiringIntegrationContexts ({ authentication: { item: us
 
 /**
  * Acquiring integration context may only be created by:
- * 1. Admin
+ * 1. Admin / support
  * 2. Organization integration manager
  * 3. Integration service user
  *
@@ -43,7 +43,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     let organizationId, integrationId
 

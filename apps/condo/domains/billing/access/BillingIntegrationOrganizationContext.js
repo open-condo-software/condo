@@ -29,7 +29,7 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
 
 /**
  * Context could be created by:
- * 1. Admin
+ * 1. Admin / Support
  * 2. Integration manager from user's organization
  *
  * Context could be updated by:
@@ -41,8 +41,7 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
-    if (user.isAdmin) return true
-    if (user.isSupport && !get(originalInput, ['organization', 'connect', 'id'])) return true
+    if (user.isAdmin || user.isSupport) return true
 
     let organizationId, integrationId
 
