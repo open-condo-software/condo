@@ -16,7 +16,9 @@ jobs:
       ns_exist: ${{ steps.check_ns.outputs.exist }}
     steps:
       - name: Set env for namespace
-        run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+        run: |
+          REF_NAME=${{ github.event.ref }}
+          echo "REVIEW_NAMESPACE=$(echo review-${REF_NAME##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: "Check namespace exist"
         id: check_ns
         run: |
@@ -40,7 +42,9 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
       - name: Set env for namespace
-        run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+        run: |
+          REF_NAME=${{ github.event.ref }}
+          echo "REVIEW_NAMESPACE=$(echo review-${REF_NAME##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Dismiss
         uses: werf/actions/dismiss@v1.2
         env:
