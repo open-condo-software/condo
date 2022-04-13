@@ -101,30 +101,19 @@ async function canManageTicketCommentFiles ({ authentication: { item: user }, or
         })
 
         return residents.length > 0
-    } else if (user.type === STAFF) {
+    } else {
         if (operation === 'create') {
-            const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
-            const ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
-            if (!ticket) return false
-            const organizationId = get(ticket, 'organization')
-
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketComments')
-        } else if (operation === 'update' && itemId) {
-            const commentFile = await getByCondition('TicketCommentFile', { id: itemId, deletedAt: null })
-            const commentId = get(commentFile, 'ticketComment')
-            const comment = await getByCondition('TicketCommentFile', { id: commentId, deletedAt: null })
-            if (!comment || comment.user !== user.id) return false
-
-            const ticket = await getByCondition('Ticket', { id: comment.ticket, deletedAt: null })
-            if (!ticket) return false
-
-            const organizationId = get(ticket, 'organization')
-
+            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
             return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketComments')
         }
-    }
+        const ticketCommentFile = await getById('TicketCommentFile', itemId)
+        if (!ticketCommentFile) return false
 
-    return false
+        const { ticket, createdBy, organization } = ticketCommentFile
+        if (!ticket) return createdBy === user.id
+        if (!organization) return false
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTicketComments')
+    }
 }
 
 /*

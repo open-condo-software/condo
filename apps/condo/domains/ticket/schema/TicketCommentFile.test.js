@@ -142,7 +142,7 @@ describe('TicketCommentFile', () => {
                 })
             })
 
-            it('can be read by employee from "from" relation organization', async () => {
+            test('can be read by employee from "from" relation organization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
@@ -153,7 +153,7 @@ describe('TicketCommentFile', () => {
                 expect(comments).toHaveLength(1)
             })
 
-            it('cannot be read by employee from "to" relation organization', async () => {
+            test('cannot be read by employee from "to" relation organization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
@@ -168,7 +168,7 @@ describe('TicketCommentFile', () => {
         })
 
         describe('update', () => {
-            it('can be updated by user, who has created it and has "canManageTicketComments" ability', async () => {
+            test('can be updated by user, who has created it and has "canManageTicketComments" ability', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
@@ -185,13 +185,16 @@ describe('TicketCommentFile', () => {
                 const [ticketCommentFile] = await createTestTicketCommentFile(userClient, organization, ticket)
 
                 const payload = {
-                    content: faker.random.alphaNumeric(10),
+                    ticketComment: { connect: { id: ticketComment.id } },
                 }
 
-                const [objUpdated, attrs] = await updateTestTicketCommentFile(userClient, ticketCommentFile.id, payload)
+                const [updatedTicketCommentFile] = await updateTestTicketCommentFile(userClient, ticketCommentFile.id, payload)
+
+                expect(updatedTicketCommentFile.id).toEqual(ticketCommentFile.id)
+                expect(updatedTicketCommentFile.ticketComment.id).toEqual(ticketComment.id)
             })
 
-            it('cannot be updated by user, who has created it, but does not have "canManageTicketComments" ability', async () => {
+            test('cannot be updated by user, who has created it, but does not have "canManageTicketComments" ability', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
@@ -203,106 +206,61 @@ describe('TicketCommentFile', () => {
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
                 const [ticket] = await createTestTicket(userClient, organization, property)
-
-                const [objCreated] = await createTestTicketComment(adminClient, ticket, userClient.user)
+                const [ticketComment] = await createTestTicketComment(adminClient, ticket, userClient.user)
+                const [ticketCommentFile] = await createTestTicketCommentFile(adminClient, organization, ticket, ticketComment)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestTicketComment(userClient, objCreated.id)
+                    await updateTestTicketCommentFile(userClient, ticketCommentFile.id)
                 })
             })
 
-            it('cannot be updated by user, who has not created it', async () => {
+            test('cannot be updated by user, who has not created it', async () => {
                 const userClient1 = await makeClientWithProperty()
                 const userClient2 = await makeClientWithProperty()
 
-                const [ticket1] = await createTestTicket(userClient1, userClient1.organization, userClient1.property)
-                const [ticket2] = await createTestTicket(userClient2, userClient2.organization, userClient2.property)
+                const [ticket] = await createTestTicket(userClient2, userClient2.organization, userClient2.property)
 
-                await createTestTicketComment(userClient1, ticket1, userClient1.user)
-                const [commentByOther] = await createTestTicketComment(userClient2, ticket2, userClient2.user)
+                const [ticketComment] = await createTestTicketComment(userClient2, ticket, userClient2.user)
+                const [ticketCommentFile] = await createTestTicketCommentFile(userClient2, userClient2.organization, ticket)
+
+                const payload = {
+                    ticketComment: { connect: { id: ticketComment.id } },
+                }
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestTicketComment(userClient1, commentByOther.id)
+                    await updateTestTicketCommentFile(userClient1, ticketCommentFile.id, payload)
                 })
             })
 
-            it('can be updated by admin', async () => {
+            test('can be updated by admin', async () => {
                 const adminClient = await makeLoggedInAdminClient()
 
                 const userClient = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
-                const [objCreated] = await createTestTicketComment(userClient, ticket, userClient.user)
+
+                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
+                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, userClient.organization, ticket)
 
                 const payload = {
-                    content: faker.random.alphaNumeric(10),
+                    ticketComment: { connect: { id: ticketComment.id } },
                 }
 
-                const [objUpdated, attrs] = await updateTestTicketComment(adminClient, objCreated.id, payload)
+                const [updatedTicketCommentFile] = await updateTestTicketCommentFile(adminClient, ticketCommentFile.id, payload)
 
-                expect(objUpdated.id).toEqual(objCreated.id)
-                expect(objUpdated.dv).toEqual(1)
-                expect(objUpdated.sender).toEqual(attrs.sender)
-                expect(objUpdated.v).toEqual(2)
-                expect(objUpdated.newId).toEqual(null)
-                expect(objUpdated.deletedAt).toEqual(null)
-                expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
-                expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-                expect(objUpdated.createdAt).toMatch(DATETIME_RE)
-                expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
-                expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
-                expect(objUpdated.content).not.toEqual(objCreated.content)
-                expect(objUpdated.user.id).toMatch(userClient.user.id)
+                expect(updatedTicketCommentFile.id).toEqual(ticketCommentFile.id)
+                expect(updatedTicketCommentFile.ticketComment.id).toEqual(ticketComment.id)
             })
 
-            it('cannot be updated by anonymous', async () => {
+            test('cannot be updated by anonymous', async () => {
                 const anonymousClient = await makeClient()
 
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(client, client.organization, client.property)
-                const [obj] = await createTestTicketComment(client, ticket, client.user)
+                const [ticketComment] = await createTestTicketComment(client, ticket, client.user)
+                const [ticketCommentFile] = await createTestTicketCommentFile(client, client.organization, ticket, ticketComment)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestTicketComment(anonymousClient, obj.id)
-                })
-            })
-
-            it('can be updated by employee from "from" relation organization', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, propertyTo, organizationTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
-                const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
-                    canManageTickets: true,
-                })
-                await updateTestOrganizationEmployee(admin, employeeFrom.id, {
-                    role: { connect: { id: role.id } },
-                })
-                const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
-                const [comment] = await createTestTicketComment(admin, ticket, clientFrom.user)
-                const payload = {
-                    content: faker.random.alphaNumeric(10),
-                }
-                const [commentUpdated] = await updateTestTicketComment(clientFrom, comment.id, payload)
-
-                expect(commentUpdated.id).toEqual(comment.id)
-                expect(commentUpdated.content).toEqual(payload.content)
-            })
-
-            it('cannot be updated by employee from "to" relation organization', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, clientTo, organizationFrom, propertyFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
-                const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
-                    canManageTickets: true,
-                })
-                await updateTestOrganizationEmployee(admin, employeeFrom.id, {
-                    role: { connect: { id: role.id } },
-                })
-                const [ticket] = await createTestTicket(admin, organizationFrom, propertyFrom)
-                const [comment] = await createTestTicketComment(admin, ticket, clientFrom.user)
-                const payload = {
-                    content: faker.random.alphaNumeric(10),
-                }
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestTicketComment(clientTo, comment.id, payload)
+                    await updateTestTicketCommentFile(anonymousClient, ticketCommentFile.id)
                 })
             })
         })
