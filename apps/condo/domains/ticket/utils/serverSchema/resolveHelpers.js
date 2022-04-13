@@ -129,6 +129,8 @@ async function setClientIfContactPhoneAndTicketAddressMatchesResidentFields (ope
         const residentUser = await getById('User', residentUserId)
 
         setClientNamePhoneEmailFieldsByDataFromUser(residentUser, resolvedData)
+    } else {
+        resolvedData.client = null
     }
 }
 
