@@ -8,14 +8,22 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { TicketCommentFile as TicketCommentFileGQL } from '@condo/domains/ticket/gql'
-import { TicketCommentFile, TicketCommentFileUpdateInput, QueryAllTicketCommentFilesArgs } from '../../../../schema'
+import {
+    TicketCommentFile,
+    TicketCommentFileUpdateInput,
+    QueryAllTicketCommentFilesArgs,
+    File,
+    Organization, TicketComment,
+} from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'file', 'ticketComment']
 const RELATIONS = ['organization', 'ticketComment']
 
 export interface ITicketCommentFileUIState extends TicketCommentFile {
     id: string
-    // TODO(codegen): write ITicketCommentFileUIState or extends it from
+    file?: File
+    organization?: Organization
+    ticketComment?: TicketComment
 }
 
 function convertToUIState (item: TicketCommentFile): ITicketCommentFileUIState {
@@ -25,7 +33,9 @@ function convertToUIState (item: TicketCommentFile): ITicketCommentFileUIState {
 
 export interface ITicketCommentFileFormState {
     id?: undefined
-    // TODO(codegen): write ITicketCommentFileUIFormState or extends it from
+    file?: File
+    organization?: Organization
+    ticketComment?: TicketComment
 }
 
 function convertToUIFormState (state: ITicketCommentFileUIState): ITicketCommentFileFormState | undefined {
@@ -54,6 +64,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
 } = generateReactHooks<TicketCommentFile, TicketCommentFileUpdateInput, ITicketCommentFileFormState, ITicketCommentFileUIState, QueryAllTicketCommentFilesArgs>(TicketCommentFileGQL, { convertToGQLInput, convertToUIState })
 
 export {
@@ -62,5 +73,6 @@ export {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
     convertToUIFormState,
 }
