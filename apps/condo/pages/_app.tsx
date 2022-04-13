@@ -16,6 +16,7 @@ import { useOrganization, withOrganization } from '@core/next/organization'
 
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
+import YandexMetrica from '@condo/domains/common/components/containers/YandexMetrica'
 import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
@@ -191,7 +192,7 @@ const MyApp = ({ Component, pageProps }) => {
                         </OnBoardingProvider>
                     </FocusContextProvider>
                     <GoogleAnalytics/>
-                    <BehaviorRecorder engine="plerdy"/>
+                    <YandexMetrica id={88253038}/>
                 </CacheProvider>
             </ConfigProvider>
         </>
