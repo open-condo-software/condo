@@ -438,7 +438,7 @@ async function createTestTicketCommentFile (client, organization, ticket, ticket
         sender,
         organization: { connect: { id: organization.id } },
         ticket: { connect: { id: ticket.id } },
-        ticketComment: ticketCommentConnection,
+        ...ticketCommentConnection,
         ...extraAttrs,
     }
     const obj = await TicketCommentFile.create(client, attrs)
