@@ -8,12 +8,12 @@ const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { getByCondition, find, getById } = require('@core/keystone/schema')
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 const isEmpty = require('lodash/isEmpty')
 const compact = require('lodash/compact')
 const uniq = require('lodash/uniq')
 const omit = require('lodash/omit')
-const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('../constants')
+const { RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('../constants')
 const { getTicketFieldsMatchesResidentFieldsQuery } = require('../utils/accessSchema')
 
 async function canReadTicketComments ({ authentication: { item: user } }) {
@@ -101,7 +101,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
         })
 
         return residents.length > 0
-    } else if (user.type === STAFF) {
+    } else {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
             const ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
@@ -134,7 +134,7 @@ async function canSetUserField ({ authentication: { item: user }, originalInput 
 async function canReadUserField ({ authentication: { item: user }, existingItem }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.type === STAFF) return true
+    if (user.isAdmin || user.type !== RESIDENT) return true
 
     return get(existingItem, 'user') === user.id
 }
