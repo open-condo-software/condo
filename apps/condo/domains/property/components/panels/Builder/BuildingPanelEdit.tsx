@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { CloseOutlined, DeleteFilled, DownOutlined } from '@ant-design/icons'
-import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitType } from '@app/condo/schema'
+import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, BuildingUnitType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -328,7 +328,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     <Col flex={0} style={UNIT_TYPE_COL_STYLE}>
                         <Row gutter={UNIT_TYPE_ROW_GUTTER}>
                             {mapEdit.getUnitTypeOptions()
-                                .filter(unitType => unitType !== BuildingUnitType.Flat)
+                                .filter(unitType => unitType !== BuildingUnitSubType.Flat)
                                 .map((unitType, unitTypeKey) => (
                                     <Col key={unitTypeKey} flex={0}>
                                         <UnitTypeLegendItem unitType={unitType}>
@@ -670,7 +670,7 @@ interface IPropertyMapUnitProps {
 
 const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit, scrollToForm }) => {
     const selectUnit = useCallback(() => {
-        if (unit.unitType !== BuildingUnitType.Parking) {
+        if (unit.unitType !== BuildingUnitSubType.Parking) {
             builder.setSelectedUnit(unit)
             if (builder.getSelectedUnit()) {
                 scrollToForm()
@@ -684,7 +684,7 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
         refresh()
     }, [refresh, unit, builder, scrollToForm])
 
-    const isUnitSelected = unit.unitType === BuildingUnitType.Flat
+    const isUnitSelected = unit.unitType === BuildingUnitSubType.Flat
         ? builder.isUnitSelected(unit.id)
         : builder.isParkingUnitSelected(unit.id)
 
@@ -727,7 +727,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     const [copyId, setCopyId] = useState<string | null>(null)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const [sectionName, setSectionName] = useState<string>(builder.nextSectionName)
-    const [unitType, setUnitType] = useState<BuildingUnitType>(BuildingUnitType.Flat)
+    const [unitType, setUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
 
     const resetForm = useCallback(() => {
         setMinFloor(1)
@@ -828,8 +828,8 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 <Space direction={'vertical'} size={8}>
                     <Typography.Text type={'secondary'}>{UnitTypeLabel}</Typography.Text>
                     <Select value={unitType} onSelect={setUnitType}>
-                        {Object.values(BuildingUnitType)
-                            .filter(unitType => unitType !== BuildingUnitType.Parking)
+                        {Object.values(BuildingUnitSubType)
+                            .filter(unitType => unitType !== BuildingUnitSubType.Parking)
                             .map((unitType, key) => (
                                 <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
                                     {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
@@ -892,7 +892,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
     const [section, setSection] = useState('')
-    const [unitType, setUnitType] = useState<BuildingUnitType>(BuildingUnitType.Flat)
+    const [unitType, setUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
 
     const [sections, setSections] = useState([])
     const [floors, setFloors] = useState([])
@@ -974,8 +974,8 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                         onSelect={updateUnitType}
                         style={INPUT_STYLE}
                     >
-                        {Object.values(BuildingUnitType)
-                            .filter(unitType => unitType !== BuildingUnitType.Parking)
+                        {Object.values(BuildingUnitSubType)
+                            .filter(unitType => unitType !== BuildingUnitSubType.Parking)
                             .map((unitType, unitTypeIndex) => (
                                 <Option key={unitTypeIndex} value={unitType}>{intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}</Option>
                             ))}

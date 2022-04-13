@@ -5,7 +5,7 @@ import get from 'lodash/get'
 import { Property } from '../utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { MapEdit } from '../components/panels/Builder/MapConstructor'
-import { BuildingMapEntityType } from '@app/condo/schema'
+import { BuildingMapEntityType, BuildingMapType } from '@app/condo/schema'
 import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
 import { useIntl } from '@core/next/intl'
 
@@ -17,7 +17,7 @@ const createPropertyUnitsMap = (units, sections, floors) => {
 
     const propertyUnitsMap = {
         dv: 1,
-        type: BuildingMapEntityType.Building,
+        type: BuildingMapType.Building,
         sections: [],
         parking: [],
     }

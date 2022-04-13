@@ -11,7 +11,7 @@ import { fontSizes, colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domain
 import { Button } from '@condo/domains/common/components/Button'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import { BuildingUnitType } from '@app/condo/schema'
+import { BuildingUnitSubType } from '@app/condo/schema'
 import { MapEdit, MapView, MapViewMode } from './MapConstructor'
 import { FullscreenFooter } from './Fullscreen'
 
@@ -290,7 +290,7 @@ export const BuildingViewModeSelect: React.FC<RadioProps> = (props) => {
     )
 }
 
-export const UnitTypeLegendItem = styled.div<{ unitType: BuildingUnitType }>`
+export const UnitTypeLegendItem = styled.div<{ unitType: BuildingUnitSubType }>`
   display: flex;
   height: 38px;
   align-items: center;

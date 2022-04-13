@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { BuildingUnitType } from '@app/condo/schema'
+import { BuildingUnitSubType, BuildingUnitType } from '@app/condo/schema'
 import { colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/core'
 import { Button, ButtonProps, Tooltip } from 'antd'
@@ -108,7 +108,7 @@ const selectedCss = css`
         border: 1px solid transparent;
     }
 `
-const previewCss = (unitType: BuildingUnitType) => css`
+const previewCss = (unitType: BuildingUnitSubType) => css`
   opacity: 0.5;
   background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
 `
@@ -124,7 +124,7 @@ const noninteractiveCss = css`
     }
 `
 
-const unitTypeCss = (unitType: BuildingUnitType) => css`
+const unitTypeCss = (unitType: BuildingUnitSubType) => css`
   background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
   &:hover {
     opacity: ${['flat', 'parking'].includes(unitType) ? 1 : .6};
@@ -141,7 +141,7 @@ interface CustomButtonProps extends ButtonProps {
     noninteractive?: boolean
     preview?: boolean
     ellipsis?: boolean
-    unitType?: BuildingUnitType
+    unitType?: BuildingUnitSubType
 }
 const TOOLTIP_OVERLAY_STYLE: React.CSSProperties = {
     background: colors.white,

@@ -1,10 +1,11 @@
 import {
-    BuildingFloor,
     BuildingMap,
     BuildingMapEntityType,
     BuildingSection,
     BuildingUnit,
     BuildingUnitType,
+    BuildingUnitSubType,
+    BuildingFloorType, BuildingSectionType, BuildingMapType,
 } from '@app/condo/schema'
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
 import Ajv from 'ajv'
@@ -38,7 +39,7 @@ export type BuildingUnitArg = BuildingUnit & {
     section?: string
     parking?: string
     sectionIndex?: number
-    unitType?: BuildingUnitType
+    unitType?: BuildingUnitSubType
 }
 
 export type BuildingFloorArg = Omit<BuildingFloor, 'id' | 'type' | '__typename' | 'units' | 'name'> & {
@@ -162,10 +163,10 @@ class Map {
             this.map.dv = 1
         }
         if (!has(this.map, 'type')) {
-            this.map.type = BuildingMapEntityType.Building
+            this.map.type = BuildingMapType.Building
         }
         this.map.sections.forEach((section, sectionIndex) => {
-            section.type = BuildingMapEntityType.Section
+            section.type = BuildingSectionType.Section
             section.id = String(++this.autoincrement)
             section.index = sectionIndex
             if (has(section, 'preview')) {
@@ -175,7 +176,7 @@ class Map {
                 section.name = String(section.index)
             }
             section.floors.forEach((floor, floorIndex) => {
-                floor.type = BuildingMapEntityType.Floor
+                floor.type = BuildingFloorType.Floor
                 floor.id = String(++this.autoincrement)
                 if (!has(floor, 'index')) {
                     floor.index = floorIndex
@@ -184,9 +185,9 @@ class Map {
                     floor.name = String(floorIndex)
                 }
                 floor.units.forEach(unit => {
-                    unit.type = BuildingMapEntityType.Unit
+                    unit.type = BuildingUnitType.Unit
                     if (!has(unit, 'unitType') || isNil(unit.unitType)) {
-                        unit.unitType = BuildingUnitType.Flat
+                        unit.unitType = BuildingUnitSubType.Flat
                     }
                     unit.id = String(++this.autoincrement)
                     if (has(unit, 'preview')) {
@@ -206,7 +207,7 @@ class Map {
             this.map.parking = []
         }
         this.map.parking.forEach((parkingSection, parkingSectionIndex) => {
-            parkingSection.type = BuildingMapEntityType.Section
+            parkingSection.type = BuildingSectionType.Section
             parkingSection.id = String(++this.autoincrement)
             parkingSection.index = parkingSectionIndex
 
@@ -216,7 +217,7 @@ class Map {
             }
 
             parkingSection.floors.forEach((floor, floorIndex) => {
-                floor.type = BuildingMapEntityType.Floor
+                floor.type = BuildingFloorType.Floor
                 floor.id = String(++this.autoincrement)
 
                 if (!has(floor, 'index')) {
@@ -227,8 +228,8 @@ class Map {
                 }
 
                 floor.units.forEach(unit => {
-                    unit.type = BuildingMapEntityType.Unit
-                    unit.unitType = BuildingUnitType.Parking
+                    unit.type = BuildingUnitType.Unit
+                    unit.unitType = BuildingUnitSubType.Parking
                     unit.id = String(++this.autoincrement)
                     if (has(unit, 'preview')) {
                         delete unit.preview
@@ -358,7 +359,7 @@ class MapView extends Map {
     }
 
     public getUnitInfo (id: string): BuildingUnitArg {
-        const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: BuildingMapEntityType.Unit, unitType: BuildingUnitType.Flat }
+        const newUnit: BuildingUnitArg = { id: '', label: '', floor: '', section: '', type: BuildingUnitType.Unit, unitType: BuildingUnitSubType.Flat }
         if (!id) {
             return newUnit
         }
@@ -384,8 +385,8 @@ class MapView extends Map {
             label: '',
             floor: '',
             section: '',
-            type: BuildingMapEntityType.Unit,
-            unitType: BuildingUnitType.Parking,
+            type: BuildingUnitType.Unit,
+            unitType: BuildingUnitSubType.Parking,
         }
         if (!id) {
             return newUnit
@@ -430,7 +431,7 @@ class MapView extends Map {
         return foundSection.floors.map(floor => ({ id: floor.id, label: floor.name }))
     }
 
-    public getUnitTypeOptions (): BuildingUnitType[] {
+    public getUnitTypeOptions (): BuildingUnitSubType[] {
         return [
             ...new Set(this.sections
                 .map(section => section.floors.map(floor => floor.units.map(unit => unit.unitType))).flat(2)),
@@ -701,7 +702,7 @@ class MapEdit extends MapView {
         }
     }
 
-    public addPreviewSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitType = BuildingUnitType.Flat): void {
+    public addPreviewSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitSubType = BuildingUnitSubType.Flat): void {
         this.removePreviewSection()
         const newSection = this.generateSection(section, unitType)
         newSection.preview = true
@@ -713,7 +714,7 @@ class MapEdit extends MapView {
         this.map.sections.push(newSection)
     }
 
-    public addSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitType = BuildingUnitType.Flat): void {
+    public addSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitSubType = BuildingUnitSubType.Flat): void {
         const newSection = this.generateSection(section, unitType)
         this.map.sections.push(newSection)
         this.notifyUpdater()
@@ -955,7 +956,7 @@ class MapEdit extends MapView {
             id,
             label,
             type: null,
-            unitType: BuildingUnitType.Parking,
+            unitType: BuildingUnitSubType.Parking,
             preview: true,
         }
         newUnit.type = BuildingMapEntityType.Unit
@@ -980,8 +981,8 @@ class MapEdit extends MapView {
             id,
             name: label,
             label,
-            type: BuildingMapEntityType.Unit,
-            unitType: BuildingUnitType.Parking,
+            type: BuildingUnitType.Unit,
+            unitType: BuildingUnitSubType.Parking,
         }
         if (!id) {
             newUnit.id = String(++this.autoincrement)
@@ -1169,7 +1170,7 @@ class MapEdit extends MapView {
 
     private sectionFloorMap: Record<number, number> = {}
 
-    private generateSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitType): BuildingSection {
+    private generateSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitSubType): BuildingSection {
         let unitNumber = this.nextUnitNumber
         const { name, minFloor, maxFloor, unitsOnFloor } = section
         const newSection: BuildingSection = {
@@ -1177,7 +1178,7 @@ class MapEdit extends MapView {
             floors: [],
             name,
             index: this.sections.length + 1,
-            type: BuildingMapEntityType.Section,
+            type: BuildingSectionType.Section,
         }
 
         for (let floor = minFloor; floor <= maxFloor; floor++) {
@@ -1202,7 +1203,7 @@ class MapEdit extends MapView {
                 id: String(++this.autoincrement),
                 index: floor,
                 name: String(floor),
-                type: BuildingMapEntityType.Floor,
+                type: BuildingFloorType.Floor,
                 units,
             })
         }
@@ -1217,7 +1218,7 @@ class MapEdit extends MapView {
             floors: [],
             name,
             index: this.sections.length + 1,
-            type: BuildingMapEntityType.Section,
+            type: BuildingSectionType.Section,
         }
 
         for (let floor = minFloor; floor <= maxFloor; floor++) {
@@ -1228,8 +1229,8 @@ class MapEdit extends MapView {
                 units.push({
                     id: String(++this.autoincrement),
                     label: String(unitNumber),
-                    type: BuildingMapEntityType.Unit,
-                    unitType: BuildingUnitType.Parking,
+                    type: BuildingUnitType.Unit,
+                    unitType: BuildingUnitSubType.Parking,
                 })
                 unitNumber++
             }
@@ -1237,7 +1238,7 @@ class MapEdit extends MapView {
                 id: String(++this.autoincrement),
                 index: floor,
                 name: String(floor),
-                type: BuildingMapEntityType.Floor,
+                type: BuildingFloorType.Floor,
                 units,
             })
         }
