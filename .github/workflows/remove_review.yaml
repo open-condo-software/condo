@@ -5,6 +5,8 @@ on:
     branches:
       - '/^review-.*$/'
   delete:
+    branches:
+      - '*'
 
 jobs:
   check_ns:
