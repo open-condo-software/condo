@@ -24,7 +24,23 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
         village
     }
 
+    enum BuildingMapType {
+        building
+    }
+
+    enum BuildingSectionType {
+        section
+    }
+
+    enum BuildingFloorType {
+        floor
+    }
+
     enum BuildingUnitType {
+        unit
+    }
+
+    enum BuildingUnitSubType {
         ${PARKING_UNIT_TYPE}
         ${FLAT_UNIT_TYPE}
         ${APARTMENT_UNIT_TYPE}
@@ -34,8 +50,8 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
 
     type BuildingUnit {
         id: String!
-        type: BuildingMapEntityType!
-        unitType: BuildingUnitType
+        type: BuildingUnitType!
+        unitType: BuildingUnitSubType
         name: String
         label: String!
         preview: Boolean
@@ -43,7 +59,7 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
 
     type BuildingFloor {
         id: String!
-        type: BuildingMapEntityType!
+        type: BuildingFloorType!
         index: Int!
         name: String!
         units: [BuildingUnit]!
@@ -51,19 +67,36 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
 
     type BuildingSection {
         id: String!
-        type: BuildingMapEntityType!
+        type: BuildingSectionType!
         index: Int!
         name: String!
         floors: [BuildingFloor]!
         preview: Boolean
     }
 
+    """
+    Technical map of the 'building' type Property object. We assume that there will be different maps for different property types. 
+    """
     type BuildingMap {
         dv: Int!
         sections: [BuildingSection]
         parking: [BuildingSection]
-        type: BuildingMapEntityType
+        type: BuildingMapType
     }
+    
+    enum VillageMapType {
+        village
+    }
+
+    """
+    Technical map of the 'village' type Property object. We assume that there will be different maps for different property types. 
+    """
+    type VillageMap {
+        dv: Int!
+        type: VillageMapType
+    }
+    
+    union PropertyMap = BuildingMap | VillageMap
 `
 
 const GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY = gql`
