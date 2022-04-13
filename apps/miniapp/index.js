@@ -26,8 +26,17 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 
+const defaultKeystoneConf = prepareDefaultKeystoneConfig(conf)
+
 const keystone = new Keystone({
-    ...prepareDefaultKeystoneConfig(conf),
+    ...defaultKeystoneConf,
+    cookie: {
+        ...defaultKeystoneConf.cookie,
+
+        // Enable cross-site usage
+        sameSite: 'none',
+        secure: true,
+    },
     onConnect: async () => {
         // Initialise some data
         if (conf.NODE_ENV !== 'development' && conf.NODE_ENV !== 'test') return // Just for dev env purposes!
@@ -128,7 +137,10 @@ class CondoOIDCMiddleware {
 
                 const userInfo = await helper.completeAuth(req, checks)
                 const user = await createOrUpdateUser(keystone, userInfo)
-                await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
+                await keystone._sessionManager.startAuthedSession(req, {
+                    item: { id: user.id },
+                    list: keystone.lists['User'],
+                })
 
                 delete req.session[oidcSessionKey]
                 await req.session.save()
@@ -162,4 +174,7 @@ module.exports = {
         }),
         conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),
     ],
+    configureExpress: (app) => {
+        app.set('trust proxy', 1) // trust first proxy
+    },
 }
