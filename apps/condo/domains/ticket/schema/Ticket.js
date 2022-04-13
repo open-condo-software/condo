@@ -341,7 +341,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 const propertyId = get(resolvedData, 'property', null)
                 const unitName = get(resolvedData, 'unitName', null)
 
-                if (isNull(contactId) || isNull(propertyId) || isNull(unitName)) {
+                if (!isNull(contactId) || !isNull(propertyId) || !isNull(unitName)) {
                     await setClientIfContactPhoneAndTicketAddressMatchesResidentFields(operation, resolvedData, existingItem)
                 }
             }
