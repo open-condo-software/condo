@@ -36710,8 +36710,6 @@ export type TicketComment = {
   user?: Maybe<User>;
   /**  Plain text content  */
   content?: Maybe<Scalars['String']>;
-  /**  Ticket comment meta  */
-  meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -36729,7 +36727,6 @@ export type TicketCommentCreateInput = {
   ticket?: Maybe<TicketRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   content?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37076,7 +37073,6 @@ export type TicketCommentHistoryRecord = {
   ticket?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   content?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -37097,7 +37093,6 @@ export type TicketCommentHistoryRecordCreateInput = {
   ticket?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   content?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37123,7 +37118,6 @@ export type TicketCommentHistoryRecordUpdateInput = {
   ticket?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   content?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37195,10 +37189,6 @@ export type TicketCommentHistoryRecordWhereInput = {
   content_not_ends_with_i?: Maybe<Scalars['String']>;
   content_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   content_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -37292,7 +37282,6 @@ export type TicketCommentUpdateInput = {
   ticket?: Maybe<TicketRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   content?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37343,10 +37332,6 @@ export type TicketCommentWhereInput = {
   content_not_ends_with_i?: Maybe<Scalars['String']>;
   content_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   content_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

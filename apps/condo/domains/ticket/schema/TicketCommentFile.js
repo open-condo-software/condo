@@ -52,34 +52,6 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
                         id,
                     }
                     await Adapter.acl.setMeta(key, metaToSet)
-
-                    if (updatedItem.ticketComment) {
-                        const publicUrl = await Adapter.publicUrl({ filename })
-                        const ticketComment = await getById('TicketComment', updatedItem.ticketComment)
-                        const fileMeta = { id: updatedItem.id, file: { id, filename, mimetype, originalFilename, publicUrl }  }
-                        let ticketCommentMeta = get(ticketComment, 'meta')
-
-                        if (!ticketCommentMeta) {
-                            ticketCommentMeta = {
-                                files: [fileMeta],
-                            }
-                        }
-
-                        console.log('ticketCommentMeta before', ticketCommentMeta, fileMeta)
-
-                        const files = ticketCommentMeta.files
-                        if (updatedItem.deletedAt) {
-                            ticketCommentMeta.files = files.filter(file => file.id !== id)
-                        } else {
-                            ticketCommentMeta.files = uniqBy([...files, fileMeta], obj => obj.id)
-                        }
-
-                        console.log('ticketCommentMeta', ticketCommentMeta)
-
-                        await TicketComment.update(context, ticketComment.id, {
-                            meta: ticketCommentMeta,
-                        })
-                    }
                 }
             }
         },
