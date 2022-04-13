@@ -4,17 +4,27 @@ on:
   workflow_dispatch:
     branches:
       - '/^review-.*$/'
-  pull_request:
-    types:
-      - closed
-    branches:
-      - '/^review-.*$/'
-  delete:
-    branches:
-      - '/^review-.*$/'
+  delete
+
 jobs:
+  check_ns:
+    name: "Check namespace exist"
+    runs-on: self-hosted
+    outputs:
+      ns_exist: ${{ steps.check_ns.outputs.exist }}
+    steps:
+      - name: Set env for namespace
+        run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+      - name: "Check namespace exist"
+        id: check_ns
+        run: |
+          kubectl get ns ${{ env.REVIEW_NAMESPACE }} > /dev/null 2>&1 && \
+          echo "::set-output name=exist::true" || \
+          echo "::set-output name=exist::false"
   converge:
     name: "Remove review"
+    needs: [check_ns]
+    if: needs.check_ns.outputs.ns_exist == 'true'
     runs-on: self-hosted
     env:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
