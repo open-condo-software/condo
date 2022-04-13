@@ -7,7 +7,6 @@ const { GQLListSchema, getByCondition } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const get = require('lodash/get')
-const { addClientInfoToResidentTicket, updateResolvedDataByResolvedStatus } = require('../utils/serverSchema/resolveHelpers')
 const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
 
 const {
@@ -33,8 +32,10 @@ const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, 
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-const { TERMINAL_TICKET_STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { calculateTicketOrder, calculateReopenedCounter } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
+const { calculateTicketOrder, calculateReopenedCounter, createContactIfNotExists,
+    setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
+    overrideTicketFieldsForResidentUserType,
+} = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 
 const { handleTicketEvents } = require('../utils/handlers')
 
@@ -333,7 +334,10 @@ const Ticket = new GQLListSchema('Ticket', {
             }
 
             if (userType === RESIDENT && operation === 'create') {
-                await addClientInfoToResidentTicket(context, resolvedData)
+                await createContactIfNotExists(context, resolvedData)
+                await setSectionAndFloorFieldsByDataFromPropertyMap(context, resolvedData)
+                setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
+                overrideTicketFieldsForResidentUserType(context, resolvedData)
             }
 
             const newItem = { ...existingItem, ...resolvedData }
