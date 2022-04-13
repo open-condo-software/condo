@@ -124,7 +124,7 @@ const injectDocumentation = (queryOrMutationConfig) => (
  * @param {GQLSchemaConfig} schema
  * @return {*|{mutations, queries}}
  */
-const schemaDoc = (schemaType, name, schema) => {
+const schemaDocPreprocessor = (schemaType, name, schema) => {
     if (schemaType !== GQL_CUSTOM_SCHEMA_TYPE)
         return schema
     const result = schema
@@ -138,5 +138,5 @@ const schemaDoc = (schemaType, name, schema) => {
 }
 
 module.exports = {
-    schemaDocPreprocessor: schemaDoc,
+    schemaDocPreprocessor,
 }
