@@ -131,6 +131,11 @@ const MenuCss = css`
     align-items: center;
     border: 1px solid ${colors.backgroundWhiteSecondary};
   }
+  & .ant-dropdown-menu-item button:disabled {
+    background-color: transparent;
+    color: ${colors.black};
+    opacity: 0.5;
+  }
   & .ant-dropdown-menu-item button svg {
     margin-right: 8px;
     z-index: 1;

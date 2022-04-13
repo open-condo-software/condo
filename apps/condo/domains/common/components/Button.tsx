@@ -195,11 +195,10 @@ const buttonDefaultGradientCss = (secondary = false) => {
       }
 
       &:disabled, &:hover:disabled {
-        color: ${secondary ? colors.black : colors.white};
-        background: ${secondary ? 'transparent' : colors.black };
-        & {
-          opacity: 0.5;
-        }
+        color: ${secondary ? colors.textSecondary : colors.white};
+        background: ${secondary ? colors.lightGrey[3] : colors.black };
+        border: ${secondary ? 'unset' : 'inherit'};
+        pointer-events: none;
       }
     `
 }
