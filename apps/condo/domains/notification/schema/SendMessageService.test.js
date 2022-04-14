@@ -3,7 +3,7 @@ const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@core/keyston
 const {
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
-    MESSAGE_DELIVERED_STATUS,
+    MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 
 const { sendMessageByTestClient, resendMessageByTestClient, Message, createTestMessage } = require('../utils/testSchema')
@@ -22,7 +22,7 @@ describe('SendMessageService', () => {
                 expect(data.status).toEqual(MESSAGE_SENDING_STATUS)
             })
 
-            it('creates Message sets "delivered" status on successful delivery', async () => {
+            it('creates Message sets "sent" status on successful delivery', async () => {
                 const admin = await makeLoggedInAdminClient()
 
                 const [data, attrs] = await sendMessageByTestClient(admin)
@@ -35,15 +35,15 @@ describe('SendMessageService', () => {
 
                 expect(message.lang).toEqual(attrs.lang)
                 expect(message.type).toEqual(attrs.type)
-                expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
-                expect(message.deliveredAt).toMatch(DATETIME_RE)
+                expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                expect(message.sentAt).toMatch(DATETIME_RE)
                 expect(message.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
                 expect(message.updatedBy).toEqual(null)
                 expect(message.organization).toEqual(null)
                 expect(message.user).toEqual(expect.objectContaining({ id: admin.user.id }))
                 expect(message.processingMeta).toEqual(expect.objectContaining({
                     dv: 1,
-                    step: 'delivered',
+                    step: MESSAGE_SENT_STATUS,
                     transport: 'email',
                     messageContext: expect.objectContaining({
                         to: attrs.to.email,
@@ -198,7 +198,7 @@ describe('SendMessageService', () => {
         describe('called by Admin', () => {
             it('returns "resending" status', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [message] = await createTestMessage(admin, { status: MESSAGE_DELIVERED_STATUS })
+                const [message] = await createTestMessage(admin, { status: MESSAGE_SENT_STATUS })
                 const [data] = await resendMessageByTestClient(admin, message)
                 expect(data.id).toMatch(UUID_RE)
                 expect(data.status).toEqual(MESSAGE_RESENDING_STATUS)

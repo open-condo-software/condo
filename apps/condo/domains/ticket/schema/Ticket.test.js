@@ -25,6 +25,7 @@ const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
     MESSAGE_ERROR_STATUS,
+    MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 const { Message, syncDeviceByTestClient } = require('@condo/domains/notification/utils/testSchema')
@@ -1240,7 +1241,7 @@ describe('Ticket', () => {
         })
     })
     describe( 'Notification', () => {
-        test('assignee with registered pushToken and connected to ticket on create receives push notification', async () => {
+        test.skip('assignee with registered pushToken and connected to ticket on create receives push notification', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1265,12 +1266,12 @@ describe('Ticket', () => {
 
             const message1 = await Message.getOne(admin, messageWhere)
 
-            expect(message1.status).toEqual('delivered')
+            expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
             expect(message1.processingMeta.transport).toEqual('push')
         })
 
-        test('assignee with no registered pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
+        test.skip('assignee with no registered pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1298,7 +1299,7 @@ describe('Ticket', () => {
             // expect(message1.processingMeta.transport).toEqual('sms')
         })
 
-        test('assignee with registered invalid pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
+        test.skip('assignee with registered invalid pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1334,7 +1335,7 @@ describe('Ticket', () => {
 
         })
 
-        test('executor with registered pushToken and connected to ticket on create receives push notification', async () => {
+        test('executor with registered pushToken and connected to ticket on create receives push notification with all required fields', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const executor = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1359,9 +1360,18 @@ describe('Ticket', () => {
 
             const message1 = await Message.getOne(admin, messageWhere)
 
-            expect(message1.status).toEqual('delivered')
+            expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
             expect(message1.meta.data.ticketId).toEqual(ticket.id)
             expect(message1.processingMeta.transport).toEqual('push')
+
+            const content = message1.processingMeta.messageContext
+
+            expect(content.data.url).toBeDefined()
+            expect(content.data.domain).toBeDefined()
+            expect(content.data.ticketId).toBeDefined()
+            expect(content.data.ticketNumber).toBeDefined()
+            expect(content.data.userId).toBeDefined()
+            expect(content.data.notificationId).toBeDefined()
         })
 
         test('executor with no registered pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {

@@ -8,9 +8,8 @@ const { sleep } = require('@condo/domains/common/utils/sleep')
 
 const {
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-    MESSAGE_DELIVERED_STATUS,
+    MESSAGE_SENT_STATUS,
     EMAIL_TRANSPORT,
-    SMS_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 
@@ -78,7 +77,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
                     const message1 = await Message.getOne(admin, messageWhere)
 
-                    expect(message1.status).toEqual(MESSAGE_DELIVERED_STATUS)
+                    expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(message1.processingMeta.transport).toEqual(EMAIL_TRANSPORT)
                 })
 
@@ -295,9 +294,9 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
                     const messages = await Message.getAll(admin, messageWhere)
 
-                    expect(messages[0].status).toEqual(MESSAGE_DELIVERED_STATUS)
+                    expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
                     expect(messages[0].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
-                    expect(messages[1].status).toEqual(MESSAGE_DELIVERED_STATUS)
+                    expect(messages[1].status).toEqual(MESSAGE_SENT_STATUS)
                     expect(messages[1].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
                 })
             })

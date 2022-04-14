@@ -9639,8 +9639,12 @@ export type Message = {
   status?: Maybe<MessageStatusType>;
   /**  Task processing metadata. Just for debug purpose. You can see exactly what and where the message was sent  */
   processingMeta?: Maybe<Scalars['JSON']>;
-  /**  Delivered at time  */
+  /**  Delivered (received) at time  */
   deliveredAt?: Maybe<Scalars['String']>;
+  /**  Sent at time  */
+  sentAt?: Maybe<Scalars['String']>;
+  /**  Read at time  */
+  readAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9665,6 +9669,8 @@ export type MessageCreateInput = {
   status?: Maybe<MessageStatusType>;
   processingMeta?: Maybe<Scalars['JSON']>;
   deliveredAt?: Maybe<Scalars['String']>;
+  sentAt?: Maybe<Scalars['String']>;
+  readAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9698,6 +9704,8 @@ export type MessageHistoryRecord = {
   status?: Maybe<Scalars['String']>;
   processingMeta?: Maybe<Scalars['JSON']>;
   deliveredAt?: Maybe<Scalars['String']>;
+  sentAt?: Maybe<Scalars['String']>;
+  readAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9725,6 +9733,8 @@ export type MessageHistoryRecordCreateInput = {
   status?: Maybe<Scalars['String']>;
   processingMeta?: Maybe<Scalars['JSON']>;
   deliveredAt?: Maybe<Scalars['String']>;
+  sentAt?: Maybe<Scalars['String']>;
+  readAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9757,6 +9767,8 @@ export type MessageHistoryRecordUpdateInput = {
   status?: Maybe<Scalars['String']>;
   processingMeta?: Maybe<Scalars['JSON']>;
   deliveredAt?: Maybe<Scalars['String']>;
+  sentAt?: Maybe<Scalars['String']>;
+  readAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9916,6 +9928,22 @@ export type MessageHistoryRecordWhereInput = {
   deliveredAt_gte?: Maybe<Scalars['String']>;
   deliveredAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   deliveredAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sentAt?: Maybe<Scalars['String']>;
+  sentAt_not?: Maybe<Scalars['String']>;
+  sentAt_lt?: Maybe<Scalars['String']>;
+  sentAt_lte?: Maybe<Scalars['String']>;
+  sentAt_gt?: Maybe<Scalars['String']>;
+  sentAt_gte?: Maybe<Scalars['String']>;
+  sentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  readAt?: Maybe<Scalars['String']>;
+  readAt_not?: Maybe<Scalars['String']>;
+  readAt_lt?: Maybe<Scalars['String']>;
+  readAt_lte?: Maybe<Scalars['String']>;
+  readAt_gt?: Maybe<Scalars['String']>;
+  readAt_gte?: Maybe<Scalars['String']>;
+  readAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  readAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -10005,7 +10033,9 @@ export enum MessageStatusType {
   Resending = 'resending',
   Processing = 'processing',
   Error = 'error',
+  Sent = 'sent',
   Delivered = 'delivered',
+  Read = 'read',
   Canceled = 'canceled'
 }
 
@@ -10023,6 +10053,8 @@ export type MessageUpdateInput = {
   status?: Maybe<MessageStatusType>;
   processingMeta?: Maybe<Scalars['JSON']>;
   deliveredAt?: Maybe<Scalars['String']>;
+  sentAt?: Maybe<Scalars['String']>;
+  readAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -10147,6 +10179,22 @@ export type MessageWhereInput = {
   deliveredAt_gte?: Maybe<Scalars['String']>;
   deliveredAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   deliveredAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sentAt?: Maybe<Scalars['String']>;
+  sentAt_not?: Maybe<Scalars['String']>;
+  sentAt_lt?: Maybe<Scalars['String']>;
+  sentAt_lte?: Maybe<Scalars['String']>;
+  sentAt_gt?: Maybe<Scalars['String']>;
+  sentAt_gte?: Maybe<Scalars['String']>;
+  sentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  readAt?: Maybe<Scalars['String']>;
+  readAt_not?: Maybe<Scalars['String']>;
+  readAt_lt?: Maybe<Scalars['String']>;
+  readAt_lte?: Maybe<Scalars['String']>;
+  readAt_gt?: Maybe<Scalars['String']>;
+  readAt_gte?: Maybe<Scalars['String']>;
+  readAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  readAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -15177,6 +15225,10 @@ export type Mutation = {
    * 			"userId": {
    * 				"defaultValue": "",
    * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
    * 			}
    * 		}
    * 	},
@@ -15195,6 +15247,10 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"url": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			}
@@ -15277,6 +15333,7 @@ export type Mutation = {
   resendMessage?: Maybe<ResendMessageOutput>;
   syncDevice?: Maybe<Device>;
   disconnectUserFromDevice?: Maybe<DisconnectUserFromDeviceOutput>;
+  setMessageStatus?: Maybe<SetMessageStatusOutput>;
   registerResident?: Maybe<Resident>;
   /**
    * Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
@@ -18721,6 +18778,11 @@ export type MutationSyncDeviceArgs = {
 
 export type MutationDisconnectUserFromDeviceArgs = {
   data: DisconnectUserFromDeviceInput;
+};
+
+
+export type MutationSetMessageStatusArgs = {
+  data: SetMessageStatusInput;
 };
 
 
@@ -29496,6 +29558,19 @@ export type ServiceSubscriptionsUpdateInput = {
   data?: Maybe<ServiceSubscriptionUpdateInput>;
 };
 
+export type SetMessageStatusInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  messageId: Scalars['String'];
+  deliveredAt?: Maybe<Scalars['String']>;
+  readAt?: Maybe<Scalars['String']>;
+};
+
+export type SetMessageStatusOutput = {
+  __typename?: 'SetMessageStatusOutput';
+  status: Scalars['String'];
+};
+
 export type ShareTicketInput = {
   sender: SenderFieldInput;
   employees: Array<Scalars['ID']>;
@@ -30619,6 +30694,10 @@ export enum SortMessageHistoryRecordsBy {
   StatusDesc = 'status_DESC',
   DeliveredAtAsc = 'deliveredAt_ASC',
   DeliveredAtDesc = 'deliveredAt_DESC',
+  SentAtAsc = 'sentAt_ASC',
+  SentAtDesc = 'sentAt_DESC',
+  ReadAtAsc = 'readAt_ASC',
+  ReadAtDesc = 'readAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -30656,6 +30735,10 @@ export enum SortMessagesBy {
   StatusDesc = 'status_DESC',
   DeliveredAtAsc = 'deliveredAt_ASC',
   DeliveredAtDesc = 'deliveredAt_DESC',
+  SentAtAsc = 'sentAt_ASC',
+  SentAtDesc = 'sentAt_DESC',
+  ReadAtAsc = 'readAt_ASC',
+  ReadAtDesc = 'readAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

@@ -8,6 +8,7 @@ const { SendMessageService } = require('./SendMessageService')
 const { Device } = require('./Device')
 const { SyncDeviceService } = require('./SyncDeviceService')
 const { DisconnectUserFromDeviceService } = require('./DisconnectUserFromDeviceService')
+const { SetMessageStatusService } = require('./SetMessageStatusService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -16,5 +17,6 @@ module.exports = {
     Device,
     SyncDeviceService,
     DisconnectUserFromDeviceService,
+    SetMessageStatusService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

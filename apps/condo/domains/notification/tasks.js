@@ -10,7 +10,16 @@ const { logger } = require('@condo/domains/notification/utils')
 const sms = require('./transports/sms')
 const email = require('./transports/email')
 const push = require('./transports/push')
-const { SMS_TRANSPORT, EMAIL_TRANSPORT, PUSH_TRANSPORT, MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS, MESSAGE_PROCESSING_STATUS, MESSAGE_ERROR_STATUS, MESSAGE_DELIVERED_STATUS } = require('./constants/constants')
+const {
+    SMS_TRANSPORT,
+    EMAIL_TRANSPORT,
+    PUSH_TRANSPORT,
+    MESSAGE_SENDING_STATUS,
+    MESSAGE_RESENDING_STATUS,
+    MESSAGE_PROCESSING_STATUS,
+    MESSAGE_ERROR_STATUS,
+    MESSAGE_SENT_STATUS,
+} = require('./constants/constants')
 
 const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
 const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
@@ -26,6 +35,10 @@ const TRANSPORTS = {
     [SMS_TRANSPORT]: sms,
     [EMAIL_TRANSPORT]: email,
     [PUSH_TRANSPORT]: push,
+}
+const MESSAGE_SENDING_STATUSES = {
+    [MESSAGE_SENDING_STATUS]: true,
+    [MESSAGE_RESENDING_STATUS]: true,
 }
 
 async function _sendMessageByAdapter (transport, adapter, messageContext) {
@@ -81,11 +94,6 @@ async function _choseMessageTransport (message) {
     throw new Error(`No appropriate transport found for notification id: ${id}` )
 }
 
-const MESSAGE_SENDING_STATUSES = {
-    [MESSAGE_SENDING_STATUS]: true,
-    [MESSAGE_RESENDING_STATUS]: true,
-}
-
 /**
  * Tries to deliver message via available transports depending on transport priorities
  * based on provided message data and available channels. If more prioritized channels fail message delivery,
@@ -112,7 +120,9 @@ async function deliverMessage (messageId) {
     await Message.update(keystone, message.id, {
         ...baseAttrs,
         status: MESSAGE_PROCESSING_STATUS,
+        sentAt: null,
         deliveredAt: null,
+        readAt: null,
         processingMeta,
     })
 
@@ -129,7 +139,7 @@ async function deliverMessage (messageId) {
             if (isOk) {
                 processingMeta.messageContext = messageContext
                 processingMeta.deliveryMetadata = deliveryMetadata
-                processingMeta.step = 'delivered'
+                processingMeta.step = MESSAGE_SENT_STATUS
                 processingMeta.transport = transport
                 break
             } else {
@@ -148,19 +158,23 @@ async function deliverMessage (messageId) {
         }
     }
 
-    // message delivered either directly or by fallback transport
-    if (processingMeta.step === 'delivered') {
+    // message sent either directly or by fallback transport
+    if (processingMeta.step === MESSAGE_SENT_STATUS) {
         await Message.update(keystone, message.id, {
             ...baseAttrs,
-            status: MESSAGE_DELIVERED_STATUS,
-            deliveredAt: new Date().toISOString(),
+            status: MESSAGE_SENT_STATUS,
+            sentAt: new Date().toISOString(),
+            deliveredAt: null,
+            readAt: null,
             processingMeta: !isEmpty(failedMeta) ? { ...processingMeta, failedMeta } : processingMeta,
         })
     } else {
         await Message.update(keystone, message.id, {
             ...baseAttrs,
             status: MESSAGE_ERROR_STATUS,
+            sentAt: null,
             deliveredAt: null,
+            readAt: null,
             processingMeta: { ...processingMeta, failedMeta },
         })
 

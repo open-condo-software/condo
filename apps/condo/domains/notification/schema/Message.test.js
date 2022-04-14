@@ -31,6 +31,8 @@ describe('Message', () => {
         expect(obj.phone).toEqual(null)
         expect(obj.processingMeta).toEqual(null)
         expect(obj.deliveredAt).toEqual(null)
+        expect(obj.sentAt).toEqual(null)
+        expect(obj.readAt).toEqual(null)
     })
 
     test('admin: update Message', async () => {

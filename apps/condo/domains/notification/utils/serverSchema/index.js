@@ -18,6 +18,7 @@ const {
 const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
 
 const { DISCONNECT_USER_FROM_DEVICE_MUTATION } = require('@condo/domains/notification/gql')
+const { SET_MESSAGE_STATUS_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
@@ -94,6 +95,21 @@ async function disconnectUserFromDevice (context, data) {
     })
 }
 
+async function setMessageStatus (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    if (!data.messageId) throw new Error('no data.messageId')
+    if (!data.deliveredAt && !data.readAt) throw new Error('no data.deliveredAt and data.readAt')
+
+    return await execGqlWithoutAccess(context, {
+        query: SET_MESSAGE_STATUS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to setMessageStatus',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -103,5 +119,6 @@ module.exports = {
     Device,
     syncDevice,
     disconnectUserFromDevice,
+    setMessageStatus,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
