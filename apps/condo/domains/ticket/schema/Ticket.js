@@ -34,7 +34,7 @@ const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { calculateTicketOrder, calculateReopenedCounter, createContactIfNotExists,
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
-    overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields
+    overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const { handleTicketEvents } = require('../utils/handlers')
 const isNull = require('lodash/isNull')
