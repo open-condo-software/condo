@@ -38,8 +38,8 @@ export const SignInForm = (): React.ReactElement => {
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
     const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
 
-    const LOGIN_PHONE_LABEL = <label style={{ alignSelf: 'end' }}>{PhoneMsg}</label>
-    const PASSWORD_LABEL = <label style={{ alignSelf: 'end' }}>{PasswordMsg}</label>
+    const LOGIN_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
+    const PASSWORD_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PasswordMsg}</label>
 
     const [form] = Form.useForm()
     const router = useRouter()

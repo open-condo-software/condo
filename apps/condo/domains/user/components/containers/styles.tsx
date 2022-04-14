@@ -10,7 +10,7 @@ export const Footer = styled.div<IFooterProps>`
   ${({ isSmall }) => isSmall
         ? `
             position: absolute;
-            bottom: 0px;
+            bottom: 20px;
           `
         : `
             bottom: 8%;
