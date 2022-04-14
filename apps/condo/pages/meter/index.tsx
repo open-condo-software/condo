@@ -117,7 +117,7 @@ export const MetersPageContent = ({
                                 <EmptyListView
                                     label={EmptyListLabel}
                                     message={''}
-                                    button={(<Col>
+                                    button={(
                                         <ImportWrapper
                                             objectsName={MeterReadingImportObjectsName}
                                             accessCheck={canManageMeterReadings}
@@ -142,7 +142,7 @@ export const MetersPageContent = ({
                                                 secondary
                                             />
                                         </ImportWrapper>
-                                    </Col>)}
+                                    )}
                                     createRoute='/meter/create'
                                     createLabel={CreateMeter} />
                             ) :
