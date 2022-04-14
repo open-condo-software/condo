@@ -41,7 +41,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
 
     const searchAddress = useCallback(
         (query, skip) => {
-            const splitted_query = query.split(/\s|\.|,/).filter(e => e != '')
+            const splitted_query = query.split(query_split_regex)
             let and_sequence = {}
             splitted_query.forEach((element) => {
                 and_sequence = {
