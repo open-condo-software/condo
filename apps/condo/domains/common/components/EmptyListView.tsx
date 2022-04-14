@@ -63,7 +63,7 @@ export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, butto
             <Typography.Text type={'secondary'}>
                 {message}
             </Typography.Text>
-            <Row gutter={[10, 0]} align={'middle'} justify={'center'}>
+            <Row gutter={[10, 0]} align={'middle'} justify={'center'} style={{ marginTop: '24px' }}>
                 {
                     button ?
                         (
@@ -75,7 +75,6 @@ export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, butto
                 <Col>
                     <Button
                         type={'sberDefaultGradient'}
-                        style={{ marginTop: '24px' }}
                         onClick={() => router.push(createRoute)}
                     >
                         {createLabel}

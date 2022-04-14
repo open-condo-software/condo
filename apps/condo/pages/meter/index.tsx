@@ -136,7 +136,6 @@ export const MetersPageContent = ({
                                         >
                                             <Button
                                                 type={'sberPrimary'}
-                                                style={{ marginTop: '24px' }}
                                                 icon={<DiffOutlined />}
                                                 block
                                                 secondary
