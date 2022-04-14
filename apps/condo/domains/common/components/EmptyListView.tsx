@@ -66,12 +66,11 @@ export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, butto
             </Typography.Text>
             <Row gutter={[10, 0]} align='middle' justify='center' style={{ marginTop: '24px' }}>
                 {
-                    button ?
-                        (
-                            <Col>
-                                {button}
-                            </Col>
-                        ) : ''
+                    button ? (
+                        <Col>
+                            {button}
+                        </Col>
+                    ) : ''
                 }
                 <Col>
                     <Button
