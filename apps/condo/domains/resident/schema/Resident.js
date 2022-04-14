@@ -213,14 +213,12 @@ const Resident = new GQLListSchema('Resident', {
                 }
             }
         },
-        resolveInput: async ({ resolvedData, operation }) => {
-            const { unitName, unitType, property: propertyId, user: userId } = resolvedData
+        afterChange: async ({ updatedItem, operation }) => {
+            const { unitName, unitType, property: propertyId, user: userId } = updatedItem
 
             if (operation === 'create') {
                 await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId)
             }
-
-            return resolvedData
         },
     },
     access: {
