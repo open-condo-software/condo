@@ -48,7 +48,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
     const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
 
-    const REGISTER_PHONE_LABEL = <label style={{ alignSelf: 'end' }}>{PhoneMsg}</label>
+    const REGISTER_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
 
     const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [smsSendError, setSmsSendError] = useState(null)

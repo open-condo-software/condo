@@ -12,7 +12,7 @@ interface IPosterLayoutProps {
     layoutBgColor?: string
     layoutBgImage?: { poster: string, placeholder: string }
 }
-
+const TYPOGRAPHY_CONTACT_STYLE: React.CSSProperties = { color: colors.textSecondary }
 const ROW_STYLE = { margin: '65px 0 65px', justifyContent: 'center' }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor, layoutBgImage }) => {
@@ -46,15 +46,17 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                     </PageContent>
                 </Col>
                 <Col span={24}>
-                    <Footer isSmall={isSmall}>
+                    <Footer isSmall={isSmall} >
                         <Typography.Link
                             href={`mailto:${SUPPORT_EMAIL}`}
+                            style={TYPOGRAPHY_CONTACT_STYLE}
                         >
                             {SUPPORT_EMAIL}
                         </Typography.Link>
                         {', '}
                         <Typography.Link
                             href={`tel:${SUPPORT_PHONE}`}
+                            style={TYPOGRAPHY_CONTACT_STYLE}
                         >
                             {SUPPORT_PHONE}
                         </Typography.Link>
