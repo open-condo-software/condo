@@ -15229,6 +15229,10 @@ export type Mutation = {
    * 			"url": {
    * 				"defaultValue": "",
    * 				"required": true
+   * 			},
+   * 			"domain": {
+   * 				"defaultValue": "",
+   * 				"required": true
    * 			}
    * 		}
    * 	},
@@ -15251,6 +15255,10 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"domain": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			}
