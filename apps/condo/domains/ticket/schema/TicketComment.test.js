@@ -160,6 +160,27 @@ describe('TicketComment', () => {
                 expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
                 expect(ticketComment.content).toMatch(content)
             })
+
+            it('can create a comment if it doesn\'t pass the comment type', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+                const [ticket] = await createTestTicket(userClient, organization, property)
+
+                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user, {
+                    type: null,
+                })
+
+                expect(ticketComment.id).toMatch(UUID_RE)
+                expect(ticketComment.type).toMatch(ORGANIZATION_COMMENT_TYPE)
+            })
         })
 
         describe('read', () => {
