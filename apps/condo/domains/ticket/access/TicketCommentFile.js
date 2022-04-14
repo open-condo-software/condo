@@ -31,7 +31,9 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
         const residentAddressOrStatement = getTicketFieldsMatchesResidentFieldsQuery(user, residents)
 
         return {
-            type: RESIDENT_COMMENT_TYPE,
+            ticketComment: {
+                type: RESIDENT_COMMENT_TYPE,
+            },
             ticket: {
                 organization: {
                     id_in: uniq(organizationsIds),
@@ -61,12 +63,9 @@ async function canManageTicketCommentFiles ({ authentication: { item: user }, or
     if (user.isAdmin) return true
 
     if (user.type === RESIDENT) {
-        let ticket, commentType
-
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
-            ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
-
+            const ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
             const propertyId = get(ticket, 'property', null)
             const unitName = get(ticket, 'unitName', null)
             const unitType = get(ticket, 'unitType', null)
@@ -81,14 +80,11 @@ async function canManageTicketCommentFiles ({ authentication: { item: user }, or
 
             return residents.length > 0
         } else if (operation === 'update' && itemId) {
-            const ticketCommentId = get(originalInput, ['ticketComment', 'connect', 'id'])
-            const ticketComment = await getByCondition('TicketComment', { id: ticketCommentId, deletedAt: null })
-            if (!ticketComment) return false
+            const ticketCommentFile = await getById('TicketCommentFile', itemId)
+            if (!ticketCommentFile) return false
 
-            return ticketComment.createdBy === user.id
+            return ticketCommentFile.createdBy === user.id
         }
-
-        if (!commentType || commentType !== RESIDENT_COMMENT_TYPE) return false
     } else {
         if (operation === 'create') {
             const organizationId = get(originalInput, ['organization', 'connect', 'id'])

@@ -12,7 +12,7 @@ const { expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
 } = require('@condo/domains/common/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
@@ -23,6 +23,10 @@ const {
 const { createTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { RESIDENT_COMMENT_TYPE } = require('../constants')
 const faker = require('faker')
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 describe('TicketCommentFile', () => {
     describe('employee', () => {
@@ -265,5 +269,183 @@ describe('TicketCommentFile', () => {
             })
         })
 
+    })
+
+    describe('resident', () => {
+        describe('create', () => {
+            test('can create ticket files in ticket comment with resident type in ticket where contact phone and address matches to resident phone and address', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const { phone } = residentClient.userAttrs
+                const content = faker.lorem.sentence()
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [contact] = await createTestContact(admin, organization, property, {
+                    phone,
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(admin, organization, property, {
+                    unitName,
+                    contact: { connect: { id: contact.id } },
+                    canReadByResident: true,
+                })
+                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content,
+                })
+
+                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket, ticketComment)
+
+                expect(ticketCommentFile.id).toMatch(UUID_RE)
+            })
+
+            test('can create ticket files in his ticket comment', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content,
+                })
+
+                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket, ticketComment)
+
+                expect(ticketCommentFile.id).toMatch(UUID_RE)
+            })
+
+            test('cannot create comment in not his resident ticket', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(userClient, organization, property)
+                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestTicketCommentFile(residentClient, organization, ticket, ticketComment)
+                })
+            })
+        })
+
+        describe('read', () => {
+            test('can read ticket files in ticket comments with type "resident" in his ticket', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content: content1,
+                })
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: ORGANIZATION_COMMENT_TYPE,
+                    content: content2,
+                })
+
+                const [residentTicketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket, commentFromResident)
+                const [employeeTicketCommentFile] = await createTestTicketCommentFile(employeeClient, organization, ticket, commentFromEmployee)
+
+                const files = await TicketCommentFile.getAll(residentClient)
+
+                expect(files).toHaveLength(1)
+                expect(files[0].id).toEqual(residentTicketCommentFile.id)
+            })
+
+            test('cannot read ticket files in ticket comments with type "resident" in not his ticket', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+                const anotherResidentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+                const anotherUnitName = faker.random.alphaNumeric(5)
+                const content1 = faker.lorem.sentence()
+                const content2 = faker.lorem.sentence()
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                await createTestResident(adminClient, anotherResidentClient.user, organization, property, {
+                    unitName: anotherUnitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                const [commentFromResident] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content: content1,
+                })
+                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content: content2,
+                })
+
+                await createTestTicketCommentFile(residentClient, organization, ticket, commentFromResident)
+                await createTestTicketCommentFile(employeeClient, organization, ticket, commentFromEmployee)
+
+                const files = await TicketCommentFile.getAll(anotherResidentClient)
+
+                expect(files).toHaveLength(0)
+            })
+        })
     })
 })
