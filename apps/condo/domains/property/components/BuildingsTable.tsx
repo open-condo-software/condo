@@ -116,6 +116,22 @@ export default function BuildingsTable (props: BuildingTableProps) {
         ? <EmptyListView
             label={EmptyListLabel}
             message={EmptyListMessage}
+            button={(<ImportWrapper
+                objectsName={PropertiesMessage}
+                accessCheck={role?.canManageProperties}
+                onFinish={refetch}
+                columns={columns}
+                rowNormalizer={propertyNormalizer}
+                rowValidator={propertyValidator}
+                domainTranslate={PropertyTitle}
+                objectCreator={propertyCreator}
+            >
+                <Button
+                    type={'sberPrimary'}
+                    icon={<DiffOutlined/>}
+                    secondary
+                />
+            </ImportWrapper>)}
             createRoute="/property/create"
             createLabel={CreateProperty}/>
         : (
