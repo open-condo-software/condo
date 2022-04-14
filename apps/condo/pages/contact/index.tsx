@@ -98,6 +98,28 @@ export const ContactsPageContent = ({
                                 <EmptyListView
                                     label={EmptyListLabel}
                                     message={EmptyListMessage}
+                                    button={(<ImportWrapper
+                                        objectsName={ContactsMessage}
+                                        accessCheck={canManageContacts}
+                                        onFinish={refetch}
+                                        columns={columns}
+                                        maxTableLength={hasFeature('bigger_limit_for_import') ?
+                                            EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                            DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                        }
+                                        rowNormalizer={contactNormalizer}
+                                        rowValidator={contactValidator}
+                                        objectCreator={contactCreator}
+                                        domainTranslate={ContactTitle}
+                                        exampleTemplateLink={'/contact-import-example.xlsx'}
+                                    >
+                                        <Button
+                                            type={'sberPrimary'}
+                                            icon={<DiffOutlined/>}
+                                            block
+                                            secondary
+                                        />
+                                    </ImportWrapper>)}
                                     createRoute={ADD_CONTACT_ROUTE}
                                     createLabel={CreateContact}
                                 />
