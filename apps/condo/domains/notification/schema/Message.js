@@ -93,7 +93,19 @@ const Message = new GQLListSchema('Message', {
         },
 
         deliveredAt: {
-            schemaDoc: 'Delivered at time',
+            schemaDoc: 'Delivered (received) at time',
+            type: 'DateTimeUtc',
+            isRequired: false,
+        },
+
+        sentAt: {
+            schemaDoc: 'Sent at time',
+            type: 'DateTimeUtc',
+            isRequired: false,
+        },
+
+        readAt: {
+            schemaDoc: 'Read at time',
             type: 'DateTimeUtc',
             isRequired: false,
         },

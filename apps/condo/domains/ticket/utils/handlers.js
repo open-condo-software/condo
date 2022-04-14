@@ -1,5 +1,6 @@
 const get = require('lodash/get')
 
+const conf = require('@core/config')
 const { getByCondition } = require('@core/keystone/schema')
 
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
@@ -21,10 +22,10 @@ const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
 const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     const isCreateOperation =  operation === 'create'
     const isUpdateOperation =  operation === 'update'
-    const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
+    // const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
     const prevExecutorId = !isCreateOperation && get(existingItem, 'executor')
     const prevStatusId = !isCreateOperation && get(existingItem, 'status')
-    const nextAssigneeId = get(updatedItem, 'assignee')
+    // const nextAssigneeId = get(updatedItem, 'assignee')
     const nextExecutorId = get(updatedItem, 'executor')
     const nextStatusId = get(updatedItem, 'status')
     const result = {}
@@ -33,7 +34,12 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
      * assignee connected within create ticket operation or
      * assignee connected/changed within update ticket operation
      */
-    result[ASSIGNEE_CONNECTED_EVENT_TYPE] = isCreateOperation && !!nextAssigneeId || isUpdateOperation && !!nextAssigneeId && nextAssigneeId !== prevAssigneeId
+    /**
+     * After product case on push notifications with Alla Gubina and Mikhail Rumanovsky on 2022-04-05
+     * we decided to temporarily disable sending notifications on assignee connection to ticket
+     * This could change in nearest future, so I've commented code instead of deletion
+     */
+    // result[ASSIGNEE_CONNECTED_EVENT_TYPE] = isCreateOperation && !!nextAssigneeId || isUpdateOperation && !!nextAssigneeId && nextAssigneeId !== prevAssigneeId
 
     /**
      * executor connected within create ticket operation or
@@ -89,6 +95,8 @@ const handleTicketEvents = async (requestData) => {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
                     userId: nextAssigneeId || prevAssigneeId,
+                    url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
+                    domain: 'ticket',
                 },
             },
             sender: updatedItem.sender,
@@ -106,6 +114,8 @@ const handleTicketEvents = async (requestData) => {
                     ticketId: updatedItem.id,
                     ticketNumber: updatedItem.number,
                     userId: nextExecutorId || prevExecutorId,
+                    url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
+                    domain: 'ticket',
                 },
             },
             sender: updatedItem.sender,

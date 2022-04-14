@@ -110,6 +110,8 @@ const MESSAGE_META = {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
+            domain: { defaultValue: '', required: true },
         },
     },
     [TICKET_EXECUTOR_CONNECTED_TYPE]: {
@@ -118,6 +120,8 @@ const MESSAGE_META = {
             ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
+            domain: { defaultValue: '', required: true },
         },
     },
 }
@@ -128,10 +132,17 @@ const MESSAGE_PROCESSING_STATUS = 'processing'
 const MESSAGE_ERROR_STATUS = 'error'
 const MESSAGE_DELIVERED_STATUS = 'delivered'
 const MESSAGE_CANCELED_STATUS = 'canceled'
+const MESSAGE_SENT_STATUS = 'sent'
+const MESSAGE_READ_STATUS = 'read'
 const MESSAGE_STATUSES = [
-    MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS,
-    MESSAGE_PROCESSING_STATUS, MESSAGE_ERROR_STATUS,
-    MESSAGE_DELIVERED_STATUS, MESSAGE_CANCELED_STATUS,
+    MESSAGE_SENDING_STATUS,
+    MESSAGE_RESENDING_STATUS,
+    MESSAGE_PROCESSING_STATUS,
+    MESSAGE_ERROR_STATUS,
+    MESSAGE_SENT_STATUS,
+    MESSAGE_DELIVERED_STATUS,
+    MESSAGE_READ_STATUS,
+    MESSAGE_CANCELED_STATUS,
 ]
 
 const PUSH_TRANSPORT_FIREBASE = 'firebase'
@@ -167,7 +178,9 @@ module.exports = {
     MESSAGE_RESENDING_STATUS,
     MESSAGE_PROCESSING_STATUS,
     MESSAGE_ERROR_STATUS,
+    MESSAGE_SENT_STATUS,
     MESSAGE_DELIVERED_STATUS,
+    MESSAGE_READ_STATUS,
     MESSAGE_CANCELED_STATUS,
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     MESSAGE_STATUSES,

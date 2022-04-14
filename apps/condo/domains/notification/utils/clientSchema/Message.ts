@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { Message as MessageGQL } from '@condo/domains/notification/gql'
 import { Message, MessageUpdateInput, QueryAllMessagesArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'property', 'ticket', 'user', 'type', 'meta', 'channels', 'status', 'deliveredAt']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'property', 'ticket', 'user', 'type', 'meta', 'channels', 'status', 'sentAt', 'deliveredAt', 'readAt']
 const RELATIONS = ['organization', 'property', 'ticket', 'user']
 
 export interface IMessageUIState extends Message {

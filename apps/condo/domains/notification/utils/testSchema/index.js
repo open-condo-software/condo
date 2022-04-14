@@ -23,6 +23,7 @@ const {
     DISCONNECT_USER_FROM_DEVICE_MUTATION,
 } = require('@condo/domains/notification/gql')
 
+const { SET_MESSAGE_STATUS_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
@@ -145,10 +146,22 @@ async function disconnectUserFromDeviceByTestClient(client, extraAttrs = {}) {
 
     return [data.result, attrs]
 }
+
+async function setMessageStatusByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = { dv: 1, sender, ...extraAttrs }
+    const { data, errors } = await client.mutate(SET_MESSAGE_STATUS_MUTATION, { data: attrs })
+
+    throwIfError(data, errors)
+
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Message, createTestMessage, updateTestMessage, sendMessageByTestClient, resendMessageByTestClient,
+    Message, createTestMessage, updateTestMessage, sendMessageByTestClient, resendMessageByTestClient, setMessageStatusByTestClient,
     Device, createTestDevice, updateTestDevice, syncDeviceByTestClient, disconnectUserFromDeviceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
