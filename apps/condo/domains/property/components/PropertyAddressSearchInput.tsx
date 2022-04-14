@@ -27,7 +27,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     const { organization } = props
     const client = useApolloClient()
     const organizationId = get(organization, 'id')
-
+    const query_split_regex = /[\s.,]+/gm
     const initialValueGetter = useCallback(
         (value) => {
             return searchSingleProperty(client, value, organizationId).then((property: Property) => {
