@@ -55,6 +55,7 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
 
 export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, button, createRoute, createLabel }) => {
     const router = useRouter()
+
     return (
         <BasicEmptyListView image="dino/searching@2x.png" spaceSize={16} imageStyle={{ height: 200 }}>
             <Typography.Title level={4}>
