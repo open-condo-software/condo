@@ -117,6 +117,32 @@ export const MetersPageContent = ({
                                 <EmptyListView
                                     label={EmptyListLabel}
                                     message={''}
+                                    button={(<Col>
+                                        <ImportWrapper
+                                            objectsName={MeterReadingImportObjectsName}
+                                            accessCheck={canManageMeterReadings}
+                                            onFinish={refetch}
+                                            columns={columns}
+                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
+                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                            }
+                                            rowNormalizer={meterReadingNormalizer}
+                                            rowValidator={meterReadingValidator}
+                                            objectCreator={meterReadingCreator}
+                                            domainTranslate={MeterReadingImportObjectsNameManyGenitive}
+                                            exampleTemplateLink={'/meter-import-example.xlsx'}
+                                            mutationErrorsToMessages={mutationErrorsToMessages}
+                                        >
+                                            <Button
+                                                type={'sberPrimary'}
+                                                style={{ marginTop: '24px' }}
+                                                icon={<DiffOutlined />}
+                                                block
+                                                secondary
+                                            />
+                                        </ImportWrapper>
+                                    </Col>)}
                                     createRoute='/meter/create'
                                     createLabel={CreateMeter} />
                             ) :
