@@ -65,6 +65,8 @@ export const DivisionPageContent = ({ division, loading, columns, role }: Divisi
         ...executor,
     }))
 
+    const responsible = get(division, 'responsible')
+
     const dataSource = useMemo(() => {
         return executors.slice(EMPLOYEE_TABLE_PAGE_SIZE * (currentPageIndex - 1), EMPLOYEE_TABLE_PAGE_SIZE * currentPageIndex)
     }, [currentPageIndex, executors])
@@ -76,9 +78,9 @@ export const DivisionPageContent = ({ division, loading, columns, role }: Divisi
             </Typography.Title>
             <Row gutter={[0, 20]}>
                 <PageFieldRow labelSpan={5} title={ResponsibleLabelMessage} highlight>
-                    <Link href={`/employee/${get(division, ['responsible', 'id'])}`}>
+                    <Link href={`/employee/${responsible.id}`}>
                         <Typography.Link style={{ color: green[6], display: 'block' }}>
-                            {get(division, ['responsible', 'name'])}
+                            {responsible.name}
                         </Typography.Link>
                     </Link>
                 </PageFieldRow>
