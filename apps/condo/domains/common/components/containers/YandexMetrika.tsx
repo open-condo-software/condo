@@ -5,7 +5,7 @@ const YandexMetrika = () => {
     const { publicRuntimeConfig } = getConfig()
     const { yandexMetrikaID } = publicRuntimeConfig
 
-    return (
+    return yandexMetrikaID ? (
         <div dangerouslySetInnerHTML={{
             __html: (
                 `<script type="text/javascript">
@@ -35,7 +35,7 @@ const YandexMetrika = () => {
             ),
         }}>
         </div>
-    )
+    ) : null
 }
 
 export default YandexMetrika
