@@ -10,6 +10,7 @@ import { ActionContainer, Header, MobileHeader } from './styles'
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const MINI_POSTER_STYLES = { maxWidth: '15%', marginBottom: '-5px' }
 const HEADER_ACTION_STYLES = { alignSelf:'center', marginTop: '10px' }
+const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
 
 interface IAuthHeaderProps {
     headerAction: React.ReactElement
@@ -34,7 +35,7 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
                 <>
                     <MobileHeader>
                         <Row style={LOGO_HEADER_STYLES}>
-                            <Col>
+                            <Col style={HEADER_LOGO_STYLE}>
                                 <Logo fillColor={colors.backgroundLightGrey} onClick={handleLogoClick}/>
                             </Col>
                             <Col style={HEADER_ACTION_STYLES}>
@@ -53,7 +54,7 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
                 <Row>
                     <Header>
                         <Row style={LOGO_HEADER_STYLES}>
-                            <Col>
+                            <Col style={HEADER_LOGO_STYLE}>
                                 <Logo fillColor={colors.scampi} onClick={handleLogoClick}/>
                             </Col>
                             <Col style={HEADER_ACTION_STYLES}>
