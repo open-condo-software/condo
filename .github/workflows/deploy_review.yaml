@@ -37,4 +37,4 @@ jobs:
           WERF_SET_CI_RB_URL: "global.ci_rb_url=review-${{ env.REVIEW_URL_PREFIX }}-rb.d.doma.ai"
           WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE}}
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
-
+          WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
