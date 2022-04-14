@@ -25,6 +25,8 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+      - name: Set env for branch name
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Converge
         uses: werf/actions/converge@v1.2
         with:
@@ -38,4 +40,5 @@ jobs:
           WERF_SET_CI_EPS_URL: "global.ci_eps_url=eps.d.doma.ai"
           WERF_SET_CI_RB_URL: "global.ci_rb_url=rb.d.doma.ai"
           WERF_NAMESPACE: "development"
+          WERF_BRANCH_NAME: ${{ env.BRANCH_NAME}}
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
