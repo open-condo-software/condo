@@ -1,4 +1,4 @@
-import { Empty, EmptyProps, Space, Typography } from 'antd'
+import { Empty, EmptyProps, Space, Typography, Row, Col } from 'antd'
 import { useRouter } from 'next/router'
 import { Button } from './Button'
 import { EmptyIcon } from './EmptyIcon'
@@ -7,6 +7,7 @@ import React, { CSSProperties } from 'react'
 export interface IEmptyListProps {
     label: string,
     message: string,
+    button?: React.ReactElement,
     createRoute: string,
     createLabel: string,
 }
@@ -52,7 +53,7 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
     )
 }
 
-export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, createRoute, createLabel }) => {
+export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, button, createRoute, createLabel }) => {
     const router = useRouter()
     return (
         <BasicEmptyListView image="dino/searching@2x.png" spaceSize={16} imageStyle={{ height: 200 }}>
@@ -62,13 +63,25 @@ export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, creat
             <Typography.Text type={'secondary'}>
                 {message}
             </Typography.Text>
-            <Button
-                type={'sberDefaultGradient'}
-                style={{ marginTop: '24px' }}
-                onClick={() => router.push(createRoute)}
-            >
-                {createLabel}
-            </Button>
+            <Row gutter={[10, 0]} align={'middle'} justify={'center'}>
+                {
+                    button ?
+                        (
+                            <Col>
+                                {button}
+                            </Col>
+                        ) : ''
+                }
+                <Col>
+                    <Button
+                        type={'sberDefaultGradient'}
+                        style={{ marginTop: '24px' }}
+                        onClick={() => router.push(createRoute)}
+                    >
+                        {createLabel}
+                    </Button>
+                </Col>
+            </Row>
         </BasicEmptyListView>
     )
 }
