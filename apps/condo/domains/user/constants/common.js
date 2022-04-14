@@ -1,5 +1,5 @@
 const MIN_PASSWORD_LENGTH = 8
-const LOCK_TIMEOUT = 3
+const LOCK_TIMEOUT = 1
 const SMS_CODE_LENGTH = 4
 const SMS_CODE_TTL = 60 // seconds
 const CONFIRM_PHONE_ACTION_EXPIRY = 3600 // 1 hour
