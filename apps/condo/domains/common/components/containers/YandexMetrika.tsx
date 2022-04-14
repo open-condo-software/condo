@@ -1,15 +1,14 @@
 import React from 'react'
+import getConfig from 'next/config'
 
-const YandexMetrica = ({ id }) => {
+const YandexMetrika = () => {
+    const { publicRuntimeConfig } = getConfig()
+    const { yandexMetrikaID } = publicRuntimeConfig
+
     return (
         <div dangerouslySetInnerHTML={{
-            __html: htmlFor(id),
-        }}>
-        </div>
-    )
-}
-
-const htmlFor = (id) => `<script type="text/javascript">
+            __html: (
+                `<script type="text/javascript">
                     (function(m,e,t,r,i,k,a) {
                         m[i] = m[i] || function() {
                             (m[i].a=m[i].a||[]).push(arguments)
@@ -23,7 +22,7 @@ const htmlFor = (id) => `<script type="text/javascript">
                     })
                     (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
                     
-                    ym(${id}, "init", {
+                    ym(${yandexMetrikaID}, "init", {
                         defer: true,
                         clickmap:true,
                         trackLinks:true,
@@ -31,7 +30,12 @@ const htmlFor = (id) => `<script type="text/javascript">
                         webvisor:true
                     });
                     
-                    ym(${id}, 'hit', '/');
+                    ym(${yandexMetrikaID}, 'hit', '/');
                 </script>`
+            ),
+        }}>
+        </div>
+    )
+}
 
-export default YandexMetrica
+export default YandexMetrika

@@ -17,6 +17,7 @@ const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
 const featureFlagsConfig = conf['FEATURE_FLAGS_CONFIG']
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE_RECAPTCHA_CONFIG'])
+const yandexMetrikaID = conf['YANDEX_METRIKA_ID']
 const defaultLocale = conf.DEFAULT_LOCALE
 
 module.exports = withTM(withLess(withCSS({
@@ -30,6 +31,7 @@ module.exports = withTM(withLess(withCSS({
         behaviorRecorder,
         featureFlagsConfig,
         docsConfig,
+        yandexMetrikaID,
         defaultLocale,
     },
     lessLoaderOptions: {
