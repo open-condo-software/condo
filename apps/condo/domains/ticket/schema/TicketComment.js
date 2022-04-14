@@ -7,8 +7,10 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketComment')
-const { COMMENT_TYPES } = require('@condo/domains/ticket/constants')
-
+const { COMMENT_TYPES, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const get = require('lodash/get')
+const { STAFF } = require('@condo/domains/user/constants/common')
+const isNull = require('lodash/isNull')
 
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
@@ -22,6 +24,22 @@ const TicketComment = new GQLListSchema('TicketComment', {
             type: Select,
             dataType: 'string',
             options: COMMENT_TYPES,
+            hooks: {
+                resolveInput: ({ resolvedData, context, fieldPath, operation }) => {
+                    const user = get(context, ['req', 'user'])
+                    const userType = get(user, 'type')
+
+                    if (userType === STAFF && operation === 'create') {
+                        const commentType = get(resolvedData, 'type', null)
+
+                        if (isNull(commentType)) {
+                            resolvedData[fieldPath] = ORGANIZATION_COMMENT_TYPE
+                        }
+                    }
+
+                    return resolvedData[fieldPath]
+                },
+            },
         },
 
         ticket: {
