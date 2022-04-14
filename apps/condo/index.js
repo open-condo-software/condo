@@ -43,6 +43,8 @@ IS_BUILD_PHASE = false
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
+// NOTE: Enabling introspection to let external apps merge condo schema with their own schema
+const IS_ENABLE_INTROSPECTION = true
 
 if (IS_ENABLE_DD_TRACE) {
     require('dd-trace').init({
@@ -147,7 +149,7 @@ module.exports = {
             apollo: {
                 formatError,
                 debug: IS_ENABLE_APOLLO_DEBUG,
-                introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                introspection: IS_ENABLE_INTROSPECTION,
                 playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
             },
         }),
