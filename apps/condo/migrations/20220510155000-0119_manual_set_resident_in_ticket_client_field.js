@@ -30,7 +30,7 @@ exports.down = async (knex) => {
                 "Contact"."phone" = "User"."phone"
             JOIN "Resident" ON
                 "Resident"."user" = "User"."id"
-            WHERE "Ticket"."client" IS NULL AND
+            WHERE "Ticket"."client" IS NOT NULL AND
                   "Ticket"."contact" = "Contact"."id" AND
                   "Resident"."property" = "Ticket"."property" AND
                   "Resident"."unitName" = "Ticket"."unitName" AND
