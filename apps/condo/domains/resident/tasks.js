@@ -9,6 +9,7 @@ const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverS
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { disconnectResidents, connectResidents } = require('@condo/domains/resident/utils/helpers')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 /**
  * Reconnects residents to oldest (dominating) non-deleted property with same address
@@ -76,7 +77,7 @@ async function manageResidentToTicketClientConnections (propertyId, unitType, un
     const residentUserName = get(residentUser, 'name', null)
     const residentUserEmail = get(residentUser, 'email', null)
 
-    if (!residentUserPhone) return
+    if (!residentUserPhone || residentUser.type !== RESIDENT) return
 
     const tickets = await find('Ticket', {
         property: { id: propertyId },
