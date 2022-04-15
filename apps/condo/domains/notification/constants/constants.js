@@ -111,7 +111,6 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
-            domain: { defaultValue: '', required: true },
         },
     },
     [TICKET_EXECUTOR_CONNECTED_TYPE]: {
@@ -121,7 +120,6 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
-            domain: { defaultValue: '', required: true },
         },
     },
 }

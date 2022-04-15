@@ -5,15 +5,13 @@ const faker = require('faker')
 const dayjs = require('dayjs')
 
 const conf = require('@core/config')
-const { makeLoggedInAdminClient, makeLoggedInClient, UUID_RE } = require('@core/keystone/test.utils')
-
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { makeLoggedInAdminClient, UUID_RE } = require('@core/keystone/test.utils')
 
 const { DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 
 const { setMessageStatusByTestClient, syncDeviceByTestClient } = require('@condo/domains/notification/utils/testSchema')
-const { Message, createTestMessage, updateTestMessage, sendMessageByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { Message, sendMessageByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     PUSH_FAKE_TOKEN_SUCCESS,
@@ -67,6 +65,7 @@ describe('SetMessageStatusService', () => {
         /**
          * Give worker some time to proceed async logic
          */
+        // TODO(DOMA-2765) Get rid of sleep
         await sleep(1000)
 
         const messageWhere = { user: { id: assignee.user.id }, type: TICKET_ASSIGNEE_CONNECTED_TYPE }

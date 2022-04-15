@@ -54,7 +54,7 @@ describe('Firebase adapter utils', () => {
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo',
+                app: 'condo',
                 type: 'notification',
             },
         })

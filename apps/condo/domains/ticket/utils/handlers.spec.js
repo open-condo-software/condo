@@ -5,7 +5,7 @@ import {
 } from './handlers'
 
 describe('Ticket request event detection', () => {
-    it.skip('correctly detects assignee connection on ticket create', () => {
+    it('correctly detects assignee connection on ticket create', () => {
         const requestData = {
             operation: 'create',
             existingItem: null,
@@ -25,7 +25,7 @@ describe('Ticket request event detection', () => {
         expect(detectEventTypes(requestData)).toMatchObject({ [EXECUTOR_CONNECTED_EVENT_TYPE]: true })
     })
 
-    it.skip('correctly detects assignee and executor connection on ticket create', () => {
+    it('correctly detects assignee and executor connection on ticket create', () => {
         const requestData = {
             operation: 'create',
             existingItem: null,
@@ -37,7 +37,31 @@ describe('Ticket request event detection', () => {
         )
     })
 
-    it.skip('correctly detects assignee connection on ticket update', () => {
+    it('correctly detects same person as assignee and executor connection on ticket create', () => {
+        const requestData = {
+            operation: 'create',
+            existingItem: null,
+            updatedItem: { assignee: 'xxx', executor: 'xxx' },
+        }
+
+        expect(detectEventTypes(requestData)).toMatchObject(
+            { [ASSIGNEE_CONNECTED_EVENT_TYPE]: false, [EXECUTOR_CONNECTED_EVENT_TYPE]: true }
+        )
+    })
+
+    it('correctly detects same person as assignee and executor connection on ticket update', () => {
+        const requestData = {
+            operation: 'update',
+            existingItem: { assignee: 'yyy', executor: 'zzz' },
+            updatedItem: { assignee: 'xxx', executor: 'xxx' },
+        }
+
+        expect(detectEventTypes(requestData)).toMatchObject(
+            { [ASSIGNEE_CONNECTED_EVENT_TYPE]: false, [EXECUTOR_CONNECTED_EVENT_TYPE]: true }
+        )
+    })
+
+    it('correctly detects assignee connection on ticket update', () => {
         const requestData = {
             operation: 'update',
             existingItem: { assignee: null },
@@ -47,7 +71,7 @@ describe('Ticket request event detection', () => {
         expect(detectEventTypes(requestData)).toMatchObject({ [ASSIGNEE_CONNECTED_EVENT_TYPE]: true })
     })
 
-    it.skip('correctly detects assignee change on ticket update', () => {
+    it('correctly detects assignee change on ticket update', () => {
         const requestData = {
             operation: 'update',
             existingItem: { assignee: 'xxx' },
