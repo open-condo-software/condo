@@ -35,6 +35,11 @@ CREATE INDEX IF NOT EXISTS "Message_sentAt_abc2e26c" ON "Message" ("sentAt");
 CREATE INDEX IF NOT EXISTS "Message_deliveredAt_abc2e26c" ON "Message" ("deliveredAt");
 CREATE INDEX IF NOT EXISTS "Message_readAt_abc2e26c" ON "Message" ("readAt");
 
+--
+-- Update message statuses to sent if they are delivered
+--
+UPDATE "Message" SET "status" = 'sent' WHERE "Message"."status" = 'delivered';
+
 COMMIT;
 
     `)
@@ -43,6 +48,12 @@ COMMIT;
 exports.down = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+--
+-- Roll back message statuses to delivered if they are either sent or read
+--
+UPDATE "Message" SET "status" = 'delivered' WHERE "Message"."status" = 'sent' OR "Message"."status" = 'read';
+
 --
 -- Alter field status on message
 --
