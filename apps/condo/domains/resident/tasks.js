@@ -69,7 +69,7 @@ async function manageResidentToPropertyAndOrganizationConnections (address) {
  * @param userId: {string} Resident user id
  * @returns {Promise<void>}
  */
-async function manageResidentToTicketClientConnections (propertyId, unitType, unitName, userId) {
+async function manageResidentToTicketClientConnections (propertyId, unitType, unitName, userId, dv, sender) {
     const { keystone } = await getSchemaCtx('Message')
 
     const residentUser = await getById('User', userId)
@@ -88,8 +88,8 @@ async function manageResidentToTicketClientConnections (propertyId, unitType, un
 
     for (const ticket of tickets) {
         await Ticket.update(keystone, ticket.id, {
-            dv: 1,
-            sender: { dv: 1, fingerprint: 'connect-resident-to-client' },
+            dv,
+            sender,
             client: { connect: { id: userId } },
             clientName: residentUserName,
             clientPhone: residentUserPhone,

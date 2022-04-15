@@ -25,6 +25,7 @@ const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring
 
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { manageResidentToTicketClientConnections } = require('../tasks')
+const isNull = require('lodash/isNull')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
@@ -213,11 +214,16 @@ const Resident = new GQLListSchema('Resident', {
                 }
             }
         },
-        afterChange: async ({ updatedItem, operation }) => {
-            const { unitName, unitType, property: propertyId, user: userId } = updatedItem
+        afterChange: async ({ updatedItem, originalInput }) => {
+            const userId = get(updatedItem, 'user', null)
+            const propertyId = get(originalInput, ['property', 'connect', 'id'], null)
+            const unitName = get(originalInput, 'unitName', null)
+            const unitType = get(originalInput, 'unitType', null)
+            const sender = get(originalInput, 'sender', null)
+            const dv = get(originalInput, 'dv', null)
 
-            if (operation === 'create') {
-                await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId)
+            if (!isNull(propertyId) || !isNull(unitName) || !isNull(unitType)) {
+                await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId, dv, sender)
             }
         },
     },
