@@ -15229,10 +15229,6 @@ export type Mutation = {
    * 			"url": {
    * 				"defaultValue": "",
    * 				"required": true
-   * 			},
-   * 			"domain": {
-   * 				"defaultValue": "",
-   * 				"required": true
    * 			}
    * 		}
    * 	},
@@ -15255,10 +15251,6 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"url": {
-   * 				"defaultValue": "",
-   * 				"required": true
-   * 			},
-   * 			"domain": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			}
@@ -29568,8 +29560,8 @@ export type ServiceSubscriptionsUpdateInput = {
 
 export type SetMessageStatusInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  messageId: Scalars['String'];
+  sender: SenderFieldInput;
+  message: MessageWhereUniqueInput;
   deliveredAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
 };
