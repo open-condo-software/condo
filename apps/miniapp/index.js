@@ -1,5 +1,4 @@
-const { generators } = require('openid-client') // certified openid client will all checks
-const { Issuer } = require('openid-client') // certified openid client will all checks
+const { generators, Issuer } = require('openid-client') // certified openid client will all checks
 const express = require('express')
 const { isObject } = require('lodash')
 
@@ -103,10 +102,17 @@ class OIDCHelper {
         })
     }
 
+    /**
+     * @param inputOrReq
+     * @param checks
+     * @returns {Promise<{userInfo: Object, accessToken: string}>}
+     */
     async completeAuth (inputOrReq, checks) {
         const params = this.client.callbackParams(inputOrReq)
-        const { access_token } = await this.client.callback(this.redirectUrl, params, checks)
-        return await this.client.userinfo(access_token)
+        const credentials = await this.client.callback(this.redirectUrl, params, checks)
+        const { access_token: accessToken } = credentials
+        const userInfo = await this.client.userinfo(accessToken)
+        return { accessToken, userInfo }
     }
 }
 
@@ -114,7 +120,9 @@ class CondoOIDCMiddleware {
     prepareMiddleware () {
         const app = express()
         const oidcSessionKey = 'oidc'
+        const condoAccessTokenKey = 'condoAccessToken'
         const helper = new OIDCHelper()
+
         app.get('/oidc/auth', async (req, res, next) => {
             // nonce: to prevent several callbacks from same request
             // state: to validate user browser on callback
@@ -135,13 +143,14 @@ class CondoOIDCMiddleware {
                     return res.status(400).send('ERROR: Invalid nonce and state')
                 }
 
-                const userInfo = await helper.completeAuth(req, checks)
+                const { accessToken, userInfo } = await helper.completeAuth(req, checks)
                 const user = await createOrUpdateUser(keystone, userInfo)
                 await keystone._sessionManager.startAuthedSession(req, {
                     item: { id: user.id },
                     list: keystone.lists['User'],
                 })
 
+                req.session[condoAccessTokenKey] = accessToken
                 delete req.session[oidcSessionKey]
                 await req.session.save()
 
