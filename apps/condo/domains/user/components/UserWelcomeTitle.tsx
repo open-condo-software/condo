@@ -66,7 +66,7 @@ const ITEMS_HEADER_GUTTER: RowProps['gutter'] = [5, 0]
 
 export const WelcomeHeaderTitle: React.FC = () => {
     const intl = useIntl()
-    const WelcomeTitleMessage = intl.formatMessage({ id: 'pages.auth.IAmCustomer' })
+    const WelcomeTitleMessage = intl.formatMessage({ id: 'pages.auth.IAmResident' })
 
     return (
         <Row style={{ display: 'inline-flex' }} gutter={ITEMS_HEADER_GUTTER}>
