@@ -1273,7 +1273,7 @@ describe('Ticket', () => {
             expect(message1.processingMeta.transport).toEqual('push')
         })
 
-        test('assignee with no registered pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
+        test('push message with error status is created when assignee with no registered pushToken is connected to ticket on create', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1302,7 +1302,7 @@ describe('Ticket', () => {
             // expect(message1.processingMeta.transport).toEqual('sms')
         })
 
-        test('assignee with registered invalid pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
+        test('push message with error status is created when assignee with registered invalid pushToken is connected to ticket on create', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
