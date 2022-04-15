@@ -4,6 +4,7 @@ import React from 'react'
 import { Image, Row, RowProps, Typography } from 'antd'
 import { jsx, css, keyframes } from '@emotion/core'
 import { useIntl } from 'react-intl'
+import Router from 'next/router'
 
 const WelcomeKeyFrames = keyframes`
   0% {
@@ -20,8 +21,9 @@ const WelcomeKeyFrames = keyframes`
 `
 
 
-const WelcomeAnimation = css`
+const WelcomeSvgCSS = css`
   animation: ${WelcomeKeyFrames} 1s ease 1;
+  cursor: pointer;
 `
 
 const ManKeyPictureFrames = keyframes`
@@ -63,16 +65,32 @@ const WomanPictureCSS = css`
 `
 
 const ITEMS_HEADER_GUTTER: RowProps['gutter'] = [5, 0]
+const LANDING_PAGE_ADDRESS = 'https://doma.ai/app_landing'
+const ROW_TITLE_STYLE: React.CSSProperties = { display: 'inline-flex' }
 
 export const WelcomeHeaderTitle: React.FC = () => {
     const intl = useIntl()
     const WelcomeTitleMessage = intl.formatMessage({ id: 'pages.auth.IAmCustomer' })
 
     return (
-        <Row style={{ display: 'inline-flex' }} gutter={ITEMS_HEADER_GUTTER}>
-            <Image preview={false} src={'/WomanHeaderWelcome.png'} css={WomanPictureCSS}/>
-            <Image preview={false} src={'/ManHeaderWelcome.png'} css={ManPictureCSS}/>
-            <Typography.Text css={WelcomeAnimation} underline>{WelcomeTitleMessage}</Typography.Text>
+        <Row style={ROW_TITLE_STYLE} gutter={ITEMS_HEADER_GUTTER}>
+            <Image
+                preview={false}
+                src={'/WomanHeaderWelcome.png'}
+                css={WomanPictureCSS}
+            />
+            <Image
+                preview={false}
+                src={'/ManHeaderWelcome.png'}
+                css={ManPictureCSS}
+            />
+            <Typography.Text
+                onClick={() => Router.push(LANDING_PAGE_ADDRESS)}
+                css={WelcomeSvgCSS}
+                underline
+            >
+                {WelcomeTitleMessage}
+            </Typography.Text>
         </Row>
     )
 }
