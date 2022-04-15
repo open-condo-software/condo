@@ -394,7 +394,7 @@ describe('Ticket', () => {
                 canReadByResident: true,
             })
 
-            const [readTicket] = await Ticket.getOne(residentClient, { id: ticket.id })
+            const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
 
             expect(readTicket.clientPhone).toEqual(phone)
             expect(readTicket.clientEmail).toEqual(email)
@@ -1272,7 +1272,7 @@ describe('Ticket', () => {
                     canReadByResident: true,
                 })
 
-                const [readTicket] = await Ticket.getOne(residentClient, { id: ticket.id })
+                const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
 
                 expect(readTicket.client.id).toEqual(residentClient.user.id)
                 expect(readTicket.clientName).toEqual(name)
@@ -1311,7 +1311,7 @@ describe('Ticket', () => {
                     unitName,
                 })
 
-                const [readTicket] = await Ticket.getOne(residentClient, { id: ticket.id })
+                const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
 
                 expect(readTicket.client.id).toEqual(residentClient.user.id)
                 expect(readTicket.clientName).toEqual(name)
@@ -1347,7 +1347,7 @@ describe('Ticket', () => {
                     unitType,
                 })
 
-                const [readTicket] = await Ticket.getOne(residentClient, { id: ticket.id })
+                const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
 
                 expect(readTicket.client.id).toEqual(residentClient.user.id)
                 expect(readTicket.clientName).toEqual(name)
