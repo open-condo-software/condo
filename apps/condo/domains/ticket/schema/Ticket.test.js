@@ -1193,6 +1193,7 @@ describe('Ticket', () => {
                 })
 
                 // NOTE: give worker some time
+                // TODO(DOMA-2765) Get rid of sleep
                 await sleep(1500)
 
                 const [changedTicket] = await Ticket.getAll(client, { id: ticket.id })
@@ -1241,7 +1242,7 @@ describe('Ticket', () => {
         })
     })
     describe( 'Notification', () => {
-        test.skip('assignee with registered pushToken and connected to ticket on create receives push notification', async () => {
+        test('assignee with registered pushToken and connected to ticket on create receives push notification', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1262,6 +1263,7 @@ describe('Ticket', () => {
 
             expect(message.id).toMatch(UUID_RE)
 
+            // TODO(DOMA-2765) Get rid of sleep
             await sleep(1000)
 
             const message1 = await Message.getOne(admin, messageWhere)
@@ -1271,7 +1273,7 @@ describe('Ticket', () => {
             expect(message1.processingMeta.transport).toEqual('push')
         })
 
-        test.skip('assignee with no registered pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
+        test('assignee with no registered pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1285,6 +1287,7 @@ describe('Ticket', () => {
 
             expect(message.id).toMatch(UUID_RE)
 
+            // TODO(DOMA-2765) Get rid of sleep
             await sleep(1000)
 
             const message1 = await Message.getOne(admin, messageWhere)
@@ -1299,7 +1302,7 @@ describe('Ticket', () => {
             // expect(message1.processingMeta.transport).toEqual('sms')
         })
 
-        test.skip('assignee with registered invalid pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
+        test('assignee with registered invalid pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
             const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1320,6 +1323,7 @@ describe('Ticket', () => {
 
             expect(message.id).toMatch(UUID_RE)
 
+            // TODO(DOMA-2765) Get rid of sleep
             await sleep(1000)
 
             const message1 = await Message.getOne(admin, messageWhere)
@@ -1356,6 +1360,7 @@ describe('Ticket', () => {
 
             expect(message.id).toMatch(UUID_RE)
 
+            // TODO(DOMA-2765) Get rid of sleep
             await sleep(1000)
 
             const message1 = await Message.getOne(admin, messageWhere)
@@ -1367,7 +1372,6 @@ describe('Ticket', () => {
             const content = message1.processingMeta.messageContext
 
             expect(content.data.url).toBeDefined()
-            expect(content.data.domain).toBeDefined()
             expect(content.data.ticketId).toBeDefined()
             expect(content.data.ticketNumber).toBeDefined()
             expect(content.data.userId).toBeDefined()
@@ -1388,6 +1392,7 @@ describe('Ticket', () => {
 
             expect(message.id).toMatch(UUID_RE)
 
+            // TODO(DOMA-2765) Get rid of sleep
             await sleep(1000)
 
             const message1 = await Message.getOne(admin, messageWhere)
@@ -1423,6 +1428,7 @@ describe('Ticket', () => {
 
             expect(message.id).toMatch(UUID_RE)
 
+            // TODO(DOMA-2765) Get rid of sleep
             await sleep(1000)
 
             const message1 = await Message.getOne(admin, messageWhere)

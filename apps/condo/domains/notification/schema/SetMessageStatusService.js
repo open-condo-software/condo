@@ -30,7 +30,7 @@ const SetMessageStatusService = new GQLCustomSchema('SetMessageStatusService', {
     types: [
         {
             access: true,
-            type: 'input SetMessageStatusInput { dv: Int!, sender: JSON!, messageId: String!, deliveredAt: String, readAt: String }',
+            type: 'input SetMessageStatusInput { dv: Int!, sender: SenderFieldInput!, message: MessageWhereUniqueInput!, deliveredAt: String, readAt: String }',
         },
         {
             access: true,
@@ -43,8 +43,8 @@ const SetMessageStatusService = new GQLCustomSchema('SetMessageStatusService', {
             access: access.canSetMessageStatus,
             schema: 'setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { dv, sender, messageId, deliveredAt, readAt } } = args
-                const existingItem = await getByCondition('Message', { id: messageId, deletedAt: null })
+                const { data: { dv, sender, message: messageInput, deliveredAt, readAt } } = args
+                const existingItem = await getByCondition('Message', { id: messageInput.id, deletedAt: null })
                 const currentStatus = get(existingItem, 'status', null)
                 let nextStatusType
 
@@ -75,7 +75,7 @@ const SetMessageStatusService = new GQLCustomSchema('SetMessageStatusService', {
                     await MessageAPI.update(context, existingItem.id, attrs)
                 }
 
-                return { status: 'ok' }
+                return { id: messageInput.id, status: 'ok' }
             },
         },
     ],
