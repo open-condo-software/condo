@@ -21,7 +21,7 @@ const WelcomeKeyFrames = keyframes`
 `
 
 
-const WelcomeSvgCSS = css`
+const WelcomeTypographyCSS = css`
   animation: ${WelcomeKeyFrames} 1s ease 1;
   cursor: pointer;
 `
@@ -86,7 +86,7 @@ export const WelcomeHeaderTitle: React.FC = () => {
             />
             <Typography.Text
                 onClick={() => Router.push(LANDING_PAGE_ADDRESS)}
-                css={WelcomeSvgCSS}
+                css={WelcomeTypographyCSS}
                 underline
             >
                 {WelcomeTitleMessage}
