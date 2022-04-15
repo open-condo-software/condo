@@ -14,7 +14,7 @@ const { createTestTicket } = require('../utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { TicketChange, TicketStatus, TicketSource, TicketClassifier, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
+const { TicketChange, TicketStatus, TicketSource, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
 
@@ -30,7 +30,6 @@ describe('TicketChange', () => {
 
             const openedStatus = (await TicketStatus.getAll(admin, { id: STATUS_IDS.OPEN }))[0]
             const inProgressStatus = (await TicketStatus.getAll(admin, { id: STATUS_IDS.IN_PROGRESS }))[0]
-            const classifiers = await TicketClassifier.getAll(admin, {})
             const sources = await TicketSource.getAll(admin, {})
             const [contact] = await createTestContact(client, client.organization, client.property)
             const [contact2] = await createTestContact(client, client.organization, client.property)
@@ -50,7 +49,6 @@ describe('TicketChange', () => {
                 operator: { connect: { id: client.user.id } },
                 assignee: { connect: { id: client.user.id } },
                 executor: { connect: { id: client.user.id } },
-                classifier: { connect: { id: classifiers[0].id } },
                 source: { connect: { id: sources[0].id } },
                 related: { connect: { id: ticket2.id } },
                 // TODO(antonal): figure out how to get old list of related items in many-to-many relationship.
@@ -78,7 +76,6 @@ describe('TicketChange', () => {
                 operator: { connect: { id: client2.user.id } },
                 assignee: { connect: { id: client2.user.id } },
                 executor: { connect: { id: client2.user.id } },
-                classifier: { connect: { id: classifiers[1].id } },
                 source: { connect: { id: sources[1].id } },
                 related: { connect: { id: ticket3.id } },
                 watchers: {
@@ -161,11 +158,6 @@ describe('TicketChange', () => {
             expect(objs[0].executorIdTo).toEqual(payload.executor.connect.id)
             expect(objs[0].executorDisplayNameFrom).toEqual(client.user.name)
             expect(objs[0].executorDisplayNameTo).toEqual(client2.user.name)
-
-            expect(objs[0].classifierIdFrom).toEqual(ticket.classifier.id)
-            expect(objs[0].classifierIdTo).toEqual(payload.classifier.connect.id)
-            expect(objs[0].classifierDisplayNameFrom).toEqual(classifiers[0].name)
-            expect(objs[0].classifierDisplayNameTo).toEqual(classifiers[1].name)
 
             expect(objs[0].sourceIdFrom).toEqual(ticket.source.id)
             expect(objs[0].sourceIdTo).toEqual(payload.source.connect.id)

@@ -60,10 +60,6 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
-    'classifier': async (itemId) => {
-        const item = await getById('TicketClassifier', itemId)
-        return get(item, 'name')
-    },
     'placeClassifier': async (itemId) => {
         const item = await getById('TicketPlaceClassifier', itemId)
         return get(item, 'name')

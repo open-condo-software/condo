@@ -19,16 +19,6 @@ const GET_ALL_SOURCES_QUERY = gql`
     }
 `
 
-// TODO(pahaz): add organization relation to existing classifiers
-const GET_ALL_CLASSIFIERS_QUERY = gql`
-    query selectSource ($value: String) {
-        objs: allTicketClassifiers(where: {name_contains_i: $value, organization_is_null: true, parent_is_null: true}) {
-            id
-            name
-        }
-    }
-`
-
 const GET_ALL_PROPERTIES_BY_VALUE_QUERY = gql`
     query selectProperty ($where: PropertyWhereInput, $orderBy: String, $first: Int, $skip: Int) {
         objs: allProperties(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
@@ -176,15 +166,6 @@ export async function searchSingleProperty (client, propertyId, organizationId) 
 
 export async function searchTicketSources (client, value) {
     const { data, error } = await _search(client, GET_ALL_SOURCES_QUERY, { value })
-
-    if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
-
-    return []
-}
-
-export async function searchTicketClassifier (client, value) {
-    const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value })
 
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))

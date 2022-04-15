@@ -6,7 +6,6 @@
 const { Ticket } = require('./Ticket')
 const { TicketReportService } = require('./TicketReportService')
 const { TicketSource } = require('./TicketSource')
-const { TicketClassifier } = require('./TicketClassifier')
 const { TicketStatus } = require('./TicketStatus')
 const { TicketFile } = require('./TicketFile')
 const { TicketChange } = require('./TicketChange')
@@ -30,7 +29,6 @@ module.exports = {
     Ticket,
     TicketReportService,
     TicketSource,
-    TicketClassifier,
     TicketStatus,
     TicketFile,
     TicketChange,

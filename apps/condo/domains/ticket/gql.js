@@ -18,8 +18,7 @@ const TICKET_STATUS_FIELDS = `{ organization { id } type name colors { primary s
 const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
 const TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
 const TicketSource = generateGqlQueries('TicketSource', TICKET_SOURCE_FIELDS)
-const TICKET_CLASSIFIER_FIELDS = `{ organization { id } parent { id name parent { id name } } fullName name ${COMMON_FIELDS} }`
-const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
+
 const SHARE_TICKET_MUTATION = gql`
     mutation shareTicket($data: ShareTicketInput!) {
         obj: shareTicket(data: $data) { status }
@@ -195,7 +194,6 @@ module.exports = {
     TicketChange,
     TicketSource,
     ResidentTicket,
-    TicketClassifier,
     TicketFile,
     TICKET_CHANGE_DATA_FIELDS,
     EXPORT_TICKETS_TO_EXCEL,

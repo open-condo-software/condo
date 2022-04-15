@@ -147,18 +147,9 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'User',
             many: true,
         },
-        classifier: {
-            schemaDoc: '[DEPRECATED] Old classifier will be removed after migration of existed data',
-            type: Relationship,
-            ref: 'TicketClassifier',
-            // Classifier can be null because mobile app users don't pass it when creating a Ticket
-            isRequired: false,
-            knexOptions: { isNotNullable: false }, // Required relationship only!
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
-        },
         // TODO(zuch): make it required
         placeClassifier: {
-            schemaDoc: 'Describe where incident took place',
+            schemaDoc: '[DEPRECATED] Describe where incident took place',
             type: Relationship,
             ref: 'TicketPlaceClassifier',
             isRequired: false,
@@ -167,7 +158,7 @@ const Ticket = new GQLListSchema('Ticket', {
         },
         // TODO(zuch): make it required
         categoryClassifier: {
-            schemaDoc: 'Describe type of work needed',
+            schemaDoc: '[DEPRECATED] Describe type of work needed',
             type: Relationship,
             ref: 'TicketCategoryClassifier',
             isRequired: false,
@@ -175,7 +166,7 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
         problemClassifier: {
-            schemaDoc: 'Details of incident',
+            schemaDoc: '[DEPRECATED] Details of incident',
             type: Relationship,
             ref: 'TicketProblemClassifier',
             isRequired: false,

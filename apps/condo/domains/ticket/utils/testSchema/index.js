@@ -16,7 +16,6 @@ const {
     TicketChange: TicketChangeGQL,
     TicketSource: TicketSourceGQL,
     TicketFile: TicketFileGQL,
-    TicketClassifier: TicketClassifierGQL,
     TicketComment: TicketCommentGQL,
     TicketPlaceClassifier: TicketPlaceClassifierGQL,
     TicketCategoryClassifier: TicketCategoryClassifierGQL,
@@ -40,7 +39,6 @@ const TicketStatus = generateGQLTestUtils(TicketStatusGQL)
 const TicketFile = generateGQLTestUtils(TicketFileGQL)
 const TicketChange = generateGQLTestUtils(TicketChangeGQL)
 const TicketSource = generateGQLTestUtils(TicketSourceGQL)
-const TicketClassifier = generateGQLTestUtils(TicketClassifierGQL)
 const TicketComment = generateGQLTestUtils(TicketCommentGQL)
 const TicketPlaceClassifier = generateGQLTestUtils(TicketPlaceClassifierGQL)
 const TicketCategoryClassifier = generateGQLTestUtils(TicketCategoryClassifierGQL)
@@ -176,32 +174,6 @@ async function updateTestTicketFile (client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await TicketFile.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-async function createTestTicketClassifier (client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const attrs = {
-        dv: 1,
-        sender,
-        name: faker.lorem.word(),
-        ...extraAttrs,
-    }
-    const obj = await TicketClassifier.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestTicketClassifier (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await TicketClassifier.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -455,7 +427,6 @@ module.exports = {
     TicketCategoryClassifier,
     TicketProblemClassifier,
     TicketClassifierRule,
-    TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
     createTestTicketPlaceClassifier, updateTestTicketPlaceClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier, createTestTicketProblemClassifier, updateTestTicketProblemClassifier, createTestTicketClassifierRule, updateTestTicketClassifierRule,
     createResidentTicketByTestClient,
