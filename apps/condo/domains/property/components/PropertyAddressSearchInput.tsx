@@ -41,21 +41,15 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
 
     const searchAddress = useCallback(
         (query, skip) => {
-            const splitted_query = query.split(query_split_regex)
-            let and_sequence = {}
-            splitted_query.forEach((element) => {
-                and_sequence = {
-                    AND: {
-                        address_contains_i: element,
-                        ...and_sequence,
-                    },
+            const splitted_query = query.split(query_split_regex).map((element) => {
+                return {
+                    address_contains_i: element
                 }
             })
             const where = {
                 organization: { id: organizationId },
-                ...and_sequence,
+                AND: splitted_query
             }
-
             return searchProperty(client, where, 'address_ASC', 10, skip)
         },
         [client, organizationId],
