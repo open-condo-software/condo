@@ -156,6 +156,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 const config = getUploadSuccessModalConfig(ImportTitle, message, ImportOKMessage)
                 activeModal.current = modal.success(config)
             }
+            onFinish()
         },
         onError: () => {
             destroyActiveModal()
