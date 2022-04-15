@@ -26,6 +26,11 @@ module.exports = withTM(withLess(withCSS({
         // NOTE: Replace Moment.js with Day.js in antd project
         config.plugins = [ ...plugins, new AntdDayjsWebpackPlugin() ]
 
+        config.module.rules = [
+            ...(config.module.rules || []),
+            { test: /lang\/.*\.njk$/, use: 'raw-loader' },
+        ]
+
         return config
     },
 })))
