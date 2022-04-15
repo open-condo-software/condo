@@ -74,7 +74,8 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     result[EXECUTOR_CONNECTED_EVENT_TYPE] = isExecutorAdded || isExecutorUpdated
 
     /**
-     * ticket status changed
+     * ticket status gets the status open within create ticket operation or
+     * ticket status changed within update ticket operation
      */
     result[STATUS_CHANGED_EVENT_TYPE] = isStatusAdded || isStatusUpdated
 
@@ -156,40 +157,39 @@ const handleTicketEvents = async (requestData) => {
     }
 
     if (eventTypes[STATUS_CHANGED_EVENT_TYPE]) {
-        let type
+        let ticketStatusType
         switch (nextStatusId) {
             case STATUS_IDS.OPEN:
                 if (statusReopenedCounter > 0)
-                    type = updatedBy !== client && TICKET_STATUS_RETURNED_TYPE
+                    ticketStatusType = updatedBy !== client && TICKET_STATUS_RETURNED_TYPE
                 else
-                    type = createdBy !== client && TICKET_STATUS_OPENED_TYPE
+                    ticketStatusType = createdBy !== client && TICKET_STATUS_OPENED_TYPE
                 break
 
             case STATUS_IDS.IN_PROGRESS:
-                type = TICKET_STATUS_IN_PROGRESS_TYPE
+                ticketStatusType = TICKET_STATUS_IN_PROGRESS_TYPE
                 break
 
             case STATUS_IDS.COMPLETED:
-                type = TICKET_STATUS_COMPLETED_TYPE
+                ticketStatusType = TICKET_STATUS_COMPLETED_TYPE
                 break
 
             case STATUS_IDS.DECLINED:
-                type = TICKET_STATUS_DECLINED_TYPE
+                ticketStatusType = TICKET_STATUS_DECLINED_TYPE
                 break
         }
 
-        if (type) {
+        if (ticketStatusType) {
             await sendMessage(context, {
                 lang,
                 to: { user: { id: client } },
-                type,
+                type: ticketStatusType,
                 meta: {
                     dv: 1,
                     data: {
                         ticketId: updatedItem.id,
                         ticketNumber: updatedItem.number,
                         userId: client,
-                        domain: TICKET_DOMAIN,
                     },
                 },
                 sender: updatedItem.sender,
@@ -225,7 +225,6 @@ const handleTicketCommentEvents = async (requestData) => {
                     ticketNumber: ticket.number,
                     userId: client,
                     commentId: updatedItem.id,
-                    domain: TICKET_COMMENT_DOMAIN,
                 },
             },
             sender: updatedItem.sender,
