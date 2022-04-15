@@ -41,7 +41,7 @@ const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
 const { STATUS_IDS } = require('../constants/statusTransitions')
-const { REVIEW_VALUES } = require('../constants')
+const { REVIEW_VALUES, RESIDENT_COMMENT_TYPE } = require('../constants')
 const { createTestTicketComment } = require('../utils/testSchema')
 
 describe('Ticket', () => {
@@ -2269,7 +2269,9 @@ describe('Ticket', () => {
                 unitName,
             })
 
-            await createTestTicketComment(userClient, ticket, userClient.user)
+            await createTestTicketComment(userClient, ticket, userClient.user, {
+                type: RESIDENT_COMMENT_TYPE,
+            })
 
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
             const messageCount = await Message.count(userClient, messageWhere)
