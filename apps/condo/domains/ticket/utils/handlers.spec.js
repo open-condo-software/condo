@@ -1,3 +1,5 @@
+const faker = require('faker')
+
 import {
     detectEventTypes,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
@@ -6,7 +8,6 @@ import {
 } from './handlers'
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
-const faker = require('faker')
 
 describe('Ticket request event detection', () => {
     it('correctly detects assignee connection on ticket create', () => {
@@ -116,20 +117,6 @@ describe('Ticket request event detection', () => {
         }
 
         expect(detectEventTypes(requestData)).toMatchObject({ [STATUS_CHANGED_EVENT_TYPE]: false } )
-    })
-
-    it('correctly detects event connection on ticket create', () => {
-        const id = faker.datatype.uuid()
-        const requestData = {
-            operation: 'create',
-            existingItem: null,
-            updatedItem: {
-                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
-                client: id,
-            },
-        }
-
-        expect(detectEventTypes(requestData)).toMatchObject({ [STATUS_CHANGED_EVENT_TYPE]: true } )
     })
 
     it('correctly detects event change on ticket update', () => {

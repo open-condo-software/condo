@@ -1,5 +1,4 @@
 const get = require('lodash/get')
-const { i18n } = require('@condo/domains/common/utils/localesLoader')
 
 const conf = require('@core/config')
 const { getByCondition } = require('@core/keystone/schema')
@@ -25,9 +24,6 @@ const { PUSH_TRANSPORT } = require('../../notification/constants/constants')
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
 const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
-
-const TICKET_DOMAIN = 'ticket'
-const TICKET_COMMENT_DOMAIN = 'ticketComment'
 
 /**
  * Detects possible events within Ticket schema request
@@ -190,6 +186,7 @@ const handleTicketEvents = async (requestData) => {
                         ticketId: updatedItem.id,
                         ticketNumber: updatedItem.number,
                         userId: client,
+                        url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
                     },
                 },
                 sender: updatedItem.sender,
@@ -225,6 +222,7 @@ const handleTicketCommentEvents = async (requestData) => {
                     ticketNumber: ticket.number,
                     userId: client,
                     commentId: updatedItem.id,
+                    url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
                 },
             },
             sender: updatedItem.sender,
