@@ -72,10 +72,6 @@ const CommentStyle = css`
         }
       }
     }
-  
-  .ant-image {
-    display: none;
-  }
 
     .ant-comment-inner {
       padding: 12px;
@@ -84,6 +80,15 @@ const CommentStyle = css`
       .ant-comment-content {
         display: flex;
         flex-flow: column nowrap;
+        
+        .ant-image {
+          border-radius: 8px;
+          overflow: hidden;
+          
+          .ant-image-mask-info {
+            display: none;
+          }
+        }
         
         .ant-comment-content-author {
           display: block;
@@ -106,7 +111,7 @@ const CommentStyle = css`
         }
         
         .ant-comment-content-detail > div {
-          margin-top: 10px;
+          margin-top: 20px;
           
           & > .ant-typography {
             margin-bottom: 4px;
@@ -142,51 +147,51 @@ const getIconByMimetype = (mimetype) => {
 
 const CommentFileList = ({ comment }) => {
     const files = get(comment, 'files')
-    const [openedImageSrc, setOpenedImageSrc] = useState()
 
     if (!Array.isArray(files)) {
         return <></>
     }
 
     return (
-        <div>
-            {
-                files.map(({ id, file }) => {
-                    const fileNameArr = file.originalFilename.split('.')
-                    const fileExt = fileNameArr.pop()
-                    const fileName = fileNameArr.join('.')
+        <Image.PreviewGroup>
+            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                {
+                    files.map(({ id, file }) => {
+                        const fileNameArr = file.originalFilename.split('.')
+                        const fileExt = fileNameArr.pop()
+                        const fileName = fileNameArr.join('.')
+                        const mimetype = get(file, 'mimetype')
+                        const url = get(file, 'publicUrl')
 
-                    return (
-                        <>
-                            <Typography.Paragraph
+                        const TextWrapComponent = mimetype.startsWith('image') ? Typography.Paragraph : Typography.Link
+
+                        return (
+                            <TextWrapComponent
+                                href={url}
                                 key={id}
-                                onClick={() => setOpenedImageSrc(file.publicUrl)}
-                                style={{ display: 'flex' }}
+                                style={{ display: 'flex', flexFlow: 'column', justifyContent: 'center', width: '70px' }}
                             >
-                                {getIconByMimetype(get(file, 'mimetype'))}
-                                <Typography.Text>
+                                {
+                                    mimetype.startsWith('image') ? (
+                                        <Image src={url} width={64} height={64} />
+                                    ) : (
+                                        <div style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: '#F2F3F7', width: '64px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {getIconByMimetype(mimetype)}
+                                        </div>
+                                    )
+                                }
+                                <Typography.Paragraph ellipsis={{ rows: 1 }} style={{ margin: 0 }}>
                                     {fileName}
                                     <Typography.Text type={'secondary'}>
-                                        .{fileExt}
+                                            .{fileExt}
                                     </Typography.Text>
-                                </Typography.Text>
-                            </Typography.Paragraph>
-                        </>
-                    )
-                })
-            }
-            {
-                openedImageSrc && (
-                    <Image
-                        preview={{
-                            visible: true,
-                            src: openedImageSrc,
-                            onVisibleChange: (visible, prevVisible) => setOpenedImageSrc(null),
-                        }}
-                    />
-                )
-            }
-        </div>
+                                </Typography.Paragraph>
+                            </TextWrapComponent>
+                        )
+                    })
+                }
+            </div>
+        </Image.PreviewGroup>
     )
 }
 
