@@ -80,7 +80,7 @@ describe('SetMessageStatusService', () => {
         /**
          * Emulate request from mobile device to set message status to MESSAGE_DELIVERED_STATUS
          */
-        const payload1 = { messageId: message.id, deliveredAt: dayjs().toISOString() }
+        const payload1 = { message: { id: message.id }, deliveredAt: dayjs().toISOString() }
         const [data] = await setMessageStatusByTestClient(admin, payload1)
 
         expect(data.status).toMatch('ok')
@@ -92,7 +92,7 @@ describe('SetMessageStatusService', () => {
         /**
          * Emulate request from mobile device to set message status to MESSAGE_READ_STATUS
          */
-        const payload2 = { messageId: message.id, readAt: dayjs().toISOString() }
+        const payload2 = { message: { id: message.id }, readAt: dayjs().toISOString() }
         const [data1] = await setMessageStatusByTestClient(admin, payload2)
 
         expect(data1.status).toMatch('ok')
@@ -106,7 +106,7 @@ describe('SetMessageStatusService', () => {
          * after it was already set to final status of MESSAGE_READ_STATUS
          * Makes sure status does not degrade
          */
-        const payload3 = { messageId: message.id, deliveredAt: dayjs().toISOString() }
+        const payload3 = { message: { id: message.id }, deliveredAt: dayjs().toISOString() }
 
         const [data2] = await setMessageStatusByTestClient(admin, payload3)
 
