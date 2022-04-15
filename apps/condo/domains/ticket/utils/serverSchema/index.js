@@ -10,7 +10,6 @@ const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
 const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
 const { TicketFile: TicketFileGQL } = require('@condo/domains/ticket/gql')
-const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
 const { TicketPlaceClassifier: TicketPlaceClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketCategoryClassifier: TicketCategoryClassifierGQL } = require('@condo/domains/ticket/gql')
@@ -26,7 +25,6 @@ const Ticket = generateServerUtils(TicketGQL)
 const TicketStatus = generateServerUtils(TicketStatusGQL)
 const TicketChange = generateServerUtils(TicketChangeGQL)
 const TicketFile = generateServerUtils(TicketFileGQL)
-const TicketClassifier = generateServerUtils(TicketClassifierGQL)
 const TicketComment = generateServerUtils(TicketCommentGQL)
 const TicketSource = generateServerUtils(TicketSourceGQL)
 
@@ -77,7 +75,6 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
             ['Organization', 'organization', 'name'],
             ['Property', 'property', 'address'],
             ['TicketStatus', 'status', 'type'],
-            ['TicketClassifier', 'classifier', 'name'],
             ['TicketSource', 'source', 'name'],
         ],
         multipleRelations: [
@@ -118,7 +115,6 @@ module.exports = {
     TicketStatus,
     TicketChange,
     TicketFile,
-    TicketClassifier,
     TicketComment,
     TicketPlaceClassifier,
     TicketCategoryClassifier,

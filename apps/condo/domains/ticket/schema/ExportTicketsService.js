@@ -79,7 +79,6 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         isEmergency: ticket.isEmergency ? 'X' : '',
                         isWarranty: ticket.isWarranty ? 'X' : '',
                         isPaid: ticket.isPaid ? 'X' : '',
-                        classifier: ticket.classifier || '',
                         place: ticket.placeClassifier || '',
                         category: ticket.categoryClassifier || '',
                         description: ticket.problemClassifier || '',
