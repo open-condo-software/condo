@@ -111,8 +111,7 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
 
             return ticket.client === user.id
         }
-    }
-    if (user.type === STAFF) {
+    } else {
         let organizationId
 
         if (operation === 'create') {
