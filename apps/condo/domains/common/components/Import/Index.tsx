@@ -93,7 +93,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         rowNormalizer,
         rowValidator,
         objectCreator,
-        onFinish: handleOnFinish,
+        onFinish: handleFinish,
         domainTranslate,
         exampleTemplateLink = null,
         mutationErrorsToMessages,
@@ -156,7 +156,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 const config = getUploadSuccessModalConfig(ImportTitle, message, ImportOKMessage)
                 activeModal.current = modal.success(config)
             }
-            handleOnFinish()
+            handleFinish()
         },
         onError: () => {
             destroyActiveModal()
@@ -171,7 +171,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         const config = getUploadProgressModalConfig(ImportTitle, ImportProcessingMessage, ImportBreakButtonMessage,
             () => {
                 breakImport()
-                handleOnFinish()
+                handleFinish()
             })
         // @ts-ignore
         activeModal.current = modal.info(config)
