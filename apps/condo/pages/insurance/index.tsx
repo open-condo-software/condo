@@ -19,9 +19,7 @@ const IndexInsurancePage = () => {
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
-                <IFrameWrapper>
-                    <IFrame pageUrl={`${insuranceAppUrl}/oidc/auth`}/>
-                </IFrameWrapper>
+                <IFrame pageUrl={`${insuranceAppUrl}`}/>
             </PageWrapper>
         </>
     )
