@@ -7,6 +7,7 @@ const { Resident } = require('./Resident')
 const { RegisterResidentService } = require('./RegisterResidentService')
 const { ServiceConsumer } = require('./ServiceConsumer')
 const { RegisterServiceConsumerService } = require('./RegisterServiceConsumerService')
+const { RegisterMultipleServiceConsumersService } = require('./RegisterMultipleServiceConsumersService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
     RegisterResidentService,
     ServiceConsumer,
     RegisterServiceConsumerService,
+    RegisterMultipleServiceConsumersService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

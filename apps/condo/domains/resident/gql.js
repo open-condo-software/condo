@@ -28,6 +28,14 @@ const REGISTER_SERVICE_CONSUMER_MUTATION = gql`
     }
 `
 
+// TODO(codegen): write return type result!
+
+const REGISTER_MULTIPLE_CONSUMERS_SERVICE_MUTATION = gql`
+    mutation registerMultipleConsumersService ($data: RegisterMultipleConsumersServiceInput!) {
+        result: registerMultipleConsumersService(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -35,5 +43,8 @@ module.exports = {
     REGISTER_RESIDENT_MUTATION,
     ServiceConsumer,
     REGISTER_SERVICE_CONSUMER_MUTATION,
+
+    REGISTER_MULTIPLE_CONSUMERS_SERVICE_MUTATION,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
