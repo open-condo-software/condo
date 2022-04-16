@@ -53,6 +53,15 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             },
         },
 
+        category: {
+            schemaDoc: 'A category to print on display on the payment document.',
+            type: Relationship,
+            ref: 'BillingCategory',
+            isRequired: true,
+            knexOptions: { isNotNullable: true },
+            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+        },
+
         printableNumber: {
             schemaDoc: 'A number to print on the payment document.',
             type: Text,
