@@ -79,7 +79,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
     mutations: [
         {
             doc: {
-                summary: 'Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount',
+                summary: '[DEPRECATED] Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount',
                 description: 'To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data',
                 errors,
             },
