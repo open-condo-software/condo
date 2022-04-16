@@ -80,7 +80,7 @@ const RegisterMultipleServiceConsumersService = new GQLCustomSchema('RegisterSer
                 errors,
             },
             access: access.canRegisterServiceConsumer,
-            schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): [ServiceConsumer]',
+            schema: 'registerMultipleServiceConsumers(data: RegisterServiceConsumerInput!): [ServiceConsumer]',
             resolver: async (parent, args, context = {}) => {
 
                 const { data: { dv, sender, residentId, accountNumber, organizationId } } = args
@@ -120,7 +120,7 @@ const RegisterMultipleServiceConsumersService = new GQLCustomSchema('RegisterSer
                                     ...{ defaultServiceConsumerAttrs },
                                     billingAccount: billingAccount ? { connect: { id: billingAccount.id } } : null,
                                     billingIntegrationContext: billingAccount ? { connect: { id: billingIntegrationContext.id } } : null,
-                                    acquiringIntegrationContext: billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
+                                    acquiringIntegrationContext: billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null,
                                 }
                             )
                         }
@@ -141,10 +141,27 @@ const RegisterMultipleServiceConsumersService = new GQLCustomSchema('RegisterSer
 
                 const resolvedServiceConsumers = []
                 for (const serviceConsumerToRegisterAttrs of serviceConsumersToRegisterAttrs) {
-                    const resolvedServiceConsumer = await ServiceConsumer.create(context, serviceConsumerToRegisterAttrs)
+
+                    const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
+                        resident: { id: residentId },
+                        accountNumber: accountNumber,
+                        billingAccount: get(serviceConsumerToRegisterAttrs, 'billingAccount.connect.id', null),
+                    })
+
+                    let id
+                    if (existingServiceConsumer) {
+                        await ServiceConsumer.update(context, existingServiceConsumer.id, {
+                            ...serviceConsumerToRegisterAttrs,
+                            deletedAt: null,
+                        })
+                        id = existingServiceConsumer.id
+                    } else {
+                        const serviceConsumer = await ServiceConsumer.create(context, serviceConsumerToRegisterAttrs)
+                        id = serviceConsumer.id
+                    }
 
                     // Hack that helps to resolve all subfields in result of this mutation
-                    resolvedServiceConsumers.push(getById('ServiceConsumer', resolvedServiceConsumer.id))
+                    resolvedServiceConsumers.push(getById('ServiceConsumer', id))
                 }
 
                 return await Promise.all(resolvedServiceConsumers)
