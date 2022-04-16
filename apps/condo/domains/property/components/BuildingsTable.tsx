@@ -97,6 +97,8 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const isNoBuildingsData = !properties.length && isEmpty(filters) && !loading
 
+    const canManageProperties = get(role, 'canManageProperties', false)
+
     function onExportToExcelButtonClicked () {
         exportToExcel({
             variables: {
@@ -119,7 +121,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
             button={(
                 <ImportWrapper
                     objectsName={PropertiesMessage}
-                    accessCheck={role?.canManageProperties}
+                    accessCheck={canManageProperties}
                     onFinish={refetch}
                     columns={columns}
                     rowNormalizer={propertyNormalizer}
@@ -183,10 +185,10 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                 <Row justify={'end'} gutter={ROW_SMALL_HORIZONTAL_GUTTERS}>
                                     <Col hidden={isSmall}>
                                         {
-                                            role?.canManageProperties && (
+                                            canManageProperties && (
                                                 <ImportWrapper
                                                     objectsName={PropertiesMessage}
-                                                    accessCheck={role?.canManageProperties}
+                                                    accessCheck={canManageProperties}
                                                     onFinish={refetch}
                                                     columns={columns}
                                                     rowNormalizer={propertyNormalizer}
@@ -205,7 +207,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                     </Col>
                                     <Col>
                                         {
-                                            role?.canManageProperties
+                                            canManageProperties
                                                 ? (
                                                     <Button type="sberPrimary" onClick={() => router.push('/property/create')}>
                                                         {CreateLabel}
