@@ -20,8 +20,13 @@ CREATE INDEX "BillingCategory_updatedAt_4e92f52d" ON "BillingCategory" ("updated
 CREATE INDEX "BillingCategory_deletedAt_d1c614c6" ON "BillingCategory" ("deletedAt");
 CREATE INDEX "BillingCategory_createdBy_52e60875" ON "BillingCategory" ("createdBy");
 CREATE INDEX "BillingCategory_updatedBy_4ce8b9b7" ON "BillingCategory" ("updatedBy");
-COMMIT;
 
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId",
+                                      "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'Housing'::text,
+        '928c97ef-5289-4daa-b80e-4b9fed50c629'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+COMMIT;
     `)
 }
 
