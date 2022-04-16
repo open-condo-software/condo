@@ -3519,6 +3519,13 @@ export type BillingCategoryHistoryRecordsUpdateInput = {
   data?: Maybe<BillingCategoryHistoryRecordUpdateInput>;
 };
 
+export type BillingCategoryRelateToOneInput = {
+  create?: Maybe<BillingCategoryCreateInput>;
+  connect?: Maybe<BillingCategoryWhereUniqueInput>;
+  disconnect?: Maybe<BillingCategoryWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type BillingCategoryUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
@@ -6142,6 +6149,8 @@ export type BillingReceipt = {
   period?: Maybe<Scalars['String']>;
   /**  `billing receipt` local object ID. Unique up to billing context. It is unique up to the context. The constrain is a combination of contextId and importId.  */
   importId?: Maybe<Scalars['String']>;
+  /**  A category to print on display on the payment document.  */
+  category?: Maybe<BillingCategory>;
   /**  A number to print on the payment document.  */
   printableNumber?: Maybe<Scalars['String']>;
   /**  Raw non-structured data obtained from the `billing data source`. Used only for the internal needs of the `integration component`.  */
@@ -6174,6 +6183,7 @@ export type BillingReceiptCreateInput = {
   account?: Maybe<BillingAccountRelateToOneInput>;
   period?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
+  category?: Maybe<BillingCategoryRelateToOneInput>;
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
@@ -6208,6 +6218,7 @@ export type BillingReceiptHistoryRecord = {
   account?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
@@ -6236,6 +6247,7 @@ export type BillingReceiptHistoryRecordCreateInput = {
   account?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
@@ -6269,6 +6281,7 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   account?: Maybe<Scalars['String']>;
   period?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
@@ -6341,6 +6354,10 @@ export type BillingReceiptHistoryRecordWhereInput = {
   importId_not_ends_with_i?: Maybe<Scalars['String']>;
   importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<Scalars['String']>;
+  category_not?: Maybe<Scalars['String']>;
+  category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   printableNumber?: Maybe<Scalars['String']>;
   printableNumber_not?: Maybe<Scalars['String']>;
   printableNumber_contains?: Maybe<Scalars['String']>;
@@ -6540,6 +6557,7 @@ export type BillingReceiptUpdateInput = {
   account?: Maybe<BillingAccountRelateToOneInput>;
   period?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
+  category?: Maybe<BillingCategoryRelateToOneInput>;
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
@@ -6603,6 +6621,8 @@ export type BillingReceiptWhereInput = {
   importId_not_ends_with_i?: Maybe<Scalars['String']>;
   importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<BillingCategoryWhereInput>;
+  category_is_null?: Maybe<Scalars['Boolean']>;
   printableNumber?: Maybe<Scalars['String']>;
   printableNumber_not?: Maybe<Scalars['String']>;
   printableNumber_contains?: Maybe<Scalars['String']>;
@@ -30734,6 +30754,8 @@ export enum SortBillingReceiptsBy {
   PeriodDesc = 'period_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
   PrintableNumberAsc = 'printableNumber_ASC',
   PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
