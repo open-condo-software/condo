@@ -21,6 +21,7 @@ const { BillingCurrency: BillingCurrencyGQL } = require('@condo/domains/billing/
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { execGqlWithoutAccess } = require('@condo/domains/organization/utils/serverSchema/utils')
 const { Payment } = require('@condo/domains/acquiring/gql')
+const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
@@ -53,6 +54,7 @@ async function exportPayments (context, data) {
     })
 }
 
+const BillingCategory = generateServerUtils(BillingCategoryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -71,5 +73,6 @@ module.exports = {
     BillingCurrency,
     BillingRecipient,
     exportPayments,
+    BillingCategory,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
