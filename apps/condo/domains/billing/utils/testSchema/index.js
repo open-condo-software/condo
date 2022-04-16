@@ -26,6 +26,7 @@ const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gq
 const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
+const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -41,6 +42,7 @@ const BillingReceipt = generateGQLTestUtils(BillingReceiptGQL)
 const BillingOrganization = generateGQLTestUtils(BillingOrganizationGQL)
 const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
 const BillingRecipient = generateGQLTestUtils(BillingRecipientGQL)
+const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -574,6 +576,7 @@ module.exports = {
     makeClientWithPropertyAndBilling,
     BillingRecipient, createTestBillingRecipient, updateTestBillingRecipient,
     createTestRecipient,
+    BillingCategory, createTestBillingCategory, updateTestBillingCategory,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
