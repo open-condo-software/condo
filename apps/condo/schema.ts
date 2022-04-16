@@ -3293,6 +3293,328 @@ export type BillingAccountsUpdateInput = {
   data?: Maybe<BillingAccountUpdateInput>;
 };
 
+export type BillingCategoriesCreateInput = {
+  data?: Maybe<BillingCategoryCreateInput>;
+};
+
+export type BillingCategoriesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BillingCategoryUpdateInput>;
+};
+
+/**  Payment category - used primarily in display purposes  */
+export type BillingCategory = {
+  __typename?: 'BillingCategory';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BillingCategory List config, or
+   *  2. As an alias to the field set on 'labelField' in the BillingCategory List config, or
+   *  3. As an alias to a 'name' field on the BillingCategory List (if one exists), or
+   *  4. As an alias to the 'id' field on the BillingCategory List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  /**  Localized name of billing category: Hot water, Cold water, Housing Services  */
+  name?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type BillingCategoryCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+/**  A keystone list  */
+export type BillingCategoryHistoryRecord = {
+  __typename?: 'BillingCategoryHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BillingCategoryHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the BillingCategoryHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the BillingCategoryHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the BillingCategoryHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BillingCategoryHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type BillingCategoryHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BillingCategoryHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum BillingCategoryHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type BillingCategoryHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BillingCategoryHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type BillingCategoryHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<BillingCategoryHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BillingCategoryHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<BillingCategoryHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<BillingCategoryHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<BillingCategoryHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<BillingCategoryHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type BillingCategoryHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type BillingCategoryHistoryRecordsCreateInput = {
+  data?: Maybe<BillingCategoryHistoryRecordCreateInput>;
+};
+
+export type BillingCategoryHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BillingCategoryHistoryRecordUpdateInput>;
+};
+
+export type BillingCategoryUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type BillingCategoryWhereInput = {
+  AND?: Maybe<Array<Maybe<BillingCategoryWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BillingCategoryWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type BillingCategoryWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
 /**  Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ...   */
 export type BillingIntegration = {
   __typename?: 'BillingIntegration';
@@ -13842,6 +14164,30 @@ export type Mutation = {
   deleteBillingRecipient?: Maybe<BillingRecipient>;
   /**  Delete multiple BillingRecipient items by ID.  */
   deleteBillingRecipients?: Maybe<Array<Maybe<BillingRecipient>>>;
+  /**  Create a single BillingCategoryHistoryRecord item.  */
+  createBillingCategoryHistoryRecord?: Maybe<BillingCategoryHistoryRecord>;
+  /**  Create multiple BillingCategoryHistoryRecord items.  */
+  createBillingCategoryHistoryRecords?: Maybe<Array<Maybe<BillingCategoryHistoryRecord>>>;
+  /**  Update a single BillingCategoryHistoryRecord item by ID.  */
+  updateBillingCategoryHistoryRecord?: Maybe<BillingCategoryHistoryRecord>;
+  /**  Update multiple BillingCategoryHistoryRecord items by ID.  */
+  updateBillingCategoryHistoryRecords?: Maybe<Array<Maybe<BillingCategoryHistoryRecord>>>;
+  /**  Delete a single BillingCategoryHistoryRecord item by ID.  */
+  deleteBillingCategoryHistoryRecord?: Maybe<BillingCategoryHistoryRecord>;
+  /**  Delete multiple BillingCategoryHistoryRecord items by ID.  */
+  deleteBillingCategoryHistoryRecords?: Maybe<Array<Maybe<BillingCategoryHistoryRecord>>>;
+  /**  Create a single BillingCategory item.  */
+  createBillingCategory?: Maybe<BillingCategory>;
+  /**  Create multiple BillingCategory items.  */
+  createBillingCategories?: Maybe<Array<Maybe<BillingCategory>>>;
+  /**  Update a single BillingCategory item by ID.  */
+  updateBillingCategory?: Maybe<BillingCategory>;
+  /**  Update multiple BillingCategory items by ID.  */
+  updateBillingCategories?: Maybe<Array<Maybe<BillingCategory>>>;
+  /**  Delete a single BillingCategory item by ID.  */
+  deleteBillingCategory?: Maybe<BillingCategory>;
+  /**  Delete multiple BillingCategory items by ID.  */
+  deleteBillingCategories?: Maybe<Array<Maybe<BillingCategory>>>;
   /**  Create a single TicketHistoryRecord item.  */
   createTicketHistoryRecord?: Maybe<TicketHistoryRecord>;
   /**  Create multiple TicketHistoryRecord items.  */
@@ -16577,6 +16923,68 @@ export type MutationDeleteBillingRecipientArgs = {
 
 
 export type MutationDeleteBillingRecipientsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateBillingCategoryHistoryRecordArgs = {
+  data?: Maybe<BillingCategoryHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateBillingCategoryHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BillingCategoryHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateBillingCategoryHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<BillingCategoryHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateBillingCategoryHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BillingCategoryHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteBillingCategoryHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBillingCategoryHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateBillingCategoryArgs = {
+  data?: Maybe<BillingCategoryCreateInput>;
+};
+
+
+export type MutationCreateBillingCategoriesArgs = {
+  data?: Maybe<Array<Maybe<BillingCategoriesCreateInput>>>;
+};
+
+
+export type MutationUpdateBillingCategoryArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<BillingCategoryUpdateInput>;
+};
+
+
+export type MutationUpdateBillingCategoriesArgs = {
+  data?: Maybe<Array<Maybe<BillingCategoriesUpdateInput>>>;
+};
+
+
+export type MutationDeleteBillingCategoryArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBillingCategoriesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -23741,6 +24149,22 @@ export type Query = {
   _allBillingRecipientsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the BillingRecipient list.  */
   _BillingRecipientsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BillingCategoryHistoryRecord items which match the where clause.  */
+  allBillingCategoryHistoryRecords?: Maybe<Array<Maybe<BillingCategoryHistoryRecord>>>;
+  /**  Search for the BillingCategoryHistoryRecord item with the matching ID.  */
+  BillingCategoryHistoryRecord?: Maybe<BillingCategoryHistoryRecord>;
+  /**  Perform a meta-query on all BillingCategoryHistoryRecord items which match the where clause.  */
+  _allBillingCategoryHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BillingCategoryHistoryRecord list.  */
+  _BillingCategoryHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BillingCategory items which match the where clause.  */
+  allBillingCategories?: Maybe<Array<Maybe<BillingCategory>>>;
+  /**  Search for the BillingCategory item with the matching ID.  */
+  BillingCategory?: Maybe<BillingCategory>;
+  /**  Perform a meta-query on all BillingCategory items which match the where clause.  */
+  _allBillingCategoriesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BillingCategory list.  */
+  _BillingCategoriesMeta?: Maybe<_ListMeta>;
   /**  Search for all TicketHistoryRecord items which match the where clause.  */
   allTicketHistoryRecords?: Maybe<Array<Maybe<TicketHistoryRecord>>>;
   /**  Search for the TicketHistoryRecord item with the matching ID.  */
@@ -25306,6 +25730,56 @@ export type Query_AllBillingRecipientsMetaArgs = {
   where?: Maybe<BillingRecipientWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortBillingRecipientsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllBillingCategoryHistoryRecordsArgs = {
+  where?: Maybe<BillingCategoryHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBillingCategoryHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryBillingCategoryHistoryRecordArgs = {
+  where: BillingCategoryHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllBillingCategoryHistoryRecordsMetaArgs = {
+  where?: Maybe<BillingCategoryHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBillingCategoryHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllBillingCategoriesArgs = {
+  where?: Maybe<BillingCategoryWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBillingCategoriesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryBillingCategoryArgs = {
+  where: BillingCategoryWhereUniqueInput;
+};
+
+
+export type Query_AllBillingCategoriesMetaArgs = {
+  where?: Maybe<BillingCategoryWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBillingCategoriesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -29889,6 +30363,48 @@ export enum SortBillingAccountsBy {
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortBillingCategoriesBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortBillingCategoryHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
 }
 
 export enum SortBillingIntegrationAccessRightHistoryRecordsBy {
