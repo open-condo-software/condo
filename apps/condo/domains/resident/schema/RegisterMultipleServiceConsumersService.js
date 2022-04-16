@@ -68,11 +68,7 @@ const RegisterMultipleServiceConsumersService = new GQLCustomSchema('RegisterSer
     types: [
         {
             access: true,
-            type: 'input RegisterMultipleServiceConsumerInputExtra { paymentCategory: String }',
-        },
-        {
-            access: true,
-            type: 'input RegisterMultipleServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, organizationId: ID!, extra: RegisterServiceConsumerInputExtra }',
+            type: 'input RegisterMultipleServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, organizationId: ID! }',
         },
     ],
 
@@ -84,7 +80,7 @@ const RegisterMultipleServiceConsumersService = new GQLCustomSchema('RegisterSer
                 errors,
             },
             access: access.canRegisterServiceConsumer,
-            schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
+            schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): [ServiceConsumer]',
             resolver: async (parent, args, context = {}) => {
                 const { data: { dv, sender, residentId, accountNumber, organizationId, extra } } = args
 
@@ -102,15 +98,12 @@ const RegisterMultipleServiceConsumersService = new GQLCustomSchema('RegisterSer
 
                 const unitName = get(resident, 'unitName', null)
 
-                const paymentCategory = get(extra, 'paymentCategory', null)
-
                 const attrs = {
                     dv,
                     sender,
                     resident: { connect: { id: residentId } },
                     accountNumber: accountNumber,
                     organization: { connect: { id: organization.id } },
-                    paymentCategory: paymentCategory,
                 }
 
                 const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
@@ -146,12 +139,12 @@ const RegisterMultipleServiceConsumersService = new GQLCustomSchema('RegisterSer
                 }
 
                 // Hack that helps to resolve all subfields in result of this mutation
-                return await getById('ServiceConsumer', id)
+                return [await getById('ServiceConsumer', id)]
             },
         },
     ],
 })
 
 module.exports = {
-    RegisterServiceConsumerService,
+    RegisterMultipleServiceConsumersService,
 }
