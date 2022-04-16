@@ -46,7 +46,7 @@ const errors = {
     },
 }
 
-async function getResidentBillingAccount (context, billingIntegrationContext, accountNumber, unitName) {
+async function getResidentBillingAccounts (context, billingIntegrationContext, accountNumber, unitName) {
     const billingAccountsInUnit = await BillingAccount.getAll(context, {
         context: { id: billingIntegrationContext.id },
         unitName: unitName,
@@ -82,7 +82,8 @@ const RegisterMultipleServiceConsumersService = new GQLCustomSchema('RegisterSer
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): [ServiceConsumer]',
             resolver: async (parent, args, context = {}) => {
-                const { data: { dv, sender, residentId, accountNumber, organizationId, extra } } = args
+
+                const { data: { dv, sender, residentId, accountNumber, organizationId } } = args
 
                 if (!accountNumber || accountNumber.length === 0) { throw new GQLError(errors.ACCOUNT_NUMBER_IS_NOT_SPECIFIED) }
 
@@ -98,7 +99,7 @@ const RegisterMultipleServiceConsumersService = new GQLCustomSchema('RegisterSer
 
                 const unitName = get(resident, 'unitName', null)
 
-                const attrs = {
+                const defaultServiceConsumerAttrs = {
                     dv,
                     sender,
                     resident: { connect: { id: residentId } },
@@ -106,40 +107,47 @@ const RegisterMultipleServiceConsumersService = new GQLCustomSchema('RegisterSer
                     organization: { connect: { id: organization.id } },
                 }
 
+                const serviceConsumersToRegisterAttrs = []
                 const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
                 if (billingIntegrationContext) {
                     const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
-                    const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
-                    attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
-                    attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
-                    attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
-                }
-                if (!attrs.billingAccount) {
-                    const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
-                    if (meters.length < 1) {
-                        throw new GQLError(errors.BILLING_ACCOUNT_NOT_FOUND)
+                    const billingAccounts = await getResidentBillingAccounts(context, billingIntegrationContext, accountNumber, unitName)
+
+                    if (Array.isArray(billingAccounts) && billingAccounts.length > 0) {
+                        for (const billingAccount of billingAccounts) {
+                            serviceConsumersToRegisterAttrs.push(
+                                {
+                                    ...{ defaultServiceConsumerAttrs },
+                                    billingAccount: billingAccount ? { connect: { id: billingAccount.id } } : null,
+                                    billingIntegrationContext: billingAccount ? { connect: { id: billingIntegrationContext.id } } : null,
+                                    acquiringIntegrationContext: billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
+                                }
+                            )
+                        }
                     }
                 }
 
-                const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
-                    resident: { id: residentId },
-                    accountNumber: accountNumber,
-                })
-
-                let id
-                if (existingServiceConsumer) {
-                    await ServiceConsumer.update(context, existingServiceConsumer.id, {
-                        ...attrs,
-                        deletedAt: null,
-                    })
-                    id = existingServiceConsumer.id
-                } else {
-                    const serviceConsumer = await ServiceConsumer.create(context, attrs)
-                    id = serviceConsumer.id
+                // If no billing accounts are found -> we check whether meter readings are found. If found -> we create one serviceConsumer for meter readings!
+                if (serviceConsumersToRegisterAttrs.length < 1) {
+                    const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
+                    if (meters.length < 1) {
+                        throw new GQLError(errors.BILLING_ACCOUNT_NOT_FOUND)
+                    } else {
+                        serviceConsumersToRegisterAttrs.push(
+                            ...defaultServiceConsumerAttrs
+                        )
+                    }
                 }
 
-                // Hack that helps to resolve all subfields in result of this mutation
-                return [await getById('ServiceConsumer', id)]
+                const resolvedServiceConsumers = []
+                for (const serviceConsumerToRegisterAttrs of serviceConsumersToRegisterAttrs) {
+                    const resolvedServiceConsumer = await ServiceConsumer.create(context, serviceConsumerToRegisterAttrs)
+
+                    // Hack that helps to resolve all subfields in result of this mutation
+                    resolvedServiceConsumers.push(getById('ServiceConsumer', resolvedServiceConsumer.id))
+                }
+
+                return await Promise.all(resolvedServiceConsumers)
             },
         },
     ],

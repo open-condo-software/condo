@@ -20,9 +20,9 @@ interface IHookResult<UI, UIForm, Q> {
     gql: any
     useObject: (variables: Q, memoize?: boolean) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
     useObjects: (variables: Q, memoize?: boolean) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q> }
-    useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
-    useUpdate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
-    useDelete: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
+    useCreate: (defaultServiceConsumerAttrs: UIForm, onComplete: (obj: UI) => void) => (defaultServiceConsumerAttrs: UIForm) => Promise<UI>
+    useUpdate: (defaultServiceConsumerAttrs: UIForm, onComplete: (obj: UI) => void) => (defaultServiceConsumerAttrs: UIForm, obj: UI) => Promise<UI>
+    useDelete: (defaultServiceConsumerAttrs: UIForm, onComplete: (obj: UI) => void) => (defaultServiceConsumerAttrs: UIForm) => Promise<UI>
 }
 
 export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>): IHookResult<UI, UIForm, Q> {
@@ -78,13 +78,13 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         }
     }
 
-    function useCreate (attrs: UIForm | Record<string, unknown> = {}, onComplete) {
-        if (typeof attrs !== 'object' || !attrs) throw new Error('useCreate(): invalid attrs argument')
+    function useCreate (defaultServiceConsumerAttrs: UIForm | Record<string, unknown> = {}, onComplete) {
+        if (typeof defaultServiceConsumerAttrs !== 'object' || !defaultServiceConsumerAttrs) throw new Error('useCreate(): invalid defaultServiceConsumerAttrs argument')
         const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
 
         async function _action (state: UIForm) {
             const { data, errors } = await rowAction({
-                variables: { data: convertToGQLInput({ ...state, ...attrs }) },
+                variables: { data: convertToGQLInput({ ...state, ...defaultServiceConsumerAttrs }) },
             })
             if (data && data.obj) {
                 const result = convertToUIState(data.obj)
@@ -101,8 +101,8 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         return useMemo(() => _action, [rowAction])
     }
 
-    function useUpdate (attrs = {}, onComplete) {
-        if (typeof attrs !== 'object' || !attrs) throw new Error('useUpdate(): invalid attrs argument')
+    function useUpdate (defaultServiceConsumerAttrs = {}, onComplete) {
+        if (typeof defaultServiceConsumerAttrs !== 'object' || !defaultServiceConsumerAttrs) throw new Error('useUpdate(): invalid defaultServiceConsumerAttrs argument')
         const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
 
         async function _action (state, obj) {
@@ -110,7 +110,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
             const { data, errors } = await rowAction({
                 variables: {
                     id: obj.id,
-                    data: convertToGQLInput({ ...state, ...attrs }, obj),
+                    data: convertToGQLInput({ ...state, ...defaultServiceConsumerAttrs }, obj),
                 },
             })
             if (data && data.obj) {
@@ -128,8 +128,8 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
         return useMemo(() => _action, [rowAction])
     }
 
-    function useDelete (attrs = {}, onComplete) {
-        if (typeof attrs !== 'object' || !attrs) throw new Error('useDelete(): invalid attrs argument')
+    function useDelete (defaultServiceConsumerAttrs = {}, onComplete) {
+        if (typeof defaultServiceConsumerAttrs !== 'object' || !defaultServiceConsumerAttrs) throw new Error('useDelete(): invalid defaultServiceConsumerAttrs argument')
         const [rowAction] = useMutation(gql.DELETE_OBJ_MUTATION)
 
         async function _action (obj) {

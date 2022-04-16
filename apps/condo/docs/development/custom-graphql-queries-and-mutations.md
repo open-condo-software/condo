@@ -35,7 +35,7 @@ const SyncDeviceService = new GQLCustomSchema('SyncDeviceService', {
                 // some logic
                 // ...
                 
-                const data = await DeviceAPI.updateOrCreate(context, where, attrs)
+                const data = await DeviceAPI.updateOrCreate(context, where, defaultServiceConsumerAttrs)
                 const result = await getById('Device', data.id)
 
                 return result

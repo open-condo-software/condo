@@ -44,20 +44,20 @@ function generateGQLTestUtils (gql) {
         return data.meta.count
     }
 
-    async function create (client, attrs = {}, { raw = false } = {}) {
+    async function create (client, defaultServiceConsumerAttrs = {}, { raw = false } = {}) {
         checkClient(client)
         const { data, errors } = await client.mutate(gql.CREATE_OBJ_MUTATION, {
-            data: { ...attrs },
+            data: { ...defaultServiceConsumerAttrs },
         })
         if (raw) return { data, errors }
         throwIfError(data, errors)
         return data.obj
     }
 
-    async function update (client, id, attrs = {}, { raw = false } = {}) {
+    async function update (client, id, defaultServiceConsumerAttrs = {}, { raw = false } = {}) {
         checkClient(client)
         const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, {
-            id, data: { ...attrs },
+            id, data: { ...defaultServiceConsumerAttrs },
         })
         if (raw) return { data, errors }
         throwIfError(data, errors)
