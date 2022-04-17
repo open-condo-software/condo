@@ -66,9 +66,15 @@ class GqlWithKnexLoadList {
             knexQuery.groupBy('mainModel.id')
         }
         this.singleRelations.forEach(([ Model, fieldName, value ], idx) => {
-            knexQuery.select(`sr${idx}.${value} as ${fieldName}`)
-            if (this.multipleRelations.length !== 0) {
-                knexQuery.groupBy(`sr${idx}.${value}`)
+            if (typeof value === 'object') {
+                Object.entries(value).map(({ fieldName, joinName }) => {
+                    knexQuery.select(`sr${idx}.${value} as ${fieldName}`)
+                })
+            } else {
+                knexQuery.select(`sr${idx}.${value} as ${fieldName}`)
+                if (this.multipleRelations.length !== 0) {
+                    knexQuery.groupBy(`sr${idx}.${value}`)
+                }
             }
             knexQuery.leftJoin(`${Model} as sr${idx}`, `sr${idx}.id`, `mainModel.${fieldName}`)
         })
@@ -87,6 +93,7 @@ class GqlWithKnexLoadList {
         return Object.values(merged)
     }
 }
+
 // Simple way to load all models
 const loadListByChunks = async ({
     context,

@@ -242,9 +242,9 @@ const TicketContent = ({ ticket }) => {
     }, [LessThenDayMessage, OverdueMessage, ToCompleteMessage, ticketDeadline])
 
     const ticketClassifierNames = useMemo(() => compact([
-        get(ticket, ['placeClassifier', 'name']),
-        get(ticket, ['categoryClassifier', 'name']),
-        get(ticket, ['problemClassifier', 'name']),
+        get(ticket, ['classifierRule', 'place', 'name']),
+        get(ticket, ['classifierRule', 'category', 'name']),
+        get(ticket, ['classifierRule', 'problem', 'name']),
     ]), [ticket])
 
     const getClassifierTextType = useCallback(

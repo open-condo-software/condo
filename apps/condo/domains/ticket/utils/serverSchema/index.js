@@ -59,6 +59,17 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
         listKey: 'TicketStatus',
         fields: 'id type',
     })
+    const ticketRules = new GqlWithKnexLoadList({
+        listKey: 'TicketClassifierRule',
+        fields: 'id',
+        singleRelations: [
+            ['TicketCategoryClassifier', 'category', 'name'],
+            ['TicketPlaceClassifier', 'place', 'name'],
+            ['TicketProblemClassifier', 'problem', 'name'],
+        ],
+    })
+    const rules = await ticketRules.load()
+    const ruleIndex = Object.fromEntries(rules.map(({ id, ...rule }) => ([ id, rule ])))
     const statuses = await ticketStatusLoader.load()
     const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id ])))
     const ticketsLoader = new GqlWithKnexLoadList({
@@ -69,9 +80,7 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
             ['User', 'operator', 'name'],
             ['User', 'executor', 'name'],
             ['User', 'assignee', 'name'],
-            ['TicketPlaceClassifier', 'placeClassifier', 'name'],
-            ['TicketCategoryClassifier', 'categoryClassifier', 'name'],
-            ['TicketProblemClassifier', 'problemClassifier', 'name'],
+            ['TicketClassifierRule', 'classifierRule', 'id'],
             ['Organization', 'organization', 'name'],
             ['Property', 'property', 'address'],
             ['TicketStatus', 'status', 'type'],
@@ -99,14 +108,15 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
         where,
     })
     const tickets = await ticketsLoader.load()
-    tickets.forEach(ticket => {
+    const processedTickets = tickets.map(ticket => {
         // if task has assigner then it was started on creation
         if (ticket.assignee && !ticket.startedAt && ticket.status !== 'new_or_reopened'){
             ticket.startedAt = ticket.createdAt
         }
         ticket.TicketComment = compact(ticket.TicketComment)
+        return { ...ticket, ...ruleIndex[ticket.classifierRule]}
     })
-    return tickets
+    return processedTickets
 }
 
 

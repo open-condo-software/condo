@@ -59,6 +59,9 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
                     [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
                 }
+                const isEmergency = i18n('ticket.export.isEmergency', { locale })
+                const isWarranty = i18n('ticket.export.isWarranty', { locale })
+                const isPaid = i18n('ticket.export.isPaid', { locale })
 
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
                 if (allTickets.length === 0) {
@@ -76,12 +79,12 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         clientName: ticket.clientName,
                         clientPhone: ticket.clientPhone,
                         details: ticket.details,
-                        isEmergency: ticket.isEmergency ? 'X' : '',
-                        isWarranty: ticket.isWarranty ? 'X' : '',
-                        isPaid: ticket.isPaid ? 'X' : '',
-                        place: ticket.placeClassifier || '',
-                        category: ticket.categoryClassifier || '',
-                        description: ticket.problemClassifier || '',
+                        isEmergency: ticket.isEmergency ? isEmergency : '',
+                        isWarranty: ticket.isWarranty ? isWarranty : '',
+                        isPaid: ticket.isPaid ? isPaid : '',
+                        place: ticket.place || '',
+                        category: ticket.category || '',
+                        description: ticket.problem || '',
                         createdAt: formatDate(ticket.createdAt),
                         updatedAt: formatDate(ticket.updatedAt),
                         inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : '',
