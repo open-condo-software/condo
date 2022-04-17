@@ -10,6 +10,16 @@ const { StaticApp } = require('@keystonejs/app-static')
 const { NextApp } = require('@keystonejs/app-next')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 
+const { introspectSchema, RenameTypes, RenameRootFields } = require('@graphql-tools/wrap')
+const { loadSchema } = require('@graphql-tools/load')
+const { graphqlHTTP } = require('express-graphql')
+const { stitchSchemas } = require('@graphql-tools/stitch')
+const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader')
+const makeRemoteExecutor = require('./introspection')
+const CONDO_URL = 'https://2aed-46-48-110-105.eu.ngrok.io/admin/api'
+const APP_URL = 'https://952e-46-48-110-105.eu.ngrok.io/admin/api'
+
+
 const conf = require('@core/config')
 const { EmptyApp } = require('@core/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
@@ -154,6 +164,44 @@ class CondoOIDCMiddleware {
     }
 }
 
+async function makeGatewaySchema () {
+    const condoExecutor = makeRemoteExecutor(CONDO_URL)
+    const appExecutor = makeRemoteExecutor(APP_URL)
+
+    return stitchSchemas({
+        subschemas: [
+            {
+                schema: await loadSchema('./schema.graphql', {
+                    loaders: [new GraphQLFileLoader()],
+                }),
+                executor: appExecutor,
+                transforms: [
+                    new RenameTypes((name) => `App${name}`),
+                    new RenameRootFields((op, name) => `app${name.charAt(0).toUpperCase()}${name.slice(1)}`),
+                ],
+            },
+            {
+                schema: await introspectSchema(condoExecutor),
+                executor: condoExecutor,
+            },
+        ],
+    })
+}
+
+class MergeSchemasMiddleware {
+    async prepareMiddleware () {
+        const schema = await makeGatewaySchema()
+        const app = express()
+        app.use('/graphql', graphqlHTTP((req) => ({
+            schema,
+            // NOTE: Extract 2 tokens here and pass something like condoAuthToken and appAuthToken
+            context: { authHeader: req.headers.authorization },
+            graphiql: true,
+        })))
+        return app
+    }
+}
+
 module.exports = {
     keystone,
     apps: [
@@ -162,7 +210,7 @@ module.exports = {
             apollo: {
                 formatError,
                 debug: IS_ENABLE_APOLLO_DEBUG,
-                introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                introspection: true,
                 playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
             },
         }),
@@ -172,6 +220,7 @@ module.exports = {
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
             authStrategy,
         }),
+        new MergeSchemasMiddleware(),
         conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),
     ],
     configureExpress: (app) => {

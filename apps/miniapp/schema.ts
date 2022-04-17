@@ -131,11 +131,20 @@ export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
 
+export type SenderField = {
+  __typename?: 'SenderField';
+  dv: Scalars['Int'];
+  fingerprint: Scalars['String'];
+};
+
+export type SenderFieldInput = {
+  dv: Scalars['Int'];
+  fingerprint: Scalars['String'];
+};
+
 export enum SortUsersBy {
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
   TypeAsc = 'type_ASC',
@@ -144,6 +153,10 @@ export enum SortUsersBy {
   IsAdminDesc = 'isAdmin_DESC',
   IsSupportAsc = 'isSupport_ASC',
   IsSupportDesc = 'isSupport_DESC',
+  EmailAsc = 'email_ASC',
+  EmailDesc = 'email_DESC',
+  IsLocalAsc = 'isLocal_ASC',
+  IsLocalDesc = 'isLocal_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -155,7 +168,9 @@ export enum SortUsersBy {
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC'
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 
@@ -172,16 +187,20 @@ export type User = {
   _label_?: Maybe<Scalars['String']>;
   /**  condo.User.v  */
   v?: Maybe<Scalars['Int']>;
-  /**  condo.User.dv  */
-  dv?: Maybe<Scalars['Int']>;
   /**  condo.User.name  */
   name?: Maybe<Scalars['String']>;
   /**  condo.User.type  */
-  type?: Maybe<Scalars['String']>;
+  type?: Maybe<UserTypeType>;
   /**  condo.User.isAdmin  */
   isAdmin?: Maybe<Scalars['Boolean']>;
   /**  condo.User.isSupport  */
   isSupport?: Maybe<Scalars['Boolean']>;
+  /**  condo.User.email  */
+  email?: Maybe<Scalars['String']>;
+  /**  Is this a local user (not from oidc auth). We use such users for test purposes. Usecase: you need to check the app locally without the OIDC server or you need to run tests  */
+  isLocal?: Maybe<Scalars['Boolean']>;
+  /**  Password. Update only (for local auth without oidc). Check the `isLocal` field docs  */
+  password_is_set?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -189,21 +208,29 @@ export type User = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
 };
 
 export type UserCreateInput = {
   v?: Maybe<Scalars['Int']>;
-  dv?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
+  type?: Maybe<UserTypeType>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
+  email?: Maybe<Scalars['String']>;
+  isLocal?: Maybe<Scalars['Boolean']>;
+  password?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 export type UserRelateToOneInput = {
@@ -213,19 +240,29 @@ export type UserRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+export enum UserTypeType {
+  Staff = 'staff',
+  Resident = 'resident',
+  Service = 'service'
+}
+
 export type UserUpdateInput = {
   v?: Maybe<Scalars['Int']>;
-  dv?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
+  type?: Maybe<UserTypeType>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
+  email?: Maybe<Scalars['String']>;
+  isLocal?: Maybe<Scalars['Boolean']>;
+  password?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 export type UserWhereInput = {
@@ -239,14 +276,6 @@ export type UserWhereInput = {
   v_gte?: Maybe<Scalars['Int']>;
   v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
@@ -265,28 +294,35 @@ export type UserWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  type?: Maybe<Scalars['String']>;
-  type_not?: Maybe<Scalars['String']>;
-  type_contains?: Maybe<Scalars['String']>;
-  type_not_contains?: Maybe<Scalars['String']>;
-  type_starts_with?: Maybe<Scalars['String']>;
-  type_not_starts_with?: Maybe<Scalars['String']>;
-  type_ends_with?: Maybe<Scalars['String']>;
-  type_not_ends_with?: Maybe<Scalars['String']>;
-  type_i?: Maybe<Scalars['String']>;
-  type_not_i?: Maybe<Scalars['String']>;
-  type_contains_i?: Maybe<Scalars['String']>;
-  type_not_contains_i?: Maybe<Scalars['String']>;
-  type_starts_with_i?: Maybe<Scalars['String']>;
-  type_not_starts_with_i?: Maybe<Scalars['String']>;
-  type_ends_with_i?: Maybe<Scalars['String']>;
-  type_not_ends_with_i?: Maybe<Scalars['String']>;
-  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<UserTypeType>;
+  type_not?: Maybe<UserTypeType>;
+  type_in?: Maybe<Array<Maybe<UserTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<UserTypeType>>>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isAdmin_not?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   isSupport_not?: Maybe<Scalars['Boolean']>;
+  email?: Maybe<Scalars['String']>;
+  email_not?: Maybe<Scalars['String']>;
+  email_contains?: Maybe<Scalars['String']>;
+  email_not_contains?: Maybe<Scalars['String']>;
+  email_starts_with?: Maybe<Scalars['String']>;
+  email_not_starts_with?: Maybe<Scalars['String']>;
+  email_ends_with?: Maybe<Scalars['String']>;
+  email_not_ends_with?: Maybe<Scalars['String']>;
+  email_i?: Maybe<Scalars['String']>;
+  email_not_i?: Maybe<Scalars['String']>;
+  email_contains_i?: Maybe<Scalars['String']>;
+  email_not_contains_i?: Maybe<Scalars['String']>;
+  email_starts_with_i?: Maybe<Scalars['String']>;
+  email_not_starts_with_i?: Maybe<Scalars['String']>;
+  email_ends_with_i?: Maybe<Scalars['String']>;
+  email_not_ends_with_i?: Maybe<Scalars['String']>;
+  email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isLocal?: Maybe<Scalars['Boolean']>;
+  isLocal_not?: Maybe<Scalars['Boolean']>;
+  password_is_set?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -323,6 +359,18 @@ export type UserWhereInput = {
   newId_not?: Maybe<Scalars['String']>;
   newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
 };
 
 export type UserWhereUniqueInput = {

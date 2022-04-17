@@ -15,7 +15,7 @@ import { useIntl, withIntl } from '@core/next/intl'
 import { messagesImporter as condoMessageImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
-import { BaseLayout, LayoutContextProvider } from '@miniapp/domains/common/components/BaseLayout'
+import EmptyLayout from '@condo/domains/common/components/containers/EmptyLayout'
 import dayjs from 'dayjs'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
@@ -33,7 +33,7 @@ const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
     dayjs.locale(intl.locale)
 
-    const LayoutComponent = Component.container || BaseLayout
+    const LayoutComponent = Component.container || EmptyLayout
     return (
         <ConfigProvider locale={ANT_LOCALES[intl.locale || 'en']} componentSize={'large'}>
             <CacheProvider value={cache}>
@@ -45,11 +45,9 @@ const MyApp = ({ Component, pageProps }) => {
                     />
                 </Head>
                 <GlobalStyle/>
-                <LayoutContextProvider>
-                    <LayoutComponent>
-                        <Component {...pageProps} />
-                    </LayoutComponent>
-                </LayoutContextProvider>
+                <LayoutComponent>
+                    <Component {...pageProps} />
+                </LayoutComponent>
             </CacheProvider>
         </ConfigProvider>
     )
