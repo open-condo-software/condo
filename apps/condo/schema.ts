@@ -33516,6 +33516,10 @@ export enum SortTicketChangesBy {
   LastResidentCommentAtFromDesc = 'lastResidentCommentAtFrom_DESC',
   LastResidentCommentAtToAsc = 'lastResidentCommentAtTo_ASC',
   LastResidentCommentAtToDesc = 'lastResidentCommentAtTo_DESC',
+  LastEmployeeAnsweredToResidentAtFromAsc = 'lastEmployeeAnsweredToResidentAtFrom_ASC',
+  LastEmployeeAnsweredToResidentAtFromDesc = 'lastEmployeeAnsweredToResidentAtFrom_DESC',
+  LastEmployeeAnsweredToResidentAtToAsc = 'lastEmployeeAnsweredToResidentAtTo_ASC',
+  LastEmployeeAnsweredToResidentAtToDesc = 'lastEmployeeAnsweredToResidentAtTo_DESC',
   OrganizationIdFromAsc = 'organizationIdFrom_ASC',
   OrganizationIdFromDesc = 'organizationIdFrom_DESC',
   OrganizationIdToAsc = 'organizationIdTo_ASC',
@@ -33959,6 +33963,8 @@ export enum SortTicketHistoryRecordsBy {
   UnitTypeDesc = 'unitType_DESC',
   LastResidentCommentAtAsc = 'lastResidentCommentAt_ASC',
   LastResidentCommentAtDesc = 'lastResidentCommentAt_DESC',
+  LastEmployeeAnsweredToResidentAtAsc = 'lastEmployeeAnsweredToResidentAt_ASC',
+  LastEmployeeAnsweredToResidentAtDesc = 'lastEmployeeAnsweredToResidentAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -34238,6 +34244,8 @@ export enum SortTicketsBy {
   SourceDesc = 'source_DESC',
   LastResidentCommentAtAsc = 'lastResidentCommentAt_ASC',
   LastResidentCommentAtDesc = 'lastResidentCommentAt_DESC',
+  LastEmployeeAnsweredToResidentAtAsc = 'lastEmployeeAnsweredToResidentAt_ASC',
+  LastEmployeeAnsweredToResidentAtDesc = 'lastEmployeeAnsweredToResidentAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -34584,6 +34592,8 @@ export type Ticket = {
   sourceMeta?: Maybe<Scalars['JSON']>;
   /**  Time of last resident comment in this ticket  */
   lastResidentCommentAt?: Maybe<Scalars['String']>;
+  /**  Time of last employee answer to resident comment in this ticket  */
+  lastEmployeeAnsweredToResidentAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -35111,6 +35121,10 @@ export type TicketChange = {
   lastResidentCommentAtFrom?: Maybe<Scalars['String']>;
   /**  Time of last resident comment in this ticket  */
   lastResidentCommentAtTo?: Maybe<Scalars['String']>;
+  /**  Time of last employee answer to resident comment in this ticket  */
+  lastEmployeeAnsweredToResidentAtFrom?: Maybe<Scalars['String']>;
+  /**  Time of last employee answer to resident comment in this ticket  */
+  lastEmployeeAnsweredToResidentAtTo?: Maybe<Scalars['String']>;
   /**  Old id of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organizationIdFrom?: Maybe<Scalars['ID']>;
   /**  New id of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist  */
@@ -35295,6 +35309,8 @@ export type TicketChangeCreateInput = {
   sourceMetaTo?: Maybe<Scalars['JSON']>;
   lastResidentCommentAtFrom?: Maybe<Scalars['String']>;
   lastResidentCommentAtTo?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtFrom?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtTo?: Maybe<Scalars['String']>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
   organizationIdTo?: Maybe<Scalars['ID']>;
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -35426,6 +35442,8 @@ export type TicketChangeUpdateInput = {
   sourceMetaTo?: Maybe<Scalars['JSON']>;
   lastResidentCommentAtFrom?: Maybe<Scalars['String']>;
   lastResidentCommentAtTo?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtFrom?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtTo?: Maybe<Scalars['String']>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
   organizationIdTo?: Maybe<Scalars['ID']>;
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -36006,6 +36024,22 @@ export type TicketChangeWhereInput = {
   lastResidentCommentAtTo_gte?: Maybe<Scalars['String']>;
   lastResidentCommentAtTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   lastResidentCommentAtTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastEmployeeAnsweredToResidentAtFrom?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtFrom_not?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtFrom_lt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtFrom_lte?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtFrom_gt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtFrom_gte?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastEmployeeAnsweredToResidentAtFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastEmployeeAnsweredToResidentAtTo?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtTo_not?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtTo_lt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtTo_lte?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtTo_gt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtTo_gte?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAtTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastEmployeeAnsweredToResidentAtTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
   organizationIdFrom_not?: Maybe<Scalars['ID']>;
   organizationIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -38156,6 +38190,7 @@ export type TicketCreateInput = {
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   lastResidentCommentAt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38931,6 +38966,7 @@ export type TicketHistoryRecord = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   lastResidentCommentAt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -38987,6 +39023,7 @@ export type TicketHistoryRecordCreateInput = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   lastResidentCommentAt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -39048,6 +39085,7 @@ export type TicketHistoryRecordUpdateInput = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   lastResidentCommentAt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -39415,6 +39453,14 @@ export type TicketHistoryRecordWhereInput = {
   lastResidentCommentAt_gte?: Maybe<Scalars['String']>;
   lastResidentCommentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   lastResidentCommentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastEmployeeAnsweredToResidentAt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_not?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_lt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_lte?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_gt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_gte?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastEmployeeAnsweredToResidentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -41054,6 +41100,7 @@ export type TicketUpdateInput = {
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   lastResidentCommentAt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -41370,6 +41417,14 @@ export type TicketWhereInput = {
   lastResidentCommentAt_gte?: Maybe<Scalars['String']>;
   lastResidentCommentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   lastResidentCommentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastEmployeeAnsweredToResidentAt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_not?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_lt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_lte?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_gt?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_gte?: Maybe<Scalars['String']>;
+  lastEmployeeAnsweredToResidentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastEmployeeAnsweredToResidentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

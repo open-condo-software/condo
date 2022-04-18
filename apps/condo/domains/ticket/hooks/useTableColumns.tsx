@@ -22,7 +22,13 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { TicketStatus, UserTicketCommentRead } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
-import { getDeadlineType, getHumanizeDeadlineDateDifference, IFilters, TicketDeadlineType } from '../utils/helpers'
+import {
+    getDeadlineType,
+    getHumanizeDeadlineDateDifference,
+    hasUnreadResidentComments,
+    IFilters,
+    TicketDeadlineType,
+} from '../utils/helpers'
 import { getTicketClientNameRender, getTicketDetailsRender } from '../utils/clientSchema/Renders'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
@@ -224,17 +230,11 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
         }
 
         const userTicketCommentRead = userTicketsCommentRead.find(obj => obj.ticket.id === ticket.id)
-        const readResidentCommentAt = get(userTicketCommentRead, 'readResidentCommentAt')
-        const lastResidentCommentAt = get(ticket, 'lastResidentCommentAt')
-        let postfix
-
-        if (readResidentCommentAt && lastResidentCommentAt && dayjs(lastResidentCommentAt).isAfter(readResidentCommentAt)) {
-            postfix = (
-                <Typography.Paragraph title={''} style={{ position: 'relative', left: '-30px' }}>
-                    <div style={{ width: '4px', height: '4px', borderRadius: '100px', backgroundColor: '#FF3B30' }}/>
-                </Typography.Paragraph>
-            )
-        }
+        const postfix = hasUnreadResidentComments(userTicketCommentRead, ticket) && (
+            <Typography.Paragraph title={''} style={{ position: 'relative', left: '-30px' }}>
+                <div style={{ width: '4px', height: '4px', borderRadius: '100px', backgroundColor: '#FF3B30' }}/>
+            </Typography.Paragraph>
+        )
 
         return getTableCellRenderer(search, false, postfix, extraHighlighterProps, null, extraTitle)(number)
     }, [LessThenDayMessage, OverdueMessage, search, userTicketsCommentRead])

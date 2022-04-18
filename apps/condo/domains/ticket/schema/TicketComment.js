@@ -83,14 +83,21 @@ const TicketComment = new GQLListSchema('TicketComment', {
             if (operation === 'create' && commentType === RESIDENT_COMMENT_TYPE) {
                 const ticketId = get(resolvedData, 'ticket')
                 const sender = get(resolvedData, 'sender')
+                const now = new Date().toISOString()
 
                 if (userType === RESIDENT) {
                     await Ticket.update(context, ticketId, {
                         dv: 1,
                         sender,
-                        lastResidentCommentAt: new Date().toISOString(),
+                        lastResidentCommentAt: now,
                     })
-                } else if (userType === STAFF) {
+                } else {
+                    await Ticket.update(context, ticketId, {
+                        dv: 1,
+                        sender,
+                        lastEmployeeAnsweredToResidentAt: now,
+                    })
+
                     const userTicketCommentReadObjects = await find('UserTicketCommentRead', {
                         ticket: { id: ticketId },
                     })
@@ -99,7 +106,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
                         await UserTicketCommentRead.update(context, id, {
                             dv: 1,
                             sender,
-                            readResidentCommentAt: new Date().toISOString(),
+                            readResidentCommentAt: now,
                         })
                     }
                 }

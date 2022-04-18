@@ -13,6 +13,8 @@ import { UserTicketCommentRead } from '@condo/domains/ticket/utils/clientSchema'
 import { useAuth } from '@core/next/auth'
 import { get } from 'lodash'
 import dayjs from 'dayjs'
+import { ITicketUIState } from '../../../ticket/utils/clientSchema/Ticket'
+import { hasUnreadResidentComments } from '../../../ticket/utils/helpers'
 
 export type TCommentFile = {
     id: string
@@ -224,8 +226,7 @@ const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) =>
 )
 
 interface ICommentsListProps {
-    ticketId: string
-    lastResidentCommentAt: string
+    ticket: ITicketUIState,
     comments: TComment[],
     createAction?: (formValues) => Promise<TComment>,
     updateAction?: (attrs, obj: TComment) => Promise<TComment>
@@ -236,8 +237,7 @@ interface ICommentsListProps {
 }
 
 const Comments: React.FC<ICommentsListProps> = ({
-    ticketId,
-    lastResidentCommentAt,
+    ticket,
     comments,
     createAction,
     updateAction,
@@ -255,6 +255,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
 
+    const { user } = useAuth()
     const { isSmall } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const [editableComment, setEditableComment] = useState<TComment>()
@@ -264,7 +265,7 @@ const Comments: React.FC<ICommentsListProps> = ({
         setSending(true)
 
         if (editableComment) {
-            updateAction(values, editableComment)
+            await updateAction(values, editableComment)
             await syncModifiedFiles(editableComment.id)
             setEditableComment(null)
         } else {
@@ -283,8 +284,7 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     const commentsWithOrganization = comments.filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE)
     const commentsWithResident = comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE)
-
-    const { user } = useAuth()
+    const ticketId = get(ticket, 'id')
 
     const { obj: userTicketCommentRead, refetch } = UserTicketCommentRead.useObject({
         where: {
@@ -315,7 +315,7 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
     }, [createUserTicketCommentRead, updateUserTicketCommentRead, userTicketCommentRead])
 
-    const lastEmployeeReadResidentComment = get(userTicketCommentRead, 'readResidentCommentAt')
+    const showIndicator = useMemo(() => hasUnreadResidentComments(userTicketCommentRead, ticket), [ticket, userTicketCommentRead])
 
     return (
         <Container isSmall={isSmall}>
@@ -352,11 +352,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                             <CommentsTabPaneLabel
                                 label={ResidentCommentsMessage}
                                 commentsCount={commentsWithResident.length}
-                                newCommentsIndicator={
-                                    lastEmployeeReadResidentComment && lastResidentCommentAt && (
-                                        dayjs(lastResidentCommentAt).isAfter(lastEmployeeReadResidentComment)
-                                    )
-                                }
+                                newCommentsIndicator={showIndicator}
                             />
                         }
                         key={RESIDENT_COMMENT_TYPE}
