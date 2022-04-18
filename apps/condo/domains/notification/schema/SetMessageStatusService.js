@@ -34,7 +34,7 @@ const SetMessageStatusService = new GQLCustomSchema('SetMessageStatusService', {
         },
         {
             access: true,
-            type: 'type SetMessageStatusOutput { status: String! }',
+            type: 'type SetMessageStatusOutput { id: ID!, status: String! }',
         },
     ],
     
