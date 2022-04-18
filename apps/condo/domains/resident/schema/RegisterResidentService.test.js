@@ -21,7 +21,7 @@ const { registerResidentByTestClient, Resident } = require('@condo/domains/resid
 
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
-const { FLAT_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
 describe('manageResidentToPropertyAndOrganizationConnections worker task tests', () => {
     it('connects new property with matched address to existing orphan residents (no other props)', async () => {
@@ -537,5 +537,22 @@ describe('RegisterResidentService', () => {
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
         expect(obj.user.id).toEqual(userClient.user.id)
         expect(obj.unitType).toEqual(unitType)
+    })
+
+    it('should create new resident object if another unitType was passed to input', async () => {
+        const userClient = await makeClientWithResidentUser()
+        const [obj, attrs] = await registerResidentByTestClient(userClient, { unitType: FLAT_UNIT_TYPE })
+        const [obj1] = await registerResidentByTestClient(userClient, {
+            ...attrs,
+            unitType: PARKING_UNIT_TYPE,
+        })
+
+        expect(obj.id).not.toEqual(obj1.id)
+        expect(obj.address).toEqual(obj1.address)
+        expect(obj.user.id).toEqual(obj1.user.id)
+        expect(obj.unitName).toEqual(obj1.unitName)
+        expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
+        expect(obj1.unitType).toEqual(PARKING_UNIT_TYPE)
+        expect(obj.unitName).toEqual(obj1.unitName)
     })
 })
