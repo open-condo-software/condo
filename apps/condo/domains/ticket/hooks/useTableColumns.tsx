@@ -34,6 +34,8 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
 import { TicketTag } from '../components/TicketTag'
 import { useAuth } from '@core/next/auth'
+import { Tooltip } from '../../common/components/Tooltip'
+import styled from '@emotion/styled'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -229,11 +231,21 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             }
         }
 
+        const NewCommentIndicator = styled(Typography.Text)`
+            display: block;
+            width: 8px; 
+            height: 8px; 
+            border-radius: 100px; 
+            background-color: #FF3B30;
+        `
+
         const userTicketCommentRead = userTicketsCommentRead.find(obj => obj.ticket.id === ticket.id)
         const postfix = hasUnreadResidentComments(userTicketCommentRead, ticket) && (
-            <Typography.Paragraph title={''} style={{ position: 'relative', left: '-30px' }}>
-                <div style={{ width: '4px', height: '4px', borderRadius: '100px', backgroundColor: '#FF3B30' }}/>
-            </Typography.Paragraph>
+            <div style={{ position: 'relative', left: '-40px' }}>
+                <Tooltip title={'Новый комментарий жителя'} placement={'topRight'}>
+                    <NewCommentIndicator style={{ display: 'block' }} title={''} />
+                </Tooltip>
+            </div>
         )
 
         return getTableCellRenderer(search, false, postfix, extraHighlighterProps, null, extraTitle)(number)
