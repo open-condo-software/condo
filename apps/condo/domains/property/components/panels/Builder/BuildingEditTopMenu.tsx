@@ -52,6 +52,11 @@ const MenuCss = css`
     align-items: center;
     border: 1px solid ${colors.backgroundWhiteSecondary};
   }
+  & .ant-dropdown-menu-item button:disabled {
+    background-color: transparent;
+    color: ${colors.black};
+    opacity: 0.5;
+  }
   & .ant-dropdown-menu-item button svg {
     margin-right: 8px;
     z-index: 1;
@@ -91,7 +96,7 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     {AddUnit}
                 </Button>
             </Menu.Item>
-            <Menu.Item key={'addInterFloorRoom'}>
+            <Menu.Item key={'addInterFloorRoom'} disabled>
                 <Button type={'sberDefaultGradient'} secondary disabled icon={<InterFloorIcon />}>
                     {AddInterFloorRoom}
                 </Button>
@@ -101,7 +106,7 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     {AddParkingLabel}
                 </Button>
             </Menu.Item>
-            <Menu.Item key={'addParkingFloor'}>
+            <Menu.Item key={'addParkingFloor'} disabled>
                 <Button type={'sberDefaultGradient'} secondary disabled icon={<ParkingFloorIcon />}>
                     {AddParkingFloor}
                 </Button>
