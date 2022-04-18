@@ -217,9 +217,7 @@ const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) =>
         </sup>
         {
             newCommentsIndicator && (
-                <sup>
-                    newComments
-                </sup>
+                <div style={{ width: '4px', height: '4px', borderRadius: '100px', backgroundColor: '#FF3B30' }}/>
             )
         }
     </>

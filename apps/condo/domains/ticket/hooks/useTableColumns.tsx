@@ -20,13 +20,14 @@ import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { TicketStatus } from '../utils/clientSchema'
+import { TicketStatus, UserTicketCommentRead } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { getDeadlineType, getHumanizeDeadlineDateDifference, IFilters, TicketDeadlineType } from '../utils/helpers'
 import { getTicketClientNameRender, getTicketDetailsRender } from '../utils/clientSchema/Renders'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
 import { TicketTag } from '../components/TicketTag'
+import { useAuth } from '@core/next/auth'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -56,7 +57,7 @@ const COLUMNS_WIDTH_SMALLER_XXL_SCREEN = {
     assignee: '13%',
 }
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
+export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets) {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
@@ -79,7 +80,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
 
     const router = useRouter()
-    const { filters, sorters } = parseQuery(router.query)
+    const { filters, sorters, offset } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
     const search = getFilteredValue(filters, 'search')
     const { breakpoints } = useLayoutContext()
@@ -184,6 +185,18 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
         [search])
 
+    const { user } = useAuth()
+
+    const ticketIds = tickets.map(ticket => ticket.id)
+    const { objs: userTicketsCommentRead } = UserTicketCommentRead.useObjects({
+        where: {
+            user: { id: user.id },
+            ticket: {
+                id_in: ticketIds,
+            },
+        },
+    })
+
     const renderNumber = useCallback((number, ticket) => {
         const deadline = dayjs(get(ticket, 'deadline'))
         let extraHighlighterProps
@@ -210,8 +223,21 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
             }
         }
 
-        return getTableCellRenderer(search, false, null, extraHighlighterProps, null, extraTitle)(number)
-    }, [LessThenDayMessage, OverdueMessage, search])
+        const userTicketCommentRead = userTicketsCommentRead.find(obj => obj.ticket.id === ticket.id)
+        const readResidentCommentAt = get(userTicketCommentRead, 'readResidentCommentAt')
+        const lastResidentCommentAt = get(ticket, 'lastResidentCommentAt')
+        let postfix
+
+        if (readResidentCommentAt && lastResidentCommentAt && dayjs(lastResidentCommentAt).isAfter(readResidentCommentAt)) {
+            postfix = (
+                <Typography.Paragraph title={''} style={{ position: 'relative', left: '-30px' }}>
+                    <div style={{ width: '4px', height: '4px', borderRadius: '100px', backgroundColor: '#FF3B30' }}/>
+                </Typography.Paragraph>
+            )
+        }
+
+        return getTableCellRenderer(search, false, postfix, extraHighlighterProps, null, extraTitle)(number)
+    }, [LessThenDayMessage, OverdueMessage, search, userTicketsCommentRead])
 
     const columnWidths = useMemo(() => breakpoints.xxl ?
         COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN : COLUMNS_WIDTH_SMALLER_XXL_SCREEN,
