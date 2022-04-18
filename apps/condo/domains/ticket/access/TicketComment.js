@@ -69,7 +69,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
             commentType = get(originalInput, 'type')
         } else if (operation === 'update' && itemId) {
             const comment = await getByCondition('TicketComment', { id: itemId, deletedAt: null })
-            if (!comment || comment.createdBy !== user.id) return false
+            if (!comment || comment.user !== user.id) return false
 
             ticket = await getByCondition('Ticket', { id: comment.ticket, deletedAt: null })
             if (!ticket) return false
