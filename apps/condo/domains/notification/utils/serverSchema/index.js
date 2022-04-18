@@ -98,13 +98,12 @@ async function disconnectUserFromDevice (context, data) {
 async function setMessageStatus (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-    if (!data.messageId) throw new Error('no data.messageId')
+    if (!data.message || !data.message.id) throw new Error('no data.message')
     if (!data.deliveredAt && !data.readAt) throw new Error('no data.deliveredAt and data.readAt')
 
     return await execGqlWithoutAccess(context, {
         query: SET_MESSAGE_STATUS_MUTATION,
-        variables: { data: { dv: 1, ...data } },
+        variables: { data },
         errorMessage: '[error] Unable to setMessageStatus',
         dataPath: 'obj',
     })
