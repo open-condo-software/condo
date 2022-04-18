@@ -1,5 +1,5 @@
 import { Col, Form, Row, Space, Typography, Input, RowProps } from 'antd'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
@@ -143,13 +143,14 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
         }
     }, [confirmPhone])
 
-    useEffect(() => {
-        if (isPhoneVisible) {
-            setShowPhone(formatPhone(phone))
-        } else {
-            const unHidden = formatPhone(phone)
-            setShowPhone(`${unHidden.substring(0, 9)}***${unHidden.substring(12)}`)
-        }
+    const handleNumberVisible = useCallback(() => {
+        const formattedPhone = formatPhone(phone)
+        isPhoneVisible
+            ?
+            setShowPhone(formattedPhone)
+            :
+            setShowPhone(`${formattedPhone.substring(0, 9)}***${formattedPhone.substring(12)}`)
+        setIsPhoneVisible(!isPhoneVisible)
     }, [isPhoneVisible, phone, setShowPhone])
 
     const initialValues = { smsCode: '' }
@@ -177,12 +178,11 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                                     values={{
                                         phone: (
                                             <span style={{ whiteSpace: 'nowrap' }}>
-                                                {`${showPhone} `}
+                                                {`${formatPhone(showPhone)} `}
                                                 <Typography.Link
                                                     underline
                                                     style={{ color: 'black' }}
-                                                    onClick={() =>
-                                                        setIsPhoneVisible(!isPhoneVisible)}
+                                                    onClick={handleNumberVisible}
                                                 >
                                                     ({PhoneToggleLabel})
                                                 </Typography.Link>
