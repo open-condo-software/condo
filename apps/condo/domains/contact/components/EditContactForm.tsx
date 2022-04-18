@@ -69,7 +69,7 @@ export const EditContactForm: React.FC = () => {
         })
     })
 
-    const { requiredValidator, phoneValidator, emailValidator, trimValidator } = useValidations()
+    const { requiredValidator, phoneValidator, emailValidator, trimValidator } = useValidations({ allowLandLine: true })
     const validations = {
         phone: [requiredValidator, phoneValidator],
         email: [emailValidator],
