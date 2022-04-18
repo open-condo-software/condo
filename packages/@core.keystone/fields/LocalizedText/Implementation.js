@@ -20,6 +20,11 @@ class LocalizedText extends Text.implementation {
                 const translations = getTranslations(locale)
                 const fieldValue = item[this.path]
                 // collision detection
+                console.log(locale)
+                console.log(fieldValue)
+                console.log(translations[fieldValue])
+                console.log(this.config.template)
+                console.log(minimatch(fieldValue, this.config.template))
                 if (translations[fieldValue] && minimatch(fieldValue, this.config.template)) {
                     return translations[fieldValue]
                 }

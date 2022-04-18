@@ -1164,5 +1164,6 @@
   "excelExport.headers.ticket_report_status_property.closed": "Closed",
   "excelExport.headers.ticket_report_status_property.new_or_reopened": "New or reopened",
   "excelExport.sheetNames.buildings": "Properties",
-  "excelExport.sheetNames.tickets": "Tickets"
+  "excelExport.sheetNames.tickets": "Tickets",
+  "billing.category.housing.name": "Rent"
 }

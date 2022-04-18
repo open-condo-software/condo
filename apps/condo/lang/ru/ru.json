@@ -1164,5 +1164,6 @@
   "excelExport.headers.ticket_report_status_property.closed": "Закрыта",
   "excelExport.headers.ticket_report_status_property.new_or_reopened": "Открыта",
   "excelExport.sheetNames.buildings": "Список домов",
-  "excelExport.sheetNames.tickets": "Заявки"
+  "excelExport.sheetNames.tickets": "Заявки",
+  "billing.category.housing.name": "Квартплата"
 }
