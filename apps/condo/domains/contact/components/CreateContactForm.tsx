@@ -55,7 +55,7 @@ export const CreateContactForm: React.FC = () => {
     const { organization } = useOrganization()
     const router = useRouter()
 
-    const { changeMessage, phoneValidator, emailValidator, requiredValidator } = useValidations()
+    const { changeMessage, phoneValidator, emailValidator, requiredValidator } = useValidations({ allowLandLine: true })
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator],
         email: [changeMessage(emailValidator, EmailErrorMessage)],
