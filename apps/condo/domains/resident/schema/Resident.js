@@ -191,12 +191,13 @@ const Resident = new GQLListSchema('Resident', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         validateInput: async ({ resolvedData, operation, addValidationError, context }) => {
-            const { address, addressMeta, unitName, user: userId } = resolvedData
+            const { address, addressMeta, unitName, unitType, user: userId } = resolvedData
             if (operation === 'create') {
                 const addressUpToBuilding = getAddressUpToBuildingFrom(addressMeta)
                 const [resident] = await ResidentAPI.getAll(context, {
                     address_i: addressUpToBuilding,
                     unitName_i: unitName,
+                    unitType,
                     user: { id: userId },
                     deletedAt: null,
                 }, {

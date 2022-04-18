@@ -39,6 +39,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 const [existingResident] = await ResidentAPI.getAll(context, {
                     address_i: address,
                     unitName_i: unitName,
+                    unitType,
                     user: { id: context.authedItem.id },
                 }, {
                     first: 1,
