@@ -37,8 +37,7 @@ export const RegisterContextProvider = ({ children }): React.ReactElement => {
 
     const handleReCaptchaVerify = useCallback(async (action) => {
         if (executeRecaptcha) {
-            const userToken = await executeRecaptcha(action)
-            return userToken
+            return await executeRecaptcha(action)
         }
     }, [executeRecaptcha])
 
@@ -61,10 +60,10 @@ export const RegisterContextProvider = ({ children }): React.ReactElement => {
                 }
             })
         } else {
-            setPhone('')
+            setPhone(phone)
             setIsConfirmed(false)
         }
-    }, [queryToken, handleReCaptchaVerify, loadTokenInfo])
+    }, [queryToken, handleReCaptchaVerify, loadTokenInfo, phone])
 
     return (
         <RegisterContext.Provider
