@@ -333,6 +333,10 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Time of last resident comment in this ticket',
             type: DateTimeUtc,
         },
+        lastEmployeeAnsweredToResidentAt: {
+            schemaDoc: 'Time of last employee answer to resident comment in this ticket',
+            type: DateTimeUtc,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
