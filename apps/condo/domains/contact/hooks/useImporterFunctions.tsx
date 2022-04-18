@@ -19,7 +19,7 @@ const parsePhones = (phones: string) => {
         if (phone.startsWith('8')) {
             phone = '+7' + phone.substring(1)
         }
-        return normalizePhone(phone)
+        return normalizePhone(phone, true)
     })
 }
 
