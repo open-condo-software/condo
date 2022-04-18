@@ -190,7 +190,8 @@ describe('Ticket', () => {
             })
         })
 
-        test('resident: can update his Ticket details', async () => {
+        // Resident cannot update the ticket
+        test.skip('resident: cannot update his Ticket details', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
@@ -688,8 +689,7 @@ describe('Ticket', () => {
             expect(ticketsAfterHiddenTicketToResident).toHaveLength(0)
         })
 
-        // A resident can update a ticket from CRM, we do not separate these cases
-        test.skip('resident: cannot update ticket from crm', async () => {
+        test('resident: cannot update ticket from crm', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
