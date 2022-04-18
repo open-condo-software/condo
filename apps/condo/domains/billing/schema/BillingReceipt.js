@@ -22,6 +22,9 @@ const { BillingRecipient } = require('../utils/serverSchema')
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 
 
+const DEFAULT_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+
+
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
     fields: {
@@ -60,6 +63,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            defaultValue: { connect: { id: DEFAULT_CATEGORY } },
         },
 
         printableNumber: {
