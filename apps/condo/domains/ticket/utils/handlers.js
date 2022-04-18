@@ -19,7 +19,7 @@ const {
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Ticket } = require('./serverSchema')
-const { PUSH_TRANSPORT } = require('../../notification/constants/constants')
+const { PUSH_TRANSPORT } = require('@condo/domains/notification/constants/constants')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -199,7 +199,7 @@ const handleTicketCommentEvents = async (requestData) => {
     const { updatedItem, context } = requestData
     const createdBy = get(updatedItem, 'createdBy')
 
-    const [ticket] = await Ticket.getAll(context, { id: updatedItem.ticket })
+    const ticket = await Ticket.getOne(context, { id: updatedItem.ticket })
     const client = get(ticket, 'client.id')
     const organizationId = get(ticket, 'organization.id')
 
