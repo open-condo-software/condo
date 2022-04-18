@@ -11,7 +11,7 @@ const { COMMENT_TYPES, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/tic
 const get = require('lodash/get')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const isNull = require('lodash/isNull')
-const { handleTicketCommentEvents } = require('../utils/handlers')
+const { handleTicketCommentEvents } = require('@condo/domains/ticket/utils/handlers')
 
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
