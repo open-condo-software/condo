@@ -220,7 +220,8 @@ describe('Resident', () => {
             expect(ticket.createdBy.id).toEqual(residentClient.user.id)
         })
 
-        it('can update Ticket', async () => {
+        // Resident cannot update tickets
+        it.skip('can update Ticket', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
