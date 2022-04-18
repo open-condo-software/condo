@@ -1165,5 +1165,17 @@
   "excelExport.headers.ticket_report_status_property.new_or_reopened": "New or reopened",
   "excelExport.sheetNames.buildings": "Properties",
   "excelExport.sheetNames.tickets": "Tickets",
-  "billing.category.housing.name": "Rent"
+  "billing.category.housing.name": "Rent",
+  "billing.category.repair.name": "Repairs",
+  "billing.category.electricity.name": "Electricity",
+  "billing.category.heating_hot_water.name": "Heating and hot water",
+  "billing.category.cold_water.name": "Cold water",
+  "billing.category.gas.name": "Gas",
+  "billing.category.trash.name": "Garbage collection",
+  "billing.category.parking.name": "Parking",
+  "billing.category.storage.name": "Storage space",
+  "billing.category.internet.name": "Internet",
+  "billing.category.radio.name": "Radio",
+  "billing.category.intercom.name": "Intercom",
+  "billing.category.telecom.name": "Telecom"
 }

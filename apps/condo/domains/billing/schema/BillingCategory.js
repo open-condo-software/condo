@@ -14,7 +14,6 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
-
         name: {
             schemaDoc: 'Localized name of billing category: Hot water, Cold water, Housing Services',
             type: LocalizedText,
@@ -22,6 +21,7 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
             template: 'billing.category.*.name',
         },
     },
+    labelResolver: item => item.id,
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadBillingCategories,
