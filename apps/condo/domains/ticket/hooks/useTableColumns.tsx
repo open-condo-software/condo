@@ -36,6 +36,7 @@ import { TicketTag } from '../components/TicketTag'
 import { useAuth } from '@core/next/auth'
 import { Tooltip } from '../../common/components/Tooltip'
 import styled from '@emotion/styled'
+import { colors } from '../../common/constants/style'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -236,14 +237,13 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             width: 8px; 
             height: 8px; 
             border-radius: 100px; 
-            background-color: #FF3B30;
+            background-color: ${colors.red[5]};
         `
-
         const userTicketCommentRead = userTicketsCommentRead.find(obj => obj.ticket.id === ticket.id)
         const postfix = hasUnreadResidentComments(userTicketCommentRead, ticket) && (
             <div style={{ position: 'relative', left: '-40px' }}>
                 <Tooltip title={'Новый комментарий жителя'} placement={'topRight'}>
-                    <NewCommentIndicator style={{ display: 'block' }} title={''} />
+                    <NewCommentIndicator title={''} />
                 </Tooltip>
             </div>
         )

@@ -12,7 +12,6 @@ import { File, Organization, UserTypeType } from '@app/condo/schema'
 import { UserTicketCommentRead } from '@condo/domains/ticket/utils/clientSchema'
 import { useAuth } from '@core/next/auth'
 import { get } from 'lodash'
-import dayjs from 'dayjs'
 import { ITicketUIState } from '../../../ticket/utils/clientSchema/Ticket'
 import { hasUnreadResidentComments } from '../../../ticket/utils/helpers'
 
@@ -116,6 +115,10 @@ const CommentsTabsContainer = styled.div`
           background-color: transparent;
           padding: 9px 20px;
           border-radius: 4px;
+          
+          .ant-tabs-tab-btn {
+            display: flex;
+          }
 
           &.ant-tabs-tab-active {
             background-color: white;
@@ -206,20 +209,26 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
     }
 
 const COMMENTS_COUNT_STYLES: CSSProperties = { padding: '2px', fontSize: '8px' }
+const NewCommentIndicator = styled.div`
+    position: relative;
+    top: 5px;
+    width: 4px; 
+    height: 4px; 
+    border-radius: 100px; 
+    background-color: ${colors.red[5]};
+`
 
 const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) => (
     <>
         <Typography.Text>
             {label}
         </Typography.Text>
-        <sup>
-            <Typography.Text style={COMMENTS_COUNT_STYLES}>
-                {commentsCount}
-            </Typography.Text>
-        </sup>
+        <Typography.Text style={COMMENTS_COUNT_STYLES}>
+            {commentsCount}
+        </Typography.Text>
         {
             newCommentsIndicator && (
-                <div style={{ width: '4px', height: '4px', borderRadius: '100px', backgroundColor: '#FF3B30' }}/>
+                <NewCommentIndicator title={''} />
             )
         }
     </>

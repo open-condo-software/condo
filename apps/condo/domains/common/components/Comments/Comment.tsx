@@ -283,7 +283,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
                     onMouseOver={() => setDateShowMode('updated')}
                 >
                     <Typography.Text title={MetaUpdatedText}>
-                        {dateShowMode === 'created' ?  dayjs(comment.createdAt).format(COMMENT_DATE_FORMAT) : dayjs(comment.updatedAt).format(COMMENT_DATE_FORMAT)}
+                        {dateShowMode === 'created' ? dayjs(comment.createdAt).format(COMMENT_DATE_FORMAT) : dayjs(comment.updatedAt).format(COMMENT_DATE_FORMAT)}
                     </Typography.Text>
                 </div>
             }
