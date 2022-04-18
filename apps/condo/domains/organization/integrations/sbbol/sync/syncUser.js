@@ -93,14 +93,16 @@ const syncUser = async ({ context, userInfo }) => {
     if (!user.importId) {
         const { email, phone } = userInfo
         const update = {}
-        if (!user.isEmailVerified && user.email === email) {
-            update.isEmailVerified = true
+        if (email) {
+            if (!user.isEmailVerified && user.email === email) {
+                update.isEmailVerified = true
+            }
+            if (!user.email) {
+                user.email = email
+            }
         }
         if (!user.isPhoneVerified && user.phone === phone) {
             update.isPhoneVerified = true
-        }
-        if (!user.email) {
-            user.email = email
         }
         const updatedUser = await updateItem({
             listKey: 'User',
