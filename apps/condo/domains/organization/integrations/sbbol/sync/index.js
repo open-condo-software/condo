@@ -36,7 +36,7 @@ const { syncTokens } = require('./syncTokens')
  * @property {String} terBank - optional
  * @property {String} name - optional
  * @property {String} userGuid - required
- * @property {String} email - required
+ * @property {String} email - optional
  * @property {String} phone_number - required
  */
 
