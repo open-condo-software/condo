@@ -9,18 +9,9 @@ exports.up = async (knex) => {
 --
 CREATE TABLE "BillingCategoryHistoryRecord" ("dv" integer NULL, "sender" jsonb NULL, "name" text NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
 --
--- Add field category to billingreceipthistoryrecord
---
-ALTER TABLE "BillingReceiptHistoryRecord" ADD COLUMN "category" uuid NULL;
---
 -- Create model billingcategory
 --
 CREATE TABLE "BillingCategory" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "name" text NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL);
---
--- Add field category to billingreceipt
---
-ALTER TABLE "BillingReceipt" ADD COLUMN "category" uuid DEFAULT '928c97ef-5289-4daa-b80e-4b9fed50c629'::uuid NOT NULL CONSTRAINT "BillingReceipt_category_e3caefd3_fk_BillingCategory_id" REFERENCES "BillingCategory"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "BillingReceipt_category_e3caefd3_fk_BillingCategory_id" IMMEDIATE;
-ALTER TABLE "BillingReceipt" ALTER COLUMN "category" DROP DEFAULT;
 CREATE INDEX "BillingCategoryHistoryRecord_history_id_b6bdaf14" ON "BillingCategoryHistoryRecord" ("history_id");
 ALTER TABLE "BillingCategory" ADD CONSTRAINT "BillingCategory_createdBy_52e60875_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE "BillingCategory" ADD CONSTRAINT "BillingCategory_updatedBy_4ce8b9b7_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
@@ -29,14 +20,90 @@ CREATE INDEX "BillingCategory_updatedAt_4e92f52d" ON "BillingCategory" ("updated
 CREATE INDEX "BillingCategory_deletedAt_d1c614c6" ON "BillingCategory" ("deletedAt");
 CREATE INDEX "BillingCategory_createdBy_52e60875" ON "BillingCategory" ("createdBy");
 CREATE INDEX "BillingCategory_updatedBy_4ce8b9b7" ON "BillingCategory" ("updatedBy");
+COMMIT;
+
+--
+-- Insert sample billing categories!
+--
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.housing.name'::text,
+        '928c97ef-5289-4daa-b80e-4b9fed50c629'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+        
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.repair.name'::text,
+        'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.electricity.name'::text,
+        '9c29b499-6594-4479-a2a7-b6553587d6e2'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.heating_hot_water.name'::text,
+        'ebf9524e-b5ad-44ef-9343-01ab6147d400'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.cold_water.name'::text,
+        'b84acc8b-ee9d-401c-bde6-75a284d84789'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+        
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.gas.name'::text,
+        '40053ebf-7a67-4b9d-8637-a6f398ad7d3c'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+        
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.trash.name'::text,
+        '182998d2-ed32-4b1a-8876-982f7e7eb645'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+        
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.parking.name'::text,
+        '42623528-1f4d-407f-87da-0543dfc905b2'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+        
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.storage.name'::text,
+        '35b0030f-d691-458a-a902-a6985f58d82e'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+        
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.internet.name'::text,
+        '11bb27ce-3f11-40f2-8fdf-f6aa1364df08'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.radio.name'::text,
+        '4c4c96d2-73f4-4df1-a346-bafa11070e31'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.intercom.name'::text,
+        'fff4549a-8abc-42d1-b888-93ffd49a7366'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+
+INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy")
+VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'billing.category.telecom.name'::text,
+        '6d6e0e48-e3af-4992-9b50-c52208a8f040'::uuid, 1::integer, null::timestamp with time zone,
+        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+
+COMMIT;
+
+--
+-- Add field category to billingreceipt
+--
+ALTER TABLE "BillingReceipt" ADD COLUMN "category" uuid DEFAULT '928c97ef-5289-4daa-b80e-4b9fed50c629'::uuid NOT NULL CONSTRAINT "BillingReceipt_category_e3caefd3_fk_BillingCategory_id" REFERENCES "BillingCategory"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "BillingReceipt_category_e3caefd3_fk_BillingCategory_id" IMMEDIATE;
+ALTER TABLE "BillingReceipt" ALTER COLUMN "category" DROP DEFAULT;
 CREATE INDEX "BillingReceipt_category_e3caefd3" ON "BillingReceipt" ("category");
 COMMIT;
 
-INSERT INTO public."BillingCategory" (dv, sender, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId",
-                                      "createdBy", "updatedBy")
-VALUES (1::integer, '{"dv": 1, "fingerprint":"sql-migration"}'::jsonb, 'Housing'::text,
-        '928c97ef-5289-4daa-b80e-4b9fed50c629'::uuid, 1::integer, null::timestamp with time zone,
-        null::timestamp with time zone, null::timestamp with time zone, null::uuid, null::uuid, null::uuid);
+--
+-- Add field category to billingreceipthistoryrecord
+--
+ALTER TABLE "BillingReceiptHistoryRecord" ADD COLUMN "category" uuid NULL;
 COMMIT;
     `)
 }
