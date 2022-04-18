@@ -54,6 +54,9 @@ export const TicketsPageContent = ({
     searchTicketsQuery,
     sortBy,
     filterMetas,
+    isTicketsFetching,
+    total,
+    tickets,
 }): JSX.Element => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
@@ -68,8 +71,7 @@ export const TicketsPageContent = ({
 
     const { isSmall, shouldTableScroll } = useLayoutContext()
     const router = useRouter()
-    const { filters, offset } = parseQuery(router.query)
-    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+    const { filters } = parseQuery(router.query)
 
     const reduceNonEmpty = (cnt, filter) => cnt + Number(Array.isArray(filters[filter]) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
@@ -77,19 +79,6 @@ export const TicketsPageContent = ({
     const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
-
-    const {
-        loading: isTicketsFetching,
-        count: total,
-        objs: tickets,
-    } = Ticket.useObjects({
-        sortBy: sortBy as SortTicketsBy[],
-        where: searchTicketsQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-    })
 
     const loading = isTicketsFetching
 
@@ -268,16 +257,36 @@ const TicketsPage: ITicketIndexPage = () => {
     const filterMetas = useTicketTableFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
     const router = useRouter()
-    const { filters, sorters } = parseQuery(router.query)
-    const tableColumns = useTableColumns(filterMetas)
+    const { filters, sorters, offset } = parseQuery(router.query)
     const searchTicketsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
+
+    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+    const sortBy = sortersToSortBy(sorters, TICKETS_DEFAULT_SORT_BY) as SortTicketsBy[]
+
+    const {
+        loading: isTicketsFetching,
+        count: total,
+        objs: tickets,
+    } = Ticket.useObjects({
+        sortBy,
+        where: searchTicketsQuery,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    }, {
+        fetchPolicy: 'network-only',
+    })
+
+    const tableColumns = useTableColumns(filterMetas, tickets)
 
     return (
         <TicketsPageContent
             tableColumns={tableColumns}
             searchTicketsQuery={searchTicketsQuery}
-            sortBy={sortersToSortBy(sorters, TICKETS_DEFAULT_SORT_BY)}
+            sortBy={sortBy}
             filterMetas={filterMetas}
+            isTicketsFetching={isTicketsFetching}
+            total={total}
+            tickets={tickets}
         />
     )
 }
