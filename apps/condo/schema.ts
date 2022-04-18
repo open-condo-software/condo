@@ -27846,7 +27846,7 @@ export type RegisterResidentInput = {
   address: Scalars['String'];
   addressMeta: AddressMetaFieldInput;
   unitName: Scalars['String'];
-  unitType?: Maybe<BuildingUnitType>;
+  unitType?: Maybe<BuildingUnitSubType>;
 };
 
 export type RegisterServiceConsumerInput = {

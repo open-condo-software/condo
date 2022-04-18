@@ -17,7 +17,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
     types: [
         {
             access: true,
-            type: 'input RegisterResidentInput { dv: Int!, sender: SenderFieldInput!, address: String!, addressMeta: AddressMetaFieldInput!, unitName: String!, unitType: BuildingUnitType }',
+            type: 'input RegisterResidentInput { dv: Int!, sender: SenderFieldInput!, address: String!, addressMeta: AddressMetaFieldInput!, unitName: String!, unitType: BuildingUnitSubType }',
         },
     ],
 
