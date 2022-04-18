@@ -9,6 +9,8 @@ const { has } = require('lodash')
 
 
 class PropertyMapUpdater {
+    processedCount = 0
+
     async init () {
         const resolved = path.resolve('./index.js')
         const { distDir, keystone, apps } = require(resolved)
@@ -19,7 +21,7 @@ class PropertyMapUpdater {
         this.pg = new Client(process.env.DATABASE_URL)
         this.pg.connect()
 
-        const { rows } = await this.pg.query(' SELECT id, map, "unitsCount" FROM "Property" WHERE "map" IS NOT NULL AND "deletedAt" IS NULL ')
+        const { rows } = await this.pg.query(' SELECT id, map, "unitsCount" FROM "Property" WHERE "map" IS NOT NULL AND "deletedAt" IS NULL')
         this.properties = rows
     }
 
@@ -28,13 +30,17 @@ class PropertyMapUpdater {
             if (property.map) {
                 property.map = normalizePropertyMap(property.map)
             }
-            const repairedMap = this.fixChessboard(property.map)
-            await Property.update(this.context.createContext({ skipAccessControl: true }), property.id, {
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'map-fixer' },
-                map: repairedMap,
-            })
 
+            const needToFixSections = property.map.sections.map(section => section.floors.map(floor => floor.units.map(unit => unit.unitType))).flat(2).some(unitType => unitType === undefined)
+            if (needToFixSections) {
+                const repairedMap = this.fixChessboard(property.map)
+                await Property.update(this.context.createContext({ skipAccessControl: true }), property.id, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'map-fixer' },
+                    map: repairedMap,
+                })
+                this.processedCount++
+            }
         }
     }
 
@@ -59,6 +65,8 @@ const updateMapStructure = async () => {
     const fixer = new PropertyMapUpdater()
     await fixer.init()
     await fixer.fix()
+
+    console.log(`Total processed rows = ${fixer.processedCount}`)
 }
 
 updateMapStructure().then(() => {
