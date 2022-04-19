@@ -13,7 +13,6 @@ import { TicketCommentFile } from '@condo/domains/ticket/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
 import { ClipIcon } from '../icons/ClipIcon'
 import { TComment } from './index'
-import { ITicketCommentUIState } from '../../../ticket/utils/clientSchema/TicketComment'
 
 const Holder = styled.div`
   .wrapper {
@@ -105,7 +104,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
 
     const actionWithSyncComments = useCallback(async (values) => {
         await action(values, syncModifiedFiles)
-        resetModifiedFiles()
+        await resetModifiedFiles()
     }, [action, resetModifiedFiles, syncModifiedFiles])
 
     const MemoizedUploadComponent = useCallback(() => (
