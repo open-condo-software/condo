@@ -105,7 +105,7 @@
     "uuid": "^8.3.0",
     "validate.js": "^0.13.1",
     "validator": "^13.7.0",
-    "xlsx": "^0.16.9"
+    "xlsx": "^0.17.0"
   },
   "devDependencies": {
     "@testing-library/react": "^11.2.5",
