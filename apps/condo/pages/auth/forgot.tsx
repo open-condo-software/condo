@@ -36,7 +36,7 @@ const FORM_PHONE_STYLES: React.CSSProperties = {
 function ResetPageView () {
     const intl = useIntl()
     const router = useRouter()
-    const RestorePasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.RestorePasswordTitle' })
+    const RestorePasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetPasswordTitle' })
     const ResetTitleMsg = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
     const InstructionsMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
     const PhoneIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotRegistered' })
