@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useEffect } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import { FormWithAction } from '../containers/FormList'
 import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
@@ -70,7 +70,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
 
     const { organization } = useOrganization()
 
-    const { UploadComponent, syncModifiedFiles, resetModifiedFiles } = useMultipleFileUploadHook({
+    const { UploadComponent, syncModifiedFiles, resetModifiedFiles, filesCount } = useMultipleFileUploadHook({
         Model: TicketCommentFile,
         relationField: 'ticketComment',
         initialFileList: editableComment?.files,
@@ -98,9 +98,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
     }
 
     const { requiredValidator, trimValidator } = useValidations()
-    const validations = {
-        comment: [requiredValidator, trimValidator],
-    }
+
+    const validations = useMemo(() => ({
+        comment: filesCount > 0 ? [] : [requiredValidator, trimValidator],
+    }), [filesCount, requiredValidator, trimValidator])
 
     const actionWithSyncComments = useCallback(async (values) => {
         await action(values, syncModifiedFiles)
