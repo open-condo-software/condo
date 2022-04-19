@@ -84,7 +84,7 @@ export const MetersPageContent = ({
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate)
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
-    const isNoMeterData = !meterReadings.length && isEmpty(filters) && !loading
+    const isNoMeterData = isEmpty(meterReadings) && isEmpty(filters)
 
     const handleRowAction = useCallback((record) => {
         return {

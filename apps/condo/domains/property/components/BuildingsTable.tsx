@@ -95,7 +95,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
-    const isNoBuildingsData = !properties.length && isEmpty(filters) && !loading
+    const isNoBuildingsData = isEmpty(properties) && isEmpty(filters)
 
     const canManageProperties = get(role, 'canManageProperties', false)
 
