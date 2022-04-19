@@ -21,7 +21,9 @@ const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
 }
 const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
-    margin: '34px 0 40px',
+    margin: '28px 0 40px',
+    fontSize: '12px',
+    height: '60px',
 }
 const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
     textAlign:'center',
