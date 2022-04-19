@@ -276,7 +276,7 @@
   "pages.auth.reset.RegisterHelp": "После ввода номера телефона вам автоматически придёт СМС-код. Это нужно для обеспечения безопасности CRM.",
   "pages.auth.reset.ResetHelp": "Введите номер телефона, чтобы получить инструкцию для восстановления доступа к вашей учётной записи",
   "pages.auth.reset.ResetSuccessMessage": "Отправили вам СМС на номер {phone}. Перейдите по ссылке в СМС.",
-  "pages.auth.reset.RestorePasswordTitle": "Восстановить пароль",
+  "pages.auth.reset.ResetPasswordTitle": "Восстановить пароль",
   "pages.auth.reset.ReturnToLoginPage": "Вернуться на форму входа",
   "pages.auth.ResetTitle": "Восстановление пароля",
   "pages.auth.ShouldAcceptAgreement": "Вам нужно принять соглашение",
