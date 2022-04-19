@@ -522,8 +522,13 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
+    const refetchCommentsWithFiles = useCallback(async () => {
+        await refetchComments()
+        await refetchCommentFiles()
+    }, [refetchCommentFiles, refetchComments])
+
     useEffect(() => {
-        const handler = setInterval(refetchComments, COMMENT_RE_FETCH_INTERVAL)
+        const handler = setInterval(refetchCommentsWithFiles, COMMENT_RE_FETCH_INTERVAL)
         return () => {
             clearInterval(handler)
         }
@@ -544,8 +549,6 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const statusUpdatedAt = get(ticket, 'statusUpdatedAt')
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
     const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
-    const lastResidentCommentAt = useMemo(() => get(ticket,  'lastResidentCommentAt'), [ticket])
-    const lastEmployeeAnsweredToResidentAt = useMemo(() => get(ticket, 'lastEmployeeAnsweredToResidentAt'), [ticket])
 
     const getTimeSinceCreation = useCallback(() => {
         const diffInMinutes = dayjs().diff(dayjs(statusUpdatedAt), 'minutes')
@@ -725,7 +728,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     // @ts-ignore
                                     createAction={createCommentAction}
                                     updateAction={updateComment}
-                                    refetchComments={refetchComments}
+                                    refetchComments={refetchCommentsWithFiles}
                                     comments={commentsWithFiles}
                                     canCreateComments={get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments'])}
                                     actionsFor={comment => {
