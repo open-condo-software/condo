@@ -220,8 +220,7 @@ describe('Resident', () => {
             expect(ticket.createdBy.id).toEqual(residentClient.user.id)
         })
 
-        // Resident cannot update tickets
-        it.skip('can update Ticket', async () => {
+        it('cannot update Ticket', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
@@ -233,9 +232,10 @@ describe('Resident', () => {
                 unitName,
             })
             const details = faker.lorem.sentence()
-            const [updatedTicket] = await updateTestTicket(residentClient, ticket.id, { details })
-            expect(updatedTicket.details).toBe(details)
-            expect(updatedTicket.updatedBy.id).toBe(residentClient.user.id)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestTicket(residentClient, ticket.id, { details })
+            })
         })
 
         it('can connect temporary TicketFile to Ticket', async () => {
