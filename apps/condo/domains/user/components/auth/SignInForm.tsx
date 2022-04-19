@@ -22,7 +22,7 @@ const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
     textAlign:'center',
 }
 const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
-    marginBottom: '40px',
+    margin: '24px 0 40px',
 }
 const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
 const FORM_BUTTONS_GUTTER: RowProps['gutter'] = [0, 20]
