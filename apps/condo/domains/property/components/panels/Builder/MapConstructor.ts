@@ -3,6 +3,7 @@ import {
     BuildingMapEntityType,
     BuildingSection,
     BuildingUnit,
+    BuildingFloor,
     BuildingUnitType,
     BuildingUnitSubType,
     BuildingFloorType, BuildingSectionType, BuildingMapType,
@@ -45,7 +46,7 @@ export type BuildingUnitArg = BuildingUnit & {
 export type BuildingFloorArg = Omit<BuildingFloor, 'id' | 'type' | '__typename' | 'units' | 'name'> & {
     section: number
     unitCount: number
-    unitType?: BuildingUnitType
+    unitType?: BuildingUnitSubType
 }
 
 type BuildingSelectOption = {
@@ -1251,7 +1252,7 @@ class MapEdit extends MapView {
             id: String(++this.autoincrement),
             index: floor.index,
             name: String(floor.index),
-            type: BuildingMapEntityType.Floor,
+            type: BuildingFloorType.Floor,
             units: Array.from({ length: floor.unitCount }, (_, unitIndex) => {
                 let label = ''
                 if (!preview && floor.section === 0 && floor.index === 1) {
@@ -1263,7 +1264,7 @@ class MapEdit extends MapView {
                     label,
                     unitType: floor.unitType,
                     preview,
-                    type: BuildingMapEntityType.Unit,
+                    type: BuildingUnitType.Unit,
                 }
             }),
         }
