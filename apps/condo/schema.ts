@@ -30214,6 +30214,7 @@ export type SetMessageStatusInput = {
 
 export type SetMessageStatusOutput = {
   __typename?: 'SetMessageStatusOutput';
+  id: Scalars['ID'];
   status: Scalars['String'];
 };
 

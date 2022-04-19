@@ -70,7 +70,6 @@ const TicketComment = new GQLListSchema('TicketComment', {
         content: {
             schemaDoc: 'Plain text content',
             type: Text,
-            isRequired: true,
         },
 
     },
