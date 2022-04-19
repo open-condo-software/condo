@@ -10,6 +10,7 @@ import { jsx } from '@emotion/core'
 
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { Highlighter } from '@condo/domains/common/components/Highlighter'
+import { QUERY_SPLIT_REGEX } from '@condo/domains/common/constants/regexps'
 
 import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
@@ -27,7 +28,6 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     const { organization } = props
     const client = useApolloClient()
     const organizationId = get(organization, 'id')
-    const query_split_regex = /[\s.,]+/gm
     const initialValueGetter = useCallback(
         (value) => {
             return searchSingleProperty(client, value, organizationId).then((property: Property) => {
@@ -41,7 +41,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
 
     const searchAddress = useCallback(
         (query, skip) => {
-            const splitted_query = query.split(query_split_regex).map((element) => {
+            const splitted_query = query.split(QUERY_SPLIT_REGEX).map((element) => {
                 return {
                     address_contains_i: element,
                 }
