@@ -79,7 +79,7 @@
     "less": "^3.12.2",
     "lodash": "^4.17.21",
     "minimatch": "^3.0.4",
-    "next": "^9.5.2",
+    "next": "^11.0.0",
     "next-transpile-modules": "^7.0.0",
     "numeral": "2.0.6",
     "oidc-provider": "^7.10.6",
