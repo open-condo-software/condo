@@ -1597,7 +1597,7 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_SENT_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
@@ -1734,7 +1734,7 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_SENT_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
@@ -1872,7 +1872,7 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_SENT_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
@@ -2012,7 +2012,7 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_SENT_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
@@ -2147,7 +2147,7 @@ describe('Ticket', () => {
             const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message.status).toEqual(MESSAGE_DELIVERED_STATUS)
+            expect(message.status).toEqual(MESSAGE_SENT_STATUS)
             expect(message.meta.data.userId).toEqual(userClient.user.id)
             expect(message.meta.data.ticketId).toEqual(ticket.id)
             expect(message.meta.data.ticketNumber).toEqual(ticket.number)
