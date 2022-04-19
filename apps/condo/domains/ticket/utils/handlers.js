@@ -73,7 +73,7 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
      * ticket status gets the status open within create ticket operation or
      * ticket status changed within update ticket operation
      */
-    result[STATUS_CHANGED_EVENT_TYPE] = isStatusAdded || isStatusUpdated
+    result[STATUS_CHANGED_EVENT_TYPE] = client && (isStatusAdded || isStatusUpdated)
 
     return result
 }
