@@ -219,7 +219,7 @@
   "pages.auth.PhoneIsNotRegistered": "This phone is not registered yet",
   "pages.auth.EmailIsNotValid": "The email has wrong format!",
   "pages.auth.ChangePasswordTokenErrorLabel": "Password recovery link no longer works",
-  "pages.auth.ChangePasswordTokenErrorMessage": "You can initiate password recovery again",
+  "pages.auth.ChangePasswordTokenErrorMessage": "You can try again",
   "pages.auth.ChangePasswordTokenErrorConfirmLabel": "Restore password",
   "pages.auth.ForgotPassword": "Forgot password?",
   "pages.auth.ForgotPasswordDescription": "You can change your password for security reasons or reset it if you forget it. You will get an email with the steps to recover your account password",
