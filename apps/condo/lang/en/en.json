@@ -274,7 +274,7 @@
   "pages.auth.reset.CheckPhone": "Check your SMS",
   "pages.auth.reset.CreateNewPasswordMsg": "Type new password",
   "pages.auth.reset.RegisterHelp": "You need to confirm your phone number. After you type it, we will send you sms with a validation code",
-  "pages.auth.reset.ResetHelp": "Type your phone number to receive a message with reset link",
+  "pages.auth.reset.ResetHelp": "Type your phone number to receive a code to restore access to your account",
   "pages.auth.reset.ResetSuccessMessage": "We sent you a message to {phone}. Read it and follow the instructions.",
   "pages.auth.reset.ResetPasswordTitle": "Reset password",
   "pages.auth.reset.ReturnToLoginPage": "Back to signin page",
