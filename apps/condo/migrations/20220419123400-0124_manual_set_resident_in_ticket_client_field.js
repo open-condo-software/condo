@@ -22,22 +22,5 @@ exports.up = async (knex) => {
 
 exports.down = async (knex) => {
     await knex.raw(`
-        BEGIN;
-            UPDATE "Ticket"
-            SET "client" = NULL,
-                "clientName" = NULL,
-                "clientPhone" = NULL,
-                "clientEmail" = NULL
-            FROM "Contact"
-            JOIN "User" ON
-                "Contact"."phone" = "User"."phone"
-            JOIN "Resident" ON
-                "Resident"."user" = "User"."id"
-            WHERE "Ticket"."client" IS NOT NULL AND
-                  "Ticket"."contact" = "Contact"."id" AND
-                  "Resident"."property" = "Ticket"."property" AND
-                  "Resident"."unitName" = "Ticket"."unitName" AND
-                  "Resident"."unitType" = "Ticket"."unitType";
-        COMMIT;
     `)
 }
