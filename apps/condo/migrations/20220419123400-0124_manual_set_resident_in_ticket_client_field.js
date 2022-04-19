@@ -24,7 +24,10 @@ exports.down = async (knex) => {
     await knex.raw(`
         BEGIN;
             UPDATE "Ticket"
-            SET "client" = NULL
+            SET "client" = NULL,
+                "clientName" = NULL,
+                "clientPhone" = NULL,
+                "clientEmail" = NULL
             FROM "Contact"
             JOIN "User" ON
                 "Contact"."phone" = "User"."phone"
