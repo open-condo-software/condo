@@ -87,7 +87,7 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                 </Button>
             </Menu.Item>
             <Menu.Item key={'addSectionFloor'} disabled={mapEdit.isEmptySections}>
-                <Button type={'sberDefaultGradient'} secondary icon={<FloorIcon />}>
+                <Button type={'sberDefaultGradient'} disabled={mapEdit.isEmptySections} secondary icon={<FloorIcon />}>
                     {AddFloor}
                 </Button>
             </Menu.Item>

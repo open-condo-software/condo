@@ -1471,7 +1471,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const [sections, setSections] = useState([])
     const [section, setSection] = useState<number | null>(null)
-    const [unitType, setUnitType] = useState<BuildingUnitType>(BuildingUnitType.Flat)
+    const [unitType, setUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
     const [unitsOnFloor, setUnitsOnFloor] = useState<number>()
     const [floor, setFloor] = useState<string>('')
 
@@ -1529,8 +1529,8 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
                     <Typography.Text type={'secondary'}>{UnitTypeAtFloorLabel}</Typography.Text>
                     <Select value={unitType} onSelect={setUnitType}>
-                        {Object.values(BuildingUnitType)
-                            .filter(unitType => unitType !== BuildingUnitType.Parking)
+                        {Object.values(BuildingUnitSubType)
+                            .filter(unitType => unitType !== BuildingUnitSubType.Parking)
                             .map((unitType, key) => (
                                 <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
                                     {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}

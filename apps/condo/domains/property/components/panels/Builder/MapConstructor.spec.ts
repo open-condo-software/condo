@@ -425,7 +425,7 @@ describe('Map constructor', () => {
                 Building.addSectionFloor({
                     section: 0,
                     unitCount: 2,
-                    unitType: BuildingUnitType.Commercial,
+                    unitType: BuildingUnitSubType.Commercial,
                     index: 11,
                 })
                 const floorIndexes = modifiedSection.floors.map(({ index }) => index)
@@ -436,7 +436,7 @@ describe('Map constructor', () => {
                 expect(modifiedSection.floors).toHaveLength(buildingFloors + 1)
                 expect(modifiedSection.floors[0].units).toHaveLength(2)
                 expect(modifiedSection.floors[0].index).toEqual(11)
-                expect(floorUnitTypes).toStrictEqual(Array.from({ length: 2 }, () => BuildingUnitType.Commercial))
+                expect(floorUnitTypes).toStrictEqual(Array.from({ length: 2 }, () => BuildingUnitSubType.Commercial))
                 expect(new Set(floorIndexes).size).toEqual(floorIndexes.length)
             })
 
@@ -448,7 +448,7 @@ describe('Map constructor', () => {
                 Building.addSectionFloor({
                     section: 0,
                     unitCount: 22,
-                    unitType: BuildingUnitType.Flat,
+                    unitType: BuildingUnitSubType.Flat,
                     index: 3,
                 })
                 const floorIndexes = modifiedSection.floors.map(({ index }) => index)
@@ -468,7 +468,7 @@ describe('Map constructor', () => {
                 Building.addSectionFloor({
                     section: 1,
                     unitCount: 2,
-                    unitType: BuildingUnitType.Warehouse,
+                    unitType: BuildingUnitSubType.Warehouse,
                     index: -7,
                 })
                 const floorIndexes = modifiedSection.floors.map(({ index }) => index)
@@ -489,7 +489,7 @@ describe('Map constructor', () => {
                 Building.addSectionFloor({
                     section: 0,
                     unitCount: 2,
-                    unitType: BuildingUnitType.Flat,
+                    unitType: BuildingUnitSubType.Flat,
                     index: 11,
                 })
                 const floorIndexes = modifiedSection.floors.map(({ index }) => index)
@@ -512,7 +512,7 @@ describe('Map constructor', () => {
                 Building.addSectionFloor({
                     section: 0,
                     unitCount: 2,
-                    unitType: BuildingUnitType.Flat,
+                    unitType: BuildingUnitSubType.Flat,
                     index: 1,
                 })
                 const floorIndexes = modifiedSection.floors.map(({ index }) => index)
