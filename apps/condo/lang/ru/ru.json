@@ -274,7 +274,7 @@
   "pages.auth.reset.CheckPhone": "Проверьте СМС",
   "pages.auth.reset.CreateNewPasswordMsg": "Придумайте новый пароль",
   "pages.auth.reset.RegisterHelp": "После ввода номера телефона вам автоматически придёт СМС-код. Это нужно для обеспечения безопасности CRM.",
-  "pages.auth.reset.ResetHelp": "Введите номер телефона, чтобы получить инструкцию для восстановления доступа к вашей учётной записи",
+  "pages.auth.reset.ResetHelp": "Введите номер телефона, чтобы получить код для восстановления доступа к вашей учётной записи",
   "pages.auth.reset.ResetSuccessMessage": "Отправили вам СМС на номер {phone}. Перейдите по ссылке в СМС.",
   "pages.auth.reset.ResetPasswordTitle": "Восстановить пароль",
   "pages.auth.reset.ReturnToLoginPage": "Вернуться на форму входа",
