@@ -11,7 +11,7 @@ const { COMMENT_TYPES, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/tic
 const get = require('lodash/get')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const isNull = require('lodash/isNull')
-const { handleTicketCommentEvents } = require('@condo/domains/ticket/utils/handlers')
+const { sendDifferentKindsOfNotifications } = require('@condo/domains/ticket/utils/handlers')
 
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
@@ -77,8 +77,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         afterChange: async (requestData) => {
-            /* NOTE: this sends different kinds of notifications on comment create */
-            await handleTicketCommentEvents(requestData)
+            await sendDifferentKindsOfNotifications(requestData)
         },
     },
     access: {

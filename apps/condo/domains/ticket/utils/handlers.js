@@ -195,7 +195,7 @@ const handleTicketEvents = async (requestData) => {
     }
 }
 
-const handleTicketCommentEvents = async (requestData) => {
+const sendDifferentKindsOfNotifications = async (requestData) => {
     const { updatedItem, context } = requestData
     const createdBy = get(updatedItem, 'createdBy')
 
@@ -232,7 +232,7 @@ const handleTicketCommentEvents = async (requestData) => {
 
 module.exports = {
     handleTicketEvents,
-    handleTicketCommentEvents,
+    sendDifferentKindsOfNotifications,
     detectEventTypes,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,
