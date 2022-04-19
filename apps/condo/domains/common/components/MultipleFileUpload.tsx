@@ -82,17 +82,19 @@ interface IMultipleFileUploadHookResult {
     UploadComponent: React.FC<IUploadComponentProps>,
     syncModifiedFiles: (id: string) => Promise<void>
     resetModifiedFiles: () => Promise<void>
+    filesCount: number
 }
 
 export const useMultipleFileUploadHook = ({
     Model,
     relationField,
-    initialFileList,
+    initialFileList = [],
     initialCreateValues = {},
     // TODO(nomerdvadcatpyat): find another solution
     dependenciesForRerenderUploadComponent = [],
 }: IMultipleFileUploadHookArgs): IMultipleFileUploadHookResult => {
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
+    const [filesCount, setFilesCount] = useState(initialFileList.length)
     // Todo(zuch): without ref modifiedFiles dissappears on submit
     const modifiedFilesRef = useRef(modifiedFiles)
     useEffect(() => {
@@ -119,6 +121,7 @@ export const useMultipleFileUploadHook = ({
     const UploadComponent: React.FC<IUploadComponentProps> = useMemo(() => {
         const UploadWrapper = (props) => (
             <MultipleFileUpload
+                setFilesCount={setFilesCount}
                 fileList={initialFileList}
                 initialCreateValues={{ ...initialCreateValues, [relationField]: null }}
                 Model={Model}
@@ -133,10 +136,12 @@ export const useMultipleFileUploadHook = ({
         UploadComponent,
         syncModifiedFiles,
         resetModifiedFiles,
+        filesCount,
     }
 }
 
 interface IMultipleFileUploadProps {
+    setFilesCount
     fileList: DBFile[]
     initialCreateValues: Record<string, unknown>
     Model: Module
@@ -151,6 +156,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) })
     const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })
     const {
+        setFilesCount,
         fileList,
         initialCreateValues,
         Model,
@@ -164,6 +170,10 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         const convertedFiles = convertFilesToUploadFormat(fileList)
         setListFiles(convertedFiles)
     }, [fileList])
+
+    useEffect(() => {
+        setFilesCount(listFiles.length)
+    }, [listFiles.length, setFilesCount])
 
     const createAction = Model.useCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file))
 
