@@ -219,7 +219,7 @@
   "pages.auth.PhoneIsNotRegistered": "Телефон еще не зарегистрирован",
   "pages.auth.EmailIsNotValid": "Email имеет странный формат",
   "pages.auth.ChangePasswordTokenErrorLabel": "Ссылка на восстановление пароля больше не работает",
-  "pages.auth.ChangePasswordTokenErrorMessage": "Вы можете инициировать восстановление пароля ещё раз",
+  "pages.auth.ChangePasswordTokenErrorMessage": "Вы можете попробовать ещё раз",
   "pages.auth.ChangePasswordTokenErrorConfirmLabel": "Восстановить пароль",
   "pages.auth.ForgotPassword": "Забыли пароль?",
   "pages.auth.ForgotPasswordDescription": "Вы можете изменить свой пароль по соображениям безопасности или сбросить его, если вы его забыли. Вы получите электронное письмо с инструкциями по восстановлению пароля к вашей учетной записи",

@@ -12,7 +12,6 @@ import { useLazyQuery, useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
 import { PASSWORD_IS_TOO_SHORT } from '@condo/domains/user/constants/errors'
 import { useAuth } from '@core/next/auth'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
@@ -26,7 +25,11 @@ const ROW_STYLES: React.CSSProperties = {
 const FORM_TITLE_STYLES: React.CSSProperties = {
     fontWeight: 700, fontSize: 20,
 }
-const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
+const BUTTON_STYLES: React.CSSProperties = {
+    width: '100%',
+}
+const BUTTON_GUTTER: RowProps['gutter'] = [0, 40]
+const TYPOGRAPHY_GUTTER: RowProps['gutter'] = [0, 20]
 
 const ChangePasswordPage: AuthPage = () => {
     const [form] = Form.useForm()
@@ -129,16 +132,40 @@ const ChangePasswordPage: AuthPage = () => {
 
     if (recoveryTokenError) {
         return (
-            <BasicEmptyListView>
-                <Typography.Title level={3}>{ChangePasswordTokenErrorLabel}</Typography.Title>
-                <Typography.Text
-                    style={{ fontSize: fontSizes.content }}>{ChangePasswordTokenErrorMessage}</Typography.Text>
-                <Button
-                    type='sberDefaultGradient'
-                    style={{ marginTop: '16px' }}
-                    onClick={() => Router.push('/auth/forgot')}
-                >{ChangePasswordTokenErrorConfirmLabel}</Button>
-            </BasicEmptyListView>
+            <Row>
+                <ResponsiveCol>
+                    <Row style={ROW_STYLES} gutter={BUTTON_GUTTER}>
+                        <Col span={24}>
+                            <Row gutter={TYPOGRAPHY_GUTTER}>
+                                <Col span={24}>
+                                    <Typography.Title
+                                        level={3}
+                                        style={FORM_TITLE_STYLES}
+                                    >
+                                        {ChangePasswordTokenErrorLabel}
+                                    </Typography.Title>
+                                </Col>
+                                <Col span={24}>
+                                    <Typography.Text
+                                        style={{ fontSize: fontSizes.content }}
+                                    >
+                                        {ChangePasswordTokenErrorMessage}
+                                    </Typography.Text>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col span={24}>
+                            <Button
+                                type='sberDefaultGradient'
+                                style={BUTTON_STYLES}
+                                onClick={() => Router.push('/auth/forgot')}
+                            >
+                                {ChangePasswordTokenErrorConfirmLabel}
+                            </Button>
+                        </Col>
+                    </Row>
+                </ResponsiveCol>
+            </Row>
         )
     }
 
@@ -151,14 +178,18 @@ const ChangePasswordPage: AuthPage = () => {
             requiredMark={false}
             layout={'vertical'}
         >
-            <Row style={ROW_STYLES}>
-                <ResponsiveCol span={18}>
-                    <Row style={ROW_STYLES} gutter={BUTTON_FORM_GUTTER}>
+            <Row>
+                <ResponsiveCol>
+                    <Row style={ROW_STYLES} gutter={BUTTON_GUTTER}>
                         <Col span={24}>
                             <Row>
                                 <Form.Item>
-                                    <Typography.Title level={2}
-                                        style={FORM_TITLE_STYLES}>{ResetTitle}</Typography.Title>
+                                    <Typography.Title
+                                        level={2}
+                                        style={FORM_TITLE_STYLES}
+                                    >
+                                        {ResetTitle}
+                                    </Typography.Title>
                                 </Form.Item>
                                 <Form.Item name="token" style={{ display: 'none' }}>
                                     <Input type="hidden"/>
@@ -191,7 +222,7 @@ const ChangePasswordPage: AuthPage = () => {
                                     type='sberDefaultGradient'
                                     loading={isSaving}
                                     htmlType="submit"
-                                    style={{ width: '100%' }}
+                                    style={BUTTON_STYLES}
                                 >
                                     {SaveMsg} {AndSignInMsg}
                                 </Button>
