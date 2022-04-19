@@ -81,8 +81,9 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
     useEffect(() => {
         if (editableComment && form) {
             form.setFieldsValue({ [fieldName]: editableComment.content })
+            setCommentLength(editableComment.content.length)
         }
-    }, [editableComment, fieldName, form])
+    }, [editableComment, fieldName, form, setCommentLength])
 
     const handleKeyUp = async (event, form) => {
         if (event.keyCode === 13 && !event.shiftKey) {
