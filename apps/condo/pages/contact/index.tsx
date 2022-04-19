@@ -82,7 +82,7 @@ export const ContactsPageContent = ({
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
-    const isNoContactsData = !contacts.length && isEmpty(filtersFromQuery) && !loading
+    const isNoContactsData = isEmpty(contacts) && isEmpty(filtersFromQuery)
 
     return (
         <>
