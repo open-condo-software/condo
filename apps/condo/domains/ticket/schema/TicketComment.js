@@ -9,7 +9,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/ticket/access/TicketComment')
 const { COMMENT_TYPES, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const get = require('lodash/get')
-const { STAFF } = require('@condo/domains/user/constants/common')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 const isNull = require('lodash/isNull')
 
 const TicketComment = new GQLListSchema('TicketComment', {
@@ -29,7 +29,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
                     const user = get(context, ['req', 'user'])
                     const userType = get(user, 'type')
 
-                    if (userType === STAFF && operation === 'create') {
+                    if (userType !== RESIDENT && operation === 'create') {
                         const commentType = get(resolvedData, 'type', null)
 
                         if (isNull(commentType)) {
@@ -73,11 +73,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
         },
 
     },
-    plugins: [
-        uuided(), versioned(),
-        tracked(),
-        softDeleted(), historical(),
-    ],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketComments,
         create: access.canManageTicketComments,
