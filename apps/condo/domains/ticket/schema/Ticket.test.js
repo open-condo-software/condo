@@ -190,8 +190,7 @@ describe('Ticket', () => {
             })
         })
 
-        // Resident cannot update the ticket
-        test.skip('resident: cannot update his Ticket details', async () => {
+        test('resident: cannot update his Ticket details', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
@@ -204,12 +203,11 @@ describe('Ticket', () => {
                 unitName,
             })
 
-            const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
-                details: newDetails,
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestTicket(userClient, ticket.id, {
+                    details: newDetails,
+                })
             })
-
-            expect(ticket.id).toEqual(updatedTicket.id)
-            expect(updatedTicket.details).toEqual(newDetails)
         })
 
         test('resident: can update his Ticket reviewValue and reviewComment', async () => {
