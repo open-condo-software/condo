@@ -86,12 +86,12 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     {AddSection}
                 </Button>
             </Menu.Item>
-            <Menu.Item key={'addSectionFloor'}>
+            <Menu.Item key={'addSectionFloor'} disabled={mapEdit.isEmptySections}>
                 <Button type={'sberDefaultGradient'} secondary icon={<FloorIcon />}>
                     {AddFloor}
                 </Button>
             </Menu.Item>
-            <Menu.Item key={'addUnit'}>
+            <Menu.Item key={'addUnit'} disabled={mapEdit.isEmptySections}>
                 <Button type={'sberDefaultGradient'} secondary disabled={mapEdit.isEmptySections} icon={<FlatIcon />}>
                     {AddUnit}
                 </Button>
@@ -111,7 +111,7 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     {AddParkingFloor}
                 </Button>
             </Menu.Item>
-            <Menu.Item key={'addParkingUnit'}>
+            <Menu.Item key={'addParkingUnit'} disabled={mapEdit.isEmptyParking}>
                 <Button type={'sberDefaultGradient'} secondary disabled={mapEdit.isEmptyParking} icon={<ParkingPlaceIcon />}>
                     {AddParkingPlace}
                 </Button>

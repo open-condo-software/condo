@@ -1493,7 +1493,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         setUnitsOnFloor(null)
         setFloor(null)
         setSection(null)
-    }, [builder, refresh, floor, section])
+    }, [builder, refresh, floor, section, unitsOnFloor, unitType])
 
     useEffect(() => {
         if (section !== null) {

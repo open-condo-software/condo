@@ -748,6 +748,7 @@ class MapEdit extends MapView {
         if (previousUnit && Number(get(invert(this.sectionFloorMap), floorIndex, -1)) > 0) {
             this.updateUnitNumbers(previousUnit)
         }
+        this.notifyUpdater()
     }
 
 
