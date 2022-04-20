@@ -985,6 +985,8 @@
   "contact.Contact.ContactsEditor.AnotherContact": "Another contact",
   "contact.Contact.ContactsEditor.CannotCreateContact": "Contacts requisites will be saved into the ticket, but a Contact record will not be created, because current use does not have rights to do so",
   "Comments.title": "Comments",
+  "Comments.organization.title": "Internal comments",
+  "Comments.resident.title": "Comments with resident",
   "Comments.tab.organization": "Internal",
   "Comments.tab.organization.prompt.title": "There are no internal comments yet",
   "Comments.tab.organization.prompt.description": "You can leave internal comments - only employees of the organization will see them",

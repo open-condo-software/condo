@@ -61,14 +61,13 @@ const Container = styled.aside<IContainerProps>`
   flex-flow: column nowrap;
   align-content: space-between;
 `
-const Head = styled.div`
-  padding: 24px;
-  border-bottom: solid thin ${colors.lightGrey};
+const Head = styled.div<{ isTabsHidden: boolean }>`
+  padding: ${({ isTabsHidden }) => isTabsHidden ? '24px' : '24px 24px 0 24px'};
+  border-bottom: ${({ isTabsHidden }) => isTabsHidden ? 'solid thin ' + colors.inputBorderGrey : 'none'}; 
   font-style: normal;
   font-weight: bold;
   font-size: 20px;
   line-height: 28px;
-  margin-bottom: -24px;
 `
 const Body = styled.div`
   padding: 12px 24px 0;
@@ -98,7 +97,7 @@ type ActionsForComment = {
 
 const { TabPane } = Tabs
 
-const CommentsTabsContainer = styled.div`
+const CommentsTabsContainer = styled.div<{ isTabsHidden: boolean }>`
     padding: 0;
     display: flex;
     flex: 1 1 auto;
@@ -110,8 +109,13 @@ const CommentsTabsContainer = styled.div`
       flex: 1 1 auto;
 
       & > .ant-tabs-nav {
+        visibility: ${({ isTabsHidden }) => isTabsHidden ? 'hidden' : 'visible'};
+        opacity: ${({ isTabsHidden }) => isTabsHidden ? '0' : '1'};
+        max-height: ${({ isTabsHidden }) => isTabsHidden ? '0' : '100px'};
+        padding: ${({ isTabsHidden }) => isTabsHidden ? '0' : '28px 0'};
+        transition: opacity 0.2s, max-height 0.2s, padding 0.2s ease-in;
+        
         border-bottom: 1px solid ${colors.inputBorderGrey};
-        padding: 28px 0;
         margin: 0;
         
         .ant-tabs-tab {
@@ -153,10 +157,12 @@ type CommentsTabContentProps = {
     actionsFor: (comment: TComment) => ActionsForComment,
     editableComment: TComment
     setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
+    isTabsHidden: boolean
+    setTabsHidden: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
-    ({ comments, PromptTitleMessage, PromptDescriptionMessage, actionsFor, editableComment, setEditableComment }) => {
+    ({ isTabsHidden, setTabsHidden, comments, PromptTitleMessage, PromptDescriptionMessage, actionsFor, editableComment, setEditableComment }) => {
         const bodyRef = useRef(null)
 
         const scrollToBottom = () => {
@@ -164,6 +170,14 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                 bodyRef.current.scrollTop = 0
             }
         }
+
+        const handleBodyScroll = useCallback((e) => {
+            if (e.currentTarget.scrollTop > 30 && !isTabsHidden) {
+                setTabsHidden(true)
+            } else if (e.currentTarget.scrollTop < 30 && isTabsHidden) {
+                setTabsHidden(false)
+            }
+        }, [isTabsHidden, setTabsHidden])
 
         useEffect(() => {
             scrollToBottom()
@@ -204,7 +218,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                         />
                     </EmptyContainer>
                 ) : (
-                    <Body ref={bodyRef}>
+                    <Body ref={bodyRef} onScroll={handleBodyScroll}>
                         {commentsToRender}
                     </Body>
                 )}
@@ -264,6 +278,8 @@ const Comments: React.FC<ICommentsListProps> = ({
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
+    const ResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.resident.title' })
+    const OrganizationCommentsTitleMessage = intl.formatMessage({ id: 'Comments.organization.title' })
     const CannotCreateCommentsMessage = intl.formatMessage({ id: 'Comments.cannotCreateComments' })
     const InternalCommentsMessage = intl.formatMessage({ id: 'Comments.tab.organization' })
     const PromptInternalCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.organization.prompt.title' })
@@ -277,6 +293,19 @@ const Comments: React.FC<ICommentsListProps> = ({
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const [editableComment, setEditableComment] = useState<TComment>()
     const [sending, setSending] = useState(false)
+    const [isTabsHidden, setTabsHidden] = useState<boolean>(false)
+
+    const TabsTitle = useMemo(() => {
+        if (isTabsHidden) {
+            if (commentType === ORGANIZATION_COMMENT_TYPE) {
+                return OrganizationCommentsTitleMessage
+            } else if (commentType === RESIDENT_COMMENT_TYPE) {
+                return ResidentCommentsTitleMessage
+            }
+        } else {
+            return TitleMessage
+        }
+    }, [OrganizationCommentsTitleMessage, ResidentCommentsTitleMessage, TitleMessage, commentType, isTabsHidden])
 
     const action = useCallback(async (values, syncModifiedFiles) => {
         setSending(true)
@@ -335,8 +364,8 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     return (
         <Container isSmall={isSmall}>
-            <Head>{TitleMessage}</Head>
-            <CommentsTabsContainer className="card-container">
+            <Head isTabsHidden={isTabsHidden}>{TabsTitle}</Head>
+            <CommentsTabsContainer className="card-container" isTabsHidden={isTabsHidden}>
                 <Tabs
                     defaultActiveKey={ORGANIZATION_COMMENT_TYPE}
                     centered
@@ -361,6 +390,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                             actionsFor={actionsFor}
                             editableComment={editableComment}
                             setEditableComment={setEditableComment}
+                            isTabsHidden={isTabsHidden}
+                            setTabsHidden={setTabsHidden}
                         />
                     </TabPane>
                     <TabPane
@@ -380,6 +411,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                             actionsFor={actionsFor}
                             editableComment={editableComment}
                             setEditableComment={setEditableComment}
+                            isTabsHidden={isTabsHidden}
+                            setTabsHidden={setTabsHidden}
                         />
                     </TabPane>
                 </Tabs>
