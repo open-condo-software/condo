@@ -114,32 +114,34 @@ export default function BuildingsTable (props: BuildingTableProps) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
-    return isNoBuildingsData
-        ? <EmptyListView
-            label={EmptyListLabel}
-            message={EmptyListMessage}
-            button={(
-                <ImportWrapper
-                    objectsName={PropertiesMessage}
-                    accessCheck={canManageProperties}
-                    onFinish={refetch}
-                    columns={columns}
-                    rowNormalizer={propertyNormalizer}
-                    rowValidator={propertyValidator}
-                    domainTranslate={PropertyTitle}
-                    objectCreator={propertyCreator}
-                >
-                    <Button
-                        type={'sberPrimary'}
-                        icon={<DiffOutlined/>}
-                        secondary
-                    />
-                </ImportWrapper>
-            )}
-            createRoute="/property/create"
-            createLabel={CreateProperty}/>
-        : (
-            <Row justify={'space-between'} gutter={ROW_VERTICAL_GUTTERS}>
+    return (
+        <>
+            <EmptyListView
+                label={EmptyListLabel}
+                message={EmptyListMessage}
+                button={(
+                    <ImportWrapper
+                        objectsName={PropertiesMessage}
+                        accessCheck={canManageProperties}
+                        onFinish={refetch}
+                        columns={columns}
+                        rowNormalizer={propertyNormalizer}
+                        rowValidator={propertyValidator}
+                        domainTranslate={PropertyTitle}
+                        objectCreator={propertyCreator}
+                    >
+                        <Button
+                            type={'sberPrimary'}
+                            icon={<DiffOutlined/>}
+                            secondary
+                        />
+                    </ImportWrapper>
+                )}
+                createRoute="/property/create"
+                createLabel={CreateProperty}
+                containerStyle={{ display: isNoBuildingsData ? 'flex' : 'none' }}
+            />
+            <Row justify={'space-between'} gutter={ROW_VERTICAL_GUTTERS} hidden={isNoBuildingsData}>
                 <Col span={24}>
                     <TableFiltersContainer>
                         <Row justify="space-between" gutter={ROW_VERTICAL_GUTTERS}>
@@ -233,5 +235,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
                     />
                 </Col>
             </Row>
-        )
+        </>
+    )
 }

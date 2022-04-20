@@ -111,118 +111,118 @@ export const MetersPageContent = ({
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
                 <TablePageContent>
-                    {
-                        isNoMeterData
-                            ? (
-                                <EmptyListView
-                                    label={EmptyListLabel}
-                                    message={''}
-                                    button={(
-                                        <ImportWrapper
-                                            objectsName={MeterReadingImportObjectsName}
-                                            accessCheck={canManageMeterReadings}
-                                            onFinish={refetch}
-                                            columns={columns}
-                                            maxTableLength={
-                                                hasFeature('bigger_limit_for_import') ?
-                                                    EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                                    DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                            }
-                                            rowNormalizer={meterReadingNormalizer}
-                                            rowValidator={meterReadingValidator}
-                                            objectCreator={meterReadingCreator}
-                                            domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                            exampleTemplateLink={'/meter-import-example.xlsx'}
-                                            mutationErrorsToMessages={mutationErrorsToMessages}
-                                        >
-                                            <Button
-                                                type={'sberPrimary'}
-                                                icon={<DiffOutlined />}
-                                                block
-                                                secondary
-                                            />
-                                        </ImportWrapper>
-                                    )}
-                                    createRoute='/meter/create'
-                                    createLabel={CreateMeter} />
-                            ) :
-                            (
-                                <Row gutter={METERS_PAGE_CONTENT_ROW_GUTTERS} align={'middle'} justify={'center'}>
-                                    <Col span={24}>
-                                        <TableFiltersContainer>
-                                            <Row justify={'space-between'} gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
-                                                <Col xs={24} lg={7}>
-                                                    <Input
-                                                        placeholder={SearchPlaceholder}
-                                                        onChange={handleSearch}
-                                                        value={search}
-                                                    />
-                                                </Col>
-                                                <Col>
-                                                    <Row gutter={[10, 0]} align={'middle'} justify={'center'}>
-                                                        {
-                                                            canManageMeterReadings && (
-                                                                <Col>
-                                                                    <ImportWrapper
-                                                                        objectsName={MeterReadingImportObjectsName}
-                                                                        accessCheck={canManageMeterReadings}
-                                                                        onFinish={refetch}
-                                                                        columns={columns}
-                                                                        maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                                                            EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                                                            DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                                                        }
-                                                                        rowNormalizer={meterReadingNormalizer}
-                                                                        rowValidator={meterReadingValidator}
-                                                                        objectCreator={meterReadingCreator}
-                                                                        domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                                                        exampleTemplateLink={'/meter-import-example.xlsx'}
-                                                                        mutationErrorsToMessages={mutationErrorsToMessages}
-                                                                    >
-                                                                        <Button
-                                                                            type={'sberPrimary'}
-                                                                            icon={<DiffOutlined />}
-                                                                            block
-                                                                            secondary
-                                                                        />
-                                                                    </ImportWrapper>
-                                                                </Col>
-                                                            )
-                                                        }
-                                                        <Col>
-                                                            <Button
-                                                                secondary
-                                                                type={'sberPrimary'}
-                                                                onClick={handleMultipleFiltersButtonClick}
-                                                            >
-                                                                <FilterFilled/>
-                                                                {FiltersButtonLabel}
-                                                            </Button>
-                                                        </Col>
-                                                    </Row>
-                                                </Col>
-                                            </Row>
-                                        </TableFiltersContainer>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Table
-                                            scroll={getTableScrollConfig(isSmall)}
-                                            totalRows={total}
-                                            loading={loading}
-                                            dataSource={meterReadings}
-                                            columns={tableColumns}
-                                            onRow={handleRowAction}
+                    <EmptyListView
+                        label={EmptyListLabel}
+                        message={''}
+                        button={(
+                            <ImportWrapper
+                                objectsName={MeterReadingImportObjectsName}
+                                accessCheck={canManageMeterReadings}
+                                onFinish={refetch}
+                                columns={columns}
+                                maxTableLength={
+                                    hasFeature('bigger_limit_for_import') ?
+                                        EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                        DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                }
+                                rowNormalizer={meterReadingNormalizer}
+                                rowValidator={meterReadingValidator}
+                                objectCreator={meterReadingCreator}
+                                domainTranslate={MeterReadingImportObjectsNameManyGenitive}
+                                exampleTemplateLink={'/meter-import-example.xlsx'}
+                                mutationErrorsToMessages={mutationErrorsToMessages}
+                            >
+                                <Button
+                                    type={'sberPrimary'}
+                                    icon={<DiffOutlined />}
+                                    block
+                                    secondary
+                                />
+                            </ImportWrapper>
+                        )}
+                        createRoute='/meter/create'
+                        createLabel={CreateMeter}
+                        containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
+                    />
+                    <Row
+                        gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
+                        align={'middle'}
+                        justify={'center'}
+                        hidden={isNoMeterData}
+                    >
+                        <Col span={24}>
+                            <TableFiltersContainer>
+                                <Row justify={'space-between'} gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
+                                    <Col xs={24} lg={7}>
+                                        <Input
+                                            placeholder={SearchPlaceholder}
+                                            onChange={handleSearch}
+                                            value={search}
                                         />
                                     </Col>
-                                    <ExportToExcelActionBar
-                                        hidden={isSmall}
-                                        searchObjectsQuery={searchMeterReadingsQuery}
-                                        exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
-                                        sortBy={sortBy}
-                                    />
+                                    <Col>
+                                        <Row gutter={[10, 0]} align={'middle'} justify={'center'}>
+                                            {
+                                                canManageMeterReadings && (
+                                                    <Col>
+                                                        <ImportWrapper
+                                                            objectsName={MeterReadingImportObjectsName}
+                                                            accessCheck={canManageMeterReadings}
+                                                            onFinish={refetch}
+                                                            columns={columns}
+                                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
+                                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                                            }
+                                                            rowNormalizer={meterReadingNormalizer}
+                                                            rowValidator={meterReadingValidator}
+                                                            objectCreator={meterReadingCreator}
+                                                            domainTranslate={MeterReadingImportObjectsNameManyGenitive}
+                                                            exampleTemplateLink={'/meter-import-example.xlsx'}
+                                                            mutationErrorsToMessages={mutationErrorsToMessages}
+                                                        >
+                                                            <Button
+                                                                type={'sberPrimary'}
+                                                                icon={<DiffOutlined />}
+                                                                block
+                                                                secondary
+                                                            />
+                                                        </ImportWrapper>
+                                                    </Col>
+                                                )
+                                            }
+                                            <Col>
+                                                <Button
+                                                    secondary
+                                                    type={'sberPrimary'}
+                                                    onClick={handleMultipleFiltersButtonClick}
+                                                >
+                                                    <FilterFilled/>
+                                                    {FiltersButtonLabel}
+                                                </Button>
+                                            </Col>
+                                        </Row>
+                                    </Col>
                                 </Row>
-                            )
-                    }
+                            </TableFiltersContainer>
+                        </Col>
+                        <Col span={24}>
+                            <Table
+                                scroll={getTableScrollConfig(isSmall)}
+                                totalRows={total}
+                                loading={loading}
+                                dataSource={meterReadings}
+                                columns={tableColumns}
+                                onRow={handleRowAction}
+                            />
+                        </Col>
+                        <ExportToExcelActionBar
+                            hidden={isSmall}
+                            searchObjectsQuery={searchMeterReadingsQuery}
+                            exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
+                            sortBy={sortBy}
+                        />
+                    </Row>
                     <UpdateMeterModal />
                     <MultipleFiltersModal />
                 </TablePageContent>
