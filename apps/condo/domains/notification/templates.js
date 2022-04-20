@@ -117,7 +117,10 @@ function emailRenderer ({ message, env }) {
     }
 
     if (templatePathText) {
-        ret.text = nunjucks.render(templatePathText, { message, env })
+        // For text emails we unescape email message to prevent HTML entities in email body
+        // See https://lodash.com/docs/4.17.15#unescape
+        // &amp;, &lt;, &gt;, &quot;, and &#39; will be replaced to corresponding characters
+        ret.text = unescape(nunjucks.render(templatePathText, { message, env }))
     }
 
     if (templatePathHtml) {
