@@ -23,8 +23,6 @@ type IAddressSearchInput = SelectProps<string> & {
 const SELECT_OPTION_STYLE: CSSProperties = { direction: 'rtl', textAlign: 'left', color: grey[6] }
 
 export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props) => {
-    // TODO(Dimitree):remove ts ignore after useOrganizationTypo
-    // @ts-ignore
     const { organization } = props
     const client = useApolloClient()
     const organizationId = get(organization, 'id')
@@ -41,11 +39,13 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
 
     const searchAddress = useCallback(
         (query, skip) => {
-            const userInputWords = query.split(QUERY_SPLIT_REGEX).map((element) => {
-                return {
-                    address_contains_i: element,
-                }
-            })
+            const userInputWords = query
+                ? query.split(QUERY_SPLIT_REGEX).map((element) => {
+                    return {
+                        address_contains_i: element,
+                    }
+                })
+                : []
             const where = {
                 organization: { id: organizationId },
                 AND: userInputWords,
