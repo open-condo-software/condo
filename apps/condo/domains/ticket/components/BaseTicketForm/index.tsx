@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, FormItemProps } from 'antd'
 import { get, isEmpty }  from 'lodash'
@@ -28,11 +28,12 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
+import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
-import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
+
 const { TabPane } = Tabs
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`

@@ -1,20 +1,24 @@
-import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
-import { TComment } from './index'
-import { useIntl } from '@core/next/intl'
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
-import React, { useState } from 'react'
-import { grey } from '@ant-design/colors'
-import { colors, shadows } from '@condo/domains/common/constants/style'
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core'
-import { User } from '@app/condo/schema'
+import React, { CSSProperties, useState } from 'react'
+import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
 import dayjs from 'dayjs'
-import { Button } from '../Button'
 import get from 'lodash/get'
+import { css, jsx } from '@emotion/core'
+import { DeleteFilled, EditFilled } from '@ant-design/icons'
+import { grey } from '@ant-design/colors'
+import styled from '@emotion/styled'
+
+import { User } from '@app/condo/schema'
+import { useIntl } from '@core/next/intl'
+
 import { ImageIcon } from '@condo/domains/common/components/icons/ImageIcon'
 import { VideoIcon } from '@condo/domains/common/components/icons/VideoIcon'
 import { DocIcon } from '@condo/domains/common/components/icons/DocIcon'
+import { colors, shadows } from '@condo/domains/common/constants/style'
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+
+import { Button } from '../Button'
+import { TComment } from './index'
 
 interface ICommentProps {
     comment: TComment,
@@ -145,6 +149,25 @@ const getIconByMimetype = (mimetype) => {
     }
 }
 
+const CommentFileListWrapper = styled.div`
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+`
+
+const CommentFileCard = styled.div`
+  border-radius: 8px;
+  overflow: hidden; 
+  background-color: ${colors.backgroundLightGrey};
+  width: 64px; 
+  height: 64px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+`
+
+const TEXT_WRAP_COMPONENT_STYLES: CSSProperties = { display: 'flex', flexFlow: 'column', justifyContent: 'center', width: '70px' }
+
 const CommentFileList = ({ comment }) => {
     const files = get(comment, 'files')
 
@@ -154,7 +177,7 @@ const CommentFileList = ({ comment }) => {
 
     return (
         <Image.PreviewGroup>
-            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+            <CommentFileListWrapper>
                 {
                     files.map(({ id, file }) => {
                         const fileNameArr = file.originalFilename.split('.')
@@ -162,22 +185,21 @@ const CommentFileList = ({ comment }) => {
                         const fileName = fileNameArr.join('.')
                         const mimetype = get(file, 'mimetype')
                         const url = get(file, 'publicUrl')
-
                         const TextWrapComponent = mimetype.startsWith('image') ? Typography.Paragraph : Typography.Link
 
                         return (
                             <TextWrapComponent
                                 href={url}
                                 key={id}
-                                style={{ display: 'flex', flexFlow: 'column', justifyContent: 'center', width: '70px' }}
+                                style={TEXT_WRAP_COMPONENT_STYLES}
                             >
                                 {
                                     mimetype.startsWith('image') ? (
                                         <Image src={url} width={64} height={64} />
                                     ) : (
-                                        <div style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: '#F2F3F7', width: '64px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <CommentFileCard>
                                             {getIconByMimetype(mimetype)}
-                                        </div>
+                                        </CommentFileCard>
                                     )
                                 }
                                 <Typography.Paragraph ellipsis={{ rows: 1 }} style={{ margin: 0 }}>
@@ -190,7 +212,7 @@ const CommentFileList = ({ comment }) => {
                         )
                     })
                 }
-            </div>
+            </CommentFileListWrapper>
         </Image.PreviewGroup>
     )
 }

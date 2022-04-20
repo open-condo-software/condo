@@ -27,7 +27,7 @@ interface ITableProps extends TableProps<TableRecord> {
     shouldHidePaginationOnSinglePage?: boolean,
 }
 
-export const DEFAULT_PAGE_SIZE = 5
+export const DEFAULT_PAGE_SIZE = 30
 const TABLE_STYLE = { width: 'auto' }
 
 export const Table: React.FC<ITableProps> = ({

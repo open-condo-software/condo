@@ -631,20 +631,13 @@ export function hasUnreadResidentComments (userTicketCommentRead, ticket) {
     const lastResidentCommentAt = get(ticket, 'lastResidentCommentAt')
     const lastEmployeeAnsweredToResidentAt = get(ticket, 'lastEmployeeAnsweredToResidentAt')
 
-    // Если есть коммент жителя
     if (lastResidentCommentAt) {
-        // И пользователь еще не читал их
         if (!readResidentCommentByUserAt) {
-            // И кто-то отвечал (если отвечал) раньше, чем этот коммент написали
             if (!lastEmployeeAnsweredToResidentAt || dayjs(lastEmployeeAnsweredToResidentAt).isBefore(lastResidentCommentAt)) {
-                // Отобразить индикатор
                 return true
             }
-            // И пользователь читал комменты жителей в этом тикете
         } else {
-            // Если житель написал коммент позже, чем пользователь прочитал
             if (dayjs(readResidentCommentByUserAt).isBefore(lastResidentCommentAt)) {
-                // Если на него ответили раньше, чем он прочитал, то отображаем индикатор
                 if (!lastEmployeeAnsweredToResidentAt || dayjs(lastEmployeeAnsweredToResidentAt).isBefore(lastResidentCommentAt)) {
                     return true
                 }

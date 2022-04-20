@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useReducer, useMemo, useRef } from 'react'
 import { Upload } from 'antd'
-import { Button } from '@condo/domains/common/components/Button'
-import { useIntl } from '@core/next/intl'
-import { EditOutlined, DeleteFilled, EditFilled } from '@ant-design/icons'
-
-import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
-
+import isEmpty from 'lodash/isEmpty'
+import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { UploadRequestOption } from 'rc-upload/lib/interface'
-import { File } from '@app/condo/schema'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
-import { isEmpty } from 'lodash'
-import { Loader } from './Loader'
+
+import { useIntl } from '@core/next/intl'
+import { File } from '@app/condo/schema'
+
+import { Button } from '@condo/domains/common/components/Button'
+import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 type DBFile = {
     id: string
@@ -20,7 +19,7 @@ type UploadListFile = UploadFile & {
     id: string
 }
 
-type Module = {
+export type Module = {
     useCreate: (attrs, onComplete) => (attrs) => Promise<DBFile>
     useUpdate: (attrs, onComplete) => (update, attrs) => Promise<DBFile>
     useSoftDelete: (attrs, onComplete) => (state, attrs) => Promise<unknown>
@@ -141,7 +140,7 @@ export const useMultipleFileUploadHook = ({
 }
 
 interface IMultipleFileUploadProps {
-    setFilesCount
+    setFilesCount: React.Dispatch<React.SetStateAction<number>>
     fileList: DBFile[]
     initialCreateValues: Record<string, unknown>
     Model: Module

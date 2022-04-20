@@ -4,12 +4,13 @@
 
 import { pick, get } from 'lodash'
 
+import { UserTicketCommentRead, UserTicketCommentReadUpdateInput, QueryAllUserTicketCommentReadsArgs } from '@app/condo/schema'
+
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
-
 import { UserTicketCommentRead as UserTicketCommentReadGQL } from '@condo/domains/ticket/gql'
-import { UserTicketCommentRead, UserTicketCommentReadUpdateInput, QueryAllUserTicketCommentReadsArgs } from '../../../../schema'
-import { IUserUIState } from '../../../user/utils/clientSchema/User'
+import { IUserUIState } from '@condo/domains/user/utils/clientSchema/User'
+
 import { ITicketUIState } from './Ticket'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user', 'ticket', 'readResidentCommentAt']
