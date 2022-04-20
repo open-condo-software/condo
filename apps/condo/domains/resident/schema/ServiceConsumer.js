@@ -38,7 +38,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         },
 
         billingAccount: {
-            schemaDoc: 'Billing account, that will allow this resident to pay for certain service',
+            schemaDoc: '[DEPRECATED] Billing account, that will allow this resident to pay for certain service',
             type: Relationship,
             ref: 'BillingAccount',
             isRequired: false,
