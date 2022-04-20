@@ -92,128 +92,122 @@ export const ContactsPageContent = ({
             <PageWrapper>
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
                 <TablePageContent>
-                    {
-                        isNoContactsData
-                            ? (
-                                <EmptyListView
-                                    label={EmptyListLabel}
-                                    message={EmptyListMessage}
-                                    button={(
-                                        <ImportWrapper
-                                            objectsName={ContactsMessage}
-                                            accessCheck={canManageContacts}
-                                            onFinish={refetch}
-                                            columns={columns}
-                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                            }
-                                            rowNormalizer={contactNormalizer}
-                                            rowValidator={contactValidator}
-                                            objectCreator={contactCreator}
-                                            domainTranslate={ContactTitle}
-                                            exampleTemplateLink={'/contact-import-example.xlsx'}
-                                        >
-                                            <Button
-                                                type={'sberPrimary'}
-                                                icon={<DiffOutlined/>}
-                                                block
-                                                secondary
-                                            />
-                                        </ImportWrapper>
-                                    )}
-                                    createRoute={ADD_CONTACT_ROUTE}
-                                    createLabel={CreateContact}
+                    <EmptyListView
+                        label={EmptyListLabel}
+                        message={EmptyListMessage}
+                        button={(
+                            <ImportWrapper
+                                objectsName={ContactsMessage}
+                                accessCheck={canManageContacts}
+                                onFinish={refetch}
+                                columns={columns}
+                                maxTableLength={hasFeature('bigger_limit_for_import') ?
+                                    EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                    DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                }
+                                rowNormalizer={contactNormalizer}
+                                rowValidator={contactValidator}
+                                objectCreator={contactCreator}
+                                domainTranslate={ContactTitle}
+                                exampleTemplateLink={'/contact-import-example.xlsx'}
+                            >
+                                <Button
+                                    type={'sberPrimary'}
+                                    icon={<DiffOutlined/>}
+                                    block
+                                    secondary
                                 />
-                            )
-                            : (
-                                <Row gutter={ROW_VERTICAL_GUTTERS} align={'middle'} justify={'start'}>
-                                    <Col span={24}>
-                                        <TableFiltersContainer>
-                                            <Row justify={'space-between'} gutter={ROW_VERTICAL_GUTTERS}>
-                                                <Col xs={24} lg={6}>
-                                                    <Input
-                                                        placeholder={SearchPlaceholder}
-                                                        onChange={(e) => {
-                                                            handleSearchChange(e.target.value)
-                                                        }}
-                                                        value={search}
-                                                    />
-                                                </Col>
-                                                <Col>
-                                                    <Row
-                                                        gutter={ROW_HORIZONTAL_GUTTERS}
-                                                        align={'middle'}
-                                                        justify={'center'}
-                                                    >
-                                                        <Col hidden={isSmall}>
-                                                            {
-                                                                canManageContacts && (
-                                                                    <ImportWrapper
-                                                                        objectsName={ContactsMessage}
-                                                                        accessCheck={canManageContacts}
-                                                                        onFinish={refetch}
-                                                                        columns={columns}
-                                                                        maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                                                            EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                                                            DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                                                        }
-                                                                        rowNormalizer={contactNormalizer}
-                                                                        rowValidator={contactValidator}
-                                                                        objectCreator={contactCreator}
-                                                                        domainTranslate={ContactTitle}
-                                                                        exampleTemplateLink={'/contact-import-example.xlsx'}
-                                                                    >
-                                                                        <Button
-                                                                            type={'sberPrimary'}
-                                                                            icon={<DiffOutlined/>}
-                                                                            block
-                                                                            secondary
-                                                                        />
-                                                                    </ImportWrapper>
-                                                                )
-                                                            }
-                                                        </Col>
-                                                        <Col>
-                                                            {
-                                                                canManageContacts && (
-                                                                    <Button
-                                                                        block={!isSmall}
-                                                                        key="left"
-                                                                        type={'sberPrimary'}
-                                                                        onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                                                    >
-                                                                        {CreateContact}
-                                                                    </Button>
-                                                                )
-                                                            }
-                                                        </Col>
-                                                    </Row>
-                                                </Col>
-                                            </Row>
-                                        </TableFiltersContainer>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Table
-                                            scroll={getTableScrollConfig(isSmall)}
-                                            totalRows={total}
-                                            loading={loading}
-                                            dataSource={contacts}
-                                            columns={tableColumns}
-                                            onRow={handleRowAction}
-                                            pageSize={CONTACT_PAGE_SIZE}
+                            </ImportWrapper>
+                        )}
+                        createRoute={ADD_CONTACT_ROUTE}
+                        createLabel={CreateContact}
+                        containerStyle={{ display: isNoContactsData ? 'flex' : 'none' }}
+                    />
+                    <Row gutter={ROW_VERTICAL_GUTTERS} align={'middle'} justify={'start'} hidden={isNoContactsData}>
+                        <Col span={24}>
+                            <TableFiltersContainer>
+                                <Row justify={'space-between'} gutter={ROW_VERTICAL_GUTTERS}>
+                                    <Col xs={24} lg={6}>
+                                        <Input
+                                            placeholder={SearchPlaceholder}
+                                            onChange={(e) => {
+                                                handleSearchChange(e.target.value)
+                                            }}
+                                            value={search}
                                         />
                                     </Col>
-                                    <ExportToExcelActionBar
-                                        hidden={isSmall}
-                                        searchObjectsQuery={searchContactsQuery}
-                                        sortBy={sortBy}
-                                        exportToExcelQuery={EXPORT_CONTACTS_TO_EXCEL}
-                                        useTimeZone={false}
-                                    />
+                                    <Col>
+                                        <Row
+                                            gutter={ROW_HORIZONTAL_GUTTERS}
+                                            align={'middle'}
+                                            justify={'center'}
+                                        >
+                                            <Col hidden={isSmall}>
+                                                {
+                                                    canManageContacts && (
+                                                        <ImportWrapper
+                                                            objectsName={ContactsMessage}
+                                                            accessCheck={canManageContacts}
+                                                            onFinish={refetch}
+                                                            columns={columns}
+                                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
+                                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                                            }
+                                                            rowNormalizer={contactNormalizer}
+                                                            rowValidator={contactValidator}
+                                                            objectCreator={contactCreator}
+                                                            domainTranslate={ContactTitle}
+                                                            exampleTemplateLink={'/contact-import-example.xlsx'}
+                                                        >
+                                                            <Button
+                                                                type={'sberPrimary'}
+                                                                icon={<DiffOutlined/>}
+                                                                block
+                                                                secondary
+                                                            />
+                                                        </ImportWrapper>
+                                                    )
+                                                }
+                                            </Col>
+                                            <Col>
+                                                {
+                                                    canManageContacts && (
+                                                        <Button
+                                                            block={!isSmall}
+                                                            key="left"
+                                                            type={'sberPrimary'}
+                                                            onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                                                        >
+                                                            {CreateContact}
+                                                        </Button>
+                                                    )
+                                                }
+                                            </Col>
+                                        </Row>
+                                    </Col>
                                 </Row>
-                            )
-                    }
+                            </TableFiltersContainer>
+                        </Col>
+                        <Col span={24}>
+                            <Table
+                                scroll={getTableScrollConfig(isSmall)}
+                                totalRows={total}
+                                loading={loading}
+                                dataSource={contacts}
+                                columns={tableColumns}
+                                onRow={handleRowAction}
+                                pageSize={CONTACT_PAGE_SIZE}
+                            />
+                        </Col>
+                        <ExportToExcelActionBar
+                            hidden={isSmall}
+                            searchObjectsQuery={searchContactsQuery}
+                            sortBy={sortBy}
+                            exportToExcelQuery={EXPORT_CONTACTS_TO_EXCEL}
+                            useTimeZone={false}
+                        />
+                    </Row>
                 </TablePageContent>
             </PageWrapper>
         </>
