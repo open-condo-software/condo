@@ -10,6 +10,7 @@ export interface IEmptyListProps {
     button?: React.ReactElement,
     createRoute: string,
     createLabel: string,
+    containerStyle?: CSSProperties
 }
 
 export interface IBasicEmptyListProps extends EmptyProps {
@@ -53,11 +54,17 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
     )
 }
 
-export const EmptyListView: React.FC<IEmptyListProps> = ({ label, message, button, createRoute, createLabel }) => {
+export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
+    const { label, message, button, createRoute, createLabel, containerStyle } = props
     const router = useRouter()
 
     return (
-        <BasicEmptyListView image="dino/searching@2x.png" spaceSize={16} imageStyle={{ height: 200 }}>
+        <BasicEmptyListView
+            image="dino/searching@2x.png"
+            spaceSize={16}
+            imageStyle={{ height: 200 }}
+            containerStyle={containerStyle}
+        >
             <Typography.Title level={4}>
                 {label}
             </Typography.Title>
