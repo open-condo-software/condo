@@ -724,7 +724,7 @@ class MapEdit extends MapView {
 
     public addPreviewSectionFloor (floor: BuildingFloorArg): void {
         this.removePreviewSectionFloor()
-        this.sectionFloorIndex = this.sections[floor.section].index
+        this.sectionFloorIndex = floor.section
         const newSectionFloor = this.generateFloor(floor, true)
         this.insertFloor(newSectionFloor, floor.section)
     }
@@ -1321,7 +1321,6 @@ class MapEdit extends MapView {
         if (!get(this.map, `sections[${sectionIdx}].floors[${floorIndex}]`, false)) {
             return
         }
-
         const floorToRemove = this.map.sections[sectionIdx].floors[floorIndex]
         this.map.sections[sectionIdx].floors.splice(floorIndex, 1)
         const floorIndexCache = invert(this.sectionFloorMap)
