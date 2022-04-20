@@ -145,11 +145,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
 
     useEffect(() => {
         const formattedPhone = formatPhone(phone)
-        const phoneVisible =
-            isPhoneVisible ?
-                formattedPhone
-                :
-                `${formattedPhone.substring(0, 9)}***${formattedPhone.substring(12)}`
+        const phoneVisible = isPhoneVisible ? formattedPhone : `${formattedPhone.substring(0, 9)}***${formattedPhone.substring(12)}`
         setShowPhone(phoneVisible)
     }, [isPhoneVisible, phone, setShowPhone])
 
