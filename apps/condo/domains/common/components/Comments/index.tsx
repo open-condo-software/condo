@@ -1,19 +1,23 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Empty, Tabs, Typography } from 'antd'
 import styled from '@emotion/styled'
+import get from 'lodash/get'
+
 import { useIntl } from '@core/next/intl'
-import { Divider, Empty, Tabs, Typography } from 'antd'
-import { useLayoutContext } from '../LayoutContext'
-import { Comment } from './Comment'
-import { CommentForm } from './CommentForm'
+import { File, Organization, UserTypeType } from '@app/condo/schema'
+import { useAuth } from '@core/next/auth'
+
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
-import { File, Organization, UserTypeType } from '@app/condo/schema'
 import { UserTicketCommentRead } from '@condo/domains/ticket/utils/clientSchema'
-import { useAuth } from '@core/next/auth'
-import { get } from 'lodash'
-import { ITicketUIState } from '../../../ticket/utils/clientSchema/Ticket'
-import { hasUnreadResidentComments } from '../../../ticket/utils/helpers'
+import { ITicketUIState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
+import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
+
+import { Module } from '../MultipleFileUpload'
+import { useLayoutContext } from '../LayoutContext'
+import { Comment } from './Comment'
+import { CommentForm } from './CommentForm'
 
 export type TCommentFile = {
     id: string
@@ -242,7 +246,9 @@ interface ICommentsListProps {
     // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
     actionsFor: (comment: TComment) => ActionsForComment,
     canCreateComments: boolean,
-    refetchComments
+    refetchComments,
+    FileModel: Module,
+    fileModelRelationField: string,
 }
 
 const Comments: React.FC<ICommentsListProps> = ({
@@ -253,6 +259,8 @@ const Comments: React.FC<ICommentsListProps> = ({
     refetchComments,
     canCreateComments,
     actionsFor,
+    FileModel,
+    fileModelRelationField,
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
@@ -294,7 +302,6 @@ const Comments: React.FC<ICommentsListProps> = ({
     const commentsWithOrganization = comments.filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE)
     const commentsWithResident = comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE)
     const ticketId = get(ticket, 'id')
-
     const { obj: userTicketCommentRead, refetch } = UserTicketCommentRead.useObject({
         where: {
             user: { id: user.id },
@@ -380,6 +387,8 @@ const Comments: React.FC<ICommentsListProps> = ({
             <Footer>
                 {canCreateComments ? (
                     <CommentForm
+                        FileModel={FileModel}
+                        relationField={fileModelRelationField}
                         action={action}
                         editableComment={editableComment}
                         setEditableComment={setEditableComment}

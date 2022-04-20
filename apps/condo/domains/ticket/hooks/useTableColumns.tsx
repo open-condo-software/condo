@@ -2,10 +2,13 @@ import React, { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import { identity } from 'lodash/util'
-import { Space, Tag, Typography } from 'antd'
+import { Space, Typography } from 'antd'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
+import styled from '@emotion/styled'
 
+import { useAuth } from '@core/next/auth'
+import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
 import { useIntl } from '@core/next/intl'
 
 import {
@@ -15,11 +18,14 @@ import {
     getHighlightedContents,
 } from '@condo/domains/common/components/Table/Renders'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { colors } from '@condo/domains/common/constants/style'
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+
 import { TicketStatus, UserTicketCommentRead } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import {
@@ -30,13 +36,7 @@ import {
     TicketDeadlineType,
 } from '../utils/helpers'
 import { getTicketClientNameRender, getTicketDetailsRender } from '../utils/clientSchema/Renders'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
 import { TicketTag } from '../components/TicketTag'
-import { useAuth } from '@core/next/auth'
-import { Tooltip } from '../../common/components/Tooltip'
-import styled from '@emotion/styled'
-import { colors } from '../../common/constants/style'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -87,9 +87,10 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const ShortFloorNameMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
     const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
+    const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
 
     const router = useRouter()
-    const { filters, sorters, offset } = parseQuery(router.query)
+    const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
     const search = getFilteredValue(filters, 'search')
     const { breakpoints } = useLayoutContext()
@@ -242,7 +243,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
         const userTicketCommentRead = userTicketsCommentRead.find(obj => obj.ticket.id === ticket.id)
         const postfix = hasUnreadResidentComments(userTicketCommentRead, ticket) && (
             <div style={{ position: 'relative', left: '-40px' }}>
-                <Tooltip title={'Новый комментарий жителя'} placement={'topRight'}>
+                <Tooltip title={NewResidentCommentMessage} placement={'topRight'}>
                     <NewCommentIndicator title={''} />
                 </Tooltip>
             </div>

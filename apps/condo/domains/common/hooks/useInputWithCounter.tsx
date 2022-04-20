@@ -1,8 +1,7 @@
-import { Col, InputProps, Typography } from 'antd'
-import React, { CSSProperties, useCallback, useState } from 'react'
+import { InputProps, Typography } from 'antd'
+import React, { useCallback, useState } from 'react'
 import { TextAreaProps } from 'antd/es/input'
-import { colors } from '../constants/style'
-import { get } from 'lodash'
+import get from 'lodash/get'
 
 type AntdInputProps = InputProps | TextAreaProps
 

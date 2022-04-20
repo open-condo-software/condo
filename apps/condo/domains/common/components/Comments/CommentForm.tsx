@@ -1,16 +1,17 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
-import { FormWithAction } from '../containers/FormList'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
-import { Button } from '@condo/domains/common/components/Button'
-import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
-import { useState } from 'react'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { useInputWithCounter } from '../../hooks/useInputWithCounter'
-import { colors } from '@condo/domains/common/constants/style'
-import { useMultipleFileUploadHook } from '../MultipleFileUpload'
-import { TicketCommentFile } from '@condo/domains/ticket/utils/clientSchema'
+
+import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
+
+import { Button } from '@condo/domains/common/components/Button'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { colors } from '@condo/domains/common/constants/style'
+
+import { useInputWithCounter } from '../../hooks/useInputWithCounter'
+import { Module, useMultipleFileUploadHook } from '../MultipleFileUpload'
+import { FormWithAction } from '../containers/FormList'
 import { ClipIcon } from '../icons/ClipIcon'
 import { TComment } from './index'
 
@@ -56,11 +57,21 @@ interface ICommentFormProps {
     editableComment: TComment
     setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
     sending: boolean
+    FileModel: Module,
+    relationField: string,
 }
 
 export const MAX_COMMENT_LENGTH = 300
 
-const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldName, editableComment, sending }) => {
+const CommentForm: React.FC<ICommentFormProps> = ({
+    initialValue,
+    action,
+    fieldName,
+    editableComment,
+    sending,
+    FileModel,
+    relationField,
+}) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
     const HelperMessage = intl.formatMessage({ id: 'Comments.form.helper' })
@@ -71,8 +82,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({ initialValue, action, fieldN
     const { organization } = useOrganization()
 
     const { UploadComponent, syncModifiedFiles, resetModifiedFiles, filesCount } = useMultipleFileUploadHook({
-        Model: TicketCommentFile,
-        relationField: 'ticketComment',
+        Model: FileModel,
+        relationField: relationField,
         initialFileList: editableComment?.files,
         initialCreateValues: { organization: organization.id },
         dependenciesForRerenderUploadComponent: [editableComment],

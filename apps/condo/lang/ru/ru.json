@@ -846,6 +846,7 @@
   "TicketAssignment": "Назначение заявки",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Фио Жителя",
+  "ticket.newResidentComment": "Новый комментарий жителя",
   "ticket.reviewValue": "Оценка жителя",
   "ticket.reviewValue.good": "Хорошо",
   "ticket.reviewValue.bad": "Плохо",

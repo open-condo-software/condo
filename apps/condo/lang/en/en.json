@@ -846,6 +846,7 @@
   "TicketAssignment": "Application assignment",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Resident Name",
+  "ticket.newResidentComment": "New resident comment",
   "ticket.reviewValue": "Resident review",
   "ticket.reviewValue.good": "Good",
   "ticket.reviewValue.bad": "Bad",

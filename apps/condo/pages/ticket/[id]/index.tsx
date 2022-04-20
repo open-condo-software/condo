@@ -724,6 +724,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                         <Col lg={7} xs={24} offset={isSmall ? 0 : 1}>
                             <Affix offsetTop={40}>
                                 <Comments
+                                    FileModel={TicketCommentFile}
+                                    fileModelRelationField={'ticketComment'}
                                     ticket={ticket}
                                     // @ts-ignore
                                     createAction={createCommentAction}

@@ -228,7 +228,7 @@ export const TicketsPageContent = ({
                                             dataSource={tickets}
                                             columns={tableColumns}
                                             onRow={handleRowAction}
-                                            // components={tableComponents}
+                                            components={tableComponents}
                                             data-cy={'ticket__table'}
                                         />
                                     </Col>

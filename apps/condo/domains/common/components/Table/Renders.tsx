@@ -6,6 +6,7 @@ import get from 'lodash/get'
 import isBoolean from 'lodash/isBoolean'
 import isString from 'lodash/isString'
 import { FilterValue } from 'antd/es/table/interface'
+import { EllipsisConfig } from 'antd/es/typography/Base'
 
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
@@ -17,7 +18,6 @@ import { ELLIPSIS_ROWS } from '../../constants/style'
 import { EmptyTableCell } from './EmptyTableCell'
 import { Property } from '@app/condo/schema'
 import { getAddressDetails } from '../../utils/helpers'
-import { EllipsisConfig } from 'antd/es/typography/Base'
 
 type RenderReturnType = string | React.ReactNode
 
