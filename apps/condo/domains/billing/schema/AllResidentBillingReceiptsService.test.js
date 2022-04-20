@@ -78,6 +78,9 @@ describe('AllResidentBillingReceipts', () => {
 
                 expect(receipt).toHaveProperty('currencyCode')
                 expect(receipt.currencyCode).not.toBeNull()
+
+                expect(receipt).toHaveProperty('category')
+                expect(receipt.category).not.toBeNull()
             })
         })
     })
