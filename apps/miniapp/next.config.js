@@ -9,7 +9,7 @@ const withTM = require('next-transpile-modules')(['@core/next', '@core/keystone'
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
 
 const serverUrl = conf['SERVER_URL']
-const apolloGraphQLUrl = `${serverUrl}/admin/api`
+const apolloGraphQLUrl = `${serverUrl}/graphql`
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 const mapApiKey = conf['MAP_API_KEY']
 const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }

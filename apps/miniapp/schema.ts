@@ -157,6 +157,12 @@ export enum SortUsersBy {
   EmailDesc = 'email_DESC',
   IsLocalAsc = 'isLocal_ASC',
   IsLocalDesc = 'isLocal_DESC',
+  RelatedSingleUserAsc = 'relatedSingleUser_ASC',
+  RelatedSingleUserDesc = 'relatedSingleUser_DESC',
+  RelatedMultipleUsersAsc = 'relatedMultipleUsers_ASC',
+  RelatedMultipleUsersDesc = 'relatedMultipleUsers_DESC',
+  RelatedMultipleAccessAsc = 'relatedMultipleAccess_ASC',
+  RelatedMultipleAccessDesc = 'relatedMultipleAccess_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -201,6 +207,13 @@ export type User = {
   isLocal?: Maybe<Scalars['Boolean']>;
   /**  Password. Update only (for local auth without oidc). Check the `isLocal` field docs  */
   password_is_set?: Maybe<Scalars['Boolean']>;
+  /**  asdkasjdklajsdklasjd  */
+  relatedSingleUser?: Maybe<User>;
+  /**  asdasjkdjaskldjl  */
+  relatedMultipleUsers: Array<User>;
+  _relatedMultipleUsersMeta?: Maybe<_QueryMeta>;
+  /**  asdkasjdklajsdklasjd  */
+  relatedMultipleAccess?: Maybe<User>;
   id: Scalars['ID'];
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -214,6 +227,28 @@ export type User = {
   sender?: Maybe<SenderField>;
 };
 
+
+/**  condo.User (exported from condo API)  */
+export type UserRelatedMultipleUsersArgs = {
+  where?: Maybe<UserWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUsersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  condo.User (exported from condo API)  */
+export type User_RelatedMultipleUsersMetaArgs = {
+  where?: Maybe<UserWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUsersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
 export type UserCreateInput = {
   v?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
@@ -223,6 +258,9 @@ export type UserCreateInput = {
   email?: Maybe<Scalars['String']>;
   isLocal?: Maybe<Scalars['Boolean']>;
   password?: Maybe<Scalars['String']>;
+  relatedSingleUser?: Maybe<UserRelateToOneInput>;
+  relatedMultipleUsers?: Maybe<UserRelateToManyInput>;
+  relatedMultipleAccess?: Maybe<UserRelateToOneInput>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
@@ -231,6 +269,13 @@ export type UserCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+};
+
+export type UserRelateToManyInput = {
+  create?: Maybe<Array<Maybe<UserCreateInput>>>;
+  connect?: Maybe<Array<Maybe<UserWhereUniqueInput>>>;
+  disconnect?: Maybe<Array<Maybe<UserWhereUniqueInput>>>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
 export type UserRelateToOneInput = {
@@ -255,6 +300,9 @@ export type UserUpdateInput = {
   email?: Maybe<Scalars['String']>;
   isLocal?: Maybe<Scalars['Boolean']>;
   password?: Maybe<Scalars['String']>;
+  relatedSingleUser?: Maybe<UserRelateToOneInput>;
+  relatedMultipleUsers?: Maybe<UserRelateToManyInput>;
+  relatedMultipleAccess?: Maybe<UserRelateToOneInput>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
@@ -323,6 +371,16 @@ export type UserWhereInput = {
   isLocal?: Maybe<Scalars['Boolean']>;
   isLocal_not?: Maybe<Scalars['Boolean']>;
   password_is_set?: Maybe<Scalars['Boolean']>;
+  relatedSingleUser?: Maybe<UserWhereInput>;
+  relatedSingleUser_is_null?: Maybe<Scalars['Boolean']>;
+  /**  condition must be true for all nodes  */
+  relatedMultipleUsers_every?: Maybe<UserWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  relatedMultipleUsers_some?: Maybe<UserWhereInput>;
+  /**  condition must be false for all nodes  */
+  relatedMultipleUsers_none?: Maybe<UserWhereInput>;
+  relatedMultipleAccess?: Maybe<UserWhereInput>;
+  relatedMultipleAccess_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

@@ -4,7 +4,7 @@
 
 const get = require('lodash/get')
 
-const { Text, Select, Integer, Checkbox, Password } = require('@keystonejs/fields')
+const { Text, Select, Integer, Checkbox, Password, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
@@ -83,6 +83,36 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'Password. Update only (for local auth without oidc). Check the `isLocal` field docs',
             type: Password,
             access: access.canAccessToPasswordField,
+        },
+
+        relatedSingleUser: {
+            schemaDoc: 'asdkasjdklajsdklasjd',
+            type: Relationship,
+            ref: 'User',
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            isRequired: false,
+        },
+
+        relatedMultipleUsers: {
+            schemaDoc: 'asdasjkdjaskldjl',
+            type: Relationship,
+            ref: 'User',
+            kmigratorOptions: { null: true },
+            isRequired: false,
+            many: true,
+
+        },
+        relatedMultipleAccess: {
+            schemaDoc: 'asdkasjdklajsdklasjd',
+            type: Relationship,
+            ref: 'User',
+            isRequired: false,
+            kmigratorOptions: { null: true },
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
         },
     },
     plugins: [uuided(), tracked(), softDeleted(), dvAndSender()],

@@ -10,7 +10,11 @@ const { StaticApp } = require('@keystonejs/app-static')
 const { NextApp } = require('@keystonejs/app-next')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 
-const { introspectSchema, RenameTypes, RenameRootFields } = require('@graphql-tools/wrap')
+const {
+    introspectSchema,
+    RenameTypes,
+    RenameRootFields,
+} = require('@graphql-tools/wrap')
 const { loadSchema } = require('@graphql-tools/load')
 const { graphqlHTTP } = require('express-graphql')
 const { stitchSchemas } = require('@graphql-tools/stitch')
@@ -18,6 +22,7 @@ const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader')
 const makeRemoteExecutor = require('./introspection')
 const CONDO_URL = 'https://2aed-46-48-110-105.eu.ngrok.io/admin/api'
 const APP_URL = 'https://952e-46-48-110-105.eu.ngrok.io/admin/api'
+const fs = require('fs')
 
 
 const conf = require('@core/config')
@@ -37,6 +42,8 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 
 const defaultKeystoneConf = prepareDefaultKeystoneConfig(conf)
+const { introspectionFromSchema, buildClientSchema } = require('graphql')
+const { isEqual } = require('lodash')
 
 const keystone = new Keystone({
     ...defaultKeystoneConf,
@@ -116,7 +123,8 @@ class OIDCHelper {
     async completeAuth (inputOrReq, checks) {
         const params = this.client.callbackParams(inputOrReq)
         const { access_token } = await this.client.callback(this.redirectUrl, params, checks)
-        return await this.client.userinfo(access_token)
+        const userInfo =  await this.client.userinfo(access_token)
+        return { access_token, userInfo }
     }
 }
 
@@ -145,13 +153,15 @@ class CondoOIDCMiddleware {
                     return res.status(400).send('ERROR: Invalid nonce and state')
                 }
 
-                const userInfo = await helper.completeAuth(req, checks)
+                const { userInfo, access_token } = await helper.completeAuth(req, checks)
                 const user = await createOrUpdateUser(keystone, userInfo)
                 await keystone._sessionManager.startAuthedSession(req, {
                     item: { id: user.id },
                     list: keystone.lists['User'],
                 })
 
+
+                req.session['condoSID'] = access_token
                 delete req.session[oidcSessionKey]
                 await req.session.save()
 
@@ -167,13 +177,22 @@ class CondoOIDCMiddleware {
 async function makeGatewaySchema () {
     const condoExecutor = makeRemoteExecutor(CONDO_URL)
     const appExecutor = makeRemoteExecutor(APP_URL)
+    const bla = await loadSchema('./schema.graphql', {
+        loaders: [new GraphQLFileLoader()],
+    })
+    const intr = introspectionFromSchema(bla)
+    const data = JSON.stringify(intr)
+
+    fs.writeFileSync('./schema.json', data)
+    const schema = buildClientSchema(intr)
+    console.log(bla)
+    console.log(schema)
+    console.log(isEqual(bla, schema))
 
     return stitchSchemas({
         subschemas: [
             {
-                schema: await loadSchema('./schema.graphql', {
-                    loaders: [new GraphQLFileLoader()],
-                }),
+                schema: bla,
                 executor: appExecutor,
                 transforms: [
                     new RenameTypes((name) => `App${name}`),
@@ -192,12 +211,14 @@ class MergeSchemasMiddleware {
     async prepareMiddleware () {
         const schema = await makeGatewaySchema()
         const app = express()
-        app.use('/graphql', graphqlHTTP((req) => ({
-            schema,
-            // NOTE: Extract 2 tokens here and pass something like condoAuthToken and appAuthToken
-            context: { authHeader: req.headers.authorization },
-            graphiql: true,
-        })))
+        app.use('/graphql', graphqlHTTP((req) => {
+            return {
+                schema,
+                // NOTE: Extract 2 tokens here and pass something like condoAuthToken and appAuthToken
+                context: { authHeader: req.headers.authorization, condoAuth: req.session.condoSID },
+                graphiql: true,
+            }
+        }))
         return app
     }
 }
