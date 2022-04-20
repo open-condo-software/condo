@@ -64,7 +64,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
         },
         {
             access: true,
-            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! }`,
+            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! }`,
         },
     ],
 
@@ -120,6 +120,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                     receiptsForConsumer.forEach(receipt => processedReceipts.push({
                         id: receipt.id,
                         dv: receipt.dv,
+                        category: receipt.category,
                         recipient: receipt.recipient,
                         receiver: receipt.receiver,
                         account: receipt.account,
