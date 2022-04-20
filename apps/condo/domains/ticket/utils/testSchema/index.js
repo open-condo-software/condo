@@ -465,13 +465,12 @@ async function createTestUserTicketCommentRead (client, user, ticket, extraAttrs
     if (!ticket || !ticket.id) throw new Error('no ticket.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestUserTicketCommentRead logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
         user: { connect: { id: user.id } },
         ticket: { connect: { id: ticket.id } },
+        readResidentCommentAt: new Date().toISOString(),
         ...extraAttrs,
     }
     const obj = await UserTicketCommentRead.create(client, attrs)
