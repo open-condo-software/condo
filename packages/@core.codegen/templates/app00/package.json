@@ -48,7 +48,7 @@
     "express": "^4.17.1",
     "facepaint": "^1.2.1",
     "get-contrast": "^2.0.0",
-    "immer": "8.0.4",
+    "immer": "^9.0.0",
     "less": "^3.12.2",
     "lodash": "^4.17.21",
     "next": "^9.5.5",
