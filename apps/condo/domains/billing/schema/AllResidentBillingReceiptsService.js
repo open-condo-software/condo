@@ -8,6 +8,7 @@ const Big = require('big.js')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
+const { getById } = require('@core/keystone/schema')
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
@@ -97,10 +98,18 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 if (!Array.isArray(serviceConsumers) || !serviceConsumers.length) {
                     return []
                 }
+
                 const processedReceipts = []
                 for (const serviceConsumer of serviceConsumers) {
 
-                    const receiptsQuery = { ...receiptsWhere, ...{ account: { id: serviceConsumer.billingAccount } }, deletedAt: null }
+                    const resident = await getById('Resident', serviceConsumer.resident)
+
+                    const receiptsQuery = {
+                        ...receiptsWhere,
+                        account: { number: serviceConsumer.accountNumber, unitName: resident.unitName, deletedAt: null },
+                        context: { id: serviceConsumer.billingIntegrationContext, deletedAt: null },
+                        deletedAt: null,
+                    }
                     const receiptsForConsumer = await BillingReceipt.getAll(
                         context,
                         receiptsQuery,
