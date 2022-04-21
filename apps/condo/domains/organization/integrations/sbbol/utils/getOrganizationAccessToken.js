@@ -2,7 +2,8 @@ const dayjs = require('dayjs')
 const { get } = require('lodash')
 
 const conf = require('@core/config')
-const { getSchemaCtx } = require('@core/keystone/schema')
+
+const { getSchemaCtx, getByCondition } = require('@core/keystone/schema')
 const { TokenSet } = require('@condo/domains/organization/utils/serverSchema')
 
 const { SBBOL_IMPORT_NAME } = require('../common')
@@ -13,10 +14,17 @@ const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_F
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 
 async function getClientSecret (organizationImportId) {
+    // TODO(zuch): DOMA-2814 remove secret from TokenSet
     // TODO(pahaz): it's better to use find/getByCondition here
     const { keystone } = await getSchemaCtx('TokenSet')
     const context = await keystone.createContext({ skipAccessControl: true })
-    let tokenSet = await TokenSet.getOne(context, { organization: { importId: organizationImportId, importRemoteSystem: SBBOL_IMPORT_NAME } }, { sortBy: ['createdAt_DESC'] })
+    // we can't use getOne here as we can have multiple users from our organization
+    let [tokenSet] = await TokenSet.getAll(context, {
+        organization: {
+            importId: organizationImportId,
+            importRemoteSystem: SBBOL_IMPORT_NAME,
+        },
+    }, { sortBy: ['clientSecretExpiresAt_DESC'] })
     // In case when we we have not logged in using partner account in SBBOL, take the value from environment
     return get(tokenSet, ['clientSecret'], SBBOL_AUTH_CONFIG.client_secret)
 }
