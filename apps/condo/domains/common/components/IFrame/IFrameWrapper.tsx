@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react'
-import { sendLoadedStatus, sendRequirementRequest, sendSize } from '@condo/domains/common/utils/iframe.utils'
+import styled from '@emotion/styled'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import getConfig from 'next/config'
+import { sendLoadedStatus, sendRequirementRequest, sendSize } from '@condo/domains/common/utils/iframe.utils'
 
 interface IFrameWrapperProps {
     withOrganization?: boolean
@@ -10,11 +11,17 @@ interface IFrameWrapperProps {
     parentOrigin?: string
 }
 
-const { publicRuntimeConfig: { serverUrl } } = getConfig()
+const IFrameBodyPatcher = styled.div`
+  html, body {
+    height: auto;
+  }
+`
+
+const { publicRuntimeConfig: { condoUrl } } = getConfig()
 
 export const IFrameWrapper: React.FC<IFrameWrapperProps> = (props) => {
     const { withUser, withOrganization, parentOrigin: propParentOrigin } = props
-    const parentOrigin = propParentOrigin ? propParentOrigin : serverUrl
+    const parentOrigin = propParentOrigin ? propParentOrigin : condoUrl
     const parentType = typeof parent
     const { isAuthenticated } = useAuth()
     const { organization } = useOrganization()
@@ -52,8 +59,8 @@ export const IFrameWrapper: React.FC<IFrameWrapperProps> = (props) => {
 
 
     return (
-        <>
+        <IFrameBodyPatcher>
             {props.children}
-        </>
+        </IFrameBodyPatcher>
     )
 }
