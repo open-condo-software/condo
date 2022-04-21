@@ -42,30 +42,6 @@ describe('Ticket request event detection', () => {
         )
     })
 
-    it('correctly detects same person as assignee and executor connection on ticket create', () => {
-        const requestData = {
-            operation: 'create',
-            existingItem: null,
-            updatedItem: { assignee: 'xxx', executor: 'xxx' },
-        }
-
-        expect(detectEventTypes(requestData)).toMatchObject(
-            { [ASSIGNEE_CONNECTED_EVENT_TYPE]: false, [EXECUTOR_CONNECTED_EVENT_TYPE]: true }
-        )
-    })
-
-    it('correctly detects same person as assignee and executor connection on ticket update', () => {
-        const requestData = {
-            operation: 'update',
-            existingItem: { assignee: 'yyy', executor: 'zzz' },
-            updatedItem: { assignee: 'xxx', executor: 'xxx' },
-        }
-
-        expect(detectEventTypes(requestData)).toMatchObject(
-            { [ASSIGNEE_CONNECTED_EVENT_TYPE]: false, [EXECUTOR_CONNECTED_EVENT_TYPE]: true }
-        )
-    })
-
     it('correctly detects assignee connection on ticket update', () => {
         const requestData = {
             operation: 'update',

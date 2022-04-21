@@ -18,8 +18,9 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+
 const { Ticket } = require('./serverSchema')
-const { PUSH_TRANSPORT } = require('@condo/domains/notification/constants/constants')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -40,7 +41,6 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     const prevStatusId = !isCreateOperation && get(existingItem, 'status')
     const nextAssigneeId = get(updatedItem, 'assignee')
     const nextExecutorId = get(updatedItem, 'executor')
-    const areBothSame = nextAssigneeId === nextExecutorId
     const isAssigneeAdded = isCreateOperation && !!nextAssigneeId
     const isAssigneeUpdated = isUpdateOperation && !!nextAssigneeId && nextAssigneeId !== prevAssigneeId
     const isExecutorAdded = isCreateOperation && !!nextExecutorId
@@ -61,7 +61,7 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
      * we decided to temporarily disable sending notifications on assignee connection to ticket
      * This could change in nearest future, so I've commented code instead of deletion
      */
-    result[ASSIGNEE_CONNECTED_EVENT_TYPE] = !areBothSame && (isAssigneeAdded || isAssigneeUpdated)
+    result[ASSIGNEE_CONNECTED_EVENT_TYPE] = isAssigneeAdded || isAssigneeUpdated
 
     /**
      * executor connected within create ticket operation or
@@ -76,6 +76,16 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     result[STATUS_CHANGED_EVENT_TYPE] = client && (isStatusAdded || isStatusUpdated)
 
     return result
+}
+
+const getResident = async (context, userId, propertyId, organizationId ) => {
+    const where = {
+        user: { id: userId },
+        property: { id: propertyId },
+        organization: { id: organizationId },
+    }
+
+    return await Resident.getOne(context, where)
 }
 
 /**
@@ -101,6 +111,7 @@ const handleTicketEvents = async (requestData) => {
     const createdBy = get(updatedItem, 'createdBy')
     const updatedBy = get(updatedItem, 'updatedBy')
 
+    // TODO(DOMA-2822): get rid of this extra request by returning country within nested organization data
     const organization = await getByCondition('Organization', {
         id: updatedItem.organization,
         deletedAt: null,
@@ -180,6 +191,9 @@ const handleTicketEvents = async (requestData) => {
         }
 
         if (ticketStatusType) {
+            const { property, organization } = updatedItem
+            const resident = await getResident(context, client, property.id, organization.id )
+
             await sendMessage(context, {
                 lang,
                 to: { user: { id: client } },
@@ -191,6 +205,7 @@ const handleTicketEvents = async (requestData) => {
                         ticketNumber: updatedItem.number,
                         userId: client,
                         url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
+                        residentId: resident.id,
                     },
                 },
                 sender: updatedItem.sender,
@@ -199,34 +214,44 @@ const handleTicketEvents = async (requestData) => {
     }
 }
 
-const sendDifferentKindsOfNotifications = async (requestData) => {
+const handleTicketCommentEvents = async (requestData) => {
     const { updatedItem, context } = requestData
     const createdBy = get(updatedItem, 'createdBy')
 
     const ticket = await Ticket.getOne(context, { id: updatedItem.ticket })
-    const client = get(ticket, 'client.id')
+    const clientId = get(ticket, 'client.id')
     const organizationId = get(ticket, 'organization.id')
+    const propertyId = get(ticket, 'property.id')
 
+    // TODO(DOMA-2822): get rid of this extra request by returning country within nested organization data
     const organization = await getByCondition('Organization', {
         id: organizationId,
         deletedAt: null,
     })
 
+    /**
+     * Detect message language
+     * Use DEFAULT_LOCALE if organization.country is unknown
+     * (not defined within @condo/domains/common/constants/countries)
+     */
     const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
 
-    if (client && createdBy !== client) {
+    if (clientId && createdBy !== clientId) {
+        const resident = await getResident(context, clientId, propertyId, organizationId )
+
         await sendMessage(context, {
             lang,
-            to: { user: { id: client } },
+            to: { user: { id: clientId } },
             type: TICKET_COMMENT_ADDED_TYPE,
             meta: {
                 dv: 1,
                 data: {
                     ticketId: ticket.id,
                     ticketNumber: ticket.number,
-                    userId: client,
+                    userId: clientId,
                     commentId: updatedItem.id,
                     url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
+                    residentId: resident.id,
                 },
             },
             sender: updatedItem.sender,
@@ -236,7 +261,7 @@ const sendDifferentKindsOfNotifications = async (requestData) => {
 
 module.exports = {
     handleTicketEvents,
-    sendDifferentKindsOfNotifications,
+    handleTicketCommentEvents,
     detectEventTypes,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,
