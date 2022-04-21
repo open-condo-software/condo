@@ -23,7 +23,6 @@ const ROW_STYLES: React.CSSProperties = {
 const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
     margin: '28px 0 40px',
     fontSize: '12px',
-    height: '60px',
 }
 const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
     textAlign:'center',
