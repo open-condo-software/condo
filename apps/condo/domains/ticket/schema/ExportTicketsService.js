@@ -1,7 +1,7 @@
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const conf = require('@core/config')
 const access = require('@condo/domains/ticket/access/ExportTicketsService')
-const { TicketStatus, loadTicketsForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
+const { TicketStatus, loadTicketsForExcelExport, loadTicketCommentsForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
@@ -13,9 +13,10 @@ const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
-const { REVIEW_VALUES } = require('@condo/domains/ticket/constants')
+const { REVIEW_VALUES, ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { getHeadersTranslations, EXPORT_TYPE_TICKETS } = require('@condo/domains/common/utils/exportToExcel')
 const { ticketStatusesTranslations } = require('@condo/domains/common/utils/exportToExcel')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -30,6 +31,18 @@ const errors = {
         message: 'No tickets found to export',
         messageForUser: 'api.ticket.exportTicketsToExcel.NOTHING_TO_EXPORT',
     },
+}
+
+const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
+const renderComment = (comment, locale) => {
+    const createdAt = dayjs(comment.createdAt).format(COMMENT_DATE_FORMAT)
+    const createdBy = comment.userName
+    const userType = comment.userType === RESIDENT ? i18n('Contact', { locale }) : i18n('Employee', { locale })
+    const content = comment.content
+    const filesCount = comment.TicketCommentFiles
+    const filesCountToRender = filesCount > 0 ? `(${i18n('excelExport.ticket.ticketCommentFilesCount', { locale })}: ${filesCount})` : ''
+
+    return `${createdAt}, ${createdBy} (${userType}): «${content}» ${filesCountToRender}`
 }
 
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
@@ -55,6 +68,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const statuses = await TicketStatus.getAll(context, {})
                 const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+
                 const reviewValueText = {
                     [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
                     [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
@@ -64,8 +78,18 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 if (allTickets.length === 0) {
                     throw new GQLError(errors.NOTHING_TO_EXPORT, context)
                 }
+
+                const ticketsComments = await loadTicketCommentsForExcelExport({ ticketIds: allTickets.map(ticket => ticket.id) })
+
                 const excelRows = allTickets.map(ticket => {
-                    const comments = [...new Set(ticket.TicketComment || [])]
+                    const ticketComments = ticketsComments.filter(comment => comment.ticket === ticket.id)
+                    const organizationCommentsToRender = ticketComments
+                        .filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE)
+                        .map(comment => renderComment(comment, locale))
+                    const residentCommentsToRender = ticketComments
+                        .filter(comment => comment.type === RESIDENT_COMMENT_TYPE)
+                        .map(comment => renderComment(comment, locale))
+
                     return {
                         number: ticket.number,
                         organization: ticket.organization,
@@ -91,7 +115,8 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         operator: ticket.operator || ticket.createdBy || '',
                         executor: ticket.executor || '',
                         assignee: ticket.assignee || '',
-                        comments: comments.map(comment => comment.split(':').pop()).join(TICKET_COMMENTS_SEPARATOR),
+                        organizationComments: organizationCommentsToRender.join(TICKET_COMMENTS_SEPARATOR),
+                        residentComments: residentCommentsToRender.join(TICKET_COMMENTS_SEPARATOR),
                         source: ticket.source || '',
                         deadline: ticket.deadline ? formatDate(ticket.deadline) : '',
                         reviewValue: ticket.reviewValue ? reviewValueText[ticket.reviewValue] : '',
