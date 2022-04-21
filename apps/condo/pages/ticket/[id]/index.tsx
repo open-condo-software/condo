@@ -492,7 +492,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         sortBy: ['createdAt_DESC'],
     })
 
-    const commentsIds = comments.map(comment => comment.id)
+    const commentsIds = useMemo(() => comments.map(comment => comment.id), [comments])
 
     const { objs: ticketCommentFiles, refetch: refetchCommentFiles } = TicketCommentFile.useObjects({
         where: { ticketComment: { id_in: commentsIds } },
@@ -500,11 +500,11 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         sortBy: ['createdAt_DESC'],
     })
 
-    const commentsWithFiles = comments.map(comment => {
+    const commentsWithFiles = useMemo(() => comments.map(comment => {
         comment.files = ticketCommentFiles.filter(file => file.ticketComment.id === comment.id)
 
         return comment
-    })
+    }), [comments, ticketCommentFiles])
 
     const updateComment = TicketComment.useUpdate({}, () => {
         refetchComments()
@@ -545,6 +545,15 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         await refetchCommentFiles()
         await refetchUserTicketCommentRead()
     }, [refetchCommentFiles, refetchComments, refetchUserTicketCommentRead])
+
+    const actionsFor = useCallback(comment => {
+        const isAuthor = comment.user.id === auth.user.id
+        const isAdmin = get(auth, ['user', 'isAdmin'])
+        return {
+            updateAction: isAdmin || isAuthor ? updateComment : null,
+            deleteAction: isAdmin || isAuthor ? deleteComment : null,
+        }
+    }, [auth, deleteComment, updateComment])
 
     useEffect(() => {
         const handler = setInterval(refetchCommentsWithFiles, COMMENT_RE_FETCH_INTERVAL)
@@ -755,14 +764,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     refetchComments={refetchCommentsWithFiles}
                                     comments={commentsWithFiles}
                                     canCreateComments={get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments'])}
-                                    actionsFor={comment => {
-                                        const isAuthor = comment.user.id === auth.user.id
-                                        const isAdmin = get(auth, ['user', 'isAdmin'])
-                                        return {
-                                            updateAction: isAdmin || isAuthor ? updateComment : null,
-                                            deleteAction: isAdmin || isAuthor ? deleteComment : null,
-                                        }
-                                    }}
+                                    actionsFor={actionsFor}
                                 />
                             </Affix>
                         </Col>

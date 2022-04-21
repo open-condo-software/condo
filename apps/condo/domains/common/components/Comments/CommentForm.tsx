@@ -8,6 +8,7 @@ import { useOrganization } from '@core/next/organization'
 import { Button } from '@condo/domains/common/components/Button'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { colors } from '@condo/domains/common/constants/style'
+import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
 
 import { useInputWithCounter } from '../../hooks/useInputWithCounter'
 import { Module, useMultipleFileUploadHook } from '../MultipleFileUpload'
@@ -37,6 +38,7 @@ const Holder = styled.div`
 `
 
 const COMMENT_HELPERS_ROW_STYLES: CSSProperties = { padding: '0 8px 8px 8px' }
+const INPUT_WITH_COUNTER_AUTOSIZE_CONFIG = { minRows: 1, maxRows: 6 }
 
 const CommentHelper = styled(Col)`
   background-color: ${colors.textSecondary};
@@ -60,8 +62,6 @@ interface ICommentFormProps {
     FileModel: Module,
     relationField: string,
 }
-
-export const MAX_COMMENT_LENGTH = 300
 
 const CommentForm: React.FC<ICommentFormProps> = ({
     initialValue,
@@ -96,18 +96,18 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         }
     }, [editableComment, fieldName, form, setCommentLength])
 
-    const handleKeyUp = async (event, form) => {
+    const handleKeyUp = useCallback(async (event, form) => {
         if (event.keyCode === 13 && !event.shiftKey) {
             form.submit()
             setCommentLength(0)
         }
-    }
+    }, [setCommentLength])
 
-    const handleKeyDown = (event) => {
+    const handleKeyDown = useCallback((event) => {
         if (event.keyCode === 13) {
             event.preventDefault()
         }
-    }
+    }, [])
 
     const { requiredValidator, trimValidator } = useValidations()
 
@@ -123,66 +123,67 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const MemoizedUploadComponent = useCallback(() => (
         <UploadComponent
             initialFileList={editableComment?.files}
-            UploadButton={() => (
+            UploadButton={
                 <Button type={'text'}>
                     <ClipIcon />
                 </Button>
-            )}
+            }
         />
     ), [UploadComponent, editableComment, sending])
 
+    const initialCommentFormValues = useMemo(() => ({
+        [fieldName]: initialValue,
+    }), [fieldName, initialValue])
+
+    const showHelperMessage = useMemo(() => commentLength > 0 || editableComment, [])
+
     return (
-        <>
-            <FormWithAction
-                initialValues={{
-                    [fieldName]: initialValue,
-                }}
-                action={actionWithSyncComments}
-                resetOnComplete={true}
-            >
-                {({ handleSave, isLoading, form: formInstance }) => {
-                    if (!form) {
-                        setForm(formInstance)
-                    }
+        <FormWithAction
+            initialValues={initialCommentFormValues}
+            action={actionWithSyncComments}
+            resetOnComplete={true}
+        >
+            {({ handleSave, isLoading, form: formInstance }) => {
+                if (!form) {
+                    setForm(formInstance)
+                }
 
-                    return (
-                        <Holder>
-                            {
-                                commentLength > 0 || editableComment ? (
-                                    <Row justify={'space-between'} style={COMMENT_HELPERS_ROW_STYLES}>
-                                        <CommentHelper>
-                                            <Typography.Text>
-                                                {HelperMessage}
-                                            </Typography.Text>
-                                        </CommentHelper>
-                                        <CommentHelper>
-                                            <Counter />
-                                        </CommentHelper>
-                                    </Row>
-                                ) : null
-                            }
-                            <div className={'wrapper'}>
-                                <Form.Item
-                                    name={fieldName}
-                                    rules={validations.comment}
-                                >
-                                    <InputWithCounter
-                                        maxLength={MAX_COMMENT_LENGTH}
-                                        placeholder={PlaceholderMessage}
-                                        className="white"
-                                        autoSize={{ minRows: 1, maxRows: 6 }}
-                                        onKeyDown={handleKeyDown}
-                                        onKeyUp={(event) => {handleKeyUp(event, form)}}
-                                    />
-                                </Form.Item>
-                                <MemoizedUploadComponent />
-                            </div>
-                        </Holder>
-                    )
-                }}
-            </FormWithAction>
-        </>
-
+                return (
+                    <Holder>
+                        {
+                            showHelperMessage && (
+                                <Row justify={'space-between'} style={COMMENT_HELPERS_ROW_STYLES}>
+                                    <CommentHelper>
+                                        <Typography.Text>
+                                            {HelperMessage}
+                                        </Typography.Text>
+                                    </CommentHelper>
+                                    <CommentHelper>
+                                        <Counter />
+                                    </CommentHelper>
+                                </Row>
+                            )
+                        }
+                        <div className={'wrapper'}>
+                            <Form.Item
+                                name={fieldName}
+                                rules={validations.comment}
+                            >
+                                <InputWithCounter
+                                    maxLength={MAX_COMMENT_LENGTH}
+                                    placeholder={PlaceholderMessage}
+                                    className="white"
+                                    autoSize={INPUT_WITH_COUNTER_AUTOSIZE_CONFIG}
+                                    onKeyDown={handleKeyDown}
+                                    onKeyUp={(event) => {handleKeyUp(event, form)}}
+                                />
+                            </Form.Item>
+                            <MemoizedUploadComponent />
+                        </div>
+                    </Holder>
+                )
+            }}
+        </FormWithAction>
     )
 }
 

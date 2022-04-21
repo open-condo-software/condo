@@ -145,7 +145,7 @@ describe('Ticket', () => {
             expect(obj.clientEmail).toEqual(email)
         })
 
-        test('resident: lastResidentCommentAt in Ticket updated when resident write comment', async () => {
+        test('resident: lastResidentCommentAt in Ticket updated when resident writes comment', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 

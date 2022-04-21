@@ -97,6 +97,8 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
 
 const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
+const COUNTER_STYLES = { float: 'right' }
+const UPLOAD_COMPONENT_WRAPPER_STYLES = { paddingTop: '24px' }
 
 export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
@@ -120,6 +122,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     } = useTicketThreeLevelsClassifierHook({ initialValues })
 
     const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, 500)
+    const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
     return (
         <Col span={24}>
@@ -135,16 +138,16 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                     <TicketFormItem name={'details'} rules={validations.details}>
                                         <InputWithCounter
                                             InputComponent={Input.TextArea}
-                                            onBlur={e => predictTicketClassifier(e.target.value)}
+                                            onBlur={handleInputBlur}
                                             placeholder={DescriptionPlaceholder}
                                             disabled={disableUserInteraction}
                                             style={INPUT_WITH_COUNTER_STYLE}
                                             data-cy={'ticket__description-input'}
                                         />
                                     </TicketFormItem>
-                                    <Counter style={{ float: 'right' }} />
+                                    <Counter style={COUNTER_STYLES} />
                                 </Col>
-                                <Col span={24} style={{ 'padding-top': '24px' }}>
+                                <Col span={24} style={UPLOAD_COMPONENT_WRAPPER_STYLES}>
                                     <TicketFormItem>
                                         <UploadComponent/>
                                     </TicketFormItem>

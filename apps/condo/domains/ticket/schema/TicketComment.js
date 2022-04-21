@@ -86,18 +86,19 @@ const TicketComment = new GQLListSchema('TicketComment', {
 
             if (operation === 'create' && commentType === RESIDENT_COMMENT_TYPE) {
                 const ticketId = get(resolvedData, 'ticket')
+                const dv = get(resolvedData, 'dv')
                 const sender = get(resolvedData, 'sender')
                 const now = new Date().toISOString()
 
                 if (userType === RESIDENT) {
                     await Ticket.update(context, ticketId, {
-                        dv: 1,
+                        dv,
                         sender,
                         lastResidentCommentAt: now,
                     })
                 } else {
                     await Ticket.update(context, ticketId, {
-                        dv: 1,
+                        dv,
                         sender,
                         lastEmployeeAnsweredToResidentAt: now,
                     })

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useReducer, useMemo, useRef, useCallback } from 'react'
 import { Upload } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
@@ -68,7 +68,7 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
 
 interface IUploadComponentProps {
     initialFileList: DBFile[]
-    UploadButton?: React.FC
+    UploadButton?: React.ReactElement
 }
 interface IMultipleFileUploadHookArgs {
     Model: Module
@@ -103,7 +103,7 @@ export const useMultipleFileUploadHook = ({
     const updateAction = Model.useUpdate({}, () => Promise.resolve())
     const deleteAction = Model.useSoftDelete({}, () => Promise.resolve())
 
-    const syncModifiedFiles = async (id: string) => {
+    const syncModifiedFiles = useCallback(async (id: string) => {
         const { added, deleted } = modifiedFilesRef.current
         for (const file of added) {
             await updateAction({ [relationField]: id }, file)
@@ -111,18 +111,20 @@ export const useMultipleFileUploadHook = ({
         for (const file of deleted) {
             await deleteAction({}, { id: file.id })
         }
-    }
+    }, [deleteAction, relationField, updateAction])
 
-    const resetModifiedFiles = async () => {
+    const resetModifiedFiles = useCallback(async () => {
         dispatch({ type: 'reset' })
-    }
+    }, [])
+
+    const initialValues = useMemo(() => ({ ...initialCreateValues, [relationField]: null }), [initialCreateValues, relationField])
 
     const UploadComponent: React.FC<IUploadComponentProps> = useMemo(() => {
         const UploadWrapper = (props) => (
             <MultipleFileUpload
                 setFilesCount={setFilesCount}
                 fileList={initialFileList}
-                initialCreateValues={{ ...initialCreateValues, [relationField]: null }}
+                initialCreateValues={initialValues}
                 Model={Model}
                 onFilesChange={dispatch}
                 {...props}
@@ -231,9 +233,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         <div className={'upload-control-wrapper'}>
             <Upload { ...options } >
                 {
-                    UploadButton ? (
-                        <UploadButton />
-                    ) : (
+                    UploadButton ? UploadButton : (
                         <Button
                             type={'sberDefaultGradient'}
                             secondary
