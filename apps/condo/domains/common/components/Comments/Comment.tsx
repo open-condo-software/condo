@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -8,6 +8,7 @@ import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { grey } from '@ant-design/colors'
 import styled from '@emotion/styled'
 
+import { useAuth } from '@core/next/auth'
 import { User } from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
 
@@ -140,14 +141,19 @@ const CommentStyle = css`
 `
 
 const getIconByMimetype = (mimetype) => {
-    if (mimetype.startsWith('image')) {
-        return <ImageIcon />
-    } else if (mimetype.startsWith('video')) {
-        return <VideoIcon />
-    } else {
-        return <DocIcon />
-    }
+    if (mimetype.startsWith('image')) return <ImageIcon />
+    if (mimetype.startsWith('video')) return <VideoIcon />
+
+    return <DocIcon />
 }
+
+const getFilePreviewByMimetype = (mimetype, url) => mimetype.startsWith('image') ? (
+    <Image src={url} width={64} height={64} />
+) : (
+    <CommentFileCard>
+        {getIconByMimetype(mimetype)}
+    </CommentFileCard>
+)
 
 const CommentFileListWrapper = styled.div`
   display: flex;
@@ -166,10 +172,38 @@ const CommentFileCard = styled.div`
   justify-content: center;
 `
 
+const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 const TEXT_WRAP_COMPONENT_STYLES: CSSProperties = { display: 'flex', flexFlow: 'column', justifyContent: 'center', width: '70px' }
+const ELLIPSIS_CONFIG = { rows: 1 }
+const FILENAME_TEXT_STYLES: CSSProperties = { margin: 0 }
+const AUTHOR_TEXT_STYLES: CSSProperties = { paddingRight: '2px' }
 
 const CommentFileList = ({ comment }) => {
     const files = get(comment, 'files')
+    const fileList = useMemo(() => files.map(({ id, file }) => {
+        const fileNameArr = file.originalFilename.split('.')
+        const fileExt = fileNameArr.pop()
+        const fileName = fileNameArr.join('.')
+        const mimetype = get(file, 'mimetype')
+        const url = get(file, 'publicUrl')
+        const TextWrapComponent = mimetype.startsWith('image') ? Typography.Paragraph : Typography.Link
+
+        return (
+            <TextWrapComponent
+                href={url}
+                key={id}
+                style={TEXT_WRAP_COMPONENT_STYLES}
+            >
+                {getFilePreviewByMimetype(mimetype, url)}
+                <Typography.Paragraph ellipsis={ELLIPSIS_CONFIG} style={FILENAME_TEXT_STYLES}>
+                    {fileName}
+                    <Typography.Text type={'secondary'}>
+                        .{fileExt}
+                    </Typography.Text>
+                </Typography.Paragraph>
+            </TextWrapComponent>
+        )
+    }), [files])
 
     if (!Array.isArray(files)) {
         return <></>
@@ -178,46 +212,11 @@ const CommentFileList = ({ comment }) => {
     return (
         <Image.PreviewGroup>
             <CommentFileListWrapper>
-                {
-                    files.map(({ id, file }) => {
-                        const fileNameArr = file.originalFilename.split('.')
-                        const fileExt = fileNameArr.pop()
-                        const fileName = fileNameArr.join('.')
-                        const mimetype = get(file, 'mimetype')
-                        const url = get(file, 'publicUrl')
-                        const TextWrapComponent = mimetype.startsWith('image') ? Typography.Paragraph : Typography.Link
-
-                        return (
-                            <TextWrapComponent
-                                href={url}
-                                key={id}
-                                style={TEXT_WRAP_COMPONENT_STYLES}
-                            >
-                                {
-                                    mimetype.startsWith('image') ? (
-                                        <Image src={url} width={64} height={64} />
-                                    ) : (
-                                        <CommentFileCard>
-                                            {getIconByMimetype(mimetype)}
-                                        </CommentFileCard>
-                                    )
-                                }
-                                <Typography.Paragraph ellipsis={{ rows: 1 }} style={{ margin: 0 }}>
-                                    {fileName}
-                                    <Typography.Text type={'secondary'}>
-                                            .{fileExt}
-                                    </Typography.Text>
-                                </Typography.Paragraph>
-                            </TextWrapComponent>
-                        )
-                    })
-                }
+                {fileList}
             </CommentFileListWrapper>
         </Image.PreviewGroup>
     )
 }
-
-const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 
 const getCommentAuthorRoleMessage = (author: User, intl) => {
     const ResidentMessage = intl.formatMessage({ id: 'Contact' }).toLowerCase()
@@ -241,19 +240,22 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const CommentDeletedText = intl.formatMessage({ id: 'Comments.deleted' })
     const MetaUpdatedText = intl.formatMessage({ id: 'Comments.meta.updated' })
 
+    const { user } = useAuth()
+
     const [dateShowMode, setDateShowMode] = useState<'created' | 'updated'>('created')
 
-    const handleDelete = () => {
+    const handleDeleteComment = useCallback(() => {
         deleteAction({}, comment)
-    }
+    }, [comment, deleteAction])
+    const handleUpdateComment = useCallback(() => setEditableComment(comment), [comment, setEditableComment])
 
-    const actions = [
+    const actions = useMemo(() => user.id === comment.user.id && ([
         <Popconfirm
             key="delete"
             title={ConfirmDeleteTitle}
             okText={ConfirmDeleteOkText}
             cancelText={ConfirmDeleteCancelText}
-            onConfirm={handleDelete}
+            onConfirm={handleDeleteComment}
         >
             <Button
                 size="large"
@@ -266,9 +268,9 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
             size="large"
             css={UpdateButtonStyle}
             icon={<EditFilled />}
-            onClick={() => setEditableComment(comment)}
+            onClick={handleUpdateComment}
         />,
-    ]
+    ]), [ConfirmDeleteCancelText, ConfirmDeleteOkText, ConfirmDeleteTitle, comment.user.id, handleDeleteComment, handleUpdateComment, user.id])
 
     if (comment.deletedAt) {
         return (
@@ -293,7 +295,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
             }
             author={
                 <Typography.Text type={'secondary'}>
-                    <Typography.Text type={'secondary'} underline style={{ paddingRight: '2px' }}>
+                    <Typography.Text type={'secondary'} underline style={AUTHOR_TEXT_STYLES}>
                         {comment.user.name}
                     </Typography.Text>
                     ({getCommentAuthorRoleMessage(comment.user, intl)}),
@@ -305,7 +307,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
                     onMouseOver={() => setDateShowMode('updated')}
                 >
                     <Typography.Text title={MetaUpdatedText}>
-                        {dateShowMode === 'created' ? dayjs(comment.createdAt).format(COMMENT_DATE_FORMAT) : dayjs(comment.updatedAt).format(COMMENT_DATE_FORMAT)}
+                        {dayjs(dateShowMode === 'created' ? comment.createdAt : comment.updatedAt).format(COMMENT_DATE_FORMAT)}
                     </Typography.Text>
                 </div>
             }

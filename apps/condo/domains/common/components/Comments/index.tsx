@@ -150,6 +150,26 @@ const CommentsTabsContainer = styled.div<{ isTabsHidden: boolean }>`
     }
 `
 
+const EMPTY_CONTAINER_TEXT_STYLES: CSSProperties = { fontSize: fontSizes.content }
+
+const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
+    <EmptyContainer>
+        <Empty
+            image={null}
+            description={
+                <>
+                    <Typography.Paragraph strong style={EMPTY_CONTAINER_TEXT_STYLES}>
+                        {PromptTitleMessage}
+                    </Typography.Paragraph>
+                    <Typography.Paragraph type={'secondary'} style={EMPTY_CONTAINER_TEXT_STYLES}>
+                        {PromptDescriptionMessage}
+                    </Typography.Paragraph>
+                </>
+            }
+        />
+    </EmptyContainer>
+)
+
 type CommentsTabContentProps = {
     comments: TComment[],
     PromptTitleMessage: string,
@@ -202,21 +222,10 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         return (
             <>
                 {comments.length === 0 ? (
-                    <EmptyContainer>
-                        <Empty
-                            image={null}
-                            description={
-                                <>
-                                    <Typography.Paragraph strong style={{ fontSize: fontSizes.content }}>
-                                        {PromptTitleMessage}
-                                    </Typography.Paragraph>
-                                    <Typography.Paragraph type={'secondary'} style={{ fontSize: fontSizes.content }}>
-                                        {PromptDescriptionMessage}
-                                    </Typography.Paragraph>
-                                </>
-                            }
-                        />
-                    </EmptyContainer>
+                    <EmptyCommentsContainer
+                        PromptTitleMessage={PromptTitleMessage}
+                        PromptDescriptionMessage={PromptDescriptionMessage}
+                    />
                 ) : (
                     <Body ref={bodyRef} onScroll={handleBodyScroll}>
                         {commentsToRender}
@@ -316,10 +325,10 @@ const Comments: React.FC<ICommentsListProps> = ({
         setEditableComment(null)
     }, [commentType])
 
-    const commentsWithOrganization = comments.filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE)
-    const commentsWithResident = comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE)
+    const commentsWithOrganization = useMemo(() => comments.filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE), [comments])
+    const commentsWithResident = useMemo(() => comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE), [comments])
 
-    const action = useCallback(async (values, syncModifiedFiles) => {
+    const handleCommentAction = useCallback(async (values, syncModifiedFiles) => {
         setSending(true)
 
         if (editableComment) {
@@ -410,7 +419,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                     <CommentForm
                         FileModel={FileModel}
                         relationField={fileModelRelationField}
-                        action={action}
+                        action={handleCommentAction}
                         editableComment={editableComment}
                         setEditableComment={setEditableComment}
                         sending={sending}

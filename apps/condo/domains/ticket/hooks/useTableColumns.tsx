@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import { identity } from 'lodash/util'
@@ -8,7 +8,6 @@ import dayjs from 'dayjs'
 import styled from '@emotion/styled'
 
 import { useAuth } from '@core/next/auth'
-import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
 import { useIntl } from '@core/next/intl'
 
 import {
@@ -25,6 +24,7 @@ import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
 
 import { TicketStatus, UserTicketCommentRead } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
@@ -65,6 +65,15 @@ const COLUMNS_WIDTH_SMALLER_XXL_SCREEN = {
     executor: '12%',
     assignee: '13%',
 }
+
+const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { position: 'relative', left: '-40px' }
+const NewCommentIndicator = styled(Typography.Text)`
+    display: block;
+    width: 8px; 
+    height: 8px; 
+    border-radius: 100px; 
+    background-color: ${colors.red[5]};
+`
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets) {
     const intl = useIntl()
@@ -197,7 +206,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
 
     const { user } = useAuth()
 
-    const ticketIds = tickets.map(ticket => ticket.id)
+    const ticketIds = useMemo(() => tickets.map(ticket => ticket.id), [tickets])
     const { objs: userTicketsCommentRead } = UserTicketCommentRead.useObjects({
         where: {
             user: { id: user.id },
@@ -233,16 +242,9 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             }
         }
 
-        const NewCommentIndicator = styled(Typography.Text)`
-            display: block;
-            width: 8px; 
-            height: 8px; 
-            border-radius: 100px; 
-            background-color: ${colors.red[5]};
-        `
         const userTicketCommentRead = userTicketsCommentRead.find(obj => obj.ticket.id === ticket.id)
         const postfix = hasUnreadResidentComments(userTicketCommentRead, ticket) && (
-            <div style={{ position: 'relative', left: '-40px' }}>
+            <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES}>
                 <Tooltip title={NewResidentCommentMessage} placement={'topRight'}>
                     <NewCommentIndicator title={''} />
                 </Tooltip>

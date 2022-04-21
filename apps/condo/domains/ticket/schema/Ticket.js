@@ -330,11 +330,11 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Json,
         },
         lastResidentCommentAt: {
-            schemaDoc: 'Time of last resident comment in this ticket',
+            schemaDoc: 'The resident\'s last comment time within this ticket',
             type: DateTimeUtc,
         },
         lastEmployeeAnsweredToResidentAt: {
-            schemaDoc: 'Time of last employee answer to resident comment in this ticket',
+            schemaDoc: 'The employee\'s last answer time within this ticket',
             type: DateTimeUtc,
         },
     },
