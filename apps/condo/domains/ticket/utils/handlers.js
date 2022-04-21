@@ -106,7 +106,7 @@ const handleTicketEvents = async (requestData) => {
     const nextAssigneeId = get(updatedItem, 'assignee')
     const nextExecutorId = get(updatedItem, 'executor')
     const nextStatusId = get(updatedItem, 'status')
-    const client = get(updatedItem, 'client')
+    const clientId = get(updatedItem, 'client')
     const statusReopenedCounter = get(updatedItem, 'statusReopenedCounter')
     const createdBy = get(updatedItem, 'createdBy')
     const updatedBy = get(updatedItem, 'updatedBy')
@@ -166,15 +166,16 @@ const handleTicketEvents = async (requestData) => {
 
     if (eventTypes[STATUS_CHANGED_EVENT_TYPE]) {
         let ticketStatusType
+
         switch (nextStatusId) {
             case STATUS_IDS.OPEN:
                 if (prevStatusId !== STATUS_IDS.COMPLETED && !isCreateOperation)
                     break
 
                 if (statusReopenedCounter > 0)
-                    ticketStatusType = updatedBy !== client && TICKET_STATUS_RETURNED_TYPE
+                    ticketStatusType = updatedBy !== clientId && TICKET_STATUS_RETURNED_TYPE
                 else
-                    ticketStatusType = createdBy !== client && TICKET_STATUS_OPENED_TYPE
+                    ticketStatusType = createdBy !== clientId && TICKET_STATUS_OPENED_TYPE
                 break
 
             case STATUS_IDS.IN_PROGRESS:
@@ -191,19 +192,19 @@ const handleTicketEvents = async (requestData) => {
         }
 
         if (ticketStatusType) {
-            const { property, organization } = updatedItem
-            const resident = await getResident(context, client, property.id, organization.id )
+            const { property: propertyId, organization: organizationId } = updatedItem
+            const resident = await getResident(context, clientId, propertyId, organizationId )
 
             await sendMessage(context, {
                 lang,
-                to: { user: { id: client } },
+                to: { user: { id: clientId } },
                 type: ticketStatusType,
                 meta: {
                     dv: 1,
                     data: {
                         ticketId: updatedItem.id,
                         ticketNumber: updatedItem.number,
-                        userId: client,
+                        userId: clientId,
                         url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
                         residentId: resident.id,
                     },

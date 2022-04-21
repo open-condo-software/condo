@@ -6,43 +6,60 @@ const dayjs = require('dayjs')
 
 const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
-const { createTestContact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowUserInputError } = require('@condo/domains/common/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { createTestOrganizationLink, createTestOrganizationWithAccessToAnotherOrganization, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowUserInputError,
+    expectToThrowAccessDeniedErrorToObj,
+} = require('@condo/domains/common/utils/testSchema')
+const { sleep } = require('@condo/domains/common/utils/sleep')
+
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+
+const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
+
 const {
     PUSH_TRANSPORT_FIREBASE,
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_FAKE_TOKEN_FAIL,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
-    TICKET_STATUS_OPENED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE,
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
-    TICKET_COMMENT_ADDED_TYPE,
-    MESSAGE_DELIVERED_STATUS,
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 const { Message, syncDeviceByTestClient } = require('@condo/domains/notification/utils/testSchema')
-const { sleep } = require('@condo/domains/common/utils/sleep')
+
+const {
+    createTestOrganizationLink,
+    createTestOrganizationWithAccessToAnotherOrganization,
+    createTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser, createTestPhone } = require('@condo/domains/user/utils/testSchema')
-const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
+const {
+    makeClientWithProperty,
+    createTestProperty,
+    updateTestProperty,
+    makeClientWithResidentAccessAndProperty,
+} = require('@condo/domains/property/utils/testSchema')
+
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+
+const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+
+
+const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
 const { STATUS_IDS } = require('../constants/statusTransitions')
-const { REVIEW_VALUES, RESIDENT_COMMENT_TYPE } = require('../constants')
-const { createTestTicketComment } = require('../utils/testSchema')
+const { REVIEW_VALUES } = require('../constants')
 
 describe('Ticket', () => {
     describe('Crud', () => {
@@ -550,21 +567,11 @@ describe('Ticket', () => {
             const unitName1 = faker.random.alphaNumeric(5)
             const unitName2 = faker.random.alphaNumeric(5)
 
-            const [resident1] = await createTestResident(admin, residentClient1.user, organization, property1, {
-                unitName: unitName1,
-            })
-            const [resident2] = await createTestResident(admin, residentClient1.user, organization, property2, {
-                unitName: unitName2,
-            })
+            await createTestResident(admin, residentClient1.user, organization, property1, { unitName: unitName1 })
+            await createTestResident(admin, residentClient1.user, organization, property2, { unitName: unitName2 })
 
-            const [contact1] = await createTestContact(admin, organization, property1, {
-                phone,
-                unitName: unitName1,
-            })
-            const [contact2] = await createTestContact(admin, organization, property2, {
-                phone,
-                unitName: unitName2,
-            })
+            const [contact1] = await createTestContact(admin, organization, property1, { phone, unitName: unitName1 })
+            const [contact2] = await createTestContact(admin, organization, property2, { phone, unitName: unitName2 })
 
             const [ticket1] = await createTestTicket(admin, organization, property1, {
                 unitName: unitName1,
@@ -578,7 +585,7 @@ describe('Ticket', () => {
                 canReadByResident: true,
             })
 
-            const [wrongContactTicket] = await createTestTicket(admin, organization, property1, {
+            await createTestTicket(admin, organization, property1, {
                 unitName: unitName2,
                 contact: { connect: { id: contact1.id } },
                 canReadByResident: true,
@@ -1365,7 +1372,7 @@ describe('Ticket', () => {
 
     describe( 'Notifications', () => {
         describe( 'Assignee or executor changed within ticket', () => {
-            test('assignee with registered pushToken and connected to ticket on create receives push notification', async () => {
+            test('assignee with registered pushToken and connected to ticket on create receives push notification with all required fields', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
                 const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1392,8 +1399,15 @@ describe('Ticket', () => {
                 const message1 = await Message.getOne(admin, messageWhere)
 
                 expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
-                expect(message1.meta.data.ticketId).toEqual(ticket.id)
                 expect(message1.processingMeta.transport).toEqual('push')
+
+                const content = message1.processingMeta.messageContext
+
+                expect(content.data.url).toBeDefined()
+                expect(content.data.ticketId).toEqual(ticket.id)
+                expect(content.data.ticketNumber).toEqual(ticket.number)
+                expect(content.data.userId).toEqual(assignee.user.id)
+                expect(content.data.notificationId).toEqual(message.id)
             })
 
             test('push message with error status is created when assignee with no registered pushToken is connected to ticket on create', async () => {
@@ -1489,19 +1503,18 @@ describe('Ticket', () => {
                 const message1 = await Message.getOne(admin, messageWhere)
 
                 expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
-                expect(message1.meta.data.ticketId).toEqual(ticket.id)
                 expect(message1.processingMeta.transport).toEqual('push')
 
                 const content = message1.processingMeta.messageContext
 
                 expect(content.data.url).toBeDefined()
-                expect(content.data.ticketId).toBeDefined()
-                expect(content.data.ticketNumber).toBeDefined()
-                expect(content.data.userId).toBeDefined()
-                expect(content.data.notificationId).toBeDefined()
+                expect(content.data.ticketId).toEqual(ticket.id)
+                expect(content.data.ticketNumber).toEqual(ticket.number)
+                expect(content.data.userId).toEqual(executor.user.id)
+                expect(content.data.notificationId).toEqual(message.id)
             })
 
-            test('executor with no registered pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
+            test('push message with error status is created when executor with no registered pushToken is connected to ticket on create', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
                 const executor = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1530,7 +1543,7 @@ describe('Ticket', () => {
                 // expect(message1.processingMeta.transport).toEqual('sms')
             })
 
-            test('executor with registered invalid pushToken and connected to ticket on create receives fallback sms instead of push notification', async () => {
+            test('push message with error status is created when executor with registered invalid pushToken is connected to ticket on create', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
                 const executor = await makeClientWithNewRegisteredAndLoggedInUser()
