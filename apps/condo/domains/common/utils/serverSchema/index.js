@@ -65,8 +65,8 @@ class GqlWithKnexLoadList {
         if (this.multipleRelations.length !== 0) {
             knexQuery.groupBy('mainModel.id')
         }
-        this.singleRelations.forEach(([ Model, fieldName, value ], idx) => {
-            knexQuery.select(`sr${idx}.${value} as ${fieldName}`)
+        this.singleRelations.forEach(([ Model, fieldName, value, alias ], idx) => {
+            knexQuery.select(`sr${idx}.${value} as ${alias || fieldName}`)
             if (this.multipleRelations.length !== 0) {
                 knexQuery.groupBy(`sr${idx}.${value}`)
             }
