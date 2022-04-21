@@ -7,7 +7,6 @@ const REGISTER_MP_RECEIPTS_DUPLICATE = '[groupedReceipts:receipts:id:duplicate] 
 const REGISTER_MP_REAL_CONSUMER_MISMATCH = '[groupedReceipts:consumerId:nonExistingConsumer] Cannot find all specified ServiceConsumers.'
 const REGISTER_MP_DELETED_CONSUMERS = '[groupedReceipts:consumerId:deleted] Some of specified ServiceConsumers were deleted, so you cannot pay for them anymore'
 const REGISTER_MP_NO_ACQUIRING_CONSUMERS = '[serviceConsumer:noAcquiringContext] Some of ServiceConsumers doesn\'t have Acquiring context.'
-const REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS = '[serviceConsumer:noBillingAccount] Some of ServiceConsumers doesn\'t have Billing account, so receipt-consumer relation cannot be defined.'
 const REGISTER_MP_DELETED_ACQUIRING_CONTEXTS = '[groupedReceipts:consumerId:acquiringContext:deleted] Some of specified ServiceConsumers has deleted acquiring integration context, so you cannot pay for them anymore'
 const REGISTER_MP_MULTIPLE_INTEGRATIONS = '[serviceConsumer:acquiringContext:multipleIntegrations] Listed consumerIds are linked to different acquiring integrations'
 const REGISTER_MP_DELETED_ACQUIRING_INTEGRATION = '[serviceConsumer:acquiringContext:acquiringIntegration:deleted] Cannot pay via deleted acquiring.'
@@ -18,7 +17,7 @@ const REGISTER_MP_DELETED_RECEIPTS = '[groupedReceipts:receipts:deletedReceipt] 
 const REGISTER_MP_DELETED_BILLING_CONTEXT = '[groupedReceipts:receipts:context:deleted] Cannot pay for receipts with deleted billing context.'
 const REGISTER_MP_DELETED_BILLING_INTEGRATION = '[groupedReceipts:receipts:context:integration:deleted] Cannot pay for receipts with deleted billing integration.'
 const REGISTER_MP_MULTIPLE_CURRENCIES = '[groupedReceipts:receipts:context:integration:currencyCode:multipleFound] Cannot pay for receipts with multiple currencies.'
-const REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH = '[groupedReceipts:receipts:noCommonBillingAccount] Billing receipt with specified id doesn\'t have common billing account with specified ServiceConsumer'
+const REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH = '[groupedReceipts:receipts:noCommonBillingAccount] Billing receipt with specified id doesn\'t have common billing account number and unitName with specified ServiceConsumer'
 const REGISTER_MP_INVALID_SENDER = '[sender:invalidValue] Sender has invalid value.'
 const REGISTER_MP_NEGATIVE_TO_PAY = '[groupedReceipts:receipts] Cannot pay for receipts with negative toPay.'
 const INTEGRATION_NO_BILLINGS_ERROR = '[acquiringIntegration:noBillings] Acquiring integration must cover at least 1 billing'
@@ -70,7 +69,6 @@ module.exports = {
     REGISTER_MP_RECEIPTS_DUPLICATE,
     REGISTER_MP_REAL_CONSUMER_MISMATCH,
     REGISTER_MP_NO_ACQUIRING_CONSUMERS,
-    REGISTER_MP_NO_BILLING_ACCOUNT_CONSUMERS,
     REGISTER_MP_MULTIPLE_INTEGRATIONS,
     REGISTER_MP_CANNOT_GROUP_RECEIPTS,
     REGISTER_MP_UNSUPPORTED_BILLING,
