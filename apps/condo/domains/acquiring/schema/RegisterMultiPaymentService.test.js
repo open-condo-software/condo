@@ -65,6 +65,8 @@ const {
 } = require('@condo/domains/acquiring/constants/errors')
 const faker = require('faker')
 const dayjs = require('dayjs')
+const { updateTestBillingAccount } = require(
+    '@condo/domains/billing/utils/testSchema')
  
 describe('RegisterMultiPaymentService', () => {
     describe('Execute', () => {
@@ -328,6 +330,19 @@ describe('RegisterMultiPaymentService', () => {
                         receipts: batches[1].billingReceipts.map(receipt => ({ id: receipt.id })),
                     },
                 ]
+                await expectToThrowMutationError(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH)
+            })
+            test('Should have billing account with same unitType as ServiceConsumer.unitType', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                const payload = [
+                    {
+                        consumerId: batches[0].serviceConsumer.id,
+                        receipts: batches[1].billingReceipts.map(receipt => ({ id: receipt.id })),
+                    },
+                ]
+                await updateTestBillingAccount(commonData.admin, batches[0].billingAccount.id, { unitType: 'parking' })
                 await expectToThrowMutationError(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH)
