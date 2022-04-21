@@ -477,7 +477,7 @@ async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmoun
     const commonData = {
         client,
         admin,
-        acquiringIntegration
+        acquiringIntegration,
     }
     return {
         commonData,
