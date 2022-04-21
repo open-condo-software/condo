@@ -9,7 +9,7 @@ const { useBreakpoint } = Grid
 interface ILayoutContext {
     isMobile?: boolean
     isSmall?: boolean
-    tableScrollInLowResolution?: boolean
+    lowResScroll?: boolean
     breakpoints?: ScreenMap
     isCollapsed?: boolean
     toggleCollapsed?: () => void
@@ -35,7 +35,7 @@ export const LayoutContextProvider: React.FC = (props) => {
     }
 
     const isSmall = (breakpoints.md || breakpoints.xs || breakpoints.sm) && !breakpoints.lg
-    const tableScrollInLowResolution = (breakpoints.md || breakpoints.xs || breakpoints.sm) && !breakpoints.xl
+    const lowResScroll = (breakpoints.md || breakpoints.xs || breakpoints.sm) && !breakpoints.xl
 
     useEffect(() => {
         const isCollapsed = localStorage.getItem('isCollapsed') === 'true'
@@ -47,7 +47,7 @@ export const LayoutContextProvider: React.FC = (props) => {
         <LayoutContext.Provider value={{
             isMobile: detectMobileNavigator(),
             isSmall,
-            tableScrollInLowResolution,
+            lowResScroll,
             breakpoints,
             isCollapsed,
             toggleCollapsed,
