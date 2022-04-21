@@ -44,7 +44,7 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
                         </Row>
                         <Row justify={'center'}>
                             <Col style={MINI_POSTER_STYLES}>
-                                <Image src={'/miniPoster.png'}/>
+                                <Image preview={false} src={'/miniPoster.png'}/>
                             </Col>
                         </Row>
                     </MobileHeader>
