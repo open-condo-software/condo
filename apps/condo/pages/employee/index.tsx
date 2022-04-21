@@ -53,7 +53,7 @@ export const EmployeesPageContent = ({
     const router = useRouter()
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const { lowResScroll } = useLayoutContext()
+    const { shouldTableScroll } = useLayoutContext()
 
     const {
         fetchMore,
@@ -169,7 +169,7 @@ export const EmployeesPageContent = ({
                                 </Col>
                                 <Col span={24}>
                                     <Table
-                                        scroll={getTableScrollConfig(lowResScroll)}
+                                        scroll={getTableScrollConfig(shouldTableScroll)}
                                         bordered
                                         tableLayout={'fixed'}
                                         loading={loading}
