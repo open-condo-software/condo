@@ -26,7 +26,6 @@ const faker = require('faker')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 describe('TicketCommentFile', () => {
     describe('employee', () => {

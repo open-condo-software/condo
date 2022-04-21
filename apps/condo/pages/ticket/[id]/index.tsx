@@ -40,7 +40,7 @@ import {
     TicketChange,
     TicketComment,
     TicketCommentFile,
-    TicketFile,
+    TicketFile, UserTicketCommentRead,
 } from '@condo/domains/ticket/utils/clientSchema'
 import {
     getDeadlineType, getHumanizeDeadlineDateDifference,
@@ -464,6 +464,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
+    const user = get(auth, 'user')
     const { isSmall } = useLayoutContext()
 
     // NOTE: cast `string | string[]` to `string`
@@ -518,6 +519,23 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         user: auth.user && auth.user.id,
     }, () => Promise.resolve())
 
+    const { obj: userTicketCommentRead, refetch: refetchUserTicketCommentRead } = UserTicketCommentRead.useObject({
+        where: {
+            user: { id: user.id },
+            ticket: { id: id },
+        },
+    })
+    const createUserTicketCommentRead = UserTicketCommentRead.useCreate({
+        user: user.id,
+        ticket: id,
+        readResidentCommentAt: new Date(),
+    }, () => refetchUserTicketCommentRead())
+    const updateUserTicketCommentRead = UserTicketCommentRead.useUpdate({
+        user: user.id,
+        ticket: id,
+        readResidentCommentAt: new Date(),
+    }, () => refetchUserTicketCommentRead())
+
     const canShareTickets = get(employee, 'role.canShareTickets')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
@@ -525,7 +543,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const refetchCommentsWithFiles = useCallback(async () => {
         await refetchComments()
         await refetchCommentFiles()
-    }, [refetchCommentFiles, refetchComments])
+        await refetchUserTicketCommentRead()
+    }, [refetchCommentFiles, refetchComments, refetchUserTicketCommentRead])
 
     useEffect(() => {
         const handler = setInterval(refetchCommentsWithFiles, COMMENT_RE_FETCH_INTERVAL)
@@ -724,6 +743,9 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                         <Col lg={7} xs={24} offset={isSmall ? 0 : 1}>
                             <Affix offsetTop={40}>
                                 <Comments
+                                    userTicketCommentRead={userTicketCommentRead}
+                                    createUserTicketCommentRead={createUserTicketCommentRead}
+                                    updateUserTicketCommentRead={updateUserTicketCommentRead}
                                     FileModel={TicketCommentFile}
                                     fileModelRelationField={'ticketComment'}
                                     ticket={ticket}

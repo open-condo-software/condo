@@ -4,19 +4,14 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { find, getByCondition, getById } = require('@core/keystone/schema')
-const compact = require('lodash/compact')
 const get = require('lodash/get')
-const { getTicketFieldsMatchesResidentFieldsQuery } = require('../utils/accessSchema')
-const { RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('../constants')
-const uniq = require('lodash/uniq')
+const { RESIDENT_COMMENT_TYPE } = require('../constants')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
-const omit = require('lodash/omit')
-const isEmpty = require('lodash/isEmpty')
 
 async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -25,24 +20,13 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
-
-        const organizationsIds = compact(residents.map(resident => get(resident, 'organization')))
-        const residentAddressOrStatement = getTicketFieldsMatchesResidentFieldsQuery(user, residents)
-
         return {
             ticketComment: {
                 type: RESIDENT_COMMENT_TYPE,
             },
             ticket: {
-                organization: {
-                    id_in: uniq(organizationsIds),
-                    deletedAt: null,
-                },
-                OR: [
-                    { createdBy: { id: user.id } },
-                    ...residentAddressOrStatement,
-                ],
+                client: { id: user.id },
+                canReadByResident: true,
             },
         }
     }
@@ -66,24 +50,10 @@ async function canManageTicketCommentFiles ({ authentication: { item: user }, or
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
             const ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
-            const propertyId = get(ticket, 'property', null)
-            const unitName = get(ticket, 'unitName', null)
-            const unitType = get(ticket, 'unitType', null)
 
-            const residents = await find('Resident', {
-                user: { id: user.id },
-                property: { id: propertyId, deletedAt: null },
-                unitName,
-                unitType,
-                deletedAt: null,
-            })
-
-            return residents.length > 0
+            return ticket.client === user.id
         } else if (operation === 'update' && itemId) {
-            const ticketCommentFile = await getById('TicketCommentFile', itemId)
-            if (!ticketCommentFile) return false
-
-            return ticketCommentFile.createdBy === user.id
+            return false
         }
     } else {
         if (operation === 'create') {

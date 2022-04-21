@@ -263,6 +263,9 @@ interface ICommentsListProps {
     refetchComments,
     FileModel: Module,
     fileModelRelationField: string,
+    userTicketCommentRead,
+    createUserTicketCommentRead,
+    updateUserTicketCommentRead,
 }
 
 const Comments: React.FC<ICommentsListProps> = ({
@@ -275,6 +278,9 @@ const Comments: React.FC<ICommentsListProps> = ({
     actionsFor,
     FileModel,
     fileModelRelationField,
+    userTicketCommentRead,
+    createUserTicketCommentRead,
+    updateUserTicketCommentRead,
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
@@ -288,7 +294,6 @@ const Comments: React.FC<ICommentsListProps> = ({
     const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
 
-    const { user } = useAuth()
     const { isSmall } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const [editableComment, setEditableComment] = useState<TComment>()
@@ -307,6 +312,13 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
     }, [OrganizationCommentsTitleMessage, ResidentCommentsTitleMessage, TitleMessage, commentType, isTabsHidden])
 
+    useEffect(() => {
+        setEditableComment(null)
+    }, [commentType])
+
+    const commentsWithOrganization = comments.filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE)
+    const commentsWithResident = comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE)
+
     const action = useCallback(async (values, syncModifiedFiles) => {
         setSending(true)
 
@@ -323,30 +335,6 @@ const Comments: React.FC<ICommentsListProps> = ({
         await refetchComments()
     },
     [commentType, createAction, editableComment, refetchComments, updateAction])
-
-    useEffect(() => {
-        setEditableComment(null)
-    }, [commentType])
-
-    const commentsWithOrganization = comments.filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE)
-    const commentsWithResident = comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE)
-    const ticketId = get(ticket, 'id')
-    const { obj: userTicketCommentRead, refetch } = UserTicketCommentRead.useObject({
-        where: {
-            user: { id: user.id },
-            ticket: { id: ticketId },
-        },
-    })
-    const createUserTicketCommentRead = UserTicketCommentRead.useCreate({
-        user: user.id,
-        ticket: ticketId,
-        readResidentCommentAt: new Date(),
-    }, () => refetch())
-    const updateUserTicketCommentRead = UserTicketCommentRead.useUpdate({
-        user: user.id,
-        ticket: ticketId,
-        readResidentCommentAt: new Date(),
-    }, () => refetch())
 
     const handleTabChange = useCallback((tab) => {
         setCommentType(tab)
