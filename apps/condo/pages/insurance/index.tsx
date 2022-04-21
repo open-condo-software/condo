@@ -1,5 +1,5 @@
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { IFrame, IFrameWrapper } from '@condo/domains/common/components/IFrame'
+import { IFrame } from '@condo/domains/common/components/IFrame'
 import { useIntl } from '@core/next/intl'
 import { Typography } from 'antd'
 import getConfig from 'next/config'
