@@ -219,7 +219,7 @@ describe('Templates', () => {
         const preparedMessage = await emailTransport.prepareMessageToSend(message)
 
         expect(preparedMessage.subject).toEqual('Новая организация. (СББОЛ)')
-        expect(preparedMessage.text.trim()).toEqual(`Название: ${escape(client.organization.name)},\nИНН: ${client.organization.meta.inn},`)
+        expect(preparedMessage.text.trim()).toEqual(`Название: ${client.organization.name},\nИНН: ${client.organization.meta.inn},`)
     })
 
     it('Employee inviting rendered SMS message does not contain forbidden symbols (value is normalized)', async () => {
