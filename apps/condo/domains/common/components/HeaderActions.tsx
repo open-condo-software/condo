@@ -3,6 +3,7 @@ import { useIntl } from '@core/next/intl'
 import Router from 'next/router'
 import { Tabs } from 'antd'
 import styled from '@emotion/styled'
+import { colors } from '@condo/domains/common/constants/style'
 
 interface ITabsActionsProps {
     currentActiveKey: string
@@ -11,6 +12,10 @@ interface ITabsActionsProps {
 const RemoveTabLineWrapper = styled.div`
   & .ant-tabs-nav::before {
     content: none;
+  }
+  & .ant-tabs {
+    color: ${colors.textSecondary};
+    font-weight: 600;
   }
 `
 
