@@ -1,12 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React from 'react'
 import { useIntl } from '@core/next/intl'
-import Router, { useRouter } from 'next/router'
-import { Space, Typography, Tabs } from 'antd'
+import Router from 'next/router'
+import { Tabs } from 'antd'
 import styled from '@emotion/styled'
 
 interface ITabsActionsProps {
     currentActiveKey: string
 }
+
+const RemoveTabLineWrapper = styled.div`
+  & .ant-tabs-nav::before {
+    content: none;
+  }
+`
 
 export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     const { currentActiveKey } = props
