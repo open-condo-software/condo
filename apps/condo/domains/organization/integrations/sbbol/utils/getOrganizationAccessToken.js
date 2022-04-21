@@ -3,7 +3,7 @@ const { get } = require('lodash')
 
 const conf = require('@core/config')
 
-const { getSchemaCtx, getByCondition } = require('@core/keystone/schema')
+const { getSchemaCtx } = require('@core/keystone/schema')
 const { TokenSet } = require('@condo/domains/organization/utils/serverSchema')
 
 const { SBBOL_IMPORT_NAME } = require('../common')
