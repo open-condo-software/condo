@@ -9,7 +9,7 @@ import { useIntl } from 'react-intl'
 
 const SignInPage: AuthPage = () => {
     const intl = useIntl()
-    const SignInTitleMsg = intl.formatMessage({ id: 'SignIn' })
+    const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
 
     return (
         <>
