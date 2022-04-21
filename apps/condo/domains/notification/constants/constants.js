@@ -142,6 +142,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            residentId: { defaultValue: '', required: true },
         },
     },
     [TICKET_STATUS_IN_PROGRESS_TYPE]: {
@@ -151,6 +152,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            residentId: { defaultValue: '', required: true },
         },
     },
     [TICKET_STATUS_COMPLETED_TYPE]: {
@@ -160,6 +162,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            residentId: { defaultValue: '', required: true },
         },
     },
     [TICKET_STATUS_RETURNED_TYPE]: {
@@ -169,6 +172,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            residentId: { defaultValue: '', required: true },
         },
     },
     [TICKET_STATUS_DECLINED_TYPE]: {
@@ -178,6 +182,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            residentId: { defaultValue: '', required: true },
         },
     },
     [TICKET_COMMENT_ADDED_TYPE]: {
@@ -188,6 +193,7 @@ const MESSAGE_META = {
             userId: { defaultValue: '', required: true },
             commentId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            residentId: { defaultValue: '', required: true },
         },
     },
 }
