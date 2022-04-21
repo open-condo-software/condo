@@ -95,7 +95,7 @@ export const SignInForm = (): React.ReactElement => {
             layout={'vertical'}
         >
             <Row style={ROW_STYLES}>
-                <ResponsiveCol span={18}>
+                <ResponsiveCol span={24}>
                     <Row>
                         <Col span={24}>
                             <Form.Item
