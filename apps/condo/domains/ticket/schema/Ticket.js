@@ -329,6 +329,8 @@ const Ticket = new GQLListSchema('Ticket', {
             const resolvedStatusId = get(resolvedData, 'status')
             const client = get(resolvedData, 'client', null)
 
+            console.log(resolvedData)
+
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
                 await calculateReopenedCounter(context, existingItem, resolvedData)
