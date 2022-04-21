@@ -31,19 +31,6 @@ module.exports = {
     cookies: {
         // TODO(pahaz): take it from .env!
         keys: ['some secret key', 'and also the old rotated away some time ago', 'and one more'],
-
-        // https://github.com/panva/node-oidc-provider/blob/HEAD/docs/README.md#cookiesshort
-        short: {
-            httpOnly: true,
-            overwrite: true,
-            sameSite: 'none',
-        },
-
-        long: {
-            httpOnly: true,
-            overwrite: true,
-            sameSite: 'none',
-        },
     },
     claims: {
         // TODO(pahaz): SCOPES think about it!
