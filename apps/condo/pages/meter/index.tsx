@@ -79,7 +79,7 @@ export const MetersPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    const { isSmall } = useLayoutContext()
+    const { tableScrollInLowResolution, isSmall } = useLayoutContext()
     const [ search, handleSearchChange ] = useSearch(loading)
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate)
@@ -206,7 +206,7 @@ export const MetersPageContent = ({
                                     </Col>
                                     <Col span={24}>
                                         <Table
-                                            scroll={getTableScrollConfig(isSmall)}
+                                            scroll={getTableScrollConfig(tableScrollInLowResolution)}
                                             totalRows={total}
                                             loading={loading}
                                             dataSource={meterReadings}
