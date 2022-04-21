@@ -1,4 +1,4 @@
-const { render, getValidator } = require('@condo/domains/common/schema/json.utils.js')
+const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 const { Json } = require('@core/keystone/fields')
 const Ajv = require('ajv')
 
