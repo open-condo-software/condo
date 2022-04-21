@@ -14,13 +14,16 @@ export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     const signInTab = intl.formatMessage({ id: 'SignIn' })
 
     return (
-        <Tabs
-            defaultActiveKey={currentActiveKey}
-            onChange={(activeKey) => Router.push(activeKey)}
-            centered
-        >
-            <Tabs.TabPane key='/auth/register' tab={registerTab}/>
-            <Tabs.TabPane key='/auth/signin' tab={signInTab}/>
-        </Tabs>
+        <RemoveTabLineWrapper>
+            <Tabs
+                defaultActiveKey={currentActiveKey}
+                onChange={(activeKey) => Router.push(activeKey)}
+                centered
+                animated={false}
+            >
+                <Tabs.TabPane key='/auth/register?step=inputPhone' tab={registerTab}/>
+                <Tabs.TabPane key='/auth/signin' tab={signInTab}/>
+            </Tabs>
+        </RemoveTabLineWrapper>
     )
 }
