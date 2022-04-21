@@ -902,7 +902,7 @@ describe('TicketComment', () => {
         })
 
         describe('update', () => {
-            it('can update own comment', async () => {
+            it('cannot update own comment', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
@@ -924,12 +924,11 @@ describe('TicketComment', () => {
                     content: content1,
                 })
 
-                const [updatedCommentFromResident] = await updateTestTicketComment(residentClient, commentFromResident.id, {
-                    content: content2,
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestTicketComment(residentClient, commentFromResident.id, {
+                        content: content2,
+                    })
                 })
-
-                expect(updatedCommentFromResident.id).toEqual(commentFromResident.id)
-                expect(updatedCommentFromResident.content).toEqual(content2)
             })
 
             it('cannot update not his own comment', async () => {
