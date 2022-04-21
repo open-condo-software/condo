@@ -228,6 +228,7 @@ const storeChangesIfUpdated = (
             displayNameResolvers,
             relatedManyToManyResolvers,
         })
+
         const fieldsChangesWithRelatedFields = await buildRelatedFields({
             existingItem,
             fieldsChanges,

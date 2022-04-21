@@ -212,16 +212,19 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             [fields.phone]: contact.phone,
         })
         const employeeContact = { ...contact, id: null }
+
         setValue(employeeContact)
         setManuallyTypedContact(employeeContact)
+        setEditableFieldsChecked(true)
 
         onChange && onChange(employeeContact, false)
     }, DEBOUNCE_TIMEOUT)
 
-    const initialValueIsPresentedInFetchedContacts = fetchedContacts && initialValue && initialValue.name && initialValue.phone && find(fetchedContacts, initialValue)
+    const initialValueIsPresentedInFetchedContacts = fetchedContacts && initialValue && initialValue.name && initialValue.phone &&
+        fetchedContacts.find(contact => contact.name === initialValue.name && contact.phone === initialValue.phone)
 
     const sameAsInitial = (contact) => (
-        initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone
+        initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone && initialValue.id === contact.id
     )
 
     const isContactSelected = useCallback((contact) => {
@@ -279,7 +282,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                             />
                             {fetchedContacts.length === 0 || !unitName ? (
                                 <ContactSyncedAutocompleteFields
-                                    initialValue={initialValue || manuallyTypedContact}
+                                    initialValue={initialValue.id ? initialValue : manuallyTypedContact}
                                     onChange={handleChangeContact}
                                     contacts={fetchedContacts}
                                 />
@@ -287,13 +290,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 <>
                                     {contactOptions}
                                     <>
-                                        {(displayEditableContactFields || (initialValue && !initialValueIsPresentedInFetchedContacts)) ? (
+                                        {(displayEditableContactFields || (initialValue.id && !initialValueIsPresentedInFetchedContacts)) ? (
                                             <>
                                                 <Labels
                                                     left={AnotherContactLabel}
                                                 />
                                                 <ContactSyncedAutocompleteFields
-                                                    initialValue={initialValue || manuallyTypedContact}
+                                                    initialValue={initialValue.id ? initialValue : manuallyTypedContact}
                                                     onChange={handleChangeContact}
                                                     onChecked={handleSyncedFieldsChecked}
                                                     checked={editableFieldsChecked}
@@ -336,7 +339,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 right={FullNameLabel}
                             />
                             <ContactSyncedAutocompleteFields
-                                initialValue={initialValue || manuallyTypedContact}
+                                initialValue={!initialValue.id ? initialValue : manuallyTypedContact}
                                 onChange={handleChangeEmployee}
                                 contacts={fetchedEmployees}
                             />
