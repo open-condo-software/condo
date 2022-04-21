@@ -66,7 +66,7 @@ export const TicketsPageContent = ({
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
 
-    const { isSmall, lowResScroll } = useLayoutContext()
+    const { isSmall, shouldTableScroll } = useLayoutContext()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -232,7 +232,7 @@ export const TicketsPageContent = ({
                                     </Col>
                                     <Col span={24}>
                                         <Table
-                                            scroll={getTableScrollConfig(lowResScroll)}
+                                            scroll={getTableScrollConfig(shouldTableScroll)}
                                             totalRows={total}
                                             loading={loading}
                                             dataSource={tickets}
