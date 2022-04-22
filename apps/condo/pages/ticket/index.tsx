@@ -166,6 +166,7 @@ export const TicketsPageContent = ({
                                                                     handleSearchChange(e.target.value)
                                                                 }}
                                                                 value={search}
+                                                                allowClear={true}
                                                             />
                                                         </Col>
                                                         <Col xs={24} md={16}>
