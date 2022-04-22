@@ -236,7 +236,7 @@
   "pages.auth.PleaseConfirmYourPassword": "Please confirm your password",
   "pages.auth.PleaseInputYourEmail": "Please input your Email",
   "pages.auth.PleaseInputYourName": "Please input your Name",
-  "pages.auth.NameContainsOnly": "Name must consist of latin and cyrillic letters, as well as -'’`. Symbols -'’` must not go in a row",
+  "pages.auth.NameContainsOnly": "Name can only consist of latin and cyrillic letters",
   "pages.auth.NameMustContain": "Name must contain at least one letter",
   "pages.auth.NameMustNotStartOrAnd": "Name must not start or and with -'’`",
   "pages.auth.PleaseInputYourPassword": "Please input your Password",

@@ -236,7 +236,7 @@
   "pages.auth.PleaseConfirmYourPassword": "Введите пароль повторно для подтверждения",
   "pages.auth.PleaseInputYourEmail": "Введите Эл. почту",
   "pages.auth.PleaseInputYourName": "Введите имя",
-  "pages.auth.NameContainsOnly": "Имя может состоять из латинских и русских букв, а так же -'’`. Символы -'’` не должны идти подряд",
+  "pages.auth.NameContainsOnly": "Имя может состоять только из латинских и русских букв",
   "pages.auth.NameMustContain": "Имя должно содержать хотя бы одну букву",
   "pages.auth.NameMustNotStartOrAnd": "Имя не может начинаться или заканчиваться -'’`",
   "pages.auth.PleaseInputYourPassword": "Введите пароль",

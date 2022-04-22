@@ -88,3 +88,25 @@ export const ChildrenWrapper = styled.div<IChildrenWrapperProps>`
   padding: 0 20px;
   width: 100%;
 `
+
+export const RequiredFlagWrapper = styled.div`
+   & .ant-form-item > .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after{
+    display: inline-block;
+    margin-right: 4px;
+    color: ${colors.warningText};
+    font-size: 14px;
+    content: '*';
+  }
+  & .ant-form-item > .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before{
+    display: none;
+  }
+  & .ant-form-item > .ant-form-item-label > label {
+    align-items: flex-end;
+  }
+`
+
+export const RemoveTabsLineWrapper = styled.div`
+  & .ant-tabs-nav::before {
+    content: none;
+  }
+`

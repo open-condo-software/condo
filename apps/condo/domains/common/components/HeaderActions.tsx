@@ -2,22 +2,11 @@ import React from 'react'
 import { useIntl } from '@core/next/intl'
 import Router from 'next/router'
 import { Tabs } from 'antd'
-import styled from '@emotion/styled'
-import { colors } from '@condo/domains/common/constants/style'
+import { RemoveTabsLineWrapper } from '@condo/domains/user/components/containers/styles'
 
 interface ITabsActionsProps {
     currentActiveKey: string
 }
-
-const RemoveTabLineWrapper = styled.div`
-  & .ant-tabs-nav::before {
-    content: none;
-  }
-  & .ant-tabs {
-    color: ${colors.textSecondary};
-    font-weight: 600;
-  }
-`
 
 export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     const { currentActiveKey } = props
@@ -26,7 +15,7 @@ export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     const signInTab = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
 
     return (
-        <RemoveTabLineWrapper>
+        <RemoveTabsLineWrapper>
             <Tabs
                 defaultActiveKey={currentActiveKey}
                 onChange={(activeKey) => Router.push(activeKey)}
@@ -36,6 +25,6 @@ export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
                 <Tabs.TabPane key='/auth/register?step=inputPhone' tab={registerTab}/>
                 <Tabs.TabPane key='/auth/signin' tab={signInTab}/>
             </Tabs>
-        </RemoveTabLineWrapper>
+        </RemoveTabsLineWrapper>
     )
 }

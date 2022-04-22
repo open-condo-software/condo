@@ -16,7 +16,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { ResponsiveCol } from '../../domains/user/components/containers/ResponsiveCol'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
 
 const ROW_STYLES: React.CSSProperties = {
@@ -54,6 +54,9 @@ const ChangePasswordPage: AuthPage = () => {
     const ChangePasswordTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorLabel' })
     const ChangePasswordTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorMessage' })
     const ChangePasswordTokenErrorConfirmLabel = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorConfirmLabel' })
+
+    const CREATE_NEW_PASSWORD_SPAN = <span style={{ alignSelf: 'flex-end' }}>{CreateNewPasswordMsg}</span>
+    const CONFIRM_NEW_PASSWORD_SPAN = <span style={{ alignSelf: 'flex-end' }}>{ConfirmPasswordMsg}</span>
 
     // New format of errors mapping, assuming, that errors are received from server with localized messages for user
     // Here we just need to map an error type to form field
@@ -197,7 +200,7 @@ const ChangePasswordPage: AuthPage = () => {
                                 <Col span={24}>
                                     <Form.Item
                                         name="password"
-                                        label={CreateNewPasswordMsg}
+                                        label={CREATE_NEW_PASSWORD_SPAN}
                                         rules={validations.password}
                                     >
                                         <Input.Password/>
@@ -206,7 +209,7 @@ const ChangePasswordPage: AuthPage = () => {
                                 <Col span={24}>
                                     <Form.Item
                                         name="confirm"
-                                        label={ConfirmPasswordMsg}
+                                        label={CONFIRM_NEW_PASSWORD_SPAN}
                                         dependencies={['password']}
                                         rules={validations.confirmPassword}
                                     >
