@@ -139,6 +139,7 @@ export const EmployeesPageContent = ({
                                                         handleSearchChange(e.target.value)
                                                     }}
                                                     value={search}
+                                                    allowClear={true}
                                                 />
                                             </Col>
                                             {
