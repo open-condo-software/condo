@@ -21,6 +21,8 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const { Ticket } = require('./serverSchema')
+const { PUSH_TRANSPORT } = require('@condo/domains/notification/constants/constants')
+const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -226,6 +228,8 @@ const sendTicketCommentNotifications = async (requestData) => {
 
     const ticket = await Ticket.getOne(context, { id: updatedItem.ticket })
     const clientId = get(ticket, 'client.id')
+    const commentType = get(updatedItem, 'type')
+    const client = get(ticket, 'client.id')
     const organizationId = get(ticket, 'organization.id')
     const propertyId = get(ticket, 'property.id')
 
@@ -242,7 +246,7 @@ const sendTicketCommentNotifications = async (requestData) => {
      */
     const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
 
-    if (clientId && createdBy !== clientId) {
+    if (client && createdBy !== client && commentType === RESIDENT_COMMENT_TYPE) {
         const where = {
             user: { id: clientId },
             property: { id: propertyId },
