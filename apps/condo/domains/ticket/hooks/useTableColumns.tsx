@@ -23,7 +23,7 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { TicketStatus } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { getDeadlineType, getHumanizeDeadlineDateDifference, IFilters, TicketDeadlineType } from '../utils/helpers'
-import { getTicketDetailsRender } from '../utils/clientSchema/Renders'
+import { getTicketClientNameRender, getTicketDetailsRender } from '../utils/clientSchema/Renders'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
 import { TicketTag } from '../components/TicketTag'
@@ -310,7 +310,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: columnWidths.clientName,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
-                render: getTableCellRenderer(search),
+                render: getTicketClientNameRender(search),
                 filterIcon: getFilterIcon,
             },
             {

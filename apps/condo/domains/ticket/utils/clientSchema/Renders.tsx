@@ -12,3 +12,13 @@ export const getTicketDetailsRender = (search: FilterValue) => {
         return getTableCellRenderer(search, false, null, null, null, details)(trimmedDetails)
     }
 }
+
+export const getTicketClientNameRender = (search: FilterValue) => {
+    return function render (ClientName: string, ticket: ITicketUIState) {
+        const address = get(ticket, ['property', 'address'])
+        const maxClientNameLength = address ? address.length : ClientName.length
+        const trimmedClientName = ClientName.length > maxClientNameLength ? `${ClientName.substring(0, maxClientNameLength)}…` : ClientName
+
+        return getTableCellRenderer(search, false, null, null, null, ClientName)(trimmedClientName)
+    }
+}
