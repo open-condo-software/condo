@@ -400,9 +400,13 @@ async function makePayer (receiptsAmount = 1) {
     const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
     const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
 
-    const [resident] = await createTestResident(admin, client.user, organization, property)
+    const [resident] = await createTestResident(admin, client.user, organization, property, {
+        unitName: billingAccount.unitName,
+        unitType: billingAccount.unitType,
+    })
     const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization , {
         billingAccount: { connect: { id: billingAccount.id } },
+        accountNumber: billingAccount.number,
         acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
         billingIntegrationContext: { connect: { id: billingContext.id } }
     })
