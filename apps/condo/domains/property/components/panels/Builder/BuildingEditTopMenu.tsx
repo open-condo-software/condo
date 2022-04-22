@@ -12,6 +12,7 @@ import {
     SectionIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
 import { colors } from '@condo/domains/common/constants/style'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { MapEdit } from './MapConstructor'
 
 const DROPDOWN_TRIGGER: DropDownProps['trigger'] = ['hover', 'click']
@@ -79,6 +80,8 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
     const AddParkingFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingFloor' })
     const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
 
+    const addSectionFloorDisabled = mapEdit.isEmptySections || !hasFeature('add_section_floor')
+
     const menuOverlay = useMemo(() => (
         <Menu css={MenuCss} onClick={menuClick}>
             <Menu.Item key={'addSection'}>
@@ -86,8 +89,8 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     {AddSection}
                 </Button>
             </Menu.Item>
-            <Menu.Item key={'addSectionFloor'} disabled={mapEdit.isEmptySections}>
-                <Button type={'sberDefaultGradient'} disabled={mapEdit.isEmptySections} secondary icon={<FloorIcon />}>
+            <Menu.Item key={'addSectionFloor'} disabled={addSectionFloorDisabled}>
+                <Button type={'sberDefaultGradient'} disabled={addSectionFloorDisabled} secondary icon={<FloorIcon />}>
                     {AddFloor}
                 </Button>
             </Menu.Item>
