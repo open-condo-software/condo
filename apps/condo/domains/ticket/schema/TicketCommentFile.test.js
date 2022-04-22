@@ -387,18 +387,25 @@ describe('TicketCommentFile', () => {
                     type: RESIDENT_COMMENT_TYPE,
                     content: content1,
                 })
-                const [commentFromEmployee] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                const [commentFromEmployeeInResidentComments] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content: content2,
+                })
+                const [commentFromEmployeeInEmployeeComments] = await createTestTicketComment(employeeClient, ticket, employeeClient.user, {
                     type: ORGANIZATION_COMMENT_TYPE,
                     content: content2,
                 })
 
                 const [residentTicketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket, commentFromResident)
-                const [employeeTicketCommentFile] = await createTestTicketCommentFile(employeeClient, organization, ticket, commentFromEmployee)
+                const [employeeTicketCommentFile] = await createTestTicketCommentFile(employeeClient, organization, ticket, commentFromEmployeeInResidentComments)
 
-                const files = await TicketCommentFile.getAll(residentClient)
+                await createTestTicketCommentFile(employeeClient, organization, ticket, commentFromEmployeeInEmployeeComments)
 
-                expect(files).toHaveLength(1)
+                const files = await TicketCommentFile.getAll(residentClient, {}, { sortBy: 'createdAt_ASC' })
+
+                expect(files).toHaveLength(2)
                 expect(files[0].id).toEqual(residentTicketCommentFile.id)
+                expect(files[1].id).toEqual(employeeTicketCommentFile.id)
             })
 
             test('cannot read ticket files in ticket comments with type "resident" in not his ticket', async () => {
