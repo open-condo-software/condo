@@ -102,7 +102,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         if (event.keyCode === 13 && !event.shiftKey) {
             form.submit()
             setCommentLength(0)
-            form.setFieldsValue({ [fieldName]: null })
         }
     }, [setCommentLength])
 
