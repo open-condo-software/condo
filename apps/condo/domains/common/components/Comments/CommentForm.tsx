@@ -53,6 +53,7 @@ const CommentHelper = styled(Col)`
 `
 
 interface ICommentFormProps {
+    ticket
     action: (formValues, syncModifiedFiles) => Promise<any>
     fieldName?: string
     initialValue?: string
@@ -64,6 +65,7 @@ interface ICommentFormProps {
 }
 
 const CommentForm: React.FC<ICommentFormProps> = ({
+    ticket,
     initialValue,
     action,
     fieldName,
@@ -85,7 +87,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         Model: FileModel,
         relationField: relationField,
         initialFileList: editableComment?.files,
-        initialCreateValues: { organization: organization.id },
+        initialCreateValues: { organization: organization.id, ticket: ticket.id },
         dependenciesForRerenderUploadComponent: [editableComment],
     })
 

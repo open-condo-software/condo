@@ -417,6 +417,7 @@ const Comments: React.FC<ICommentsListProps> = ({
             <Footer>
                 {canCreateComments ? (
                     <CommentForm
+                        ticket={ticket}
                         FileModel={FileModel}
                         relationField={fileModelRelationField}
                         action={handleCommentAction}
