@@ -3,10 +3,10 @@
     "version": "1.0.0",
     "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/packages/@core.codegen",
     "dependencies": {
-        "boxen": "^4.2.0",
-        "chalk": "^4.1.0",
-        "ncp": "^2.0.0",
-        "nunjucks": "^3.2.2",
-        "yargs": "^16.2.0"
+        "boxen": "4.2.0",
+        "chalk": "4.1.1",
+        "ncp": "2.0.0",
+        "nunjucks": "3.2.3",
+        "yargs": "16.2.0"
     }
 }

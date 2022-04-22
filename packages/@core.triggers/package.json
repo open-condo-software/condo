@@ -2,9 +2,9 @@
   "name": "@core/triggers",
   "version": "1.0.0",
   "dependencies": {
-    "json-rules-engine": "^6.1.2",
-    "q": "^1.5.1",
-    "lodash": "^4.17.21"
+    "json-rules-engine": "6.1.2",
+    "q": "1.5.1",
+    "lodash": "4.17.21"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/master/packages/@core.triggers"
 }
