@@ -133,6 +133,7 @@ export const ContactsPageContent = ({
                                                 handleSearchChange(e.target.value)
                                             }}
                                             value={search}
+                                            allowClear={true}
                                         />
                                     </Col>
                                     <Col>
