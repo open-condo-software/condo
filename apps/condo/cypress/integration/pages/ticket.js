@@ -62,7 +62,6 @@ describe('Ticket',  function () {
                     const ticketEdit = new TicketEdit()
                     ticketEdit
                         .visit()
-                        .changeTicketStatus()
                         .clickUpdateTicketLink()
                         .clickProblemClassifier()
                         .clickTicketDeadline()
@@ -70,7 +69,6 @@ describe('Ticket',  function () {
                         .clickApplyChanges()
                 })
             })
-
         })
     })
 })
