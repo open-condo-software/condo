@@ -19,6 +19,7 @@ import { useRegisterFormValidators } from './hooks'
 import { RegisterContext } from './RegisterContextProvider'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { colors } from '@condo/domains/common/constants/style'
+import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
 
 
 interface IRegisterFormProps {
@@ -34,6 +35,9 @@ const FORM_TITLE_STYLES: React.CSSProperties = {
 const FORM_PHONE_STYLES: React.CSSProperties = {
     borderRadius: 8,
     borderColor: colors.inputBorderGrey,
+}
+const BUTTON_STYLES: React.CSSProperties = {
+    width: '100%',
 }
 const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
 
@@ -53,9 +57,6 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
     const RegistrationTitle = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
-
-    const PASSWORD_MSG_LABEL = <label style={{ whiteSpace: 'break-spaces' }}>{PasswordMsg}</label>
-    const CONFIRM_PASSWORD_MSG_LABEL = <label style={{ whiteSpace: 'break-spaces' }}>{ConfirmPasswordMsg}</label>
 
     const validators = useRegisterFormValidators()
     const ErrorToFormFieldMsgMapping = useMemo(() => {
@@ -135,54 +136,64 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                 level={2}>{RegistrationTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <Form.Item
-                                name='phone'
-                                label={PhoneMsg}
-                                rules={validators.phone}
-                            >
-                                <PhoneInput style={FORM_PHONE_STYLES} disabled={true} placeholder={ExamplePhoneMsg} block/>
-                            </Form.Item>
+                            <RequiredFlagWrapper>
+                                <Form.Item
+                                    name='phone'
+                                    label={PhoneMsg}
+                                    rules={validators.phone}
+                                >
+                                    <PhoneInput style={FORM_PHONE_STYLES} disabled={true} placeholder={ExamplePhoneMsg} block/>
+                                </Form.Item>
+                            </RequiredFlagWrapper>
                         </Col>
                         <Col span={24}>
-                            <Form.Item
-                                name='name'
-                                label={NameMsg}
-                                rules={validators.name}
-                                data-cy={'register-name-item'}
-                            >
-                                <Input placeholder={ExampleNameMsg}/>
-                            </Form.Item>
+                            <RequiredFlagWrapper>
+                                <Form.Item
+                                    name='name'
+                                    label={NameMsg}
+                                    rules={validators.name}
+                                    data-cy={'register-name-item'}
+                                >
+                                    <RequiredFlagWrapper><Input placeholder={ExampleNameMsg}/></RequiredFlagWrapper>
+                                </Form.Item>
+                            </RequiredFlagWrapper>
                         </Col>
                         <Col span={24}>
-                            <Form.Item
-                                name='email'
-                                label={EmailMsg}
-                                rules={validators.email}
-                                data-cy={'register-email-item'}
-                            >
-                                <Input autoComplete='chrome-off' placeholder={EmailPlaceholder}/>
-                            </Form.Item>
+                            <RequiredFlagWrapper>
+                                <Form.Item
+                                    name='email'
+                                    label={EmailMsg}
+                                    rules={validators.email}
+                                    data-cy={'register-email-item'}
+                                >
+                                    <Input autoComplete='chrome-off' placeholder={EmailPlaceholder}/>
+                                </Form.Item>
+                            </RequiredFlagWrapper>
                         </Col>
                         <Col span={24}>
-                            <Form.Item
-                                name='password'
-                                label={PASSWORD_MSG_LABEL}
-                                rules={validators.password}
-                                data-cy={'register-password-item'}
-                            >
-                                <Input.Password autoComplete='new-password'/>
-                            </Form.Item>
+                            <RequiredFlagWrapper>
+                                <Form.Item
+                                    name='password'
+                                    label={PasswordMsg}
+                                    rules={validators.password}
+                                    data-cy={'register-password-item'}
+                                >
+                                    <Input.Password autoComplete='new-password'/>
+                                </Form.Item>
+                            </RequiredFlagWrapper>
                         </Col>
                         <Col span={24}>
-                            <Form.Item
-                                name='confirm'
-                                label={CONFIRM_PASSWORD_MSG_LABEL}
-                                dependencies={['password']}
-                                rules={validators.confirm}
-                                data-cy={'register-confirmpassword-item'}
-                            >
-                                <Input.Password/>
-                            </Form.Item>
+                            <RequiredFlagWrapper>
+                                <Form.Item
+                                    name='confirm'
+                                    label={ConfirmPasswordMsg}
+                                    dependencies={['password']}
+                                    rules={validators.confirm}
+                                    data-cy={'register-confirmpassword-item'}
+                                >
+                                    <Input.Password/>
+                                </Form.Item>
+                            </RequiredFlagWrapper>
                         </Col>
                     </Row>
                 </ResponsiveCol>
@@ -193,7 +204,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                             type='sberDefaultGradient'
                             htmlType='submit'
                             loading={isLoading}
-                            style={{ width: '100%' }}
+                            style={BUTTON_STYLES}
                             data-cy={'registercomplete-button'}
                         >
                             {RegisterMsg}
