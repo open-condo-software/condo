@@ -154,6 +154,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                                 handleSearchChange(e.target.value)
                                             }}
                                             value={search}
+                                            allowClear={true}
                                         />
                                     </Col>
                                     <Col hidden={isSmall}>

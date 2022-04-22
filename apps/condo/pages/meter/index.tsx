@@ -158,6 +158,7 @@ export const MetersPageContent = ({
                                             placeholder={SearchPlaceholder}
                                             onChange={handleSearch}
                                             value={search}
+                                            allowClear={true}
                                         />
                                     </Col>
                                     <Col>
