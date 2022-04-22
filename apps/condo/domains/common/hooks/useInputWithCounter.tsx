@@ -11,7 +11,7 @@ const TARGET_VALUE_LENGTH_PATH = ['target', 'value', 'length']
 export const useInputWithCounter = (InputComponent, maxLength) => {
     const [textLength, setTextLength] = useState<number>(0)
 
-    const handleInputChange = useCallback((e) => (inputProps) => {
+    const handleInputChange = useCallback((e, inputProps) => {
         const valueLength = get(e, TARGET_VALUE_LENGTH_PATH)
         setTextLength(valueLength)
 
@@ -22,7 +22,7 @@ export const useInputWithCounter = (InputComponent, maxLength) => {
         <InputComponent
             maxLength={maxLength}
             {...inputProps}
-            onChange={handleInputChange(inputProps)}
+            onChange={(e) => handleInputChange(e, inputProps)}
         />
     ), [InputComponent, handleInputChange, maxLength])
 
