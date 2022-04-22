@@ -102,6 +102,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         if (event.keyCode === 13 && !event.shiftKey) {
             form.submit()
             setCommentLength(0)
+            form.setFieldsValue({ [fieldName]: null })
         }
     }, [setCommentLength])
 
@@ -137,7 +138,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         [fieldName]: initialValue,
     }), [fieldName, initialValue])
 
-    const showHelperMessage = useMemo(() => commentLength > 0 || editableComment, [])
+    const showHelperMessage = useMemo(() => commentLength > 0 || editableComment, [commentLength, editableComment])
 
     return (
         <FormWithAction

@@ -340,8 +340,8 @@ const Comments: React.FC<ICommentsListProps> = ({
             await syncModifiedFiles(comment.id)
         }
 
-        setSending(false)
         await refetchComments()
+        setSending(false)
     },
     [commentType, createAction, editableComment, refetchComments, updateAction])
 
