@@ -131,6 +131,5 @@ const initCache = (keystone, cache) => {
 
 module.exports = {
     KeystoneCacheMiddleware,
-    initCache,
 }
 
