@@ -62,11 +62,11 @@ async function canManageIsApprovedField ({ authentication: { item: user }, origi
     if (user.isAdmin || user.isSupport) return true
 
     // If user is not support, then he only can drop isApproved field
-    if ('isApproved' in originalInput) {
-        return get(originalInput, 'isApproved') === false
+    if (!get(originalInput, 'isApproved')) {
+        return true
     }
 
-    return true
+    return false
 }
 
 /*
