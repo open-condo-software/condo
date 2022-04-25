@@ -3,5 +3,6 @@
     "baseUrl": "http://localhost:3000",
     "videoCompression": 15,
     "waitForAnimations": true,
-    "defaultCommandTimeout": 10000
+    "defaultCommandTimeout": 10000,
+    "retries": 3
 }
