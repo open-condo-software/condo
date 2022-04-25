@@ -1567,6 +1567,39 @@ describe('Ticket', () => {
 
     })
     describe( 'NotificationWhen', () => {
+        it('update status to TICKET_STATUS_OPENED after IN_PROGRESS or DECLINED status and can`t send push for resident with registered pushToken', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+
+            await createTestResident(admin, userClient.user, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [ticketInProgress] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+
+            const [ticketDeclaine] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+                status: { connect: { id: STATUS_IDS.DECLINED } },
+            })
+
+            await updateTestTicket(admin, ticketInProgress.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            await updateTestTicket(admin, ticketDeclaine.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_OPENED_TYPE }
+            const messageCount = await Message.count(admin, messageWhere)
+
+            expect(messageCount).toEqual(0)
+        })
+
         it('update status to TICKET_STATUS_IN_PROGRESS and send push for resident with registered pushToken', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
