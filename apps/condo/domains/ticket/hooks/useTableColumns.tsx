@@ -243,7 +243,10 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
         }
 
         const userTicketCommentRead = userTicketsCommentRead.find(obj => obj.ticket.id === ticket.id)
-        const postfix = hasUnreadResidentComments(userTicketCommentRead, ticket) && (
+        const lastResidentCommentAt = get(ticket, 'lastResidentCommentAt')
+        const readResidentCommentByUserAt = get(userTicketCommentRead, 'readResidentCommentAt')
+        const lastAnsweredToResidentAt = get(ticket, 'lastAnsweredToResidentAt')
+        const postfix = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastAnsweredToResidentAt) && (
             <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES}>
                 <Tooltip title={NewResidentCommentMessage} placement={'topRight'}>
                     <NewCommentIndicator title={''} />

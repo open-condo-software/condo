@@ -12,7 +12,7 @@ import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '@a
 import dayjs from 'dayjs'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
-const FIELDS = ['id', 'lastEmployeeAnsweredToResidentAt', 'reviewValue', 'reviewComment', 'canReadByResident', 'deadline', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitType', 'unitName', 'sectionName', 'floorName', 'watchers', 'operator', 'assignee', 'classifier', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule', 'details', 'related', 'isEmergency', 'isWarranty', 'isPaid', 'meta', 'source', 'property', 'executor', 'propertyAddress', 'propertyAddressMeta', 'lastResidentCommentAt']
+const FIELDS = ['id', 'lastAnsweredToResidentAt', 'reviewValue', 'reviewComment', 'canReadByResident', 'deadline', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitType', 'unitName', 'sectionName', 'floorName', 'watchers', 'operator', 'assignee', 'classifier', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule', 'details', 'related', 'isEmergency', 'isWarranty', 'isPaid', 'meta', 'source', 'property', 'executor', 'propertyAddress', 'propertyAddressMeta', 'lastResidentCommentAt']
 const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'classifier', 'organization', 'source', 'property', 'executor', 'related', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule']
 const DISCONNECT_ON_NULL = ['problemClassifier', 'executor', 'contact']
 export interface ITicketUIState extends Ticket {
@@ -37,7 +37,7 @@ export interface ITicketFormState {
     classifierRule?: string
     canReadByResident?: boolean
     lastResidentCommentAt?: string
-    lastEmployeeAnsweredToResidentAt?: string
+    lastAnsweredToResidentAt?: string
     assignee?: string
     operator?: string
     client?: string

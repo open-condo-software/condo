@@ -1,16 +1,14 @@
+import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Empty, Tabs, Typography } from 'antd'
 import styled from '@emotion/styled'
-import get from 'lodash/get'
 
 import { useIntl } from '@core/next/intl'
 import { File, Organization, UserTypeType } from '@app/condo/schema'
-import { useAuth } from '@core/next/auth'
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
-import { UserTicketCommentRead } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketUIState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 
@@ -357,7 +355,11 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
     }, [createUserTicketCommentRead, updateUserTicketCommentRead, userTicketCommentRead])
 
-    const showIndicator = useMemo(() => hasUnreadResidentComments(userTicketCommentRead, ticket), [ticket, userTicketCommentRead])
+    const lastResidentCommentAt = useMemo(() => get(ticket, 'lastResidentCommentAt'), [ticket])
+    const readResidentCommentByUserAt = useMemo(() => get(userTicketCommentRead, 'readResidentCommentAt'), [userTicketCommentRead])
+    const lastAnsweredToResidentAt = useMemo(() => get(ticket, 'lastAnsweredToResidentAt'), [ticket])
+    const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastAnsweredToResidentAt),
+        [lastAnsweredToResidentAt, lastResidentCommentAt, readResidentCommentByUserAt])
 
     return (
         <Container isSmall={isSmall}>

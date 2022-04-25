@@ -100,7 +100,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
                     await Ticket.update(context, ticketId, {
                         dv,
                         sender,
-                        lastEmployeeAnsweredToResidentAt: now,
+                        lastAnsweredToResidentAt: now,
                     })
 
                     const userTicketCommentReadObjects = await find('UserTicketCommentRead', {

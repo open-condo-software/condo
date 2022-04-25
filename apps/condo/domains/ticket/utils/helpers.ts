@@ -626,19 +626,22 @@ export function getHumanizeDeadlineDateDifference (ticket: ITicketUIState) {
     return { moreThanDayDiff, overdueDiff }
 }
 
-export function hasUnreadResidentComments (userTicketCommentRead, ticket) {
-    const readResidentCommentByUserAt = get(userTicketCommentRead, 'readResidentCommentAt')
-    const lastResidentCommentAt = get(ticket, 'lastResidentCommentAt')
-    const lastEmployeeAnsweredToResidentAt = get(ticket, 'lastEmployeeAnsweredToResidentAt')
-
+/**
+ * Checks that the time of the resident's last comment is later than the time the user read this comment
+ * and later than the time someone replied to this comment
+ * @param lastResidentCommentAt {string} Time of last resident comment
+ * @param readResidentCommentByUserAt {string} Time when the resident's comments were last read by this user
+ * @param lastAnsweredToResidentAt {string} Time of last reply to a resident's comment (by anyone)
+ */
+export function hasUnreadResidentComments (lastResidentCommentAt, readResidentCommentByUserAt, lastAnsweredToResidentAt) {
     if (lastResidentCommentAt) {
         if (!readResidentCommentByUserAt) {
-            if (!lastEmployeeAnsweredToResidentAt || dayjs(lastEmployeeAnsweredToResidentAt).isBefore(lastResidentCommentAt)) {
+            if (!lastAnsweredToResidentAt || dayjs(lastAnsweredToResidentAt).isBefore(lastResidentCommentAt)) {
                 return true
             }
         } else {
             if (dayjs(readResidentCommentByUserAt).isBefore(lastResidentCommentAt)) {
-                if (!lastEmployeeAnsweredToResidentAt || dayjs(lastEmployeeAnsweredToResidentAt).isBefore(lastResidentCommentAt)) {
+                if (!lastAnsweredToResidentAt || dayjs(lastAnsweredToResidentAt).isBefore(lastResidentCommentAt)) {
                     return true
                 }
             }
