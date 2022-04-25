@@ -19,7 +19,7 @@ const {
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_TRANSPORT_FIREBASE,
     MESSAGE_SENT_STATUS,
-    TICKET_COMMENT_ADDED_TYPE, MESSAGE_ERROR_STATUS, PUSH_FAKE_TOKEN_FAIL,
+    TICKET_COMMENT_ADDED_TYPE, 
 } = require('@condo/domains/notification/constants/constants')
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 const { syncDeviceByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
