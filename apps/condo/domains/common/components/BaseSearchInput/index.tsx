@@ -139,9 +139,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     }, [onChange])
 
     const handleScroll = useCallback(async (scrollEvent) => {
-        const lastElementIdx = String((data || []).length - 1)
-
-        if (isNeedToLoadNewElements(scrollEvent, lastElementIdx, fetching)) {
+        if (isNeedToLoadNewElements(scrollEvent, fetching)) {
             await throttledSearchMore(value, data.length)
         }
     }, [data, fetching, throttledSearchMore, value])
