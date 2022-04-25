@@ -1581,7 +1581,7 @@ describe('Ticket', () => {
                 status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
             })
 
-            const [ticketDeclaine] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+            const [ticketDecline] = await createTestTicket(userClient, userClient.organization, userClient.property, {
                 unitName,
                 status: { connect: { id: STATUS_IDS.DECLINED } },
             })
@@ -1590,7 +1590,7 @@ describe('Ticket', () => {
                 status: { connect: { id: STATUS_IDS.OPEN } },
             })
 
-            await updateTestTicket(admin, ticketDeclaine.id, {
+            await updateTestTicket(admin, ticketDecline.id, {
                 status: { connect: { id: STATUS_IDS.OPEN } },
             })
 
