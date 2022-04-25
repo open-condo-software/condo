@@ -14,7 +14,7 @@ async function canReadUserTicketCommentReads ({ authentication: { item: user } }
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
 
     return {
         user: { id: user.id },
