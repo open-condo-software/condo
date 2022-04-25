@@ -59,14 +59,13 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
      * TODO(DOMA-1513) replace HighLighter with apps/condo/domains/common/components/TextHighlighter.tsx and renderHighlightedPart
      */
     const renderOption = useCallback(
-        (dataItem, searchValue, index) => {
+        (dataItem, searchValue) => {
             return (
                 <Select.Option
                     style={SELECT_OPTION_STYLE}
                     key={dataItem.value}
                     value={dataItem.text}
                     title={dataItem.text}
-                    id={index}
                     data-cy={'ticket__property-address-search-option'}
                 >
                     {

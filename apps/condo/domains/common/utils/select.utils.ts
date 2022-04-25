@@ -1,10 +1,7 @@
 
-export function isNeedToLoadNewElements (scrollEvent, lastElementIdx: string, isLoading: boolean) {
-    const dropdown = scrollEvent.currentTarget
-    const containerTop = dropdown.getBoundingClientRect().top
-    const containerHeight = dropdown.getBoundingClientRect().height
-    const lastElement = document.getElementById(lastElementIdx)
-    const lastElementTopPos = lastElement && lastElement.getBoundingClientRect().top - containerTop
+export function isNeedToLoadNewElements (scrollEvent, isLoading: boolean) {
+    const scrollTop = scrollEvent.target.scrollTop
+    const scrollTopMax = scrollEvent.target.scrollTopMax
 
-    return lastElementTopPos && lastElementTopPos < containerHeight && !isLoading
+    return scrollTopMax - 100 < scrollTop && !isLoading
 }
