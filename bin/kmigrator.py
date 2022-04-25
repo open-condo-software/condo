@@ -579,21 +579,21 @@ def _3_2_generate_django_models(ctx):
 
 def _3_3_restore_django_migrations(ctx):
     repaired = set()
-    for contact in KNEX_MIGRATIONS_DIR.iterdir():
-        if not contact.is_file():
+    for item in KNEX_MIGRATIONS_DIR.iterdir():
+        if not item.is_file():
             continue
-        d = contact.read_text(encoding='utf-8')
+        d = item.read_text(encoding='utf-8')
         for name, code in (re.findall(r'^// KMIGRATOR:(.*?):([A-Za-z0-9+/=]*?)$', d, re.MULTILINE)):
             (DJANGO_DIR / 'migrations' / '{}.py'.format(name)).write_bytes(base64.b64decode(code.encode('ascii')))
             repaired.add(name)
     ctx['__KNEX_DJANGO_MIGRATION__'] = repaired
 
 
-def _hotfix_django_migration_bug(contact):
-    if contact.name.startswith('__'):
+def _hotfix_django_migration_bug(item):
+    if item.name.startswith('__'):
         return
     flags = re.MULTILINE | re.DOTALL
-    source = code = contact.read_text(encoding='utf-8')
+    source = code = item.read_text(encoding='utf-8')
     deleting_models = re.findall(r'\s*migrations\.DeleteModel\(.*?name=[\'"](.*?)[\'"].*?\),', code, flags)
     def _repl(x):
         return x.group(0).replace('\n', '\n#')
@@ -612,7 +612,7 @@ def _hotfix_django_migration_bug(contact):
     op_ind = code_0.rfind(']')
     code = code_0[:op_ind].rstrip() + ''.join(reversed(delete_sections)) + '\n    ]\n'
     if source != code:
-        contact.write_text(code, encoding='utf-8')
+        item.write_text(code, encoding='utf-8')
 
 
 def _4_1_makemigrations(ctx, merge=False, check=False):
@@ -627,13 +627,13 @@ def _4_1_makemigrations(ctx, merge=False, check=False):
     r = os.system(' '.join(command))
     if r != 0:
         raise KProblem('ERROR: can\'t create migration')
-    for contact in (DJANGO_DIR / 'migrations').iterdir():
-        _hotfix_django_migration_bug(contact)
-        name = contact.name.replace('.py', '')
+    for item in (DJANGO_DIR / 'migrations').iterdir():
+        _hotfix_django_migration_bug(item)
+        name = item.name.replace('.py', '')
         filename = '{}-{}.js'.format(n.strftime("%Y%m%d%H%M%S"), name)
-        if not contact.is_file() or name.startswith('__') or name in exists:
+        if not item.is_file() or name.startswith('__') or name in exists:
             continue
-        code = base64.b64encode(contact.read_bytes()).decode('utf-8')
+        code = base64.b64encode(item.read_bytes()).decode('utf-8')
         cmd = [sys.executable, str(DJANGO_DIR / '..' / 'manage.py'), 'sqlmigrate', '_django_schema', name]
         fwd_sql = subprocess.check_output(cmd).decode('utf-8')
         try:

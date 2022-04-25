@@ -12,8 +12,8 @@ interface Refetch<Q> {
 }
 
 interface IHookConverters<GQL, GQLInput, UI, UIForm> {
-    convertToGQLInput: (state: UIForm, contact?: UI) => GQLInput
-    convertToUIState: (contact: GQL) => UI
+    convertToGQLInput: (state: UIForm, item?: UI) => GQLInput
+    convertToUIState: (item: GQL) => UI
 }
 
 interface IHookResult<UI, UIForm, Q> {
