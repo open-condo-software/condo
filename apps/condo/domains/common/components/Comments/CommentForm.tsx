@@ -1,19 +1,18 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
-import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
-import styled from '@emotion/styled'
+import { Button } from '@condo/domains/common/components/Button'
+import { colors } from '@condo/domains/common/constants/style'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
 
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-
-import { Button } from '@condo/domains/common/components/Button'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { colors } from '@condo/domains/common/constants/style'
-import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
+import styled from '@emotion/styled'
+import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useInputWithCounter } from '../../hooks/useInputWithCounter'
-import { Module, useMultipleFileUploadHook } from '../MultipleFileUpload'
 import { FormWithAction } from '../containers/FormList'
 import { ClipIcon } from '../icons/ClipIcon'
+import { Module, useMultipleFileUploadHook } from '../MultipleFileUpload'
 import { TComment } from './index'
 
 const Holder = styled.div`
@@ -118,9 +117,12 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     }), [filesCount, requiredValidator, trimValidator])
 
     const actionWithSyncComments = useCallback(async (values) => {
+        values.content = form.getFieldValue(fieldName)
+        form.setFieldsValue({ [fieldName]: null })
+
         await action(values, syncModifiedFiles)
         await resetModifiedFiles()
-    }, [action, resetModifiedFiles, syncModifiedFiles])
+    }, [action, fieldName, form, resetModifiedFiles, syncModifiedFiles])
 
     const MemoizedUploadComponent = useCallback(() => (
         <UploadComponent
