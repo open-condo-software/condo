@@ -62,7 +62,7 @@
     "ignorePatterns": [
       "dist",
       "packages/@core.codegen/templates/**/*",
-      "schema.ts"
+      "*schema.ts"
     ],
     "rules": {
       "comma-spacing": "off",
