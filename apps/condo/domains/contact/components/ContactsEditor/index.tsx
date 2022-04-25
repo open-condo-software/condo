@@ -13,7 +13,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
-import { IOrganizationEmployeeUIState } from '../../../organization/utils/clientSchema/OrganizationEmployee'
+
 import { IContactUIState } from '../../utils/clientSchema/Contact'
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
