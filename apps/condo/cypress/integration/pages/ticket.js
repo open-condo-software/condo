@@ -63,7 +63,6 @@ describe('Ticket',  function () {
                     ticketEdit
                         .visit()
                         .clickUpdateTicketLink()
-                        .clickProblemClassifier()
                         .clickTicketDeadline()
                         .clickAssigneeInput()
                         .clickApplyChanges()

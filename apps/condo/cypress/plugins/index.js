@@ -8,10 +8,11 @@ const {
     createTestForgotPasswordAction,
     ConfirmPhoneAction,
     makeLoggedInClient,
+    makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicket, createTestTicketClassifierRule } = require('@condo/domains/ticket/utils/testSchema')
 
 let userObject = {}
 
@@ -56,9 +57,18 @@ module.exports = async (on, config) => {
         },
         async 'keystone:createTickets' (ticketAttrs) {
             const client = await makeLoggedInClient(ticketAttrs.userAttrs)
-            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true })
-            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true })
-            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true })
+            const support = await makeClientWithSupportUser()
+            const [ticketClassifierRule] = await createTestTicketClassifierRule(support)
+
+            const classifierRule = { connect: { id: ticketClassifierRule.id } }
+            const problemClassifier = { connect: { id: ticketClassifierRule.problem.id } }
+            const categoryClassifier = { connect: { id: ticketClassifierRule.category.id } }
+            const placeClassifier = { connect: { id: ticketClassifierRule.place.id } }
+            const ticketExtraFields = { placeClassifier, categoryClassifier, classifierRule, problemClassifier }
+
+            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true, ...ticketExtraFields })
+            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true, ...ticketExtraFields })
+            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true, ...ticketExtraFields })
             return null
         },
     })

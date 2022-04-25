@@ -107,6 +107,7 @@ class TicketView {
 */
     visit () {
         cy.visit(TICKET_VIEW_URL)
+        cy.location('pathname').should('equal', TICKET_VIEW_URL)
         cy.wait('@getAllTickets')
         return this
     }
