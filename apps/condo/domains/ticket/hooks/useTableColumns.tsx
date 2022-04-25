@@ -280,6 +280,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render: renderUnit,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
+                ellipsis:true,
             },
             {
                 title: DescriptionMessage,
@@ -300,6 +301,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'categoryClassifier'),
                 filterIcon: getFilterIcon,
                 render: renderClassifier,
+                ellipsis:true,
             },
             {
                 title: ClientNameMessage,
@@ -312,6 +314,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
                 render: getTicketClientNameRender(search),
                 filterIcon: getFilterIcon,
+                ellipsis:true,
             },
             {
                 title: ExecutorMessage,
@@ -324,6 +327,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render: renderExecutor,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'executor'),
                 filterIcon: getFilterIcon,
+                ellipsis:true,
             },
             {
                 title: ResponsibleMessage,
@@ -336,6 +340,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render: renderAssignee,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'assignee'),
                 filterIcon: getFilterIcon,
+                ellipsis:true,
             },
         ]
     }, [NumberMessage, sorterMap, filters, columnWidths.number, columnWidths.createdAt, columnWidths.status, columnWidths.address, columnWidths.unitName, columnWidths.details, columnWidths.categoryClassifier, columnWidths.clientName, columnWidths.executor, columnWidths.assignee, filterMetas, search, DateMessage, intl, StatusMessage, renderStatus, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, renderUnit, DescriptionMessage, ClassifierTitle, renderClassifier, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee])
