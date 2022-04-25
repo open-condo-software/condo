@@ -121,7 +121,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             property: { id: property ? property : null },
             unitName: unitName ? unitName : undefined,
         },
-        first: 1000,
+        first: 1,
     })
 
     const {
@@ -255,6 +255,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         }
     }, [handleChangeEmployee, value])
 
+    console.log(fetchedContacts)
+
+    const className = useMemo(() => (props.disabled || loading) && 'disabled', [loading, props.disabled])
+
     if (loading) {
         return (
             <Skeleton/>
@@ -268,7 +272,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     return (
         <Col span={24}>
-            <ContactsInfoFocusContainer className={props.disabled && 'disabled'}>
+            <ContactsInfoFocusContainer className={className}>
                 <Tabs
                     defaultActiveKey={isNotContact ? CONTACT_EDITOR_TABS.NOT_FROM_RESIDENT : CONTACT_EDITOR_TABS.FROM_RESIDENT}
                     style={TABS_STYLE}

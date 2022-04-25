@@ -38,6 +38,15 @@ const GET_ALL_PROPERTIES_BY_VALUE_QUERY = gql`
     }
 `
 
+const GET_ALL_CONTACTS_BY_VALUE_QUERY = gql`
+    query selectProperty ($where: ContactWhereInput, $orderBy: String, $first: Int, $skip: Int) {
+        objs: allProperties(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
+            id
+            address
+        }
+    }
+`
+
 const GET_ALL_PROPERTIES_WITH_MAP_BY_VALUE_QUERY = gql`
     query selectProperty ($where: PropertyWhereInput, $orderBy: String, $first: Int, $skip: Int) {
         objs: allProperties(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
@@ -110,6 +119,22 @@ async function _search (client, query, variables) {
 }
 
 export async function searchProperty (client, where, orderBy, first = 10, skip = 0) {
+    const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first, skip })
+    if (error) console.warn(error)
+    if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
+
+    return []
+}
+
+export async function searchContactsByPhone (client, where, orderBy, first = 10, skip = 0) {
+    const { data = [], error } = await _search(client, GET_ALL_CONTACTS_BY_VALUE_QUERY, { where, orderBy, first, skip })
+    if (error) console.warn(error)
+    if (data) return data.objs.map(x => ({ text: x.phone, value: x.id }))
+
+    return []
+}
+
+export async function searchContactsByEmail (client, where, orderBy, first = 10, skip = 0) {
     const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first, skip })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
