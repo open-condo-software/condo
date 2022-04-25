@@ -333,8 +333,8 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'The resident\'s last comment time within this ticket',
             type: DateTimeUtc,
         },
-        lastEmployeeAnsweredToResidentAt: {
-            schemaDoc: 'The employee\'s last answer time within this ticket',
+        lastAnsweredToResidentAt: {
+            schemaDoc: 'The last answer time within this ticket',
             type: DateTimeUtc,
         },
     },
