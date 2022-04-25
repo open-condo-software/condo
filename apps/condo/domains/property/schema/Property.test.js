@@ -11,8 +11,7 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const faker = require('faker')
-const { makeClientWithSupportUser } = require(
-    '@condo/domains/user/utils/testSchema')
+const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 
 
