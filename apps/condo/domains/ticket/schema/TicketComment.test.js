@@ -19,7 +19,7 @@ const {
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_TRANSPORT_FIREBASE,
     MESSAGE_SENT_STATUS,
-    TICKET_COMMENT_ADDED_TYPE, 
+    TICKET_COMMENT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 const { syncDeviceByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
@@ -998,7 +998,8 @@ describe('TicketComment', () => {
     })
 
 
-    describe('notifications', () => {
+    // NOTE: disabled at 2022-04-25 because of @MikhailRumanovskii request until ticket comments will be implemented in all mobile applications for all platforms
+    describe.skip('notifications', () => {
         it('Checks that resident user receives push notification when employee comments his ticket', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentAccessAndProperty()

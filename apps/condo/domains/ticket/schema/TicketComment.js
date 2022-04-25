@@ -78,7 +78,8 @@ const TicketComment = new GQLListSchema('TicketComment', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         afterChange: async (requestData) => {
-            await sendTicketCommentNotifications(requestData)
+            // NOTE: disabled at 2022-04-25 because of @MikhailRumanovskii request until ticket comments will be implemented in all mobile applications for all platforms
+            // await sendTicketCommentNotifications(requestData)
         },
     },
     access: {
