@@ -266,9 +266,11 @@ const Property = new GQLListSchema('Property', {
             schemaDoc: 'Whether or not this organization can manage this property. Usually set by support. Defaults to False. Field is dropped to false if address is updated',
             type: Checkbox,
             access: {
+                read: true,
                 create: access.canManageIsApprovedField,
                 update: access.canManageIsApprovedField,
             },
+            default: false,
         },
 
         yearOfConstruction: {
