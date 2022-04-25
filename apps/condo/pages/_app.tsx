@@ -126,7 +126,7 @@ const MenuItems: React.FC = () => {
             <div>
                 {menuItemsData.map((menuItemData) => (
                     <MenuItem
-                        key={`menu-item-${menuItemData.path}`}
+                        key={`menu-contact-${menuItemData.path}`}
                         path={`/${menuItemData.path}`}
                         icon={menuItemData.icon}
                         label={menuItemData.label}
@@ -136,7 +136,7 @@ const MenuItems: React.FC = () => {
                     />
                 ))}
                 <MenuItem
-                    key="menu-item-settings"
+                    key="menu-contact-settings"
                     path={'/settings'}
                     icon={SettingFilled}
                     label={'menu.Settings'}

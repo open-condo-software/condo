@@ -103,12 +103,11 @@ const Contact = new GQLListSchema('Contact', {
             }
             const condition = {
                 property: { id: property },
+                unitName: unitName || null,
                 name,
                 phone,
                 deletedAt: null,
             }
-            // IF NO UNITNAME PROVIDED => search would not be cleared, since it's raw GQL-requests
-            if (unitName) condition.unitName = unitName
             const [contact] = await find('Contact', condition)
             if (operation === 'create') {
                 if (contact) {

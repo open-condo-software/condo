@@ -13,6 +13,8 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
+import { IOrganizationEmployeeUIState } from '../../../organization/utils/clientSchema/OrganizationEmployee'
+import { IContactUIState } from '../../utils/clientSchema/Contact'
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
 import { ContactOption } from './ContactOption'
@@ -110,33 +112,48 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     // manually typed information should not be lost.
     const [manuallyTypedContact, setManuallyTypedContact] = useState({ id: undefined, name: '', phone: '' })
     const [displayEditableContactFields, setDisplayEditableContactFields] = useState(false)
+    const [isInitialContactsLoaded, setIsInitialContactsLoaded] = useState<boolean>()
+    const [initialContacts, setInitialContacts] = useState<IContactUIState[]>([])
+
+    const initialContactsQuery = useMemo(() => ({
+        organization: { id: organization },
+        property: { id: property ? property : null },
+        unitName: unitName ? unitName : undefined,
+    }), [organization, property, unitName])
+
+    const initialEmployeesQuery = useMemo(() => ({
+        organization: { id: organization },
+    }), [organization])
 
     const {
         objs: fetchedContacts,
-        loading,
+        loading: contactsLoading,
         error,
+        refetch: refetchContacts,
     } = Contact.useObjects({
-        where: {
-            organization: { id: organization },
-            property: { id: property ? property : null },
-            unitName: unitName ? unitName : undefined,
-        },
-        first: 1,
+        where: initialContactsQuery,
+        first: 100,
     })
 
     const {
         objs: fetchedEmployees,
+        refetch: refetchEmployees,
     } = OrganizationEmployee.useObjects({
-        where: {
-            organization: { id: organization },
-        },
-        first: 1000,
+        where: initialEmployeesQuery,
+        first: 100,
     })
 
     const { phoneValidator } = useValidations({ allowLandLine })
     const validations = {
         phone: [phoneValidator],
     }
+
+    useEffect(() => {
+        if (!isInitialContactsLoaded && !contactsLoading) {
+            setInitialContacts(fetchedContacts)
+            setIsInitialContactsLoaded(true)
+        }
+    }, [contactsLoading, fetchedContacts, isInitialContactsLoaded])
 
     // It's not enough to have `value` props of `Input` set.
     useEffect(() => {
@@ -151,7 +168,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     // When `unitName` was changed from outside, selection is not relevant anymore
     useEffect(() => {
+        setIsInitialContactsLoaded(false)
         setSelectedContact(null)
+        setManuallyTypedContact(null)
     }, [unitName])
 
     const handleClickOnPlusButton = () => {
@@ -186,7 +205,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleChangeContact = debounce((contact) => {
         // User can manually type phone and name, that will match already existing contact,
         // so, it should be connected with ticket
-        const fetchedContact = find(fetchedContacts, { ...contact, unitName })
+        const fetchedContact = find(fetchedContacts, { ...contact, unitName: unitName || null })
         const contactToSet = fetchedContact || contact
 
         triggerOnChange(contactToSet, !fetchedContact)
@@ -220,8 +239,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         onChange && onChange(employeeContact, false)
     }, DEBOUNCE_TIMEOUT)
 
-    const initialValueIsPresentedInFetchedContacts = fetchedContacts && initialValue && initialValue.name && initialValue.phone &&
-        fetchedContacts.find(contact => contact.name === initialValue.name && contact.phone === initialValue.phone)
+    const initialValueIsPresentedInFetchedContacts = initialContacts && initialValue && initialValue.name && initialValue.phone &&
+        initialContacts.find(contact => contact.name === initialValue.name && contact.phone === initialValue.phone)
 
     const sameAsInitial = (contact) => (
         initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone && initialValue.id === contact.id
@@ -237,14 +256,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         return false
     }, [editableFieldsChecked, sameAsInitial, selectedContact])
 
-    const contactOptions = useMemo(() => fetchedContacts.map((contact) => (
+    const contactOptions = useMemo(() => initialContacts.map((contact) => (
         <ContactOption
             key={contact.id}
             contact={contact}
             onSelect={handleSelectContact}
             selected={isContactSelected(contact)}
         />
-    )), [fetchedContacts, handleSelectContact, isContactSelected])
+    )), [handleSelectContact, initialContacts, isContactSelected])
 
     const handleTabChange = useCallback((tab) => {
         setSelectedContact(null)
@@ -255,15 +274,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         }
     }, [handleChangeEmployee, value])
 
-    console.log(fetchedContacts)
-
-    const className = useMemo(() => (props.disabled || loading) && 'disabled', [loading, props.disabled])
-
-    if (loading) {
-        return (
-            <Skeleton/>
-        )
-    }
+    const className = useMemo(() => props.disabled ? 'disabled' : '', [props.disabled])
 
     if (error) {
         console.warn(error)
@@ -284,8 +295,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 left={PhoneLabel}
                                 right={FullNameLabel}
                             />
-                            {fetchedContacts.length === 0 || !unitName ? (
+                            {initialContacts.length === 0 || !unitName ? (
                                 <ContactSyncedAutocompleteFields
+                                    refetch={refetchContacts}
+                                    initialQuery={initialContactsQuery}
                                     initialValue={initialValue.id ? initialValue : manuallyTypedContact}
                                     onChange={handleChangeContact}
                                     contacts={fetchedContacts}
@@ -300,6 +313,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                     left={AnotherContactLabel}
                                                 />
                                                 <ContactSyncedAutocompleteFields
+                                                    initialQuery={initialContactsQuery}
+                                                    refetch={refetchContacts}
                                                     initialValue={initialValue.id ? initialValue : manuallyTypedContact}
                                                     onChange={handleChangeContact}
                                                     onChecked={handleSyncedFieldsChecked}
@@ -343,6 +358,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 right={FullNameLabel}
                             />
                             <ContactSyncedAutocompleteFields
+                                initialQuery={initialEmployeesQuery}
+                                refetch={refetchEmployees}
                                 initialValue={!initialValue.id ? initialValue : manuallyTypedContact}
                                 onChange={handleChangeEmployee}
                                 contacts={fetchedEmployees}

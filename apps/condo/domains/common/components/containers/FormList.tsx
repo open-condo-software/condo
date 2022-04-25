@@ -84,15 +84,15 @@ function FormList ({ dataSource, renderItem, ...extra }) {
         {...extra}
     />
 
-    function renderItemWrapper (item) {
-        const itemData = renderItem(item)
-        const itemMeta = { key: item.id, ...(itemData.itemMeta || {}) }
+    function renderItemWrapper (contact) {
+        const itemData = renderItem(contact)
+        const itemMeta = { key: contact.id, ...(itemData.itemMeta || {}) }
         const formMeta = { layout: 'inline', ...(itemData.formMeta || {}) }
-        const mainBlockMeta = { key: `m${item.id}`, ...(itemData.mainBlockMeta || {}) }
-        const extraBlockMeta = { key: `e${item.id}`, ...(itemData.extraBlockMeta || {}) }
+        const mainBlockMeta = { key: `m${contact.id}`, ...(itemData.mainBlockMeta || {}) }
+        const extraBlockMeta = { key: `e${contact.id}`, ...(itemData.extraBlockMeta || {}) }
         return <SListItem {...itemMeta}>
             <SListItemForm {...formMeta}>
-                <SSkeleton loading={item.loading} active>
+                <SSkeleton loading={contact.loading} active>
                     <SListItemMeta
                         avatar={itemData.avatar}
                         title={itemData.title}
@@ -107,13 +107,13 @@ function FormList ({ dataSource, renderItem, ...extra }) {
                                     const cleanedActionsLine = actionsLine.filter(identity)
                                     const length = cleanedActionsLine.length
                                     if (length === 0) return null
-                                    return <SListActionsUl key={i} className='ant-list-item-action'>
+                                    return <SListActionsUl key={i} className='ant-list-contact-action'>
                                         {cleanedActionsLine
                                             .map((action, j) => {
                                                 if (!action) return null
-                                                return <li key={j} className='ant-list-item-action'>
+                                                return <li key={j} className='ant-list-contact-action'>
                                                     {action}
-                                                    {j !== length - 1 && <em className='ant-list-item-action-split' />}
+                                                    {j !== length - 1 && <em className='ant-list-contact-action-split' />}
                                                 </li>
                                             })
                                         }
@@ -184,9 +184,9 @@ function useCreateAndEditModalForm () {
         setModalObject(null)
     }
 
-    function openEditModal (item) {
+    function openEditModal (contact) {
         setIsModalVisible(true)
-        setModalObject(item)
+        setModalObject(contact)
     }
 
     function cancelModal () {
@@ -339,9 +339,9 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
     const errors = {}
 
     const throttledValidateFields = throttle((field) => {
-        const item = form.getFieldsError().find(item => item.name[0] === field)
+        const contact = form.getFieldsError().find(contact => contact.name[0] === field)
 
-        errors[field] = errors[field] || Boolean(item && item.errors.length)
+        errors[field] = errors[field] || Boolean(contact && contact.errors.length)
         errors[field] && form.validateFields([field])
     }, 400)
 
