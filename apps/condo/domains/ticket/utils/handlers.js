@@ -92,6 +92,7 @@ const handleTicketEvents = async (requestData) => {
     const isCreateOperation =  operation === 'create'
     const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
     const prevExecutorId = !isCreateOperation && get(existingItem, 'executor')
+    const prevStatusId = get(existingItem, 'status')
     const nextAssigneeId = get(updatedItem, 'assignee')
     const nextExecutorId = get(updatedItem, 'executor')
     const nextStatusId = get(updatedItem, 'status')
@@ -156,6 +157,9 @@ const handleTicketEvents = async (requestData) => {
         let ticketStatusType
         switch (nextStatusId) {
             case STATUS_IDS.OPEN:
+                if (prevStatusId !== STATUS_IDS.COMPLETED && !isCreateOperation)
+                    break
+
                 if (statusReopenedCounter > 0)
                     ticketStatusType = updatedBy !== client && TICKET_STATUS_RETURNED_TYPE
                 else
