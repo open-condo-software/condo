@@ -2,14 +2,16 @@ import debounce from 'lodash/debounce'
 import React, { useCallback, useMemo, useState } from 'react'
 import { OptionProps } from 'antd/lib/mentions'
 import { AutoComplete, Col, Radio } from 'antd'
-import { colors } from '@condo/domains/common/constants/style'
 import { get } from 'lodash'
 import { MinusCircleOutlined } from '@ant-design/icons'
-import { Contact as TContact } from '@condo/domains/contact/schema'
-import { isNeedToLoadNewElements } from '../../../common/utils/select.utils'
-import { ContactValue } from './index'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+
 import { useIntl } from '@core/next/intl'
+
+import { colors } from '@condo/domains/common/constants/style'
+import { Contact as TContact } from '@condo/domains/contact/schema'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+
+import { ContactValue } from './index'
 
 /**
  * Prevent crash of `String.match`, when providing a regular expression string value,
