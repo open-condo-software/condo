@@ -12,7 +12,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/ticket/access/TicketComment')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { COMMENT_TYPES, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
-const { handleTicketCommentEvents } = require('@condo/domains/ticket/utils/handlers')
+const { sendTicketCommentNotifications } = require('@condo/domains/ticket/utils/handlers')
 
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
@@ -78,7 +78,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         afterChange: async (requestData) => {
-            await handleTicketCommentEvents(requestData)
+            await sendTicketCommentNotifications(requestData)
         },
     },
     access: {

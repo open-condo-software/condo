@@ -96,7 +96,7 @@ const getResident = async (context, userId, propertyId, organizationId ) => {
  * @param context
  * @returns {Promise<void>}
  */
-const handleTicketEvents = async (requestData) => {
+const sendTicketNotifications = async (requestData) => {
     const eventTypes = detectEventTypes(requestData)
     const { operation, existingItem, updatedItem, context } = requestData
     const isCreateOperation =  operation === 'create'
@@ -193,7 +193,12 @@ const handleTicketEvents = async (requestData) => {
 
         if (ticketStatusType) {
             const { property: propertyId, organization: organizationId } = updatedItem
-            const resident = await getResident(context, clientId, propertyId, organizationId )
+            const where = {
+                user: { id: clientId },
+                property: { id: propertyId },
+                organization: { id: organizationId },
+            }
+            const resident = await Resident.getOne(context, where)
 
             await sendMessage(context, {
                 lang,
@@ -215,7 +220,7 @@ const handleTicketEvents = async (requestData) => {
     }
 }
 
-const handleTicketCommentEvents = async (requestData) => {
+const sendTicketCommentNotifications = async (requestData) => {
     const { updatedItem, context } = requestData
     const createdBy = get(updatedItem, 'createdBy')
 
@@ -238,7 +243,12 @@ const handleTicketCommentEvents = async (requestData) => {
     const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
 
     if (clientId && createdBy !== clientId) {
-        const resident = await getResident(context, clientId, propertyId, organizationId )
+        const where = {
+            user: { id: clientId },
+            property: { id: propertyId },
+            organization: { id: organizationId },
+        }
+        const resident = await Resident.getOne(context, where)
 
         await sendMessage(context, {
             lang,
@@ -261,8 +271,8 @@ const handleTicketCommentEvents = async (requestData) => {
 }
 
 module.exports = {
-    handleTicketEvents,
-    handleTicketCommentEvents,
+    sendTicketNotifications,
+    sendTicketCommentNotifications,
     detectEventTypes,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,
