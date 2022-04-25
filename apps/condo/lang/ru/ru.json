@@ -1045,7 +1045,7 @@
   "errors.LoadingError": "К сожалению произошла ошибка, попробуйте обновить страницу",
   "errors.import.IncorrectRowFormat": "Некорректный формат строки",
   "errors.import.AddressNotFound": "Строение с данным адресом не найдено в базе адресов",
-  "errors.import.PropertyNotFound": "В вашей организации нет строения с данными адресом",
+  "errors.import.PropertyNotFound": "В вашей организации нет строения с данным адресом",
   "errors.import.PropertyDuplicate": "В вашей организации уже есть дом с данным адресом",
   "errors.import.IncorrectContactName": "Некорректное имя контакта",
   "errors.import.EmptyUnitName": "Номер помещения не должен быть пустым",
