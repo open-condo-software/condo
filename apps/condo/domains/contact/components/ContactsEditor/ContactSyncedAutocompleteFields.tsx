@@ -1,17 +1,12 @@
-import { jsx } from '@emotion/core'
-import React, { useCallback, useState } from 'react'
+import debounce from 'lodash/debounce'
+import React, { useCallback, useMemo, useState } from 'react'
 import { OptionProps } from 'antd/lib/mentions'
-import { AutoComplete, Col, Radio, Select, Typography } from 'antd'
+import { AutoComplete, Col, Radio } from 'antd'
 import { colors } from '@condo/domains/common/constants/style'
 import { get } from 'lodash'
 import { MinusCircleOutlined } from '@ant-design/icons'
 import { Contact as TContact } from '@condo/domains/contact/schema'
-import { useApolloClient } from '@core/next/apollo'
-import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
-import { searchContactsByPhone, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { useOrganization } from '@core/next/organization'
-import { Highlighter } from '../../../common/components/Highlighter'
-import { QUERY_SPLIT_REGEX } from '../../../common/constants/regexps'
+import { isNeedToLoadNewElements } from '../../../common/utils/select.utils'
 import { ContactValue } from './index'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useIntl } from '@core/next/intl'
@@ -30,7 +25,11 @@ function escapeRegex (string) {
     return String(string).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
+const DEBOUNCE_TIMEOUT_IN_MS = 800
+
 interface IContactSyncedAutocompleteFieldsProps {
+    refetch,
+    initialQuery?,
     initialValue?: TContact,
     onChange: (contact: ContactValue) => void,
     onChecked?: () => void,
@@ -47,20 +46,44 @@ interface IContactSyncedAutocompleteFieldsProps {
  * And vise-versa.
  * When value in fields are typed, not selected, `onChange` callback will be fired.
  */
-const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ initialValue, onChange, onChecked, checked, contacts, displayMinusButton, onClickMinusButton }) => {
+const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ refetch, initialQuery, initialValue, onChange, onChecked, checked, contacts, displayMinusButton, onClickMinusButton }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
     const [value, setValue] = useState(initialValue)
-    const [contactsByPhone, setContactsByPhone] = useState([])
-    const [contactsByName, setContactsByName] = useState([])
 
-    // const searchContactByPhone = useCallback((query) => {
-    //     setContactsByPhone(contacts.filter(c => c.phone.match(escapeRegex(query))))
-    // }, [contacts])
+    const searchSuggestions = useCallback(
+        async (query) => {
+            return refetch({
+                where: { ...initialQuery, ...query },
+            })
+        },
+        [initialQuery, refetch],
+    )
 
-    const searchContactByName = useCallback((query) => {
-        setContactsByName(contacts.filter(c => c.name.match(escapeRegex(query))))
-    }, [contacts])
+    const debouncedSearch = useMemo(
+        () => {
+            return debounce(searchSuggestions, DEBOUNCE_TIMEOUT_IN_MS)
+        },
+        [searchSuggestions],
+    )
+
+    const searchContactByPhone = useCallback(async (query) => {
+        const contactName = get(value, 'name', undefined)
+
+        await debouncedSearch({
+            phone_contains_i: query,
+            name_contains_i: contactName,
+        })
+    }, [debouncedSearch, value])
+
+    const searchContactByName = useCallback(async (query) => {
+        const contactPhone = get(value, 'phone', undefined)
+
+        await debouncedSearch({
+            name_contains_i: query,
+            phone_contains_i: contactPhone,
+        })
+    }, [debouncedSearch, value])
 
     const handleSelectContact = (value: string, option: OptionProps) => {
         setValueAndTriggerOnChange(option.item)
@@ -87,99 +110,38 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
         onChecked && onChecked()
     }
 
-    const renderOptionsBy = useCallback((prop, items) =>
-        items.map(item => ({
-            value: item[prop],
-            item,
+    const renderOptionsBy = useCallback((prop) =>
+        contacts.map(contact => ({
+            value: contact[prop],
+            item: contact,
         }))
-    , [])
-
-    const client = useApolloClient()
-    const { organization } = useOrganization()
-    const organizationId = get(organization, 'id')
-
-    const searchContactByPhone = useCallback(
-        (query, skip) => {
-            console.log(query)
-            const userInputWords = query
-                ? query.split(QUERY_SPLIT_REGEX).map((element) => {
-                    return {
-                        phone_contains_i: element,
-                    }
-                })
-                : []
-            const where = {
-                organization: { id: organizationId },
-                AND: userInputWords,
-            }
-            return searchContactByPhone(client, where, 'createdAt_ASC', 10, skip)
-        },
-        [client, organizationId],
-    )
-
-    const renderOption = useCallback(
-        (dataItem, searchValue) => {
-            return (
-                <Select.Option
-                    key={dataItem.value}
-                    value={dataItem.text}
-                    title={dataItem.text}
-                >
-                    {
-                        searchValue === dataItem.text
-                            ? dataItem.text
-                            : (
-                                <Highlighter
-                                    text={dataItem.text}
-                                    search={searchValue}
-                                    renderPart={(part, index) => {
-                                        return (
-                                            <Typography.Text
-                                                strong
-                                                key={part + index}
-                                                style={{ color: colors.black }}
-                                            >
-                                                {part}
-                                            </Typography.Text>
-                                        )
-                                    }}
-                                />
-                            )
-                    }
-                </Select.Option>
-            )
-        },
-        [],
-    )
-
+    , [contacts])
 
     return (
         <>
             <Col span={10}>
-                <BaseSearchInput
-                    search={searchContactByPhone}
-                    // onPopupScroll={e => console.log(isNeedToLoadNewElements(e, false))}
+                <AutoComplete
                     allowClear
                     value={get(value, 'phone')}
-                    renderOption={renderOption}
-                    // onSelect={handleSelectContact}
-                    // onSearch={searchContactByPhone}
-                    // onChange={handleChangeContact('phone')}
-                    // onClear={handleClearContact}
+                    options={renderOptionsBy('phone')}
+                    onSelect={handleSelectContact}
+                    onSearch={searchContactByPhone}
+                    onChange={handleChangeContact('phone')}
+                    onClear={handleClearContact}
                     style={{ width: '100%' }}
                 >
                     <PhoneInput
                         block
                         compatibilityWithAntAutoComplete={true}
                     />
-                </BaseSearchInput>
+                </AutoComplete>
             </Col>
             <Col span={10}>
                 <AutoComplete
                     allowClear
                     placeholder={NamePlaceholder}
                     value={get(value, 'name')}
-                    options={renderOptionsBy('name', contactsByName)}
+                    options={renderOptionsBy('name')}
                     onSelect={handleSelectContact}
                     onSearch={searchContactByName}
                     onChange={handleChangeContact('name')}
