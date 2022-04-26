@@ -16,6 +16,10 @@ const DV_FIELD = {
     kmigratorOptions: { null: false },
 }
 
+const SENDER_FINGERPRINT_MAX_LENGTH = 256
+const SENDER_FINGERPRINT_VALIDATE_REGEXP_TEMPLATE = `^[a-zA-Z0-9!#$%()*+-;=,:[\\]\\/.?@^_\`{|}~]{5,${SENDER_FINGERPRINT_MAX_LENGTH}}$`
+const SENDER_FINGERPRINT_VALIDATE_REGEXP = new RegExp(SENDER_FINGERPRINT_VALIDATE_REGEXP_TEMPLATE)
+
 const SENDER_FIELD = {
     type: Json,
     schemaDoc: 'Client-side device identification used for the anti-fraud detection. ' +
@@ -36,8 +40,8 @@ const SENDER_FIELD = {
             if (!hasValidJsonStructure(args, true, 1, {
                 fingerprint: {
                     presence: true,
-                    format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
-                    length: { minimum: 5, maximum: 42 },
+                    format: SENDER_FINGERPRINT_VALIDATE_REGEXP,
+                    length: { minimum: 5, maximum: SENDER_FINGERPRINT_MAX_LENGTH },
                 },
             })) return
         },

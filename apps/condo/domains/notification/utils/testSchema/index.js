@@ -39,7 +39,7 @@ const getRandomEmail = () => `test.${getRandomString()}@example.com`.toLowerCase
 async function createTestMessage (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const email = getRandomEmail()
     const meta = { dv: 1, name: faker.random.alphaNumeric(8) }
     const attrs = { dv: 1, sender, email, type, meta, lang, ...extraAttrs}
@@ -52,7 +52,7 @@ async function updateTestMessage (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
 
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const attrs = { dv: 1, sender, ...extraAttrs }
     const obj = await Message.update(client, id, attrs)
 
@@ -64,7 +64,7 @@ async function sendMessageByTestClient (client, extraAttrs = {}) {
 
     const email = getRandomEmail()
     const to = get(client, 'user.id') ? { email, user: { id: client.user.id } }: { email }
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const type = INVITE_NEW_EMPLOYEE_MESSAGE_TYPE
     const meta = { dv: 1, inviteCode: faker.random.alphaNumeric(8) }
     const attrs = { dv: 1, sender, to, type, meta, lang, ...extraAttrs }
@@ -79,7 +79,7 @@ async function resendMessageByTestClient (client, message, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!message) throw new Error('no message')
 
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const attrs = { dv: 1, sender, message: { id: message.id }, ...extraAttrs }
     const { data, errors } = await client.mutate(RESEND_MESSAGE, { data: attrs })
 
@@ -91,7 +91,7 @@ async function resendMessageByTestClient (client, message, extraAttrs = {}) {
 async function createTestDevice (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const deviceId = faker.datatype.uuid()
     const pushTransport = sample(PUSH_TRANSPORT_TYPES)
     const attrs = {
@@ -111,7 +111,7 @@ async function updateTestDevice (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
 
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const attrs = {
         dv: 1,
         sender,
@@ -126,7 +126,7 @@ async function updateTestDevice (client, id, extraAttrs = {}) {
 async function syncDeviceByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const attrs = { dv: 1, sender, ...extraAttrs }
     const { data, errors } = await client.mutate(SYNC_DEVICE_MUTATION, { data: attrs })
 
@@ -138,7 +138,7 @@ async function syncDeviceByTestClient(client, extraAttrs = {}) {
 async function disconnectUserFromDeviceByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const attrs = { dv: 1, sender, ...extraAttrs }
     const { data, errors } = await client.mutate(DISCONNECT_USER_FROM_DEVICE_MUTATION, { data: attrs })
 
@@ -150,7 +150,7 @@ async function disconnectUserFromDeviceByTestClient(client, extraAttrs = {}) {
 async function setMessageStatusByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const attrs = { dv: 1, sender, ...extraAttrs }
     const { data, errors } = await client.mutate(SET_MESSAGE_STATUS_MUTATION, { data: attrs })
 
