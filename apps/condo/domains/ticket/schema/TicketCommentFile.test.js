@@ -452,6 +452,63 @@ describe('TicketCommentFile', () => {
 
                 expect(files).toHaveLength(0)
             })
+
+            test('can read own ticket file without ticketComment connection', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                const [residentTicketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket)
+
+                const files = await TicketCommentFile.getAll(residentClient, {}, { sortBy: 'createdAt_ASC' })
+
+                expect(files).toHaveLength(1)
+                expect(files[0].id).toEqual(residentTicketCommentFile.id)
+            })
+
+            test('cannot read not his own ticket file without ticketComment connection', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const residentClient = await makeClientWithResidentUser()
+
+                const unitName = faker.random.alphaNumeric(5)
+
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
+                await createTestResident(adminClient, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                await createTestTicketCommentFile(employeeClient, organization, ticket)
+
+                const files = await TicketCommentFile.getAll(residentClient, {}, { sortBy: 'createdAt_ASC' })
+
+                expect(files).toHaveLength(0)
+            })
         })
 
         describe('update', () => {
