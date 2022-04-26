@@ -52,7 +52,6 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
         if (!ticket) return createdBy === user.id
         if (!organization) return false
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTickets')
-
     }
 
     return false
