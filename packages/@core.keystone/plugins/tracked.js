@@ -32,11 +32,17 @@ const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', u
     }
 
     if (createdByField) {
-        fields[createdByField] = { ...relationshipOptions }
+        fields[createdByField] = {
+            schemaDoc: 'Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.',
+            ...relationshipOptions,
+        }
     }
 
     if (updatedByField) {
-        fields[updatedByField] = { ...relationshipOptions }
+        fields[updatedByField] = {
+            schemaDoc: 'Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.',
+            ...relationshipOptions,
+        }
     }
 
     const newResolveInput = ({ resolvedData, existingItem, operation, context }) => {
