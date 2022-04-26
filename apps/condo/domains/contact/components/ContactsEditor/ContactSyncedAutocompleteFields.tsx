@@ -119,13 +119,16 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
         }))
     , [contacts])
 
+    const phoneOptions = useMemo(() => renderOptionsBy('phone'), [renderOptionsBy])
+    const nameOptions = useMemo(() => renderOptionsBy('name'), [renderOptionsBy])
+
     return (
         <>
             <Col span={10}>
                 <AutoComplete
                     allowClear
                     value={get(value, 'phone')}
-                    options={renderOptionsBy('phone')}
+                    options={phoneOptions}
                     onSelect={handleSelectContact}
                     onSearch={searchContactByPhone}
                     onChange={handleChangeContact('phone')}
@@ -143,7 +146,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                     allowClear
                     placeholder={NamePlaceholder}
                     value={get(value, 'name')}
-                    options={renderOptionsBy('name')}
+                    options={nameOptions}
                     onSelect={handleSelectContact}
                     onSearch={searchContactByName}
                     onChange={handleChangeContact('name')}

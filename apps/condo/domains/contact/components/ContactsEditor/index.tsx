@@ -1,11 +1,13 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
-import { Col, Form, FormInstance, Input, Row, Skeleton, Tabs } from 'antd'
+import { Col, Form, FormInstance, Input, Row, Tabs } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'
+import { Gutter } from 'antd/lib/grid/row'
 
 import find from 'lodash/find'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import debounce from 'lodash/debounce'
 
 import { Button } from '@condo/domains/common/components/Button'
@@ -13,14 +15,13 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { IContactUIState } from '@condo/domains/contact/utils/clientSchema/Contact'
 
-import { IContactUIState } from '../../utils/clientSchema/Contact'
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
 import { ContactOption } from './ContactOption'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { Gutter } from 'antd/lib/grid/row'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -239,10 +240,12 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         onChange && onChange(employeeContact, false)
     }, DEBOUNCE_TIMEOUT)
 
-    const initialValueIsPresentedInFetchedContacts = initialContacts && initialValue && initialValue.name && initialValue.phone &&
-        initialContacts.find(contact => contact.name === initialValue.name && contact.phone === initialValue.phone)
+    const initialValueIsPresentedInFetchedContacts = useMemo(() => initialContacts
+        && initialValue && initialValue.name && initialValue.phone &&
+        initialContacts.find(contact => contact.name === initialValue.name && contact.phone === initialValue.phone),
+    [initialContacts, initialValue])
 
-    const sameAsInitial = (contact) => (
+    const isContactSameAsInitial = (contact) => (
         initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone && initialValue.id === contact.id
     )
 
@@ -250,11 +253,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         if (selectedContact) return selectedContact.id === contact.id
 
         if (!editableFieldsChecked) {
-            if (sameAsInitial(contact)) return true
+            if (isContactSameAsInitial(contact)) return true
         }
 
         return false
-    }, [editableFieldsChecked, sameAsInitial, selectedContact])
+    }, [editableFieldsChecked, isContactSameAsInitial, selectedContact])
 
     const contactOptions = useMemo(() => initialContacts.map((contact) => (
         <ContactOption
@@ -274,7 +277,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         }
     }, [handleChangeEmployee, value])
 
-    const className = useMemo(() => props.disabled ? 'disabled' : '', [props.disabled])
+    const className = props.disabled ? 'disabled' : ''
 
     if (error) {
         console.warn(error)
@@ -295,7 +298,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 left={PhoneLabel}
                                 right={FullNameLabel}
                             />
-                            {initialContacts.length === 0 || !unitName ? (
+                            {isEmpty(initialContacts.length) || !unitName ? (
                                 <ContactSyncedAutocompleteFields
                                     refetch={refetchContacts}
                                     initialQuery={initialContactsQuery}
