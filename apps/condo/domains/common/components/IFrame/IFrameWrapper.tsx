@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import styled from '@emotion/styled'
+import { css, Global } from '@emotion/core'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import getConfig from 'next/config'
@@ -11,8 +11,8 @@ interface IFrameWrapperProps {
     parentOrigin?: string
 }
 
-const IFrameBodyPatcher = styled.div`
-  html, body {
+const BODY_RESIZE_STYLES = css`
+  body {
     height: auto;
   }
 `
@@ -59,8 +59,9 @@ export const IFrameWrapper: React.FC<IFrameWrapperProps> = (props) => {
 
 
     return (
-        <IFrameBodyPatcher>
+        <>
+            <Global styles={BODY_RESIZE_STYLES}/>
             {props.children}
-        </IFrameBodyPatcher>
+        </>
     )
 }
