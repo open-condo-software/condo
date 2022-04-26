@@ -49,6 +49,7 @@ import {
 } from '../utils/filters.utils'
 import { colors } from '../constants/style'
 import { Tooltip } from '../components/Tooltip'
+import { SelectRaisedClrBtn } from '../components/SelectRaisedClrBtn'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -242,7 +243,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
 
         case ComponentType.TagsSelect: {
             return (
-                <Select
+                <SelectRaisedClrBtn
                     mode="tags"
                     allowClear
                     style={TAGS_SELECT_STYLE}
