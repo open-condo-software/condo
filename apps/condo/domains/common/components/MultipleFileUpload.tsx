@@ -1,3 +1,4 @@
+import get from 'lodash/get'
 import React, { useState, useEffect, useReducer, useMemo, useRef, useCallback } from 'react'
 import { Upload } from 'antd'
 import isEmpty from 'lodash/isEmpty'
@@ -28,12 +29,26 @@ export type Module = {
 const reducer = (state, action) => {
     const { type, payload: file } = action
     switch (type) {
-        case 'delete':
-            return {
-                ...state,
-                added: [...state.added].filter(addFile => addFile.id !== file.id),
-                deleted: [...state.deleted, file],
+        case 'delete': {
+            if (file.id) {
+                return {
+                    ...state,
+                    added: [...state.added].filter(addFile => addFile.id !== file.id),
+                    deleted: [...state.deleted, file],
+                }
+            } else if (file.response.id) {
+                const fileToDeleteId = get(file, ['response', 'id'])
+                const fileToDelete = [...state.added].find(addedFile => addedFile.id === fileToDeleteId)
+
+                return {
+                    ...state,
+                    added: [...state.added].filter(addFile => addFile.id !== fileToDeleteId),
+                    deleted: [...state.deleted, fileToDelete],
+                }
             }
+
+            return state
+        }
         case 'add':
             return {
                 ...state,
@@ -200,6 +215,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                         if (!id) {
                             // remove file that failed to upload from list
                             setListFiles([...listFiles].filter(file => file.uid !== uid))
+                            onFilesChange({ type: 'delete', payload: file })
                             return
                         }
                         setListFiles([...listFiles].filter(file => file.id !== id))
