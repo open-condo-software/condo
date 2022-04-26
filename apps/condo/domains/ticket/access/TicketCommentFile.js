@@ -21,13 +21,15 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
 
     if (user.type === RESIDENT) {
         return {
-            ticketComment: {
-                type: RESIDENT_COMMENT_TYPE,
-            },
-            ticket: {
-                client: { id: user.id },
-                canReadByResident: true,
-            },
+            OR: [
+                {
+                    AND: [
+                        { ticketComment: { type: RESIDENT_COMMENT_TYPE } },
+                        { ticket: { client: { id: user.id }, canReadByResident: true } },
+                    ],
+                },
+                { createdBy: { id: user.id } },
+            ],
         }
     }
 
