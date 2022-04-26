@@ -1,25 +1,52 @@
 const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS, PAYMENT_INIT_STATUS } = require('./payment')
 
-const REGISTER_MP_EMPTY_INPUT = '[groupedReceipts:empty] GroupedReceipts was empty'
+const REGISTER_MP_MISSING_REQUIRED_GROUPED_RECEIPTS = '[groupedReceipts:empty] GroupedReceipts was empty'
 const REGISTER_MP_EMPTY_RECEIPTS = '[groupedReceipts:receipts:empty] Each group of receipts should contain at least 1 receipt'
 const REGISTER_MP_CONSUMERS_DUPLICATE = '[groupedReceipts:consumerId:duplicate] There are some groupedReceipts with same consumerId'
 const REGISTER_MP_RECEIPTS_DUPLICATE = '[groupedReceipts:receipts:id:duplicate] Found duplicated receipt\'s ids. Note, each receipt can only occur in single ServiceConsumer per mutation run and cannot be noticed twice'
 const REGISTER_MP_REAL_CONSUMER_MISMATCH = '[groupedReceipts:consumerId:nonExistingConsumer] Cannot find all specified ServiceConsumers.'
 const REGISTER_MP_DELETED_CONSUMERS = '[groupedReceipts:consumerId:deleted] Some of specified ServiceConsumers were deleted, so you cannot pay for them anymore'
+
 const REGISTER_MP_NO_ACQUIRING_CONSUMERS = '[serviceConsumer:noAcquiringContext] Some of ServiceConsumers doesn\'t have Acquiring context.'
-const REGISTER_MP_DELETED_ACQUIRING_CONTEXTS = '[groupedReceipts:consumerId:acquiringContext:deleted] Some of specified ServiceConsumers has deleted acquiring integration context, so you cannot pay for them anymore'
-const REGISTER_MP_MULTIPLE_INTEGRATIONS = '[serviceConsumer:acquiringContext:multipleIntegrations] Listed consumerIds are linked to different acquiring integrations'
-const REGISTER_MP_DELETED_ACQUIRING_INTEGRATION = '[serviceConsumer:acquiringContext:acquiringIntegration:deleted] Cannot pay via deleted acquiring.'
-const REGISTER_MP_CANNOT_GROUP_RECEIPTS = '[acquiringIntegration:canGroupReceipts:false:multipleReceipts] receipts total length was > 1, but acquiring integration cannot group billing receipts'
+const ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING = 'ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING'
+
+// const REGISTER_MP_DELETED_ACQUIRING_CONTEXTS = '[groupedReceipts:consumerId:acquiringContext:deleted] Some of specified ServiceConsumers has deleted acquiring integration context, so you cannot pay for them anymore'
+
+// const REGISTER_MP_MULTIPLE_INTEGRATIONS = '[serviceConsumer:acquiringContext:multipleIntegrations] Listed consumerIds are linked to different acquiring integrations'
+const MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS = 'MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS'
+
+// const REGISTER_MP_DELETED_ACQUIRING_INTEGRATION = '[serviceConsumer:acquiringContext:acquiringIntegration:deleted] Cannot pay via deleted acquiring.'
+const ACQUIRING_INTEGRATION_IS_DELETED = 'ACQUIRING_INTEGRATION_IS_DELETED'
+
+// const REGISTER_MP_CANNOT_GROUP_RECEIPTS = '[acquiringIntegration:canGroupReceipts:false:multipleReceipts] receipts total length was > 1, but acquiring integration cannot group billing receipts'
+const RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION = 'RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION'
+
 const REGISTER_MP_UNSUPPORTED_BILLING = '[acquiringIntegration:supportedBillingIntegrations:notIncludesReceiptBilling] Some of billing receipts are not supported by ServiceConsumer\'s acquiring integration'
-const REGISTER_MP_REAL_RECEIPTS_MISMATCH = '[groupedReceipts:receipts:nonExistingReceipt] Cannot find all specified BillingReceipts.'
-const REGISTER_MP_DELETED_RECEIPTS = '[groupedReceipts:receipts:deletedReceipt] Cannot pay for deleted receipts.'
+const ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION = 'ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION'
+
+// const REGISTER_MP_REAL_RECEIPTS_MISMATCH = '[groupedReceipts:receipts:nonExistingReceipt] Cannot find all specified BillingReceipts.'
+const CANNOT_FIND_ALL_BILLING_RECEIPTS = 'CANNOT_FIND_ALL_BILLING_RECEIPTS'
+
+// const REGISTER_MP_DELETED_RECEIPTS = '[groupedReceipts:receipts:deletedReceipt] Cannot pay for deleted receipts.'
+const RECEIPTS_ARE_DELETED = 'RECEIPTS_ARE_DELETED'
+
 const REGISTER_MP_DELETED_BILLING_CONTEXT = '[groupedReceipts:receipts:context:deleted] Cannot pay for receipts with deleted billing context.'
+const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED = 'BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED'
+
 const REGISTER_MP_DELETED_BILLING_INTEGRATION = '[groupedReceipts:receipts:context:integration:deleted] Cannot pay for receipts with deleted billing integration.'
+const RECEIPT_HAS_DELETED_BILLING_INTEGRATION = 'RECEIPT_HAS_DELETED_BILLING_INTEGRATION'
+
 const REGISTER_MP_MULTIPLE_CURRENCIES = '[groupedReceipts:receipts:context:integration:currencyCode:multipleFound] Cannot pay for receipts with multiple currencies.'
+const RECEIPTS_HAS_MULTIPLE_CURRENCIES = 'RECEIPTS_HAS_MULTIPLE_CURRENCIES'
+
 const REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH = '[groupedReceipts:receipts:noCommonBillingAccount] Billing receipt with specified id doesn\'t have common billing account number and unitName with specified ServiceConsumer'
+const BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER = 'BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER'
+
 const REGISTER_MP_INVALID_SENDER = '[sender:invalidValue] Sender has invalid value.'
+
 const REGISTER_MP_NEGATIVE_TO_PAY = '[groupedReceipts:receipts] Cannot pay for receipts with negative toPay.'
+const RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE = 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE'
+
 const INTEGRATION_NO_BILLINGS_ERROR = '[acquiringIntegration:noBillings] Acquiring integration must cover at least 1 billing'
 const CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT = '[acquiringIntegrationContext:alreadyCreated] Specified organization already have active acquiring context'
 const PAYMENT_NO_PAIRED_RECEIPT = '[payment:frozenReceipt:noReceipt] Input is containing "frozenReceipt", but "receipt" is not specified'
@@ -63,26 +90,53 @@ const FEE_TOTAL_SUM_CHECK_FAILED = '[feeDistribution:total:check:failed'
 const FEE_TOTAL_COMMISSION_CHECK_FAILED = '[feeDistribution:fee:check:failed'
 
 module.exports = {
-    REGISTER_MP_EMPTY_INPUT,
+    REGISTER_MP_MISSING_REQUIRED_GROUPED_RECEIPTS,
     REGISTER_MP_EMPTY_RECEIPTS,
     REGISTER_MP_CONSUMERS_DUPLICATE,
     REGISTER_MP_RECEIPTS_DUPLICATE,
     REGISTER_MP_REAL_CONSUMER_MISMATCH,
-    REGISTER_MP_NO_ACQUIRING_CONSUMERS,
-    REGISTER_MP_MULTIPLE_INTEGRATIONS,
-    REGISTER_MP_CANNOT_GROUP_RECEIPTS,
-    REGISTER_MP_UNSUPPORTED_BILLING,
-    REGISTER_MP_REAL_RECEIPTS_MISMATCH,
-    REGISTER_MP_DELETED_RECEIPTS,
-    REGISTER_MP_MULTIPLE_CURRENCIES,
-    REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH,
+
+    // REGISTER_MP_NO_ACQUIRING_CONSUMERS,
+    ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING,
+
+    // REGISTER_MP_MULTIPLE_INTEGRATIONS,
+    MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
+
+    // REGISTER_MP_CANNOT_GROUP_RECEIPTS,
+    RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION,
+
+    // REGISTER_MP_UNSUPPORTED_BILLING,
+    ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
+
+    // REGISTER_MP_REAL_RECEIPTS_MISMATCH,
+    CANNOT_FIND_ALL_BILLING_RECEIPTS,
+
+    // REGISTER_MP_DELETED_RECEIPTS,
+    RECEIPTS_ARE_DELETED,
+
+    // REGISTER_MP_MULTIPLE_CURRENCIES,
+    RECEIPTS_HAS_MULTIPLE_CURRENCIES,
+
+    // REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH,
+    BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
+
     REGISTER_MP_INVALID_SENDER,
     REGISTER_MP_DELETED_CONSUMERS,
-    REGISTER_MP_DELETED_ACQUIRING_CONTEXTS,
-    REGISTER_MP_DELETED_ACQUIRING_INTEGRATION,
-    REGISTER_MP_DELETED_BILLING_CONTEXT,
-    REGISTER_MP_DELETED_BILLING_INTEGRATION,
+
+    // REGISTER_MP_DELETED_ACQUIRING_CONTEXTS,
+
+    // REGISTER_MP_DELETED_ACQUIRING_INTEGRATION,
+    ACQUIRING_INTEGRATION_IS_DELETED,
+
+    // REGISTER_MP_DELETED_BILLING_CONTEXT,
+    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
+
+    // REGISTER_MP_DELETED_BILLING_INTEGRATION,
+    RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
+
     REGISTER_MP_NEGATIVE_TO_PAY,
+    RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
+
     INTEGRATION_NO_BILLINGS_ERROR,
     CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT,
     PAYMENT_NO_PAIRED_RECEIPT,
