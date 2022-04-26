@@ -32,6 +32,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const IncorrectUnitNameMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitName' })
     const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
     const IncorrectPhonesMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhonesFormat' })
+    const AlreadyCreatedContactMessage = intl.formatMessage({ id: 'errors.import.AlreadyCreatedContact' })
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const UnitTitle = intl.formatMessage({ id: 'field.Unit' })
     const PhoneTitle = intl.formatMessage({ id: 'Phone' })
@@ -84,7 +85,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         })
     }
 
-    const contactValidator: RowValidator = (row) => {
+    const contactValidator: RowValidator = async (row) => {
         if (!row) return Promise.resolve(false)
         const errors = []
         if (!row.addons) errors.push(IncorrectRowFormatMessage)
@@ -102,10 +103,21 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         const phones = get(row, ['addons', 'phones'], []).filter(Boolean)
         if (!phones || phones.length === 0) errors.push(IncorrectPhonesMessage)
+
+        const { data } = await searchContacts(client, {
+            organizationId: userOrganizationId,
+            propertyId: row.addons.property,
+            unitName,
+        })
+        const alreadyCreated = data.objs.some(contact => phones.includes(contact.phone) && contact.name === row.addons.fullName)
+
+        if (alreadyCreated) errors.push(AlreadyCreatedContactMessage)
+
         if (errors.length) {
             row.errors = errors
             return Promise.resolve(false)
         }
+
         return Promise.resolve(true)
     }
 
@@ -115,25 +127,15 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const contactPool = []
         const splitPhones = String(row.row[2].value).split(SPLIT_PATTERN)
         const inValidPhones = []
+
         for (let i = 0; i < row.addons.phones.length; i++) {
             const phone: string = row.addons.phones[i]
             if (!phone && i < splitPhones.length) {
                 inValidPhones.push(splitPhones[i])
                 continue
             }
-            contactPool.push(searchContacts(client, {
-                organizationId: userOrganizationId,
-                propertyId: row.addons.property,
-                unitName,
-                // @ts-ignore
-            }).then((result) => {
-                const { data, loading, error } = result
-                if (loading || error) return Promise.resolve()
-                const alreadyRegistered = data.objs.some(contact => {
-                    return contact.phone === phone && contact.name === row.addons.fullName
-                })
-                if (alreadyRegistered) return Promise.resolve()
-                return contactCreateAction({
+            contactPool.push(
+                contactCreateAction({
                     organization: String(userOrganizationId),
                     property: String(row.addons.property),
                     unitName,
@@ -141,7 +143,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     name: row.addons.fullName,
                     email: row.addons.email,
                 })
-            }))
+            )
         }
         return Promise.all(contactPool).then(() => {
             if (inValidPhones.length > 0) {
