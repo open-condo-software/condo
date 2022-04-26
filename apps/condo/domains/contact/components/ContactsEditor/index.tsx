@@ -298,7 +298,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 left={PhoneLabel}
                                 right={FullNameLabel}
                             />
-                            {isEmpty(initialContacts.length) || !unitName ? (
+                            {isEmpty(initialContacts) || !unitName ? (
                                 <ContactSyncedAutocompleteFields
                                     refetch={refetchContacts}
                                     initialQuery={initialContactsQuery}
