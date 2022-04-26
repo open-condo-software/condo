@@ -53,7 +53,7 @@ const {
 
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 
-const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { Ticket, createTestTicket, updateTestTicket, createTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 
 
 const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')

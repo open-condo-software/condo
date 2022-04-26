@@ -10,10 +10,8 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketComment')
-const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 
 const { Ticket, UserTicketCommentRead } = require('../utils/serverSchema')
 const { sendDifferentKindsOfNotifications } = require('@condo/domains/ticket/utils/handlers')
