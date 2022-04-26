@@ -453,5 +453,95 @@ describe('TicketCommentFile', () => {
                 expect(files).toHaveLength(0)
             })
         })
+
+        describe('update', () => {
+            test('can update his ticket comment file', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content,
+                })
+
+                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket)
+
+                const [updatedTicketCommentFile] = await updateTestTicketCommentFile(residentClient, ticketCommentFile.id, {
+                    ticketComment: { connect: { id: ticketComment.id } },
+                })
+
+                expect(updatedTicketCommentFile.id).toEqual(ticketCommentFile.id)
+                expect(updatedTicketCommentFile.ticketComment.id).toEqual(ticketComment.id)
+            })
+
+            test('cannot update not his own ticket comment file', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content,
+                })
+
+                const [ticketCommentFile] = await createTestTicketCommentFile(admin, organization, ticket)
+
+                await expectToThrowAccessDeniedErrorToObj(async () =>
+                    await updateTestTicketCommentFile(residentClient, ticketCommentFile.id, {
+                        ticketComment: { connect: { id: ticketComment.id } },
+                    })
+                )
+            })
+
+            test('cannot connect ticket comment file to not his own ticket comment', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
+
+                await createTestResident(admin, residentClient.user, organization, property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+                const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                    content,
+                })
+
+                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket)
+
+                await expectToThrowAccessDeniedErrorToObj(async () =>
+                    await updateTestTicketCommentFile(residentClient, ticketCommentFile.id, {
+                        ticketComment: { connect: { id: ticketComment.id } },
+                    })
+                )
+            })
+        })
     })
 })

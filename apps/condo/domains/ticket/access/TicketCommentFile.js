@@ -53,7 +53,17 @@ async function canManageTicketCommentFiles ({ authentication: { item: user }, or
 
             return ticket.client === user.id
         } else if (operation === 'update' && itemId) {
-            return false
+            const ticketCommentFile = await getById('TicketCommentFile', itemId)
+            if (!ticketCommentFile) return false
+
+            const ticketCommentFromOriginalInput = get(originalInput, ['ticketComment', 'connect', 'id'])
+            if (ticketCommentFromOriginalInput) {
+                const ticketComment = await getById('TicketComment', ticketCommentFromOriginalInput)
+
+                return ticketCommentFile.createdBy === user.id && ticketComment.createdBy === user.id
+            }
+
+            return ticketCommentFile.createdBy === user.id
         }
     } else {
         if (operation === 'create') {
