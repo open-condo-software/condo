@@ -25,18 +25,20 @@ const CardWrapper = styled.div`
       padding: 40px;
     }
   }
-  .about-block-card > .ant-card-body {
-    padding: 60px;
-    & .ant-image {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+  .about-block-card {
+    height: 100%;
+    & > .ant-card-body {
+      padding: 60px;
+      & .ant-image {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
   }
 `
 
@@ -50,7 +52,7 @@ const AboutImageWrapper = styled.div`
 
 const IMAGE_STYLE: CSSProperties = { objectFit: 'contain', objectPosition: '50% 50%', maxWidth: '100%', maxHeight: '100%' }
 const TEXT_BLOCK_STYLE: CSSProperties = { textAlign: 'center' }
-const DESCRIPTION_TEXT_STYLE: CSSProperties = { height: 72, lineHeight: '24px', fontSize: 16 }
+const DESCRIPTION_TEXT_STYLE: CSSProperties = { lineHeight: '24px', fontSize: 16, marginBottom: 0 }
 
 export const AboutCard: React.FC<AboutCardProps> = ({ sections }) => {
     const intl = useIntl()
@@ -90,7 +92,7 @@ export const AboutCard: React.FC<AboutCardProps> = ({ sections }) => {
                                                         </Typography.Title>
                                                     </Col>
                                                     <Col span={24}>
-                                                        <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE} ellipsis={{ rows:3 }} type={'secondary'}>
+                                                        <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE} type={'secondary'}>
                                                             {section.description}
                                                         </Typography.Paragraph>
                                                     </Col>
