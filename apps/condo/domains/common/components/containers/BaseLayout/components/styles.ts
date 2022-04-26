@@ -43,6 +43,13 @@ export const formInputFixCss = css`
   }
 `
 
+// Ant Select 
+export const SelectFixClrBtn = css`
+  .ant-select-clear {
+    top: 30%;
+  }
+`
+
 export const mobileSideNavStyles = css`
   position: fixed;
   padding: 16px 0 60px;
