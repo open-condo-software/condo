@@ -19527,7 +19527,7 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
-socks-proxy-agent@^6.1.0:
+socks-proxy-agent@^6.1.0, socks-proxy-agent@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/socks-proxy-agent/-/socks-proxy-agent-6.2.0.tgz#f6b5229cc0cbd6f2f202d9695f09d871e951c85e"
   integrity sha512-wWqJhjb32Q6GsrUqzuFkukxb/zzide5quXYcMVpIjxalDBBYy2nqKCFQ/9+Ie4dvOYSQdOk3hUlZSdzZOd3zMQ==
