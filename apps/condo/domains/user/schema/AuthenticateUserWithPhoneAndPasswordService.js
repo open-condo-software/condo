@@ -4,7 +4,8 @@ const { User: UserServerUtils } = require('@condo/domains/user/utils/serverSchem
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@core/keystone/errors')
-const { NOT_FOUND, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { USER_NOT_FOUND } = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -18,19 +19,22 @@ const errors = {
         variable: ['data', 'phone'],
         message: 'Wrong format of provided phone number',
         correctExample: '+79991234567',
+        messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_PHONE_FORMAT',
     },
-    UNABLE_TO_FIND_USER_BY_PHONE: {
+    USER_NOT_FOUND: {
         mutation: 'authenticateUserWithPhoneAndPassword',
         code: BAD_USER_INPUT,
-        type: NOT_FOUND,
+        type: USER_NOT_FOUND,
         message: 'Unable to find user by provided phone. Try to register',
         variable: ['data', 'phone'],
+        messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.USER_NOT_FOUND',
     },
     WRONG_PASSWORD: {
         mutation: 'authenticateUserWithPhoneAndPassword',
         code: FORBIDDEN,
         message: 'Wrong password',
         variable: ['data', 'password'],
+        messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_PASSWORD',
     },
 }
 
@@ -53,11 +57,11 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const { phone: inputPhone, password } = info.variableValues
                 const phone = normalizePhone(inputPhone)
                 if (!phone) {
-                    throw new GQLError(errors.WRONG_PHONE_FORMAT)
+                    throw new GQLError(errors.WRONG_PHONE_FORMAT, context)
                 }
                 const users = await UserServerUtils.getAll(context, { phone, type: STAFF })
                 if (users.length !== 1) {
-                    throw new GQLError(errors.UNABLE_TO_FIND_USER_BY_PHONE)
+                    throw new GQLError(errors.USER_NOT_FOUND, context)
                 }
                 const user = await getById('User', users[0].id)
                 const { keystone } = await getSchemaCtx('User')
@@ -65,7 +69,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const list = PasswordStrategy.getList()
                 const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'] )
                 if (!success) {
-                    throw new GQLError(errors.WRONG_PASSWORD)
+                    throw new GQLError(errors.WRONG_PASSWORD, context)
                 }
                 const token = await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
                 const result = {
