@@ -213,6 +213,8 @@ const TicketContent = ({ ticket }) => {
     })
 
     const getTicketDeadlineMessage = useCallback(() => {
+        if (!ticketDeadline) return
+
         const deadlineType = getDeadlineType(ticketDeadline)
         const { moreThanDayDiff, overdueDiff } = getHumanizeDeadlineDateDifference(ticketDeadline)
 
@@ -239,7 +241,6 @@ const TicketContent = ({ ticket }) => {
                 )
             }
         }
-
     }, [LessThenDayMessage, OverdueMessage, ToCompleteMessage, ticketDeadline])
 
     const ticketClassifierNames = useMemo(() => compact([

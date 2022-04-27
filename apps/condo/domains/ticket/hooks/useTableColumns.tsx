@@ -1,32 +1,32 @@
-import React, { useCallback, useMemo } from 'react'
-import { useRouter } from 'next/router'
-import get from 'lodash/get'
-import { identity } from 'lodash/util'
-import { Space, Tag, Typography } from 'antd'
+import { useIntl } from '@core/next/intl'
+import { Space, Typography } from 'antd'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
+import get from 'lodash/get'
+import { identity } from 'lodash/util'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@core/next/intl'
-
+import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     getAddressRender,
     getDateRender,
-    getTableCellRenderer,
     getHighlightedContents,
+    getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
-import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-
-import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
+import { COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE, CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+
 import { TicketStatus } from '../utils/clientSchema'
+import { getTicketDetailsRender } from '../utils/clientSchema/Renders'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { getDeadlineType, getHumanizeDeadlineDateDifference, IFilters, TicketDeadlineType } from '../utils/helpers'
-import { getTicketDetailsRender } from '../utils/clientSchema/Renders'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
-import { TicketTag } from '../components/TicketTag'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -186,10 +186,16 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
     const renderNumber = useCallback((number, ticket) => {
         const deadline = dayjs(get(ticket, 'deadline'))
+        const ticketStatusType = get(ticket, ['status', 'type'])
         let extraHighlighterProps
         let extraTitle
 
-        if (deadline) {
+        if (
+            deadline &&
+            ticketStatusType !== COMPLETED_STATUS_TYPE &&
+            ticketStatusType !== CLOSED_STATUS_TYPE &&
+            ticketStatusType !== CANCELED_STATUS_TYPE
+        ) {
             const deadlineType = getDeadlineType(deadline)
 
             switch (deadlineType) {
