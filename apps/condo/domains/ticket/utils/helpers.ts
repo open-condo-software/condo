@@ -19,6 +19,7 @@ import {
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { CLOSED_STATUS_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 
 import {
     AnalyticsDataType,
@@ -27,6 +28,7 @@ import {
     ViewModeTypes,
 } from '../components/TicketChart'
 import { MAX_CHART_LEGEND_ELEMENTS, MAX_CHART_NAME_LENGTH } from '../constants/restrictions'
+import { ITicketUIState } from './clientSchema/Ticket'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -576,26 +578,43 @@ export const getChartOptions: IGetChartOptions = ({
     return { option, opts }
 }
 
+function getDeadlineStopPoint (ticket: ITicketUIState) {
+    const ticketStatusType = get(ticket, ['status', 'type'])
+    const ticketStatusUpdatedAt = get(ticket, ['statusUpdatedAt'])
+    let deadlineStopPoint = dayjs().startOf('day')
+
+    if (ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE) {
+        deadlineStopPoint = dayjs(ticketStatusUpdatedAt)
+    }
+
+    return deadlineStopPoint
+}
+
 export enum TicketDeadlineType {
     MORE_THAN_DAY,
     LESS_THAN_DAY,
     OVERDUE,
 }
 
-export function getDeadlineType (deadline: Dayjs): TicketDeadlineType {
-    const today = dayjs().startOf('day')
-    const tomorrow = today.add(1, 'day')
-    const isLessThanOneDay = deadline.isBefore(tomorrow) || deadline.isSame(tomorrow)
+export function getDeadlineType (ticket: ITicketUIState): TicketDeadlineType {
+    const deadline = dayjs(get(ticket, 'deadline'))
+    const deadlineStopPoint = getDeadlineStopPoint(ticket)
+
+    const deadlineStopPointNextDay = deadlineStopPoint.add(1, 'day')
+    const isLessThanOneDay = deadline.isBefore(deadlineStopPointNextDay) || deadline.isSame(deadlineStopPointNextDay)
 
     if (isLessThanOneDay) {
-        return (deadline.isBefore(today) || deadline.isSame(today)) ? TicketDeadlineType.OVERDUE : TicketDeadlineType.LESS_THAN_DAY
+        return (deadline.isBefore(deadlineStopPoint) || deadline.isSame(deadlineStopPoint)) ? TicketDeadlineType.OVERDUE : TicketDeadlineType.LESS_THAN_DAY
     }
 
     return TicketDeadlineType.MORE_THAN_DAY
 }
 
-export function getHumanizeDeadlineDateDifference (deadline: Dayjs) {
-    const diff = deadline.diff(dayjs().startOf('day'), 'day')
+export function getHumanizeDeadlineDateDifference (ticket: ITicketUIState) {
+    const deadline = dayjs(get(ticket, 'deadline'))
+    const deadlineStopPoint = getDeadlineStopPoint(ticket)
+
+    const diff = deadline.diff(deadlineStopPoint, 'day')
     const moreThanDayDiff = dayjs.duration(diff, 'days').humanize()
     const overdueDiff = dayjs.duration(diff, 'days').subtract(1, 'day').humanize()
 
