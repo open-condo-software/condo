@@ -24,6 +24,7 @@ const errors = {
             code: BAD_USER_INPUT,
             type: TOKEN_NOT_FOUND,
             message: 'Unable to find non-expired token',
+            messageForUser: 'api.user.checkPasswordRecoveryToken.TOKEN_NOT_FOUND',
         },
     },
     startPasswordRecovery: {
@@ -33,6 +34,7 @@ const errors = {
             code: BAD_USER_INPUT,
             type: 'USER_BY_PHONE_NOT_FOUND',
             message: 'Unable to find user with specified phone',
+            messageForUser: 'api.user.startPasswordRecovery.USER_NOT_FOUND',
         },
         MULTIPLE_USERS_FOUND: {
             mutation: 'startPasswordRecovery',
@@ -40,6 +42,7 @@ const errors = {
             code: BAD_USER_INPUT,
             type: 'MULTIPLE_USERS_FOUND',
             message: 'Unable to find exact one user to start password recovery',
+            messageForUser: 'api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND',
         },
     },
     changePasswordWithToken: {
@@ -68,6 +71,7 @@ const errors = {
             code: BAD_USER_INPUT,
             type: USER_NOT_FOUND,
             message: 'Unable to find user with specified phone',
+            messageForUser: 'api.user.changePasswordWithToken.USER_NOT_FOUND',
         },
     },
 }
@@ -118,7 +122,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     usedAt: null,
                 })
                 if (!action) {
-                    throw new GQLError(errors.checkPasswordRecoveryToken.UNABLE_TO_FIND_FORGOT_PASSWORD_ACTION)
+                    throw new GQLError(errors.checkPasswordRecoveryToken.UNABLE_TO_FIND_FORGOT_PASSWORD_ACTION, context)
                 }
                 return { status: 'ok' }
             },
@@ -145,11 +149,11 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const users = await User.getAll(context, { phone, type: STAFF })
 
                 if (isEmpty(users)) {
-                    throw new GQLError(errors.startPasswordRecovery.USER_NOT_FOUND)
+                    throw new GQLError(errors.startPasswordRecovery.USER_NOT_FOUND, context)
                 }
 
                 if (users.length !== 1) {
-                    throw new GQLError(errors.startPasswordRecovery.MULTIPLE_USERS_FOUND)
+                    throw new GQLError(errors.startPasswordRecovery.MULTIPLE_USERS_FOUND, context)
                 }
 
                 const userId = users[0].id
@@ -244,7 +248,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     userId = user && user.id
 
                     if (!userId) {
-                        throw new GQLError(errors.changePasswordWithToken.USER_NOT_FOUND)
+                        throw new GQLError(errors.changePasswordWithToken.USER_NOT_FOUND, context)
                     }
                     await ConfirmPhoneActionUtil.update(context, action.id, {
                         completedAt: now,
