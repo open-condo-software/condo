@@ -1075,6 +1075,7 @@
   "api.user.authenticateUserWithPhoneAndPassword.WRONG_PHONE_FORMAT": "Wrong phone format",
   "api.user.authenticateUserWithPhoneAndPassword.WRONG_PASSWORD": "Wrong password",
   "api.user.authenticateUserWithPhoneAndPassword.USER_NOT_FOUND": "User not found by specified phone number",
+  "api.user.changePhoneNumberResidentUser.NOT_FOUND": "Could not find token to change phone or it was expired. Try to start phone changing procedure from scratch.",
   "excelExport.headers.payments.date": "Date",
   "excelExport.headers.payments.account": "Account",
   "excelExport.headers.payments.address": "Address",
