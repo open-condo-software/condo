@@ -15,7 +15,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
-import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { CLOSED_STATUS_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { Ticket, TicketChange, TicketComment, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import {
@@ -245,6 +245,14 @@ const TicketContent = ({ ticket }) => {
         get(ticket, ['categoryClassifier', 'name']),
         get(ticket, ['problemClassifier', 'name']),
     ]), [ticket])
+    const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
+    const overdueMessage = useMemo(() => {
+        return ticketStatusType !== CLOSED_STATUS_TYPE &&
+                ticketStatusType !== COMPLETED_STATUS_TYPE &&
+                ticketStatusType !== CANCELED_STATUS_TYPE &&
+                getTicketDeadlineMessage()
+    },
+    [getTicketDeadlineMessage, ticketStatusType])
 
     const getClassifierTextType = useCallback(
         (index: number): BaseType => index !== ticketClassifierNames.length - 1 ? null : 'secondary',
@@ -330,7 +338,7 @@ const TicketContent = ({ ticket }) => {
                             ticketDeadline ? (
                                 <PageFieldRow title={Deadline}>
                                     <Typography.Text strong> {dayjs(ticketDeadline).format('DD MMMM YYYY')} </Typography.Text>
-                                    {getTicketDeadlineMessage()}
+                                    {overdueMessage}
                                 </PageFieldRow>
                             ) : null
                         }
