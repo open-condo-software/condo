@@ -161,16 +161,16 @@ describe('RegisterMultiPaymentService', () => {
                         await registerMultiPaymentByTestClient(client, payload, { sender })
                     }, ({ errors }) => {
                         expect(errors).toMatchObject([{
-                            message: 'Invalid format of "sender" field value.',
                             path: ['result'],
                             extensions: {
                                 mutation: 'registerMultiPayment',
                                 variable: ['data', 'sender'],
                                 code: 'BAD_USER_INPUT',
                                 type: 'WRONG_FORMAT',
-                                message: 'Invalid format of "sender" field value. dv: [\'Dv must be equal to 1\']',
                             },
                         }])
+                        expect(errors[0].message).toMatch('Invalid format of "sender" field value.')
+                        expect(errors[0].extensions.message).toMatch('Invalid format of "sender" field value.')
                     })
                 })
             })
