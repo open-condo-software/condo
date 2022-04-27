@@ -1075,6 +1075,7 @@
   "api.user.authenticateUserWithPhoneAndPassword.WRONG_PHONE_FORMAT": "Неверный формат номера телефона",
   "api.user.authenticateUserWithPhoneAndPassword.WRONG_PASSWORD": "Неверный пароль",
   "api.user.authenticateUserWithPhoneAndPassword.USER_NOT_FOUND": "Пользователь не найден по указанному телефону",
+  "api.user.changePhoneNumberResidentUser.NOT_FOUND": "Токен для смены телефона недействителен или просрочен, попробуйте повторить процедуру смены телефона заново.",
   "excelExport.headers.payments.date": "Дата",
   "excelExport.headers.payments.account": "ЛС",
   "excelExport.headers.payments.address": "Адрес",

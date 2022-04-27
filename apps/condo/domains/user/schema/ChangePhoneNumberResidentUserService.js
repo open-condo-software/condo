@@ -19,6 +19,7 @@ const errors = {
         mutation: 'changePhoneNumberResidentUser',
         message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
         variable: ['data', 'token'],
+        messageForUser: 'api.user.changePhoneNumberResidentUser.NOT_FOUND',
     },
 }
 
@@ -54,7 +55,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                     }
                 )
                 if (!action) {
-                    throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION)
+                    throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
                 }
                 const { phone: newPhone } = action
                 await User.update(context, userId, { phone: newPhone })
