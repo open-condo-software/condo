@@ -17,6 +17,7 @@ import { useOrganization, withOrganization } from '@core/next/organization'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
+import AmplitudeProvider from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
@@ -173,22 +174,24 @@ const MyApp = ({ Component, pageProps }) => {
                 <CacheProvider value={cache}>
                     <GlobalStyle/>
                     <FocusContextProvider>
-                        <OnBoardingProvider>
-                            <SubscriptionProvider>
-                                <LayoutContextProvider>
-                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                        <RequiredAccess>
-                                            <Component {...pageProps} />
-                                            {
-                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                    <EndTrialSubscriptionReminderPopup/>
-                                                )
-                                            }
-                                        </RequiredAccess>
-                                    </LayoutComponent>
-                                </LayoutContextProvider>
-                            </SubscriptionProvider>
-                        </OnBoardingProvider>
+                        <AmplitudeProvider>
+                            <OnBoardingProvider>
+                                <SubscriptionProvider>
+                                    <LayoutContextProvider>
+                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                            <RequiredAccess>
+                                                <Component {...pageProps} />
+                                                {
+                                                    isEndTrialSubscriptionReminderPopupVisible && (
+                                                        <EndTrialSubscriptionReminderPopup/>
+                                                    )
+                                                }
+                                            </RequiredAccess>
+                                        </LayoutComponent>
+                                    </LayoutContextProvider>
+                                </SubscriptionProvider>
+                            </OnBoardingProvider>
+                        </AmplitudeProvider>
                     </FocusContextProvider>
                     <GoogleAnalytics/>
                     <YandexMetrika/>
@@ -198,7 +201,7 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
-const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+const { publicRuntimeConfig: { defaultLocale  } } = getConfig()
 
 /*
     Configuration for `InMemoryCache` of Apollo
