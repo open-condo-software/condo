@@ -3,6 +3,8 @@ import { Typography, Row, Col, Tabs } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import Carousel from '@condo/domains/common/components/Carousel'
+import { TrackingComponentLoadEvent } from '@condo/domains/common/components/TrackingContext'
+import { BILLING_TRACKING_EVENTS } from '@condo/domains/billing/constants/constants'
 import { Section } from './Section'
 import { CardsContainer, CardsPerRowType } from './CardsContainer'
 import { AppCarouselCard } from './AppCarouselCard'
@@ -183,6 +185,7 @@ export const AppSelectPageContent: React.FC = () => {
                                                         {
                                                             unconnectedBillingsApps.map(app => {
                                                                 const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
+
                                                                 const url = `/miniapps/${app.id}/about?type=${app.type}`
                                                                 const logo = app.logo || undefined
                                                                 return (

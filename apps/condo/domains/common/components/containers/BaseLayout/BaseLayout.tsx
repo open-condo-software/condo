@@ -1,6 +1,6 @@
 /** @jsx jsx */
+import React, { CSSProperties, FunctionComponent, useEffect, ElementType } from 'react'
 import { jsx } from '@emotion/core'
-import React, { CSSProperties, FunctionComponent } from 'react'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { SideNav } from './components/SideNav'
@@ -16,10 +16,10 @@ import {
     SUB_LAYOUT_CSS,
     TABLE_PAGE_CONTENT_CSS,
 } from './components/styles'
-import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import { Header } from './Header'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>
@@ -59,8 +59,15 @@ interface IPageWrapperProps {
     style?: CSSProperties
 }
 
-const PageWrapper: FunctionComponent<IPageWrapperProps> = ({ children, className, style }) => {
+const PageWrapper: FunctionComponent<IPageWrapperProps> = (props) => {
+    const { children, className, style } = props
     const { isSmall } = useLayoutContext()
+    const { logEvent, getEventName } = useTracking()
+
+    useEffect(() => {
+        const eventName = getEventName(TrackingEventType.Visit)
+        logEvent({ eventName, denyDuplicates: true })
+    }, [])
 
     return (
         <StyledPageWrapper isSmall={isSmall} className={classnames('page-wrapper', className)} style={style}>

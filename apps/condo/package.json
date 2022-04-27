@@ -51,6 +51,7 @@
     "@zeit/next-less": "^1.0.1",
     "ajv": "^8.2.0",
     "ajv-formats": "^2.1.0",
+    "amplitude-js": "^8.18.1",
     "antd": "^4.8.2",
     "antd-mask-input": "^0.1.15",
     "big.js": "^6.1.1",
