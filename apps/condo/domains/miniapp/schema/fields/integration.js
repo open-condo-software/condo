@@ -11,14 +11,14 @@ const DEVELOPER_FIELD = {
 }
 
 const LOGO_FIELD = {
-    schemaDoc: 'Integration company logo',
+    schemaDoc: 'Logo of app\'s company or app itself',
     type: File,
     isRequired: false,
     adapter: APPS_FILE_ADAPTER,
 }
 
 const PARTNER_URL_FIELD = {
-    schemaDoc: 'Integration company website',
+    schemaDoc: 'Link to the website of the developer company, where the user can find out detailed information about the partner',
     type: Text,
     isRequired: false,
 }
@@ -31,19 +31,19 @@ const APP_IMAGE_FIELD = {
 }
 
 const SHORT_DESCRIPTION_FIELD = {
-    schemaDoc: 'Short integration description, that would be shown on settings card',
+    schemaDoc: 'Short description providing information about integration functionality. Will be shown on App\'s card',
     type: Text,
     isRequired: true,
 }
 
 const INSTRUCTION_TEXT_FIELD = {
-    schemaDoc: 'Text which used to describe how to connect app written in markdown',
+    schemaDoc: 'Text which used to describe how to connect app written in markdown. Required if appUrl is not specified',
     type: Markdown,
     isRequired: false,
 }
 
 const IFRAME_URL_FIELD = {
-    schemaDoc: 'Url to app page, which will is app starting point and will be opened in iframe',
+    schemaDoc: 'Url to app page, which is the app starting point and will be opened in iframe',
     type: Text,
     isRequired: false,
 }
