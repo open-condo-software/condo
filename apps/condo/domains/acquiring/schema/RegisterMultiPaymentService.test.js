@@ -36,36 +36,13 @@ const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverS
 const {
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult,
-    expectToThrowMutationError, catchErrorFrom,
+    catchErrorFrom,
 } = require('@condo/domains/common/utils/testSchema')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
     DIRECT_PAYMENT_PATH,
 } = require('@condo/domains/acquiring/constants/links')
-const { DV_UNKNOWN_VERSION_ERROR, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
-const {
-    REGISTER_MP_EMPTY_INPUT,
-    REGISTER_MP_EMPTY_RECEIPTS,
-    REGISTER_MP_CONSUMERS_DUPLICATE,
-    REGISTER_MP_RECEIPTS_DUPLICATE,
-    REGISTER_MP_REAL_CONSUMER_MISMATCH,
-    REGISTER_MP_NO_ACQUIRING_CONSUMERS,
-    REGISTER_MP_MULTIPLE_INTEGRATIONS,
-    REGISTER_MP_CANNOT_GROUP_RECEIPTS,
-    REGISTER_MP_DELETED_RECEIPTS,
-    REGISTER_MP_REAL_RECEIPTS_MISMATCH,
-    REGISTER_MP_UNSUPPORTED_BILLING,
-    REGISTER_MP_MULTIPLE_CURRENCIES,
-    REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH,
-    REGISTER_MP_INVALID_SENDER,
-    REGISTER_MP_DELETED_CONSUMERS,
-    REGISTER_MP_DELETED_ACQUIRING_CONTEXTS,
-    REGISTER_MP_DELETED_ACQUIRING_INTEGRATION,
-    REGISTER_MP_DELETED_BILLING_CONTEXT,
-    REGISTER_MP_DELETED_BILLING_INTEGRATION,
-    REGISTER_MP_NEGATIVE_TO_PAY,
-} = require('@condo/domains/acquiring/constants/errors')
 const { updateTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
  
 describe('RegisterMultiPaymentService', () => {
