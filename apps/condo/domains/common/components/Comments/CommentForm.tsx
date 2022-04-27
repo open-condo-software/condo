@@ -1,18 +1,18 @@
-import { Button } from '@condo/domains/common/components/Button'
-import { colors } from '@condo/domains/common/constants/style'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
-
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useInputWithCounter } from '../../hooks/useInputWithCounter'
-import { FormWithAction } from '../containers/FormList'
-import { ClipIcon } from '../icons/ClipIcon'
-import { Module, useMultipleFileUploadHook } from '../MultipleFileUpload'
+import { Button } from '@condo/domains/common/components/Button'
+import { colors } from '@condo/domains/common/constants/style'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
+import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
+import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { ClipIcon } from '@condo/domains/common/components/icons/ClipIcon'
+import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
+
 import { TComment } from './index'
 
 const Holder = styled.div`

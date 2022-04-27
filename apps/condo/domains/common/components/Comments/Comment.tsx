@@ -1,20 +1,20 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import { grey } from '@ant-design/colors'
+import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { css, jsx } from '@emotion/core'
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
-import { grey } from '@ant-design/colors'
 import styled from '@emotion/styled'
 
-import { useAuth } from '@core/next/auth'
 import { User } from '@app/condo/schema'
+import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
+import { DocIcon } from '@condo/domains/common/components/icons/DocIcon'
 import { ImageIcon } from '@condo/domains/common/components/icons/ImageIcon'
 import { VideoIcon } from '@condo/domains/common/components/icons/VideoIcon'
-import { DocIcon } from '@condo/domains/common/components/icons/DocIcon'
 import { colors, shadows } from '@condo/domains/common/constants/style'
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
@@ -33,10 +33,10 @@ const DeleteButtonStyle = css`
     background-color: ${colors.black};
     box-shadow: ${shadows.small};
   
-  &:hover {
-    background-color: ${colors.white};
-    color: ${colors.red[5]};
-  }
+    &:hover {
+      background-color: ${colors.white};
+      color: ${colors.red[5]};
+    }
 `
 
 const UpdateButtonStyle = css`
@@ -46,10 +46,10 @@ const UpdateButtonStyle = css`
     box-shadow: ${shadows.small};
     margin-left: 4px;
   
-  &:hover {
-    background-color: ${colors.white};
-    color: ${colors.black};
-  }
+    &:hover {
+      background-color: ${colors.white};
+      color: ${colors.black};
+    }
 `
 
 const DeletedTextStyle = css`
@@ -178,7 +178,11 @@ const ELLIPSIS_CONFIG = { rows: 1 }
 const FILENAME_TEXT_STYLES: CSSProperties = { margin: 0 }
 const AUTHOR_TEXT_STYLES: CSSProperties = { paddingRight: '2px' }
 
-const CommentFileList = ({ comment }) => {
+type CommentFileListProps = {
+    comment: TComment
+}
+
+const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
     const files = get(comment, 'files')
     const fileList = useMemo(() => files.map(({ id, file }) => {
         const fileNameArr = file.originalFilename.split('.')
@@ -206,7 +210,7 @@ const CommentFileList = ({ comment }) => {
     }), [files])
 
     if (!Array.isArray(files)) {
-        return <></>
+        return null
     }
 
     return (
