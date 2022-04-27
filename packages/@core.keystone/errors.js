@@ -109,6 +109,7 @@ const GQLErrorCode = {
  * @property {Object.<string, string|number>} messageInterpolation - object with values for placeholder variables `{var}`, presented in translated versions of message
  * @property {String} [correctExample] - correct value of an argument
  * @property {Object} [internalError] - error from internal part of the system. Not required, because in some cases it is not secure to expose internal error messages
+ * @property {Object} [data] - any kind of data, that will help to figure out a cause of the error
  */
 
 class GQLError extends ApolloError {
