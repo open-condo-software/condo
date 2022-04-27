@@ -157,30 +157,66 @@ describe('RegisterMultiPaymentService', () => {
                         consumerId,
                         receipts,
                     }
-                    await expectToThrowMutationError(async () => {
+                    await catchErrorFrom(async () => {
                         await registerMultiPaymentByTestClient(client, payload, { sender })
-                    }, REGISTER_MP_INVALID_SENDER)
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'Invalid format of "sender" field value.',
+                            path: ['result'],
+                            extensions: {
+                                mutation: 'registerMultiPayment',
+                                variable: ['data', 'sender'],
+                                code: 'BAD_USER_INPUT',
+                                type: 'WRONG_FORMAT',
+                                message: 'Invalid format of "sender" field value. dv: [\'Dv must be equal to 1\']',
+                            },
+                        }])
+                    })
                 })
             })
             test('Should check emptiness of input arrays', async () => {
                 const { serviceConsumer, client } = await makePayer()
                 let payload = []
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(client, payload)
-                }, REGISTER_MP_EMPTY_INPUT)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'Missing required value for "groupedReceipts" field',
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'REQUIRED',
+                            message: 'Missing required value for "groupedReceipts" field',
+                        },
+                    }])
+                })
                 payload = [
                     {
                         consumerId: serviceConsumer.id,
                         receipts: [],
                     },
                 ]
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(client, payload)
-                }, REGISTER_MP_EMPTY_RECEIPTS)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'Each group of receipts should contain at least 1 receipt',
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'receipts'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'REQUIRED',
+                            message: 'Each group of receipts should contain at least 1 receipt',
+                        },
+                    }])
+                })
             })
         })
         describe('Duplicates checks', () => {
-            test('Should contains unique ServiceConsumers', async () => {
+            test('Should contain unique ServiceConsumers', async () => {
                 const { serviceConsumer, billingReceipts, client } = await makePayer(2)
                 const payload = [
                     {
@@ -192,11 +228,23 @@ describe('RegisterMultiPaymentService', () => {
                         receipts: [{ id: billingReceipts[1].id }],
                     },
                 ]
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(client, payload)
-                }, REGISTER_MP_CONSUMERS_DUPLICATE)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'There are some groupedReceipts with same consumerId',
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'NOT_UNIQUE',
+                            message: 'There are some groupedReceipts with same consumerId',
+                        },
+                    }])
+                })
             })
-            test('Should contains unique receipts', async () => {
+            test('Should contain unique receipts', async () => {
                 const { serviceConsumer, billingReceipts, client } = await makePayer()
                 const payload = [
                     {
@@ -204,13 +252,25 @@ describe('RegisterMultiPaymentService', () => {
                         receipts: [{ id: billingReceipts[0].id }, { id: billingReceipts[0].id }],
                     },
                 ]
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(client, payload)
-                }, REGISTER_MP_RECEIPTS_DUPLICATE)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'Found duplicated receipt ids. Note, each receipt can only occur in single ServiceConsumer per mutation run and cannot be noticed twice',
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'receipts'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'NOT_UNIQUE',
+                            message: 'Found duplicated receipt ids. Note, each receipt can only occur in single ServiceConsumer per mutation run and cannot be noticed twice',
+                        },
+                    }])
+                })
             })
         })
         describe('ServiceConsumers checks', () => {
-            test('Input should contains existing ServiceConsumers id', async () => {
+            test('Input should contain existing ServiceConsumers id', async () => {
                 const { billingReceipts, client } = await makePayer(2)
                 const fakeUuid = faker.datatype.uuid()
                 const payload = [
@@ -219,9 +279,21 @@ describe('RegisterMultiPaymentService', () => {
                         receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
                     },
                 ]
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(client, payload)
-                }, REGISTER_MP_REAL_CONSUMER_MISMATCH)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: `Cannot find specified ServiceConsumers with following ids: ${fakeUuid}`,
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'NOT_FOUND',
+                            message: `Cannot find specified ServiceConsumers with following ids: ${fakeUuid}`,
+                        },
+                    }])
+                })
             })
             test('All ServiceConsumers should have AcquiringIntegrationContext', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
@@ -229,12 +301,25 @@ describe('RegisterMultiPaymentService', () => {
                     consumerId: batch.serviceConsumer.id,
                     receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
-                await updateTestServiceConsumer(commonData.admin, batches[1].serviceConsumer.id, {
+                const disconnectedServiceConsumerId = batches[1].serviceConsumer.id
+                await updateTestServiceConsumer(commonData.admin, disconnectedServiceConsumerId, {
                     acquiringIntegrationContext: { disconnectAll: true },
                 })
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, REGISTER_MP_NO_ACQUIRING_CONSUMERS)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: `ServiceConsumers with ids ${disconnectedServiceConsumerId} does not have AcquiringIntegrationContext`,
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING',
+                            message: `ServiceConsumers with ids ${disconnectedServiceConsumerId} does not have AcquiringIntegrationContext`,
+                        },
+                    }])
+                })
             })
             describe('AcquiringIntegrationContext', () => {
                 test('All should be linked to same AcquiringIntegration', async () => {
@@ -258,9 +343,21 @@ describe('RegisterMultiPaymentService', () => {
                         { consumerId: secondConsumer.id, receipts: batches[1].billingReceipts.map(receipt => ({ id: receipt.id })) },
                     ]
 
-                    await expectToThrowMutationError(async () => {
+                    await catchErrorFrom(async () => {
                         await registerMultiPaymentByTestClient(commonData.client, payload)
-                    }, REGISTER_MP_MULTIPLE_INTEGRATIONS)
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'Listed consumerIds are linked to different acquiring integrations',
+                            path: ['result'],
+                            extensions: {
+                                mutation: 'registerMultiPayment',
+                                variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+                                code: 'BAD_USER_INPUT',
+                                type: 'MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS',
+                                message: 'Listed consumerIds are linked to different acquiring integrations',
+                            },
+                        }])
+                    })
                 })
             })
         })
@@ -277,20 +374,45 @@ describe('RegisterMultiPaymentService', () => {
                     await updateTestAcquiringIntegration(commonData.admin, commonData.acquiringIntegration.id, {
                         canGroupReceipts: false,
                     })
-                    await expectToThrowMutationError(async () => {
+                    await catchErrorFrom(async () => {
                         await registerMultiPaymentByTestClient(commonData.client, payload)
-                    }, REGISTER_MP_CANNOT_GROUP_RECEIPTS)
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: `Receipts cannot be grouped by AcquiringIntegration with id "${commonData.acquiringIntegration.id}", because a value of "canGroupReceipts" field is false`,
+                            path: ['result'],
+                            extensions: {
+                                mutation: 'registerMultiPayment',
+                                variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+                                code: 'BAD_USER_INPUT',
+                                type: 'RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION',
+                                message: `Receipts cannot be grouped by AcquiringIntegration with id "${commonData.acquiringIntegration.id}", because a value of "canGroupReceipts" field is false`,
+                            },
+                        }])
+                    })
                 })
             })
             test('Should have existing ids', async () => {
                 const { serviceConsumer, client } = await makePayer()
+                const missingReceiptId = faker.datatype.uuid()
                 const payload = [{
                     consumerId: serviceConsumer.id,
-                    receipts: { id: faker.datatype.uuid() },
+                    receipts: { id: missingReceiptId },
                 }]
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(client, payload)
-                }, REGISTER_MP_REAL_RECEIPTS_MISMATCH)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: `Cannot find all specified BillingReceipts with ids ${missingReceiptId}`,
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
+                            message: `Cannot find all specified BillingReceipts with ids ${missingReceiptId}`,
+                        },
+                    }])
+                })
             })
             test('Should be linked to BillingIntegration which supported by acquiring', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
@@ -298,12 +420,25 @@ describe('RegisterMultiPaymentService', () => {
                     consumerId: batch.serviceConsumer.id,
                     receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
+                const disconnectedBillingIntegrationId = batches[1].billingIntegration.id
                 await updateTestAcquiringIntegration(commonData.admin, commonData.acquiringIntegration.id, {
-                    supportedBillingIntegrations: { disconnect: [{ id: batches[1].billingIntegration.id }] },
+                    supportedBillingIntegrations: { disconnect: [{ id: disconnectedBillingIntegrationId }] },
                 })
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, REGISTER_MP_UNSUPPORTED_BILLING)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: `Some of ServiceConsumer's AcquiringIntegration does not supports following BillingReceipt's BillingIntegrations: ${disconnectedBillingIntegrationId}`,
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION',
+                            message: `Some of ServiceConsumer's AcquiringIntegration does not supports following BillingReceipt's BillingIntegrations: ${disconnectedBillingIntegrationId}`,
+                        },
+                    }])
+                })
             })
             test('Cannot pay for receipts with multiple currencies', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
@@ -314,9 +449,21 @@ describe('RegisterMultiPaymentService', () => {
                 await updateTestBillingIntegration(commonData.admin, batches[1].billingIntegration.id, {
                     currencyCode: 'USD',
                 })
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, REGISTER_MP_MULTIPLE_CURRENCIES)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'BillingReceipts has multiple currencies',
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'RECEIPTS_HAS_MULTIPLE_CURRENCIES',
+                            message: 'BillingReceipts has multiple currencies',
+                        },
+                    }])
+                })
             })
             describe('Cannot pay for receipts with negative toPay',  () => {
                 const cases = ['0.0', '-1', '-50.00', '-0.000000']
@@ -329,35 +476,73 @@ describe('RegisterMultiPaymentService', () => {
                     await updateTestBillingReceipt(commonData.admin, batches[1].billingReceipts[0].id, {
                         toPay,
                     })
-                    await expectToThrowMutationError(async () => {
+                    await catchErrorFrom(async () => {
                         await registerMultiPaymentByTestClient(commonData.client, payload)
-                    }, REGISTER_MP_NEGATIVE_TO_PAY)
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: `Cannot pay for BillingReceipts ${batches[1].billingReceipts[0].id} with negative "toPay" value`,
+                            path: ['result'],
+                            extensions: {
+                                mutation: 'registerMultiPayment',
+                                variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                                code: 'BAD_USER_INPUT',
+                                type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
+                                message: `Cannot pay for BillingReceipts ${batches[1].billingReceipts[0].id} with negative "toPay" value`,
+                            },
+                        }])
+                    })
                 })
             })
             test('Should have common billing account with ServiceConsumer', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                const serviceConsumerId = batches[0].serviceConsumer.id
                 const payload = [
                     {
-                        consumerId: batches[0].serviceConsumer.id,
+                        consumerId: serviceConsumerId,
                         receipts: batches[1].billingReceipts.map(receipt => ({ id: receipt.id })),
                     },
                 ]
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: `BillingReceipt with id "${batches[1].billingReceipts[0].id}" does not have common BillingAccount with specified ServiceConsumer with id "${serviceConsumerId}"`,
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER',
+                            message: `BillingReceipt with id "${batches[1].billingReceipts[0].id}" does not have common BillingAccount with specified ServiceConsumer with id "${serviceConsumerId}"`,
+                        },
+                    }])
+                })
             })
             test('Should have billing account with same unitType as ServiceConsumer.unitType', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+                const serviceConsumerId = batches[0].serviceConsumer.id
                 const payload = [
                     {
-                        consumerId: batches[0].serviceConsumer.id,
+                        consumerId: serviceConsumerId,
                         receipts: batches[1].billingReceipts.map(receipt => ({ id: receipt.id })),
                     },
                 ]
                 await updateTestBillingAccount(commonData.admin, batches[0].billingAccount.id, { unitType: 'parking' })
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, REGISTER_MP_BILLING_ACCOUNTS_NO_MATCH)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: `BillingReceipt with id "${batches[1].billingReceipts[0].id}" does not have common BillingAccount with specified ServiceConsumer with id "${serviceConsumerId}"`,
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER',
+                            message: `BillingReceipt with id "${batches[1].billingReceipts[0].id}" does not have common BillingAccount with specified ServiceConsumer with id "${serviceConsumerId}"`,
+                        },
+                    }])
+                })
             })
         })
         describe('deletedAt check', () => {
@@ -367,12 +552,25 @@ describe('RegisterMultiPaymentService', () => {
                     consumerId: batch.serviceConsumer.id,
                     receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
-                await updateTestBillingReceipt(commonData.admin, batches[0].billingReceipts[0].id, {
+                const deletedReceiptId = batches[0].billingReceipts[0].id
+                await updateTestBillingReceipt(commonData.admin, deletedReceiptId, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, REGISTER_MP_DELETED_RECEIPTS)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: `Cannot pay for deleted receipts ${deletedReceiptId}`,
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'RECEIPTS_ARE_DELETED',
+                            message: `Cannot pay for deleted receipts ${deletedReceiptId}`,
+                        },
+                    }])
+                })
             })
             test('Should not be able to pay for deleted service consumer', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
@@ -380,12 +578,25 @@ describe('RegisterMultiPaymentService', () => {
                     consumerId: batch.serviceConsumer.id,
                     receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
-                await updateTestServiceConsumer(commonData.admin, batches[0].serviceConsumer.id, {
+                const deletedConsumerId = batches[0].serviceConsumer.id
+                await updateTestServiceConsumer(commonData.admin, deletedConsumerId, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, REGISTER_MP_DELETED_CONSUMERS)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: `Some of specified ServiceConsumers with ids ${deletedConsumerId} were deleted, so you cannot pay for them anymore`,
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'NOT_FOUND',
+                            message: `Some of specified ServiceConsumers with ids ${deletedConsumerId} were deleted, so you cannot pay for them anymore`,
+                        },
+                    }])
+                })
             })
             test('Should not be able to pay for consumer with deleted acquiring context', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)

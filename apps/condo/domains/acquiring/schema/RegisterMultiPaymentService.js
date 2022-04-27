@@ -285,7 +285,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 }
                 const deletedConsumersIds = consumers.filter(consumer => consumer.deletedAt).map(consumer => consumer.id)
                 if (deletedConsumersIds.length) {
-                    throw new GQLError({ ...errors.DELETED_CONSUMERS, messageInterpolation: deletedConsumersIds.join(', ') })
+                    throw new GQLError({ ...errors.DELETED_CONSUMERS, messageInterpolation: { ids: deletedConsumersIds.join(', ') } })
                 }
                 const contextMissingConsumers = consumers
                     .filter(consumer => !get(consumer, 'acquiringIntegrationContext'))
