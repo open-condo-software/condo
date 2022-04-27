@@ -607,9 +607,27 @@ describe('RegisterMultiPaymentService', () => {
                 await updateTestAcquiringIntegrationContext(commonData.admin, batches[1].acquiringContext.id, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await expectToThrowMutationError(async () => {
+                await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, REGISTER_MP_DELETED_ACQUIRING_CONTEXTS)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED',
+                            message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
+                            data: {
+                                failedConsumers: [{
+                                    consumerId: batches[1].serviceConsumer.id,
+                                    acquiringContextId: batches[1].acquiringContext.id,
+                                }],
+                            },
+                        },
+                    }])
+                })
             })
             test('Should not be able to pay using deleted acquiring integration', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
