@@ -182,7 +182,7 @@ const errors = {
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
         code: BAD_USER_INPUT,
         type: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
-        message: 'BillingIntegrationOrganizationContext is deleted for following BillingReceipt: {receipts}',
+        message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
     },
     ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION: {
         mutation: 'registerMultiPayment',
@@ -196,7 +196,7 @@ const errors = {
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
         code: BAD_USER_INPUT,
         type: RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
-        message: 'Following BillingReceipt has deleted BillingIntegration: {receipts}',
+        message: 'BillingReceipt has deleted BillingIntegration',
     },
     RECEIPTS_HAS_MULTIPLE_CURRENCIES: {
         mutation: 'registerMultiPayment',
@@ -394,8 +394,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (deletedBillingContextsIds.size) {
                     const failedReceipts = receipts
                         .filter(receipt => deletedBillingContextsIds.has(receipt.context))
-                        .map(receipt => `{ receiptId: ${receipt.id}, contextId: ${receipt.context} }`)
-                    throw new GQLError({ ...errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED, messageInterpolation: { receipts: failedReceipts.join(', ') } })
+                        .map(receipt => ({ receiptId: receipt.id, contextId: receipt.context }))
+                    throw new GQLError({ ...errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED, data: { failedReceipts } })
                 }
                 const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
                     .map(integration => integration.id)
@@ -413,8 +413,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (deletedBillingIntegrationsIds.size) {
                     const failedReceipts = receipts
                         .filter(receipt => deletedBillingIntegrationsIds.has(billingContextsById[receipt.context].integration))
-                        .map(receipt => `{ receiptId: ${receipt.id}, integrationId: ${billingContextsById[receipt.context].integration} }`)
-                    throw new GQLError({ ...errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION, messageInterpolation: { receipts: failedReceipts.join(', ') } })
+                        .map(receipt => ({ receiptId: receipt.id, integrationId: billingContextsById[receipt.context].integration }))
+                    throw new GQLError({ ...errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION, data: { failedReceipts } })
                 }
 
                 const currencies = new Set(billingIntegrations.map(integration => integration.currencyCode))
