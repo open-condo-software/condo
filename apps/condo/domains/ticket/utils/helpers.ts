@@ -596,6 +596,11 @@ export enum TicketDeadlineType {
     OVERDUE,
 }
 
+/**
+ * If more than 1 day is left before the deadline, then return the type MORE_THAN_DAY
+ * If today is the deadline day or the deadline has passed, returns OVERDUE.
+ * Otherwise returns LESS_THAN_DAY
+ */
 export function getDeadlineType (ticket: ITicketUIState): TicketDeadlineType {
     const deadline = dayjs(get(ticket, 'deadline'))
     const deadlineStopPoint = getDeadlineStopPoint(ticket)
