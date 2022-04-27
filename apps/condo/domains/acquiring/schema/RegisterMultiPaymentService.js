@@ -52,7 +52,7 @@ const { MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, RECEIPTS_ARE_DELETED, RECEIPTS_
     RECEIPT_HAS_DELETED_BILLING_INTEGRATION, BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED, ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING,
     ACQUIRING_INTEGRATION_IS_DELETED, RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION,
-    CANNOT_FIND_ALL_BILLING_RECEIPTS,
+    CANNOT_FIND_ALL_BILLING_RECEIPTS, ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
 } = require('../constants/errors')
 
 const errors = {
@@ -119,6 +119,13 @@ const errors = {
         code: BAD_USER_INPUT,
         type: ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING,
         message: 'ServiceConsumers with ids {ids} does not have AcquiringIntegrationContext',
+    },
+    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED: {
+        mutation: 'registerMultiPayment',
+        variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+        code: BAD_USER_INPUT,
+        type: ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
+        message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
     },
     MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS: {
         mutation: 'registerMultiPayment',
@@ -305,8 +312,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (deletedAcquiringContextsIds.size) {
                     const failedConsumers = consumers
                         .filter(consumer => deletedAcquiringContextsIds.has(consumer.acquiringIntegrationContext))
-                        .map(consumer => `{ consumerId: ${consumer.id}, acquiringContextId: ${consumer.acquiringIntegrationContext} }`)
-                    throw new GQLError({ ...errors.ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING, messageInterpolation: { ids: failedConsumers.join(', ') } })
+                        .map(consumer => ({ consumerId: consumer.id, acquiringContextId: consumer.acquiringIntegrationContext }))
+                    throw new GQLError({ ...errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, data: { failedConsumers } })
                 }
 
                 const acquiringContextsByIds = Object.assign({}, ...acquiringContexts.map(obj => ({ [obj.id]: obj })))

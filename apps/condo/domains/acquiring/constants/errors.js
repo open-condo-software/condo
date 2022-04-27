@@ -10,6 +10,8 @@ const REGISTER_MP_DELETED_CONSUMERS = '[groupedReceipts:consumerId:deleted] Some
 const REGISTER_MP_NO_ACQUIRING_CONSUMERS = '[serviceConsumer:noAcquiringContext] Some of ServiceConsumers doesn\'t have Acquiring context.'
 const ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING = 'ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING'
 
+const ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED = 'ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED'
+
 // const REGISTER_MP_DELETED_ACQUIRING_CONTEXTS = '[groupedReceipts:consumerId:acquiringContext:deleted] Some of specified ServiceConsumers has deleted acquiring integration context, so you cannot pay for them anymore'
 
 // const REGISTER_MP_MULTIPLE_INTEGRATIONS = '[serviceConsumer:acquiringContext:multipleIntegrations] Listed consumerIds are linked to different acquiring integrations'
@@ -98,6 +100,7 @@ module.exports = {
 
     // REGISTER_MP_NO_ACQUIRING_CONSUMERS,
     ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING,
+    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
 
     // REGISTER_MP_MULTIPLE_INTEGRATIONS,
     MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
