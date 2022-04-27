@@ -4,9 +4,11 @@
  */
 
 const { AllMiniAppsService } = require('./AllMiniAppsService')
+const { B2BApp } = require('./B2BApp')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     AllMiniAppsService,
+    B2BApp,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -4,9 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { throwIfError, generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
+const { B2BApp: B2BAppGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const DOCUMENT_BLOCK_SINGLE_EXAMPLE = [
@@ -35,6 +36,7 @@ const DOCUMENT_BLOCK_MULTIPLE_EXAMPLE = [
     }
 ]
 
+const B2BApp = generateGQLTestUtils(B2BAppGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -54,11 +56,45 @@ async function allMiniAppsByTestClient(client, organizationId, extraAttrs) {
     return [data.objs, attrs]
 }
 
+async function createTestB2BApp (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        name: faker.company.companyName().replace(/ /, '-').toUpperCase() + ' B2B APP',
+        shortDescription: faker.commerce.productDescription(),
+        developer: faker.company.companyName(),
+        instruction: faker.datatype.string(),
+        connectedMessage: faker.company.catchPhrase(),
+        ...extraAttrs,
+    }
+    const obj = await B2BApp.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BApp (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+
+    const obj = await B2BApp.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     allMiniAppsByTestClient,
     DOCUMENT_BLOCK_SINGLE_EXAMPLE,
     DOCUMENT_BLOCK_MULTIPLE_EXAMPLE,
+    B2BApp, createTestB2BApp, updateTestB2BApp,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

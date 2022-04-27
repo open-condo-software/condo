@@ -40,21 +40,21 @@ export type AcquiringIntegration = {
   sender?: Maybe<SenderField>;
   /**  Name of `acquiring component`, which is set up by developer  */
   name?: Maybe<Scalars['String']>;
-  /**  Integration company logo  */
+  /**  Logo of app's company or app itself  */
   logo?: Maybe<File>;
-  /**  Short integration description, that would be shown on settings card  */
+  /**  Short description providing information about integration functionality. Will be shown on App's card  */
   shortDescription?: Maybe<Scalars['String']>;
   /**  JSON interpretation of visual about app field written in KS6 document-field notation (https://keystonejs.com/docs/guides/document-fields). For now only aboutAppBlock implemented  */
   about?: Maybe<Scalars['JSON']>;
   /**  Developer company name  */
   developer?: Maybe<Scalars['String']>;
-  /**  Integration company website  */
+  /**  Link to the website of the developer company, where the user can find out detailed information about the partner  */
   partnerUrl?: Maybe<Scalars['String']>;
-  /**  Text which used to describe how to connect app written in markdown  */
+  /**  Text which used to describe how to connect app written in markdown. Required if appUrl is not specified  */
   instruction?: Maybe<Scalars['String']>;
   /**  Short message which will be displayed on app's index page if it has no appUrl. Required if appUrl is not specified  */
   connectedMessage?: Maybe<Scalars['String']>;
-  /**  Url to app page, which will is app starting point and will be opened in iframe  */
+  /**  Url to app page, which is the app starting point and will be opened in iframe  */
   appUrl?: Maybe<Scalars['String']>;
   /**  Indicates whether the integration is hidden inside the CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
@@ -1761,7 +1761,8 @@ export type AllMiniAppsInput = {
 
 export enum AppType {
   Billing = 'BILLING',
-  Acquiring = 'ACQUIRING'
+  Acquiring = 'ACQUIRING',
+  B2B = 'B2B'
 }
 
 export type AuthenticateUserWithPhoneAndPasswordInput = {
@@ -1773,6 +1774,644 @@ export type AuthenticateUserWithPhoneAndPasswordOutput = {
   __typename?: 'AuthenticateUserWithPhoneAndPasswordOutput';
   item?: Maybe<User>;
   token: Scalars['String'];
+};
+
+/**  B2B app  */
+export type B2BApp = {
+  __typename?: 'B2BApp';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2BApp List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2BApp List config, or
+   *  3. As an alias to a 'name' field on the B2BApp List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2BApp List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Name of B2B App  */
+  name?: Maybe<Scalars['String']>;
+  /**  Logo of app's company or app itself  */
+  logo?: Maybe<File>;
+  /**  Short description providing information about integration functionality. Will be shown on App's card  */
+  shortDescription?: Maybe<Scalars['String']>;
+  /**  Information about promo-blocks which we'll be shown on app detailed page. JSON interpretation of visual about app field written in KS6 document-field notation (https://keystonejs.com/docs/guides/document-fields). For now only aboutAppBlock implemented  */
+  about?: Maybe<Scalars['JSON']>;
+  /**  Developer company name  */
+  developer?: Maybe<Scalars['String']>;
+  /**  Link to the website of the developer company, where the user can find out detailed information about the partner  */
+  partnerUrl?: Maybe<Scalars['String']>;
+  /**  Text which used to describe how to connect app written in markdown. Required if appUrl is not specified  */
+  instruction?: Maybe<Scalars['String']>;
+  /**  Short message which will be displayed on app's index page if it has no appUrl. Required if appUrl is not specified  */
+  connectedMessage?: Maybe<Scalars['String']>;
+  /**  Url to app page, which is the app starting point and will be opened in iframe  */
+  appUrl?: Maybe<Scalars['String']>;
+  /**  Category of app. Can be one of the following: ["INTERCOM", "OTHER"] By default set to "OTHER"  */
+  category?: Maybe<Scalars['String']>;
+  /**  Text, which will be displayed instead of default "Set up" text if app has it's own frontend (appUrl)  */
+  setupButtonMessage?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type B2BAppCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['Upload']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  about?: Maybe<Scalars['JSON']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  instruction?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  appUrl?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  setupButtonMessage?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type B2BAppHistoryRecord = {
+  __typename?: 'B2BAppHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2BAppHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2BAppHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the B2BAppHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2BAppHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  about?: Maybe<Scalars['JSON']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  instruction?: Maybe<Scalars['JSON']>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
+  appUrl?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  setupButtonMessage?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2BAppHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type B2BAppHistoryRecordCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  about?: Maybe<Scalars['JSON']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  instruction?: Maybe<Scalars['JSON']>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
+  appUrl?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  setupButtonMessage?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2BAppHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum B2BAppHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type B2BAppHistoryRecordUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  about?: Maybe<Scalars['JSON']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  instruction?: Maybe<Scalars['JSON']>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
+  appUrl?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  setupButtonMessage?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2BAppHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type B2BAppHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<B2BAppHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<B2BAppHistoryRecordWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo?: Maybe<Scalars['JSON']>;
+  logo_not?: Maybe<Scalars['JSON']>;
+  logo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  logo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  shortDescription?: Maybe<Scalars['String']>;
+  shortDescription_not?: Maybe<Scalars['String']>;
+  shortDescription_contains?: Maybe<Scalars['String']>;
+  shortDescription_not_contains?: Maybe<Scalars['String']>;
+  shortDescription_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_i?: Maybe<Scalars['String']>;
+  shortDescription_not_i?: Maybe<Scalars['String']>;
+  shortDescription_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_not_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  about?: Maybe<Scalars['JSON']>;
+  about_not?: Maybe<Scalars['JSON']>;
+  about_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  about_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  developer?: Maybe<Scalars['String']>;
+  developer_not?: Maybe<Scalars['String']>;
+  developer_contains?: Maybe<Scalars['String']>;
+  developer_not_contains?: Maybe<Scalars['String']>;
+  developer_starts_with?: Maybe<Scalars['String']>;
+  developer_not_starts_with?: Maybe<Scalars['String']>;
+  developer_ends_with?: Maybe<Scalars['String']>;
+  developer_not_ends_with?: Maybe<Scalars['String']>;
+  developer_i?: Maybe<Scalars['String']>;
+  developer_not_i?: Maybe<Scalars['String']>;
+  developer_contains_i?: Maybe<Scalars['String']>;
+  developer_not_contains_i?: Maybe<Scalars['String']>;
+  developer_starts_with_i?: Maybe<Scalars['String']>;
+  developer_not_starts_with_i?: Maybe<Scalars['String']>;
+  developer_ends_with_i?: Maybe<Scalars['String']>;
+  developer_not_ends_with_i?: Maybe<Scalars['String']>;
+  developer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  partnerUrl_not?: Maybe<Scalars['String']>;
+  partnerUrl_contains?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_i?: Maybe<Scalars['String']>;
+  partnerUrl_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  instruction?: Maybe<Scalars['JSON']>;
+  instruction_not?: Maybe<Scalars['JSON']>;
+  instruction_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  instruction_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  connectedMessage?: Maybe<Scalars['JSON']>;
+  connectedMessage_not?: Maybe<Scalars['JSON']>;
+  connectedMessage_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  connectedMessage_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  appUrl?: Maybe<Scalars['String']>;
+  appUrl_not?: Maybe<Scalars['String']>;
+  appUrl_contains?: Maybe<Scalars['String']>;
+  appUrl_not_contains?: Maybe<Scalars['String']>;
+  appUrl_starts_with?: Maybe<Scalars['String']>;
+  appUrl_not_starts_with?: Maybe<Scalars['String']>;
+  appUrl_ends_with?: Maybe<Scalars['String']>;
+  appUrl_not_ends_with?: Maybe<Scalars['String']>;
+  appUrl_i?: Maybe<Scalars['String']>;
+  appUrl_not_i?: Maybe<Scalars['String']>;
+  appUrl_contains_i?: Maybe<Scalars['String']>;
+  appUrl_not_contains_i?: Maybe<Scalars['String']>;
+  appUrl_starts_with_i?: Maybe<Scalars['String']>;
+  appUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  appUrl_ends_with_i?: Maybe<Scalars['String']>;
+  appUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  appUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<Scalars['String']>;
+  category_not?: Maybe<Scalars['String']>;
+  category_contains?: Maybe<Scalars['String']>;
+  category_not_contains?: Maybe<Scalars['String']>;
+  category_starts_with?: Maybe<Scalars['String']>;
+  category_not_starts_with?: Maybe<Scalars['String']>;
+  category_ends_with?: Maybe<Scalars['String']>;
+  category_not_ends_with?: Maybe<Scalars['String']>;
+  category_i?: Maybe<Scalars['String']>;
+  category_not_i?: Maybe<Scalars['String']>;
+  category_contains_i?: Maybe<Scalars['String']>;
+  category_not_contains_i?: Maybe<Scalars['String']>;
+  category_starts_with_i?: Maybe<Scalars['String']>;
+  category_not_starts_with_i?: Maybe<Scalars['String']>;
+  category_ends_with_i?: Maybe<Scalars['String']>;
+  category_not_ends_with_i?: Maybe<Scalars['String']>;
+  category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  setupButtonMessage?: Maybe<Scalars['String']>;
+  setupButtonMessage_not?: Maybe<Scalars['String']>;
+  setupButtonMessage_contains?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_contains?: Maybe<Scalars['String']>;
+  setupButtonMessage_starts_with?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_starts_with?: Maybe<Scalars['String']>;
+  setupButtonMessage_ends_with?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_ends_with?: Maybe<Scalars['String']>;
+  setupButtonMessage_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_contains_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_contains_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_starts_with_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_ends_with_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  setupButtonMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<B2BAppHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<B2BAppHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<B2BAppHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<B2BAppHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type B2BAppHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type B2BAppHistoryRecordsCreateInput = {
+  data?: Maybe<B2BAppHistoryRecordCreateInput>;
+};
+
+export type B2BAppHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppHistoryRecordUpdateInput>;
+};
+
+export type B2BAppUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['Upload']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  about?: Maybe<Scalars['JSON']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  instruction?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  appUrl?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  setupButtonMessage?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type B2BAppWhereInput = {
+  AND?: Maybe<Array<Maybe<B2BAppWhereInput>>>;
+  OR?: Maybe<Array<Maybe<B2BAppWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo?: Maybe<Scalars['String']>;
+  logo_not?: Maybe<Scalars['String']>;
+  logo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription?: Maybe<Scalars['String']>;
+  shortDescription_not?: Maybe<Scalars['String']>;
+  shortDescription_contains?: Maybe<Scalars['String']>;
+  shortDescription_not_contains?: Maybe<Scalars['String']>;
+  shortDescription_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_i?: Maybe<Scalars['String']>;
+  shortDescription_not_i?: Maybe<Scalars['String']>;
+  shortDescription_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_not_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  about?: Maybe<Scalars['JSON']>;
+  about_not?: Maybe<Scalars['JSON']>;
+  about_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  about_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  developer?: Maybe<Scalars['String']>;
+  developer_not?: Maybe<Scalars['String']>;
+  developer_contains?: Maybe<Scalars['String']>;
+  developer_not_contains?: Maybe<Scalars['String']>;
+  developer_starts_with?: Maybe<Scalars['String']>;
+  developer_not_starts_with?: Maybe<Scalars['String']>;
+  developer_ends_with?: Maybe<Scalars['String']>;
+  developer_not_ends_with?: Maybe<Scalars['String']>;
+  developer_i?: Maybe<Scalars['String']>;
+  developer_not_i?: Maybe<Scalars['String']>;
+  developer_contains_i?: Maybe<Scalars['String']>;
+  developer_not_contains_i?: Maybe<Scalars['String']>;
+  developer_starts_with_i?: Maybe<Scalars['String']>;
+  developer_not_starts_with_i?: Maybe<Scalars['String']>;
+  developer_ends_with_i?: Maybe<Scalars['String']>;
+  developer_not_ends_with_i?: Maybe<Scalars['String']>;
+  developer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  partnerUrl_not?: Maybe<Scalars['String']>;
+  partnerUrl_contains?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_i?: Maybe<Scalars['String']>;
+  partnerUrl_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  instruction?: Maybe<Scalars['String']>;
+  instruction_not?: Maybe<Scalars['String']>;
+  instruction_contains?: Maybe<Scalars['String']>;
+  instruction_not_contains?: Maybe<Scalars['String']>;
+  instruction_starts_with?: Maybe<Scalars['String']>;
+  instruction_not_starts_with?: Maybe<Scalars['String']>;
+  instruction_ends_with?: Maybe<Scalars['String']>;
+  instruction_not_ends_with?: Maybe<Scalars['String']>;
+  instruction_i?: Maybe<Scalars['String']>;
+  instruction_not_i?: Maybe<Scalars['String']>;
+  instruction_contains_i?: Maybe<Scalars['String']>;
+  instruction_not_contains_i?: Maybe<Scalars['String']>;
+  instruction_starts_with_i?: Maybe<Scalars['String']>;
+  instruction_not_starts_with_i?: Maybe<Scalars['String']>;
+  instruction_ends_with_i?: Maybe<Scalars['String']>;
+  instruction_not_ends_with_i?: Maybe<Scalars['String']>;
+  instruction_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  instruction_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  connectedMessage_not?: Maybe<Scalars['String']>;
+  connectedMessage_contains?: Maybe<Scalars['String']>;
+  connectedMessage_not_contains?: Maybe<Scalars['String']>;
+  connectedMessage_starts_with?: Maybe<Scalars['String']>;
+  connectedMessage_not_starts_with?: Maybe<Scalars['String']>;
+  connectedMessage_ends_with?: Maybe<Scalars['String']>;
+  connectedMessage_not_ends_with?: Maybe<Scalars['String']>;
+  connectedMessage_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_i?: Maybe<Scalars['String']>;
+  connectedMessage_contains_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_contains_i?: Maybe<Scalars['String']>;
+  connectedMessage_starts_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_ends_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  connectedMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  appUrl?: Maybe<Scalars['String']>;
+  appUrl_not?: Maybe<Scalars['String']>;
+  appUrl_contains?: Maybe<Scalars['String']>;
+  appUrl_not_contains?: Maybe<Scalars['String']>;
+  appUrl_starts_with?: Maybe<Scalars['String']>;
+  appUrl_not_starts_with?: Maybe<Scalars['String']>;
+  appUrl_ends_with?: Maybe<Scalars['String']>;
+  appUrl_not_ends_with?: Maybe<Scalars['String']>;
+  appUrl_i?: Maybe<Scalars['String']>;
+  appUrl_not_i?: Maybe<Scalars['String']>;
+  appUrl_contains_i?: Maybe<Scalars['String']>;
+  appUrl_not_contains_i?: Maybe<Scalars['String']>;
+  appUrl_starts_with_i?: Maybe<Scalars['String']>;
+  appUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  appUrl_ends_with_i?: Maybe<Scalars['String']>;
+  appUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  appUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<Scalars['String']>;
+  category_not?: Maybe<Scalars['String']>;
+  category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  setupButtonMessage?: Maybe<Scalars['String']>;
+  setupButtonMessage_not?: Maybe<Scalars['String']>;
+  setupButtonMessage_contains?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_contains?: Maybe<Scalars['String']>;
+  setupButtonMessage_starts_with?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_starts_with?: Maybe<Scalars['String']>;
+  setupButtonMessage_ends_with?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_ends_with?: Maybe<Scalars['String']>;
+  setupButtonMessage_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_contains_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_contains_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_starts_with_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_ends_with_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  setupButtonMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  setupButtonMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type B2BAppWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type B2BAppsCreateInput = {
+  data?: Maybe<B2BAppCreateInput>;
+};
+
+export type B2BAppsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppUpdateInput>;
 };
 
 /**  All `account` objects from `billing data source`. In close account cases, these objects should be soft deleted  */
@@ -3653,21 +4292,21 @@ export type BillingIntegration = {
   sender?: Maybe<SenderField>;
   /**  The name of the `integration component` that the developer remembers  */
   name?: Maybe<Scalars['String']>;
-  /**  Integration company logo  */
+  /**  Logo of app's company or app itself  */
   logo?: Maybe<File>;
-  /**  Short integration description, that would be shown on settings card  */
+  /**  Short description providing information about integration functionality. Will be shown on App's card  */
   shortDescription?: Maybe<Scalars['String']>;
   /**  JSON interpretation of visual about app field written in KS6 document-field notation (https://keystonejs.com/docs/guides/document-fields). For now only aboutAppBlock implemented  */
   about?: Maybe<Scalars['JSON']>;
   /**  Developer company name  */
   developer?: Maybe<Scalars['String']>;
-  /**  Integration company website  */
+  /**  Link to the website of the developer company, where the user can find out detailed information about the partner  */
   partnerUrl?: Maybe<Scalars['String']>;
-  /**  Text which used to describe how to connect app written in markdown  */
+  /**  Text which used to describe how to connect app written in markdown. Required if appUrl is not specified  */
   instruction?: Maybe<Scalars['String']>;
   /**  Short message which will be displayed on app's index page if it has no appUrl. Required if appUrl is not specified  */
   connectedMessage?: Maybe<Scalars['String']>;
-  /**  Url to app page, which will is app starting point and will be opened in iframe  */
+  /**  Url to app page, which is the app starting point and will be opened in iframe  */
   appUrl?: Maybe<Scalars['String']>;
   /**  This title is shown on /billing page, usually contains word "Billing"  */
   billingPageTitle?: Maybe<Scalars['String']>;
@@ -15269,6 +15908,30 @@ export type Mutation = {
   deletePaymentsFilterTemplate?: Maybe<PaymentsFilterTemplate>;
   /**  Delete multiple PaymentsFilterTemplate items by ID.  */
   deletePaymentsFilterTemplates?: Maybe<Array<Maybe<PaymentsFilterTemplate>>>;
+  /**  Create a single B2BAppHistoryRecord item.  */
+  createB2BAppHistoryRecord?: Maybe<B2BAppHistoryRecord>;
+  /**  Create multiple B2BAppHistoryRecord items.  */
+  createB2BAppHistoryRecords?: Maybe<Array<Maybe<B2BAppHistoryRecord>>>;
+  /**  Update a single B2BAppHistoryRecord item by ID.  */
+  updateB2BAppHistoryRecord?: Maybe<B2BAppHistoryRecord>;
+  /**  Update multiple B2BAppHistoryRecord items by ID.  */
+  updateB2BAppHistoryRecords?: Maybe<Array<Maybe<B2BAppHistoryRecord>>>;
+  /**  Delete a single B2BAppHistoryRecord item by ID.  */
+  deleteB2BAppHistoryRecord?: Maybe<B2BAppHistoryRecord>;
+  /**  Delete multiple B2BAppHistoryRecord items by ID.  */
+  deleteB2BAppHistoryRecords?: Maybe<Array<Maybe<B2BAppHistoryRecord>>>;
+  /**  Create a single B2BApp item.  */
+  createB2BApp?: Maybe<B2BApp>;
+  /**  Create multiple B2BApp items.  */
+  createB2BApps?: Maybe<Array<Maybe<B2BApp>>>;
+  /**  Update a single B2BApp item by ID.  */
+  updateB2BApp?: Maybe<B2BApp>;
+  /**  Update multiple B2BApp items by ID.  */
+  updateB2BApps?: Maybe<Array<Maybe<B2BApp>>>;
+  /**  Delete a single B2BApp item by ID.  */
+  deleteB2BApp?: Maybe<B2BApp>;
+  /**  Delete multiple B2BApp items by ID.  */
+  deleteB2BApps?: Maybe<Array<Maybe<B2BApp>>>;
   /**
    * Registers new user and sends notification
    *
@@ -19753,6 +20416,68 @@ export type MutationDeletePaymentsFilterTemplateArgs = {
 
 
 export type MutationDeletePaymentsFilterTemplatesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateB2BAppHistoryRecordArgs = {
+  data?: Maybe<B2BAppHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateB2BAppHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<B2BAppHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateB2BAppHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateB2BAppHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<B2BAppHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteB2BAppHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteB2BAppHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateB2BAppArgs = {
+  data?: Maybe<B2BAppCreateInput>;
+};
+
+
+export type MutationCreateB2BAppsArgs = {
+  data?: Maybe<Array<Maybe<B2BAppsCreateInput>>>;
+};
+
+
+export type MutationUpdateB2BAppArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppUpdateInput>;
+};
+
+
+export type MutationUpdateB2BAppsArgs = {
+  data?: Maybe<Array<Maybe<B2BAppsUpdateInput>>>;
+};
+
+
+export type MutationDeleteB2BAppArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteB2BAppsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -25522,6 +26247,22 @@ export type Query = {
   _allPaymentsFilterTemplatesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the PaymentsFilterTemplate list.  */
   _PaymentsFilterTemplatesMeta?: Maybe<_ListMeta>;
+  /**  Search for all B2BAppHistoryRecord items which match the where clause.  */
+  allB2BAppHistoryRecords?: Maybe<Array<Maybe<B2BAppHistoryRecord>>>;
+  /**  Search for the B2BAppHistoryRecord item with the matching ID.  */
+  B2BAppHistoryRecord?: Maybe<B2BAppHistoryRecord>;
+  /**  Perform a meta-query on all B2BAppHistoryRecord items which match the where clause.  */
+  _allB2BAppHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the B2BAppHistoryRecord list.  */
+  _B2BAppHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all B2BApp items which match the where clause.  */
+  allB2BApps?: Maybe<Array<Maybe<B2BApp>>>;
+  /**  Search for the B2BApp item with the matching ID.  */
+  B2BApp?: Maybe<B2BApp>;
+  /**  Perform a meta-query on all B2BApp items which match the where clause.  */
+  _allB2BAppsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the B2BApp list.  */
+  _B2BAppsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   /**
@@ -28399,6 +29140,56 @@ export type Query_AllPaymentsFilterTemplatesMetaArgs = {
 };
 
 
+export type QueryAllB2BAppHistoryRecordsArgs = {
+  where?: Maybe<B2BAppHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryB2BAppHistoryRecordArgs = {
+  where: B2BAppHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllB2BAppHistoryRecordsMetaArgs = {
+  where?: Maybe<B2BAppHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllB2BAppsArgs = {
+  where?: Maybe<B2BAppWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryB2BAppArgs = {
+  where: B2BAppWhereUniqueInput;
+};
+
+
+export type Query_AllB2BAppsMetaArgs = {
+  where?: Maybe<B2BAppWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
@@ -31191,6 +31982,74 @@ export enum SortAcquiringIntegrationsBy {
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortB2BAppHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
+  DeveloperAsc = 'developer_ASC',
+  DeveloperDesc = 'developer_DESC',
+  PartnerUrlAsc = 'partnerUrl_ASC',
+  PartnerUrlDesc = 'partnerUrl_DESC',
+  AppUrlAsc = 'appUrl_ASC',
+  AppUrlDesc = 'appUrl_DESC',
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
+  SetupButtonMessageAsc = 'setupButtonMessage_ASC',
+  SetupButtonMessageDesc = 'setupButtonMessage_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortB2BAppsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
+  DeveloperAsc = 'developer_ASC',
+  DeveloperDesc = 'developer_DESC',
+  PartnerUrlAsc = 'partnerUrl_ASC',
+  PartnerUrlDesc = 'partnerUrl_DESC',
+  InstructionAsc = 'instruction_ASC',
+  InstructionDesc = 'instruction_DESC',
+  ConnectedMessageAsc = 'connectedMessage_ASC',
+  ConnectedMessageDesc = 'connectedMessage_DESC',
+  AppUrlAsc = 'appUrl_ASC',
+  AppUrlDesc = 'appUrl_DESC',
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
+  SetupButtonMessageAsc = 'setupButtonMessage_ASC',
+  SetupButtonMessageDesc = 'setupButtonMessage_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortBillingAccountHistoryRecordsBy {
