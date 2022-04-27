@@ -5,7 +5,6 @@ const isoWeek = require('dayjs/plugin/isoWeek')
 const quarterOfYear = require('dayjs/plugin/quarterOfYear')
 const access = require('@condo/domains/ticket/access/TicketReportService')
 const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
-
 const PERIOD_TYPES = ['calendarWeek', 'month', 'quarter', 'year']
 const PERIOD_OFFSET_MAP = {
     calendarWeek: 'week',

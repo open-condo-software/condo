@@ -6,6 +6,7 @@ import { colors, shadows, transitions } from '@condo/domains/common/constants/st
 import { Button } from '@condo/domains/common/components/Button'
 import { useIntl } from '@core/next/intl'
 import { TagContainer } from '../TagContainer'
+
 interface AppSelectCardProps {
     logoSrc?: string
     tag?: string
