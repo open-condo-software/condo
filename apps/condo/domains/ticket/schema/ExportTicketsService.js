@@ -83,12 +83,18 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
 
                 const excelRows = allTickets.map(ticket => {
                     const ticketComments = ticketsComments.filter(comment => comment.ticket === ticket.id)
-                    const organizationCommentsToRender = ticketComments
-                        .filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE)
-                        .map(comment => renderComment(comment, locale))
-                    const residentCommentsToRender = ticketComments
-                        .filter(comment => comment.type === RESIDENT_COMMENT_TYPE)
-                        .map(comment => renderComment(comment, locale))
+                    const organizationCommentsToRender = []
+                    const residentCommentsToRender = []
+                    ticketComments.forEach((ticketComment) => {
+                        switch (ticketComment.type) {
+                            case ORGANIZATION_COMMENT_TYPE:
+                                organizationCommentsToRender.push(renderComment(ticketComment, locale))
+                                break
+                            case RESIDENT_COMMENT_TYPE:
+                                residentCommentsToRender.push(renderComment(ticketComment, locale))
+                                break
+                        }
+                    })
 
                     return {
                         number: ticket.number,
