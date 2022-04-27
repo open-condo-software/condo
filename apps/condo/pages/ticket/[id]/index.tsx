@@ -215,8 +215,8 @@ const TicketContent = ({ ticket }) => {
     const getTicketDeadlineMessage = useCallback(() => {
         if (!ticketDeadline) return
 
-        const deadlineType = getDeadlineType(ticketDeadline)
-        const { moreThanDayDiff, overdueDiff } = getHumanizeDeadlineDateDifference(ticketDeadline)
+        const deadlineType = getDeadlineType(ticket)
+        const { moreThanDayDiff, overdueDiff } = getHumanizeDeadlineDateDifference(ticket)
 
         switch (deadlineType) {
             case TicketDeadlineType.MORE_THAN_DAY: {
@@ -241,21 +241,17 @@ const TicketContent = ({ ticket }) => {
                 )
             }
         }
-    }, [LessThenDayMessage, OverdueMessage, ToCompleteMessage, ticketDeadline])
+
+    }, [LessThenDayMessage, OverdueMessage, ToCompleteMessage, ticket, ticketDeadline])
 
     const ticketClassifierNames = useMemo(() => compact([
         get(ticket, ['placeClassifier', 'name']),
         get(ticket, ['categoryClassifier', 'name']),
         get(ticket, ['problemClassifier', 'name']),
     ]), [ticket])
-    const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
-    const overdueMessage = useMemo(() => {
-        return ticketStatusType !== CLOSED_STATUS_TYPE &&
-                ticketStatusType !== COMPLETED_STATUS_TYPE &&
-                ticketStatusType !== CANCELED_STATUS_TYPE &&
-                getTicketDeadlineMessage()
-    },
-    [getTicketDeadlineMessage, ticketStatusType])
+
+    const overdueMessage = useMemo(() => getTicketDeadlineMessage(),
+        [getTicketDeadlineMessage])
 
     const getClassifierTextType = useCallback(
         (index: number): BaseType => index !== ticketClassifierNames.length - 1 ? null : 'secondary',
