@@ -1,5 +1,5 @@
 import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Empty, Tabs, Typography } from 'antd'
 import styled from '@emotion/styled'
 
@@ -59,9 +59,9 @@ const Container = styled.aside<IContainerProps>`
   flex-flow: column nowrap;
   align-content: space-between;
 `
-const Head = styled.div<{ isTabsHidden: boolean }>`
-  padding: ${({ isTabsHidden }) => isTabsHidden ? '24px' : '24px 24px 0 24px'};
-  border-bottom: ${({ isTabsHidden }) => isTabsHidden ? 'solid thin ' + colors.inputBorderGrey : 'none'}; 
+const Head = styled.div<{ isTitleHidden: boolean }>`
+  padding: 24px 24px 0 24px;
+  display: ${({ isTitleHidden }) => isTitleHidden ? 'none' : 'block'};
   font-style: normal;
   font-weight: bold;
   font-size: 20px;
@@ -95,7 +95,7 @@ type ActionsForComment = {
 
 const { TabPane } = Tabs
 
-const CommentsTabsContainer = styled.div<{ isTabsHidden: boolean }>`
+const CommentsTabsContainer = styled.div`
     padding: 0;
     display: flex;
     flex: 1 1 auto;
@@ -107,12 +107,7 @@ const CommentsTabsContainer = styled.div<{ isTabsHidden: boolean }>`
       flex: 1 1 auto;
 
       & > .ant-tabs-nav {
-        visibility: ${({ isTabsHidden }) => isTabsHidden ? 'hidden' : 'visible'};
-        opacity: ${({ isTabsHidden }) => isTabsHidden ? '0' : '1'};
-        max-height: ${({ isTabsHidden }) => isTabsHidden ? '0' : '100px'};
-        padding: ${({ isTabsHidden }) => isTabsHidden ? '0' : '28px 0'};
-        transition: opacity 0.2s, max-height 0.2s, padding 0.2s ease-in;
-        
+        padding: 28px 0;
         border-bottom: 1px solid ${colors.inputBorderGrey};
         margin: 0;
         
@@ -175,32 +170,12 @@ type CommentsTabContentProps = {
     actionsFor: (comment: TComment) => ActionsForComment,
     editableComment: TComment
     setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
-    isTabsHidden: boolean
-    setTabsHidden: React.Dispatch<React.SetStateAction<boolean>>
+    handleBodyScroll: UIEventHandler<HTMLDivElement>
+    bodyRef: React.RefObject<HTMLDivElement>
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
-    ({ isTabsHidden, setTabsHidden, comments, PromptTitleMessage, PromptDescriptionMessage, actionsFor, editableComment, setEditableComment }) => {
-        const bodyRef = useRef(null)
-
-        const scrollToBottom = () => {
-            if (bodyRef.current) {
-                bodyRef.current.scrollTop = 0
-            }
-        }
-
-        const handleBodyScroll = useCallback((e) => {
-            if (e.currentTarget.scrollTop > 30 && !isTabsHidden) {
-                setTabsHidden(true)
-            } else if (e.currentTarget.scrollTop < 30 && isTabsHidden) {
-                setTabsHidden(false)
-            }
-        }, [isTabsHidden, setTabsHidden])
-
-        useEffect(() => {
-            scrollToBottom()
-        }, [comments.length])
-
+    ({ handleBodyScroll, bodyRef, comments, PromptTitleMessage, PromptDescriptionMessage, actionsFor, editableComment, setEditableComment }) => {
         const commentsToRender = useMemo(() =>
             comments
                 .filter(comment => editableComment ? comment.id !== editableComment.id : true)
@@ -291,8 +266,6 @@ const Comments: React.FC<ICommentsListProps> = ({
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
-    const ResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.resident.title' })
-    const OrganizationCommentsTitleMessage = intl.formatMessage({ id: 'Comments.organization.title' })
     const CannotCreateCommentsMessage = intl.formatMessage({ id: 'Comments.cannotCreateComments' })
     const InternalCommentsMessage = intl.formatMessage({ id: 'Comments.tab.organization' })
     const PromptInternalCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.organization.prompt.title' })
@@ -305,19 +278,22 @@ const Comments: React.FC<ICommentsListProps> = ({
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const [editableComment, setEditableComment] = useState<TComment>()
     const [sending, setSending] = useState(false)
-    const [isTabsHidden, setTabsHidden] = useState<boolean>(false)
+    const [isTitleHidden, setTitleHidden] = useState<boolean>(false)
 
-    const TabsTitle = useMemo(() => {
-        if (isTabsHidden) {
-            if (commentType === ORGANIZATION_COMMENT_TYPE) {
-                return OrganizationCommentsTitleMessage
-            } else if (commentType === RESIDENT_COMMENT_TYPE) {
-                return ResidentCommentsTitleMessage
-            }
-        } else {
-            return TitleMessage
+    const handleBodyScroll = useCallback((e) => {
+        if (e.currentTarget.scrollTop > 30 && !isTitleHidden) {
+            setTitleHidden(true)
+        } else if (e.currentTarget.scrollTop < 30 && isTitleHidden) {
+            setTitleHidden(false)
         }
-    }, [OrganizationCommentsTitleMessage, ResidentCommentsTitleMessage, TitleMessage, commentType, isTabsHidden])
+    }, [isTitleHidden, setTitleHidden])
+
+    const bodyRef = useRef(null)
+    const scrollToBottom = () => {
+        if (bodyRef.current) {
+            bodyRef.current.scrollTop = 0
+        }
+    }
 
     useEffect(() => {
         setEditableComment(null)
@@ -336,6 +312,7 @@ const Comments: React.FC<ICommentsListProps> = ({
         } else {
             const comment = await createAction({ ...values, type: commentType })
             await syncModifiedFiles(comment.id)
+            scrollToBottom()
         }
 
         await refetchComments()
@@ -353,6 +330,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                 createUserTicketCommentRead({})
             }
         }
+
+        scrollToBottom()
     }, [createUserTicketCommentRead, updateUserTicketCommentRead, userTicketCommentRead])
 
     const lastResidentCommentAt = useMemo(() => get(ticket, 'lastResidentCommentAt'), [ticket])
@@ -363,8 +342,8 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     return (
         <Container isSmall={isSmall}>
-            <Head isTabsHidden={isTabsHidden}>{TabsTitle}</Head>
-            <CommentsTabsContainer className="card-container" isTabsHidden={isTabsHidden}>
+            <Head isTitleHidden={isTitleHidden}>{TitleMessage}</Head>
+            <CommentsTabsContainer className="card-container">
                 <Tabs
                     defaultActiveKey={ORGANIZATION_COMMENT_TYPE}
                     centered
@@ -389,8 +368,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                             actionsFor={actionsFor}
                             editableComment={editableComment}
                             setEditableComment={setEditableComment}
-                            isTabsHidden={isTabsHidden}
-                            setTabsHidden={setTabsHidden}
+                            handleBodyScroll={handleBodyScroll}
+                            bodyRef={bodyRef}
                         />
                     </TabPane>
                     <TabPane
@@ -410,8 +389,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                             actionsFor={actionsFor}
                             editableComment={editableComment}
                             setEditableComment={setEditableComment}
-                            isTabsHidden={isTabsHidden}
-                            setTabsHidden={setTabsHidden}
+                            handleBodyScroll={handleBodyScroll}
+                            bodyRef={bodyRef}
                         />
                     </TabPane>
                 </Tabs>
