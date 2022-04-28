@@ -17,15 +17,21 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
 
         // We don't want to make honest GQL request, as it is too expensive
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
-        const serviceConsumers = await find('ServiceConsumer', { resident: { id_in: [residents.map(r => r.id)] }, deletedAt: null })
+        if (!residents || residents.length === 0) {
+            return false
+        }
+        const serviceConsumers = await find('ServiceConsumer', { resident: { id_in: residents.map(r => r.id) }, deletedAt: null })
+        if (!serviceConsumers || serviceConsumers.length === 0) {
+            return false
+        }
 
         // Make map { <resident.id>: <resident> } to optimize resident by id search
         const residentsByUser = {}
         residents.forEach(r => residentsByUser[r.id] = r)
 
         const result = {
-            AND: serviceConsumers.map(
-                s => ( { account: { number: s.accountNumber, unitName: residentsByUser[s.resident].unitName, unitType: residentsByUser[s.resident].unitType, deletedAt: null }, deletedAt: null, context: { id: s.billingIntegrationContext } } )
+            OR: serviceConsumers.map(
+                s => ({ AND: [{ account: { number: s.accountNumber, unitName: residentsByUser[s.resident].unitName, unitType: residentsByUser[s.resident].unitType, deletedAt: null }, deletedAt: null, context: { id: s.billingIntegrationContext } }] } )
             ),
         }
         return result
