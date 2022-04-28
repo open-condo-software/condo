@@ -172,7 +172,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     return (
         <SelectStyled
-            raisedClearButton
             showSearch
             autoClearSearchValue={autoClearSearchValue || false}
             allowClear={true}
