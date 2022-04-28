@@ -41,6 +41,7 @@ async function canManageUserTicketCommentReads ({ authentication: { item: user }
                         queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
                     ],
                 },
+                user: { id: user.id },
             })
 
             if (organizationEmployee) {

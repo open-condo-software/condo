@@ -4,16 +4,15 @@
 
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, UUID_RE } = require('@core/keystone/test.utils')
 
 const { UserTicketCommentRead, createTestUserTicketCommentRead, updateTestUserTicketCommentRead, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const {
-    createTestOrganizationWithAccessToAnotherOrganization,
     createTestOrganizationEmployeeRole,
-    updateTestOrganizationEmployee, createTestOrganization, createTestOrganizationEmployee,
+    createTestOrganization, createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithProperty, makeClientWithResidentAccessAndProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 
