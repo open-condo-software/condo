@@ -585,6 +585,56 @@ function createTestRecipient (extra = {}) {
 }
 
 
+async function makeResidentClientWithOwnReceipt() {
+    const adminClient = await makeLoggedInAdminClient()
+    const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+
+    const [property] = await createTestProperty(adminClient, organization)
+
+    const addr = property.address
+    const addrMeta = property.addressMeta
+
+    const residentClient = await makeClientWithResidentUser()
+    const [resident] = await registerResidentByTestClient(residentClient, {
+        address: addr,
+        addressMeta: addrMeta,
+    })
+
+    const unitName = resident.unitName
+    const unitType = resident.unitType
+
+    const [billingProperty] = await createTestBillingProperty(adminClient, context, {
+        address: addr,
+    })
+    const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty, {
+        unitName: unitName,
+        unitType: unitType,
+    })
+    const accountNumber = billingAccount.number
+
+    const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
+        residentId: resident.id,
+        accountNumber: accountNumber,
+        organizationId: organization.id,
+    })
+
+    const [receipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
+
+    return {
+        adminClient,
+        residentClient,
+        property,
+        context,
+        organization,
+        resident,
+        billingProperty,
+        billingAccount,
+        serviceConsumer,
+        receipt
+    }
+}
+
+
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
@@ -606,6 +656,7 @@ module.exports = {
     BillingRecipient, createTestBillingRecipient, updateTestBillingRecipient,
     createTestRecipient,
     BillingCategory, createTestBillingCategory, updateTestBillingCategory,
+    makeResidentClientWithOwnReceipt,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
