@@ -27,6 +27,10 @@ const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)

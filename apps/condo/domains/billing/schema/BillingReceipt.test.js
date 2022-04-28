@@ -3,19 +3,8 @@
  */
 
 const faker = require('faker')
-const { makeResidentClientWithOwnReceipt } = require(
-    '@condo/domains/billing/utils/testSchema')
-const { createTestProperty } = require(
-    '@condo/domains/property/utils/testSchema')
-const { registerServiceConsumerByTestClient } = require(
-    '@condo/domains/resident/utils/testSchema')
-const { registerResidentByTestClient } = require(
-    '@condo/domains/resident/utils/testSchema')
-const { makeClientWithResidentUser } = require(
-    '@condo/domains/user/utils/testSchema')
 
-const { makeClientWithSupportUser } = require(
-    '@condo/domains/user/utils/testSchema')
+const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestBillingAccount,
@@ -30,6 +19,7 @@ const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.uti
 const { BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { makeResidentClientWithOwnReceipt } = require('@condo/domains/billing/utils/testSchema')
 
 describe('BillingReceipt', () => {
 
@@ -590,7 +580,47 @@ describe('BillingReceipt', () => {
 
         test('resident can read his own billingReceipts', async () => {
 
-            const { residentClient, receipt } = makeResidentClientWithOwnReceipt()
+            const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
+
+            const objs = await BillingReceipt.getAll(residentClient)
+
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toEqual(receipt.id)
+        })
+
+        test('resident cant read billingReceipts if unitType is wrong', async () => {
+
+            const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
+
+            const objs = await BillingReceipt.getAll(residentClient)
+
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toEqual(receipt.id)
+        })
+
+        test('resident cant read billingReceipts if unitName is wrong', async () => {
+
+            const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
+
+            const objs = await BillingReceipt.getAll(residentClient)
+
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toEqual(receipt.id)
+        })
+
+        test('resident cant read billingReceipts if accountNumber is wrong', async () => {
+
+            const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
+
+            const objs = await BillingReceipt.getAll(residentClient)
+
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toEqual(receipt.id)
+        })
+
+        test('resident cant read billingReceipts if accountNumber is wrong', async () => {
+
+            const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
 
             const objs = await BillingReceipt.getAll(residentClient)
 
