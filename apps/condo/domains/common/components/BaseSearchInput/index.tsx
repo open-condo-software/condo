@@ -138,6 +138,14 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         onChange(value, options)
     }, [onChange])
 
+    useEffect(()=>{
+        if (selected !== null && (selected !== searchValue) ) {
+            setSelected(null)
+            setSearchValue(undefined)
+            props.onClear()
+        }
+    }, [searchValue])
+
     const handleScroll = useCallback(async (scrollEvent) => {
         if (isNeedToLoadNewElements(scrollEvent, fetching)) {
             await throttledSearchMore(value, data.length)
