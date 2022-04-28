@@ -20,16 +20,19 @@ const errors = {
         code: BAD_USER_INPUT,
         type: USER_NOT_FOUND,
         message: 'Could not find a user with a specified id',
+        messageForUser: 'api.user.signinAsUser.USER_NOT_FOUND',
     },
     DENIED_FOR_ADMIN: {
         mutation: 'signinAsUser',
         code: FORBIDDEN,
         message: 'You cannot authenticate for an another admin user',
+        messageForUser: 'api.user.signinAsUser.DENIED_FOR_ADMIN',
     },
     DENIED_FOR_SUPPORT: {
         mutation: 'signinAsUser',
         code: FORBIDDEN,
         message: 'You cannot authenticate for an another support user',
+        messageForUser: 'api.user.signinAsUser.DENIED_FOR_SUPPORT',
     },
 }
 
@@ -60,13 +63,13 @@ const SigninAsUserService = new GQLCustomSchema('SigninAsUserService', {
                 const { keystone } = await getSchemaCtx('User')
                 const user = await getItem({ keystone, listKey: 'User', itemId: id, returnFields: 'id isSupport isAdmin' })
                 if (!user) {
-                    throw new GQLError(errors.USER_NOT_FOUND)
+                    throw new GQLError(errors.USER_NOT_FOUND, context)
                 }
                 if (user.isAdmin) {
-                    throw new GQLError(errors.DENIED_FOR_ADMIN)
+                    throw new GQLError(errors.DENIED_FOR_ADMIN, context)
                 }
                 if (user.isSupport) {
-                    throw new GQLError(errors.DENIED_FOR_SUPPORT)
+                    throw new GQLError(errors.DENIED_FOR_SUPPORT, context)
                 }
                 const sessionToken = await context.startAuthedSession({ item: user, list: keystone.lists['User'] })
                 const result = {
