@@ -208,6 +208,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         )
     }
 
+const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 50
 const COMMENTS_COUNT_STYLES: CSSProperties = { padding: '2px', fontSize: '8px' }
 const NewCommentIndicator = styled.div`
     position: relative;
@@ -281,9 +282,9 @@ const Comments: React.FC<ICommentsListProps> = ({
     const [isTitleHidden, setTitleHidden] = useState<boolean>(false)
 
     const handleBodyScroll = useCallback((e) => {
-        if (e.currentTarget.scrollTop > 30 && !isTitleHidden) {
+        if (e.currentTarget.scrollTop > SCROLL_TOP_OFFSET_TO_HIDE_TITLE && !isTitleHidden) {
             setTitleHidden(true)
-        } else if (e.currentTarget.scrollTop < 30 && isTitleHidden) {
+        } else if (e.currentTarget.scrollTop < SCROLL_TOP_OFFSET_TO_HIDE_TITLE && isTitleHidden) {
             setTitleHidden(false)
         }
     }, [isTitleHidden, setTitleHidden])
