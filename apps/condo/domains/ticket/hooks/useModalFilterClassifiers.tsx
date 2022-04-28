@@ -11,6 +11,7 @@ import { useApolloClient } from '@core/next/apollo'
 import { FiltersFromQueryType, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFiltersModalPopupContainer } from '@condo/domains/common/utils/filters.utils'
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '../utils/clientSchema/classifierSearch'
+import { SelectStyled } from '../../common/components/SelectStyled'
 
 const { Option } = Select
 
@@ -67,7 +68,7 @@ const useTicketClassifierSelect = ({
             setForm(stateForm)
 
         return (
-            <Select
+            <SelectStyled
                 showSearch
                 showArrow
                 allowClear
@@ -80,6 +81,7 @@ const useTicketClassifierSelect = ({
                 mode={'multiple'}
                 placeholder={SelectMessage}
                 getPopupContainer={getFiltersModalPopupContainer}
+                raisedClearButton
             >
                 {
                     Array.isArray(optionsRef.current) && optionsRef.current.map(classifier => (
@@ -88,7 +90,7 @@ const useTicketClassifierSelect = ({
                         </Option>
                     ))
                 }
-            </Select>
+            </SelectStyled>
         )
     }, [SelectMessage, handleChange, keyword, stateForm])
 
