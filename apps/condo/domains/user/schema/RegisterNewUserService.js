@@ -10,6 +10,7 @@ const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { GQLError, GQLErrorCode: { NOT_FOUND, BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
 const { NOT_UNIQUE, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -20,6 +21,7 @@ const errors = {
         mutation: 'registerNewUser',
         variable: ['data', 'confirmPhoneActionToken'],
         code: NOT_FOUND,
+        type: UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
         message: 'Unable to find confirm phone action',
     },
     WRONG_PHONE_FORMAT: {
@@ -58,6 +60,7 @@ const errors = {
     UNABLE_TO_CREATE_USER: {
         mutation: 'registerNewUser',
         code: INTERNAL_ERROR,
+        type: UNABLE_TO_CREATE_USER,
         message: 'Unable to create user',
     },
 }

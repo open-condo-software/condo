@@ -35,6 +35,8 @@ const CAPTCHA_CHECK_FAILED = '[security:captcha:failed'
 const SMS_FOR_IP_DAY_LIMIT_REACHED = '[security:sms:for:ip:day:limit'
 const SMS_FOR_PHONE_DAY_LIMIT_REACHED = '[security:sms:for:phone:day:limit'
 
+const UNABLE_TO_FIND_CONFIRM_PHONE_ACTION = 'UNABLE_TO_FIND_CONFIRM_PHONE_ACTION'
+
 module.exports = {
     WRONG_PASSWORD_ERROR,
     EMPTY_PASSWORD_ERROR,
@@ -64,4 +66,5 @@ module.exports = {
     CAPTCHA_CHECK_FAILED,
     SMS_FOR_IP_DAY_LIMIT_REACHED,
     SMS_FOR_PHONE_DAY_LIMIT_REACHED,
+    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
 }
