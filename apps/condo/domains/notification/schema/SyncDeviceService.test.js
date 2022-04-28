@@ -4,9 +4,9 @@
  */
 const faker = require('faker')
 
-const { makeClient, makeLoggedInClient } = require('@core/keystone/test.utils')
+const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
-const { syncDeviceByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { Device, syncDeviceByTestClient } = require('@condo/domains/notification/utils/testSchema')
 
 const { getRandomTokenData } = require('../utils/testSchema/helpers')
 
@@ -259,6 +259,37 @@ describe('SyncDeviceService', () => {
             expect(device1.owner).not.toBeNull()
             expect(device1.owner.id).toEqual(user.user.id)
         })
+
+        it('registers two devices and clears previously registered pushToken that is being reused for second device', async () => {
+            const client = await makeClient()
+            const client1 = await makeClient()
+            const admin = await makeLoggedInAdminClient()
+            const payload = getRandomTokenData({ meta: null })
+            const payload1 = getRandomTokenData({ pushToken: payload.pushToken, meta: null })
+
+            const [device] = await syncDeviceByTestClient(client, payload)
+
+            expect(device.id).not.toBeFalsy()
+            expect(device.deviceId).toEqual(payload.deviceId)
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+            expect(device.pushToken).toEqual(payload.pushToken)
+            expect(device.meta).toBeNull()
+            expect(device.owner).toBeNull()
+
+            const [device1] = await syncDeviceByTestClient(client1, payload1)
+
+            expect(device1.deviceId).toEqual(payload1.deviceId)
+            expect(device1.pushTransport).toEqual(payload1.pushTransport)
+            expect(device1.pushToken).toEqual(payload1.pushToken)
+            expect(device1.meta).toBeNull()
+            expect(device1.owner).toBeNull()
+
+            const device2 = Device.getOne(admin, { id: device.id })
+
+            expect(device2.pushToken).toBeFalsy()
+
+        })
+
     })
 
     describe('Authorized', () => {
