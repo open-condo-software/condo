@@ -20,12 +20,14 @@ const errors = {
         code: BAD_USER_INPUT,
         type: TOKEN_NOT_FOUND,
         message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
+        messageForUser: 'api.user.signinResidentUser.TOKEN_NOT_FOUND',
     },
     UNABLE_TO_CREATE_USER: {
         code: INTERNAL_ERROR,
         type: UNABLE_TO_CREATE_USER,
         mutation: 'signinResidentUser',
         message: 'Something went wrong while trying to create a User record',
+        messageForUser: 'api.user.signinResidentUser.UNABLE_TO_CREATE_USER',
     },
 }
 
@@ -66,7 +68,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                     }
                 )
                 if (!action) {
-                    throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION)
+                    throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
                 }
                 userData.phone = action.phone
                 userData.type = 'resident'
@@ -89,7 +91,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                         variables: { data: userData },
                     })
                     if (createErrors) {
-                        throw new GQLError(errors.UNABLE_TO_CREATE_USER)
+                        throw new GQLError(errors.UNABLE_TO_CREATE_USER, context)
                     }
                     user = createdUser
                 }

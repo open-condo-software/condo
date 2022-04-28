@@ -1083,6 +1083,8 @@
   "api.user.signinAsUser.USER_NOT_FOUND": "User not found",
   "api.user.signinAsUser.DENIED_FOR_ADMIN": "You cannot authenticate for an another admin user",
   "api.user.signinAsUser.DENIED_FOR_SUPPORT": "You cannot authenticate for an another support user",
+  "api.user.signinResidentUser.TOKEN_NOT_FOUND": "Something went wrong during authentication :( Try again or ask our support",
+  "api.user.signinResidentUser.UNABLE_TO_CREATE_USER": "Something went wrong during registration :( Try again or ask our support",
   "excelExport.headers.payments.date": "Date",
   "excelExport.headers.payments.account": "Account",
   "excelExport.headers.payments.address": "Address",
