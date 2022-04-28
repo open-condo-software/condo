@@ -23,6 +23,7 @@ const errors = {
         code: NOT_FOUND,
         type: UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
         message: 'Unable to find confirm phone action',
+        messageForUser: 'api.user.registerNewUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION',
     },
     WRONG_PHONE_FORMAT: {
         mutation: 'registerNewUser',
@@ -30,6 +31,7 @@ const errors = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'Wrong format of provided phone number',
+        messageForUser: 'api.user.registerNewUser.WRONG_PHONE_FORMAT',
         correctExample: '+79991234567',
     },
     PASSWORD_IS_TOO_SHORT: {
@@ -49,6 +51,7 @@ const errors = {
         code: BAD_USER_INPUT,
         type: NOT_UNIQUE,
         message: 'User with specified phone already exists',
+        messageForUser: 'api.user.registerNewUser.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS',
     },
     USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
@@ -56,12 +59,14 @@ const errors = {
         code: BAD_USER_INPUT,
         type: NOT_UNIQUE,
         message: 'User with specified email already exists',
+        messageForUser: 'api.user.registerNewUser.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS',
     },
     UNABLE_TO_CREATE_USER: {
         mutation: 'registerNewUser',
         code: INTERNAL_ERROR,
         type: UNABLE_TO_CREATE_USER,
         message: 'Unable to create user',
+        messageForUser: 'api.user.registerNewUser.UNABLE_TO_CREATE_USER',
     },
 }
 
@@ -110,7 +115,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         }
                     )
                     if (!action) {
-                        throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION)
+                        throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
                     }
                     confirmPhoneActionId = action.id
                     const { phone, isPhoneVerified } = action
@@ -118,7 +123,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     userData.isPhoneVerified = isPhoneVerified
                 }
                 if (!normalizePhone(userData.phone)) {
-                    throw new GQLError(errors.WRONG_PHONE_FORMAT)
+                    throw new GQLError(errors.WRONG_PHONE_FORMAT, context)
                 }
                 await ensureNotExists(context, 'phone', userData.phone)
                 if (!isEmpty(userData.email)) {
@@ -146,7 +151,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     variables: { data: userData },
                 })
                 if (createErrors) {
-                    throw new GQLError(errors.UNABLE_TO_CREATE_USER)
+                    throw new GQLError(errors.UNABLE_TO_CREATE_USER, context)
                 }
                 // end of TODO
                 if (confirmPhoneActionToken) {
