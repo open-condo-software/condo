@@ -4,11 +4,8 @@
 
 const faker = require('faker')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-
 const { makeClient } = require('@core/keystone/test.utils')
-
-const { expectToThrowMutationError, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
-
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -83,9 +80,21 @@ describe('ResetUserService', () => {
             user: { id: userId },
         }
 
-        await expectToThrowMutationError(async () => {
+        await catchErrorFrom(async () => {
             await resetUserByTestClient(supportClient, payload)
-        }, 'No user found for this id')
+        }, ({ errors }) => {
+            expect(errors).toMatchObject([{
+                message: 'Could not find User by provided id',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'resetUser',
+                    variable: ['data', 'user', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'USER_NOT_FOUND',
+                },
+            }])
+        })
     })
 
     test('support cant reset admin user', async () => {
@@ -96,9 +105,21 @@ describe('ResetUserService', () => {
             user: { id: userId },
         }
 
-        await expectToThrowMutationError(async () => {
+        await catchErrorFrom(async () => {
             await resetUserByTestClient(supportClient, payload)
-        }, 'Can not reset admin')
+        }, ({ errors }) => {
+            expect(errors).toMatchObject([{
+                message: 'You cannot reset admin user',
+                name: 'GraphQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'resetUser',
+                    variable: ['data', 'user', 'id'],
+                    code: 'FORBIDDEN',
+                    type: 'CANNOT_RESET_ADMIN_USER',
+                },
+            }])
+        })
     })
 
     test('user cant reset user', async () => {
