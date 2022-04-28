@@ -1083,6 +1083,8 @@
   "api.user.signinAsUser.USER_NOT_FOUND": "Пользователь не найден",
   "api.user.signinAsUser.DENIED_FOR_ADMIN": "Вы не можете авторизоваться за другого администратора",
   "api.user.signinAsUser.DENIED_FOR_SUPPORT": "Вы не можете авторизоваться за другого пользователя тех-поддержки",
+  "api.user.signinResidentUser.TOKEN_NOT_FOUND": "Не удалось войти :( Поробуйте ещё раз или обратитесь в тех-поддержку",
+  "api.user.signinResidentUser.UNABLE_TO_CREATE_USER": "Не удалось зарегистрироваться :( Поробуйте ещё раз или обратитесь в тех-поддержку",
   "excelExport.headers.payments.date": "Дата",
   "excelExport.headers.payments.account": "ЛС",
   "excelExport.headers.payments.address": "Адрес",
