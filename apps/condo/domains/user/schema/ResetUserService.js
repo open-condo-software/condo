@@ -22,7 +22,33 @@ const access = require('@condo/domains/user/access/ResetUserService')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
-const { DV_UNKNOWN_VERSION_ERROR, NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@core/keystone/errors')
+const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER } = require('../constants/errors')
+
+const errors = {
+    DV_VERSION_MISMATCH: {
+        mutation: 'resetUser',
+        variable: ['data', 'dv'],
+        code: BAD_USER_INPUT,
+        type: DV_VERSION_MISMATCH,
+        message: 'Unsupported value for dv',
+    },
+    USER_NOT_FOUND: {
+        mutation: 'resetUser',
+        variable: ['data', 'user', 'id'],
+        code: BAD_USER_INPUT,
+        type: USER_NOT_FOUND,
+        message: 'Could not find User by provided id',
+    },
+    CANNOT_RESET_ADMIN_USER: {
+        mutation: 'resetUser',
+        variable: ['data', 'user', 'id'],
+        code: FORBIDDEN,
+        type: CANNOT_RESET_ADMIN_USER,
+        message: 'You cannot reset admin user',
+    },
+}
 
 
 const ResetUserService = new GQLCustomSchema('ResetUserService', {
@@ -41,21 +67,25 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
         {
             access: access.canResetUser,
             schema: 'resetUser(data: ResetUserInput!): ResetUserOutput!',
+            doc: {
+                summary: 'Used by QA for cleaning existing test user record to avoid utilizing every time new phone and email, which is hard to obtain again and again for every manual testing procedure',
+                errors,
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 const { dv, user } = data
 
                 if (dv !== 1) {
-                    throw new Error(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+                    throw new GQLError(errors.DV_VERSION_MISMATCH)
                 }
 
                 const userEntity = await getById('User', user.id)
                 if (!userEntity) {
-                    throw new Error(`${NOT_FOUND_ERROR}user] No user found for this id`)
+                    throw new GQLError(errors.USER_NOT_FOUND)
                 }
 
                 if (userEntity.isAdmin) {
-                    throw new Error('Can not reset admin user')
+                    throw new GQLError(errors.CANNOT_RESET_ADMIN_USER)
                 }
 
                 await User.update(context, user.id, {
