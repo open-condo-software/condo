@@ -588,17 +588,21 @@ function createTestRecipient (extra = {}) {
     }
 }
 
+async function makeResidentClientWithOwnReceipt(existingResidentClient) {
 
-async function makeResidentClientWithOwnReceipt() {
+    let residentClient = existingResidentClient
+    if (!residentClient) {
+        residentClient = await makeClientWithResidentUser()
+    }
+
     const adminClient = await makeLoggedInAdminClient()
-    const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+    const { context, integration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
 
     const [property] = await createTestProperty(adminClient, organization)
 
     const addr = property.address
     const addrMeta = property.addressMeta
 
-    const residentClient = await makeClientWithResidentUser()
     const [resident] = await registerResidentByTestClient(residentClient, {
         address: addr,
         addressMeta: addrMeta,
@@ -628,6 +632,7 @@ async function makeResidentClientWithOwnReceipt() {
         adminClient,
         residentClient,
         property,
+        integration,
         context,
         organization,
         resident,

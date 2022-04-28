@@ -3,6 +3,11 @@
  */
 
 const faker = require('faker')
+const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { updateTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
+const { updateTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -588,21 +593,38 @@ describe('BillingReceipt', () => {
             expect(objs[0].id).toEqual(receipt.id)
         })
 
-        test('resident cant read billingReceipts if unitType is wrong', async () => {
+        test('resident can read his own billingReceipts if he has multiple residents and multiple billingAccounts', async () => {
+            // Resident has two properties:
 
-            const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
+            // Resident pays for two services in this property
+            const { adminClient, residentClient, resident, organization, context, billingProperty } = await makeResidentClientWithOwnReceipt()
+            const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty, {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            })
+            await registerServiceConsumerByTestClient(residentClient, {
+                residentId: resident.id,
+                accountNumber: billingAccount2.number,
+                organizationId: organization.id,
+            })
+            await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount2)
+
+            // Resident pays for one service in this property:
+            const { resident: resident2 } = await makeResidentClientWithOwnReceipt()
+            await updateTestResident(adminClient, resident2.id, { user: { connect: { id: residentClient.user.id } } })
 
             const objs = await BillingReceipt.getAll(residentClient)
 
-            expect(objs).toHaveLength(1)
-            expect(objs[0].id).toEqual(receipt.id)
+            expect(objs).toHaveLength(3)
         })
 
         test('resident cant read billingReceipts if unitName is wrong', async () => {
 
-            const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
+            const { adminClient, billingAccount, residentClient, receipt } = await makeResidentClientWithOwnReceipt()
 
             const objs = await BillingReceipt.getAll(residentClient)
+
+            await updateTestBillingAccount(adminClient, billingAccount.id, { unitName: billingAccount.unitName + 'wrong!' })
 
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toEqual(receipt.id)
@@ -610,22 +632,27 @@ describe('BillingReceipt', () => {
 
         test('resident cant read billingReceipts if accountNumber is wrong', async () => {
 
-            const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
+            const { adminClient, residentClient, serviceConsumer } = await makeResidentClientWithOwnReceipt()
+
+            await updateTestServiceConsumer(adminClient, serviceConsumer.id, { 'accountNumber': serviceConsumer.accountNumber + 'wrong!' })
 
             const objs = await BillingReceipt.getAll(residentClient)
 
-            expect(objs).toHaveLength(1)
-            expect(objs[0].id).toEqual(receipt.id)
+            expect(objs).toHaveLength(0)
         })
 
-        test('resident cant read billingReceipts if accountNumber is wrong', async () => {
+        test('resident cant read billingReceipts if context is wrong', async () => {
 
-            const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
+            const { adminClient, integration, residentClient, serviceConsumer } = await makeResidentClientWithOwnReceipt()
+
+            const [organization2] = await createTestOrganization(adminClient)
+            const [context2] = await createTestBillingIntegrationOrganizationContext(adminClient, organization2, integration)
+
+            await updateTestServiceConsumer(adminClient, serviceConsumer.id, { 'billingIntegrationContext': { connect: { id: context2.id } } })
 
             const objs = await BillingReceipt.getAll(residentClient)
 
-            expect(objs).toHaveLength(1)
-            expect(objs[0].id).toEqual(receipt.id)
+            expect(objs).toHaveLength(0)
         })
 
         test('user cant read BillingReceipt in other cases', async () => {
