@@ -36,18 +36,18 @@ const reducer = (state, action) => {
                     added: [...state.added].filter(addFile => addFile.id !== file.id),
                     deleted: [...state.deleted, file],
                 }
-            } else if (file.response.id) {
-                const fileToDeleteId = get(file, ['response', 'id'])
-                const fileToDelete = [...state.added].find(addedFile => addedFile.id === fileToDeleteId)
-
-                return {
-                    ...state,
-                    added: [...state.added].filter(addFile => addFile.id !== fileToDeleteId),
-                    deleted: [...state.deleted, fileToDelete],
-                }
             }
 
-            return state
+            const fileToDeleteId = get(file, ['response', 'id'])
+
+            if (!fileToDeleteId) return state
+
+            const fileToDelete = [...state.added].find(addedFile => addedFile.id === fileToDeleteId)
+            return {
+                ...state,
+                added: [...state.added].filter(addFile => addFile.id !== fileToDeleteId),
+                deleted: [...state.deleted, fileToDelete],
+            }
         }
         case 'add':
             return {

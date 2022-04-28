@@ -1,4 +1,4 @@
-const MAX_UPLOAD_FILE_SIZE = 20 * 1024 * 1024
+const MAX_UPLOAD_FILE_SIZE = 1 * 1024 * 1024
 const DEFAULT_FILE_ADAPTER = 'sbercloud'
 
 module.exports = {
