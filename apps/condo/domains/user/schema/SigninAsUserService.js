@@ -7,7 +7,7 @@ const access = require('@condo/domains/user/access/SigninAsUserService')
 const { getItem } = require('@keystonejs/server-side-graphql-client')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const { GQLError, GQLErrorCode: { FORBIDDEN, BAD_USER_INPUT } } = require('@core/keystone/errors')
-const { USER_NOT_FOUND } = require('../constants/errors')
+const { USER_NOT_FOUND, DENIED_FOR_ADMIN, DENIED_FOR_SUPPORT } = require('../constants/errors')
 
 
 /**
@@ -25,12 +25,14 @@ const errors = {
     DENIED_FOR_ADMIN: {
         mutation: 'signinAsUser',
         code: FORBIDDEN,
+        type: DENIED_FOR_ADMIN,
         message: 'You cannot authenticate for an another admin user',
         messageForUser: 'api.user.signinAsUser.DENIED_FOR_ADMIN',
     },
     DENIED_FOR_SUPPORT: {
         mutation: 'signinAsUser',
         code: FORBIDDEN,
+        type: DENIED_FOR_SUPPORT,
         message: 'You cannot authenticate for an another support user',
         messageForUser: 'api.user.signinAsUser.DENIED_FOR_SUPPORT',
     },
