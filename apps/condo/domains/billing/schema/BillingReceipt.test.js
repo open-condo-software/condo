@@ -3,6 +3,14 @@
  */
 
 const faker = require('faker')
+const { createTestProperty } = require(
+    '@condo/domains/property/utils/testSchema')
+const { registerServiceConsumerByTestClient } = require(
+    '@condo/domains/resident/utils/testSchema')
+const { registerResidentByTestClient } = require(
+    '@condo/domains/resident/utils/testSchema')
+const { makeClientWithResidentUser } = require(
+    '@condo/domains/user/utils/testSchema')
 
 const { makeClientWithSupportUser } = require(
     '@condo/domains/user/utils/testSchema')
@@ -578,13 +586,56 @@ describe('BillingReceipt', () => {
             expect(objs).toHaveLength(0)
         })
 
+        test('resident can read his own billingReceipts', async () => {
+
+            const admin = await makeLoggedInAdminClient()
+            const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+
+            const [property] = await createTestProperty(admin, organization)
+
+            const addr = property.address
+            const addrMeta = property.addressMeta
+
+            const residentClient = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(residentClient, {
+                address: addr,
+                addressMeta: addrMeta,
+            })
+
+            const unitName = resident.unitName
+            const unitType = resident.unitType
+
+            const [billingProperty] = await createTestBillingProperty(admin, context, {
+                address: addr,
+            })
+            const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty, {
+                unitName: unitName,
+                unitType: unitType,
+            })
+            const accountNumber = billingAccount.number
+
+            const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
+                residentId: resident.id,
+                accountNumber: accountNumber,
+                organizationId: organization.id,
+            })
+
+            const [receipt] = await createTestBillingReceipt(admin, context, billingProperty, billingAccount)
+
+            const objs = await BillingReceipt.getAll(residentClient)
+
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toEqual(receipt.id)
+        })
+
         test('user cant read BillingReceipt in other cases', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
-            const [billingAccount] = await createTestBillingAccount(admin, context, property)
-            const objs = await BillingReceipt.getAll(user, { id: billingAccount.id })
+            const [account] = await createTestBillingAccount(admin, context, property)
+            await createTestBillingReceipt(admin, context, property, account)
+            const objs = await BillingReceipt.getAll(user)
 
             expect(objs).toHaveLength(0)
         })
