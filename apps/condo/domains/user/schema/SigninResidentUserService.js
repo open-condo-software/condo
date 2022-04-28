@@ -7,7 +7,7 @@ const access = require('@condo/domains/user/access/SigninResidentUserService')
 const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
 const { getRandomString } = require('@core/keystone/test.utils')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
-const { TOKEN_NOT_FOUND } = require('../constants/errors')
+const { TOKEN_NOT_FOUND, UNABLE_TO_CREATE_USER } = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -23,6 +23,7 @@ const errors = {
     },
     UNABLE_TO_CREATE_USER: {
         code: INTERNAL_ERROR,
+        type: UNABLE_TO_CREATE_USER,
         mutation: 'signinResidentUser',
         message: 'Something went wrong while trying to create a User record',
     },
