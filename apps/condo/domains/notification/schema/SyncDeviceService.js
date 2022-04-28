@@ -32,13 +32,16 @@ const SyncDeviceService = new GQLCustomSchema('SyncDeviceService', {
                 const owner = userId ? { disconnectAll: true, connect: { id: userId } } : null
                 const attrs = { dv, sender, deviceId, pushToken, pushTransport, meta, owner }
                 const where = { deviceId, pushTransport }
-                const presentDevice = await getByCondition('Device', { pushToken })
 
-                /**
-                 * Clear already used pushToken to avoid collisions
-                 */
-                if (get(presentDevice, 'id')) {
-                    await DeviceAPI.update(context, presentDevice.id, { pushToken: null })
+                if (pushToken) {
+                    const presentDevice = await getByCondition('Device', { pushToken })
+
+                    /**
+                     * Clear already used pushToken to avoid collisions
+                     */
+                    if (get(presentDevice, 'id')) {
+                        await DeviceAPI.update(context, presentDevice.id, { pushToken: null })
+                    }
                 }
 
                 const data = await DeviceAPI.updateOrCreate(context, where, attrs)
