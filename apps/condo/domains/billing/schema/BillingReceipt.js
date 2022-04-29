@@ -31,9 +31,18 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
 
-        context: INTEGRATION_CONTEXT_FIELD,
-        property: BILLING_PROPERTY_FIELD,
-        account: BILLING_ACCOUNT_FIELD,
+        context: {
+            ...INTEGRATION_CONTEXT_FIELD,
+            access: { read: access.canReadSensitiveBillingReceiptData },
+        },
+        property: {
+            ...BILLING_PROPERTY_FIELD,
+            access: { read: access.canReadSensitiveBillingReceiptData },
+        },
+        account: {
+            ...BILLING_ACCOUNT_FIELD,
+            access: { read: access.canReadSensitiveBillingReceiptData },
+        },
 
         period: PERIOD_FIELD,
 
@@ -54,6 +63,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                     }
                 },
             },
+            access: { read: access.canReadSensitiveBillingReceiptData },
         },
 
         category: {
@@ -72,7 +82,10 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             isRequired: false,
         },
 
-        raw: RAW_DATA_FIELD,
+        raw: {
+            ...RAW_DATA_FIELD,
+            access: { read: access.canReadSensitiveBillingReceiptData },
+        },
 
         toPay: {
             ...MONEY_AMOUNT_FIELD,
