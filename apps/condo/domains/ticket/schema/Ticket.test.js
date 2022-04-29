@@ -62,7 +62,7 @@ const { STATUS_IDS } = require('../constants/statusTransitions')
 const { REVIEW_VALUES, RESIDENT_COMMENT_TYPE } = require('../constants')
 
 describe('Ticket', () => {
-    describe('Crud', () => {
+    describe('CRUD', () => {
         test('user: create Ticket', async () => {
             const client = await makeClientWithProperty()
             const [contact] = await createTestContact(client, client.organization, client.property)
@@ -160,6 +160,9 @@ describe('Ticket', () => {
             const [ticket] = await createTestTicket(residentClient, organization, property, {
                 unitName,
             })
+
+            expect(ticket.lastResidentCommentAt).toBeNull()
+
             const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
                 type: RESIDENT_COMMENT_TYPE,
                 content,

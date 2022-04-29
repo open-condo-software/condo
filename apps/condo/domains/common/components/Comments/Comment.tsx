@@ -3,6 +3,7 @@ import { grey } from '@ant-design/colors'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
 import dayjs from 'dayjs'
+import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { css, jsx } from '@emotion/core'
@@ -147,13 +148,11 @@ const getIconByMimetype = (mimetype) => {
     return <DocIcon />
 }
 
-const getFilePreviewByMimetype = (mimetype, url) => mimetype.startsWith('image') ? (
-    <Image src={url} width={64} height={64} />
-) : (
-    <CommentFileCard>
-        {getIconByMimetype(mimetype)}
-    </CommentFileCard>
-)
+const getFilePreviewByMimetype = (mimetype, url) => {
+    if (mimetype.startsWith('image')) return <Image src={url} width={64} height={64} />
+
+    return <CommentFileCard>{getIconByMimetype(mimetype)}</CommentFileCard>
+}
 
 const CommentFileListWrapper = styled.div`
   display: flex;
@@ -209,7 +208,7 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
         )
     }), [files])
 
-    if (!Array.isArray(files)) {
+    if (isEmpty(files)) {
         return null
     }
 
@@ -252,7 +251,8 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
         deleteAction({}, comment)
     }, [comment, deleteAction])
     const handleUpdateComment = useCallback(() => setEditableComment(comment), [comment, setEditableComment])
-
+    const datetimeText = useMemo(() => dayjs(dateShowMode === 'created' ? comment.createdAt : comment.updatedAt).format(COMMENT_DATE_FORMAT),
+        [comment.createdAt, comment.updatedAt, dateShowMode])
     const actions = useMemo(() => user.id === comment.user.id && ([
         <Popconfirm
             key="delete"
@@ -311,7 +311,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
                     onMouseOver={() => setDateShowMode('updated')}
                 >
                     <Typography.Text title={MetaUpdatedText}>
-                        {dayjs(dateShowMode === 'created' ? comment.createdAt : comment.updatedAt).format(COMMENT_DATE_FORMAT)}
+                        {datetimeText}
                     </Typography.Text>
                 </div>
             }

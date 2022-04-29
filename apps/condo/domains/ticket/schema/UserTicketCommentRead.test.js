@@ -19,7 +19,7 @@ const { createTestResident } = require('@condo/domains/resident/utils/testSchema
 describe('UserTicketCommentRead', () => {
     describe('employee', () => {
         describe('create', () => {
-            test('can create UserTicketCommentRead to comment in employee organization', async () => {
+            it('can create UserTicketCommentRead to comment in employee organization', async () => {
                 const userClient = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
                 const [userTicketCommentRead] = await createTestUserTicketCommentRead(userClient, userClient.user, ticket)
@@ -27,7 +27,7 @@ describe('UserTicketCommentRead', () => {
                 expect(userTicketCommentRead.id).toMatch(UUID_RE)
             })
 
-            test('cannot create UserTicketCommentRead to comment in not employee organization', async () => {
+            it('cannot create UserTicketCommentRead to comment in not employee organization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithProperty()
                 const [organization1] = await createTestOrganization(admin)
@@ -45,7 +45,7 @@ describe('UserTicketCommentRead', () => {
         })
 
         describe('read', () => {
-            test('can read own UserTicketCommentRead', async () => {
+            it('can read own UserTicketCommentRead', async () => {
                 const userClient = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
                 const [userTicketCommentRead] = await createTestUserTicketCommentRead(userClient, userClient.user, ticket)
@@ -56,7 +56,7 @@ describe('UserTicketCommentRead', () => {
                 expect(userTicketCommentReadObjs[0].id).toEqual(userTicketCommentRead.id)
             })
 
-            test('cannot read UserTicketCommentRead with other user', async () => {
+            it('cannot read UserTicketCommentRead with other user', async () => {
                 const userClient = await makeClientWithProperty()
                 const userClient1 = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
@@ -69,7 +69,7 @@ describe('UserTicketCommentRead', () => {
         })
 
         describe('update', () => {
-            test('can update own UserTicketCommentRead', async () => {
+            it('can update own UserTicketCommentRead', async () => {
                 const userClient = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
                 const [userTicketCommentRead] = await createTestUserTicketCommentRead(userClient, userClient.user, ticket)
@@ -83,7 +83,7 @@ describe('UserTicketCommentRead', () => {
                 expect(updatedUserTicketCommentRead.readResidentCommentAt).toEqual(newReadResidentCommentAt)
             })
 
-            test('cannot update UserTicketCommentRead with other user', async () => {
+            it('cannot update UserTicketCommentRead with other user', async () => {
                 const userClient = await makeClientWithProperty()
                 const userClient1 = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
@@ -101,7 +101,7 @@ describe('UserTicketCommentRead', () => {
 
     describe('resident', () => {
         describe('create', () => {
-            test('cannot create UserTicketCommentRead', async () => {
+            it('cannot create UserTicketCommentRead', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
@@ -123,7 +123,7 @@ describe('UserTicketCommentRead', () => {
         })
 
         describe('read', () => {
-            test('cannot read UserTicketCommentRead', async () => {
+            it('cannot read UserTicketCommentRead', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
                 const userClient = await makeClientWithProperty()
@@ -144,7 +144,7 @@ describe('UserTicketCommentRead', () => {
         })
 
         describe('update', () => {
-            test('cannot update UserTicketCommentRead', async () => {
+            it('cannot update UserTicketCommentRead', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
                 const userClient = await makeClientWithProperty()

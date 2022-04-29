@@ -36,10 +36,11 @@ const Holder = styled.div`
   }
 `
 
+const ENTER_KEY_CODE = 13
 const COMMENT_HELPERS_ROW_STYLES: CSSProperties = { padding: '0 8px 8px 8px' }
 const INPUT_WITH_COUNTER_AUTOSIZE_CONFIG = { minRows: 1, maxRows: 6 }
 
-const CommentHelper = styled(Col)`
+const CommentHelperWrapper = styled(Col)`
   background-color: ${colors.textSecondary};
   padding: 2px 10px 4px;
   margin: 2px;
@@ -98,14 +99,14 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     }, [editableComment, fieldName, form, setCommentLength])
 
     const handleKeyUp = useCallback(async (event, form) => {
-        if (event.keyCode === 13 && !event.shiftKey) {
+        if (event.keyCode === ENTER_KEY_CODE && !event.shiftKey) {
             form.submit()
             setCommentLength(0)
         }
     }, [setCommentLength])
 
     const handleKeyDown = useCallback((event) => {
-        if (event.keyCode === 13) {
+        if (event.keyCode === ENTER_KEY_CODE) {
             event.preventDefault()
         }
     }, [])
@@ -157,14 +158,14 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                         {
                             showHelperMessage && (
                                 <Row justify={'space-between'} style={COMMENT_HELPERS_ROW_STYLES}>
-                                    <CommentHelper>
+                                    <CommentHelperWrapper>
                                         <Typography.Text>
                                             {HelperMessage}
                                         </Typography.Text>
-                                    </CommentHelper>
-                                    <CommentHelper>
+                                    </CommentHelperWrapper>
+                                    <CommentHelperWrapper>
                                         <Counter />
-                                    </CommentHelper>
+                                    </CommentHelperWrapper>
                                 </Row>
                             )
                         }

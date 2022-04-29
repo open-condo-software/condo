@@ -1,6 +1,7 @@
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
+import map from 'lodash/map'
 import { identity } from 'lodash/util'
 import { Space, Typography } from 'antd'
 import { TextProps } from 'antd/es/typography/Text'
@@ -206,7 +207,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
 
     const { user } = useAuth()
 
-    const ticketIds = useMemo(() => tickets.map(ticket => ticket.id), [tickets])
+    const ticketIds = useMemo(() => map(tickets, 'id'), [tickets])
     const { objs: userTicketsCommentRead } = UserTicketCommentRead.useObjects({
         where: {
             user: { id: user.id },
