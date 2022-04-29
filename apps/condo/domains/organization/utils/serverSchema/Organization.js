@@ -106,14 +106,16 @@ async function pushOrganizationToSalesCRM (organization) {
     const fingerprint = get(organization, ['sender', 'fingerprint'])
     const { phone: userPhone, name: userName, email } = await getById('User', createdBy.id)
     try {
-        await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, {
+        const data =  {
             orgName,
             userName,
             userPhone,
             tin,
             email,
             fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
-        })
+        }
+        await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, data)
+        logger.info({ message: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
     }
     catch (error) {
         salesCRMRequestLogger.warn({ message: 'Request to sales crm failed', error })
