@@ -35,12 +35,14 @@ const errors = {
         code: BAD_USER_INPUT,
         type: CAPTCHA_CHECK_FAILED,
         message: 'Failed to check CAPTCHA',
+        messageForUser: 'api.user.CAPTCHA_CHECK_FAILED',
     },
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
         variable: ['data', 'token'],
         code: BAD_USER_INPUT,
         type: UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
         message: 'Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again',
+        messageForUser: 'api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION',
     },
     WRONG_PHONE_FORMAT: {
         mutation: 'startConfirmPhoneAction',
@@ -49,6 +51,7 @@ const errors = {
         type: WRONG_FORMAT,
         message: 'Wrong format of provided phone number',
         correctExample: '+79991234567',
+        messageForUser: 'api.user.startConfirmPhoneAction.WRONG_PHONE_FORMAT',
     },
     SMS_CODE_EXPIRED: {
         mutation: 'completeConfirmPhoneAction',
@@ -56,6 +59,7 @@ const errors = {
         code: BAD_USER_INPUT,
         type: SMS_CODE_EXPIRED,
         message: 'SMS code expired. Try to initiate phone confirmation again',
+        messageForUser: 'api.user.completeConfirmPhoneAction.SMS_CODE_EXPIRED',
     },
     SMS_CODE_MAX_RETRIES_REACHED: {
         mutation: 'completeConfirmPhoneAction',
@@ -63,6 +67,7 @@ const errors = {
         code: BAD_USER_INPUT,
         type: SMS_CODE_MAX_RETRIES_REACHED,
         message: 'Max retries reached for SMS code confirmation. Try to initiate phone confirmation again',
+        messageForUser: 'api.user.completeConfirmPhoneAction.SMS_CODE_MAX_RETRIES_REACHED',
     },
     SMS_CODE_VERIFICATION_FAILED: {
         mutation: 'completeConfirmPhoneAction',
@@ -70,6 +75,7 @@ const errors = {
         code: BAD_USER_INPUT,
         type: SMS_CODE_VERIFICATION_FAILED,
         message: 'SMS code verification mismatch',
+        messageForUser: 'api.user.completeConfirmPhoneAction.SMS_CODE_VERIFICATION_FAILED',
     },
 }
 
@@ -116,7 +122,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const { token, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'get_confirm_phone_token_info')
                 if (error) {
-                    throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'getPhoneByConfirmPhoneActionToken', data: { error } })
+                    throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'getPhoneByConfirmPhoneActionToken', data: { error } }, context)
                 }
                 const now = extra.extraNow || Date.now()
                 const actions = await ConfirmPhoneAction.getAll(context, {
@@ -125,7 +131,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     completedAt: null,
                 })
                 if (isEmpty(actions)) {
-                    throw new GQLError({ ...errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'getPhoneByConfirmPhoneActionToken' })
+                    throw new GQLError({ ...errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'getPhoneByConfirmPhoneActionToken' }, context)
                 }
                 const { phone, isPhoneVerified } = actions[0]
                 return { phone, isPhoneVerified }
@@ -140,11 +146,11 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const { phone: inputPhone, sender, dv, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'start_confirm_phone')
                 if (error) {
-                    throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'startConfirmPhoneAction', data: { error } })
+                    throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'startConfirmPhoneAction', data: { error } }, context)
                 }
                 const phone = normalizePhone(inputPhone)
                 if (!phone) {
-                    throw new GQLError(errors.WRONG_PHONE_FORMAT)
+                    throw new GQLError(errors.WRONG_PHONE_FORMAT, context)
                 }
                 await redisGuard.checkSMSDayLimitCounters(phone, context.req.ip)
                 await redisGuard.checkLock(phone, 'sendsms')
@@ -189,7 +195,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const { token, sender, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'resend_sms')
                 if (error) {
-                    throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'resendConfirmPhoneActionSms', data: { error } })
+                    throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'resendConfirmPhoneActionSms', data: { error } }, context)
                 }
                 const now = extra.extraNow || Date.now()
                 const actions = await ConfirmPhoneAction.getAll(context, {
@@ -198,7 +204,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     completedAt: null,
                 })
                 if (isEmpty(actions)) {
-                    throw new GQLError({ ...errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'resendConfirmPhoneActionSms' })
+                    throw new GQLError({ ...errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'resendConfirmPhoneActionSms' }, context)
                 }
                 const { id, phone } = actions[0]
                 await redisGuard.checkSMSDayLimitCounters(phone, context.req.ip)
@@ -231,7 +237,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const { token, smsCode, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'complete_verify_phone')
                 if (error) {
-                    throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'completeConfirmPhoneAction', data: { error } })
+                    throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'completeConfirmPhoneAction', data: { error } }, context)
                 }
                 const now = extra.extraNow || Date.now()
                 const actions = await ConfirmPhoneAction.getAll(context, {
@@ -240,26 +246,26 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     completedAt: null,
                 })
                 if (isEmpty(actions)) {
-                    throw new GQLError({ ...errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'completeConfirmPhoneAction' })
+                    throw new GQLError({ ...errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'completeConfirmPhoneAction' }, context)
                 }
                 await redisGuard.checkLock(token, 'confirm')
                 await redisGuard.lock(token, 'confirm', LOCK_TIMEOUT)
                 const { id, smsCode: actionSmsCode, retries, smsCodeExpiresAt } = actions[0]
                 const isExpired = (new Date(smsCodeExpiresAt) < new Date(now))
                 if (isExpired) {
-                    throw new GQLError(errors.SMS_CODE_EXPIRED)
+                    throw new GQLError(errors.SMS_CODE_EXPIRED, context)
                 }
                 if (retries >= CONFIRM_PHONE_SMS_MAX_RETRIES) {
                     await ConfirmPhoneAction.update(context, id, {
                         completedAt: new Date(now).toISOString(),
                     })
-                    throw new GQLError(errors.SMS_CODE_MAX_RETRIES_REACHED)
+                    throw new GQLError(errors.SMS_CODE_MAX_RETRIES_REACHED, context)
                 }
                 if (actionSmsCode !== smsCode) {
                     await ConfirmPhoneAction.update(context, id, {
                         retries: retries + 1,
                     })
-                    throw new GQLError(errors.SMS_CODE_VERIFICATION_FAILED)
+                    throw new GQLError(errors.SMS_CODE_VERIFICATION_FAILED, context)
                 }
                 await ConfirmPhoneAction.update(context, id, {
                     isPhoneVerified: true,
