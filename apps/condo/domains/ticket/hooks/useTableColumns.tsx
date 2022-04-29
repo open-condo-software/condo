@@ -91,6 +91,31 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
         return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
     }, [loading, ticketStatuses])
 
+    const renderClassifier = useCallback((text, record) => {
+        const placeClassifier = get(record, ['classifierRule', 'place', 'name'])
+        const postfix = `\n(${placeClassifier})`
+
+        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
+    }, [search])
+
+    const renderUnit = useCallback((text, record) => {
+        const sectionName = get(record, 'sectionName')
+        const floorName = get(record, 'floorName')
+        const unitType = get(record, 'unitType', 'flat')
+        let unitNamePrefix = null
+        let extraTitle = null
+        const postfix = sectionName && floorName &&
+            `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
+        if (text) {
+            extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+            if (unitType !== 'flat') {
+                unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
+            }
+        }
+        const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
+        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS, extraTitle)(unitName)
+    }, [ShortFloorNameMessage, ShortSectionNameMessage, search])
+
     const renderAddress = useCallback(
         (property) => getAddressRender(property, DeletedMessage, search),
         [DeletedMessage, search])
@@ -203,7 +228,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             },
             {
                 title: ClassifierTitle,
-                dataIndex: ['categoryClassifier', 'name'],
+                dataIndex: ['classifierRule', 'category', 'name'],
                 filteredValue: getFilteredValue(filters, 'categoryClassifier'),
                 key: 'categoryClassifier',
                 width: columnWidths.categoryClassifier,

@@ -287,9 +287,9 @@ const TicketContent = ({ ticket }) => {
     }, [LessThenDayMessage, OverdueMessage, ToCompleteMessage, ticket, ticketDeadline])
 
     const ticketClassifierNames = useMemo(() => compact([
-        get(ticket, ['placeClassifier', 'name']),
-        get(ticket, ['categoryClassifier', 'name']),
-        get(ticket, ['problemClassifier', 'name']),
+        get(ticket, ['classifierRule', 'place', 'name']),
+        get(ticket, ['classifierRule', 'category', 'name']),
+        get(ticket, ['classifierRule', 'problem', 'name']),
     ]), [ticket])
 
     const overdueMessage = useMemo(() => getTicketDeadlineMessage(),
