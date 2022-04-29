@@ -6,22 +6,18 @@ export type VT = any
 
 interface ISelectProps extends SelectProps<VT> {
     raisedClearButton?: boolean;
-    applyCss?: boolean;
+    applyGreyStyleCss?: boolean;
 }
 
 export const SelectStyled: React.FC<ISelectProps> = (props) => {
+
     const { 
-        applyCss,
+        applyGreyStyleCss,
         raisedClearButton, 
         ...otherSelectProps 
     } = props
 
-    const  style = useApplySelectStyledCss(applyCss, raisedClearButton)
+    const  style = useApplySelectStyledCss(applyGreyStyleCss, raisedClearButton)
 
-    return (
-        <>
-            <Select css={ style } {...otherSelectProps} />
-        </>
-
-    )
+    return (<Select css={ style } {...otherSelectProps} />)
 }

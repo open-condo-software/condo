@@ -82,7 +82,7 @@ const useTicketClassifierSelect = ({
                 placeholder={SelectMessage}
                 getPopupContainer={getFiltersModalPopupContainer}
                 raisedClearButton
-                applyCss
+                applyGreyStyleCss
             >
                 {
                     Array.isArray(optionsRef.current) && optionsRef.current.map(classifier => (
