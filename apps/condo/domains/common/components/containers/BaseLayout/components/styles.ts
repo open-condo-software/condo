@@ -9,7 +9,7 @@ export const SIDE_MENU_WIDTH = 256
 export const COLLAPSED_SIDE_MENU_WIDTH = 92
 
 // Ant inputs
-export const formInputFixCss = css`
+export const FROM_INPUT_CSS = css`
     body {
       height: 100%
     }
@@ -43,8 +43,7 @@ export const formInputFixCss = css`
     }
 `
 
-
-export const mobileSideNavStyles = css`
+export const MOBILE_SIDE_NAV_STYLES = css`
     position: fixed;
     padding: 16px 0 60px;
     box-sizing: border-box;
@@ -53,7 +52,7 @@ export const mobileSideNavStyles = css`
     z-index: ${zIndex.mobileSidenav};
 `
 
-export const sideNavStyles = css`
+export const SIDE_NAV_STYLES = css`
     position: fixed;
     padding: 40px 0 60px;
     box-sizing: border-box;
@@ -137,7 +136,7 @@ export const TopMenuItem = styled.div`
     }
 `
 
-export const menuIconStyles = {
+export const MENU_ICON_STYLES = {
     color: colors.black,
     fontSize: '24px',
 }
@@ -166,20 +165,20 @@ export const StyledMenuItem = styled(Menu.Item)`
     }
 `
 
-export const layoutCss = css`
+export const LAYOUT_CSS = css`
     height: 100%;
     display: flex;
     align-items: stretch;
 `
 
-export const subLayoutCss = css`
+export const SUB_LAYOUT_CSS = css`
     width: 100%;
     display: flex;
     align-items: stretch;
     background-color: ${colors.white};
 `
 
-export const topMenuCss = css`
+export const TOP_MENU_CSS = css`
     z-index: 9;
     background: ${colors.white};
     width: 100%;
@@ -203,24 +202,24 @@ export const StyledPageWrapper = styled(Layout.Content)<IPageWrapper>`
     flex-direction: column;
 `
 
-export const pageHeaderCss = css`
+export const PAGE_HEADER_CSS = css`
     padding: 0 0 40px;
     background: ${colors.white};
 `
 
-export const spacedPageHeaderCss = css`
+export const SPACED_PAGE_HEADER_CSS = css`
     padding: 0 0 60px;
     background: ${colors.white};
 `
 
-export const pageContentCss = css`
+export const PAGE_CONTENT_CSS = css`
     flex-grow: 1;
     max-width: 1200px;
     padding-bottom: 56px;
     background: ${colors.white};
 `
 
-export const tablePageContentCss = css`
+export const TABLE_PAGE_CONTENT_CSS = css`
     flex-grow: 1;
     max-width: 1600px;
     padding-bottom: 56px;

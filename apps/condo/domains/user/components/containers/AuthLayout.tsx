@@ -1,5 +1,5 @@
 import React from 'react'
-import { formInputFixCss } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
+import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { Global } from '@emotion/core'
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import { useIntl } from '@core/next/intl'
@@ -33,7 +33,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
                 defer: true,
                 appendTo: 'body',
             }}>
-            <Global styles={formInputFixCss}/>
+            <Global styles={FROM_INPUT_CSS}/>
             <PosterLayout {...otherProps}>
                 <AuthLayoutContextProvider>
                     {children}

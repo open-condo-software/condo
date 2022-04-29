@@ -13,7 +13,7 @@ import { Button } from '../../../../Button'
 import {
     LayoutTriggerWrapper,
     LogoContainer,
-    sideNavStyles,
+    SIDE_NAV_STYLES,
     ActionsContainer,
     MenuItemsContainer,
     SIDE_MENU_WIDTH,
@@ -46,7 +46,7 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
             <Layout.Sider
                 collapsed={isCollapsed}
                 theme='light'
-                css={sideNavStyles}
+                css={SIDE_NAV_STYLES}
                 width={SIDE_MENU_WIDTH}
                 collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}
             >

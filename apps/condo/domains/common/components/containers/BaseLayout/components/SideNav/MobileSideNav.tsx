@@ -11,7 +11,7 @@ import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/compon
 import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import {
     MobileMenuItemsContainer,
-    mobileSideNavStyles,
+    MOBILE_SIDE_NAV_STYLES,
     MobileSideNavHeader,
     OrganizationSelectWrapper,
 } from '../styles'
@@ -49,7 +49,7 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
         <Layout.Sider
             collapsed={isCollapsed}
             theme='light'
-            css={mobileSideNavStyles}
+            css={MOBILE_SIDE_NAV_STYLES}
             width={'100%'}
             collapsedWidth={0}
         >

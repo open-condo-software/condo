@@ -5,7 +5,7 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import {
     TopMenuItem,
     StyledMenuItem,
-    menuIconStyles,
+    MENU_ICON_STYLES,
 } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import React, { useMemo } from 'react'
 import Router from 'next/router'
@@ -71,7 +71,7 @@ export const DesktopUserMenu: React.FC = () => {
         <StyledMenu>
             <StyledMenuItem key='signout' onClick={auth.signout}>
                 <Space size={16}>
-                    <RestFilled style={menuIconStyles}/>
+                    <RestFilled style={MENU_ICON_STYLES}/>
                     {SignOutMessage}
                 </Space>
             </StyledMenuItem>
