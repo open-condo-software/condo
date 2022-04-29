@@ -96,7 +96,7 @@ async function findOrganizationEmployee (context, query) {
     })
 }
 
-const salesCRMRequestLogger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOGGING) })
+const logger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOGGING) })
 
 async function pushOrganizationToSalesCRM (organization) {
     if (!SALES_CRM_WEBHOOKS_URL) {
@@ -118,7 +118,7 @@ async function pushOrganizationToSalesCRM (organization) {
         logger.info({ message: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
     }
     catch (error) {
-        salesCRMRequestLogger.warn({ message: 'Request to sales crm failed', error })
+        logger.warn({ message: 'Request to sales crm failed', error })
     }
 }
 
@@ -135,7 +135,7 @@ async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt
         })
     }
     catch (error) {
-        salesCRMRequestLogger.warn({ message: 'Request to sales crm failed', error })
+        logger.warn({ message: 'Request to sales crm failed', error })
     }
 }
 
