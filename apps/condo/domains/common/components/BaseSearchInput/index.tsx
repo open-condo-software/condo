@@ -139,12 +139,12 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     }, [onChange])
 
     useEffect(()=>{
-        if (selected !== null && (selected !== searchValue) ) {
+        if (selected !== null && selected !== searchValue) {
             setSelected(null)
             setSearchValue(undefined)
             props.onClear()
         }
-    }, [searchValue])
+    }, [searchValue, props.onClear])
 
     const handleScroll = useCallback(async (scrollEvent) => {
         if (isNeedToLoadNewElements(scrollEvent, fetching)) {
