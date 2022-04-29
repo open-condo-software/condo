@@ -81,16 +81,15 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         : data.map((option, index) => renderOption(option, index))
 
     const loadInitialOptions = useCallback(async () => {
-        setLoading(true)
         const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(initialValue) : { id_in: initialValue }
 
         if (Array.isArray(initialValue) && initialValue.length) {
+            setLoading(true)
             const initialOptions = await search(client, null, initialValueQuery, initialValue.length)
 
             setData(data => uniqBy([...initialOptions, ...data], 'value'))
+            setLoading(false)
         }
-
-        setLoading(false)
     }, [initialValue, getInitialValueQuery, client, search])
 
     useEffect(() => {
