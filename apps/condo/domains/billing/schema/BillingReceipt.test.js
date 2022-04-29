@@ -3,28 +3,29 @@
  */
 
 const faker = require('faker')
-const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
-const { updateTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
-const { updateTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
+const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+
+const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { updateTestResident, registerServiceConsumerByTestClient, updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestOrganizationEmployeeRole, createTestOrganization, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+
 const {
     createTestBillingAccount,
+    updateTestBillingAccount,
     createTestBillingProperty,
     makeContextWithOrganizationAndIntegrationAsAdmin,
     createTestBillingIntegrationOrganizationContext,
     makeOrganizationIntegrationManager,
     createTestBillingRecipient,
+    BillingReceipt,
+    createTestBillingReceipt,
+    updateTestBillingReceipt,
+    makeResidentClientWithOwnReceipt,
 } = require('../utils/testSchema')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
-const { makeResidentClientWithOwnReceipt } = require('@condo/domains/billing/utils/testSchema')
+
 
 describe('BillingReceipt', () => {
 
@@ -587,10 +588,22 @@ describe('BillingReceipt', () => {
 
             const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
 
-            const objs = await BillingReceipt.getAll(residentClient)
+            const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
+            const obj = objs.data.objs[0]
 
-            expect(objs).toHaveLength(1)
-            expect(objs[0].id).toEqual(receipt.id)
+            expect(objs.data.objs).toHaveLength(1)
+            expect(obj.id).toEqual(receipt.id)
+            expect(obj.context).toBeNull()
+            expect(obj.property).toBeNull()
+            expect(obj.account).toBeNull()
+            expect(obj.importId).toBeNull()
+            expect(obj.importId).toBeNull()
+            expect(obj.raw).toBeNull()
+            expect(obj.category).not.toBeNull()
+            expect(obj.toPay).not.toBeNull()
+            expect(obj.toPayDetails).not.toBeNull()
+            expect(obj.services).not.toBeNull()
+            expect(obj.recipient).not.toBeNull()
         })
 
         test('resident can read his own billingReceipts if he has multiple residents and multiple billingAccounts', async () => {
@@ -613,21 +626,20 @@ describe('BillingReceipt', () => {
             const { resident: resident2 } = await makeResidentClientWithOwnReceipt()
             await updateTestResident(adminClient, resident2.id, { user: { connect: { id: residentClient.user.id } } })
 
-            const objs = await BillingReceipt.getAll(residentClient)
+            const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
 
-            expect(objs).toHaveLength(3)
+            expect(objs.data.objs).toHaveLength(3)
         })
 
         test('resident cant read billingReceipts if unitName is wrong', async () => {
 
-            const { adminClient, billingAccount, residentClient, receipt } = await makeResidentClientWithOwnReceipt()
-
-            const objs = await BillingReceipt.getAll(residentClient)
+            const { adminClient, billingAccount, residentClient } = await makeResidentClientWithOwnReceipt()
 
             await updateTestBillingAccount(adminClient, billingAccount.id, { unitName: billingAccount.unitName + 'wrong!' })
 
-            expect(objs).toHaveLength(1)
-            expect(objs[0].id).toEqual(receipt.id)
+            const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
+
+            expect(objs.data.objs).toHaveLength(0)
         })
 
         test('resident cant read billingReceipts if accountNumber is wrong', async () => {
@@ -636,9 +648,9 @@ describe('BillingReceipt', () => {
 
             await updateTestServiceConsumer(adminClient, serviceConsumer.id, { 'accountNumber': serviceConsumer.accountNumber + 'wrong!' })
 
-            const objs = await BillingReceipt.getAll(residentClient)
+            const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
 
-            expect(objs).toHaveLength(0)
+            expect(objs.data.objs).toHaveLength(0)
         })
 
         test('resident cant read billingReceipts if context is wrong', async () => {
@@ -650,9 +662,9 @@ describe('BillingReceipt', () => {
 
             await updateTestServiceConsumer(adminClient, serviceConsumer.id, { 'billingIntegrationContext': { connect: { id: context2.id } } })
 
-            const objs = await BillingReceipt.getAll(residentClient)
+            const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
 
-            expect(objs).toHaveLength(0)
+            expect(objs.data.objs).toHaveLength(0)
         })
 
         test('user cant read BillingReceipt in other cases', async () => {
