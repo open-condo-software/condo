@@ -12,7 +12,7 @@ export const useInputWithCounter = (InputComponent, maxLength) => {
     const [textLength, setTextLength] = useState<number>(0)
 
     const handleInputChange = useCallback((e, inputProps) => {
-        const valueLength = get(e, TARGET_VALUE_LENGTH_PATH)
+        const valueLength = get(e, TARGET_VALUE_LENGTH_PATH, 0)
         setTextLength(valueLength)
 
         if (isFunction(inputProps.onChange)) inputProps.onChange(e)

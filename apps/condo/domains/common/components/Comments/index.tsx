@@ -335,9 +335,9 @@ const Comments: React.FC<ICommentsListProps> = ({
         scrollToBottom()
     }, [createUserTicketCommentRead, updateUserTicketCommentRead, userTicketCommentRead])
 
-    const lastResidentCommentAt = useMemo(() => get(ticket, 'lastResidentCommentAt'), [ticket])
-    const readResidentCommentByUserAt = useMemo(() => get(userTicketCommentRead, 'readResidentCommentAt'), [userTicketCommentRead])
-    const lastAnsweredToResidentAt = useMemo(() => get(ticket, 'lastAnsweredToResidentAt'), [ticket])
+    const lastResidentCommentAt = get(ticket, 'lastResidentCommentAt')
+    const readResidentCommentByUserAt = get(userTicketCommentRead, 'readResidentCommentAt')
+    const lastAnsweredToResidentAt = get(ticket, 'lastAnsweredToResidentAt')
     const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastAnsweredToResidentAt),
         [lastAnsweredToResidentAt, lastResidentCommentAt, readResidentCommentByUserAt])
 

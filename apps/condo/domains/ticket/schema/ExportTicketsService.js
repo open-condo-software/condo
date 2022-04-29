@@ -1,22 +1,27 @@
-const { GQLCustomSchema } = require('@core/keystone/schema')
-const conf = require('@core/config')
-const access = require('@condo/domains/ticket/access/ExportTicketsService')
-const { TicketStatus, loadTicketsForExcelExport, loadTicketCommentsForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
-const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
-const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
-const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
-const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 const dayjs = require('dayjs')
+const map = require('lodash/map')
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
+
+const { GQLCustomSchema } = require('@core/keystone/schema')
+const conf = require('@core/config')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { REVIEW_VALUES, ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { getHeadersTranslations, EXPORT_TYPE_TICKETS } = require('@condo/domains/common/utils/exportToExcel')
 const { ticketStatusesTranslations } = require('@condo/domains/common/utils/exportToExcel')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { TicketStatus, loadTicketsForExcelExport, loadTicketCommentsForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
+const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
+const access = require('@condo/domains/ticket/access/ExportTicketsService')
+const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
+
+const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
+
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -79,7 +84,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     throw new GQLError(errors.NOTHING_TO_EXPORT, context)
                 }
 
-                const ticketsComments = await loadTicketCommentsForExcelExport({ ticketIds: allTickets.map(ticket => ticket.id) })
+                const ticketsComments = await loadTicketCommentsForExcelExport({ ticketIds: map(allTickets, 'id') })
 
                 const excelRows = allTickets.map(ticket => {
                     const ticketComments = ticketsComments.filter(comment => comment.ticket === ticket.id)

@@ -33,7 +33,7 @@ const reducer = (state, action) => {
             if (file.id) {
                 return {
                     ...state,
-                    added: [...state.added].filter(addFile => addFile.id !== file.id),
+                    added: state.added.filter(addFile => addFile.id !== file.id),
                     deleted: [...state.deleted, file],
                 }
             }
@@ -42,10 +42,10 @@ const reducer = (state, action) => {
 
             if (!fileToDeleteId) return state
 
-            const fileToDelete = [...state.added].find(addedFile => addedFile.id === fileToDeleteId)
+            const fileToDelete = state.added.find(addedFile => addedFile.id === fileToDeleteId)
             return {
                 ...state,
-                added: [...state.added].filter(addFile => addFile.id !== fileToDeleteId),
+                added: state.added.filter(addFile => addFile.id !== fileToDeleteId),
                 deleted: [...state.deleted, fileToDelete],
             }
         }
@@ -249,7 +249,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         <div className={'upload-control-wrapper'}>
             <Upload { ...options } >
                 {
-                    UploadButton ? UploadButton : (
+                    UploadButton || (
                         <Button
                             type={'sberDefaultGradient'}
                             secondary

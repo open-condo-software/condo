@@ -4,9 +4,10 @@
 
 const get = require('lodash/get')
 
+const { getById, getByCondition } = require('@core/keystone/schema')
+
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { getById, getByCondition } = require('@core/keystone/schema')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadUserTicketCommentReads ({ authentication: { item: user } }) {
@@ -28,9 +29,7 @@ async function canManageUserTicketCommentReads ({ authentication: { item: user }
     if (user.type !== RESIDENT) {
         if (operation === 'create') {
             const ticket = await getById('Ticket', get(originalInput, ['ticket', 'connect', 'id']))
-            if (!ticket) {
-                return false
-            }
+            if (!ticket) return false
 
             const organizationId = get(ticket, 'organization')
             const organizationEmployee = await getByCondition('OrganizationEmployee', {

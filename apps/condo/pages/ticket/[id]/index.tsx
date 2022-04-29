@@ -4,7 +4,7 @@ import { css, jsx } from '@emotion/core'
 import { Affix, Breadcrumb, Col, Row, Space, Typography } from 'antd'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
 import UploadList from 'antd/lib/upload/UploadList/index'
-import { compact, get, isEmpty } from 'lodash'
+import { compact, get, isEmpty, map } from 'lodash'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -492,7 +492,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         sortBy: ['createdAt_DESC'],
     })
 
-    const commentsIds = useMemo(() => comments.map(comment => comment.id), [comments])
+    const commentsIds = useMemo(() => map(comments, 'id'), [comments])
 
     const { objs: ticketCommentFiles, refetch: refetchCommentFiles } = TicketCommentFile.useObjects({
         where: { ticketComment: { id_in: commentsIds } },
@@ -577,6 +577,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const statusUpdatedAt = get(ticket, 'statusUpdatedAt')
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
     const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
+    const canCreateComments = useMemo(() => get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments']),
+        [auth, employee])
 
     const getTimeSinceCreation = useCallback(() => {
         const diffInMinutes = dayjs().diff(dayjs(statusUpdatedAt), 'minutes')
@@ -763,7 +765,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     updateAction={updateComment}
                                     refetchComments={refetchCommentsWithFiles}
                                     comments={commentsWithFiles}
-                                    canCreateComments={get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments'])}
+                                    canCreateComments={canCreateComments}
                                     actionsFor={actionsFor}
                                 />
                             </Affix>

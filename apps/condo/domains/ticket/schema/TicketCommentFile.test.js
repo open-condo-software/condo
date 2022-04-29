@@ -482,7 +482,7 @@ describe('TicketCommentFile', () => {
                 expect(files[0].id).toEqual(residentTicketCommentFile.id)
             })
 
-            test('cannot read not his own ticket file without ticketComment connection', async () => {
+            test('cannot read another ticket files without ticketComment connection', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const residentClient = await makeClientWithResidentUser()
