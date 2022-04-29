@@ -67,4 +67,5 @@ async function canManageBillingReceipts ({ authentication, operation, originalIn
 module.exports = {
     canReadBillingReceipts,
     canManageBillingReceipts,
+    canReadSensitiveBillingReceiptData,
 }
