@@ -1,12 +1,13 @@
 const { getType } = require('@keystonejs/utils')
 const { get } = require('lodash')
 
-const composeHook = (originalHook, newHook) => async params => {
+const composeHook = (originalHook, newHook, isResolvers = true) => async params => {
     let { resolvedData } = params
     if (originalHook) {
         resolvedData = await originalHook(params)
     }
-    return newHook({ ...params, resolvedData })
+
+    return isResolvers ? newHook({ ...params, resolvedData }) : newHook(params)
 }
 
 function isValidDate (date) {

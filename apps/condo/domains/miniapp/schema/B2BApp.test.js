@@ -69,8 +69,8 @@ describe('B2BApp', () => {
                 })
                 expect(apps).toBeDefined()
                 expect(apps).toHaveLength(1)
-                expect(apps).toHaveProperty('id', apps.id)
-                expect(apps).toHaveProperty('name', apps.name)
+                expect(apps[0]).toHaveProperty('id', app.id)
+                expect(apps[0]).toHaveProperty('name', app.name)
             })
             test('Support can', async () => {
                 const apps = await B2BApp.getAll(support, {
@@ -78,8 +78,8 @@ describe('B2BApp', () => {
                 })
                 expect(apps).toBeDefined()
                 expect(apps).toHaveLength(1)
-                expect(apps).toHaveProperty('id', apps.id)
-                expect(apps).toHaveProperty('name', apps.name)
+                expect(apps[0]).toHaveProperty('id', app.id)
+                expect(apps[0]).toHaveProperty('name', app.name)
             })
             test('User can', async () => {
                 const apps = await B2BApp.getAll(user, {
@@ -87,8 +87,8 @@ describe('B2BApp', () => {
                 })
                 expect(apps).toBeDefined()
                 expect(apps).toHaveLength(1)
-                expect(apps).toHaveProperty('id', apps.id)
-                expect(apps).toHaveProperty('name', apps.name)
+                expect(apps[0]).toHaveProperty('id', app.id)
+                expect(apps[0]).toHaveProperty('name', app.name)
             })
             test('Anonymous cannot', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {

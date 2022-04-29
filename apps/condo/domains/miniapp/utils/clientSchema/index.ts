@@ -4,4 +4,6 @@
  */
 
 export * as B2BApp from './B2BApp'
+export * as B2BAppContext from './B2BAppContext'
+export * as B2BAppAccessRight from './B2BAppAccessRight'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

@@ -8,6 +8,8 @@ const { execGqlWithoutAccess, generateServerUtils } = require('@condo/domains/co
 
 const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
 const { B2BApp: B2BAppGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppContext: B2BAppContextGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppAccessRight: B2BAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 async function allOrganizationApps (context, data) {
@@ -24,10 +26,14 @@ async function allOrganizationApps (context, data) {
 }
 
 const B2BApp = generateServerUtils(B2BAppGQL)
+const B2BAppContext = generateServerUtils(B2BAppContextGQL)
+const B2BAppAccessRight = generateServerUtils(B2BAppAccessRightGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     allOrganizationApps,
     B2BApp,
+    B2BAppContext,
+    B2BAppAccessRight,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

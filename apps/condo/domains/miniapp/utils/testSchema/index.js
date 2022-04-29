@@ -8,6 +8,8 @@ const { throwIfError, generateGQLTestUtils } = require('@condo/domains/common/ut
 
 const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
 const { B2BApp: B2BAppGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppContext: B2BAppContextGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppAccessRight: B2BAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const DOCUMENT_BLOCK_SINGLE_EXAMPLE = [
@@ -37,6 +39,8 @@ const DOCUMENT_BLOCK_MULTIPLE_EXAMPLE = [
 ]
 
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
+const B2BAppContext = generateGQLTestUtils(B2BAppContextGQL)
+const B2BAppAccessRight = generateGQLTestUtils(B2BAppAccessRightGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -68,6 +72,7 @@ async function createTestB2BApp (client, extraAttrs = {}) {
         developer: faker.company.companyName(),
         instruction: faker.datatype.string(),
         connectedMessage: faker.company.catchPhrase(),
+        isHidden: true,
         ...extraAttrs,
     }
     const obj = await B2BApp.create(client, attrs)
@@ -89,6 +94,68 @@ async function updateTestB2BApp (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2BAppContext (client, app, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await B2BAppContext.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppContext (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppContext.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestB2BAppAccessRight (client, user, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    if (!app || !app.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        app: { connect: { id: app.id } },
+        ...extraAttrs,
+    }
+    const obj = await B2BAppAccessRight.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppAccessRight (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppAccessRight.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -96,5 +163,7 @@ module.exports = {
     DOCUMENT_BLOCK_SINGLE_EXAMPLE,
     DOCUMENT_BLOCK_MULTIPLE_EXAMPLE,
     B2BApp, createTestB2BApp, updateTestB2BApp,
+    B2BAppContext, createTestB2BAppContext, updateTestB2BAppContext,
+    B2BAppAccessRight, createTestB2BAppAccessRight, updateTestB2BAppAccessRight,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
