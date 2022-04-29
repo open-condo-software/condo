@@ -22,7 +22,7 @@ const dvAndSender = ({ requiredDv = 1 } = {}) => plugin(({ fields = {}, hooks = 
     }
 
     const originalValidateInput = hooks.validateInput
-    hooks.validateInput = composeHook(originalValidateInput, newValidateInput)
+    hooks.validateInput = composeHook(originalValidateInput, newValidateInput, false)
     return { fields, hooks, ...rest }
 })
 

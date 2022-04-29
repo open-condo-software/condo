@@ -18,13 +18,21 @@ const ALL_MINI_APPS_QUERY = gql`
     }
 `
 
-const B2B_APP_FIELDS = `{ name logo { publicUrl } shortDescription about developer developer partnerUrl instruction connectedMessage appUrl category setupButtonMessage ${COMMON_FIELDS} }`
+const B2B_APP_FIELDS = `{ name logo { publicUrl } shortDescription about developer partnerUrl instruction connectedMessage appUrl category setupButtonMessage ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
+
+const B2B_APP_CONTEXT_FIELDS = `{ app { id } organization { id } status ${COMMON_FIELDS} }`
+const B2BAppContext = generateGqlQueries('B2BAppContext', B2B_APP_CONTEXT_FIELDS)
+
+const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } user { id } ${COMMON_FIELDS} }`
+const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS_RIGHT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ALL_MINI_APPS_QUERY,
     B2BApp,
+    B2BAppContext,
+    B2BAppAccessRight,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

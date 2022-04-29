@@ -7,7 +7,6 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
-const { IS_HIDDEN_FIELD } = require('@condo/domains/billing/schema/fields/BillingIntegration/fields')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
@@ -21,6 +20,7 @@ const {
     INSTRUCTION_TEXT_FIELD,
     IFRAME_URL_FIELD,
     CONNECTED_MESSAGE_FIELD,
+    IS_HIDDEN_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
 

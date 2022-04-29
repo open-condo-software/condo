@@ -1,4 +1,4 @@
-const { Text, File } = require('@keystonejs/fields')
+const { Text, File, Checkbox } = require('@keystonejs/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Markdown } = require('@keystonejs/fields-markdown')
 
@@ -54,6 +54,13 @@ const CONNECTED_MESSAGE_FIELD = {
     isRequired: false,
 }
 
+const IS_HIDDEN_FIELD = {
+    schemaDoc: 'Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM',
+    type: Checkbox,
+    defaultValue: false,
+    isRequired: true,
+}
+
 module.exports = {
     DEVELOPER_FIELD,
     LOGO_FIELD,
@@ -64,5 +71,6 @@ module.exports = {
     IFRAME_URL_FIELD,
     CONNECTED_MESSAGE_FIELD,
     APPS_FILE_ADAPTER,
+    IS_HIDDEN_FIELD,
 }
 
