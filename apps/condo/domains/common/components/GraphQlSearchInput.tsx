@@ -88,8 +88,9 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             const initialOptions = await search(client, null, initialValueQuery, initialValue.length)
 
             setData(data => uniqBy([...initialOptions, ...data], 'value'))
-            setLoading(false)
         }
+
+        setLoading(false)
     }, [initialValue, getInitialValueQuery, client, search])
 
     useEffect(() => {
@@ -162,9 +163,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     )
 
     const handleScroll = useCallback(async (scrollEvent) => {
-        const lastElementIdx = String((data || []).length - 1)
-
-        if (isNeedToLoadNewElements(scrollEvent, lastElementIdx, isLoading)) {
+        if (isNeedToLoadNewElements(scrollEvent, isLoading)) {
             await throttledSearchMore(value, data.length)
         }
     }, [data, isLoading, throttledSearchMore, value])
