@@ -9,7 +9,7 @@ import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
 import { colors } from '../../constants/style'
 
 
-const rangePickerCss = css`
+const RANGE_PICKER_CSS = css`
   &.ant-picker-focused {
     border-color: unset;
     box-shadow: unset;
@@ -27,7 +27,7 @@ const rangePickerCss = css`
 const DateRangePicker: React.FC<RangePickerSharedProps<Dayjs>> = (props) => {
     return (
         <DatePicker.RangePicker
-            css={rangePickerCss}
+            css={RANGE_PICKER_CSS}
             allowClear={false}
             suffixIcon={<DownOutlined />}
             disabledDate={(date) => date > dayjs()}

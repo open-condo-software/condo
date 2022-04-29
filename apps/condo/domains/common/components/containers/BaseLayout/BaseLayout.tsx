@@ -8,13 +8,13 @@ import Router from 'next/router'
 import classnames from 'classnames'
 import 'antd/dist/antd.less'
 import {
-    layoutCss,
-    pageContentCss,
-    pageHeaderCss,
-    spacedPageHeaderCss,
+    LAYOUT_CSS,
+    PAGE_CONTENT_CSS,
+    PAGE_HEADER_CSS,
+    SPACED_PAGE_HEADER_CSS,
     StyledPageWrapper,
-    subLayoutCss,
-    tablePageContentCss,
+    SUB_LAYOUT_CSS,
+    TABLE_PAGE_CONTENT_CSS,
 } from './components/styles'
 import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
@@ -44,9 +44,9 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     } = props
 
     return (
-        <Layout className={className} style={style} css={layoutCss}>
+        <Layout className={className} style={style} css={LAYOUT_CSS}>
             <SideNav menuData={menuData} onLogoClick={onLogoClick}/>
-            <Layout css={subLayoutCss}>
+            <Layout css={SUB_LAYOUT_CSS}>
                 <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
                 {children}
             </Layout>
@@ -88,7 +88,7 @@ const PageHeader: FunctionComponent<IPageHeaderProps> = ({
 }) => {
     return (
         <AntPageHeader
-            className={classnames('page-header', className)} css={spaced ? spacedPageHeaderCss : pageHeaderCss} style={style}
+            className={classnames('page-header', className)} css={spaced ? SPACED_PAGE_HEADER_CSS : PAGE_HEADER_CSS} style={style}
             title={title} subTitle={subTitle}
             {...pageHeaderProps}
         >
@@ -104,7 +104,7 @@ interface IPageContentProps {
 
 const PageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
     return (
-        <div className={classnames('page-content', className)} css={pageContentCss} style={style}>
+        <div className={classnames('page-content', className)} css={PAGE_CONTENT_CSS} style={style}>
             {children}
         </div>
     )
@@ -112,7 +112,7 @@ const PageContent: FunctionComponent<IPageContentProps> = ({ children, className
 
 const TablePageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
     return (
-        <div className={classnames('page-content', className)} css={tablePageContentCss} style={style}>
+        <div className={classnames('page-content', className)} css={TABLE_PAGE_CONTENT_CSS} style={style}>
             {children}
         </div>
     )
