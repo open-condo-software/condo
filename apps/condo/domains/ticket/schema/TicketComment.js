@@ -5,7 +5,7 @@ const isNull = require('lodash/isNull')
 const get = require('lodash/get')
 
 const { Text, Relationship, Select } = require('@keystonejs/fields')
-const { GQLListSchema, find } = require('@core/keystone/schema')
+const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
@@ -13,8 +13,8 @@ const access = require('@condo/domains/ticket/access/TicketComment')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 
-const { Ticket, UserTicketCommentRead } = require('../utils/serverSchema')
 const { sendDifferentKindsOfNotifications } = require('@condo/domains/ticket/utils/handlers')
+const { updateResidentTicketCommentTime } = require('../utils/handlers')
 
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
@@ -77,47 +77,17 @@ const TicketComment = new GQLListSchema('TicketComment', {
         },
     },
     hooks: {
-        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
+        afterChange: async (requestData) => {
+            const { updatedItem, operation, context } = requestData
+
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
-            const commentType = get(resolvedData, 'type')
+            const commentType = get(updatedItem, 'type')
 
             if (operation === 'create' && commentType === RESIDENT_COMMENT_TYPE) {
-                const ticketId = get(resolvedData, 'ticket')
-                const dv = get(resolvedData, 'dv')
-                const sender = get(resolvedData, 'sender')
-                const now = new Date().toISOString()
-
-                if (userType === RESIDENT) {
-                    await Ticket.update(context, ticketId, {
-                        dv,
-                        sender,
-                        lastResidentCommentAt: now,
-                    })
-                } else {
-                    await Ticket.update(context, ticketId, {
-                        dv,
-                        sender,
-                        lastAnsweredToResidentAt: now,
-                    })
-
-                    const userTicketCommentReadObjects = await find('UserTicketCommentRead', {
-                        ticket: { id: ticketId },
-                    })
-
-                    for (const { id } of userTicketCommentReadObjects) {
-                        await UserTicketCommentRead.update(context, id, {
-                            dv: 1,
-                            sender,
-                            readResidentCommentAt: now,
-                        })
-                    }
-                }
+                await updateResidentTicketCommentTime(context, updatedItem, userType)
             }
 
-            return resolvedData
-        },
-        afterChange: async (requestData) => {
             // NOTE: disabled at 2022-04-25 because of @MikhailRumanovskii request until ticket comments will be implemented in all mobile applications for all platforms
             // await sendTicketCommentNotifications(requestData)
         },
