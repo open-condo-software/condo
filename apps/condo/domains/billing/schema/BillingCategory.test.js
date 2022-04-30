@@ -30,7 +30,7 @@ describe('BillingCategory', () => {
             expect(category).toBeDefined()
         })
 
-        test('cant be created by user', async () => {
+        test('cannot be created by user', async () => {
             const user = await makeLoggedInClient()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -90,7 +90,7 @@ describe('BillingCategory', () => {
             expect(updated.name).toEqual(payload.name)
         })
 
-        test('cant be updated by user', async () => {
+        test('cannot be updated by user', async () => {
             const admin = await makeLoggedInAdminClient()
             const [category] = await createTestBillingCategory(admin)
 
@@ -103,7 +103,7 @@ describe('BillingCategory', () => {
             })
         })
 
-        test('cant be updated by anonymous', async () => {
+        test('cannot be updated by anonymous', async () => {
             const admin = await makeLoggedInAdminClient()
             const [category] = await createTestBillingCategory(admin)
 
@@ -117,7 +117,7 @@ describe('BillingCategory', () => {
     })
 
     describe('Delete', () => {
-        test('cant be deleted by admin', async () => {
+        test('cannot be deleted by admin', async () => {
             const admin = await makeLoggedInAdminClient()
             const [category] = await createTestBillingCategory(admin)
 

@@ -33,7 +33,7 @@ describe('BillingProperty', () => {
             expect(billingAccount.globalId).toEqual(billingAccount2.globalId)
         })
 
-        test('cant create two BillingProperties with same globalId in one context', async () => {
+        test('cannot create two BillingProperties with same globalId in one context', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             await createTestBillingProperty(admin, context)
@@ -73,7 +73,7 @@ describe('BillingProperty', () => {
             })
         })
 
-        test('cant be created by anonymous', async () => {
+        test('cannot be created by anonymous', async () => {
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const client = await makeClient()
 
@@ -100,7 +100,7 @@ describe('BillingProperty', () => {
             expect(properties).toHaveLength(1)
         })
 
-        test('cant be read by user', async () => {
+        test('cannot be read by user', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             await createTestBillingProperty(admin, context)
@@ -110,7 +110,7 @@ describe('BillingProperty', () => {
             expect(properties).toHaveLength(0)
         })
 
-        test('cant be read by anonymous', async () => {
+        test('cannot be read by anonymous', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             await createTestBillingProperty(admin, context)
@@ -158,7 +158,7 @@ describe('BillingProperty', () => {
             expect(updated.address).toEqual(address)
         })
 
-        test('cant be updated by user', async () => {
+        test('cannot be updated by user', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -189,7 +189,7 @@ describe('BillingProperty', () => {
             expect(updated.address).toEqual(address)
         })
 
-        test('cant be updated by anonymous', async () => {
+        test('cannot be updated by anonymous', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -207,7 +207,7 @@ describe('BillingProperty', () => {
     })
 
     describe('Delete', () => {
-        test('cant be deleted by admin', async () => {
+        test('cannot be deleted by admin', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -228,7 +228,7 @@ describe('BillingProperty', () => {
             })
         })
 
-        test('cant be deleted by anonymous', async () => {
+        test('cannot be deleted by anonymous', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -239,7 +239,7 @@ describe('BillingProperty', () => {
             })
         })
 
-        test('cant be deleted by organization integration manager', async () => {
+        test('cannot be deleted by organization integration manager', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
             const [property] = await createTestBillingProperty(managerUserClient, context)

@@ -131,14 +131,14 @@ describe('BillingIntegration', () => {
             }))
         })
 
-        test('user cant create BillingIntegration', async () => {
+        test('user cannot create BillingIntegration', async () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestBillingIntegration(client)
             })
         })
 
-        test('anonymous cant create BillingIntegration', async () => {
+        test('anonymous cannot create BillingIntegration', async () => {
             const client = await makeClient()
             await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestBillingIntegration(client)
@@ -157,7 +157,7 @@ describe('BillingIntegration', () => {
             expect(updatedIntegration.name).toEqual('super-billing!')
         })
 
-        test('user cant update BillingIntegration', async () => {
+        test('user cannot update BillingIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
 
@@ -168,7 +168,7 @@ describe('BillingIntegration', () => {
             })
         })
 
-        test('anonymous cant update BillingIntegration', async () => {
+        test('anonymous cannot update BillingIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
 
@@ -202,7 +202,7 @@ describe('BillingIntegration', () => {
             ]))
         })
 
-        test('anonymous cant read BillingIntegration', async () => {
+        test('anonymous cannot read BillingIntegration', async () => {
             const client = await makeClient()
 
             await expectToThrowAuthenticationErrorToObjects(async () => {
@@ -212,7 +212,7 @@ describe('BillingIntegration', () => {
     })
 
     describe('Delete', async () => {
-        test('user cant delete BillingIntegration', async () => {
+        test('user cannot delete BillingIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
 
@@ -222,7 +222,7 @@ describe('BillingIntegration', () => {
             })
         })
 
-        test('anonymous cant delete BillingIntegration', async () => {
+        test('anonymous cannot delete BillingIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
 

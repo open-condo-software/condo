@@ -337,7 +337,7 @@ describe('BillingReceipt', () => {
             expect(changedObj.importId).toEqual( TEST_IMPORT_ID + '22' )
         })
 
-        test('cant create billing receipt with same import id in one context', async () => {
+        test('cannot create billing receipt with same import id in one context', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -353,7 +353,7 @@ describe('BillingReceipt', () => {
             })
         })
 
-        test('cant create billing receipt with empty import id', async () => {
+        test('cannot create billing receipt with empty import id', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -366,7 +366,7 @@ describe('BillingReceipt', () => {
             })
         })
 
-        test('cant create billing receipt with undefined import id', async () => {
+        test('cannot create billing receipt with undefined import id', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -379,7 +379,7 @@ describe('BillingReceipt', () => {
             })
         })
 
-        test('cant create billing receipt with null import id', async () => {
+        test('cannot create billing receipt with null import id', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
@@ -509,7 +509,7 @@ describe('BillingReceipt', () => {
             expect(obj.property.id).toEqual(property.id)
         })
 
-        test('user cant create BillingReceipt', async () => {
+        test('user cannot create BillingReceipt', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -521,7 +521,7 @@ describe('BillingReceipt', () => {
             })
         })
 
-        test('anonymous cant create BillingReceipt', async () => {
+        test('anonymous cannot create BillingReceipt', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -564,7 +564,7 @@ describe('BillingReceipt', () => {
             expect(objs).toHaveLength(1)
         })
 
-        test('deleted employee with `canReadBillingReceipts` cant read', async () => {
+        test('deleted employee with `canReadBillingReceipts` cannot read', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
             const [property] = await createTestBillingProperty(managerUserClient, context)
@@ -676,7 +676,7 @@ describe('BillingReceipt', () => {
             expect(objs.data.objs).toHaveLength(0)
         })
 
-        test('user cant read BillingReceipt in other cases', async () => {
+        test('user cannot read BillingReceipt in other cases', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -717,7 +717,7 @@ describe('BillingReceipt', () => {
             expect(objUpdated.toPayDetails.formula).toEqual('calc+recalc')
         })
 
-        test('user cant update BillingReceipt', async () => {
+        test('user cannot update BillingReceipt', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -730,7 +730,7 @@ describe('BillingReceipt', () => {
             })
         })
 
-        test('anonymous cant update BillingReceipt', async () => {
+        test('anonymous cannot update BillingReceipt', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -745,7 +745,7 @@ describe('BillingReceipt', () => {
     })
 
     describe('Delete', async () => {
-        test('user cant delete BillingReceipt', async () => {
+        test('user cannot delete BillingReceipt', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -758,7 +758,7 @@ describe('BillingReceipt', () => {
             })
         })
 
-        test('anonymous cant delete BillingReceipt', async () => {
+        test('anonymous cannot delete BillingReceipt', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()

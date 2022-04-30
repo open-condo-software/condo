@@ -59,7 +59,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
                     if (!resolvedImportId || typeof resolvedImportId !== 'string' || resolvedImportId.length === 0) {
                         addValidationError(
-                            `${WRONG_TEXT_FORMAT}importId] Cant mutate billing receipt with empty or null importId, found ${resolvedImportId}`)
+                            `${WRONG_TEXT_FORMAT}importId] Cannot mutate billing receipt with empty or null importId, found ${resolvedImportId}`)
                     }
                 },
             },
