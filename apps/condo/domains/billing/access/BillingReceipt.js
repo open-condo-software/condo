@@ -26,8 +26,7 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
         }
 
         // Make map { <resident.id>: <resident> } to optimize resident by id search
-        const residentsByUser = {}
-        residents.forEach(r => residentsByUser[r.id] = r)
+        const residentsByUser = Object.fromEntries(residents.map(resident => ([resident.id, resident])))
 
         const result = {
             OR: serviceConsumers.map(
