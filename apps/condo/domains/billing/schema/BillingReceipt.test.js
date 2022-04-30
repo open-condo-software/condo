@@ -584,7 +584,7 @@ describe('BillingReceipt', () => {
             expect(objs).toHaveLength(0)
         })
 
-        test('resident can read his own billingReceipts', async () => {
+        test('user with type resident can read his own billingReceipts', async () => {
 
             const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
 
@@ -606,7 +606,7 @@ describe('BillingReceipt', () => {
             expect(obj.recipient).not.toBeNull()
         })
 
-        test('resident can read his own billingReceipts if he has multiple residents and multiple billingAccounts', async () => {
+        test('user with type resident can read his own billingReceipts if he has multiple residents and multiple serviceConsumers', async () => {
             // Resident has two properties:
 
             // Resident pays for two services in this property
@@ -631,29 +631,35 @@ describe('BillingReceipt', () => {
             expect(objs.data.objs).toHaveLength(3)
         })
 
-        test('resident cant read billingReceipts if unitName is wrong', async () => {
+        test('user with type resident cannot read billingReceipts if unitName is wrong', async () => {
 
             const { adminClient, billingAccount, residentClient } = await makeResidentClientWithOwnReceipt()
 
             await updateTestBillingAccount(adminClient, billingAccount.id, { unitName: billingAccount.unitName + 'wrong!' })
 
+            // Generate other resident's rececipts...
+            await makeResidentClientWithOwnReceipt()
+
             const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
 
             expect(objs.data.objs).toHaveLength(0)
         })
 
-        test('resident cant read billingReceipts if accountNumber is wrong', async () => {
+        test('user with type resident cannot read billingReceipts if accountNumber is wrong', async () => {
 
             const { adminClient, residentClient, serviceConsumer } = await makeResidentClientWithOwnReceipt()
 
             await updateTestServiceConsumer(adminClient, serviceConsumer.id, { 'accountNumber': serviceConsumer.accountNumber + 'wrong!' })
 
+            // Generate other resident's rececipts...
+            await makeResidentClientWithOwnReceipt()
+
             const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
 
             expect(objs.data.objs).toHaveLength(0)
         })
 
-        test('resident cant read billingReceipts if context is wrong', async () => {
+        test('user with type resident cannot read billingReceipts if context is wrong', async () => {
 
             const { adminClient, integration, residentClient, serviceConsumer } = await makeResidentClientWithOwnReceipt()
 
@@ -661,6 +667,9 @@ describe('BillingReceipt', () => {
             const [context2] = await createTestBillingIntegrationOrganizationContext(adminClient, organization2, integration)
 
             await updateTestServiceConsumer(adminClient, serviceConsumer.id, { 'billingIntegrationContext': { connect: { id: context2.id } } })
+
+            // Generate other resident's rececipts...
+            await makeResidentClientWithOwnReceipt()
 
             const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
 
