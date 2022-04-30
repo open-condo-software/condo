@@ -409,7 +409,7 @@ describe('AllResidentBillingReceipts', () => {
         expect(objs[0].id).toEqual(receipt.id)
     })
 
-    test('user with stolen billing account id and hacky intentions cant read BillingReceipt', async () => {
+    test('user with stolen billing account id and hacky intentions cannot read BillingReceipt', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 
@@ -453,7 +453,7 @@ describe('AllResidentBillingReceipts', () => {
         })
     })
 
-    test('user without valid serviceAccount cant read BillingReceipt', async () => {
+    test('user without valid serviceAccount cannot read BillingReceipt', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 
@@ -471,7 +471,7 @@ describe('AllResidentBillingReceipts', () => {
         expect(objs).toHaveLength(0)
     })
 
-    test('user without valid resident cant read BillingReceipt', async () => {
+    test('user without valid resident cannot read BillingReceipt', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
 

@@ -189,7 +189,7 @@ class ReceiptsGenerator {
         
         console.info('[INFO] Generating receipts...')
         if (!this.billingAccounts) {
-            throw new Error('Cant generate receipts! No billing accounts. Please check that this.prepareModels() is ran before this.generateReceipts()')
+            throw new Error('Cannot generate receipts! No billing accounts. Please check that this.prepareModels() is ran before this.generateReceipts()')
         }
 
         const toBeGenerated = this.billingAccounts.length
@@ -287,7 +287,7 @@ class ReceiptsGenerator {
                         break
                     }
                     default:
-                        throw new Error(`Cant generate receipts! Detail level is wrong. Should be 1. Got ${this.detailLevel}`)
+                        throw new Error(`Cannot generate receipts! Detail level is wrong. Should be 1. Got ${this.detailLevel}`)
                 }
                 currentProgress = Math.floor(i * 100 / toBeGenerated)
                 //console.info(`[INFO] ${Math.floor(i * 100 / toBeGenerated)}%`)
