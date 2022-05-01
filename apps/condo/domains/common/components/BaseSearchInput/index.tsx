@@ -138,13 +138,14 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         onChange(value, options)
     }, [onChange])
 
+    // Checking for compliance of the selected property and the value in the search bar
     useEffect(()=>{
         if (selected !== null && selected !== searchValue) {
             setSelected(null)
             setSearchValue(undefined)
-            props.onClear()
+            typeof props.onClear === 'function' && props.onClear()
         }
-    }, [searchValue, props.onClear])
+    }, [searchValue, props])
 
     const handleScroll = useCallback(async (scrollEvent) => {
         if (isNeedToLoadNewElements(scrollEvent, fetching)) {
