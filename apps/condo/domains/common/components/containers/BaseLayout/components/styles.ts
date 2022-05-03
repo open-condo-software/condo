@@ -170,8 +170,8 @@ export const LAYOUT_CSS = css`
     display: flex;
     align-items: stretch;
 `
-
-export const layoutCss = css` // Deprecated
+/** @deprecated */
+export const layoutCss = css` 
     height: 100%;
     display: flex;
     align-items: stretch;
@@ -183,8 +183,8 @@ export const SUB_LAYOUT_CSS = css`
     align-items: stretch;
     background-color: ${colors.white};
 `
-
-export const subLayoutCss = css` // Deprecated
+/** @deprecated */
+export const subLayoutCss = css`
     width: 100%;
     display: flex;
     align-items: stretch;
@@ -219,8 +219,8 @@ export const PAGE_HEADER_CSS = css`
     padding: 0 0 40px;
     background: ${colors.white};
 `
-
-export const pageHeaderCss = css` // Deprecated
+/** @deprecated */
+export const pageHeaderCss = css` 
     padding: 0 0 40px;
     background: ${colors.white};
 `
@@ -236,8 +236,8 @@ export const PAGE_CONTENT_CSS = css`
     padding-bottom: 56px;
     background: ${colors.white};
 `
-
-export const pageContentCss = css` // Deprecated
+/** @deprecated */
+export const pageContentCss = css` 
     flex-grow: 1;
     max-width: 1200px;
     padding-bottom: 56px;
