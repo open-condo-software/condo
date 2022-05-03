@@ -183,7 +183,7 @@ type CommentFileListProps = {
 
 const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
     const files = get(comment, 'files')
-    const fileList = useMemo(() => files.map(({ id, file }) => {
+    const fileList = useMemo(() => files.map(({ id, file }, index) => {
         const fileNameArr = file.originalFilename.split('.')
         const fileExt = fileNameArr.pop()
         const fileName = fileNameArr.join('.')
@@ -194,7 +194,7 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
         return (
             <TextWrapComponent
                 href={url}
-                key={id}
+                key={index}
                 style={TEXT_WRAP_COMPONENT_STYLES}
             >
                 {getFilePreviewByMimetype(mimetype, url)}
@@ -208,9 +208,7 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
         )
     }), [files])
 
-    if (isEmpty(files)) {
-        return null
-    }
+    if (isEmpty(files)) return null
 
     return (
         <Image.PreviewGroup>
