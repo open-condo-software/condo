@@ -22,7 +22,9 @@ generates:
 
 
 async function getGraphQLSchema (keystoneModule) {
-    const { keystone } = await prepareKeystoneExpressApp(keystoneModule)
+    const { keystone } = await prepareKeystoneExpressApp(keystoneModule, {
+        remainingApps: ['GraphQLApp'],
+    })
     const internalSchema = keystone._schemas['internal']
     const result = printSchema(internalSchema)
     await keystone.disconnect()
