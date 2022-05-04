@@ -1003,6 +1003,7 @@ describe('TicketComment', () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
+            const unitName1 = faker.random.alphaNumeric(5)
             const content = faker.lorem.sentence()
             const randomFakeSuccessPushtoken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
             const tokenData = { pushToken: randomFakeSuccessPushtoken, pushTransport: PUSH_TRANSPORT_FIREBASE }
@@ -1012,6 +1013,10 @@ describe('TicketComment', () => {
             expect(device.pushTransport).toEqual(payload.pushTransport)
 
             const [resident] = await createTestResident(admin, residentClient.user, residentClient.organization, residentClient.property, { unitName })
+
+            // NOTE: this needed for checking that proper resident will be picked when same user + organization + property can has multiple residents
+            await createTestResident(admin, residentClient.user, residentClient.organization, residentClient.property, { unitName: unitName1 })
+
             const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, { unitName })
             const extraAttrs = { type: ORGANIZATION_COMMENT_TYPE, content }
             const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user, extraAttrs)
