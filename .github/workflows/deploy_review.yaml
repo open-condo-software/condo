@@ -9,8 +9,10 @@ jobs:
     name: "Deploy to review"
     runs-on: self-hosted
     env:
-      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
+      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}s
     steps:
+      - name: Title
+        run: echo "Refactored Workflow"
       - name: Checkout code
         uses: actions/checkout@v2
         with:
