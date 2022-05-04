@@ -39,7 +39,6 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser }
 const { MeterResource, Meter, createTestMeter, updateTestMeter } = require('../utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
-const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
 
 describe('Meter', () => {
     describe('Create', () => {
@@ -600,12 +599,14 @@ describe('Meter', () => {
             const [divisionLimitedRole] = await createTestOrganizationEmployeeRole(admin, organization, {
                 canReadEntitiesOnlyInScopeOfDivision: true,
             })
-            const [divisionLimitedEmployee] = await createTestOrganizationEmployee(admin, organization, client.user, divisionLimitedRole, {})
+            // division-limited employee
+            await createTestOrganizationEmployee(admin, organization, client.user, divisionLimitedRole, {})
 
             const [organization1] = await createTestOrganization(admin)
             const [property1] = await createTestProperty(admin, organization1)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization1)
-            const [employee] = await createTestOrganizationEmployee(admin, organization1, client.user, role, {})
+            // default employee
+            await createTestOrganizationEmployee(admin, organization1, client.user, role, {})
 
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             await createTestMeter(admin, organization, property, resource, {})
