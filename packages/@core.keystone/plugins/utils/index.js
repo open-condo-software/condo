@@ -1,6 +1,13 @@
 const { getType } = require('@keystonejs/utils')
 const { get } = require('lodash')
 
+/**
+ * Takes combine 2 hooks together
+ * @param originalHook original hook which will be applied first
+ * @param newHook hook which will be applied second
+ * @param isResolvers determines if hook is resolver. If true, used return of originalHook as "resolvedData" for newHook. Otherwise, both take original resolvedData
+ * @returns {function(*): Promise<*>}
+ */
 const composeHook = (originalHook, newHook, isResolvers = true) => async params => {
     let { resolvedData } = params
     if (originalHook) {
