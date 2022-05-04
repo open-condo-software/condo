@@ -11,6 +11,7 @@ import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/t
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { ITicketUIState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
+import { Loader } from '../Loader'
 
 import { Module } from '../MultipleFileUpload'
 import { useLayoutContext } from '../LayoutContext'
@@ -144,6 +145,7 @@ const CommentsTabsContainer = styled.div`
 `
 
 const EMPTY_CONTAINER_TEXT_STYLES: CSSProperties = { fontSize: fontSizes.content }
+const LOADER_STYLES: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
 const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
     <EmptyContainer>
@@ -172,10 +174,11 @@ type CommentsTabContentProps = {
     setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
     handleBodyScroll: UIEventHandler<HTMLDivElement>
     bodyRef: React.RefObject<HTMLDivElement>
+    sending: boolean
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
-    ({ handleBodyScroll, bodyRef, comments, PromptTitleMessage, PromptDescriptionMessage, actionsFor, editableComment, setEditableComment }) => {
+    ({ sending, handleBodyScroll, bodyRef, comments, PromptTitleMessage, PromptDescriptionMessage, actionsFor, editableComment, setEditableComment }) => {
         const commentsToRender = useMemo(() =>
             comments
                 .filter(comment => editableComment ? comment.id !== editableComment.id : true)
@@ -201,6 +204,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                     />
                 ) : (
                     <Body ref={bodyRef} onScroll={handleBodyScroll}>
+                        {sending && <Loader style={LOADER_STYLES} />}
                         {commentsToRender}
                     </Body>
                 )}
@@ -375,6 +379,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                             setEditableComment={setEditableComment}
                             handleBodyScroll={handleBodyScroll}
                             bodyRef={bodyRef}
+                            sending={sending}
                         />
                     </TabPane>
                     <TabPane
@@ -396,6 +401,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                             setEditableComment={setEditableComment}
                             handleBodyScroll={handleBodyScroll}
                             bodyRef={bodyRef}
+                            sending={sending}
                         />
                     </TabPane>
                 </Tabs>
