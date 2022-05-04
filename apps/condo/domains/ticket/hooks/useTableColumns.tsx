@@ -27,7 +27,7 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
 
-import { TicketCommentsTime, TicketStatus, UserTicketCommentRead } from '../utils/clientSchema'
+import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import {
     getDeadlineType,
@@ -204,7 +204,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const { user } = useAuth()
 
     const ticketIds = useMemo(() => map(tickets, 'id'), [tickets])
-    const { objs: userTicketsCommentRead } = UserTicketCommentRead.useObjects({
+    const { objs: userTicketsCommentReadTime } = UserTicketCommentReadTime.useObjects({
         where: {
             user: { id: user.id },
             ticket: {
@@ -246,7 +246,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             }
         }
 
-        const userTicketCommentRead = userTicketsCommentRead.find(obj => obj.ticket.id === ticket.id)
+        const userTicketCommentRead = userTicketsCommentReadTime.find(obj => obj.ticket.id === ticket.id)
         const ticketCommentsTime = ticketsCommentsTime.find(obj => obj.ticket.id === ticket.id)
 
         const readResidentCommentByUserAt = get(userTicketCommentRead, 'readResidentCommentAt')
@@ -266,7 +266,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
         )
 
         return getTableCellRenderer(search, false, postfix, extraHighlighterProps, null, extraTitle)(number)
-    }, [LessThenDayMessage, NewResidentCommentMessage, OverdueMessage, search, ticketsCommentsTime, userTicketsCommentRead])
+    }, [LessThenDayMessage, NewResidentCommentMessage, OverdueMessage, search, ticketsCommentsTime, userTicketsCommentReadTime])
 
     const columnWidths = useMemo(() => breakpoints.xxl ?
         COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN : COLUMNS_WIDTH_SMALLER_XXL_SCREEN,

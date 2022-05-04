@@ -41,7 +41,8 @@ import {
     TicketComment,
     TicketCommentFile,
     TicketCommentsTime,
-    TicketFile, UserTicketCommentRead,
+    TicketFile,
+    UserTicketCommentReadTime,
 } from '@condo/domains/ticket/utils/clientSchema'
 import {
     getDeadlineType, getHumanizeDeadlineDateDifference,
@@ -525,22 +526,22 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
             ticket: { id: id },
         },
     })
-    const { obj: userTicketCommentRead, refetch: refetchUserTicketCommentRead } = UserTicketCommentRead.useObject({
+    const { obj: userTicketCommentReadTime, refetch: refetchUserTicketCommentReadTime } = UserTicketCommentReadTime.useObject({
         where: {
             user: { id: user.id },
             ticket: { id: id },
         },
     })
-    const createUserTicketCommentRead = UserTicketCommentRead.useCreate({
+    const createUserTicketCommentReadTime = UserTicketCommentReadTime.useCreate({
         user: user.id,
         ticket: id,
         readResidentCommentAt: new Date(),
-    }, () => refetchUserTicketCommentRead())
-    const updateUserTicketCommentRead = UserTicketCommentRead.useUpdate({
+    }, () => refetchUserTicketCommentReadTime())
+    const updateUserTicketCommentReadTime = UserTicketCommentReadTime.useUpdate({
         user: user.id,
         ticket: id,
         readResidentCommentAt: new Date(),
-    }, () => refetchUserTicketCommentRead())
+    }, () => refetchUserTicketCommentReadTime())
 
     const canShareTickets = get(employee, 'role.canShareTickets')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
@@ -550,8 +551,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         await refetchComments()
         await refetchCommentFiles()
         await refetchTicketCommentsTime()
-        await refetchUserTicketCommentRead()
-    }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentRead])
+        await refetchUserTicketCommentReadTime()
+    }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentReadTime])
 
     const actionsFor = useCallback(comment => {
         const isAuthor = comment.user.id === auth.user.id
@@ -762,9 +763,9 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                             <Affix offsetTop={40}>
                                 <Comments
                                     ticketCommentsTime={ticketCommentsTime}
-                                    userTicketCommentRead={userTicketCommentRead}
-                                    createUserTicketCommentRead={createUserTicketCommentRead}
-                                    updateUserTicketCommentRead={updateUserTicketCommentRead}
+                                    userTicketCommentReadTime={userTicketCommentReadTime}
+                                    createUserTicketCommentReadTime={createUserTicketCommentReadTime}
+                                    updateUserTicketCommentReadTime={updateUserTicketCommentReadTime}
                                     FileModel={TicketCommentFile}
                                     fileModelRelationField={'ticketComment'}
                                     ticket={ticket}

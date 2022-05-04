@@ -24,7 +24,7 @@ const { Ticket, TicketCommentsTime } = require('./serverSchema')
 const { PUSH_TRANSPORT } = require('@condo/domains/notification/constants/constants')
 const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { UserTicketCommentRead } = require('../utils/serverSchema')
+const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -329,12 +329,12 @@ const createOrUpdateTicketCommentsTime = async (context, updatedItem, userType) 
             })
         }
 
-        const userTicketCommentReadObjects = await find('UserTicketCommentRead', {
+        const userTicketCommentReadTimeObjects = await find('UserTicketCommentReadTime', {
             ticket: { id: ticketId },
         })
 
-        for (const { id } of userTicketCommentReadObjects) {
-            await UserTicketCommentRead.update(context, id, {
+        for (const { id } of userTicketCommentReadTimeObjects) {
+            await UserTicketCommentReadTime.update(context, id, {
                 dv: 1,
                 sender,
                 readResidentCommentAt: now,
