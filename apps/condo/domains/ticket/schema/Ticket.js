@@ -329,14 +329,6 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...',
             type: Json,
         },
-        lastResidentCommentAt: {
-            schemaDoc: 'The resident\'s last comment time within this ticket',
-            type: DateTimeUtc,
-        },
-        lastAnsweredToResidentAt: {
-            schemaDoc: 'The last answer time within this ticket',
-            type: DateTimeUtc,
-        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {

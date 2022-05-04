@@ -14,7 +14,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 
 const { sendDifferentKindsOfNotifications } = require('@condo/domains/ticket/utils/handlers')
-const { updateResidentTicketCommentTime } = require('../utils/handlers')
+const { createOrUpdateTicketCommentsTime } = require('../utils/handlers')
 
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
@@ -85,7 +85,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
             const commentType = get(updatedItem, 'type')
 
             if (operation === 'create' && commentType === RESIDENT_COMMENT_TYPE) {
-                await updateResidentTicketCommentTime(context, updatedItem, userType)
+                await createOrUpdateTicketCommentsTime(context, updatedItem, userType)
             }
 
             // NOTE: disabled at 2022-04-25 because of @MikhailRumanovskii request until ticket comments will be implemented in all mobile applications for all platforms

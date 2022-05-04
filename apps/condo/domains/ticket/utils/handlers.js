@@ -1,7 +1,7 @@
 const get = require('lodash/get')
 
 const conf = require('@core/config')
-const { getByCondition, find } = require('@core/keystone/schema')
+const { getByCondition, find, getById } = require('@core/keystone/schema')
 
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -20,7 +20,7 @@ const {
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
-const { Ticket } = require('./serverSchema')
+const { Ticket, TicketCommentsTime } = require('./serverSchema')
 const { PUSH_TRANSPORT } = require('@condo/domains/notification/constants/constants')
 const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -276,24 +276,58 @@ const sendTicketCommentNotifications = async (requestData) => {
     }
 }
 
-const updateResidentTicketCommentTime = async (context, updatedItem, userType) => {
+const createOrUpdateTicketCommentsTime = async (context, updatedItem, userType) => {
     const ticketId = get(updatedItem, 'ticket')
     const dv = get(updatedItem, 'dv')
     const sender = get(updatedItem, 'sender')
     const now = new Date().toISOString()
 
+    const ticketCommentsTime = await getByCondition('TicketCommentsTime', {
+        ticket: { id: ticketId },
+    })
+
     if (userType === RESIDENT) {
-        await Ticket.update(context, ticketId, {
-            dv,
-            sender,
-            lastResidentCommentAt: now,
-        })
+        if (!ticketCommentsTime) {
+            const ticket = await getById('Ticket', ticketId)
+            const ticketOrganizationId = get(ticket, 'organization')
+            if (!ticket) return false
+
+            await TicketCommentsTime.create(context, {
+                dv,
+                sender,
+                organization: { connect: { id: ticketOrganizationId } },
+                ticket: { connect: { id: ticketId } },
+                lastCommentAt: now,
+                lastResidentCommentAt: now,
+            })
+        } else {
+            await TicketCommentsTime.update(context, ticketCommentsTime.id, {
+                dv,
+                sender,
+                lastCommentAt: now,
+                lastResidentCommentAt: now,
+            })
+        }
     } else {
-        await Ticket.update(context, ticketId, {
-            dv,
-            sender,
-            lastAnsweredToResidentAt: now,
-        })
+        if (!ticketCommentsTime) {
+            const ticket = await getById('Ticket', ticketId)
+            const ticketOrganizationId = get(ticket, 'organization')
+            if (!ticket) return false
+
+            await TicketCommentsTime.create(context, {
+                dv,
+                sender,
+                organization: { connect: { id: ticketOrganizationId } },
+                ticket: { connect: { id: ticketId } },
+                lastCommentAt: now,
+            })
+        } else {
+            await TicketCommentsTime.update(context, ticketCommentsTime.id, {
+                dv,
+                sender,
+                lastCommentAt: now,
+            })
+        }
 
         const userTicketCommentReadObjects = await find('UserTicketCommentRead', {
             ticket: { id: ticketId },
@@ -313,7 +347,7 @@ module.exports = {
     sendTicketNotifications,
     sendTicketCommentNotifications,
     detectEventTypes,
-    updateResidentTicketCommentTime,
+    createOrUpdateTicketCommentsTime,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,
     STATUS_CHANGED_EVENT_TYPE,

@@ -27,7 +27,7 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
 
-import { TicketStatus, UserTicketCommentRead } from '../utils/clientSchema'
+import { TicketCommentsTime, TicketStatus, UserTicketCommentRead } from '../utils/clientSchema'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import {
     getDeadlineType,
@@ -67,14 +67,10 @@ const COLUMNS_WIDTH_SMALLER_XXL_SCREEN = {
     assignee: '13%',
 }
 
-const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { position: 'relative', left: '-40px' }
-const NewCommentIndicator = styled(Typography.Text)`
-    display: block;
-    width: 8px; 
-    height: 8px; 
-    border-radius: 100px; 
-    background-color: ${colors.red[5]};
-`
+const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_SMALLER_THAN_XL: CSSProperties = { position: 'absolute', left: '-50px', bottom: '30%' }
+const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = { position: 'absolute', left: '-10px', bottom: '54px' }
+const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
+const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = { backgroundColor: 'red', borderRadius: '100px', width: '8px', height: '8px' }
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets) {
     const intl = useIntl()
@@ -216,11 +212,18 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             },
         },
     })
+    const { objs: ticketsCommentsTime } = TicketCommentsTime.useObjects({
+        where: {
+            ticket: {
+                id_in: ticketIds,
+            },
+        },
+    })
 
     const renderNumber = useCallback((number, ticket) => {
         const deadline = dayjs(get(ticket, 'deadline'))
         let extraHighlighterProps
-        let extraTitle
+        let extraTitle = number
 
         if (deadline) {
             const deadlineType = getDeadlineType(ticket)
@@ -244,19 +247,26 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
         }
 
         const userTicketCommentRead = userTicketsCommentRead.find(obj => obj.ticket.id === ticket.id)
-        const lastResidentCommentAt = get(ticket, 'lastResidentCommentAt')
+        const ticketCommentsTime = ticketsCommentsTime.find(obj => obj.ticket.id === ticket.id)
+
         const readResidentCommentByUserAt = get(userTicketCommentRead, 'readResidentCommentAt')
-        const lastAnsweredToResidentAt = get(ticket, 'lastAnsweredToResidentAt')
-        const postfix = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastAnsweredToResidentAt) && (
-            <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES}>
+        const lastResidentCommentAt = get(ticketCommentsTime, 'lastResidentCommentAt')
+        const lastCommentAt = get(ticketCommentsTime, 'lastCommentAt')
+
+        const postfix = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
+            <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_SMALLER_THAN_XL : NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL}>
                 <Tooltip title={NewResidentCommentMessage} placement={'topRight'}>
-                    <NewCommentIndicator title={''} />
+                    <Typography.Text title={NewResidentCommentMessage}>
+                        <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES} >
+                            <div style={NEW_COMMENTS_INDICATOR_STYLES} />
+                        </div>
+                    </Typography.Text>
                 </Tooltip>
             </div>
         )
 
         return getTableCellRenderer(search, false, postfix, extraHighlighterProps, null, extraTitle)(number)
-    }, [LessThenDayMessage, OverdueMessage, search, userTicketsCommentRead])
+    }, [LessThenDayMessage, NewResidentCommentMessage, OverdueMessage, search, ticketsCommentsTime, userTicketsCommentRead])
 
     const columnWidths = useMemo(() => breakpoints.xxl ?
         COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN : COLUMNS_WIDTH_SMALLER_XXL_SCREEN,

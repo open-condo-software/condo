@@ -40,6 +40,7 @@ import {
     TicketChange,
     TicketComment,
     TicketCommentFile,
+    TicketCommentsTime,
     TicketFile, UserTicketCommentRead,
 } from '@condo/domains/ticket/utils/clientSchema'
 import {
@@ -519,6 +520,11 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         user: auth.user && auth.user.id,
     }, () => Promise.resolve())
 
+    const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketCommentsTime.useObject({
+        where: {
+            ticket: { id: id },
+        },
+    })
     const { obj: userTicketCommentRead, refetch: refetchUserTicketCommentRead } = UserTicketCommentRead.useObject({
         where: {
             user: { id: user.id },
@@ -543,8 +549,9 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const refetchCommentsWithFiles = useCallback(async () => {
         await refetchComments()
         await refetchCommentFiles()
+        await refetchTicketCommentsTime()
         await refetchUserTicketCommentRead()
-    }, [refetchCommentFiles, refetchComments, refetchUserTicketCommentRead])
+    }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentRead])
 
     const actionsFor = useCallback(comment => {
         const isAuthor = comment.user.id === auth.user.id
@@ -754,6 +761,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                         <Col lg={7} xs={24} offset={isSmall ? 0 : 1}>
                             <Affix offsetTop={40}>
                                 <Comments
+                                    ticketCommentsTime={ticketCommentsTime}
                                     userTicketCommentRead={userTicketCommentRead}
                                     createUserTicketCommentRead={createUserTicketCommentRead}
                                     updateUserTicketCommentRead={updateUserTicketCommentRead}
