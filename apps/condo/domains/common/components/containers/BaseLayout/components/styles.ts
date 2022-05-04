@@ -170,21 +170,8 @@ export const LAYOUT_CSS = css`
     display: flex;
     align-items: stretch;
 `
-/** @deprecated */
-export const layoutCss = css` 
-    height: 100%;
-    display: flex;
-    align-items: stretch;
-`
 
 export const SUB_LAYOUT_CSS = css`
-    width: 100%;
-    display: flex;
-    align-items: stretch;
-    background-color: ${colors.white};
-`
-/** @deprecated */
-export const subLayoutCss = css`
     width: 100%;
     display: flex;
     align-items: stretch;
@@ -219,11 +206,6 @@ export const PAGE_HEADER_CSS = css`
     padding: 0 0 40px;
     background: ${colors.white};
 `
-/** @deprecated */
-export const pageHeaderCss = css` 
-    padding: 0 0 40px;
-    background: ${colors.white};
-`
 
 export const SPACED_PAGE_HEADER_CSS = css`
     padding: 0 0 60px;
@@ -231,13 +213,6 @@ export const SPACED_PAGE_HEADER_CSS = css`
 `
 
 export const PAGE_CONTENT_CSS = css`
-    flex-grow: 1;
-    max-width: 1200px;
-    padding-bottom: 56px;
-    background: ${colors.white};
-`
-/** @deprecated */
-export const pageContentCss = css` 
     flex-grow: 1;
     max-width: 1200px;
     padding-bottom: 56px;
