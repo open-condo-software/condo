@@ -10,15 +10,13 @@ jobs:
     runs-on: self-hosted
     env:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
-      PULL_USER: ${{ secrets.PULL_USER }}
-      PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
           submodules: recursive
-          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+          token: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
       - name: Set env for namespace
         run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Set env url prefix
