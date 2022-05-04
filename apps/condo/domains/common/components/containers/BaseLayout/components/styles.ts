@@ -141,6 +141,12 @@ export const MENU_ICON_STYLES = {
     fontSize: '24px',
 }
 
+/** @deprecated */
+export const menuIconStyles = {
+    color: colors.black,
+    fontSize: '24px',
+}
+
 export const StyledMenuItem = styled(Menu.Item)`
     border-bottom: 1px solid ${colors.defaultWhite[6]};
     padding: 14px 0;
@@ -202,6 +208,18 @@ export const TOP_MENU_CSS = css`
     justify-content: flex-start;
     line-height: 100%;
 `
+/** @deprecated */
+export const topMenuCss = css`
+    z-index: 9;
+    background: ${colors.white};
+    width: 100%;
+    padding: 20px 48px;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    line-height: 100%;
+`
 
 interface IPageWrapper {
     isSmall: boolean
@@ -245,6 +263,13 @@ export const pageContentCss = css`
 `
 
 export const TABLE_PAGE_CONTENT_CSS = css`
+    flex-grow: 1;
+    max-width: 1600px;
+    padding-bottom: 56px;
+    background: ${colors.white};
+`
+/** @deprecated */
+export const tablePageContentCss = css`
     flex-grow: 1;
     max-width: 1600px;
     padding-bottom: 56px;
