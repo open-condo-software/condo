@@ -1807,7 +1807,7 @@ export type B2BApp = {
   name?: Maybe<Scalars['String']>;
   /**  Information about promo-blocks which we'll be shown on app detailed page. JSON interpretation of visual about app field written in KS6 document-field notation (https://keystonejs.com/docs/guides/document-fields). For now only aboutAppBlock implemented  */
   about?: Maybe<Scalars['JSON']>;
-  /**  Category of app. Can be one of the following: ["INTERCOM", "OTHER"] By default set to "OTHER"  */
+  /**  Category of app. Can be one of the following: ["OTHER"] By default set to "OTHER"  */
   category?: Maybe<Scalars['String']>;
   /**  Text, which will be displayed instead of default "Set up" text if app has it's own frontend (appUrl)  */
   setupButtonMessage?: Maybe<Scalars['String']>;
