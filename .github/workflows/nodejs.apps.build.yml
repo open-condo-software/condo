@@ -1,0 +1,59 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: TEST APPS BUILD
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+
+      - name: install packages
+        run: |
+          yarn install --frozen-lockfile
+          pip3 install django
+          pip3 install psycopg2-binary
+
+      - name: test front build
+        run: |
+          set -x
+          echo '# Build time .env config!' > .env
+          echo 'COOKIE_SECRET=undefined' >> .env
+          echo 'DATABASE_URL=undefined' >> .env
+          echo 'WORKER_REDIS_URL=undefined' >> .env
+          echo 'NODE_ENV=production' >> .env
+
+      - name: test app/callcenter
+        run: |
+          yarn workspace @app/callcenter build
+
+      - name: test app/condorb
+        run: |
+          yarn workspace @app/condorb build
+
+      - name: test app/eps
+        run: |
+          yarn workspace @app/eps build
+
+      - name: test app/miniapp
+        run: |
+          yarn workspace @app/miniapp build
