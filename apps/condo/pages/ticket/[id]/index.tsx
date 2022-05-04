@@ -535,12 +535,10 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const createUserTicketCommentReadTime = UserTicketCommentReadTime.useCreate({
         user: user.id,
         ticket: id,
-        readResidentCommentAt: new Date(),
     }, () => refetchUserTicketCommentReadTime())
     const updateUserTicketCommentReadTime = UserTicketCommentReadTime.useUpdate({
         user: user.id,
         ticket: id,
-        readResidentCommentAt: new Date(),
     }, () => refetchUserTicketCommentReadTime())
 
     const canShareTickets = get(employee, 'role.canShareTickets')
