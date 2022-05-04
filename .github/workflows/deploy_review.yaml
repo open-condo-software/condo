@@ -11,18 +11,16 @@ jobs:
     env:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}s
     steps:
-      - name: Title
-        run: echo "Refactored Workflow"
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
           submodules: recursive
           token: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
-      - name: Set env for namespace
-        run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
-      - name: Set env url prefix
-        run: echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g' | cut -c -30)" >> $GITHUB_ENV
+      - name: Set environment variables
+        run: |
+          echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+          echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g' | cut -c -30)" >> $GITHUB_ENV
       - name: Converge
         uses: werf/actions/converge@v1.2
         with:
@@ -30,6 +28,8 @@ jobs:
           env: review
           kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          # https://werf.io/documentation/v1.2/internals/integration_with_ssh_agent.html
+          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
         env:
           WERF_SET_CI_CONDO_URL: "global.ci_condo_url=review-${{ env.REVIEW_URL_PREFIX }}-condo.d.doma.ai"
           WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=review-${{ env.REVIEW_URL_PREFIX }}-callcenter.d.doma.ai"
