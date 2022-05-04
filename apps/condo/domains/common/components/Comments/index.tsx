@@ -333,10 +333,15 @@ const Comments: React.FC<ICommentsListProps> = ({
         setCommentType(tab)
 
         if (tab === RESIDENT_COMMENT_TYPE) {
+            const now = new Date()
             if (userTicketCommentReadTime) {
-                updateUserTicketCommentReadTime({}, userTicketCommentReadTime)
+                updateUserTicketCommentReadTime({
+                    readResidentCommentAt: now,
+                }, userTicketCommentReadTime)
             } else {
-                createUserTicketCommentReadTime({})
+                createUserTicketCommentReadTime({
+                    readResidentCommentAt: now,
+                })
             }
         }
 
