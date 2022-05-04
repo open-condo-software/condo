@@ -4,12 +4,17 @@ on:
   workflow_dispatch:
     branches:
       - '/^review-.*$/'
+
 jobs:
   converge:
+
     name: "Deploy to review"
+
     runs-on: self-hosted
+
     env:
-      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}s
+      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -17,18 +22,22 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           token: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
+
       - name: Set environment variables
         run: |
           echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
           echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g' | cut -c -30)" >> $GITHUB_ENV
+
+      # https://werf.io/documentation/v1.2/internals/integration_with_ssh_agent.html
       - name: Converge
         uses: werf/actions/converge@v1.2
         with:
           channel: beta
           env: review
           kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}  # for github's container registry
         env:
+          # TODO: move domains here to customizable variable
           WERF_SET_CI_CONDO_URL: "global.ci_condo_url=review-${{ env.REVIEW_URL_PREFIX }}-condo.d.doma.ai"
           WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=review-${{ env.REVIEW_URL_PREFIX }}-callcenter.d.doma.ai"
           WERF_SET_CI_EPS_URL: "global.ci_eps_url=review-${{ env.REVIEW_URL_PREFIX }}-eps.d.doma.ai"
