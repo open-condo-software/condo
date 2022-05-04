@@ -43,15 +43,12 @@ async function canManageUserTicketCommentReads ({ authentication: { item: user }
                 user: { id: user.id },
             })
 
-            if (organizationEmployee) {
-                return true
-            }
-        } else if (operation === 'update' && itemId) {
+            if (organizationEmployee) return true
+        }
+        if (operation === 'update' && itemId) {
             const userTicketCommentRead = await getById('UserTicketCommentRead', itemId)
 
-            if (userTicketCommentRead.user === user.id) {
-                return true
-            }
+            if (userTicketCommentRead.user === user.id) return true
         }
     }
 
