@@ -145,34 +145,6 @@ describe('Ticket', () => {
             expect(obj.clientEmail).toEqual(email)
         })
 
-        test('resident: lastResidentCommentAt in Ticket updated when resident writes comment', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const residentClient = await makeClientWithResidentUser()
-
-            const [organization] = await createTestOrganization(admin)
-            const [property] = await createTestProperty(admin, organization)
-            const unitName = faker.random.alphaNumeric(5)
-            const content = faker.lorem.sentence()
-
-            await createTestResident(admin, residentClient.user, organization, property, {
-                unitName,
-            })
-            const [ticket] = await createTestTicket(residentClient, organization, property, {
-                unitName,
-            })
-
-            expect(ticket.lastResidentCommentAt).toBeNull()
-
-            const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
-                type: RESIDENT_COMMENT_TYPE,
-                content,
-            })
-
-            const readTicket = await Ticket.getOne(admin, { id: ticket.id })
-
-            expect(readTicket.lastResidentCommentAt).toBeDefined()
-        })
-
         test('user with 2 residents: can create Ticket for each resident', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
