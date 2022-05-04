@@ -251,9 +251,9 @@ interface ICommentsListProps {
     FileModel: Module,
     ticketCommentsTime
     fileModelRelationField: string,
-    userTicketCommentRead,
-    createUserTicketCommentRead,
-    updateUserTicketCommentRead,
+    userTicketCommentReadTime,
+    createUserTicketCommentReadTime,
+    updateUserTicketCommentReadTime,
 }
 
 const Comments: React.FC<ICommentsListProps> = ({
@@ -267,9 +267,9 @@ const Comments: React.FC<ICommentsListProps> = ({
     FileModel,
     fileModelRelationField,
     ticketCommentsTime,
-    userTicketCommentRead,
-    createUserTicketCommentRead,
-    updateUserTicketCommentRead,
+    userTicketCommentReadTime,
+    createUserTicketCommentReadTime,
+    updateUserTicketCommentReadTime,
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
@@ -333,19 +333,19 @@ const Comments: React.FC<ICommentsListProps> = ({
         setCommentType(tab)
 
         if (tab === RESIDENT_COMMENT_TYPE) {
-            if (userTicketCommentRead) {
-                updateUserTicketCommentRead({}, userTicketCommentRead)
+            if (userTicketCommentReadTime) {
+                updateUserTicketCommentReadTime({}, userTicketCommentReadTime)
             } else {
-                createUserTicketCommentRead({})
+                createUserTicketCommentReadTime({})
             }
         }
 
         scrollToBottom()
-    }, [createUserTicketCommentRead, updateUserTicketCommentRead, userTicketCommentRead])
+    }, [createUserTicketCommentReadTime, updateUserTicketCommentReadTime, userTicketCommentReadTime])
 
     const lastResidentCommentAt = get(ticketCommentsTime, 'lastResidentCommentAt')
     const lastCommentAt = get(ticketCommentsTime, 'lastCommentAt')
-    const readResidentCommentByUserAt = get(userTicketCommentRead, 'readResidentCommentAt')
+    const readResidentCommentByUserAt = get(userTicketCommentReadTime, 'readResidentCommentAt')
     const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt),
         [lastCommentAt, lastResidentCommentAt, readResidentCommentByUserAt])
 

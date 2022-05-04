@@ -21,8 +21,8 @@ const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
 const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
 const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
-const { UserTicketCommentRead: UserTicketCommentReadGQL } = require('@condo/domains/ticket/gql')
 const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
+const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -57,8 +57,8 @@ async function predictTicketClassification (context, data) {
 
 
 const TicketCommentFile = generateServerUtils(TicketCommentFileGQL)
-const UserTicketCommentRead = generateServerUtils(UserTicketCommentReadGQL)
 const TicketCommentsTime = generateServerUtils(TicketCommentsTimeGQL)
+const UserTicketCommentReadTime = generateServerUtils(UserTicketCommentReadTimeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -159,7 +159,7 @@ module.exports = {
     TicketFilterTemplate,
     predictTicketClassification,
     TicketCommentFile,
-    UserTicketCommentRead,
     TicketCommentsTime,
+    UserTicketCommentReadTime,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
