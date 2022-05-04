@@ -245,6 +245,7 @@ interface ICommentsListProps {
     canCreateComments: boolean,
     refetchComments,
     FileModel: Module,
+    ticketCommentsTime
     fileModelRelationField: string,
     userTicketCommentRead,
     createUserTicketCommentRead,
@@ -261,6 +262,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     actionsFor,
     FileModel,
     fileModelRelationField,
+    ticketCommentsTime,
     userTicketCommentRead,
     createUserTicketCommentRead,
     updateUserTicketCommentRead,
@@ -337,11 +339,11 @@ const Comments: React.FC<ICommentsListProps> = ({
         scrollToBottom()
     }, [createUserTicketCommentRead, updateUserTicketCommentRead, userTicketCommentRead])
 
-    const lastResidentCommentAt = get(ticket, 'lastResidentCommentAt')
+    const lastResidentCommentAt = get(ticketCommentsTime, 'lastResidentCommentAt')
+    const lastCommentAt = get(ticketCommentsTime, 'lastCommentAt')
     const readResidentCommentByUserAt = get(userTicketCommentRead, 'readResidentCommentAt')
-    const lastAnsweredToResidentAt = get(ticket, 'lastAnsweredToResidentAt')
-    const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastAnsweredToResidentAt),
-        [lastAnsweredToResidentAt, lastResidentCommentAt, readResidentCommentByUserAt])
+    const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt),
+        [lastCommentAt, lastResidentCommentAt, readResidentCommentByUserAt])
 
     return (
         <Container isSmall={isSmall}>

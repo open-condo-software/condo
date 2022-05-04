@@ -15,7 +15,7 @@ const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
         sender: SENDER_FIELD,
 
         organization: {
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Link to the organization',
             type: Relationship,
             ref: 'Organization',
             isRequired: true,
@@ -41,7 +41,6 @@ const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
         lastResidentCommentAt: {
             schemaDoc: 'Time of last resident\'s comment in this ticket',
             type: DateTimeUtc,
-            isRequired: true,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],

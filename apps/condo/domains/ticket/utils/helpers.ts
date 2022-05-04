@@ -631,17 +631,17 @@ export function getHumanizeDeadlineDateDifference (ticket: ITicketUIState) {
  * and later than the time someone replied to this comment
  * @param lastResidentCommentAt {string} Time of last resident comment
  * @param readResidentCommentByUserAt {string} Time when the resident's comments were last read by this user
- * @param lastAnsweredToResidentAt {string} Time of last reply to a resident's comment (by anyone)
+ * @param lastCommentAt {string} Time of last comment
  */
-export function hasUnreadResidentComments (lastResidentCommentAt, readResidentCommentByUserAt, lastAnsweredToResidentAt) {
+export function hasUnreadResidentComments (lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) {
     if (lastResidentCommentAt) {
         if (!readResidentCommentByUserAt) {
-            if (!lastAnsweredToResidentAt || dayjs(lastAnsweredToResidentAt).isBefore(lastResidentCommentAt)) {
+            if (lastCommentAt && dayjs(lastCommentAt).isSame(lastResidentCommentAt)) {
                 return true
             }
         } else {
-            if (dayjs(readResidentCommentByUserAt).isBefore(lastResidentCommentAt)) {
-                if (!lastAnsweredToResidentAt || dayjs(lastAnsweredToResidentAt).isBefore(lastResidentCommentAt)) {
+            if (dayjs(readResidentCommentByUserAt).isBefore(lastCommentAt)) {
+                if (lastCommentAt && dayjs(lastCommentAt).isSame(lastResidentCommentAt)) {
                     return true
                 }
             }
