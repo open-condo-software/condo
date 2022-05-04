@@ -28,13 +28,11 @@ jobs:
           env: review
           kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          # https://werf.io/documentation/v1.2/internals/integration_with_ssh_agent.html
-          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
         env:
           WERF_SET_CI_CONDO_URL: "global.ci_condo_url=review-${{ env.REVIEW_URL_PREFIX }}-condo.d.doma.ai"
           WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=review-${{ env.REVIEW_URL_PREFIX }}-callcenter.d.doma.ai"
           WERF_SET_CI_EPS_URL: "global.ci_eps_url=review-${{ env.REVIEW_URL_PREFIX }}-eps.d.doma.ai"
           WERF_SET_CI_RB_URL: "global.ci_rb_url=review-${{ env.REVIEW_URL_PREFIX }}-rb.d.doma.ai"
-          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE}}
+          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE }}
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
