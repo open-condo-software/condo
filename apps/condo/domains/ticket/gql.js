@@ -184,6 +184,9 @@ const TicketCommentFile = generateGqlQueries('TicketCommentFile', TICKET_COMMENT
 const USER_TICKET_COMMENT_READ_FIELDS = `{ user { id } ticket { id } readResidentCommentAt ${COMMON_FIELDS} }`
 const UserTicketCommentRead = generateGqlQueries('UserTicketCommentRead', USER_TICKET_COMMENT_READ_FIELDS)
 
+const TICKET_COMMENTS_TIME_FIELDS = `{ organization { id } ticket { id } lastCommentAt lastResidentCommentAt ${COMMON_FIELDS} }`
+const TicketCommentsTime = generateGqlQueries('TicketCommentsTime', TICKET_COMMENTS_TIME_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -221,5 +224,6 @@ module.exports = {
 
     TicketCommentFile,
     UserTicketCommentRead,
+    TicketCommentsTime,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
