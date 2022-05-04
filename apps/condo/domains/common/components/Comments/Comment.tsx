@@ -95,17 +95,21 @@ export const Comment: React.FC<ICommentProps> = ({ comment, updateAction, delete
 
     const [mode, setMode] = useState<CommentMode>('display')
     const [content, setContent] = useState(comment.content)
+    const [editCanceled, setEditCanceled] = useState(false)
 
     const [dateShowMode, setDateShowMode] = useState<'created' | 'updated'>('created')
     const handleSave = (newContent) => {
-        updateAction({ content: newContent }, comment)
-            .then(() => {
-                setMode('display')
-                setContent(newContent)
-            })
+        if (!editCanceled) {
+            updateAction({ content: newContent }, comment)
+                .then(() => {
+                    setMode('display')
+                    setContent(newContent)
+                })
+        }
     }
 
     const handleCancelSave = () => {
+        setEditCanceled(true)
         setMode('display')
     }
 
