@@ -18,6 +18,7 @@ import { ImageIcon } from '@condo/domains/common/components/icons/ImageIcon'
 import { VideoIcon } from '@condo/domains/common/components/icons/VideoIcon'
 import { colors, shadows } from '@condo/domains/common/constants/style'
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
 import { Button } from '../Button'
 import { TComment } from './index'
@@ -140,13 +141,6 @@ const CommentStyle = css`
       }
     }
 `
-
-const getIconByMimetype = (mimetype) => {
-    if (mimetype.startsWith('image')) return <ImageIcon />
-    if (mimetype.startsWith('video')) return <VideoIcon />
-
-    return <DocIcon />
-}
 
 const getFilePreviewByMimetype = (mimetype, url) => {
     if (mimetype.startsWith('image')) return <Image src={url} width={64} height={64} />

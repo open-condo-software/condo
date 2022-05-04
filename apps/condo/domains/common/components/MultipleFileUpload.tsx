@@ -1,6 +1,6 @@
 import get from 'lodash/get'
 import React, { useState, useEffect, useReducer, useMemo, useRef, useCallback } from 'react'
-import { Upload } from 'antd'
+import { Typography, Upload, UploadProps } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { UploadRequestOption } from 'rc-upload/lib/interface'
@@ -11,6 +11,8 @@ import { File } from '@app/condo/schema'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
+import { getIconByMimetype } from '../utils/clientSchema/files'
+import { DocIcon } from './icons/DocIcon'
 
 type DBFile = {
     id: string
@@ -75,6 +77,7 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
             name: file.originalFilename,
             status: 'done' as UploadFileStatus,
             url: file.publicUrl,
+            type: file.mimetype,
         }
         return fileInList
     })
@@ -84,6 +87,7 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
 interface IUploadComponentProps {
     initialFileList: DBFile[]
     UploadButton?: React.ReactElement
+    uploadProps?: UploadProps
 }
 interface IMultipleFileUploadHookArgs {
     Model: Module
@@ -163,6 +167,7 @@ interface IMultipleFileUploadProps {
     Model: Module
     onFilesChange: React.Dispatch<{ type: string, payload: DBFile }>
     UploadButton?: React.FC
+    uploadProps?: UploadProps
 }
 
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
@@ -178,6 +183,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         Model,
         onFilesChange,
         UploadButton,
+        uploadProps = {},
     } = props
 
     const [listFiles, setListFiles] = useState<UploadListFile[]>([])
@@ -243,11 +249,12 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 onError(error)
             })
         },
+        ...uploadProps,
     }
 
     return (
         <div className={'upload-control-wrapper'}>
-            <Upload { ...options } >
+            <Upload { ...options }>
                 {
                     UploadButton || (
                         <Button
