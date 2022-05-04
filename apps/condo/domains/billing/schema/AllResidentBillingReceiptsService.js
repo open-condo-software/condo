@@ -134,8 +134,7 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                     }))
                 }
 
-                //
-                // TODO: (@toplenboren) DOMA-2479 Make this look adequate!
+                // Propagate isPayable field
                 // AS HOTFIX we select only one latest receipt from each receiver + accountNumber by period
                 // Example:
                 // - John pays for cold water and electricity
@@ -165,10 +164,17 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                         receiptsByAccountAndRecipient[key] = receipt
                     }
                 }
-                const processedAndFilteredReceipts = Object.values(receiptsByAccountAndRecipient)
+
+                for (const receipt of processedReceipts) {
+                    const accountId = get(receipt, ['account', 'id'])
+                    const recipientId = get(receipt, ['receiver', 'id'])
+                    const key = accountId + '-' + recipientId
+
+                    receipt.isPayable = !!receiptsByAccountAndRecipient[key]
+                }
 
                 const receiptsWithPayments = []
-                for (const receipt of processedAndFilteredReceipts) {
+                for (const receipt of processedReceipts) {
                     const organizationId = get(receipt.serviceConsumer, ['organization'])
                     const accountNumber = get(receipt.serviceConsumer, ['accountNumber'])
                     const paid = await getPaymentsSum(
