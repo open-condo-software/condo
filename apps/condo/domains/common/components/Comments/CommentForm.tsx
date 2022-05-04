@@ -12,6 +12,7 @@ import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCou
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ClipIcon } from '@condo/domains/common/components/icons/ClipIcon'
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
+import { getIconByMimetype } from '../../utils/clientSchema/files'
 
 import { TComment } from './index'
 
@@ -133,6 +134,11 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                     <ClipIcon />
                 </Button>
             }
+            uploadProps={{
+                iconRender: (file) => {
+                    return getIconByMimetype(file.type)
+                },
+            }}
         />
     ), [UploadComponent, editableComment, sending])
 
