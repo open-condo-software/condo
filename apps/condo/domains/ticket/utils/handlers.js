@@ -192,11 +192,12 @@ const sendTicketNotifications = async (requestData) => {
         }
 
         if (ticketStatusType) {
-            const { property: propertyId, organization: organizationId } = updatedItem
+            const { property: propertyId, organization: organizationId, unitName } = updatedItem
             const where = {
                 user: { id: clientId },
                 property: { id: propertyId },
                 organization: { id: organizationId },
+                unitName,
             }
             const resident = await Resident.getOne(context, where)
 
@@ -228,6 +229,7 @@ const sendTicketCommentNotifications = async (requestData) => {
     const clientId = get(ticket, 'client.id')
     const organizationId = get(ticket, 'organization.id')
     const propertyId = get(ticket, 'property.id')
+    const unitName = get(ticket, 'unitName')
 
     // TODO(DOMA-2822): get rid of this extra request by returning country within nested organization data
     const organization = await getByCondition('Organization', {
@@ -247,6 +249,7 @@ const sendTicketCommentNotifications = async (requestData) => {
             user: { id: clientId },
             property: { id: propertyId },
             organization: { id: organizationId },
+            unitName,
         }
         const resident = await Resident.getOne(context, where)
 
