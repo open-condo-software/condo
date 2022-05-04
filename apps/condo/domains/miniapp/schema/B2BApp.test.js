@@ -12,7 +12,6 @@ const {
     expectToThrowAuthenticationErrorToObj,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { INTERCOM_CATEGORY } = require('@condo/domains/miniapp/constants')
 
 const faker = require('faker')
 
@@ -102,7 +101,6 @@ describe('B2BApp', () => {
             let createdApp
             const updatePayload = {
                 name: faker.company.companyName().replace(/ /, '-').toUpperCase() + ' B2B APP',
-                category: INTERCOM_CATEGORY,
             }
             beforeEach(async () => {
                 [createdApp] = await createTestB2BApp(admin)
