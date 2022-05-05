@@ -1,32 +1,35 @@
 import { Col, Form, Row, Typography } from 'antd'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import uniqWith from 'lodash/uniqWith'
+import get from 'lodash/get'
+import { Gutter } from 'antd/es/grid/row'
+import { useRouter } from 'next/router'
+
 import { useIntl } from '@core/next/intl'
+import { BuildingUnitSubType, BuildingUnitType, SortMeterReadingsBy, SortMetersBy } from '@app/condo/schema'
+
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
-import { Meter, MeterReading } from '../utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
-import uniqWith from 'lodash/uniqWith'
+import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
+import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
+import { Table } from '@condo/domains/common/components/Table/Index'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+
 import {
     CALL_METER_READING_SOURCE_ID,
 } from '../constants/constants'
 import { useCreateMeterModal } from '../hooks/useCreateMeterModal'
 import { IMeterUIState } from '../utils/clientSchema/Meter'
-import { useRouter } from 'next/router'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { SortMeterReadingsBy, SortMetersBy } from '@app/condo/schema'
 import { IMeterReadingUIState } from '../utils/clientSchema/MeterReading'
-import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
-import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
-import { Table } from '@condo/domains/common/components/Table/Index'
 import { useMeterTableColumns } from '../hooks/useMeterTableColumns'
-import { get } from 'lodash'
-import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useUpdateMeterModal } from '../hooks/useUpdateMeterModal'
-import { Gutter } from 'antd/es/grid/row'
 import { CreateMeterReadingsActionBar } from './CreateMeterReadingsActionBar'
+import { Meter, MeterReading } from '../utils/clientSchema'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -186,6 +189,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns()
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
     const selectPropertyIdRef = useRef(selectedPropertyId)
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -196,6 +200,11 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
     }, [selectedUnitName])
+
+    const selectedUnitTypeRef = useRef(selectedUnitType)
+    useEffect(() => {
+        selectedUnitTypeRef.current = selectedUnitType
+    }, [selectedUnitType])
 
     const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
@@ -231,7 +240,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
             const value3 = get(newMeterReading, '3')
             const value4 = get(newMeterReading, '4')
 
-            const { property, unitName, sectionName, floorName, ...clientInfo } = values
+            const { property, unitName, unitType, sectionName, floorName, ...clientInfo } = values
 
             createMeterReadingAction({
                 ...clientInfo,
@@ -255,6 +264,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
             formValuesToMutationDataPreprocessor={(values) => {
                 values.property = selectPropertyIdRef.current
                 values.unitName = selectedUnitNameRef.current
+                values.unitType = selectedUnitTypeRef.current
                 return values
             }}
         >
@@ -309,6 +319,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                             property={property}
                                                             loading={propertyLoading}
                                                             setSelectedUnitName={setSelectedUnitName}
+                                                            setSelectedUnitType={setSelectedUnitType}
                                                             form={form}
                                                         />
                                                     </Col>

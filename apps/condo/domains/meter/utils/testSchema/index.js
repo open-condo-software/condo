@@ -7,13 +7,14 @@
 const faker = require('faker')
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
-const { MeterResource: MeterResourceGQL, EXPORT_METER_READINGS } = require('@condo/domains/meter/gql')
+const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
 const { EXPORT_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -90,6 +91,7 @@ async function createTestMeter (client, organization, property, resource, extraA
         sender,
         number: faker.random.alphaNumeric(5),
         unitName: faker.random.alphaNumeric(5),
+        unitType: FLAT_UNIT_TYPE,
         organization: { connect: { id: organization.id } },
         property: { connect: { id: property.id } },
         resource: { connect: { id: resource.id } },

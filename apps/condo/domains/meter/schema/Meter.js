@@ -3,15 +3,18 @@
  */
 
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox } = require('@keystonejs/fields')
+
 const { GQLListSchema, find } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+
+const { SENDER_FIELD, DV_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/meter/access/Meter')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+
 const { Meter: MeterApi } = require('./../utils/serverSchema')
 
 
@@ -20,9 +23,7 @@ const Meter = new GQLListSchema('Meter', {
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
-
         organization: ORGANIZATION_OWNED_FIELD,
-
         property: {
             schemaDoc: 'Link to property which contains unit with this meter',
             type: Relationship,
@@ -31,7 +32,6 @@ const Meter = new GQLListSchema('Meter', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-
         number: {
             schemaDoc: 'Number of resource meter, such as "А03 9908"',
             type: Text,
@@ -67,46 +67,38 @@ const Meter = new GQLListSchema('Meter', {
                 },
             },
         },
-
         numberOfTariffs: {
             type: Integer,
             isRequired: true,
         },
-
         installationDate: {
             schemaDoc: 'Date when the meter was installed in the unit',
             type: DateTimeUtc,
         },
-
         commissioningDate: {
             schemaDoc: 'Date when the meter was commissioned.' +
                 'Commissioning - documentation of the meter as a billing meter',
             type: DateTimeUtc,
         },
-
         verificationDate: {
             schemaDoc: 'The date when the employee came and checked how accurately the meter counts the resource',
             type: DateTimeUtc,
         },
-
         nextVerificationDate: {
             schemaDoc: 'The date of the next meter verification.' +
                 'For example, for a cold water meter - usually 6 years after the verification date',
             type: DateTimeUtc,
         },
-
         controlReadingsDate: {
             schemaDoc: 'The date when the employee came and took readings from the meter',
             type: DateTimeUtc,
         },
-
         sealingDate: {
             schemaDoc: 'The date when meter was sealed.' +
                 'Sealing is the installation of a unique single-use device (directly a seal and a sealing rope)' +
                 'on the metering device, which is designed to control unauthorized access to the equipment.',
             type: DateTimeUtc,
         },
-
         accountNumber: {
             schemaDoc: 'Client\'s billing account',
             type: Text,
@@ -148,18 +140,16 @@ const Meter = new GQLListSchema('Meter', {
                 },
             },
         },
-
         unitName: {
             schemaDoc: 'Unit with this meter',
             type: Text,
             isRequired: true,
         },
-
+        unitType: UNIT_TYPE_FIELD,
         place: {
             schemaDoc: 'Certain place in unit where meter is, such as kitchen',
             type: Text,
         },
-
         resource: {
             schemaDoc: 'Meter resource, such as hot water or electricity',
             type: Relationship,
@@ -168,7 +158,6 @@ const Meter = new GQLListSchema('Meter', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-
         isAutomatic: {
             schemaDoc: `Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "${RESIDENT}" from creating MeterReading. So MeterReadings only be acquired through external integration or adjusted by organization employee`,
             type: Checkbox,
