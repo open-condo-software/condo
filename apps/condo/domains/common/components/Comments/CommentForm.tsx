@@ -37,7 +37,7 @@ const Holder = styled.div`
   }
   
   .ant-upload-list.ant-upload-list-text {
-    max-height: 25vh;
+    max-height: 14vh;
     overflow-y: scroll;
   }
 `
@@ -67,7 +67,8 @@ interface ICommentFormProps {
     setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
     sending: boolean
     FileModel: Module,
-    relationField: string,
+    relationField: string
+    setSending: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const CommentForm: React.FC<ICommentFormProps> = ({
@@ -79,6 +80,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     sending,
     FileModel,
     relationField,
+    setSending,
 }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
@@ -106,6 +108,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     const handleKeyUp = useCallback(async (event, form) => {
         if (event.keyCode === ENTER_KEY_CODE && !event.shiftKey) {
+            setSending(true)
             form.submit()
             setCommentLength(0)
         }
@@ -129,7 +132,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
         await action(values, syncModifiedFiles)
         await resetModifiedFiles()
-    }, [action, fieldName, form, resetModifiedFiles, syncModifiedFiles])
+        setSending(false)
+    }, [action, fieldName, form, resetModifiedFiles, setSending, syncModifiedFiles])
 
     const MemoizedUploadComponent = useCallback(() => (
         <UploadComponent
