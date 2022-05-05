@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { AcquiringIntegration, AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import get from 'lodash/get'
@@ -42,12 +42,25 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
         },
     })
 
+    const redirectUrl = `/miniapps/${id}?type=${ACQUIRING_APP_TYPE}`
+
+    const initialAction = AcquiringIntegrationContext.useCreate({
+        settings: { dv: 1 },
+        state: { dv: 1 },
+    }, () => {
+        router.push(redirectUrl)
+    })
+
+    const createContextAction = useCallback(() => {
+        initialAction({ organization: organizationId, integration: id } )
+    }, [initialAction, id, organizationId])
+
     // NOTE: Page visiting is valid if:
     // Acquiring context not exist
     // If context exist -> redirect to app index page
     useEffect(() => {
         if (integration && !contextLoading && !contextError && context) {
-            router.push(`/miniapps/${id}?type=${ACQUIRING_APP_TYPE}`)
+            router.push(redirectUrl)
         }
     }, [router, integration, contextLoading, contextError, context, id])
 
@@ -90,6 +103,7 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
                         instruction={integration.instruction}
                         appUrl={integration.appUrl}
                         disabledConnect={!isAnyBillingConnected}
+                        connectAction={createContextAction}
                     >
                         {
                             !isAnyBillingConnected && (

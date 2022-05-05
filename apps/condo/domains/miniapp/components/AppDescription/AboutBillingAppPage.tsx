@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
@@ -35,13 +35,26 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
         where: { organization: { id: organizationId } },
     })
 
+    const redirectUrl = `/miniapps/${id}?type=${BILLING_APP_TYPE}`
+
+    const initialAction = BillingIntegrationOrganizationContext.useCreate({
+        settings: { dv: 1 },
+        state: { dv: 1 },
+    }, () => {
+        router.push(redirectUrl)
+    })
+
+    const createContextAction = useCallback(() => {
+        initialAction({ organization: organizationId, integration: id } )
+    }, [initialAction, id, organizationId])
+
     // NOTE: Page visiting is valid if:
     // Billing context not exist
     // If context exist -> redirect to app index page
     useEffect(() => {
         if (integration && !contextsLoading && !contextsError && contexts) {
             if (contexts.some((context) => get(context, ['integration', 'id']) === integration.id)) {
-                router.push(`/miniapps/${id}?type=${BILLING_APP_TYPE}`)
+                router.push(redirectUrl)
             }
         }
     }, [router, integration, contextsLoading, contextsError, contexts, id])
@@ -81,6 +94,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
                         instruction={integration.instruction}
                         appUrl={integration.appUrl}
                         disabledConnect={isAnyBillingConnected}
+                        connectAction={createContextAction}
                     >
                         {
                             isAnyBillingConnected && (

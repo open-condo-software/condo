@@ -24,6 +24,8 @@ function convertToUIState (item: B2BAppContext): IB2BAppContextUIState {
 
 export interface IB2BAppContextFormState {
     id?: undefined
+    app?: string,
+    organization?: string
 }
 
 function convertToUIFormState (state: IB2BAppContextUIState): IB2BAppContextFormState | undefined {

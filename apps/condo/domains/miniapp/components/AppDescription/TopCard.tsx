@@ -148,11 +148,9 @@ export const TopCard: React.FC<TopCardProps> = ({
                     </Typography.Text>
                     {
                         partnerUrl && (
-                            <a href={partnerUrl} target='_blank' rel='noreferrer'>
-                                <Typography.Link>
-                                    {PartnerSiteMessage}
-                                </Typography.Link>
-                            </a>
+                            <Typography.Link target={'_blank'} href={partnerUrl}>
+                                {PartnerSiteMessage}
+                            </Typography.Link>
                         )
                     }
                 </Space>

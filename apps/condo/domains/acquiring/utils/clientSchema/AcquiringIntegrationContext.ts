@@ -24,6 +24,10 @@ function convertToUIState (item: AcquiringIntegrationContext): IAcquiringIntegra
 
 export interface IAcquiringIntegrationContextFormState {
     id?: undefined
+    settings?: any,
+    state?: any,
+    organization?: string,
+    integration?: string,
 }
 
 function convertToUIFormState (state: IAcquiringIntegrationContextUIState): IAcquiringIntegrationContextFormState | undefined {
