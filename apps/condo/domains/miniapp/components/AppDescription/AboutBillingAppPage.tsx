@@ -20,7 +20,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const BillingMessage = intl.formatMessage({ id: 'menu.Billing' })
-    const TagMessage = intl.formatMessage({ id: `services.category.${BILLING_APP_TYPE}` })
+    const TagMessage = intl.formatMessage({ id: `miniapps.category.${BILLING_APP_TYPE}` })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)

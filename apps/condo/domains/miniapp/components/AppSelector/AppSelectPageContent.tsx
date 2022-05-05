@@ -36,12 +36,12 @@ const RemoveTabLineWrapper = styled.div`
 
 export const AppSelectPageContent: React.FC = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'menu.Services' })
-    const AlreadyConnectedSectionTitle = intl.formatMessage({ id: 'services.AlreadyConnected' })
-    const AvailableSectionTitle = intl.formatMessage({ id: 'services.Available' })
-    const AllCategoryMessage = intl.formatMessage({ id: 'services.category.ALL' })
-    const BillingCategoryMessage = intl.formatMessage({ id: 'services.category.BILLING' })
-    const AcquiringCategoryMessage = intl.formatMessage({ id: 'services.category.ACQUIRING' })
+    const PageTitle = intl.formatMessage({ id: 'menu.MiniApps' })
+    const AlreadyConnectedSectionTitle = intl.formatMessage({ id: 'miniapps.AlreadyConnected' })
+    const AvailableSectionTitle = intl.formatMessage({ id: 'miniapps.Available' })
+    const AllCategoryMessage = intl.formatMessage({ id: 'miniapps.category.ALL' })
+    const BillingCategoryMessage = intl.formatMessage({ id: 'miniapps.category.BILLING' })
+    const AcquiringCategoryMessage = intl.formatMessage({ id: 'miniapps.category.ACQUIRING' })
 
     const { width } = useWindowSize()
 
@@ -159,9 +159,7 @@ export const AppSelectPageContent: React.FC = () => {
                                             <CardsContainer cardsPerRow={appsPerRow}>
                                                 {
                                                     unconnectedApps.map(app => {
-                                                        const tag = app.category
-                                                            ? intl.formatMessage({ id: `services.category.${app.category}` })
-                                                            : undefined
+                                                        const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
                                                         const url = `/miniapps/${app.id}/about?type=${app.type}`
                                                         const logo = app.logo || undefined
                                                         return (
@@ -184,9 +182,7 @@ export const AppSelectPageContent: React.FC = () => {
                                                     <CardsContainer cardsPerRow={appsPerRow}>
                                                         {
                                                             unconnectedBillingsApps.map(app => {
-                                                                const tag = app.category
-                                                                    ? intl.formatMessage({ id: `services.category.${app.category}` })
-                                                                    : undefined
+                                                                const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
                                                                 const url = `/miniapps/${app.id}/about?type=${app.type}`
                                                                 const logo = app.logo || undefined
                                                                 return (
@@ -211,9 +207,7 @@ export const AppSelectPageContent: React.FC = () => {
                                                     <CardsContainer cardsPerRow={appsPerRow}>
                                                         {
                                                             unconnectedAcquiringApps.map(app => {
-                                                                const tag = app.category
-                                                                    ? intl.formatMessage({ id: `services.category.${app.category}` })
-                                                                    : undefined
+                                                                const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
                                                                 const url = `/miniapps/${app.id}/about?type=${app.type}`
                                                                 const logo = app.logo || undefined
                                                                 return (

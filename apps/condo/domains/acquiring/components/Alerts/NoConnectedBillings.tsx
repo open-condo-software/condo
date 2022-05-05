@@ -9,8 +9,8 @@ const ALERT_BOX_STYLE: CSSProperties = {
 
 const AlertBody: React.FC = () => {
     const intl = useIntl()
-    const AlertMessage = intl.formatMessage({ id: 'services.acquiring.NoBillings.message' })
-    const AlertLinkMessage = intl.formatMessage({ id: 'services.acquiring.NoBillings.link' })
+    const AlertMessage = intl.formatMessage({ id: 'miniapps.acquiring.NoBillings.message' })
+    const AlertLinkMessage = intl.formatMessage({ id: 'miniapps.acquiring.NoBillings.link' })
 
     return (
         <Space direction={'vertical'} size={12}>
@@ -28,7 +28,7 @@ const AlertBody: React.FC = () => {
 
 export const NoConnectedBillings: React.FC = () => {
     const intl = useIntl()
-    const AlertTitle = intl.formatMessage({ id: 'services.acquiring.NoBillings.title' })
+    const AlertTitle = intl.formatMessage({ id: 'miniapps.acquiring.NoBillings.title' })
 
     return (
         <Alert

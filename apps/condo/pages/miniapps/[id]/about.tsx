@@ -12,7 +12,7 @@ import { AppPageWrapper } from '@condo/domains/miniapp/components/AppPageWrapper
 
 const AboutMiniAppPage = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'menu.Services' })
+    const PageTitle = intl.formatMessage({ id: 'menu.MiniApps' })
     const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
 
     const { query: { type, id } } = useRouter()

@@ -20,7 +20,7 @@ interface AboutAcquiringAppPageProps {
 export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const AcquiringMessage = intl.formatMessage({ id: `services.category.${ACQUIRING_APP_TYPE}` })
+    const AcquiringMessage = intl.formatMessage({ id: `miniapps.category.${ACQUIRING_APP_TYPE}` })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)

@@ -36,9 +36,11 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
     disabledConnect,
 }) => {
     const intl = useIntl()
-    const HowToSetupMessage = intl.formatMessage({ id: 'services.HowToSetup' })
-    const SetupMessage = intl.formatMessage({ id: 'services.SetupService' })
-    const DefaultInstructionMessage = intl.formatMessage({ id: 'services.instruction.default' })
+    const HowToSetupMessage = intl.formatMessage({ id: 'miniapps.HowToSetup' })
+    const ConnectButtonDefaultMessage = intl.formatMessage({ id: 'miniapps.ConnectApp' })
+    const DefaultInstructionMessage = intl.formatMessage({ id: 'services.instruction.default' }, {
+        buttonLabel: ConnectButtonDefaultMessage,
+    })
 
     const router = useRouter()
     const { query: { id, type } } = router
@@ -101,7 +103,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                                     onClick={handleButtonClick}
                                     disabled={disabledConnect}
                                 >
-                                    {SetupMessage}
+                                    {ConnectButtonDefaultMessage}
                                 </Button>
                             </Col>
                         )
