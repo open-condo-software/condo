@@ -4,7 +4,7 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/miniapp/access/AllMiniAppsService')
-const { ACQUIRING_APP_TYPE, BILLING_APP_TYPE, APP_TYPES } = require('@condo/domains/miniapp/constants')
+const { ACQUIRING_APP_TYPE, BILLING_APP_TYPE, APP_TYPES, B2B_APP_TYPE } = require('@condo/domains/miniapp/constants')
 const { find } = require('@core/keystone/schema')
 const { APPS_FILE_ADAPTER } = require('@condo/domains/miniapp/schema/fields/integration')
 
@@ -72,6 +72,28 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                         shortDescription: acquiring.shortDescription,
                         connected: connectedAcquiringIntegrations.includes(acquiring.id),
                         category: ACQUIRING_APP_TYPE,
+                        logo: logoUrl,
+                    })
+                }
+
+                const B2BApps = await find('B2BApp', {
+                    isHidden: false,
+                    deletedAt: null,
+                })
+                const B2BAppContexts = await find('B2BAppContext', {
+                    organization,
+                    deletedAt: null,
+                })
+                const connectedB2BApps = B2BAppContexts.map(context => context.app)
+                for (const app of B2BApps) {
+                    const logoUrl = app.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: app.logo.filename }) : null
+                    services.push({
+                        id: app.id,
+                        type: B2B_APP_TYPE,
+                        name: app.name,
+                        shortDescription: app.shortDescription,
+                        connected: connectedB2BApps.includes(app.id),
+                        category: app.category,
                         logo: logoUrl,
                     })
                 }
