@@ -5,11 +5,11 @@
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization, makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
-const { allMiniAppsByTestClient } = require('@condo/domains/miniapp/utils/testSchema')
+const { allMiniAppsByTestClient, createTestB2BApp, createTestB2BAppContext, updateTestB2BAppContext, updateTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE } = require('@condo/domains/miniapp/constants')
+const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE, B2B_APP_TYPE } = require('@condo/domains/miniapp/constants')
 const dayjs = require('dayjs')
 
 describe('AllMiniAppsService', () => {
@@ -175,6 +175,68 @@ describe('AllMiniAppsService', () => {
                 expect(data).not.toEqual(expect.arrayContaining([{
                     id: hiddenIntegration.id,
                     type: ACQUIRING_APP_TYPE,
+                }]))
+            })
+        })
+        describe('B2B App', () => {
+            let app
+            let admin
+            beforeAll(async () => {
+                admin = await makeLoggedInAdminClient()
+            })
+            beforeEach(async () => {
+                [app] = await createTestB2BApp(admin, { isHidden: false })
+            })
+            test('Shows unconnected without context', async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
+                    id: app.id,
+                    type: B2B_APP_TYPE,
+                    connected: false,
+                    name: app.name,
+                    shortDescription: app.shortDescription,
+                    category: app.category,
+                })]))
+            })
+            test('Shows connected with context', async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                await createTestB2BAppContext(admin, app, client.organization)
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: app.id,
+                        type: B2B_APP_TYPE,
+                        connected: true,
+                    }),
+                ]))
+            })
+            test('Shows unconnected with deleted context', async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [context] = await createTestB2BAppContext(admin, app, client.organization)
+                await updateTestB2BAppContext(admin, context.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: app.id,
+                        type: B2B_APP_TYPE,
+                        connected: false,
+                    }),
+                ]))
+            })
+            test('Doesn\'t shows if app is hidden', async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [hiddenIntegration] = await updateTestB2BApp(admin, app.id, { isHidden: true })
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).not.toEqual(expect.arrayContaining([{
+                    id: hiddenIntegration.id,
+                    type: BILLING_APP_TYPE,
                 }]))
             })
         })
