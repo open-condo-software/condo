@@ -92,87 +92,109 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
 }
 
 /**
- * String representation of related items in a `many: true` relationship.
- * Will be displayed in UI in changes history block.
- * 👉 When a new "many" relation field will be added to Ticket, new resolver should be implemented here
+ * Variables, passed to Keystone "afterChange" hook
+ *
+ * @typedef KeystoneOperationArgsForTicketChange
+ * @param context
+ * @param existingItem
+ * @param originalInput
  */
-const relatedManyToManyResolvers = {
-    'watchers': async ({ context, existingItem, originalInput }) => {
-        let updated
-        const updatedResult = await context.executeGraphQL({
-            context: context.createContext({ skipAccessControl: true }),
-            query: `
-                query changeTrackable_findTicketWatchersForTicketChange($id: ID!) {
+
+/**
+ *
+ * @param fieldName - name of Ticket field
+ * @param ref - name of Ticket field entity type
+ * @param displayNameAttr - attribute of related entity, that will act as display name
+ * @param {KeystoneOperationArgsForTicketChange} args - variables, passed to Keystone afterChange hook
+ * @return {Promise<{existing: {displayNames: *, ids: *}, updated: {displayNames: *, ids: *}}}|{}>}
+ */
+const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', args) => {
+    const { context, existingItem, originalInput } = args
+    let updated
+    const updatedResult = await context.executeGraphQL({
+        context: context.createContext({ skipAccessControl: true }),
+        query: `
+                query changeTrackable_findTicket_${fieldName}_ForTicketChange($id: ID!) {
                     ticket: Ticket(where: { id: $id }) {
                         id
-                        watchers {
+                        ${fieldName} {
                             id
                             name
                         }
                     }
                 }
             `,
-            variables: { id: existingItem.id },
-        })
-        if (updatedResult.errors) {
-            console.error('Error while fetching related items in relatedManyToManyResolvers of changeTrackable for a Ticket', updatedResult.errors)
-            return {}
+        variables: { id: existingItem.id },
+    })
+    if (updatedResult.errors) {
+        console.error(`Error while fetching related ${fieldName} in manyToManyResolver of changeTrackable for a Ticket`, updatedResult.errors)
+        return {}
+    }
+    if (updatedResult.data.ticket) {
+        updated = {
+            ids: map(updatedResult.data.ticket[fieldName], 'id'),
+            displayNames: map(updatedResult.data.ticket[fieldName], displayNameAttr),
         }
-        if (updatedResult.data.ticket) {
-            updated = {
-                ids: map(updatedResult.data.ticket.watchers, 'id'),
-                displayNames: map(updatedResult.data.ticket.watchers, 'name'),
-            }
-        }
+    }
 
-        /*
-            Restore previous list of related items
-            This is a tricky part, because we need to restore previous list of related items,
-            that explicitly is not presented anywhere.
-            Following solutions was considered:
-            1. Get it from `beforeChange` hook of the Ticket, but where to store it?
-            2. Get previous TicketChange and get it from `watchersIdsTo` field.
-               This solution is not suitable for handling first change,
-               because there will be no `TicketChange` item yet.
-            3. Get current `watchers` list (after update) and make a replay,
-               based on Keystone `originalInput`, which stores "Nested mutation" operations
-               for this relationship. This variant is implemented.
-        */
-        let existing = cloneDeep(updated)
-        if (originalInput && originalInput.watchers) {
-            if (originalInput.watchers.disconnect) {
-                // Perform opposite operation
-                existing.ids = uniq([...existing.ids, ...map(originalInput.watchers.disconnect, 'id')])
-            }
-            if (originalInput.watchers.connect) {
-                // Perform opposite operation
-                existing.ids = difference(existing.ids, map(originalInput.watchers.connect, 'id'))
-            }
+    /*
+        Restore previous list of related items
+        This is a tricky part, because we need to restore previous list of related items,
+        that explicitly is not presented anywhere.
+        Following solutions was considered:
+        1. Get it from `beforeChange` hook of the Ticket, but where to store it?
+        2. Get previous TicketChange and get it from `…IdsTo` field.
+           This solution is not suitable for handling first change,
+           because there will be no `TicketChange` item yet.
+        3. Get current items list (after update) and make a replay,
+           based on Keystone `originalInput`, which stores "Nested mutation" operations
+           for this relationship. This variant is implemented.
+    */
+    let existing = cloneDeep(updated)
+    if (originalInput && originalInput[fieldName]) {
+        if (originalInput[fieldName].disconnect) {
+            // Perform opposite operation
+            existing.ids = uniq([...existing.ids, ...map(originalInput[fieldName].disconnect, 'id')])
         }
-        const usersResult = await context.executeGraphQL({
-            context: context.createContext({ skipAccessControl: true }),
-            query: `
-                query changeTrackable_findUsers($ids: [ID!]) {
-                    users: allUsers(where: { id_in: $ids }) {
+        if (originalInput[fieldName].connect) {
+            // Perform opposite operation
+            existing.ids = difference(existing.ids, map(originalInput[fieldName].connect, 'id'))
+        }
+    }
+    const existingResult = await context.executeGraphQL({
+        context: context.createContext({ skipAccessControl: true }),
+        query: `
+                query changeTrackable_find${ref}s($ids: [ID!]) {
+                    items: all${ref}s(where: { id_in: $ids }) {
                         id
-                        name
+                        ${displayNameAttr}
                     }
                 }
             `,
-            variables: { ids: existing.ids },
-        })
-        if (usersResult.error) {
-            console.error('Error while fetching users in relatedManyToManyResolvers of changeTrackable for a Ticket', updatedResult.errors)
-            return {}
-        }
-        if (usersResult.data.users) {
-            existing.displayNames = map(usersResult.data.users, 'name')
-        }
+        variables: { ids: existing.ids },
+    })
+    if (existingResult.error) {
+        console.error('Error while fetching users in relatedManyToManyResolvers of changeTrackable for a Ticket', updatedResult.errors)
+        return {}
+    }
+    if (existingResult.data.items) {
+        existing.displayNames = map(existingResult.data.items, 'name')
+    }
 
-        return {
-            existing,
-            updated,
-        }
+    return {
+        existing,
+        updated,
+    }
+}
+
+/**
+ * String representation of related items in a `many: true` relationship.
+ * Will be displayed in UI in changes history block.
+ * 👉 When a new "many" relation field will be added to Ticket, new resolver should be implemented here
+ */
+const relatedManyToManyResolvers = {
+    'watchers': async (args) => {
+        return resolveManyToManyField('watchers', 'User', 'name', args)
     },
 }
 
