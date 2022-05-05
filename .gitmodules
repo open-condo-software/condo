@@ -11,9 +11,6 @@
 	path = .helm
 	url = ../infrastructure-condo.git
 	branch = master
-[submodule "apps/amocrm"]
-	path = apps/amocrm
-	url = git@github.com:open-condo-software/amocrm_service.git
 [submodule "apps/condorb"]
 	path = apps/condorb
 	url = ../condorb.git
