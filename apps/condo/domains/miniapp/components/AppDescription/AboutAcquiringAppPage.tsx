@@ -62,7 +62,7 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
         if (integration && !contextLoading && !contextError && context) {
             router.push(redirectUrl)
         }
-    }, [router, integration, contextLoading, contextError, context, id])
+    }, [router, integration, contextLoading, contextError, context, id, redirectUrl])
 
     if (integrationLoading || billingsLoading || integrationError || billingsError) {
         return (
