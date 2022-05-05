@@ -67,6 +67,7 @@ const Head = styled.div<{ isTitleHidden: boolean }>`
   font-weight: bold;
   font-size: 20px;
   line-height: 28px;
+  background-color: ${colors.backgroundLightGrey};
 `
 const Body = styled.div`
   padding: 12px 24px 0;
@@ -108,6 +109,7 @@ const CommentsTabsContainer = styled.div`
       flex: 1 1 auto;
 
       & > .ant-tabs-nav {
+        background-color: ${colors.backgroundLightGrey};
         padding: 28px 0;
         border-bottom: 1px solid ${colors.inputBorderGrey};
         margin: 0;
@@ -147,23 +149,27 @@ const CommentsTabsContainer = styled.div`
 const EMPTY_CONTAINER_TEXT_STYLES: CSSProperties = { fontSize: fontSizes.content }
 const LOADER_STYLES: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
-const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
-    <EmptyContainer>
-        <Empty
-            image={null}
-            description={
-                <>
-                    <Typography.Paragraph strong style={EMPTY_CONTAINER_TEXT_STYLES}>
-                        {PromptTitleMessage}
-                    </Typography.Paragraph>
-                    <Typography.Paragraph type={'secondary'} style={EMPTY_CONTAINER_TEXT_STYLES}>
-                        {PromptDescriptionMessage}
-                    </Typography.Paragraph>
-                </>
-            }
-        />
-    </EmptyContainer>
-)
+const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => {
+    const { isMobile } = useLayoutContext()
+
+    return (
+        <EmptyContainer>
+            <Empty
+                image={null}
+                description={
+                    <>
+                        <Typography.Paragraph strong style={EMPTY_CONTAINER_TEXT_STYLES}>
+                            {PromptTitleMessage}
+                        </Typography.Paragraph>
+                        <Typography.Paragraph type={'secondary'} style={EMPTY_CONTAINER_TEXT_STYLES}>
+                            {PromptDescriptionMessage}
+                        </Typography.Paragraph>
+                    </>
+                }
+            />
+        </EmptyContainer>
+    )
+}
 
 type CommentsTabContentProps = {
     comments: TComment[],
