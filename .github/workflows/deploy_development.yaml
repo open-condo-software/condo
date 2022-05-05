@@ -49,3 +49,6 @@ jobs:
           WERF_NAMESPACE: "development"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
+          WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
+          WERF_REPO_DOCKER_HUB_USERNAME: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          WERF_REPO_DOCKER_HUB_PASSWORD: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
