@@ -35,6 +35,11 @@ const Holder = styled.div`
   textarea {
     padding-right: 45px;
   }
+  
+  .ant-upload-list.ant-upload-list-text {
+    max-height: 25vh;
+    overflow-y: scroll;
+  }
 `
 
 const ENTER_KEY_CODE = 13
