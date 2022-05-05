@@ -18,6 +18,9 @@ jobs:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
       PULL_USER: ${{ secrets.PULL_USER }}
       PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
+      WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
+      WERF_REPO_DOCKER_HUB_USERNAME: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+      WERF_REPO_DOCKER_HUB_PASSWORD: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -34,6 +37,9 @@ jobs:
           if_key_exists: replace          
       - name: Set env for branch name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+      - name: Werf ci-env
+        run: |
+          source $(werf ci-env github --as-file)
       - name: Converge
         uses: werf/actions/converge@v1.2
         with:
@@ -49,6 +55,3 @@ jobs:
           WERF_NAMESPACE: "development"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
-          WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
-          WERF_REPO_DOCKER_HUB_USERNAME: ${{ secrets.SBERCLOUD_CR_USERNAME }}
-          WERF_REPO_DOCKER_HUB_PASSWORD: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
