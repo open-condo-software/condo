@@ -57,7 +57,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
                 router.push(redirectUrl)
             }
         }
-    }, [router, integration, contextsLoading, contextsError, contexts, id])
+    }, [router, integration, contextsLoading, contextsError, contexts, id, redirectUrl])
 
     if (integrationLoading || contextsLoading || integrationError || contextsError) {
         return (
