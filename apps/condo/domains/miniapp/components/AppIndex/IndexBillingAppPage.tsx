@@ -39,14 +39,12 @@ export const IndexBillingAppPage: React.FC<IndexBillingAppPageProps> = ({ id }) 
         },
     })
 
-    // NOTE: Page visiting is valid if:
-    // Context exists or integration has appUrl
-    // If no context and no appUrl -> redirect to about page
+    // NOTE: Page visiting is valid only if context exist:
     useEffect(() => {
-        if (integration && !contextLoading && !contextError && !context && !integration.appUrl) {
+        if (!contextLoading && !contextError && !context) {
             router.push(`/miniapps/${id}/about?type=${BILLING_APP_TYPE}`)
         }
-    }, [router, integration, context, id, contextLoading, integrationLoading, contextError])
+    }, [router, context, id, contextLoading, contextError])
 
     if (integrationLoading || contextLoading || integrationError || contextError) {
         return (
