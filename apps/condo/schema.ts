@@ -10743,6 +10743,8 @@ export type Meter = {
   accountNumber?: Maybe<Scalars['String']>;
   /**  Unit with this meter  */
   unitName?: Maybe<Scalars['String']>;
+  /**  Type of unit, such as parking lot or flat  */
+  unitType?: Maybe<Scalars['String']>;
   /**  Certain place in unit where meter is, such as kitchen  */
   place?: Maybe<Scalars['String']>;
   /**  Meter resource, such as hot water or electricity  */
@@ -10776,6 +10778,7 @@ export type MeterCreateInput = {
   sealingDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
@@ -10813,6 +10816,7 @@ export type MeterHistoryRecord = {
   sealingDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
@@ -10844,6 +10848,7 @@ export type MeterHistoryRecordCreateInput = {
   sealingDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
@@ -10880,6 +10885,7 @@ export type MeterHistoryRecordUpdateInput = {
   sealingDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
@@ -11028,6 +11034,24 @@ export type MeterHistoryRecordWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_contains?: Maybe<Scalars['String']>;
+  unitType_not_contains?: Maybe<Scalars['String']>;
+  unitType_starts_with?: Maybe<Scalars['String']>;
+  unitType_not_starts_with?: Maybe<Scalars['String']>;
+  unitType_ends_with?: Maybe<Scalars['String']>;
+  unitType_not_ends_with?: Maybe<Scalars['String']>;
+  unitType_i?: Maybe<Scalars['String']>;
+  unitType_not_i?: Maybe<Scalars['String']>;
+  unitType_contains_i?: Maybe<Scalars['String']>;
+  unitType_not_contains_i?: Maybe<Scalars['String']>;
+  unitType_starts_with_i?: Maybe<Scalars['String']>;
+  unitType_not_starts_with_i?: Maybe<Scalars['String']>;
+  unitType_ends_with_i?: Maybe<Scalars['String']>;
+  unitType_not_ends_with_i?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   place?: Maybe<Scalars['String']>;
   place_not?: Maybe<Scalars['String']>;
   place_contains?: Maybe<Scalars['String']>;
@@ -12850,6 +12874,7 @@ export type MeterUpdateInput = {
   sealingDate?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
@@ -12991,6 +13016,10 @@ export type MeterWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   place?: Maybe<Scalars['String']>;
   place_not?: Maybe<Scalars['String']>;
   place_contains?: Maybe<Scalars['String']>;
@@ -31887,6 +31916,8 @@ export enum SortMeterHistoryRecordsBy {
   AccountNumberDesc = 'accountNumber_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   PlaceAsc = 'place_ASC',
   PlaceDesc = 'place_DESC',
   IsAutomaticAsc = 'isAutomatic_ASC',
@@ -32150,6 +32181,8 @@ export enum SortMetersBy {
   AccountNumberDesc = 'accountNumber_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   PlaceAsc = 'place_ASC',
   PlaceDesc = 'place_DESC',
   ResourceAsc = 'resource_ASC',
