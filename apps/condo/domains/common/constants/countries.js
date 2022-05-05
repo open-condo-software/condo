@@ -31,4 +31,6 @@ module.exports = {
     RUSSIA_COUNTRY,
     COUNTRIES,
     DEFAULT_LOCALE,
+    EN_LOCALE,
+    RU_LOCALE,
 }
