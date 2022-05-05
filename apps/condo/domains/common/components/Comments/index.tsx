@@ -67,7 +67,6 @@ const Head = styled.div<{ isTitleHidden: boolean }>`
   font-weight: bold;
   font-size: 20px;
   line-height: 28px;
-  background-color: ${colors.backgroundLightGrey};
 `
 const Body = styled.div`
   padding: 12px 24px 0;
@@ -97,7 +96,7 @@ type ActionsForComment = {
 
 const { TabPane } = Tabs
 
-const CommentsTabsContainer = styled.div`
+const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
     padding: 0;
     display: flex;
     flex: 1 1 auto;
@@ -113,6 +112,7 @@ const CommentsTabsContainer = styled.div`
         padding: 28px 0;
         border-bottom: 1px solid ${colors.inputBorderGrey};
         margin: 0;
+        border-radius: ${({ isTitleHidden }) => isTitleHidden ? '8px' : '0'};;
         
         .ant-tabs-tab {
           border: none;
@@ -149,27 +149,23 @@ const CommentsTabsContainer = styled.div`
 const EMPTY_CONTAINER_TEXT_STYLES: CSSProperties = { fontSize: fontSizes.content }
 const LOADER_STYLES: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
-const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => {
-    const { isMobile } = useLayoutContext()
-
-    return (
-        <EmptyContainer>
-            <Empty
-                image={null}
-                description={
-                    <>
-                        <Typography.Paragraph strong style={EMPTY_CONTAINER_TEXT_STYLES}>
-                            {PromptTitleMessage}
-                        </Typography.Paragraph>
-                        <Typography.Paragraph type={'secondary'} style={EMPTY_CONTAINER_TEXT_STYLES}>
-                            {PromptDescriptionMessage}
-                        </Typography.Paragraph>
-                    </>
-                }
-            />
-        </EmptyContainer>
-    )
-}
+const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
+    <EmptyContainer>
+        <Empty
+            image={null}
+            description={
+                <>
+                    <Typography.Paragraph strong style={EMPTY_CONTAINER_TEXT_STYLES}>
+                        {PromptTitleMessage}
+                    </Typography.Paragraph>
+                    <Typography.Paragraph type={'secondary'} style={EMPTY_CONTAINER_TEXT_STYLES}>
+                        {PromptDescriptionMessage}
+                    </Typography.Paragraph>
+                </>
+            }
+        />
+    </EmptyContainer>
+)
 
 type CommentsTabContentProps = {
     comments: TComment[],
@@ -318,8 +314,6 @@ const Comments: React.FC<ICommentsListProps> = ({
     const commentsWithResident = useMemo(() => comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE), [comments])
 
     const handleCommentAction = useCallback(async (values, syncModifiedFiles) => {
-        setSending(true)
-
         if (editableComment) {
             await updateAction(values, editableComment)
             await syncModifiedFiles(editableComment.id)
@@ -331,7 +325,6 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
 
         await refetchComments()
-        setSending(false)
     },
     [commentType, createAction, editableComment, refetchComments, updateAction])
 
@@ -363,7 +356,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     return (
         <Container isSmall={isSmall}>
             <Head isTitleHidden={isTitleHidden}>{TitleMessage}</Head>
-            <CommentsTabsContainer className="card-container">
+            <CommentsTabsContainer isTitleHidden={isTitleHidden} className="card-container">
                 <Tabs
                     defaultActiveKey={ORGANIZATION_COMMENT_TYPE}
                     centered
@@ -426,6 +419,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                         action={handleCommentAction}
                         editableComment={editableComment}
                         setEditableComment={setEditableComment}
+                        setSending={setSending}
                         sending={sending}
                     />
                 ) : (

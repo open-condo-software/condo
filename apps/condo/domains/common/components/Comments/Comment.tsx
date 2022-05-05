@@ -13,9 +13,6 @@ import { User } from '@app/condo/schema'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
-import { DocIcon } from '@condo/domains/common/components/icons/DocIcon'
-import { ImageIcon } from '@condo/domains/common/components/icons/ImageIcon'
-import { VideoIcon } from '@condo/domains/common/components/icons/VideoIcon'
 import { colors, shadows } from '@condo/domains/common/constants/style'
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
@@ -62,7 +59,7 @@ const DeletedTextStyle = css`
 
 const CommentStyle = css`
     background: white;
-    margin-top: 1em;
+    margin-bottom: 6px;
     border-radius: 8px;
     padding: 0;
     box-shadow: rgba(0,0,0,0.15) 0px 1px 3px;
@@ -82,7 +79,6 @@ const CommentStyle = css`
 
     .ant-comment-inner {
       padding: 12px;
-      margin-bottom: 12px;
 
       .ant-comment-content {
         display: flex;

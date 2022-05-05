@@ -11,8 +11,6 @@ import { File } from '@app/condo/schema'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
-import { getIconByMimetype } from '../utils/clientSchema/files'
-import { DocIcon } from './icons/DocIcon'
 
 type DBFile = {
     id: string
