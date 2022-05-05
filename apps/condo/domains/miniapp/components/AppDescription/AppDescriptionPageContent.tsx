@@ -19,6 +19,7 @@ interface AppDescriptionPageContentProps {
     appUrl?: string,
     disabledConnect?: boolean,
     connectAction: () => void
+    connectButtonMessage?: string,
 }
 
 export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps> = ({
@@ -35,12 +36,14 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
     children,
     disabledConnect,
     connectAction,
+    connectButtonMessage,
 }) => {
     const intl = useIntl()
     const HowToSetupMessage = intl.formatMessage({ id: 'miniapps.HowToSetup' })
     const ConnectButtonDefaultMessage = intl.formatMessage({ id: 'miniapps.ConnectApp' })
+    const ConnectButtonLabel = connectButtonMessage || ConnectButtonDefaultMessage
     const DefaultInstructionMessage = intl.formatMessage({ id: 'miniapps.instruction.default' }, {
-        buttonLabel: ConnectButtonDefaultMessage,
+        buttonLabel: ConnectButtonLabel,
     })
 
     return (
@@ -97,7 +100,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                                     onClick={connectAction}
                                     disabled={disabledConnect}
                                 >
-                                    {ConnectButtonDefaultMessage}
+                                    {ConnectButtonLabel}
                                 </Button>
                             </Col>
                         )

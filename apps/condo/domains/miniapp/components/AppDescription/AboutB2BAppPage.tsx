@@ -53,7 +53,7 @@ export const AboutB2BAppPage: React.FC<AboutB2BAppPageProps> = ({ id }) => {
         if (app && !contextLoading && !contextError && context && context.id) {
             router.push(redirectUrl)
         }
-    }, [router, app, contextLoading, contextError, context, id])
+    }, [router, app, contextLoading, contextError, context, id, redirectUrl])
 
     if (appLoading || contextLoading || appError || contextError) {
         return <LoadingOrErrorPage title={LoadingMessage} error={appError || contextError} loading={appLoading || contextLoading}/>
@@ -85,6 +85,7 @@ export const AboutB2BAppPage: React.FC<AboutB2BAppPageProps> = ({ id }) => {
                         instruction={app.instruction}
                         appUrl={app.appUrl}
                         connectAction={createContextAction}
+                        connectButtonMessage={app.setupButtonMessage}
                     />
                 </PageContent>
             </PageWrapper>
