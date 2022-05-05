@@ -29,6 +29,7 @@ const TICKET_STATUS_COMPLETED_TYPE = 'TICKET_STATUS_COMPLETED'
 const TICKET_STATUS_RETURNED_TYPE = 'TICKET_STATUS_RETURNED'
 const TICKET_STATUS_DECLINED_TYPE = 'TICKET_STATUS_DECLINED'
 const TICKET_COMMENT_ADDED_TYPE = 'TICKET_COMMENT_ADDED'
+const BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE = 'BILLING_RECEIPT_AVAILABLE_MANUAL'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -48,6 +49,7 @@ const MESSAGE_TYPES = [
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
+    BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE,
 ]
 
 /**
@@ -196,6 +198,16 @@ const MESSAGE_META = {
             residentId: { defaultValue: '', required: true },
         },
     },
+    [BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE]: {
+        dv: { required: true },
+        data: {
+            receiptId: { required: true },
+            userId: { required: true },
+            accountId: { required: true },
+            url: { required: true },
+            residentId: { required: true },
+        },
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -279,4 +291,5 @@ module.exports = {
     DEFAULT_TEMPLATE_FILE_NAME,
     MESSAGE_TYPES_TRANSPORTS,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
+    BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE,
 }
