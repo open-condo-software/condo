@@ -2,11 +2,7 @@ const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchem
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const faker = require('faker')
 const path = require('path')
-const {
-    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
-    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
-    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
-} = require('@condo/domains/billing/constants/constants')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_ERROR_STATUS } = require('@condo/domains/miniapp/constants')
 
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }
@@ -46,7 +42,7 @@ const InProgressBilling = {
     instruction: 'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
         'В результате, вы будете видеть все данные биллинга внутри платформы «Домá».',
     connectedMessage: 'Все начисления вы будете видеть в разделе «[Биллинг](/billing)». Данные в разделе будут автоматически обновляться',
-    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
+    contextDefaultStatus: CONTEXT_IN_PROGRESS_STATUS,
     dataFormat: Lvl1DataFormat,
     developer: DEVELOPER_NAME,
 }
@@ -59,7 +55,7 @@ const SuccessfulBilling = {
     instruction: 'Выберите формат, в котором хотите загружать ваши реестры в Домá.\n' +
         'Мы запомним ваш выбор и в следующий раз не будем спрашивать про формат файлов.',
     connectedMessage: 'Все начисления вы будете видеть в разделе «[Биллинг](/billing)». Данные в разделе будут автоматически обновляться',
-    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    contextDefaultStatus: CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, реестровый обмен',
     dataFormat: Lvl3DataFormat,
     availableOptions: {
@@ -104,7 +100,7 @@ const ErrorBilling = {
     name: 'Error',
     shortDescription: 'Billing that will never be completed :)',
     appUrl: 'https://github.com/',
-    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
+    contextDefaultStatus: CONTEXT_ERROR_STATUS,
     dataFormat: Lvl1DataFormat,
     developer: DEVELOPER_NAME,
 }
@@ -115,7 +111,7 @@ const NoDetailsBilling = {
     name: 'Lvl 1',
     shortDescription: 'Рублевый биллинг без детализаций',
     appUrl: 'https://github.com/',
-    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    contextDefaultStatus: CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 1',
     dataFormat: Lvl1DataFormat,
     developer: DEVELOPER_NAME,
@@ -127,7 +123,7 @@ const NoDetailsDollarBilling = {
     name: 'Lvl 1',
     shortDescription: 'Долларовый биллинг без детализаций',
     appUrl: 'https://github.com/',
-    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    contextDefaultStatus: CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг "Доллар", уровень 1',
     dataFormat: Lvl1DataFormat,
     developer: DEVELOPER_NAME,
@@ -139,7 +135,7 @@ const ToPayDetailsBilling = {
     name: 'Lvl 1+',
     shortDescription: 'Рублевый биллинг с детализацией по оплате',
     appUrl: 'https://github.com/',
-    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    contextDefaultStatus: CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 1+',
     dataFormat: Lvl1PlusDataFormat,
     developer: DEVELOPER_NAME,
@@ -151,7 +147,7 @@ const WithServicesBilling = {
     name: 'Lvl 2',
     shortDescription: 'Рублевый биллинг с детализацией по оплате и услугами',
     appUrl: 'https://github.com/',
-    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    contextDefaultStatus: CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 2',
     dataFormat: Lvl2DataFormat,
     developer: DEVELOPER_NAME,
@@ -163,7 +159,7 @@ const WithServicesDetailsBilling = {
     name: 'Lvl 2+',
     shortDescription: 'Рублевый биллинг с детализацией по оплате и услугам',
     appUrl: 'https://github.com/',
-    contextDefaultStatus: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS,
+    contextDefaultStatus: CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, уровень 3',
     dataFormat: Lvl3DataFormat,
     developer: DEVELOPER_NAME,
