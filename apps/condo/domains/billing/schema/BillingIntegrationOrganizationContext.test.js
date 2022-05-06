@@ -16,15 +16,8 @@ const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.uti
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const {
-    expectToThrowAccessDeniedErrorToObj,
-    expectToThrowValidationFailureError,
-} = require('@condo/domains/common/utils/testSchema')
-const {
-    CONTEXT_OPTION_NAME_MATCH,
-    CONTEXT_NO_OPTION_PROVIDED,
-    CONTEXT_REDUNDANT_OPTION,
-} = require('@condo/domains/billing/constants/errors')
+const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
 
 describe('BillingIntegrationOrganizationContext', () => {
     describe('CRUD tests', () => {
@@ -274,81 +267,22 @@ describe('BillingIntegrationOrganizationContext', () => {
             })
         })
     })
-
-    describe('Validations', () => {
-        describe('IntegrationOption', () => {
-            test('Should be defined if integration has options', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] = await createTestBillingIntegration(admin, {
-                    availableOptions: {
-                        title: 'title',
-                        options: [
-                            { name: 'name' },
-                        ],
-                    },
-                })
-                const [organization] = await registerNewOrganization(admin)
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
-                }, CONTEXT_NO_OPTION_PROVIDED)
+    describe('Must resolve default status on create if not specified',  () => {
+        let organization
+        let admin
+        beforeAll(async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            admin = adminClient
+            const [org] = await registerNewOrganization(adminClient)
+            organization = org
+        })
+        test.each(CONTEXT_STATUSES)('%p', async (status) => {
+            const [integration] = await createTestBillingIntegration(admin, {
+                contextDefaultStatus: status,
             })
-            test('Should have matching name with integration option', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] = await createTestBillingIntegration(admin, {
-                    availableOptions: {
-                        title: 'title',
-                        options: [
-                            { name: 'name' },
-                        ],
-                    },
-                })
-                const [organization] = await registerNewOrganization(admin)
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
-                        integrationOption: 'bla-bla',
-                    })
-                }, CONTEXT_OPTION_NAME_MATCH)
-            })
-            test('Should not be specified if integration does not have options', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] = await createTestBillingIntegration(admin)
-                const [organization] = await registerNewOrganization(admin)
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
-                        integrationOption: 'bla-bla',
-                    })
-                }, CONTEXT_REDUNDANT_OPTION)
-            })
-            describe('Valid flow', () => {
-                test('Option-containing billing', async () => {
-                    const admin = await makeLoggedInAdminClient()
-                    const name = 'name'
-                    const [integration] = await createTestBillingIntegration(admin, {
-                        availableOptions: {
-                            title: 'title',
-                            options: [
-                                { name },
-                            ],
-                        },
-                    })
-                    const [organization] = await registerNewOrganization(admin)
-                    const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
-                        integrationOption: name,
-                    })
-                    expect(context).toBeDefined()
-                    expect(context).toHaveProperty(['integrationOption'], name)
-                })
-                test('No-option billing, and passed null as an option', async () => {
-                    const admin = await makeLoggedInAdminClient()
-                    const [integration] = await createTestBillingIntegration(admin)
-                    const [organization] = await registerNewOrganization(admin)
-                    const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
-                        integrationOption: null,
-                    })
-                    expect(context).toBeDefined()
-                    expect(context).toHaveProperty(['integrationOption'], null)
-                })
-            })
+            const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+            expect(context).toBeDefined()
+            expect(context).toHaveProperty('status', status)
         })
     })
 })

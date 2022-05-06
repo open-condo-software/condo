@@ -67,24 +67,9 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const [search, handleSearchChange] = useSearch(loading)
     const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
 
-    let hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)
-    let hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
-    let hasServicesDetails = get(context, ['integration', 'dataFormat', 'hasServicesDetails'], false)
-
-    const integrationOptionName = get(context, 'integrationOption')
-    if (integrationOptionName) {
-        const integrationOptions = get(context, ['integration', 'availableOptions', 'options'], [])
-            .filter(option => option.name === integrationOptionName)
-        if (integrationOptions.length) {
-            const [integrationOption] = integrationOptions
-            const dataFormat = get(integrationOption, 'dataFormat')
-            if (dataFormat) {
-                hasToPayDetails = dataFormat.hasToPayDetails
-                hasServices = dataFormat.hasServices
-                hasServicesDetails = dataFormat.hasServicesDetails
-            }
-        }
-    }
+    const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)
+    const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
+    const hasServicesDetails = get(context, ['integration', 'dataFormat', 'hasServicesDetails'], false)
 
     const mainTableColumns = useReceiptTableColumns(hasToPayDetails, currencyCode)
 

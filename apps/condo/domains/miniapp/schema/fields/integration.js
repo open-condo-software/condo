@@ -1,6 +1,7 @@
-const { Text, File, Checkbox } = require('@keystonejs/fields')
+const { Text, File, Checkbox, Select } = require('@keystonejs/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Markdown } = require('@keystonejs/fields-markdown')
+const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
 
 const APPS_FILE_ADAPTER = new FileAdapter('apps', true)
 
@@ -61,6 +62,15 @@ const IS_HIDDEN_FIELD = {
     isRequired: true,
 }
 
+const CONTEXT_DEFAULT_STATUS_FIELD = {
+    schemaDoc: 'Status, which context will have by default after creation if no overwriting option provided',
+    isRequired: true,
+    type: Select,
+    dataType: 'string',
+    options: CONTEXT_STATUSES,
+    defaultValue: CONTEXT_IN_PROGRESS_STATUS,
+}
+
 module.exports = {
     DEVELOPER_FIELD,
     LOGO_FIELD,
@@ -72,5 +82,6 @@ module.exports = {
     CONNECTED_MESSAGE_FIELD,
     APPS_FILE_ADAPTER,
     IS_HIDDEN_FIELD,
+    CONTEXT_DEFAULT_STATUS_FIELD,
 }
 

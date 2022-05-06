@@ -16,7 +16,6 @@ const {
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
-const faker = require('faker')
 
 describe('BillingIntegration', () => {
 
@@ -76,41 +75,6 @@ describe('BillingIntegration', () => {
             }, (err) => {
                 expect(err).toBeDefined()
             })
-        })
-
-        test('Can be created with options', async () => {
-            const support = await makeClientWithSupportUser()
-            const firstOption = { name: '1C', billingPageTitle: 'Биллиг "Реестры 1C"', descriptionDetails: { urlText: 'о формате', url: faker.internet.url() } }
-            const noDescriptionOption = { name: 'Сббол 9_2', billingPageTitle: 'Биллиг "Реестрыыыыыы"' }
-            const dataFormatOverrideOption = {
-                name: 'Сббол 8_1',
-                descriptionDetails: { urlText: 'о формате', url: faker.internet.url() },
-                dataFormat: {
-                    hasToPayDetails: true,
-                    hasServices: true,
-                    hasServicesDetails: false,
-                },
-            }
-            const title = 'Формат ваших реестров'
-            const payload = {
-                availableOptions: {
-                    title,
-                    options: [
-                        firstOption,
-                        noDescriptionOption,
-                        dataFormatOverrideOption,
-                    ],
-                },
-            }
-            const [billing] = await createTestBillingIntegration(support, payload)
-            expect(billing).toBeDefined()
-            expect(billing).toHaveProperty(['availableOptions', 'title'], title)
-            expect(billing).toHaveProperty(['availableOptions', 'options'])
-            expect(billing.availableOptions.options).toEqual(expect.arrayContaining([
-                expect.objectContaining(firstOption),
-                expect.objectContaining(noDescriptionOption),
-                expect.objectContaining(dataFormatOverrideOption),
-            ]))
         })
     })
 

@@ -4,9 +4,9 @@ import { EmptyListView, BasicEmptyListView } from '@condo/domains/common/compone
 import { Typography } from 'antd'
 import { Loader } from '@condo/domains/common/components/Loader'
 import {
-    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS,
-    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS,
-} from '@condo/domains/billing/constants/constants'
+    CONTEXT_IN_PROGRESS_STATUS,
+    CONTEXT_ERROR_STATUS,
+} from '@condo/domains/miniapp/constants'
 import { ApolloError } from '@apollo/client'
 import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'
@@ -77,7 +77,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
         )
     }
 
-    if (context.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IN_PROGRESS_STATUS) {
+    if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
         return (
             <BasicEmptyListView image={'/dino/waiting.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
                 <Typography.Title level={3}>
@@ -90,7 +90,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
         )
     }
 
-    if (context.status === BILLING_INTEGRATION_ORGANIZATION_CONTEXT_ERROR_STATUS) {
+    if (context.status === CONTEXT_ERROR_STATUS) {
         return (
             <BasicEmptyListView image={'/dino/fail.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
                 <Typography.Title level={3}>

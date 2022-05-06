@@ -16,12 +16,11 @@ const {
     CONNECTED_MESSAGE_FIELD,
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
+    CONTEXT_DEFAULT_STATUS_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const {
     B2B_APP_CATEGORIES,
     OTHER_CATEGORY,
-    CONTEXT_STATUSES,
-    CONTEXT_IN_PROGRESS_STATUS,
 } = require('@condo/domains/miniapp/constants')
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
 
@@ -29,23 +28,24 @@ const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/a
 const B2BApp = new GQLListSchema('B2BApp', {
     schemaDoc: 'B2B app',
     fields: {
+        name: {
+            schemaDoc: 'Name of B2B App',
+            type: Text,
+            isRequired: true,
+        },
         logo: LOGO_FIELD,
         shortDescription: SHORT_DESCRIPTION_FIELD,
+        about: {
+            ...ABOUT_DOCUMENT_FIELD,
+            schemaDoc: `Information about promo-blocks which we'll be shown on app detailed page. ${ABOUT_DOCUMENT_FIELD.schemaDoc}`,
+        },
         developer: DEVELOPER_FIELD,
         partnerUrl: PARTNER_URL_FIELD,
         instruction: INSTRUCTION_TEXT_FIELD,
         connectedMessage: CONNECTED_MESSAGE_FIELD,
         appUrl: IFRAME_URL_FIELD,
         isHidden: IS_HIDDEN_FIELD,
-        name: {
-            schemaDoc: 'Name of B2B App',
-            type: Text,
-            isRequired: true,
-        },
-        about: {
-            ...ABOUT_DOCUMENT_FIELD,
-            schemaDoc: `Information about promo-blocks which we'll be shown on app detailed page. ${ABOUT_DOCUMENT_FIELD.schemaDoc}`,
-        },
+        contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,
         category: {
             schemaDoc: `Category of app. Can be one of the following: [${B2B_APP_CATEGORIES.map(category => `"${category}"`).join(', ')}] By default set to "${OTHER_CATEGORY}"`,
             type: Select,
@@ -58,14 +58,6 @@ const B2BApp = new GQLListSchema('B2BApp', {
             schemaDoc: 'Text, which will be displayed instead of default "Set up" text if app has it\'s own frontend (appUrl)',
             isRequired: false,
             type: Text,
-        },
-        contextDefaultStatus: {
-            schemaDoc: 'Status, which context will have by default after creation if no overwriting option provided',
-            isRequired: true,
-            type: Select,
-            dataType: 'string',
-            options: CONTEXT_STATUSES,
-            defaultValue: CONTEXT_IN_PROGRESS_STATUS,
         },
         accessRights: {
             schemaDoc: 'Specifies set of service users, who can access app\'s contexts related as well as perform actions on behalf of the application',
