@@ -256,6 +256,7 @@ interface ICommentsListProps {
     userTicketCommentReadTime,
     createUserTicketCommentReadTime,
     updateUserTicketCommentReadTime,
+    loadingUserTicketCommentReadTime: boolean
 }
 
 const Comments: React.FC<ICommentsListProps> = ({
@@ -272,6 +273,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     userTicketCommentReadTime,
     createUserTicketCommentReadTime,
     updateUserTicketCommentReadTime,
+    loadingUserTicketCommentReadTime,
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
@@ -288,6 +290,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     const [editableComment, setEditableComment] = useState<TComment>()
     const [sending, setSending] = useState(false)
     const [isTitleHidden, setTitleHidden] = useState<boolean>(false)
+    const [isInitialUserTicketCommentReadTimeSet, setIsInitialUserTicketCommentReadTimeSet] = useState<boolean>(false)
 
     const handleBodyScroll = useCallback((e) => {
         const scrollTop = get(e, ['currentTarget', 'scrollTop'])
@@ -328,24 +331,48 @@ const Comments: React.FC<ICommentsListProps> = ({
     },
     [commentType, createAction, editableComment, refetchComments, updateAction])
 
+    const createOrUpdateUserTicketCommentReadTime = useCallback((payload) => {
+        if (loadingUserTicketCommentReadTime) return
+
+        if (userTicketCommentReadTime) {
+            updateUserTicketCommentReadTime({
+                ...payload,
+            }, userTicketCommentReadTime)
+        } else {
+            createUserTicketCommentReadTime({
+                ...payload,
+            })
+        }
+    }, [createUserTicketCommentReadTime, loadingUserTicketCommentReadTime, updateUserTicketCommentReadTime, userTicketCommentReadTime])
+
+    useEffect(() => {
+        if (!loadingUserTicketCommentReadTime && !isInitialUserTicketCommentReadTimeSet) {
+            const now = new Date()
+            createOrUpdateUserTicketCommentReadTime({
+                readCommentAt: now,
+            })
+
+            setIsInitialUserTicketCommentReadTimeSet(true)
+        }
+    }, [createOrUpdateUserTicketCommentReadTime, isInitialUserTicketCommentReadTimeSet, loadingUserTicketCommentReadTime])
+
     const handleTabChange = useCallback((tab) => {
         setCommentType(tab)
+        const now = new Date()
 
         if (tab === RESIDENT_COMMENT_TYPE) {
-            const now = new Date()
-            if (userTicketCommentReadTime) {
-                updateUserTicketCommentReadTime({
-                    readResidentCommentAt: now,
-                }, userTicketCommentReadTime)
-            } else {
-                createUserTicketCommentReadTime({
-                    readResidentCommentAt: now,
-                })
-            }
+            createOrUpdateUserTicketCommentReadTime({
+                readResidentCommentAt: now,
+                readCommentAt: now,
+            })
+        } else if (tab === ORGANIZATION_COMMENT_TYPE) {
+            createOrUpdateUserTicketCommentReadTime({
+                readCommentAt: now,
+            })
         }
 
         scrollToBottom()
-    }, [createUserTicketCommentReadTime, updateUserTicketCommentReadTime, userTicketCommentReadTime])
+    }, [createOrUpdateUserTicketCommentReadTime])
 
     const lastResidentCommentAt = get(ticketCommentsTime, 'lastResidentCommentAt')
     const lastCommentAt = get(ticketCommentsTime, 'lastCommentAt')

@@ -16089,6 +16089,28 @@ export type Mutation = {
    * 				"required": true
    * 			}
    * 		}
+   * 	},
+   * 	"BILLING_RECEIPT_AVAILABLE_MANUAL": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"receiptId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"accountId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			}
+   * 		}
    * 	}
    * }`
    *
@@ -29451,7 +29473,8 @@ export enum SendMessageType {
   TicketStatusCompleted = 'TICKET_STATUS_COMPLETED',
   TicketStatusReturned = 'TICKET_STATUS_RETURNED',
   TicketStatusDeclined = 'TICKET_STATUS_DECLINED',
-  TicketCommentAdded = 'TICKET_COMMENT_ADDED'
+  TicketCommentAdded = 'TICKET_COMMENT_ADDED',
+  BillingReceiptAvailableManual = 'BILLING_RECEIPT_AVAILABLE_MANUAL'
 }
 
 export type SenderField = {
@@ -34564,6 +34587,8 @@ export enum SortUserHistoryRecordsBy {
 export enum SortUserTicketCommentReadTimeHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  ReadCommentAtAsc = 'readCommentAt_ASC',
+  ReadCommentAtDesc = 'readCommentAt_DESC',
   ReadResidentCommentAtAsc = 'readResidentCommentAt_ASC',
   ReadResidentCommentAtDesc = 'readResidentCommentAt_DESC',
   IdAsc = 'id_ASC',
@@ -34589,6 +34614,8 @@ export enum SortUserTicketCommentReadTimesBy {
   UserDesc = 'user_DESC',
   TicketAsc = 'ticket_ASC',
   TicketDesc = 'ticket_DESC',
+  ReadCommentAtAsc = 'readCommentAt_ASC',
+  ReadCommentAtDesc = 'readCommentAt_DESC',
   ReadResidentCommentAtAsc = 'readResidentCommentAt_ASC',
   ReadResidentCommentAtDesc = 'readResidentCommentAt_DESC',
   IdAsc = 'id_ASC',
@@ -42948,6 +42975,8 @@ export type UserTicketCommentReadTime = {
   user?: Maybe<User>;
   /**  Ticket in which the user read the comment  */
   ticket?: Maybe<Ticket>;
+  /**  Time when the last comment was last read by the user  */
+  readCommentAt?: Maybe<Scalars['String']>;
   /**  Time when the last comment from a resident was last read by the user  */
   readResidentCommentAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -42967,6 +42996,7 @@ export type UserTicketCommentReadTimeCreateInput = {
   sender?: Maybe<SenderFieldInput>;
   user?: Maybe<UserRelateToOneInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
+  readCommentAt?: Maybe<Scalars['String']>;
   readResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -42992,6 +43022,7 @@ export type UserTicketCommentReadTimeHistoryRecord = {
   sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
   ticket?: Maybe<Scalars['String']>;
+  readCommentAt?: Maybe<Scalars['String']>;
   readResidentCommentAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -43011,6 +43042,7 @@ export type UserTicketCommentReadTimeHistoryRecordCreateInput = {
   sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
   ticket?: Maybe<Scalars['String']>;
+  readCommentAt?: Maybe<Scalars['String']>;
   readResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -43035,6 +43067,7 @@ export type UserTicketCommentReadTimeHistoryRecordUpdateInput = {
   sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
   ticket?: Maybe<Scalars['String']>;
+  readCommentAt?: Maybe<Scalars['String']>;
   readResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -43071,6 +43104,14 @@ export type UserTicketCommentReadTimeHistoryRecordWhereInput = {
   ticket_not?: Maybe<Scalars['String']>;
   ticket_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticket_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  readCommentAt?: Maybe<Scalars['String']>;
+  readCommentAt_not?: Maybe<Scalars['String']>;
+  readCommentAt_lt?: Maybe<Scalars['String']>;
+  readCommentAt_lte?: Maybe<Scalars['String']>;
+  readCommentAt_gt?: Maybe<Scalars['String']>;
+  readCommentAt_gte?: Maybe<Scalars['String']>;
+  readCommentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  readCommentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   readResidentCommentAt?: Maybe<Scalars['String']>;
   readResidentCommentAt_not?: Maybe<Scalars['String']>;
   readResidentCommentAt_lt?: Maybe<Scalars['String']>;
@@ -43163,6 +43204,7 @@ export type UserTicketCommentReadTimeUpdateInput = {
   sender?: Maybe<SenderFieldInput>;
   user?: Maybe<UserRelateToOneInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
+  readCommentAt?: Maybe<Scalars['String']>;
   readResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -43192,6 +43234,14 @@ export type UserTicketCommentReadTimeWhereInput = {
   user_is_null?: Maybe<Scalars['Boolean']>;
   ticket?: Maybe<TicketWhereInput>;
   ticket_is_null?: Maybe<Scalars['Boolean']>;
+  readCommentAt?: Maybe<Scalars['String']>;
+  readCommentAt_not?: Maybe<Scalars['String']>;
+  readCommentAt_lt?: Maybe<Scalars['String']>;
+  readCommentAt_lte?: Maybe<Scalars['String']>;
+  readCommentAt_gt?: Maybe<Scalars['String']>;
+  readCommentAt_gte?: Maybe<Scalars['String']>;
+  readCommentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  readCommentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   readResidentCommentAt?: Maybe<Scalars['String']>;
   readResidentCommentAt_not?: Maybe<Scalars['String']>;
   readResidentCommentAt_lt?: Maybe<Scalars['String']>;

@@ -184,7 +184,7 @@ const TicketCommentFile = generateGqlQueries('TicketCommentFile', TICKET_COMMENT
 const TICKET_COMMENTS_TIME_FIELDS = `{ organization { id } ticket { id } lastCommentAt lastResidentCommentAt ${COMMON_FIELDS} }`
 const TicketCommentsTime = generateGqlQueries('TicketCommentsTime', TICKET_COMMENTS_TIME_FIELDS)
 
-const USER_TICKET_COMMENT_READ_TIME_FIELDS = `{ user { id } ticket { id } readResidentCommentAt ${COMMON_FIELDS} }`
+const USER_TICKET_COMMENT_READ_TIME_FIELDS = `{ user { id } ticket { id } readResidentCommentAt readCommentAt ${COMMON_FIELDS} }`
 const UserTicketCommentReadTime = generateGqlQueries('UserTicketCommentReadTime', USER_TICKET_COMMENT_READ_TIME_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
