@@ -75,6 +75,16 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             },
         },
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization', 'app'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'b2b_app_context_unique_organization_and_app',
+            },
+        ],
+    },
     hooks: {
         validateInput: async ({ resolvedData, existingItem, addValidationError }) => {
             const newItem = { ...existingItem, ...resolvedData }
