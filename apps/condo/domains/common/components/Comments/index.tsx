@@ -147,7 +147,7 @@ const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
 `
 
 const EMPTY_CONTAINER_TEXT_STYLES: CSSProperties = { fontSize: fontSizes.content }
-const LOADER_STYLES: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
+const LOADER_STYLES: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '8px 0 18px 0' }
 
 const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
     <EmptyContainer>
