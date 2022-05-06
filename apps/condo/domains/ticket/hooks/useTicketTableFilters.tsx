@@ -47,6 +47,7 @@ const filterFloor = getFilter('floorName', 'array', 'string', 'in')
 const filterUnit = getFilter('unitName', 'array', 'string', 'in')
 const filterPlaceClassifier = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifier = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
+const filterCategoryClassifierSearch = getStringContainsFilter(['categoryClassifier', 'name'])
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
@@ -123,6 +124,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     filterExecutorName,
                     filterAssigneeName,
                     filterCreatedAtRange,
+                    filterCategoryClassifierSearch,
                 ],
                 combineType: 'OR',
             },
