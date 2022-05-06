@@ -48,31 +48,25 @@ describe('syncUser from SBBOL', () => {
             expect(checkOnboarding).toBeDefined()
         })
     })
-    describe('user with given phone already existed', () => {
+    describe('User with given phone already existed', () => {
         it('should update importId and importRemoteSystem fields', async () => {
-            const client = await makeClientWithRegisteredOrganization()
+            const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
                 keystone,
                 context: adminContext,
             }
-            const existedUser = await getItem({
-                keystone,
-                itemId: client.user.id,
-                listKey: 'User',
-                returnFields: 'id name phone',
-            })
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
-            userData.phone = existedUser.phone
+            userData.phone = existingUserPhone
             await syncUser({ context, userInfo: userData })
             const updatedUser = await getItem({
                 keystone,
-                itemId: client.user.id,
+                itemId: existingUser.id,
                 listKey: 'User',
                 returnFields: 'id name phone importId importRemoteSystem',
             })
-            expect(existedUser.id).toEqual(updatedUser.id)
-            expect(existedUser.phone).toEqual(updatedUser.phone)
+            expect(updatedUser.id).toEqual(existingUser.id)
+            expect(updatedUser.phone).toEqual(existingUserPhone)
             expect(updatedUser.importId).toEqual(userData.importId)
             expect(updatedUser.importRemoteSystem).toEqual(userData.importRemoteSystem)
         })
@@ -114,7 +108,7 @@ describe('syncUser from SBBOL', () => {
             expect(staff.importRemoteSystem).toEqual(userData.importRemoteSystem)
         })
     })
-    describe('another first user with given email already exist', () => {
+    describe('Another first user with given email already exist', () => {
         describe('another second user with given phone does not exist', () => {
             it('should clean email of first another user and create new user with given email and phone', async () => {
                 const adminContext = await keystone.createContext({ skipAccessControl: true })
@@ -139,7 +133,7 @@ describe('syncUser from SBBOL', () => {
                 expect(updatedExistingUser.email).toBeNull()
             })
         })
-        describe('another second user with given phone already exist', () => {
+        describe('Another second user with given phone already exist', () => {
             it('should clean email of first another user and update another second user with info from SBBOL', async () => {
                 const adminContext = await keystone.createContext({ skipAccessControl: true })
                 const context = {
