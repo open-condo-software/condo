@@ -23,6 +23,7 @@ const {
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
+const { catchErrorFrom } = require('../../common/utils/testSchema')
 
 describe('B2BAppContext', () => {
     describe('CRUD', () => {
@@ -256,6 +257,23 @@ describe('B2BAppContext', () => {
                     app: { connect: { id: secondApp.id } },
                 })
             }, 'Field "app" is not defined')
+        })
+    })
+    describe('Constraints', () => {
+        test('Unique: organization + app', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [app] = await createTestB2BApp(admin)
+            const [organization] = await registerNewOrganization(admin)
+            const [context] = await createTestB2BAppContext(admin, app, organization)
+            expect(context).toBeDefined()
+            await catchErrorFrom(async () => {
+                await createTestB2BAppContext(admin, app, organization)
+            }, ({ errors }) => {
+                expect(errors).toHaveLength(1)
+                expect(errors[0]).toEqual(expect.objectContaining({
+                    message: expect.stringContaining('unique constraint'),
+                }))
+            })
         })
     })
 })
