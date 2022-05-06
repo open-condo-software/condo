@@ -24,11 +24,11 @@ class ReceiptsNotificationSender {
 
     context = null
 
-    constructor ({ billingContextId, period, logOnly }) {
+    constructor ({ billingContextId, period, forseSend }) {
         this.billingContextId = billingContextId
         this.period = period
         this.billingContext = null
-        this.logOnly = logOnly
+        this.forseSend = forseSend
     }
 
     async connect () {
@@ -61,6 +61,8 @@ class ReceiptsNotificationSender {
             return 1
         }
 
+        let count = 0
+
         for (const receipt of receipts) {
             // don't send notification if there is no debt on a bill
             if (+receipt.toPay <= 0) continue
@@ -72,48 +74,53 @@ class ReceiptsNotificationSender {
 
             for (const consumer of serviceConsumers) {
                 const resident = await Resident.getOne(this.context, { id: consumer.resident.id, deletedAt: null })
-                const data = {
-                    receiptId: receipt.id,
-                    residentId: resident.id,
-                    userId: resident.user.id,
-                    accountId: receipt.account.id,
-                    url: `${conf.SERVER_URL}/billing/receipts/${receipt.id}`,
-                }
 
-                if (this.logOnly) {
-                    console.info('[INFO] Billing receipt available for userId: ', resident.user.id)
-                } else {
-                    const organization = await Organization.getOne(this.context, { id: resident.organization.id, deletedAt: null })
+                if (!isEmpty(resident)) {
+                    const data = {
+                        receiptId: receipt.id,
+                        residentId: resident.id,
+                        userId: resident.user.id,
+                        accountId: receipt.account.id,
+                        url: `${conf.SERVER_URL}/billing/receipts/${receipt.id}`,
+                    }
 
-                    /**
-                     * Detect message language
-                     * Use DEFAULT_LOCALE if organization.country is unknown
-                     * (not defined within @condo/domains/common/constants/countries)
-                     */
-                    const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
+                    count++
+                    if (this.forseSend) {
+                        const organization = await Organization.getOne(this.context, { id: resident.organization.id, deletedAt: null })
 
-                    await sendMessage(this.context, {
-                        lang,
-                        to: { user: { id: resident.user.id } },
-                        type: BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE,
-                        meta: { dv: 1, data },
-                        sender: { dv: 1, fingerprint: `condo/bin/${BASE_NAME}` },
-                    })
+                        /**
+                         * Detect message language
+                         * Use DEFAULT_LOCALE if organization.country is unknown
+                         * (not defined within @condo/domains/common/constants/countries)
+                         */
+                        const lang = get(COUNTRIES, get(organization, 'country.locale'), DEFAULT_LOCALE)
 
+                        await sendMessage(this.context, {
+                            lang,
+                            to: { user: { id: resident.user.id } },
+                            type: BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE,
+                            meta: { dv: 1, data },
+                            sender: { dv: 1, fingerprint: `condo/bin/${BASE_NAME}` },
+                        })
+                    } else {
+                        console.info('[INFO] Billing receipt available for userId: ', resident.user.id)
+                    }
                 }
             }
         }
+
+        console.info(`[INFO] ${count} notifications ${!this.forseSend ? 'to be' : ''} sent.`)
     }
 }
 
-async function main ([billingContextId, periodRaw, logOnly]) {
+async function main ([billingContextId, periodRaw, forseSend]) {
     if (!billingContextId || !periodRaw)
-        throw new Error(`No billingContextId and period were provided – please use like this: yarn workspace @app/condo node ./bin/${BASE_NAME} <contextId> <period> [<logOnly>]`)
+        throw new Error(`No billingContextId and period were provided – please use like this: yarn workspace @app/condo node ./bin/${BASE_NAME} <contextId> <period> [FORCE_SEND]`)
     if (!dayjs(periodRaw).isValid())
         throw new Error('Incorrect period format was provided. Available: YYYY-MM-01')
 
     const period = dayjs(periodRaw).date(1).format('YYYY-MM-DD')
-    const ReceiptsManager = new ReceiptsNotificationSender({ billingContextId, period, logOnly: !isUndefined(logOnly) })
+    const ReceiptsManager = new ReceiptsNotificationSender({ billingContextId, period, forseSend: forseSend === 'FORCE_SEND' })
 
     console.time('keystone')
     await ReceiptsManager.connect()
