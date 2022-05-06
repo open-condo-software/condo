@@ -40,7 +40,7 @@ const Holder = styled.div`
     max-height: 15vh;
     overflow-y: scroll;
     
-    .ant-upload-list-item-done .ant-upload-list-item-error {
+    .ant-upload-list-item-done, .ant-upload-list-item-error {
       height: auto;
     }
   }
@@ -112,11 +112,15 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     const handleKeyUp = useCallback(async (event, form) => {
         if (event.keyCode === ENTER_KEY_CODE && !event.shiftKey) {
-            setSending(true)
+            const content = form.getFieldValue(fieldName)
+            if (content && content.trim().length > 0 || filesCount > 0) {
+                setSending(true)
+            }
+
             form.submit()
             setCommentLength(0)
         }
-    }, [setCommentLength])
+    }, [fieldName, filesCount, setCommentLength, setSending])
 
     const handleKeyDown = useCallback((event) => {
         if (event.keyCode === ENTER_KEY_CODE) {
