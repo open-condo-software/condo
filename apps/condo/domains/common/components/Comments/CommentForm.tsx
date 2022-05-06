@@ -37,8 +37,12 @@ const Holder = styled.div`
   }
   
   .ant-upload-list.ant-upload-list-text {
-    max-height: 14vh;
+    max-height: 15vh;
     overflow-y: scroll;
+    
+    .ant-upload-list-item-done .ant-upload-list-item-error {
+      height: auto;
+    }
   }
 `
 

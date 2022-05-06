@@ -191,11 +191,13 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         setListFiles(convertedFiles)
     }, [fileList])
 
-    useEffect(() => {
-        setFilesCount(listFiles.length)
-    }, [listFiles.length, setFilesCount])
-
     const createAction = Model.useCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file))
+
+    useEffect(() => {
+        if (listFiles.length === 0) {
+            setFilesCount(0)
+        }
+    }, [listFiles.length, setFilesCount])
 
     const options = {
         fileList: listFiles,
@@ -216,6 +218,11 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 const removeIcon = (
                     <DeleteFilled onClick={() => {
                         const { id, uid } = file
+                        const fileError = get(file, 'error')
+                        if (!fileError) {
+                            setFilesCount(filesCount => filesCount - 1)
+                        }
+
                         if (!id) {
                             // remove file that failed to upload from list
                             setListFiles([...listFiles].filter(file => file.uid !== uid))
@@ -241,6 +248,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 const [uploadFile] = convertFilesToUploadFormat([dbFile])
                 onSuccess(uploadFile, null)
                 onFilesChange({ type: 'add', payload: dbFile })
+                setFilesCount(filesCount => filesCount + 1)
             }).catch(err => {
                 const error = new Error(UploadFailedErrorMessage)
                 console.error('Upload failed', err)
