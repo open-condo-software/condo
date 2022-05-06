@@ -100,6 +100,7 @@ const logger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOG
 
 async function pushOrganizationToSalesCRM (organization) {
     if (!SALES_CRM_WEBHOOKS_URL) {
+        logger.error({ message: 'Unable to pushOrganizationToSalesCRM, because variable SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', SALES_CRM_WEBHOOKS_URL })
         return
     }
     const { tin, name: orgName, createdBy } = organization
@@ -124,6 +125,7 @@ async function pushOrganizationToSalesCRM (organization) {
 
 async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt, isTrial) {
     if (!SALES_CRM_WEBHOOKS_URL) {
+        logger.error({ message: 'Unable to pushSubscriptionActivationToSalesCRM, because variable SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', SALES_CRM_WEBHOOKS_URL })
         return
     }
     try {

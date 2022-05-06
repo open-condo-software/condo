@@ -73,7 +73,9 @@ export type AcquiringIntegration = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -146,7 +148,9 @@ export type AcquiringIntegrationAccessRight = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -470,7 +474,9 @@ export type AcquiringIntegrationContext = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -1806,7 +1812,9 @@ export type BillingAccount = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -2157,7 +2165,9 @@ export type BillingAccountMeter = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -2466,7 +2476,9 @@ export type BillingAccountMeterReading = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -3323,7 +3335,9 @@ export type BillingCategory = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -3673,7 +3687,9 @@ export type BillingIntegration = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -3723,7 +3739,9 @@ export type BillingIntegrationAccessRight = {
   id: Scalars['ID'];
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   v?: Maybe<Scalars['Int']>;
   deletedAt?: Maybe<Scalars['String']>;
@@ -4423,7 +4441,9 @@ export type BillingIntegrationLog = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -4649,7 +4669,9 @@ export type BillingIntegrationOrganizationContext = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -5358,7 +5380,9 @@ export type BillingMeterResource = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -5700,13 +5724,19 @@ export type BillingProperty = {
   globalId?: Maybe<Scalars['String']>;
   /**  The non-modified address from the `billing data source`. Used in `receipt template`  */
   address?: Maybe<Scalars['String']>;
+  /**  Normalized address from `billing data source`. Used to map Properties to BillingProperties  */
+  normalizedAddress?: Maybe<Scalars['String']>;
   /**  Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `total space of building`, `property beginning of exploitation year`, `has cultural heritage status`, `number of underground floors`, `number of above-ground floors`  */
   meta?: Maybe<Scalars['JSON']>;
+  /**  Link to the property model  */
+  property?: Maybe<Property>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -5720,6 +5750,7 @@ export type BillingPropertyCreateInput = {
   raw?: Maybe<Scalars['JSON']>;
   globalId?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
+  normalizedAddress?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -5748,7 +5779,9 @@ export type BillingPropertyHistoryRecord = {
   raw?: Maybe<Scalars['JSON']>;
   globalId?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
+  normalizedAddress?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  property?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -5770,7 +5803,9 @@ export type BillingPropertyHistoryRecordCreateInput = {
   raw?: Maybe<Scalars['JSON']>;
   globalId?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
+  normalizedAddress?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  property?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5797,7 +5832,9 @@ export type BillingPropertyHistoryRecordUpdateInput = {
   raw?: Maybe<Scalars['JSON']>;
   globalId?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
+  normalizedAddress?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  property?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5887,10 +5924,32 @@ export type BillingPropertyHistoryRecordWhereInput = {
   address_not_ends_with_i?: Maybe<Scalars['String']>;
   address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  normalizedAddress?: Maybe<Scalars['String']>;
+  normalizedAddress_not?: Maybe<Scalars['String']>;
+  normalizedAddress_contains?: Maybe<Scalars['String']>;
+  normalizedAddress_not_contains?: Maybe<Scalars['String']>;
+  normalizedAddress_starts_with?: Maybe<Scalars['String']>;
+  normalizedAddress_not_starts_with?: Maybe<Scalars['String']>;
+  normalizedAddress_ends_with?: Maybe<Scalars['String']>;
+  normalizedAddress_not_ends_with?: Maybe<Scalars['String']>;
+  normalizedAddress_i?: Maybe<Scalars['String']>;
+  normalizedAddress_not_i?: Maybe<Scalars['String']>;
+  normalizedAddress_contains_i?: Maybe<Scalars['String']>;
+  normalizedAddress_not_contains_i?: Maybe<Scalars['String']>;
+  normalizedAddress_starts_with_i?: Maybe<Scalars['String']>;
+  normalizedAddress_not_starts_with_i?: Maybe<Scalars['String']>;
+  normalizedAddress_ends_with_i?: Maybe<Scalars['String']>;
+  normalizedAddress_not_ends_with_i?: Maybe<Scalars['String']>;
+  normalizedAddress_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  normalizedAddress_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  property?: Maybe<Scalars['JSON']>;
+  property_not?: Maybe<Scalars['JSON']>;
+  property_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -5985,6 +6044,7 @@ export type BillingPropertyUpdateInput = {
   raw?: Maybe<Scalars['JSON']>;
   globalId?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
+  normalizedAddress?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6070,6 +6130,24 @@ export type BillingPropertyWhereInput = {
   address_not_ends_with_i?: Maybe<Scalars['String']>;
   address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  normalizedAddress?: Maybe<Scalars['String']>;
+  normalizedAddress_not?: Maybe<Scalars['String']>;
+  normalizedAddress_contains?: Maybe<Scalars['String']>;
+  normalizedAddress_not_contains?: Maybe<Scalars['String']>;
+  normalizedAddress_starts_with?: Maybe<Scalars['String']>;
+  normalizedAddress_not_starts_with?: Maybe<Scalars['String']>;
+  normalizedAddress_ends_with?: Maybe<Scalars['String']>;
+  normalizedAddress_not_ends_with?: Maybe<Scalars['String']>;
+  normalizedAddress_i?: Maybe<Scalars['String']>;
+  normalizedAddress_not_i?: Maybe<Scalars['String']>;
+  normalizedAddress_contains_i?: Maybe<Scalars['String']>;
+  normalizedAddress_not_contains_i?: Maybe<Scalars['String']>;
+  normalizedAddress_starts_with_i?: Maybe<Scalars['String']>;
+  normalizedAddress_not_starts_with_i?: Maybe<Scalars['String']>;
+  normalizedAddress_ends_with_i?: Maybe<Scalars['String']>;
+  normalizedAddress_not_ends_with_i?: Maybe<Scalars['String']>;
+  normalizedAddress_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  normalizedAddress_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -6169,7 +6247,9 @@ export type BillingReceipt = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -6794,7 +6874,9 @@ export type BillingRecipient = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -8109,7 +8191,9 @@ export type Contact = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -8604,7 +8688,9 @@ export type Device = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -9045,7 +9131,9 @@ export type Division = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -9564,7 +9652,9 @@ export type ForgotPasswordAction = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -10008,7 +10098,9 @@ export type Message = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -10655,11 +10747,15 @@ export type Meter = {
   place?: Maybe<Scalars['String']>;
   /**  Meter resource, such as hot water or electricity  */
   resource?: Maybe<MeterResource>;
+  /**  Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading. So MeterReadings only be acquired through external integration or adjusted by organization employee  */
+  isAutomatic?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -10682,6 +10778,7 @@ export type MeterCreateInput = {
   unitName?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -10718,6 +10815,7 @@ export type MeterHistoryRecord = {
   unitName?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -10748,6 +10846,7 @@ export type MeterHistoryRecordCreateInput = {
   unitName?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -10783,6 +10882,7 @@ export type MeterHistoryRecordUpdateInput = {
   unitName?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -10950,6 +11050,8 @@ export type MeterHistoryRecordWhereInput = {
   resource_not?: Maybe<Scalars['String']>;
   resource_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resource_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
+  isAutomatic_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -11074,7 +11176,9 @@ export type MeterReading = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -11130,7 +11234,9 @@ export type MeterReadingFilterTemplate = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -11804,7 +11910,9 @@ export type MeterReadingSource = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -12030,9 +12138,9 @@ export type MeterReadingSourceRelateToOneInput = {
 };
 
 export enum MeterReadingSourceTypeType {
+  ImportCondo = 'import_condo',
   Call = 'call',
-  MobileApp = 'mobile_app',
-  ImportCondo = 'import_condo'
+  MobileApp = 'mobile_app'
 }
 
 export type MeterReadingSourceUpdateInput = {
@@ -12376,7 +12484,9 @@ export type MeterResource = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -12742,6 +12852,7 @@ export type MeterUpdateInput = {
   unitName?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12900,6 +13011,8 @@ export type MeterWhereInput = {
   place_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resource?: Maybe<MeterResourceWhereInput>;
   resource_is_null?: Maybe<Scalars['Boolean']>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
+  isAutomatic_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -13028,7 +13141,9 @@ export type MultiPayment = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -15092,7 +15207,9 @@ export type Mutation = {
    *     "data",
    *     "confirmPhoneActionToken"
    *   ],
-   *   "message": "Unable to find confirm phone action"
+   *   "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
+   *   "message": "Unable to find confirm phone action",
+   *   "messageForUser": "api.user.registerNewUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
    * }`
    *
    * `{
@@ -15104,6 +15221,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_FORMAT",
    *   "message": "Wrong format of provided phone number",
+   *   "messageForUser": "api.user.registerNewUser.WRONG_PHONE_FORMAT",
    *   "correctExample": "+79991234567"
    * }`
    *
@@ -15130,7 +15248,8 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_UNIQUE",
-   *   "message": "User with specified phone already exists"
+   *   "message": "User with specified phone already exists",
+   *   "messageForUser": "api.user.registerNewUser.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS"
    * }`
    *
    * `{
@@ -15141,13 +15260,16 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_UNIQUE",
-   *   "message": "User with specified email already exists"
+   *   "message": "User with specified email already exists",
+   *   "messageForUser": "api.user.registerNewUser.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS"
    * }`
    *
    * `{
    *   "mutation": "registerNewUser",
    *   "code": "INTERNAL_ERROR",
-   *   "message": "Unable to create user"
+   *   "type": "UNABLE_TO_CREATE_USER",
+   *   "message": "Unable to create user",
+   *   "messageForUser": "api.user.registerNewUser.UNABLE_TO_CREATE_USER"
    * }`
    */
   registerNewUser?: Maybe<User>;
@@ -15172,7 +15294,8 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "USER_BY_PHONE_NOT_FOUND",
-   *   "message": "Unable to find user with specified phone"
+   *   "message": "Unable to find user with specified phone",
+   *   "messageForUser": "api.user.startPasswordRecovery.USER_NOT_FOUND"
    * }`
    *
    * `{
@@ -15183,7 +15306,8 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "MULTIPLE_USERS_FOUND",
-   *   "message": "Unable to find exact one user to start password recovery"
+   *   "message": "Unable to find exact one user to start password recovery",
+   *   "messageForUser": "api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND"
    * }`
    */
   startPasswordRecovery?: Maybe<StartPasswordRecoveryOutput>;
@@ -15227,7 +15351,8 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "USER_NOT_FOUND",
-   *   "message": "Unable to find user with specified phone"
+   *   "message": "Unable to find user with specified phone",
+   *   "messageForUser": "api.user.changePasswordWithToken.USER_NOT_FOUND"
    * }`
    */
   changePasswordWithToken?: Maybe<ChangePasswordWithTokenOutput>;
@@ -15251,13 +15376,16 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "TOKEN_NOT_FOUND",
-   *   "message": "Unable to find a non-expired confirm phone action, that corresponds to provided token"
+   *   "message": "Unable to find a non-expired confirm phone action, that corresponds to provided token",
+   *   "messageForUser": "api.user.signinResidentUser.TOKEN_NOT_FOUND"
    * }`
    *
    * `{
    *   "code": "INTERNAL_ERROR",
+   *   "type": "UNABLE_TO_CREATE_USER",
    *   "mutation": "signinResidentUser",
-   *   "message": "Something went wrong while trying to create a User record"
+   *   "message": "Something went wrong while trying to create a User record",
+   *   "messageForUser": "api.user.signinResidentUser.UNABLE_TO_CREATE_USER"
    * }`
    */
   signinResidentUser?: Maybe<SigninResidentUserOutput>;
@@ -15278,7 +15406,8 @@ export type Mutation = {
    *   "variable": [
    *     "data",
    *     "token"
-   *   ]
+   *   ],
+   *   "messageForUser": "api.user.changePhoneNumberResidentUser.NOT_FOUND"
    * }`
    */
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
@@ -15295,24 +15424,73 @@ export type Mutation = {
    *   "mutation": "signinAsUser",
    *   "code": "BAD_USER_INPUT",
    *   "type": "USER_NOT_FOUND",
-   *   "message": "Could not find a user with a specified id"
+   *   "message": "Could not find a user with a specified id",
+   *   "messageForUser": "api.user.signinAsUser.USER_NOT_FOUND"
    * }`
    *
    * `{
    *   "mutation": "signinAsUser",
    *   "code": "FORBIDDEN",
-   *   "message": "You cannot authenticate for an another admin user"
+   *   "type": "DENIED_FOR_ADMIN",
+   *   "message": "You cannot authenticate for an another admin user",
+   *   "messageForUser": "api.user.signinAsUser.DENIED_FOR_ADMIN"
    * }`
    *
    * `{
    *   "mutation": "signinAsUser",
    *   "code": "FORBIDDEN",
-   *   "message": "You cannot authenticate for an another support user"
+   *   "type": "DENIED_FOR_SUPPORT",
+   *   "message": "You cannot authenticate for an another support user",
+   *   "messageForUser": "api.user.signinAsUser.DENIED_FOR_SUPPORT"
    * }`
    */
   signinAsUser?: Maybe<SigninAsUserOutput>;
   registerNewServiceUser?: Maybe<RegisterNewServiceUserOutput>;
   sendMessageToSupport?: Maybe<SendMessageToSupportOutput>;
+  /**
+   * Used by QA for cleaning existing test user record to avoid utilizing every time new phone and email, which is hard to obtain again and again for every manual testing procedure
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "resetUser",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Unsupported value for dv"
+   * }`
+   *
+   * `{
+   *   "mutation": "resetUser",
+   *   "variable": [
+   *     "data",
+   *     "user",
+   *     "id"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "USER_NOT_FOUND",
+   *   "message": "Could not find User by provided id"
+   * }`
+   *
+   * `{
+   *   "mutation": "resetUser",
+   *   "variable": [
+   *     "data",
+   *     "user",
+   *     "id"
+   *   ],
+   *   "code": "FORBIDDEN",
+   *   "type": "CANNOT_RESET_ADMIN_USER",
+   *   "message": "You cannot reset admin user"
+   * }`
+   */
   resetUser: ResetUserOutput;
   /**
    * Registers new Organization for current user
@@ -15658,6 +15836,178 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"TICKET_STATUS_OPENED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"ticketId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketNumber": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"TICKET_STATUS_IN_PROGRESS": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"ticketId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketNumber": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"TICKET_STATUS_COMPLETED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"ticketId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketNumber": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"TICKET_STATUS_RETURNED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"ticketId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketNumber": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"TICKET_STATUS_DECLINED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"ticketId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketNumber": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"TICKET_COMMENT_ADDED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"ticketId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"ticketNumber": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"commentId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			}
@@ -19380,7 +19730,9 @@ export type OnBoarding = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -19641,7 +19993,9 @@ export type OnBoardingStep = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -20302,7 +20656,9 @@ export type Organization = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -20416,7 +20772,9 @@ export type OrganizationEmployee = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -20810,7 +21168,9 @@ export type OrganizationEmployeeRole = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
 };
 
@@ -21797,7 +22157,9 @@ export type OrganizationLink = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -22341,7 +22703,9 @@ export type Payment = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -23114,7 +23478,9 @@ export type PaymentsFilterTemplate = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -23502,7 +23868,9 @@ export type Property = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -24918,7 +25286,8 @@ export type Query = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "TOKEN_NOT_FOUND",
-   *   "message": "Unable to find non-expired token"
+   *   "message": "Unable to find non-expired token",
+   *   "messageForUser": "api.user.checkPasswordRecoveryToken.TOKEN_NOT_FOUND"
    * }`
    */
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
@@ -27948,7 +28317,9 @@ export type Resident = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -27979,6 +28350,7 @@ export type ResidentBillingReceiptOutput = {
   services?: Maybe<Array<BillingReceiptServiceField>>;
   serviceConsumer: ServiceConsumer;
   currencyCode: Scalars['String'];
+  category: BillingCategory;
 };
 
 export type ResidentBillingReceiptWhereInput = {
@@ -28740,7 +29112,13 @@ export enum SendMessageType {
   CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
   MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
   TicketAssigneeConnected = 'TICKET_ASSIGNEE_CONNECTED',
-  TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED'
+  TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED',
+  TicketStatusOpened = 'TICKET_STATUS_OPENED',
+  TicketStatusInProgress = 'TICKET_STATUS_IN_PROGRESS',
+  TicketStatusCompleted = 'TICKET_STATUS_COMPLETED',
+  TicketStatusReturned = 'TICKET_STATUS_RETURNED',
+  TicketStatusDeclined = 'TICKET_STATUS_DECLINED',
+  TicketCommentAdded = 'TICKET_COMMENT_ADDED'
 }
 
 export type SenderField = {
@@ -28773,7 +29151,7 @@ export type ServiceConsumer = {
   paymentCategory?: Maybe<Scalars['String']>;
   /**  Resident object  */
   resident?: Maybe<Resident>;
-  /**  Billing account, that will allow this resident to pay for certain service  */
+  /**  [DEPRECATED] Billing account, that will allow this resident to pay for certain service  */
   billingAccount?: Maybe<BillingAccount>;
   /**  BillingAccount id, that is returned for current serviceConsumer in mobile client  */
   residentBillingAccount?: Maybe<ResidentBillingAccount>;
@@ -28793,7 +29171,9 @@ export type ServiceConsumer = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -29250,7 +29630,9 @@ export type ServiceSubscription = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -29587,7 +29969,9 @@ export type ServiceSubscriptionPayment = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -30931,6 +31315,8 @@ export enum SortBillingPropertiesBy {
   GlobalIdDesc = 'globalId_DESC',
   AddressAsc = 'address_ASC',
   AddressDesc = 'address_DESC',
+  NormalizedAddressAsc = 'normalizedAddress_ASC',
+  NormalizedAddressDesc = 'normalizedAddress_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -30956,6 +31342,8 @@ export enum SortBillingPropertyHistoryRecordsBy {
   GlobalIdDesc = 'globalId_DESC',
   AddressAsc = 'address_ASC',
   AddressDesc = 'address_DESC',
+  NormalizedAddressAsc = 'normalizedAddress_ASC',
+  NormalizedAddressDesc = 'normalizedAddress_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -31501,6 +31889,8 @@ export enum SortMeterHistoryRecordsBy {
   UnitNameDesc = 'unitName_DESC',
   PlaceAsc = 'place_ASC',
   PlaceDesc = 'place_DESC',
+  IsAutomaticAsc = 'isAutomatic_ASC',
+  IsAutomaticDesc = 'isAutomatic_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -31764,6 +32154,8 @@ export enum SortMetersBy {
   PlaceDesc = 'place_DESC',
   ResourceAsc = 'resource_ASC',
   ResourceDesc = 'resource_DESC',
+  IsAutomaticAsc = 'isAutomatic_ASC',
+  IsAutomaticDesc = 'isAutomatic_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -33955,7 +34347,9 @@ export type Ticket = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -34035,7 +34429,9 @@ export type TicketCategoryClassifier = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -34596,7 +34992,9 @@ export type TicketChange = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
 };
 
@@ -36049,7 +36447,9 @@ export type TicketClassifier = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -36302,7 +36702,9 @@ export type TicketClassifierRule = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -36751,7 +37153,9 @@ export type TicketComment = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -36800,7 +37204,9 @@ export type TicketCommentFile = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -37518,7 +37924,9 @@ export type TicketFile = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -37866,7 +38274,9 @@ export type TicketFilterTemplate = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -38837,7 +39247,9 @@ export type TicketPlaceClassifier = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -39179,7 +39591,9 @@ export type TicketProblemClassifier = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -39560,7 +39974,9 @@ export type TicketSource = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -39946,7 +40362,9 @@ export type TicketStatus = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -40762,7 +41180,9 @@ export type TokenSet = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
@@ -41320,7 +41740,9 @@ export type User = {
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;

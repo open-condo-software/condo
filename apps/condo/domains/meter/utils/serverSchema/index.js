@@ -59,6 +59,7 @@ const getAvailableResidentMetersIds = async (userId) => {
     const availableMeters = await find('Meter', {
         OR: orStatement,
         deletedAt: null,
+        isAutomatic: false,
     })
 
     return availableMeters.map(meter => meter.id)

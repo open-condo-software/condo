@@ -6,7 +6,10 @@ const { LocalizedText } = require('@core/keystone/fields')
 const { Select } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const access = require('@condo/domains/meter/access/MeterReadingSource')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { METER_READING_SOURCE_TYPES } = require('@condo/domains/meter/constants/constants')
+
 
 
 const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
@@ -17,8 +20,7 @@ const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
 
         type: {
             type: Select,
-            options: 'call, mobile_app, import_condo',
-
+            options: METER_READING_SOURCE_TYPES,
             isRequired: true,
         },
 
@@ -30,9 +32,9 @@ const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
-        read: true,
-        create: false,
-        update: false,
+        read: access.canReadMeterReadingSources,
+        create: access.canManageMeterReadingSources,
+        update: access.canManageMeterReadingSources,
         delete: false,
         auth: false,
     },

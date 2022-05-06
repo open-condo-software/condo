@@ -24,7 +24,14 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
+          if_key_exists: replace          
       - name: Set env for branch name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Converge
