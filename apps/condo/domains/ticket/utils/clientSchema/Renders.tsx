@@ -179,11 +179,12 @@ export const getStatusRender = (intl, search: FilterValue) => {
 
 // This function is needed to shorten the ClientName so that the field in which it is located is not unnecessarily stretched
 export const getTicketClientNameRender = (search: FilterValue) => { 
-    return function render (ClientName: string, ticket: ITicketUIState) {
+    return function render (clientName: string, ticket: ITicketUIState) {
         const address = get(ticket, ['property', 'address'])
-        const maxClientNameLength = address ? address.length : ClientName.length
-        const trimmedClientName = get(ticket, ['ClientName'], '').length > maxClientNameLength ? `${ClientName.substring(0, maxClientNameLength)}…` : ClientName
+        const clientNameLength = get(clientName, 'length', 0)
+        const maxClientNameLength = address ? address.length : clientNameLength
+        const trimmedClientName = clientNameLength > maxClientNameLength ? `${clientName.substring(0, maxClientNameLength)}…` : clientName
 
-        return getTableCellRenderer(search, false, null, null, null, ClientName)(trimmedClientName)
+        return getTableCellRenderer(search, false, null, null, null, clientName)(trimmedClientName)
     }
 }
