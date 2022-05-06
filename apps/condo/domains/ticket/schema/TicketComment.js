@@ -12,8 +12,9 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/ticket/access/TicketComment')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
-
+const { normalizeText } = require('@condo/domains/common/utils/text')
 const { sendDifferentKindsOfNotifications } = require('@condo/domains/ticket/utils/handlers')
+
 const { createOrUpdateTicketCommentsTime } = require('../utils/handlers')
 
 const TicketComment = new GQLListSchema('TicketComment', {
@@ -74,6 +75,11 @@ const TicketComment = new GQLListSchema('TicketComment', {
         content: {
             schemaDoc: 'Plain text content',
             type: Text,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return normalizeText(resolvedData['content'])
+                },
+            },
         },
     },
     hooks: {
