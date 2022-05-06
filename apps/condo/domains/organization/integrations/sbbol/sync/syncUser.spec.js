@@ -21,7 +21,7 @@ describe('syncUser from SBBOL', () => {
         keystone = result.keystone
     })
 
-    describe('User not exists', function () {
+    describe('User with given phone does not exists', function () {
         it('should create user', async () => {
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
@@ -48,7 +48,7 @@ describe('syncUser from SBBOL', () => {
             expect(checkOnboarding).toBeDefined()
         })
     })
-    describe('user already existed', () => {
+    describe('user with given phone already existed', () => {
         it('should update importId and importRemoteSystem fields', async () => {
             const client = await makeClientWithRegisteredOrganization()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
@@ -112,6 +112,58 @@ describe('syncUser from SBBOL', () => {
             expect(resident.importRemoteSystem).toEqual(null)
             expect(staff.importId).toEqual(userData.importId)
             expect(staff.importRemoteSystem).toEqual(userData.importRemoteSystem)
+        })
+    })
+    describe('another first user with given email already exist', () => {
+        describe('another second user with given phone does not exist', () => {
+            it('should clean email of first another user and create new user with given email and phone', async () => {
+                const adminContext = await keystone.createContext({ skipAccessControl: true })
+                const context = {
+                    keystone,
+                    context: adminContext,
+                }
+                const { userAttrs: { email: emailOfFirstAnotherUser }, user: { id: idOfFirstAnotherUser } } = await makeClientWithRegisteredOrganization()
+                const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
+                userData.email = emailOfFirstAnotherUser
+                const newUser = await syncUser({ context, userInfo: userData })
+                expect(newUser.name).toBeDefined()
+                expect(newUser.id).toBeDefined()
+                expect(newUser.phone).toEqual(userData.phone)
+                expect(newUser.email).toEqual(userData.email)
+                const [ updatedExistingUser ] = await getItems({
+                    keystone,
+                    listKey: 'User',
+                    where: { id: idOfFirstAnotherUser },
+                    returnFields: 'id email',
+                })
+                expect(updatedExistingUser.email).toBeNull()
+            })
+        })
+        describe('another second user with given phone already exist', () => {
+            it('should clean email of first another user and update another second user with info from SBBOL', async () => {
+                const adminContext = await keystone.createContext({ skipAccessControl: true })
+                const context = {
+                    keystone,
+                    context: adminContext,
+                }
+                const { userAttrs: { email: emailOfFirstAnotherUser }, user: { id: idOfFirstAnotherUser } } = await makeClientWithRegisteredOrganization()
+                const { userAttrs: { phone: phoneOfSecondAnotherUser } } = await makeClientWithRegisteredOrganization()
+                const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
+                userData.email = emailOfFirstAnotherUser
+                userData.phone = phoneOfSecondAnotherUser
+                const syncedUser = await syncUser({ context, userInfo: userData })
+                expect(syncedUser.name).toBeDefined()
+                expect(syncedUser.id).toBeDefined()
+                expect(syncedUser.phone).toEqual(userData.phone)
+                expect(syncedUser.email).toEqual(userData.email)
+                const [ updatedExistingUser ] = await getItems({
+                    keystone,
+                    listKey: 'User',
+                    where: { id: idOfFirstAnotherUser },
+                    returnFields: 'id email',
+                })
+                expect(updatedExistingUser.email).toBeNull()
+            })
         })
     })
 })

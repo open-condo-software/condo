@@ -27,6 +27,37 @@ const createOnboarding = async ({ keystone, user }) => {
 }
 
 /**
+ * If another user will be found with given email, it will get email to null to avoid unique email violation constraint
+ * It will be issue of inconvenience for that user, but since we does't have
+ * a email validation, it will be not critical. We assume, that found user
+ * representing the same person.
+ * @param {String} email - search already existing user with this email
+ * @param {String} userIdToExclude - ignore found user, that matches this id
+ * @param context - Keystone context
+ */
+const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToExclude, context }) => {
+    const [ existingUser ] = await getItems({
+        ...context,
+        listKey: 'User',
+        where: { email, id_not: userIdToExclude },
+        returnFields: 'id type name email phone importId importRemoteSystem',
+    })
+    if (existingUser && existingUser.id !== userIdToExclude) {
+        await updateItem({
+            listKey: 'User',
+            item: {
+                id: existingUser.id,
+                data: {
+                    email: null,
+                },
+            },
+            returnFields: 'id',
+            ...context,
+        })
+    }
+}
+
+/**
  * Creates or updates user, according to data from SBBOL
  *
  * @param {KeystoneContext} context
@@ -35,7 +66,7 @@ const createOnboarding = async ({ keystone, user }) => {
  * @return {Promise<{importId}|*>}
  */
 const syncUser = async ({ context, userInfo }) => {
-    const returnFields = 'id phone name importId importRemoteSystem'
+    const returnFields = 'id phone email name importId importRemoteSystem'
     const importFields = {
         type: 'staff',
         importId: userInfo.importId,
@@ -60,6 +91,8 @@ const syncUser = async ({ context, userInfo }) => {
         throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] importId and phone conflict on user import`)
     }
     if (existingUsers.length === 0) {
+        await cleanEmailForAlreadyExistingUserWithGivenEmail({ email: userInfo.email, context })
+
         const user = await createItem({
             listKey: 'User',
             item: userInfo,
@@ -94,11 +127,12 @@ const syncUser = async ({ context, userInfo }) => {
         const { email, phone } = userInfo
         const update = {}
         if (email) {
+            await cleanEmailForAlreadyExistingUserWithGivenEmail({ email: userInfo.email, userIdToExclude: user.id, context })
             if (!user.isEmailVerified && user.email === email) {
                 update.isEmailVerified = true
             }
-            if (!user.email) {
-                user.email = email
+            if (!user.email || user.email !== email) {
+                update.email = email
             }
         }
         if (!user.isPhoneVerified && user.phone === phone) {
