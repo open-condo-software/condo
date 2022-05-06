@@ -1,23 +1,24 @@
 import React from 'react'
-import { Amplitude, LogOnMount } from 'react-amplitude-hooks'
-import { useRouter } from 'next/router'
+import { Amplitude, useAmplitude } from 'react-amplitude-hooks'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import omit from 'lodash/omit'
-import { BaseEventProperties, AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
+import { BaseEventProperties } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
-const USER_OMITTED_FIELDS = ['phone', 'email', '__typename', 'avatar']
+const USER_OMITTED_FIELDS = ['phone', 'email', '__typename', 'avatar', 'isAdmin']
 
 export type AmplitudeUserProperties = Partial<BaseEventProperties['user']> & {
     organization?: string
     role?: string
 }
 
-const AmplitudeTrackPageLoad: React.FC = ({ children }) => {
-    const { pathname } = useRouter()
+export type AuthorizedUserEventProperties = Pick<BaseEventProperties, 'page'> & AmplitudeUserProperties
+
+const AmplitudeAuthorizedUser: React.FC = ({ children }) => {
     const { user } = useAuth()
     const { organization } = useOrganization()
+    const { eventProperties } = useAmplitude()
 
     let userProperties: AmplitudeUserProperties = {}
     let organizationEmployeeWhere = {}
@@ -50,21 +51,19 @@ const AmplitudeTrackPageLoad: React.FC = ({ children }) => {
 
     return (
         <Amplitude
-            eventProperties={(inheritProps: BaseEventProperties) => ({
+            eventProperties={{
                 page: {
-                    pathname,
+                    ...eventProperties.page,
                 },
                 user: {
-                    ...inheritProps.user,
+                    ...eventProperties.user,
                     ...userProperties,
                 },
-            })}
-            debounceInterval={200}
+            }}
         >
-            <LogOnMount eventType={AmplitudeEventType.pageLoad} />
             {children}
         </Amplitude>
     )
 }
 
-export default AmplitudeTrackPageLoad
+export default AmplitudeAuthorizedUser

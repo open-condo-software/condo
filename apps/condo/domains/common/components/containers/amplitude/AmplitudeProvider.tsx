@@ -9,11 +9,10 @@ import { getCurrentUserId } from '@condo/domains/common/utils/userid.utils'
 
 export type BaseEventProperties = {
     page: {
-        pathname: string
-    },
+        path: string
+    }
     user: {
-        userId: string
-        locale: string
+        sessionId: string
     }
 }
 
@@ -25,7 +24,7 @@ export enum AmplitudeEventType {
 
 const AmplitudeProvider: React.FC = ({ children }) => {
     const { publicRuntimeConfig: { amplitudeToken } } = getConfig()
-    const { pathname, locale } = useRouter()
+    const { asPath } = useRouter()
 
     if (!amplitudeToken || typeof window === 'undefined') {
         return <>{children}</>
@@ -43,7 +42,6 @@ const AmplitudeProvider: React.FC = ({ children }) => {
 
     if (amplitudeInstance.isNewSession()) {
         const visitor: Identify = new amplitudeInstance.Identify()
-        visitor.setOnce('lang', locale)
         visitor.setOnce('userId', userId)
         amplitudeInstance.identify(visitor)
     }
@@ -52,11 +50,10 @@ const AmplitudeProvider: React.FC = ({ children }) => {
         <CoreAmplitudeProvider amplitudeInstance={amplitudeInstance} apiKey={amplitudeToken} userId={userId}>
             <Amplitude eventProperties={{
                 page: {
-                    pathname,
+                    path: asPath,
                 },
                 user: {
                     sessionId: userId,
-                    locale,
                 },
             }}>
                 {children}

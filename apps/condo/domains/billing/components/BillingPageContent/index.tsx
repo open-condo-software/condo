@@ -8,6 +8,7 @@ import {
     CONTEXT_ERROR_STATUS,
 } from '@condo/domains/miniapp/constants'
 import { ApolloError } from '@apollo/client'
+import { AmplitudeBillingEvent, TrackPageLoadEvent } from '@condo/domains/billing/utils/amplitudeEvents'
 import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'
 
@@ -42,11 +43,13 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (!access) {
         return (
-            <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {NoPermissionsMessage}
-                </Typography.Title>
-            </BasicEmptyListView>
+            <TrackPageLoadEvent pageState={AmplitudeBillingEvent.AccessError}>
+                <BasicEmptyListView>
+                    <Typography.Title level={3}>
+                        {NoPermissionsMessage}
+                    </Typography.Title>
+                </BasicEmptyListView>
+            </TrackPageLoadEvent>
         )
     }
 
@@ -58,54 +61,62 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (contextError) {
         return (
-            <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {contextError}
-                </Typography.Title>
-            </BasicEmptyListView>
+            <TrackPageLoadEvent pageState={AmplitudeBillingEvent.Error}>
+                <BasicEmptyListView>
+                    <Typography.Title level={3}>
+                        {contextError}
+                    </Typography.Title>
+                </BasicEmptyListView>
+            </TrackPageLoadEvent>
         )
     }
 
     if (!context) {
         return (
-            <EmptyListView
-                label={NoBillingTitle}
-                message={NoBillingMessage}
-                createRoute={BILLING_SETTINGS_ROUTE}
-                createLabel={NoBillingActionLabel}
-            />
+            <TrackPageLoadEvent pageState={AmplitudeBillingEvent.Empty}>
+                <EmptyListView
+                    label={NoBillingTitle}
+                    message={NoBillingMessage}
+                    createRoute={BILLING_SETTINGS_ROUTE}
+                    createLabel={NoBillingActionLabel}
+                />
+            </TrackPageLoadEvent>
         )
     }
 
     if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
         return (
-            <BasicEmptyListView image={'/dino/waiting.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
-                <Typography.Title level={3}>
-                    {ConnectionInProgressMessage}
-                </Typography.Title>
-                <Typography.Text type={'secondary'}>
-                    {WillBeReadySoonMessage}
-                </Typography.Text>
-            </BasicEmptyListView>
+            <TrackPageLoadEvent pageState={AmplitudeBillingEvent.InProgress}>
+                <BasicEmptyListView image={'/dino/waiting.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
+                    <Typography.Title level={3}>
+                        {ConnectionInProgressMessage}
+                    </Typography.Title>
+                    <Typography.Text type={'secondary'}>
+                        {WillBeReadySoonMessage}
+                    </Typography.Text>
+                </BasicEmptyListView>
+            </TrackPageLoadEvent>
         )
     }
 
     if (context.status === CONTEXT_ERROR_STATUS) {
         return (
-            <BasicEmptyListView image={'/dino/fail.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
-                <Typography.Title level={3}>
-                    {ErrorOccurredMessage}
-                </Typography.Title>
-                <Typography.Text type={'secondary'}>
-                    {ConnectSupportMessage}
-                </Typography.Text>
-            </BasicEmptyListView>
+            <TrackPageLoadEvent pageState={AmplitudeBillingEvent.Error}>
+                <BasicEmptyListView image={'/dino/fail.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
+                    <Typography.Title level={3}>
+                        {ErrorOccurredMessage}
+                    </Typography.Title>
+                    <Typography.Text type={'secondary'}>
+                        {ConnectSupportMessage}
+                    </Typography.Text>
+                </BasicEmptyListView>
+            </TrackPageLoadEvent>
         )
     }
 
     return (
-        <>
+        <TrackPageLoadEvent pageState={AmplitudeBillingEvent.Success}>
             <MainContent context={context}/>
-        </>
+        </TrackPageLoadEvent>
     )
 }

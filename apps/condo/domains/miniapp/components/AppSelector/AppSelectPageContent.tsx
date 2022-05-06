@@ -3,6 +3,7 @@ import { Typography, Row, Col, Tabs } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import Carousel from '@condo/domains/common/components/Carousel'
+import AmplitudeAuthorizedUser from '@condo/domains/common/components/containers/amplitude/AmplitudeAuthorizedUser'
 import { Section } from './Section'
 import { CardsContainer, CardsPerRowType } from './CardsContainer'
 import { AppCarouselCard } from './AppCarouselCard'
@@ -179,25 +180,28 @@ export const AppSelectPageContent: React.FC = () => {
                                         {
                                             isAnyBillingAvailable && (
                                                 <Tabs.TabPane tab={BillingCategoryMessage} key={'billing'}>
-                                                    <CardsContainer cardsPerRow={appsPerRow}>
-                                                        {
-                                                            unconnectedBillingsApps.map(app => {
-                                                                const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
-                                                                const url = `/miniapps/${app.id}/about?type=${app.type}`
-                                                                const logo = app.logo || undefined
-                                                                return (
-                                                                    <AppSelectCard
-                                                                        key={app.name}
-                                                                        title={app.name}
-                                                                        description={app.shortDescription}
-                                                                        url={url}
-                                                                        tag={tag}
-                                                                        logoSrc={logo}
-                                                                    />
-                                                                )
-                                                            })
-                                                        }
-                                                    </CardsContainer>
+                                                    <AmplitudeAuthorizedUser>
+                                                        <CardsContainer cardsPerRow={appsPerRow}>
+                                                            {
+                                                                unconnectedBillingsApps.map(app => {
+                                                                    const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
+
+                                                                    const url = `/miniapps/${app.id}/about?type=${app.type}`
+                                                                    const logo = app.logo || undefined
+                                                                    return (
+                                                                        <AppSelectCard
+                                                                            key={app.name}
+                                                                            title={app.name}
+                                                                            description={app.shortDescription}
+                                                                            url={url}
+                                                                            tag={tag}
+                                                                            logoSrc={logo}
+                                                                        />
+                                                                    )
+                                                                })
+                                                            }
+                                                        </CardsContainer>
+                                                    </AmplitudeAuthorizedUser>
                                                 </Tabs.TabPane>
                                             )
                                         }
