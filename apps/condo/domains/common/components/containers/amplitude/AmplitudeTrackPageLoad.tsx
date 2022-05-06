@@ -1,10 +1,10 @@
 import React from 'react'
-import { Amplitude, LogOnMount, LogOnChange } from 'react-amplitude-hooks'
+import { Amplitude, LogOnMount } from 'react-amplitude-hooks'
 import { useRouter } from 'next/router'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import omit from 'lodash/omit'
-import { BaseEventProperties } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
+import { BaseEventProperties, AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 const USER_OMITTED_FIELDS = ['phone', 'email', '__typename', 'avatar']
@@ -61,7 +61,7 @@ const AmplitudeTrackPageLoad: React.FC = ({ children }) => {
             })}
             debounceInterval={200}
         >
-            <LogOnMount eventType={'PageLoad'} />
+            <LogOnMount eventType={AmplitudeEventType.pageLoad} />
             {children}
         </Amplitude>
     )

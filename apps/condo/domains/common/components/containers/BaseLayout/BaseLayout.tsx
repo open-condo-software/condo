@@ -3,7 +3,6 @@ import React, { CSSProperties, FunctionComponent } from 'react'
 import { jsx } from '@emotion/core'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import AmplitudeTrackPageLoad from '@condo/domains/common/components/containers/amplitude/AmplitudeTrackPageLoad'
 import { SideNav } from './components/SideNav'
 import Router from 'next/router'
 import classnames from 'classnames'
@@ -105,9 +104,7 @@ interface IPageContentProps {
 const PageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
     return (
         <div className={classnames('page-content', className)} css={PAGE_CONTENT_CSS} style={style}>
-            <AmplitudeTrackPageLoad>
-                {children}
-            </AmplitudeTrackPageLoad>
+            {children}
         </div>
     )
 }
@@ -115,9 +112,7 @@ const PageContent: FunctionComponent<IPageContentProps> = ({ children, className
 const TablePageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
     return (
         <div className={classnames('page-content', className)} css={TABLE_PAGE_CONTENT_CSS} style={style}>
-            <AmplitudeTrackPageLoad>
-                {children}
-            </AmplitudeTrackPageLoad>
+            {children}
         </div>
     )
 }

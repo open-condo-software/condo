@@ -17,6 +17,12 @@ export type BaseEventProperties = {
     }
 }
 
+export enum AmplitudeEventType {
+    pageLoad = 'PageLoad',
+    clickLink = 'ClickLink',
+    clickButton = 'ClickButton',
+}
+
 const AmplitudeProvider: React.FC = ({ children }) => {
     const { publicRuntimeConfig: { amplitudeToken } } = getConfig()
     const { pathname, locale } = useRouter()
