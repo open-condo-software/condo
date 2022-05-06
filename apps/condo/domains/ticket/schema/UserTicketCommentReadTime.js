@@ -33,10 +33,14 @@ const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime',
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
+        readCommentAt: {
+            schemaDoc: 'Time when the last comment was last read by the user',
+            type: DateTimeUtc,
+        },
+
         readResidentCommentAt: {
             schemaDoc: 'Time when the last comment from a resident was last read by the user',
             type: DateTimeUtc,
-            isRequired: true,
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],

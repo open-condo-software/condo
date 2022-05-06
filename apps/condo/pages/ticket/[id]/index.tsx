@@ -526,7 +526,9 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
             ticket: { id: id },
         },
     })
-    const { obj: userTicketCommentReadTime, refetch: refetchUserTicketCommentReadTime } = UserTicketCommentReadTime.useObject({
+    const {
+        obj: userTicketCommentReadTime, refetch: refetchUserTicketCommentReadTime, loading: loadingUserTicketCommentReadTime,
+    } = UserTicketCommentReadTime.useObject({
         where: {
             user: { id: user.id },
             ticket: { id: id },
@@ -764,6 +766,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     userTicketCommentReadTime={userTicketCommentReadTime}
                                     createUserTicketCommentReadTime={createUserTicketCommentReadTime}
                                     updateUserTicketCommentReadTime={updateUserTicketCommentReadTime}
+                                    loadingUserTicketCommentReadTime={loadingUserTicketCommentReadTime}
                                     FileModel={TicketCommentFile}
                                     fileModelRelationField={'ticketComment'}
                                     ticket={ticket}

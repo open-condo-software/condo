@@ -13,7 +13,7 @@ import { IUserUIState } from '@condo/domains/user/utils/clientSchema/User'
 
 import { ITicketUIState } from './Ticket'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user', 'ticket', 'readResidentCommentAt']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user', 'ticket', 'readCommentAt', 'readResidentCommentAt']
 const RELATIONS = ['user', 'ticket']
 
 export interface IUserTicketCommentReadTimeUIState extends UserTicketCommentReadTime {
@@ -21,6 +21,7 @@ export interface IUserTicketCommentReadTimeUIState extends UserTicketCommentRead
     user?: IUserUIState
     ticket?: ITicketUIState
     readResidentCommentAt?: string
+    readCommentAt?: string
 }
 
 function convertToUIState (item: UserTicketCommentReadTime): IUserTicketCommentReadTimeUIState {
@@ -33,6 +34,7 @@ export interface IUserTicketCommentReadTimeFormState {
     user?: string
     ticket?: string
     readResidentCommentAt?: Date
+    readCommentAt?: Date
 }
 
 function convertToUIFormState (state: IUserTicketCommentReadTimeUIState): IUserTicketCommentReadTimeFormState | undefined {
