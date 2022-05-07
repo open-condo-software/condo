@@ -75,9 +75,8 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
             }
 
             return ticket.client === user.id
-        } else if (operation === 'update' && itemId) {
-            return false
-        }
+        } 
+        return false
     } else {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
