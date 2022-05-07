@@ -1,19 +1,11 @@
-const faker = require('faker')
-const { Text, Checkbox, Password, CalendarDay, File } = require('@keystonejs/fields')
-const dayjs = require('dayjs')
-const { byTracking, atTracking } = require('@keystonejs/list-plugins')
+const { Text, Checkbox, Password } = require('@keystonejs/fields')
 
 const { GQLListSchema } = require('@core/keystone/schema')
 const access = require('@core/keystone/access')
 
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
-
 const User = new GQLListSchema('User', {
-    // labelResolver: item => `${item.name}`,
     fields: {
         email: {
-            factory: () => faker.internet.exampleEmail().toLowerCase(),
             type: Text,
             isUnique: true,
             // 2. Only authenticated users can read/update their own email, not any other user's.
@@ -45,13 +37,11 @@ const User = new GQLListSchema('User', {
             },
         },
         name: {
-            factory: () => faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}'),
             type: Text,
         },
         // TODO(pahaz): check is active on login!
         isActive: { type: Checkbox, defaultValue: true },
         password: {
-            factory: () => faker.internet.password(),
             type: Password,
             access: {
                 // 3. Only admins can see if a password is set. No-one can read their own or other user's passwords.
@@ -61,8 +51,6 @@ const User = new GQLListSchema('User', {
                 update: access.userIsAdminOrIsThisItem,
             },
         },
-        avatar: { type: File, adapter: AVATAR_FILE_ADAPTER },
-        dob: { type: CalendarDay, format: 'Do MMMM YYYY', yearRangeFrom: 1901, yearRangeTo: dayjs().year() },
     },
     access: {
         // read: access.userIsAdminOrOwner,
@@ -72,7 +60,6 @@ const User = new GQLListSchema('User', {
         delete: access.userIsAdmin,
         auth: true,
     },
-    plugins: [byTracking(), atTracking()],
     adminDoc: 'A list of Users',
     adminConfig: {
         defaultPageSize: 50,
@@ -82,7 +69,6 @@ const User = new GQLListSchema('User', {
         // defaultSort: 'name',
     },
 })
-
 
 module.exports = {
     User,
