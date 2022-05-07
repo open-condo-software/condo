@@ -8,7 +8,7 @@ const { Text, Relationship, Select } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/ticket/access/TicketComment')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
@@ -20,9 +20,6 @@ const { createOrUpdateTicketCommentsTime } = require('../utils/handlers')
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         type: {
             schemaDoc: 'Comment type (internal for an organization or with a resident)',
             isRequired: true,
@@ -98,7 +95,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
             // await sendTicketCommentNotifications(requestData)
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadTicketComments,
         create: access.canManageTicketComments,
