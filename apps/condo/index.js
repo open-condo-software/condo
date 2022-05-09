@@ -12,8 +12,6 @@ const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 
 const conf = require('@core/config')
-const { registerTriggers } = require('@core/triggers')
-const { registerTasks } = require('@core/keystone/tasks')
 const { prepareDefaultKeystoneConfig, getAdapter } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/KSv5v6/v5/registerSchema')
 const { schemaDocPreprocessor } = require('@core/keystone/preprocessors/schemaDoc')
@@ -32,19 +30,13 @@ const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const IS_ENABLE_CACHE = conf.ENABLE_CACHE === '1'
-
-let IS_BUILD_PHASE = conf.PHASE === 'build'
-if (IS_BUILD_PHASE) {
-    process.env.FILE_FIELD_ADAPTER = 'local' // Test
-}
-// TODO(DOMA-1614): if set to true adminUi will failed to load after build + start is launched
-IS_BUILD_PHASE = false
+const IS_BUILD_PHASE = conf.PHASE === 'build'
 
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 
-if (IS_ENABLE_DD_TRACE) {
+if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
     require('dd-trace').init({
         logInjection: true,
     })
@@ -72,7 +64,19 @@ const keystone = new Keystone({
     },
 })
 
-if (!IS_BUILD_PHASE) {
+// Because Babel is used only for frontend to transpile and optimise code,
+// backend files will bring unnecessary workload to building stage.
+// They can be safely ignored without impact on final executable code
+if (IS_BUILD_PHASE) {
+    // `User` list is used by `createAuthStrategy`, that creates `AuthStrategy`, required to build /admin/ static files
+    registerSchemas(keystone, [
+        require('@core/keystone/schemas/User'),
+    ])
+} else {
+    // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time
+    const { registerTriggers } = require('@core/triggers')
+    const { registerTasks } = require('@core/keystone/tasks')
+
     registerSchemas(keystone, [
         require('@condo/domains/user/schema'),
         require('@condo/domains/organization/schema'),
@@ -102,16 +106,13 @@ if (!IS_BUILD_PHASE) {
     ])
 }
 
-let authStrategy
-if (!IS_BUILD_PHASE) {
-    authStrategy = keystone.createAuthStrategy({
-        type: PasswordAuthStrategy,
-        list: 'User',
-        config: {
-            protectIdentities: false,
-        },
-    })
-}
+const authStrategy = keystone.createAuthStrategy({
+    type: PasswordAuthStrategy,
+    list: 'User',
+    config: {
+        protectIdentities: false,
+    },
+})
 
 class SberBuisnessOnlineMiddleware {
     async prepareMiddleware () {
