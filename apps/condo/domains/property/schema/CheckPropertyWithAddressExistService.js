@@ -6,7 +6,6 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/property/access/CheckPropertyWithAddressExistService')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const get = require('lodash/get')
-const { addressMetaJsonValidator } = require('../schema/fields/AddressMetaField')
 const { getAddressUpToBuildingFrom } = require('../utils/serverSchema/helpers')
 
 const NO_OBJECT_MESSAGE = 'No object specified!'
@@ -59,8 +58,6 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                 const { data: inputData } = args
                 // Later we will use "address" without "addressMeta"
                 const { addressMeta } = inputData
-                // TODO(antonal): get rid of this check, because a JSON structure is declared on GraphQL level and will get validated by Apollo
-                if (!addressMetaJsonValidator(addressMeta)) throw new Error(META_INCORRECT_JSON_MESSAGE)
 
                 const dv = get(addressMeta, 'dv')
                 if (dv !== 1) {
