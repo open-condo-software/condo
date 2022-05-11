@@ -423,7 +423,7 @@ const TicketContent = ({ ticket }) => {
                             </Link>
                         </PageFieldRow>
                         <PageFieldRow title={AssigneeMessage}>
-                            <Link href={`/employee/${get(executor, 'id')}`}>
+                            <Link href={`/employee/${get(assignee, 'id')}`}>
                                 <Typography.Link style={TICKET_CARD_LINK_STYLE}>
                                     <Typography.Text strong>
                                         <TicketUserInfoField user={{
