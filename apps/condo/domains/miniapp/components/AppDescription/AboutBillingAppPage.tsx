@@ -11,6 +11,8 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { AlreadyConnectedBilling } from '@condo/domains/miniapp/components/AppDescription/Alerts/AlreadyConnectedBilling'
 import { useRouter } from 'next/router'
+import AmplitudeAuthorizedUser from '@condo/domains/common/components/containers/amplitude/AmplitudeAuthorizedUser'
+import { TrackPageLoadEvent, AmplitudePageState } from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
 
 interface AboutBillingAppPageProps {
     id: string,
@@ -82,26 +84,29 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <AppDescriptionPageContent
-                        title={integration.name}
-                        description={integration.shortDescription}
-                        published={integration.createdAt}
-                        logoSrc={get(integration, ['logo', 'publicUrl'])}
-                        tag={TagMessage}
-                        developer={integration.developer}
-                        partnerUrl={get(integration, 'partnerUrl')}
-                        aboutSections={aboutSections}
-                        instruction={integration.instruction}
-                        appUrl={integration.appUrl}
-                        disabledConnect={isAnyBillingConnected}
-                        connectAction={createContextAction}
-                    >
-                        {
-                            isAnyBillingConnected && (
-                                <AlreadyConnectedBilling/>
-                            )
-                        }
-                    </AppDescriptionPageContent>
+                    <AmplitudeAuthorizedUser>
+                        <TrackPageLoadEvent pageState={AmplitudePageState.Success}>
+                            <AppDescriptionPageContent
+                                title={integration.name}
+                                description={integration.shortDescription}
+                                published={integration.createdAt}
+                                logoSrc={get(integration, ['logo', 'publicUrl'])}
+                                tag={TagMessage}
+                                developer={integration.developer}
+                                partnerUrl={get(integration, 'partnerUrl')}
+                                aboutSections={aboutSections}
+                                instruction={integration.instruction}
+                                appUrl={integration.appUrl}
+                                disabledConnect={isAnyBillingConnected}
+                                connectAction={createContextAction}>
+                                {
+                                    isAnyBillingConnected && (
+                                        <AlreadyConnectedBilling/>
+                                    )
+                                }
+                            </AppDescriptionPageContent>
+                        </TrackPageLoadEvent>
+                    </AmplitudeAuthorizedUser>
                 </PageContent>
             </PageWrapper>
         </>

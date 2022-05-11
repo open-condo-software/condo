@@ -11,11 +11,11 @@ export enum AmplitudePageState {
     AccessError = 'AccessError',
 }
 
-interface IBillingAmplitudeLogOnMountEvent {
+interface IAmplitudeLogOnMountEvent {
     pageState: AmplitudePageState
 }
 
-const TrackPageLoadEvent: React.FC<IBillingAmplitudeLogOnMountEvent> = ({ children, pageState }) => (
+const TrackPageLoadEvent: React.FC<IAmplitudeLogOnMountEvent> = ({ children, pageState }) => (
     <>
         <LogOnMount
             eventType={AmplitudeEventType.pageLoad}
