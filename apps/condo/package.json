@@ -84,7 +84,7 @@
     "numeral": "2.0.6",
     "oidc-provider": "^7.10.6",
     "openid-client": "4.7.4",
-    "phone": "^3.1.8",
+    "phone": "3.1.17",
     "qs": "6.10.3",
     "raw-loader": "^4.0.2",
     "rc-queue-anim": "^1.8.5",
