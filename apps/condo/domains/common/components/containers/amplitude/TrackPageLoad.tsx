@@ -3,7 +3,7 @@ import { LogOnMount } from 'react-amplitude-hooks'
 import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 import { AuthorizedUserEventProperties } from '@condo/domains/common/components/containers/amplitude/AmplitudeAuthorizedUser'
 
-export enum AmplitudeBillingEvent {
+export enum AmplitudePageState {
     Empty = 'Empty',
     InProgress = 'InProgress',
     Error = 'Error',
@@ -12,7 +12,7 @@ export enum AmplitudeBillingEvent {
 }
 
 interface IBillingAmplitudeLogOnMountEvent {
-    pageState: AmplitudeBillingEvent
+    pageState: AmplitudePageState
 }
 
 const TrackPageLoadEvent: React.FC<IBillingAmplitudeLogOnMountEvent> = ({ children, pageState }) => (
@@ -30,6 +30,5 @@ const TrackPageLoadEvent: React.FC<IBillingAmplitudeLogOnMountEvent> = ({ childr
         {children}
     </>
 )
-
 
 export { TrackPageLoadEvent }
