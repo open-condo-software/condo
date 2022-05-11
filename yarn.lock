@@ -92,7 +92,7 @@
     lodash "^4.17.21"
     resize-observer-polyfill "^1.5.0"
 
-"@apollo/client@^3.2.5", "@apollo/client@^3.3.14", "@apollo/client@^3.3.19":
+"@apollo/client@3.3.20", "@apollo/client@^3.2.5", "@apollo/client@^3.3.14", "@apollo/client@^3.3.19":
   version "3.3.20"
   resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.3.20.tgz#8f0935fa991857e9cf2e73c9bd378ad7ec97caf8"
   integrity sha512-hS7UmBwJweudw/J3M0RAcusMHNiRuGqkRH6g91PM2ev8cXScIMdXr/++9jo7wD1nAITMCMF4HQQ3LFaw/Or0Bw==
