@@ -15818,10 +15818,10 @@ pgpass@1.x:
   dependencies:
     split2 "^3.1.1"
 
-phone@^3.1.8:
-  version "3.1.8"
-  resolved "https://registry.yarnpkg.com/phone/-/phone-3.1.8.tgz#6e348512539c9df81bf07fddb3ed3e2ec7e0c66e"
-  integrity sha512-eyneQKbBwhy6PLYgkioO4CcocMUrFHh4WEfYl1A3PpiQK9tiP0ABKU4yhs7F1URKDbp+oeI8rbJU0+8uMgWfBQ==
+phone@3.1.17:
+  version "3.1.17"
+  resolved "https://registry.yarnpkg.com/phone/-/phone-3.1.17.tgz#4cf6e8f3738ba35d5261979c98823005af459792"
+  integrity sha512-62vV6eQGP15iGzCPS+ugaEzuvxz6qWBUlKnrAqzKtGUMT3HlLD7vpoi9NA+Ty7M3KvnKI+idddOgufqu1XAeEA==
 
 picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.2.3:
   version "2.3.0"
