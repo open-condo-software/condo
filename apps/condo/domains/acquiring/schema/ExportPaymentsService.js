@@ -7,7 +7,8 @@ const access = require('@condo/domains/acquiring/access/ExportPaymentsService')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const dayjs = require('dayjs')
-const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
+const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { exportPayments } = require('@condo/domains/billing/utils/serverSchema')
 const { get } = require('lodash')
@@ -17,6 +18,16 @@ const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const conf = require('@core/config')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
+
+const errors = {
+    NOTHING_TO_EXPORT: {
+        query: 'exportPaymentsToExcel',
+        code: BAD_USER_INPUT,
+        type: NOTHING_TO_EXPORT,
+        message: 'No payments found to export',
+        messageForUser: 'api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT',
+    },
+}
 
 const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
     types: [
@@ -45,7 +56,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                 const objs = await exportPayments(context, { dv, sender, where, sortBy })
 
                 if (objs.length === 0) {
-                    throw new Error(`${EMPTY_DATA_EXPORT_ERROR}] empty export file`)
+                    throw new GQLError(errors.NOTHING_TO_EXPORT, context)
                 }
 
                 const excelRows = objs.map(obj => {
