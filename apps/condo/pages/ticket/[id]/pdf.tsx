@@ -19,6 +19,7 @@ import { PageContent } from '@condo/domains/common/components/containers/BaseLay
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { compact } from 'lodash'
+import {OrganizationEmployee} from "../../../domains/organization/utils/clientSchema";
 
 interface ITicketDescriptionFieldProps {
     title?: string
@@ -103,6 +104,32 @@ const PdfView = () => {
 
     const { loading, obj: ticket, error } = Ticket.useObject({ where: { id:id } })
 
+    const ticketOrganizationId = get(ticket, ['organization', 'id'], null)
+    const ticketExecutorUserId = get(ticket, ['executor', 'id'], null)
+    const ticketAssigneeUserId = get(ticket, ['assignee', 'id'], null)
+
+    const { obj: executor } = OrganizationEmployee.useObject({
+        where: {
+            organization: {
+                id: ticketOrganizationId,
+            },
+            user: {
+                id: ticketExecutorUserId,
+            },
+        },
+    })
+
+    const { obj: assignee } = OrganizationEmployee.useObject({
+        where: {
+            organization: {
+                id: ticketOrganizationId,
+            },
+            user: {
+                id: ticketAssigneeUserId,
+            },
+        },
+    })
+
     useEffect(() => {
         if (ticket) {
             // TODO: (savelevmatthew) let user choose format?
@@ -130,7 +157,6 @@ const PdfView = () => {
     const isEmergency = get(ticket, 'isEmergency')
     const isWarranty = get(ticket, 'isWarranty')
     const isPaid = get(ticket, 'isPaid')
-    // TODO(zuch): display 3-level classifier here
     return (
         <Row gutter={[12, 40]} style={{ filter: 'grayscale(1)', maxWidth: '800px', padding: '40px' }} ref={containerRef}>
             <Col span={24}>
@@ -183,13 +209,13 @@ const PdfView = () => {
                     <Col span={6}>
                         <TicketUserInfoField
                             title={ExecutorMessage}
-                            user={get(ticket, ['executor'])}
+                            user={executor}
                         />
                     </Col>
                     <Col span={6}>
                         <TicketUserInfoField
                             title={AssigneeMessage}
-                            user={get(ticket, ['assignee'])}
+                            user={assignee}
                         />
                     </Col>
                 </Row>
