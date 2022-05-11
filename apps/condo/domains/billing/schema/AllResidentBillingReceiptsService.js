@@ -79,9 +79,6 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
                 const receiptsWhere = pick(where, ['id', 'period', 'toPay', 'printableNumber'])
 
                 const userId = get(context, ['authedItem', 'id'])
-                if (!userId) { // impossible, but who knows
-                    throw new Error('Invalid user id!')
-                }
 
                 // We can't really use getting service consumer with all access here, since we do not show billingAccount to our user
                 const GET_ONLY_OWN_SERVICE_CONSUMER_WHERE = { user: { id: userId } }
