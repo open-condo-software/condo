@@ -52,7 +52,7 @@
     "next": "^9.5.5",
     "next-transpile-modules": "^4.1.0",
     "numeral": "2.0.6",
-    "qs": "^6.9.4",
+    "qs": "6.10.3",
     "rc-queue-anim": "^1.8.5",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
