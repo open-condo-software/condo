@@ -21,7 +21,7 @@
     "lint-i18n-translations": "node ./../../bin/lint-i18n-translations.js"
   },
   "dependencies": {
-    "@2gis/mapgl": "^1.12.0",
+    "@2gis/mapgl": "1.28.0",
     "@apollo/client": "3.3.20",
     "@condo/domains": "link:./domains",
     "@emotion/core": "^10.1.1",
