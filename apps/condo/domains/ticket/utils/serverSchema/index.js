@@ -21,6 +21,8 @@ const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
 const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
 const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
+const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
+const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -55,6 +57,8 @@ async function predictTicketClassification (context, data) {
 
 
 const TicketCommentFile = generateServerUtils(TicketCommentFileGQL)
+const TicketCommentsTime = generateServerUtils(TicketCommentsTimeGQL)
+const UserTicketCommentReadTime = generateServerUtils(UserTicketCommentReadTimeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -84,10 +88,6 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
         ],
         multipleRelations: [
             [
-                (idx, knex) => knex.raw(`ARRAY_AGG(mr${idx}.id || ':' || mr${idx}.content ORDER BY mr${idx}."createdAt" ASC) as "TicketComment"`),
-                idx => [`TicketComment as mr${idx}`, `mr${idx}.ticket`, 'mainModel.id'],
-            ],
-            [
                 (idx, knex) => knex.raw(`MAX(mr${idx}."createdAt") as "startedAt"`),
                 idx => [`TicketChange as mr${idx}`, function () {
                     this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.processing])
@@ -114,6 +114,32 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
     return tickets
 }
 
+const loadTicketCommentsForExcelExport = async ({ ticketIds = [], sortBy = ['createdAt_DESC'] }) => {
+    const ticketCommentsLoader = new GqlWithKnexLoadList({
+        listKey: 'TicketComment',
+        fields: 'id type content createdAt',
+        singleRelations: [
+            ['User', 'user', 'name', 'userName'],
+            ['User', 'user', 'type', 'userType'],
+            ['Ticket', 'ticket', 'id'],
+        ],
+        multipleRelations: [
+            [
+                (idx, knex) => knex.raw(`COUNT(mr${idx}.id) as "TicketCommentFiles"`),
+                idx => [`TicketCommentFile as mr${idx}`, `mr${idx}.ticketComment`, 'mainModel.id'],
+            ],
+        ],
+        sortBy,
+        where: {
+            ticket: {
+                id_in: ticketIds,
+            },
+        },
+    })
+
+    return await ticketCommentsLoader.load()
+}
+
 
 module.exports = {
     Ticket,
@@ -129,8 +155,11 @@ module.exports = {
     ResidentTicket,
     TicketSource,
     loadTicketsForExcelExport,
+    loadTicketCommentsForExcelExport,
     TicketFilterTemplate,
     predictTicketClassification,
     TicketCommentFile,
+    TicketCommentsTime,
+    UserTicketCommentReadTime,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

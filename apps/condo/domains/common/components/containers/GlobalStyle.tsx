@@ -23,7 +23,25 @@ export default function GlobalStyle () {
               #__next {
                 height: 100%;
               }
-
+              
+             .ant-image-preview {
+                .ant-image-preview-img {
+                  max-width: calc(100% - 80px);
+                  max-height: calc(100% - 80px);
+                }
+                
+                .ant-image-preview-operations {
+                  background-color: transparent;
+                  
+                  .ant-image-preview-operations-operation {
+                      .anticon-rotate-left, .anticon-rotate-right, .anticon-zoom-in, .anticon-zoom-out {
+                        display: none;
+                      }
+                  }
+                }
+              
+             }
+              
               .ant-radio-wrapper {
                 white-space: inherit;
               }

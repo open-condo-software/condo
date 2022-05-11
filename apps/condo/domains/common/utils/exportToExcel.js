@@ -28,7 +28,7 @@ const EXCEL_TEMPLATES_HEADERS = {
         'number', 'organization', 'property', 'unitName', 'entranceName', 'floorName', 'clientName', 'clientPhone',
         'details', 'isEmergency', 'isWarranty', 'isPaid', 'classifier', 'place', 'category', 'description',
         'createdAt', 'updatedAt', 'inworkAt', 'completedAt', 'status', 'operator', 'executor', 'assignee',
-        'comments', 'source', 'deadline', 'reviewValue', 'reviewComment', 'statusReopenedCounter',
+        'organizationComments', 'residentComments', 'source', 'deadline', 'reviewValue', 'reviewComment', 'statusReopenedCounter',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_PROPERTY_STATUS}`]: [
         'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',

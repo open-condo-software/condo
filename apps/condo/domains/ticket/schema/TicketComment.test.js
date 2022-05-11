@@ -902,7 +902,7 @@ describe('TicketComment', () => {
         })
 
         describe('update', () => {
-            it('can update own comment', async () => {
+            it('cannot update own comment', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
@@ -924,12 +924,11 @@ describe('TicketComment', () => {
                     content: content1,
                 })
 
-                const [updatedCommentFromResident] = await updateTestTicketComment(residentClient, commentFromResident.id, {
-                    content: content2,
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestTicketComment(residentClient, commentFromResident.id, {
+                        content: content2,
+                    })
                 })
-
-                expect(updatedCommentFromResident.id).toEqual(commentFromResident.id)
-                expect(updatedCommentFromResident.content).toEqual(content2)
             })
 
             it('cannot update not his own comment', async () => {
@@ -1004,6 +1003,7 @@ describe('TicketComment', () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
+            const unitName1 = faker.random.alphaNumeric(5)
             const content = faker.lorem.sentence()
             const randomFakeSuccessPushtoken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
             const tokenData = { pushToken: randomFakeSuccessPushtoken, pushTransport: PUSH_TRANSPORT_FIREBASE }
@@ -1013,6 +1013,10 @@ describe('TicketComment', () => {
             expect(device.pushTransport).toEqual(payload.pushTransport)
 
             const [resident] = await createTestResident(admin, residentClient.user, residentClient.organization, residentClient.property, { unitName })
+
+            // NOTE: this needed for checking that proper resident will be picked when same user + organization + property can has multiple residents
+            await createTestResident(admin, residentClient.user, residentClient.organization, residentClient.property, { unitName: unitName1 })
+
             const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, { unitName })
             const extraAttrs = { type: ORGANIZATION_COMMENT_TYPE, content }
             const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user, extraAttrs)

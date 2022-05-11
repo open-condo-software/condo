@@ -18,7 +18,6 @@ import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clie
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { normalizeText } from '@condo/domains/common/utils/text'
-import { InputWithCounter } from '@condo/domains/common/components/InputWithCounter'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
@@ -29,10 +28,21 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
+import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
+
+const { TabPane } = Tabs
+
+const ContactsInfoFocusContainer = styled(FocusContainer)`
+  position: relative;
+  left: ${({ padding }) => padding ? padding : '24px'};
+  box-sizing: border-box;
+  width: 100%;
+  background: ${colors.backgroundLightGrey};
+`
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
@@ -62,7 +72,6 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                             // sets `Property.address` as its value, but we need `Property.id` here
                             property={selectedPropertyId}
                             unitName={unitName}
-                            disabled={!property}
                         />
                     )
                 }}
@@ -73,6 +82,8 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
 
 const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
+const COUNTER_STYLES = { float: 'right' }
+const UPLOAD_COMPONENT_WRAPPER_STYLES = { paddingTop: '24px' }
 
 export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
@@ -95,9 +106,8 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
         predictTicketClassifier,
     } = useTicketThreeLevelsClassifierHook({ initialValues })
 
-    const details = get(initialValues, 'details')
-    const [currentDetailsLength, setCurrentDetailsLength] = useState<number>(details ? details.length : 0)
-
+    const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, 500)
+    const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
     return (
         <Col span={24}>
@@ -113,18 +123,16 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                     <TicketFormItem name={'details'} rules={validations.details}>
                                         <InputWithCounter
                                             InputComponent={Input.TextArea}
-                                            currentLength={currentDetailsLength}
-                                            maxLength={500}
-                                            onChange={e => setCurrentDetailsLength(e.target.value.length)}
-                                            onBlur={e => predictTicketClassifier(e.target.value)}
+                                            onBlur={handleInputBlur}
                                             placeholder={DescriptionPlaceholder}
                                             disabled={disableUserInteraction}
                                             style={INPUT_WITH_COUNTER_STYLE}
                                             data-cy={'ticket__description-input'}
                                         />
                                     </TicketFormItem>
+                                    <Counter style={COUNTER_STYLES} />
                                 </Col>
-                                <Col span={24} style={{ 'padding-top': '24px' }}>
+                                <Col span={24} style={UPLOAD_COMPONENT_WRAPPER_STYLES}>
                                     <TicketFormItem>
                                         <UploadComponent/>
                                     </TicketFormItem>

@@ -1,4 +1,10 @@
 import dayjs, { Dayjs } from 'dayjs'
+import { randomUUID } from 'crypto'
+
+import { TicketAnalyticsGroupBy, TicketGroupedCounter } from '@app/condo/schema'
+
+import { EN_LOCALE, RU_LOCALE } from '@condo/domains/common/constants/locale'
+
 import {
     statusToQuery,
     createdAtToQuery,
@@ -17,11 +23,8 @@ import {
     getAggregatedData,
     TICKET_PAGE_SIZE,
     filterToQuery,
-    ticketAnalyticsPageFilters, getChartOptions,
+    ticketAnalyticsPageFilters, getChartOptions, hasUnreadResidentComments,
 } from './helpers'
-import { EN_LOCALE, RU_LOCALE } from '../../common/constants/locale'
-import { randomUUID } from 'crypto'
-import { TicketAnalyticsGroupBy, TicketGroupedCounter } from '@app/condo/schema'
 
 describe('Helpers', () => {
     describe('queryUtils', () => {
@@ -787,6 +790,37 @@ describe('Helpers', () => {
                     ])
                 })
             })
+        })
+    })
+
+    describe('hasUnreadResidentComments', () => {
+        it('should return true if a resident wrote a comment after it was read or answered', () => {
+            const lastResidentCommentAt = dayjs()
+            const readResidentCommentByUserAt = dayjs().subtract(2, 'minutes')
+
+            const isCommentUnread = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastResidentCommentAt)
+
+            expect(isCommentUnread).toEqual(true)
+        })
+
+        it('should return false if the user read the comment later than the resident wrote it', () => {
+            const lastResidentCommentAt = dayjs().subtract(1, 'minutes')
+            const readResidentCommentByUserAt = dayjs()
+            const lastCommentAt = dayjs().subtract(2, 'minutes')
+
+            const isCommentUnread = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt)
+
+            expect(isCommentUnread).toEqual(false)
+        })
+
+        it('should return false if someone answered to a resident\'s comment before the user read it', () => {
+            const lastResidentCommentAt = dayjs().subtract(1, 'minutes')
+            const readResidentCommentByUserAt = dayjs().subtract(2, 'minutes')
+            const lastCommentAt = dayjs()
+
+            const isCommentUnread = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt)
+
+            expect(isCommentUnread).toEqual(false)
         })
     })
 })

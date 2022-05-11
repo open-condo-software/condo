@@ -36,6 +36,8 @@ export interface ITicketFormState {
     problemClassifier?: string
     classifierRule?: string
     canReadByResident?: boolean
+    lastResidentCommentAt?: string
+    lastAnsweredToResidentAt?: string
     assignee?: string
     operator?: string
     client?: string

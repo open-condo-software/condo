@@ -24,12 +24,12 @@ const {
     TicketClassifierRule: TicketClassifierRuleGQL,
 } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
-const { GET_ALL_RESIDENT_TICKETS_QUERY } = require('@condo/domains/ticket/gql')
-const { UPDATE_RESIDENT_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
 const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
 const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
 const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
+const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
+const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -50,6 +50,8 @@ const TicketClassifierRule = generateGQLTestUtils(TicketClassifierRuleGQL)
 const ResidentTicket = generateGQLTestUtils(ResidentTicketGQL)
 const TicketFilterTemplate = generateGQLTestUtils(TicketFilterTemplateGQL)
 const TicketCommentFile = generateGQLTestUtils(TicketCommentFileGQL)
+const TicketCommentsTime = generateGQLTestUtils(TicketCommentsTimeGQL)
+const UserTicketCommentReadTime = generateGQLTestUtils(UserTicketCommentReadTimeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -459,6 +461,71 @@ async function updateTestTicketCommentFile (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestTicketCommentsTime (client, organization, ticket, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        ticket: { connect: { id: ticket.id } },
+        ...extraAttrs,
+    }
+    const obj = await TicketCommentsTime.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketCommentsTime (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketCommentsTime.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestUserTicketCommentReadTime (client, user, ticket, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const now = new Date().toISOString()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        ticket: { connect: { id: ticket.id } },
+        readResidentCommentAt: now,
+        readCommentAt: now,
+        ...extraAttrs,
+    }
+    const obj = await UserTicketCommentReadTime.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestUserTicketCommentReadTime (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await UserTicketCommentReadTime.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -497,5 +564,7 @@ module.exports = {
     TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate,
     predictTicketClassificationByTestClient,
     TicketCommentFile, createTestTicketCommentFile, updateTestTicketCommentFile,
+    TicketCommentsTime, createTestTicketCommentsTime, updateTestTicketCommentsTime,
+    UserTicketCommentReadTime, createTestUserTicketCommentReadTime, updateTestUserTicketCommentReadTime,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

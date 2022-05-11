@@ -11,8 +11,11 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketComment')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { COMMENT_TYPES, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
-const { sendTicketCommentNotifications } = require('@condo/domains/ticket/utils/handlers')
+const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { normalizeText } = require('@condo/domains/common/utils/text')
+const { sendDifferentKindsOfNotifications } = require('@condo/domains/ticket/utils/handlers')
+
+const { createOrUpdateTicketCommentsTime } = require('../utils/handlers')
 
 const TicketComment = new GQLListSchema('TicketComment', {
     schemaDoc: 'Textual comment for tickets',
@@ -72,16 +75,30 @@ const TicketComment = new GQLListSchema('TicketComment', {
         content: {
             schemaDoc: 'Plain text content',
             type: Text,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return normalizeText(resolvedData['content'])
+                },
+            },
         },
-
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         afterChange: async (requestData) => {
+            const { updatedItem, operation, context } = requestData
+
+            const user = get(context, ['req', 'user'])
+            const userType = get(user, 'type')
+            const commentType = get(updatedItem, 'type')
+
+            if (operation === 'create' && commentType === RESIDENT_COMMENT_TYPE) {
+                await createOrUpdateTicketCommentsTime(context, updatedItem, userType)
+            }
+
             // NOTE: disabled at 2022-04-25 because of @MikhailRumanovskii request until ticket comments will be implemented in all mobile applications for all platforms
             // await sendTicketCommentNotifications(requestData)
         },
     },
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketComments,
         create: access.canManageTicketComments,

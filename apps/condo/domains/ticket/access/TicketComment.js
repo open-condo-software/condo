@@ -61,46 +61,23 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
     if (user.isAdmin) return true
 
     if (user.type === RESIDENT) {
-        let ticket, commentType
-
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
-            ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
-            commentType = get(originalInput, 'type')
+            const ticket = await getByCondition('Ticket', { id: ticketId, deletedAt: null })
+            const commentType = get(originalInput, 'type')
+
+            if (!ticket || !commentType || commentType !== RESIDENT_COMMENT_TYPE) return false
+
+            const ticketStatusId = get(ticket, 'status')
+            const ticketStatus = await getById('TicketStatus', ticketStatusId)
+            if (ticketStatus.type === COMPLETED_STATUS_TYPE || ticketStatus.type === CANCELED_STATUS_TYPE) {
+                return false
+            }
+
+            return ticket.client === user.id
         } else if (operation === 'update' && itemId) {
-            const comment = await getByCondition('TicketComment', { id: itemId, deletedAt: null })
-            if (!comment || comment.user !== user.id) return false
-
-            ticket = await getByCondition('Ticket', { id: comment.ticket, deletedAt: null })
-            if (!ticket) return false
-
-            const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'content'])
-            if (!isEmpty(inaccessibleUpdatedFields)) return false
-
-            commentType = get(comment, 'type')
-        }
-
-        if (!ticket || !commentType || commentType !== RESIDENT_COMMENT_TYPE) return false
-
-        const ticketStatusId = get(ticket, 'status')
-        const ticketStatus = await getById('TicketStatus', ticketStatusId)
-        if (ticketStatus.type === COMPLETED_STATUS_TYPE || ticketStatus.type === CANCELED_STATUS_TYPE) {
             return false
         }
-
-        const propertyId = get(ticket, 'property', null)
-        const unitName = get(ticket, 'unitName', null)
-        const unitType = get(ticket, 'unitType', null)
-
-        const residents = await find('Resident', {
-            user: { id: user.id },
-            property: { id: propertyId, deletedAt: null },
-            unitName,
-            unitType,
-            deletedAt: null,
-        })
-
-        return residents.length > 0
     } else {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])

@@ -4,7 +4,7 @@ import { css, jsx } from '@emotion/core'
 import { Affix, Breadcrumb, Col, Row, Space, Typography } from 'antd'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
 import UploadList from 'antd/lib/upload/UploadList/index'
-import { compact, get, isEmpty } from 'lodash'
+import { compact, get, isEmpty, map } from 'lodash'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -33,9 +33,17 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
-import { CLOSED_STATUS_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
-import { Ticket, TicketChange, TicketComment, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+import {
+    Ticket,
+    TicketChange,
+    TicketComment,
+    TicketCommentFile,
+    TicketCommentsTime,
+    TicketFile,
+    UserTicketCommentReadTime,
+} from '@condo/domains/ticket/utils/clientSchema'
 import {
     getDeadlineType, getHumanizeDeadlineDateDifference,
     getTicketCreateMessage,
@@ -43,7 +51,6 @@ import {
     TicketDeadlineType,
 } from '@condo/domains/ticket/utils/helpers'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
-import { ORGANIZATION_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -459,6 +466,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
 
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
+    const user = get(auth, 'user')
     const { isSmall } = useLayoutContext()
 
     // NOTE: cast `string | string[]` to `string`
@@ -485,7 +493,25 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         // @ts-ignore
         sortBy: ['createdAt_DESC'],
     })
-    const updateComment = TicketComment.useUpdate({})
+
+    const commentsIds = useMemo(() => map(comments, 'id'), [comments])
+
+    const { objs: ticketCommentFiles, refetch: refetchCommentFiles } = TicketCommentFile.useObjects({
+        where: { ticketComment: { id_in: commentsIds } },
+        // @ts-ignore
+        sortBy: ['createdAt_DESC'],
+    })
+
+    const commentsWithFiles = useMemo(() => comments.map(comment => {
+        comment.files = ticketCommentFiles.filter(file => file.ticketComment.id === comment.id)
+
+        return comment
+    }), [comments, ticketCommentFiles])
+
+    const updateComment = TicketComment.useUpdate({}, () => {
+        refetchComments()
+        refetchCommentFiles()
+    })
     const deleteComment = TicketComment.useSoftDelete({}, () => {
         refetchComments()
     })
@@ -493,15 +519,52 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const createCommentAction = TicketComment.useCreate({
         ticket: id,
         user: auth.user && auth.user.id,
-        type: ORGANIZATION_COMMENT_TYPE,
-    }, () => { refetchComments() })
+    }, () => Promise.resolve())
+
+    const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketCommentsTime.useObject({
+        where: {
+            ticket: { id: id },
+        },
+    })
+    const {
+        obj: userTicketCommentReadTime, refetch: refetchUserTicketCommentReadTime, loading: loadingUserTicketCommentReadTime,
+    } = UserTicketCommentReadTime.useObject({
+        where: {
+            user: { id: user.id },
+            ticket: { id: id },
+        },
+    })
+    const createUserTicketCommentReadTime = UserTicketCommentReadTime.useCreate({
+        user: user.id,
+        ticket: id,
+    }, () => refetchUserTicketCommentReadTime())
+    const updateUserTicketCommentReadTime = UserTicketCommentReadTime.useUpdate({
+        user: user.id,
+        ticket: id,
+    }, () => refetchUserTicketCommentReadTime())
 
     const canShareTickets = get(employee, 'role.canShareTickets')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
+    const refetchCommentsWithFiles = useCallback(async () => {
+        await refetchComments()
+        await refetchCommentFiles()
+        await refetchTicketCommentsTime()
+        await refetchUserTicketCommentReadTime()
+    }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentReadTime])
+
+    const actionsFor = useCallback(comment => {
+        const isAuthor = comment.user.id === auth.user.id
+        const isAdmin = get(auth, ['user', 'isAdmin'])
+        return {
+            updateAction: isAdmin || isAuthor ? updateComment : null,
+            deleteAction: isAdmin || isAuthor ? deleteComment : null,
+        }
+    }, [auth, deleteComment, updateComment])
+
     useEffect(() => {
-        const handler = setInterval(refetchComments, COMMENT_RE_FETCH_INTERVAL)
+        const handler = setInterval(refetchCommentsWithFiles, COMMENT_RE_FETCH_INTERVAL)
         return () => {
             clearInterval(handler)
         }
@@ -522,6 +585,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const statusUpdatedAt = get(ticket, 'statusUpdatedAt')
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
     const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
+    const canCreateComments = useMemo(() => get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments']),
+        [auth, employee])
 
     const getTimeSinceCreation = useCallback(() => {
         const diffInMinutes = dayjs().diff(dayjs(statusUpdatedAt), 'minutes')
@@ -697,18 +762,21 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                         <Col lg={7} xs={24} offset={isSmall ? 0 : 1}>
                             <Affix offsetTop={40}>
                                 <Comments
+                                    ticketCommentsTime={ticketCommentsTime}
+                                    userTicketCommentReadTime={userTicketCommentReadTime}
+                                    createUserTicketCommentReadTime={createUserTicketCommentReadTime}
+                                    updateUserTicketCommentReadTime={updateUserTicketCommentReadTime}
+                                    loadingUserTicketCommentReadTime={loadingUserTicketCommentReadTime}
+                                    FileModel={TicketCommentFile}
+                                    fileModelRelationField={'ticketComment'}
+                                    ticket={ticket}
                                     // @ts-ignore
                                     createAction={createCommentAction}
-                                    comments={comments}
-                                    canCreateComments={get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments'])}
-                                    actionsFor={comment => {
-                                        const isAuthor = comment.user.id === auth.user.id
-                                        const isAdmin = get(auth, ['user', 'isAdmin'])
-                                        return {
-                                            updateAction: isAdmin || isAuthor ? updateComment : null,
-                                            deleteAction: isAdmin || isAuthor ? deleteComment : null,
-                                        }
-                                    }}
+                                    updateAction={updateComment}
+                                    refetchComments={refetchCommentsWithFiles}
+                                    comments={commentsWithFiles}
+                                    canCreateComments={canCreateComments}
+                                    actionsFor={actionsFor}
                                 />
                             </Affix>
                         </Col>

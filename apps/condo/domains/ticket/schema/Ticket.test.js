@@ -53,16 +53,16 @@ const {
 
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 
-const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { Ticket, createTestTicket, updateTestTicket, createTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 
 
 const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
-const { REVIEW_VALUES } = require('../constants')
+const { REVIEW_VALUES, RESIDENT_COMMENT_TYPE } = require('../constants')
 
 describe('Ticket', () => {
-    describe('Crud', () => {
+    describe('CRUD', () => {
         test('user: create Ticket', async () => {
             const client = await makeClientWithProperty()
             const [contact] = await createTestContact(client, client.organization, client.property)
@@ -1716,11 +1716,16 @@ describe('Ticket', () => {
                 expect(message.processingMeta.transport).toEqual('push')
             })
 
-            it('update status to TICKET_STATUS_COMPLETED and send sms for resident with no registered pushToken', async () => {
+            it('update status to TICKET_STATUS_COMPLETED and try to send push for resident with no registered pushToken', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
+                const unitName1 = faker.random.alphaNumeric(5)
                 const [resident] = await createTestResident(admin, userClient.user, userClient.organization, userClient.property, { unitName })
+
+                // NOTE: this needed for checking that proper resident will be picked when same user + organization + property has multiple residents
+                await createTestResident(admin, userClient.user, userClient.organization, userClient.property, { unitName: unitName1 })
+
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
 
                 expect(ticket.client.id).toEqual(userClient.user.id)
@@ -1743,7 +1748,7 @@ describe('Ticket', () => {
                 // expect(message.processingMeta.transport).toEqual('sms')
             })
 
-            it('update status to TICKET_STATUS_COMPLETED and send sms for resident with registered invalid pushToken', async () => {
+            it('update status to TICKET_STATUS_COMPLETED and try to send push for resident with registered invalid pushToken', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
@@ -1825,7 +1830,7 @@ describe('Ticket', () => {
                 expect(message.processingMeta.transport).toEqual('push')
             })
 
-            it('update status to TICKET_STATUS_RETURNED and send sms for resident with no registered pushToken', async () => {
+            it('update status to TICKET_STATUS_RETURNED and try to send push for resident with no registered pushToken', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
@@ -1855,7 +1860,7 @@ describe('Ticket', () => {
                 // expect(message.processingMeta.transport).toEqual('sms')
             })
 
-            it('update status to TICKET_STATUS_RETURNED and send sms for resident with registered invalid pushToken', async () => {
+            it('update status to TICKET_STATUS_RETURNED and try to send push for resident with registered invalid pushToken', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)

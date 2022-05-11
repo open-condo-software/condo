@@ -42,7 +42,9 @@ const COMMENT_TYPES = [ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE]
     at declaration stage of `TicketChange`.
  */
 // TODO(AntonAL) add files to trackable - files are now in hidden relation
-const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusUpdatedAt', 'classifierRule']
+const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusUpdatedAt', 'classifierRule', 'lastResidentCommentAt', 'lastAnsweredToResidentAt']
+
+const MAX_COMMENT_LENGTH = 300
 
 module.exports = {
     NEW_OR_REOPENED_STATUS_TYPE,
@@ -57,4 +59,5 @@ module.exports = {
     COMMENT_TYPES,
     ORGANIZATION_COMMENT_TYPE,
     RESIDENT_COMMENT_TYPE,
+    MAX_COMMENT_LENGTH,
 }

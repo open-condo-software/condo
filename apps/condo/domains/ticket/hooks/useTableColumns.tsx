@@ -1,34 +1,35 @@
 import React, { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
+import map from 'lodash/map'
 import { identity } from 'lodash/util'
-import { Space, Tag, Typography } from 'antd'
-import { TextProps } from 'antd/es/typography/Text'
-import dayjs from 'dayjs'
 
+import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
 import {
     getAddressRender,
     getDateRender,
     getTableCellRenderer,
-    getHighlightedContents,
 } from '@condo/domains/common/components/Table/Renders'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { TicketStatus } from '../utils/clientSchema'
-import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
-import { getDeadlineType, getHumanizeDeadlineDateDifference, IFilters, TicketDeadlineType } from '../utils/helpers'
-import { getTicketClientNameRender, getTicketDetailsRender } from '../utils/clientSchema/Renders'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { TICKET_TYPE_TAG_COLORS } from '@app/condo/domains/ticket/constants/style'
-import { TicketTag } from '../components/TicketTag'
 
-const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
+import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '../utils/clientSchema'
+import { ITicketUIState } from '../utils/clientSchema/Ticket'
+import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
+import { IFilters } from '../utils/helpers'
+import {
+    getClassifierRender, getStatusRender,
+    getTicketClientNameRender,
+    getTicketDetailsRender,
+    getTicketNumberRender,
+    getUnitRender,
+} from '../utils/clientSchema/Renders'
 
 const COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN = {
     number: '8%',
@@ -56,13 +57,9 @@ const COLUMNS_WIDTH_SMALLER_XXL_SCREEN = {
     assignee: '13%',
 }
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
+export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets: ITicketUIState[]) {
     const intl = useIntl()
-    const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
-    const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
-    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
     const StatusMessage = intl.formatMessage({ id: 'Status' })
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
@@ -73,10 +70,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
-    const ShortSectionNameMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
-    const ShortFloorNameMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
-    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
-    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -85,55 +78,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const { breakpoints } = useLayoutContext()
 
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
-
-    const renderStatus = useCallback((status, record) => {
-        const { primary: backgroundColor, secondary: color } = status.colors
-        const extraProps = { style: { color } }
-        // TODO(DOMA-1518) find solution for cases where no status received
-        const highlightedContent = getHighlightedContents(search, null, extraProps)(status.name)
-
-        return (
-            <Space direction='vertical' size={7}>
-                {
-                    status.name && (
-                        <TicketTag color={backgroundColor}>
-                            {highlightedContent}
-                        </TicketTag>
-                    )
-                }
-                {
-                    record.isEmergency && (
-                        <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>
-                            <Typography.Text type="danger">
-                                {EmergencyMessage}
-                            </Typography.Text>
-                        </TicketTag>
-                    )
-                }
-                {
-                    record.isPaid && (
-                        <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>
-                            {PaidMessage}
-                        </TicketTag>
-                    )
-                }
-                {
-                    record.isWarranty && (
-                        <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>
-                            {WarrantyMessage}
-                        </TicketTag>
-                    )
-                }
-                {
-                    record.statusReopenedCounter > 0 && (
-                        <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
-                            {ReturnedMessage} {record.statusReopenedCounter > 1 && `(${record.statusReopenedCounter})`}
-                        </TicketTag>
-                    )
-                }
-            </Space>
-        )
-    }, [EmergencyMessage, PaidMessage, ReturnedMessage, WarrantyMessage, search])
 
     const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
@@ -147,31 +91,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
     }, [loading, ticketStatuses])
 
-    const renderClassifier = useCallback((text, record) => {
-        const placeClassifier = get(record, ['placeClassifier', 'name'])
-        const postfix = `\n(${placeClassifier})`
-
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
-    }, [search])
-
-    const renderUnit = useCallback((text, record) => {
-        const sectionName = get(record, 'sectionName')
-        const floorName = get(record, 'floorName')
-        const unitType = get(record, 'unitType', 'flat')
-        let unitNamePrefix = null
-        let extraTitle = null
-        const postfix = sectionName && floorName &&
-            `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
-        if (text) {
-            extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
-            if (unitType !== 'flat') {
-                unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
-            }
-        }
-        const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS, extraTitle)(unitName)
-    }, [ShortFloorNameMessage, ShortSectionNameMessage, search])
-
     const renderAddress = useCallback(
         (property) => getAddressRender(property, DeletedMessage, search),
         [DeletedMessage, search])
@@ -184,34 +103,24 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
         [search])
 
-    const renderNumber = useCallback((number, ticket) => {
-        const deadline = dayjs(get(ticket, 'deadline'))
-        let extraHighlighterProps
-        let extraTitle
+    const { user } = useAuth()
 
-        if (deadline) {
-            const deadlineType = getDeadlineType(ticket)
-
-            switch (deadlineType) {
-                case TicketDeadlineType.LESS_THAN_DAY: {
-                    extraHighlighterProps = { type: 'warning' }
-                    extraTitle = LessThenDayMessage
-
-                    break
-                }
-                case TicketDeadlineType.OVERDUE: {
-                    const { overdueDiff } = getHumanizeDeadlineDateDifference(ticket)
-
-                    extraHighlighterProps = { type: 'danger' }
-                    extraTitle = OverdueMessage.replace('{days}', overdueDiff)
-
-                    break
-                }
-            }
-        }
-
-        return getTableCellRenderer(search, false, null, extraHighlighterProps, null, extraTitle)(number)
-    }, [LessThenDayMessage, OverdueMessage, search])
+    const ticketIds = useMemo(() => map(tickets, 'id'), [tickets])
+    const { objs: userTicketsCommentReadTime } = UserTicketCommentReadTime.useObjects({
+        where: {
+            user: { id: user.id },
+            ticket: {
+                id_in: ticketIds,
+            },
+        },
+    })
+    const { objs: ticketsCommentsTime } = TicketCommentsTime.useObjects({
+        where: {
+            ticket: {
+                id_in: ticketIds,
+            },
+        },
+    })
 
     const columnWidths = useMemo(() => breakpoints.xxl ?
         COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN : COLUMNS_WIDTH_SMALLER_XXL_SCREEN,
@@ -230,7 +139,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: columnWidths.number,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
                 filterIcon: getFilterIcon,
-                render: renderNumber,
+                render: getTicketNumberRender(intl, breakpoints, userTicketsCommentReadTime, ticketsCommentsTime, search),
                 align: 'right',
             },
             {
@@ -249,7 +158,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 title: StatusMessage,
                 sortOrder: get(sorterMap, 'status'),
                 filteredValue: getFilteredValue<IFilters>(filters, 'status'),
-                render: renderStatus,
+                render: getStatusRender(intl, search),
                 dataIndex: 'status',
                 key: 'status',
                 sorter: true,
@@ -277,7 +186,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'unitName',
                 sorter: true,
                 width: columnWidths.unitName,
-                render: renderUnit,
+                render: getUnitRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
                 ellipsis: true,
@@ -300,7 +209,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: columnWidths.categoryClassifier,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'categoryClassifier'),
                 filterIcon: getFilterIcon,
-                render: renderClassifier,
+                render: getClassifierRender(intl, search),
                 ellipsis: true,
             },
             {
@@ -343,5 +252,5 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 ellipsis: true,
             },
         ]
-    }, [NumberMessage, sorterMap, filters, columnWidths.number, columnWidths.createdAt, columnWidths.status, columnWidths.address, columnWidths.unitName, columnWidths.details, columnWidths.categoryClassifier, columnWidths.clientName, columnWidths.executor, columnWidths.assignee, filterMetas, search, DateMessage, intl, StatusMessage, renderStatus, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, renderUnit, DescriptionMessage, ClassifierTitle, renderClassifier, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee])
+    }, [NumberMessage, sorterMap, filters, columnWidths.number, columnWidths.createdAt, columnWidths.status, columnWidths.address, columnWidths.unitName, columnWidths.details, columnWidths.categoryClassifier, columnWidths.clientName, columnWidths.executor, columnWidths.assignee, filterMetas, intl, breakpoints, userTicketsCommentReadTime, ticketsCommentsTime, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee])
 }

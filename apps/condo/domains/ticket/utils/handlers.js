@@ -1,7 +1,7 @@
 const get = require('lodash/get')
 
 const conf = require('@core/config')
-const { getByCondition } = require('@core/keystone/schema')
+const { getByCondition, find, getById } = require('@core/keystone/schema')
 
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -20,7 +20,11 @@ const {
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
-const { Ticket } = require('./serverSchema')
+const { Ticket, TicketCommentsTime } = require('./serverSchema')
+const { PUSH_TRANSPORT } = require('@condo/domains/notification/constants/constants')
+const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -192,11 +196,13 @@ const sendTicketNotifications = async (requestData) => {
         }
 
         if (ticketStatusType) {
-            const { property: propertyId, organization: organizationId } = updatedItem
+            const { property: propertyId, organization: organizationId, unitName, unitType } = updatedItem
             const where = {
                 user: { id: clientId },
                 property: { id: propertyId },
                 organization: { id: organizationId },
+                unitName,
+                unitType,
             }
             const resident = await Resident.getOne(context, where)
 
@@ -226,8 +232,12 @@ const sendTicketCommentNotifications = async (requestData) => {
 
     const ticket = await Ticket.getOne(context, { id: updatedItem.ticket })
     const clientId = get(ticket, 'client.id')
+    const commentType = get(updatedItem, 'type')
+    const client = get(ticket, 'client.id')
     const organizationId = get(ticket, 'organization.id')
     const propertyId = get(ticket, 'property.id')
+    const unitName = get(ticket, 'unitName')
+    const unitType = get(ticket, 'unitType')
 
     // TODO(DOMA-2822): get rid of this extra request by returning country within nested organization data
     const organization = await getByCondition('Organization', {
@@ -242,11 +252,13 @@ const sendTicketCommentNotifications = async (requestData) => {
      */
     const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
 
-    if (clientId && createdBy !== clientId) {
+    if (client && createdBy !== client && commentType === RESIDENT_COMMENT_TYPE) {
         const where = {
             user: { id: clientId },
             property: { id: propertyId },
             organization: { id: organizationId },
+            unitName,
+            unitType,
         }
         const resident = await Resident.getOne(context, where)
 
@@ -270,10 +282,78 @@ const sendTicketCommentNotifications = async (requestData) => {
     }
 }
 
+const createOrUpdateTicketCommentsTime = async (context, updatedItem, userType) => {
+    const ticketId = get(updatedItem, 'ticket')
+    const dv = get(updatedItem, 'dv')
+    const sender = get(updatedItem, 'sender')
+    const now = new Date().toISOString()
+
+    const ticketCommentsTime = await getByCondition('TicketCommentsTime', {
+        ticket: { id: ticketId },
+    })
+
+    if (userType === RESIDENT) {
+        if (!ticketCommentsTime) {
+            const ticket = await getById('Ticket', ticketId)
+            const ticketOrganizationId = get(ticket, 'organization')
+            if (!ticket) return false
+
+            await TicketCommentsTime.create(context, {
+                dv,
+                sender,
+                organization: { connect: { id: ticketOrganizationId } },
+                ticket: { connect: { id: ticketId } },
+                lastCommentAt: now,
+                lastResidentCommentAt: now,
+            })
+        } else {
+            await TicketCommentsTime.update(context, ticketCommentsTime.id, {
+                dv,
+                sender,
+                lastCommentAt: now,
+                lastResidentCommentAt: now,
+            })
+        }
+    } else {
+        if (!ticketCommentsTime) {
+            const ticket = await getById('Ticket', ticketId)
+            const ticketOrganizationId = get(ticket, 'organization')
+            if (!ticket) return false
+
+            await TicketCommentsTime.create(context, {
+                dv,
+                sender,
+                organization: { connect: { id: ticketOrganizationId } },
+                ticket: { connect: { id: ticketId } },
+                lastCommentAt: now,
+            })
+        } else {
+            await TicketCommentsTime.update(context, ticketCommentsTime.id, {
+                dv,
+                sender,
+                lastCommentAt: now,
+            })
+        }
+
+        const userTicketCommentReadTimeObjects = await find('UserTicketCommentReadTime', {
+            ticket: { id: ticketId },
+        })
+
+        for (const { id } of userTicketCommentReadTimeObjects) {
+            await UserTicketCommentReadTime.update(context, id, {
+                dv: 1,
+                sender,
+                readResidentCommentAt: now,
+            })
+        }
+    }
+}
+
 module.exports = {
     sendTicketNotifications,
     sendTicketCommentNotifications,
     detectEventTypes,
+    createOrUpdateTicketCommentsTime,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,
     STATUS_CHANGED_EVENT_TYPE,
