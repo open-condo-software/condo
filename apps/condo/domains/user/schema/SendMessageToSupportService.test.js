@@ -22,7 +22,7 @@ const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/erro
 const EMAIL_FROM = 'doma-test-message-to-support@mailforspam.com'
 
 describe('SendMessageToSupportService', async () => {
-    test('Send message to support: with attachments, with emailFrom', async () => {
+    test('with attachments, with emailFrom', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
         await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
@@ -51,7 +51,7 @@ describe('SendMessageToSupportService', async () => {
         expect(messages[0].meta.os).toEqual(os)
     })
 
-    test('Send message to support: no attachments, wrong email', async () => {
+    test('no attachments, wrong email', async () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {
             text: 'Test with wrong email.',
@@ -67,7 +67,7 @@ describe('SendMessageToSupportService', async () => {
         }, `${EMAIL_WRONG_FORMAT_ERROR}] invalid format`)
     })
 
-    test('Send message to support: no attachments', async () => {
+    test('no attachments', async () => {
         const residentClient = await makeClientWithResidentAccessAndProperty()
         const adminClient = await makeLoggedInAdminClient()
         await createTestResident(adminClient, residentClient.user, residentClient.organization, residentClient.property)
@@ -87,7 +87,7 @@ describe('SendMessageToSupportService', async () => {
         expect(messages).toHaveLength(1)
     })
 
-    test('Send message to support: synthetic test with two organizations', async () => {
+    test('synthetic test with two organizations', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
         const [organization] = await registerNewOrganization(userClient)
@@ -114,7 +114,7 @@ describe('SendMessageToSupportService', async () => {
         expect(messages[0].meta.organizationsData).toHaveLength(2)
     })
 
-    test('Send message to support: no attachments, no email', async () => {
+    test('no attachments, no email', async () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {
             text: 'Test message from resident to support. In this message resident has not passed the email address, so the sender\'s email is default',
