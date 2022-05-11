@@ -13,7 +13,7 @@ const { BillingMeterResource } = require('./BillingMeterResource')
 const { BillingAccountMeter } = require('./BillingAccountMeter')
 const { BillingAccountMeterReading } = require('./BillingAccountMeterReading')
 const { BillingReceipt } = require('./BillingReceipt')
-const { GetAllResidentBillingReceiptsService } = require('./AllResidentBillingReceiptsService')
+const { AllResidentBillingReceiptsService } = require('./AllResidentBillingReceiptsService')
 const { BillingRecipient } = require('./BillingRecipient')
 const { BillingCategory } = require('./BillingCategory')
 /* AUTOGENERATE MARKER <REQUIRE> */
@@ -29,7 +29,7 @@ module.exports = {
     BillingAccountMeter,
     BillingAccountMeterReading,
     BillingReceipt,
-    GetAllResidentBillingReceiptsService,
+    AllResidentBillingReceiptsService,
     BillingRecipient,
     BillingCategory,
 /* AUTOGENERATE MARKER <EXPORTS> */
