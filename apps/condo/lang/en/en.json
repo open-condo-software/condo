@@ -1076,6 +1076,7 @@
   "api.user.changePasswordWithToken.TOKEN_NOT_FOUND": "Unable to find non-expired ConfirmPhoneAction by specified token",
   "api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} characters",
   "api.user.registerNewUser.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} characters",
+  "api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT": "Wrong format of specified email",
   "api.ticket.exportTicketsToExcel.NOTHING_TO_EXPORT": "No tickets to export",
   "api.ticket.updateResidentTicket.TICKET_NOT_FOUND": "Cannot find Ticket with id \"{ticketId}\" for current user",
   "api.property.exportPropertiesToExcel.NOTHING_TO_EXPORT": "No properties are found to export for current organization",

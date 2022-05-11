@@ -16,8 +16,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const path = require('path')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { expectToThrowMutationError } = require('@condo/domains/common/utils/testSchema')
-const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/errors')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 const EMAIL_FROM = 'doma-test-message-to-support@mailforspam.com'
 
@@ -62,9 +61,21 @@ describe('SendMessageToSupportService', async () => {
             meta: {},
         }
 
-        await expectToThrowMutationError(async () => {
+        await catchErrorFrom(async () => {
             await supportSendMessageToSupportByTestClient(userClient, payload)
-        }, `${EMAIL_WRONG_FORMAT_ERROR}] invalid format`)
+        }, ({ errors }) => {
+            expect(errors).toMatchObject([{
+                message: 'api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT',
+                path: ['result'],
+                extensions: {
+                    mutation: 'sendMessageToSupport',
+                    variable: ['data', 'emailFrom'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'WRONG_FORMAT',
+                    message: 'api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT',
+                },
+            }])
+        })
     })
 
     test('no attachments', async () => {
