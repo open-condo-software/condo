@@ -76,7 +76,7 @@ async function ensureNotExists (context, field, value) {
         throw new GQLError({
             phone: errors.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS,
             email: errors.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS,
-        }[field])
+        }[field], context)
     }
 }
 
