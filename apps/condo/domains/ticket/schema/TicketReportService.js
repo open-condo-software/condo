@@ -68,10 +68,6 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
                 const statuses = await getOrganizationStatuses(context, userOrganizationId)
                 const statusesMap = Object.fromEntries(statuses.map(({ type, name }) => ([type, name])))
 
-                if (!PERIOD_TYPES.includes(periodType)) {
-                    throw new Error(`[error] possible period types are: ${PERIOD_TYPES.join(', ')}`)
-                }
-
                 dayjs.extend(isoWeek)
                 dayjs.extend(quarterOfYear)
 
