@@ -45,7 +45,7 @@
     "@keystonejs/list-plugins": "^8.1.0",
     "@keystonejs/server-side-graphql-client": "^2.1.0",
     "@keystonejs/utils": "^6.1.0",
-    "@types/lodash": "^4.14.168",
+    "@types/lodash": "4.14.182",
     "@welldone-software/why-did-you-render": "^5.0.0-alpha.1",
     "@zeit/next-css": "^1.0.1",
     "@zeit/next-less": "^1.0.1",
