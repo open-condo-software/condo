@@ -216,7 +216,6 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                     defaultValue={get(filters, keyword)}
                     optionFilterProp={'title'}
                     raisedClearButton
-                    applyGreyStyleCss
                     {...props}
                 >
                     {options.map(option => (
@@ -238,7 +237,6 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
             return (
                 <GraphQlSearchInput
                     initialValue={initialData}
-                    applyGreyStyleCss
                     {...props}
                 />
             )
@@ -251,7 +249,6 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                     allowClear
                     style={TAGS_SELECT_STYLE}
                     dropdownStyle={TAGS_SELECT_DROPDOWN_STYLE}
-                    applyGreyStyleCss
                     {...props}
                 />
             )
