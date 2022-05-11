@@ -15,10 +15,22 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { v4: uuid } = require('uuid')
 const dayjs = require('dayjs')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/user/constants/errors')
 
 const SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
 const fileAdapter = new FileAdapter(SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME)
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+
+
+const errors = {
+    WRONG_EMAIL_FORMAT: {
+        mutation: 'sendMessageToSupport',
+        variable: ['data', 'emailFrom'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT',
+    },
+}
 
 const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportService', {
     types: [
@@ -47,7 +59,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                 const user = get(context, ['req', 'user'])
 
                 const normalizedEmailFrom = normalizeEmail(emailFrom)
-                if (emailFrom && !normalizedEmailFrom) throw new Error(`${EMAIL_WRONG_FORMAT_ERROR}] invalid format`)
+                if (emailFrom && !normalizedEmailFrom) throw new GQLError(errors.WRONG_EMAIL_FORMAT, context)
 
                 const attachmentsData = await Promise.all(attachments)
 

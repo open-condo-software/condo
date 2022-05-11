@@ -1076,6 +1076,7 @@
   "api.user.changePasswordWithToken.TOKEN_NOT_FOUND": "Не найден действительный токен на изменение пароля",
   "api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT": "Длина введённого пароля меньше {min} символов",
   "api.user.registerNewUser.PASSWORD_IS_TOO_SHORT": "Длина введённого пароля меньше {min} символов",
+  "api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT": "Неверный формат адреса электронной почты",
   "api.ticket.exportTicketsToExcel.NOTHING_TO_EXPORT": "Нет заявок для экспорта",
   "api.ticket.updateResidentTicket.TICKET_NOT_FOUND": "Не найдена заявка с id \"{ticketId}\" для текущего пользователя",
   "api.property.exportPropertiesToExcel.NOTHING_TO_EXPORT": "Нет домов для экспорта, которые связаны с данной организацией",
