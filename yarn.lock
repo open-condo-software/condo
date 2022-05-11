@@ -9224,10 +9224,10 @@ escodegen@^2.0.0:
   optionalDependencies:
     source-map "~0.6.1"
 
-esdk-obs-nodejs@3.21.3:
-  version "3.21.3"
-  resolved "https://registry.yarnpkg.com/esdk-obs-nodejs/-/esdk-obs-nodejs-3.21.3.tgz#b956a5195bc359c6164b5d5c4c07d253b56206a6"
-  integrity sha512-Gig4GjvDO+8ZGM2GVogGLJ+vzrYpNjBg6lIpWQzeW3UmqzO31SgR6LTEnJK+jihLtonP5duYwrX3Y/lZ5xf4yA==
+esdk-obs-nodejs@3.21.6:
+  version "3.21.6"
+  resolved "https://registry.yarnpkg.com/esdk-obs-nodejs/-/esdk-obs-nodejs-3.21.6.tgz#94a8b63f82a9b9153afb12956c0430d78183bf4f"
+  integrity sha512-2/YIPFREDaxy9QELPQilmuewMDOModqkM3D3W8IDmGJDe2UEyp20wMAcdu6lb9WyS55uQREI7M6BvcSun5VkSw==
   dependencies:
     log4js "^6.3.0"
     xml2js "^0.4.23"
