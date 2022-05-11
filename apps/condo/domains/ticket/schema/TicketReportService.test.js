@@ -9,6 +9,20 @@ const { makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
 describe('TicketReportService', () => {
+    describe('Validations', () => {
+        it('validates periodType field', async () => {
+            const client = await makeClientWithProperty()
+            const { errors } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, {
+                data: { userOrganizationId: client.organization.id, periodType: 'notExistingType' },
+            })
+            expect(errors).toHaveLength(1)
+            expect(errors).toMatchObject([{
+                name: 'UserInputError',
+                message: 'Variable "$data" got invalid value "notExistingType" at "data.periodType"; Value "notExistingType" does not exist in "TicketReportPeriodType" enum.',
+            }])
+        })
+    })
+
     describe('User', () => {
         it('can get ticket report without role in organization', async () => {
             const client = await makeClientWithProperty()
