@@ -17113,16 +17113,16 @@ react-lifecycles-compat@^3.0.0, react-lifecycles-compat@^3.0.2, react-lifecycles
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
-react-markdown@6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/react-markdown/-/react-markdown-6.0.0.tgz#e63cd32d095e864384d524986c44c34c919de517"
-  integrity sha512-MC+zljUJeoLb4RbDm/wRbfoQFEZGz4TDOt/wb4dEehdaJWxLMn/T2IgwhQy0VYhuPEd2fhd7iOayE8lmENU0FA==
+react-markdown@6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/react-markdown/-/react-markdown-6.0.3.tgz#625ec767fa321d91801129387e7d31ee0cb99254"
+  integrity sha512-kQbpWiMoBHnj9myLlmZG9T1JdoT/OEyHK7hqM6CqFT14MAkgWiWBUYijLyBmxbntaN6dCDicPcUhWhci1QYodg==
   dependencies:
     "@types/hast" "^2.0.0"
     "@types/unist" "^2.0.3"
     comma-separated-tokens "^1.0.0"
     prop-types "^15.7.2"
-    property-information "^5.0.0"
+    property-information "^5.3.0"
     react-is "^17.0.0"
     remark-parse "^9.0.0"
     remark-rehype "^8.0.0"
@@ -17130,6 +17130,7 @@ react-markdown@6.0.0:
     style-to-object "^0.3.0"
     unified "^9.0.0"
     unist-util-visit "^2.0.0"
+    vfile "^4.0.0"
 
 react-markdown@^4.3.1:
   version "4.3.1"
