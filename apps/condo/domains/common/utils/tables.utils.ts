@@ -129,6 +129,11 @@ export const getFilter: (
                     .filter((el) => dayjs(el).isValid())
                     .map((el) => dayjs(el).toISOString())
                 break
+            case 'string':
+                args = search
+                    .filter(Boolean)
+                    .map(el => el.trim())
+                break
             case 'boolean':
                 args = search
                     .map((el) => el.toLowerCase())
