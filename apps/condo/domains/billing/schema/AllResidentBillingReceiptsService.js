@@ -52,7 +52,7 @@ const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
 }
 
 
-const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResidentBillingReceiptsService', {
+const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillingReceiptsService', {
     types: [
         {
             access: true,
@@ -198,5 +198,5 @@ const GetAllResidentBillingReceiptsService = new GQLCustomSchema('GetAllResident
 })
 
 module.exports = {
-    GetAllResidentBillingReceiptsService,
+    AllResidentBillingReceiptsService,
 }
