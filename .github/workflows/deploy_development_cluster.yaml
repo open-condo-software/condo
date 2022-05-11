@@ -4,9 +4,6 @@ on:
   workflow_dispatch:
     branches:
       - '*'
-  push:
-    branches:
-      - 'master'
 
 jobs:
   converge:
