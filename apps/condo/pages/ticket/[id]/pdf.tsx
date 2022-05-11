@@ -19,7 +19,7 @@ import { PageContent } from '@condo/domains/common/components/containers/BaseLay
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { compact } from 'lodash'
-import {OrganizationEmployee} from "../../../domains/organization/utils/clientSchema";
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 interface ITicketDescriptionFieldProps {
     title?: string
