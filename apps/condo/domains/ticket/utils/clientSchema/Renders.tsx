@@ -107,7 +107,7 @@ export const getClassifierRender = (intl, search: FilterValue) => {
         const placeClassifier = get(record, ['placeClassifier', 'name'])
         const postfix = `\n(${placeClassifier})`
 
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
+        return getTableCellRenderer(search, false, postfix, null, POSTFIX_PROPS)(text)
     }
 }
 
