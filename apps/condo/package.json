@@ -73,7 +73,7 @@
     "get-contrast": "^2.0.0",
     "graphql-voyager": "^1.0.0-rc.31",
     "html2canvas": "^1.0.0-rc.7",
-    "immer": "^9.0.6",
+    "immer": "9.0.12",
     "jspdf": "^2.3.1",
     "jwt-decode": "3.1.2",
     "less": "^3.12.2",
