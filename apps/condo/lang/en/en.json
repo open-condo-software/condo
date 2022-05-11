@@ -1072,6 +1072,7 @@
   "pages.paymentConfirm.PageTitle": "Payment",
   "pay": "Pay",
   "pages.paymentConfirm.VerifyPaymentAmount": "Verify payment amount",
+  "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "No payments to export",
   "api.user.changePasswordWithToken.TOKEN_NOT_FOUND": "Unable to find non-expired ConfirmPhoneAction by specified token",
   "api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} characters",
   "api.user.registerNewUser.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} characters",

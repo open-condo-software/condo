@@ -9,7 +9,6 @@ const { makePayer, createTestPayment } = require('@condo/domains/acquiring/utils
 const { EXPORT_PAYMENTS_TO_EXCEL } = require('@condo/domains/acquiring/gql')
 const faker = require('faker')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const { EMPTY_DATA_EXPORT_ERROR } = require('@condo/domains/common/constants/errors')
 
 function prepareVariables (organization) {
     return {
@@ -66,7 +65,16 @@ describe('ExportPaymentsService', () => {
 
             expect(result).toBeNull()
             expect(errors).toHaveLength(1)
-            expect(errors[0].message).toMatch(EMPTY_DATA_EXPORT_ERROR)
+            expect(errors).toMatchObject([{
+                message: 'No payments found to export',
+                path: ['result'],
+                extensions: {
+                    query: 'exportPaymentsToExcel',
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOTHING_TO_EXPORT',
+                    message: 'No payments found to export',
+                },
+            }])
         })
     })
 

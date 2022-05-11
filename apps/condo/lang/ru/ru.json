@@ -1072,6 +1072,7 @@
   "pages.paymentConfirm.PageTitle": "Оплата",
   "pay": "Оплатить",
   "pages.paymentConfirm.VerifyPaymentAmount": "Проверьте сумму платежа",
+  "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "Не найдены платежи для экспорта",
   "api.user.changePasswordWithToken.TOKEN_NOT_FOUND": "Не найден действительный токен на изменение пароля",
   "api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT": "Длина введённого пароля меньше {min} символов",
   "api.user.registerNewUser.PASSWORD_IS_TOO_SHORT": "Длина введённого пароля меньше {min} символов",
