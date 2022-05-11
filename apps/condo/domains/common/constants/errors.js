@@ -22,7 +22,6 @@ const NOT_FOUND = 'NOT_FOUND'
 
 const WRONG_TEXT_FORMAT = '[text:wrongFormat:'
 
-const EMPTY_DATA_EXPORT_ERROR = '[export.empty.data'
 const NOTHING_TO_EXPORT = 'NOTHING_TO_EXPORT'
 
 const NETWORK_ERROR = 'failed to fetch'
@@ -54,7 +53,6 @@ module.exports = {
     NOT_FOUND,
     STATUS_UPDATED_AT_ERROR,
     WRONG_TEXT_FORMAT,
-    EMPTY_DATA_EXPORT_ERROR,
     NETWORK_ERROR,
     NOT_UNIQUE,
     NOTHING_TO_EXPORT,
