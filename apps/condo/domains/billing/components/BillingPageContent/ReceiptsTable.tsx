@@ -127,6 +127,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                         placeholder={SearchPlaceholder}
                         onChange={(e) => {handleSearchChange(e.target.value)}}
                         value={search}
+                        allowClear
                     />
                 </Col>
                 {options.length > 0 && (

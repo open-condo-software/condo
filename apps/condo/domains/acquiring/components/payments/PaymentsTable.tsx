@@ -144,6 +144,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                             onChange={(e) => {
                                                 handleSearchChange(e.target.value)
                                             }}
+                                            allowClear
                                         />
                                     </Col>
                                     <Col xs={24} sm={DATE_PICKER_COL_LAYOUT} lg={DATE_PICKER_COL_LAYOUT}>
