@@ -67,32 +67,29 @@ const keystone = new Keystone({
 // Because Babel is used only for frontend to transpile and optimise code,
 // backend files will bring unnecessary workload to building stage.
 // They can be safely ignored without impact on final executable code
-if (IS_BUILD_PHASE) {
-    // `User` list is used by `createAuthStrategy`, that creates `AuthStrategy`, required to build /admin/ static files
-    registerSchemas(keystone, [
-        require('@core/keystone/schemas/User'),
-    ])
-} else {
+
+// We need to register all schemas as they will appear in admin ui
+registerSchemas(keystone, [
+    require('@condo/domains/user/schema'),
+    require('@condo/domains/organization/schema'),
+    require('@condo/domains/property/schema'),
+    require('@condo/domains/billing/schema'),
+    require('@condo/domains/ticket/schema'),
+    require('@condo/domains/notification/schema'),
+    require('@condo/domains/contact/schema'),
+    require('@condo/domains/resident/schema'),
+    require('@condo/domains/onboarding/schema'),
+    require('@condo/domains/division/schema'),
+    require('@condo/domains/meter/schema'),
+    require('@condo/domains/subscription/schema'),
+    require('@condo/domains/acquiring/schema'),
+    require('@condo/domains/miniapp/schema'),
+], [schemaDocPreprocessor])
+
+if (!IS_BUILD_PHASE) {
     // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time
     const { registerTriggers } = require('@core/triggers')
     const { registerTasks } = require('@core/keystone/tasks')
-
-    registerSchemas(keystone, [
-        require('@condo/domains/user/schema'),
-        require('@condo/domains/organization/schema'),
-        require('@condo/domains/property/schema'),
-        require('@condo/domains/billing/schema'),
-        require('@condo/domains/ticket/schema'),
-        require('@condo/domains/notification/schema'),
-        require('@condo/domains/contact/schema'),
-        require('@condo/domains/resident/schema'),
-        require('@condo/domains/onboarding/schema'),
-        require('@condo/domains/division/schema'),
-        require('@condo/domains/meter/schema'),
-        require('@condo/domains/subscription/schema'),
-        require('@condo/domains/acquiring/schema'),
-        require('@condo/domains/miniapp/schema'),
-    ], [schemaDocPreprocessor])
 
     registerTasks([
         require('@condo/domains/notification/tasks'),
