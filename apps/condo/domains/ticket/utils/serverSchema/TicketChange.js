@@ -196,6 +196,9 @@ const relatedManyToManyResolvers = {
     'watchers': async (args) => {
         return resolveManyToManyField('watchers', 'User', 'name', args)
     },
+    'files': async (args) => {
+        return resolveManyToManyField('files', 'TicketFile', 'file', args)
+    },
 }
 
 module.exports = {

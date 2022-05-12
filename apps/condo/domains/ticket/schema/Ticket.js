@@ -243,6 +243,12 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
+        files: {
+            schemaDoc: 'Attachment change record',
+            type: Relationship,
+            ref: 'TicketFile',
+            many: true,
+        },
         meta: {
             schemaDoc: 'Extra analytics not related to remote system',
             type: Json,
