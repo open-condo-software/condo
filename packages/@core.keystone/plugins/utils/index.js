@@ -5,16 +5,16 @@ const { get } = require('lodash')
  * Takes combine 2 hooks together
  * @param originalHook original hook which will be applied first
  * @param newHook hook which will be applied second
- * @param isResolvers determines if hook is resolver. If true, used return of originalHook as "resolvedData" for newHook. Otherwise, both take original resolvedData
+ * @param chainResolvedData determines if hook newHook shouldAccept original resolvedData or modified result of originalHook.
  * @returns {function(*): Promise<*>}
  */
-const composeHook = (originalHook, newHook, isResolvers = true) => async params => {
+const composeHook = (originalHook, newHook, chainResolvedData = true) => async params => {
     let { resolvedData } = params
     if (originalHook) {
         resolvedData = await originalHook(params)
     }
 
-    return isResolvers ? newHook({ ...params, resolvedData }) : newHook(params)
+    return chainResolvedData ? newHook({ ...params, resolvedData }) : newHook(params)
 }
 
 function isValidDate (date) {
