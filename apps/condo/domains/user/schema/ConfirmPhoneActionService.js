@@ -7,7 +7,7 @@ const {
     generateSmsCode,
 } = require('@condo/domains/user/utils/serverSchema')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
@@ -48,10 +48,10 @@ const errors = {
         mutation: 'startConfirmPhoneAction',
         variable: ['data', 'phone'],
         code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
+        type: WRONG_PHONE_FORMAT,
         message: 'Wrong format of provided phone number',
         correctExample: '+79991234567',
-        messageForUser: 'api.user.startConfirmPhoneAction.WRONG_PHONE_FORMAT',
+        messageForUser: 'api.common.WRONG_PHONE_FORMAT',
     },
     SMS_CODE_EXPIRED: {
         mutation: 'completeConfirmPhoneAction',

@@ -4,7 +4,7 @@ const { User: UserServerUtils } = require('@condo/domains/user/utils/serverSchem
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@core/keystone/errors')
-const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { USER_NOT_FOUND } = require('../constants/errors')
 
 /**
@@ -15,11 +15,11 @@ const errors = {
     WRONG_PHONE_FORMAT: {
         mutation: 'authenticateUserWithPhoneAndPassword',
         code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
+        type: WRONG_PHONE_FORMAT,
         variable: ['data', 'phone'],
         message: 'Wrong format of provided phone number',
         correctExample: '+79991234567',
-        messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_PHONE_FORMAT',
+        messageForUser: 'api.common.WRONG_PHONE_FORMAT',
     },
     USER_NOT_FOUND: {
         mutation: 'authenticateUserWithPhoneAndPassword',

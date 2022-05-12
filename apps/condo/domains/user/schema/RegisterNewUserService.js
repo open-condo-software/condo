@@ -9,7 +9,7 @@ const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { GQLError, GQLErrorCode: { NOT_FOUND, BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
-const { NOT_UNIQUE, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { NOT_UNIQUE, WRONG_FORMAT, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('../constants/errors')
 
 /**
@@ -29,9 +29,9 @@ const errors = {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
         code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
+        type: WRONG_PHONE_FORMAT,
         message: 'Wrong format of provided phone number',
-        messageForUser: 'api.user.registerNewUser.WRONG_PHONE_FORMAT',
+        messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         correctExample: '+79991234567',
     },
     PASSWORD_IS_TOO_SHORT: {

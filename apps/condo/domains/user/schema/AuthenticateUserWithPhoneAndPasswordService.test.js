@@ -58,7 +58,7 @@ describe('Auth by phone and password', () => {
             extensions: {
                 mutation: 'authenticateUserWithPhoneAndPassword',
                 code: 'BAD_USER_INPUT',
-                type: 'WRONG_FORMAT',
+                type: 'WRONG_PHONE_FORMAT',
                 variable: ['data', 'phone'],
             },
         }])
