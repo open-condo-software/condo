@@ -1085,7 +1085,7 @@
   "api.user.authenticateUserWithPhoneAndPassword.WRONG_PHONE_FORMAT": "Неверный формат номера телефона",
   "api.user.authenticateUserWithPhoneAndPassword.WRONG_PASSWORD": "Неверный пароль",
   "api.user.authenticateUserWithPhoneAndPassword.USER_NOT_FOUND": "Пользователь не найден по указанному телефону",
-  "api.user.changePhoneNumberResidentUser.NOT_FOUND": "Токен для смены телефона недействителен или просрочен, попробуйте повторить процедуру смены телефона заново.",
+  "api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION": "Токен для смены телефона недействителен или просрочен, попробуйте повторить процедуру смены телефона заново.",
   "api.user.checkPasswordRecoveryToken.TOKEN_NOT_FOUND": "Токен на смену пароля не найден либо просрочен. Попробуйте пройти процедуру смены пароля заново.",
   "api.user.startPasswordRecovery.USER_NOT_FOUND": "Не найден пользователь, для которого требуется восстановить доступ",
   "api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND": "Что-то пошло не так. Обратитесь в техническую поддержку",
