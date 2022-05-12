@@ -833,6 +833,8 @@
   "notification.messages.TICKET_COMMENT_ADDED.push.title": "Новости по заявке №{data.ticketNumber}! \uD83E\uDD96",
   "notification.messages.BILLING_RECEIPT_AVAILABLE_MANUAL.email.subject": "Вам квитанция!",
   "notification.messages.BILLING_RECEIPT_AVAILABLE_MANUAL.push.title": "Вам квитанция!",
+  "notification.messages.BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL.email.subject": "Вам квитанция!",
+  "notification.messages.BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL.push.title": "Вам квитанция!",
   "TicketDeadline": "Срок выполнения заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",

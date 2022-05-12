@@ -1,7 +1,6 @@
 const path = require('path')
 const dayjs = require('dayjs')
 const isEmpty = require('lodash/isEmpty')
-const isUndefined = require('lodash/isUndefined')
 
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const conf = require('@core/config')
@@ -20,15 +19,19 @@ const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/c
 
 const BASE_NAME = path.posix.basename(process.argv[1])
 
+/**
+ This script sends push notifications to all users who are:
+    * residents of the properties mentioned in billing receipts for provided period
+ )
+ */
 class ReceiptsNotificationSender {
-
     context = null
 
-    constructor ({ billingContextId, period, forseSend }) {
+    constructor ({ billingContextId, period, forceSend }) {
         this.billingContextId = billingContextId
         this.period = period
         this.billingContext = null
-        this.forseSend = forseSend
+        this.forceSend = forceSend
     }
 
     async connect () {
@@ -85,7 +88,7 @@ class ReceiptsNotificationSender {
                     }
 
                     count++
-                    if (this.forseSend) {
+                    if (this.forceSend) {
                         const organization = await Organization.getOne(this.context, { id: resident.organization.id, deletedAt: null })
 
                         /**
@@ -109,18 +112,18 @@ class ReceiptsNotificationSender {
             }
         }
 
-        console.info(`[INFO] ${count} notifications ${!this.forseSend ? 'to be' : ''} sent.`)
+        console.info(`[INFO] ${count} notifications ${!this.forceSend ? 'to be' : ''} sent.`)
     }
 }
 
-async function main ([billingContextId, periodRaw, forseSend]) {
+async function main ([billingContextId, periodRaw, forceSend]) {
     if (!billingContextId || !periodRaw)
         throw new Error(`No billingContextId and period were provided – please use like this: yarn workspace @app/condo node ./bin/${BASE_NAME} <contextId> <period> [FORCE_SEND]`)
     if (!dayjs(periodRaw).isValid())
         throw new Error('Incorrect period format was provided. Available: YYYY-MM-01')
 
     const period = dayjs(periodRaw).date(1).format('YYYY-MM-DD')
-    const ReceiptsManager = new ReceiptsNotificationSender({ billingContextId, period, forseSend: forseSend === 'FORCE_SEND' })
+    const ReceiptsManager = new ReceiptsNotificationSender({ billingContextId, period, forceSend: forceSend === 'FORCE_SEND' })
 
     console.time('keystone')
     await ReceiptsManager.connect()
