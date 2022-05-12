@@ -77,9 +77,9 @@ export const DivisionPageContent = ({ division, loading, columns, role }: Divisi
             </Typography.Title>
             <Row gutter={[0, 20]}>
                 <PageFieldRow labelSpan={5} title={ResponsibleLabelMessage} highlight>
-                    <Link href={`/employee/${responsible.id}`}>
+                    <Link href={`/employee/${get(responsible, 'id')}`}>
                         <Typography.Link style={{ color: green[6], display: 'block' }}>
-                            {responsible.name}
+                            {get(responsible, 'name')}
                         </Typography.Link>
                     </Link>
                 </PageFieldRow>
