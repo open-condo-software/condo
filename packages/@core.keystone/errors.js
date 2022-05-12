@@ -104,6 +104,7 @@ const GQLErrorCode = {
  * @property {String} [query] - name of query where the error has been occured
  * @property {Array.<String>} [variable] - path to mutation or query argument, that is a subject of an error
  * @property {GQLErrorCode} code - standardized error code
+ * @property {String} type - domain-specific error type
  * @property {String} message - message for developer
  * @property {String} [messageForUser] - i18n key for localized version of message, that intended to be displayed for user. Value of this property will be replace with translated one
  * @property {Object.<string, string|number>} messageInterpolation - object with values for placeholder variables `{var}`, presented in translated versions of message
