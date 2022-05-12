@@ -7,6 +7,8 @@ const conf = require('@core/config')
 const { SberCloudFileAdapter, OBSFilesMiddleware } = require('./sberCloudFileAdapter')
 const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')
 
+const { existsSync, mkdirSync } = require('fs')
+
 class NoFileAdapter {
 
     get error () {
@@ -100,6 +102,9 @@ class FileAdapter {
     static makeFileAdapterMiddleware () {
         const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
         if (type === 'local') {
+            if (!existsSync(conf.MEDIA_ROOT)) {
+                mkdirSync(conf.MEDIA_ROOT)
+            }
             return new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT })
         } else if (type === 'sbercloud') {
             return new OBSFilesMiddleware()
