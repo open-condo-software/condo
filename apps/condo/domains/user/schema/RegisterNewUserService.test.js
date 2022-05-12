@@ -61,7 +61,7 @@ describe('RegisterNewUserService', () => {
                 mutation: 'registerNewUser',
                 variable: ['data', 'phone'],
                 code: 'BAD_USER_INPUT',
-                type: 'WRONG_FORMAT',
+                type: 'WRONG_PHONE_FORMAT',
                 correctExample: '+79991234567',
             },
         }])

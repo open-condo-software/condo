@@ -3,7 +3,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { WRONG_FORMAT, NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { createOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
@@ -27,8 +27,9 @@ const errors = {
         WRONG_PHONE_FORMAT: {
             mutation: 'inviteNewOrganizationEmployee',
             code: BAD_USER_INPUT,
-            type: WRONG_FORMAT,
+            type: WRONG_PHONE_FORMAT,
             message: 'Wrong phone format',
+            messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         },
         UNABLE_TO_REGISTER_USER: {
             mutation: 'inviteNewOrganizationEmployee',
@@ -43,6 +44,7 @@ const errors = {
             code: BAD_USER_INPUT,
             type: WRONG_FORMAT,
             message: 'Wrong phone format',
+            messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         },
         ORGANIZATION_NOT_FOUND: {
             mutation: 'reInviteOrganizationEmployee',
