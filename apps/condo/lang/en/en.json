@@ -834,6 +834,8 @@
   "notification.messages.TICKET_COMMENT_ADDED.push.title": "We have news on ticket #{data.ticketNumber}! \uD83E\uDD96",
   "notification.messages.BILLING_RECEIPT_AVAILABLE_MANUAL.email.subject": "Check out your utility bill",
   "notification.messages.BILLING_RECEIPT_AVAILABLE_MANUAL.push.title": "Check out your utility bill",
+  "notification.messages.BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL.email.subject": "Check out your utility bill",
+  "notification.messages.BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL.push.title": "Check out your utility bill",
   "TicketDeadline": "Ticket deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
   "ticket.EmptyList.title": "Create the first one, it's simple",
