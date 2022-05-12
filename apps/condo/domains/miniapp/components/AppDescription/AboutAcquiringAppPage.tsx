@@ -10,7 +10,7 @@ import Error from 'next/error'
 import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
-import { NoConnectedBillings } from '@condo/domains/acquiring/components/Alerts/NoConnectedBillings'
+import { NoConnectedBillings } from '@condo/domains/miniapp/components/AppDescription/Alerts/NoConnectedBillings'
 import { useRouter } from 'next/router'
 
 interface AboutAcquiringAppPageProps {

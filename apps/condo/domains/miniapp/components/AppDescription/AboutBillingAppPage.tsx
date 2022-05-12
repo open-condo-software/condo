@@ -9,7 +9,7 @@ import Error from 'next/error'
 import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
-import { ConnectedBilling } from '@condo/domains/billing/components/Alerts/ConnectedBilling'
+import { AlreadyConnectedBilling } from '@condo/domains/miniapp/components/AppDescription/Alerts/AlreadyConnectedBilling'
 import { useRouter } from 'next/router'
 
 interface AboutBillingAppPageProps {
@@ -98,7 +98,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
                     >
                         {
                             isAnyBillingConnected && (
-                                <ConnectedBilling/>
+                                <AlreadyConnectedBilling/>
                             )
                         }
                     </AppDescriptionPageContent>
