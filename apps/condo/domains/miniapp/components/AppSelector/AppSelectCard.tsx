@@ -5,8 +5,6 @@ import styled from '@emotion/styled'
 import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
 import { useIntl } from '@core/next/intl'
-import { useAmplitude } from 'react-amplitude-hooks'
-import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 import { TagContainer } from '../TagContainer'
 
 interface AppSelectCardProps {
@@ -68,7 +66,6 @@ export const AppSelectCard: React.FC<AppSelectCardProps> = ({ logoSrc, tag, disa
     const MoreMessage = intl.formatMessage({ id: 'miniapps.More' })
 
     const router = useRouter()
-    const { instrument } = useAmplitude()
 
     const clickHandler = () => {
         if (disabled) return
@@ -80,7 +77,7 @@ export const AppSelectCard: React.FC<AppSelectCardProps> = ({ logoSrc, tag, disa
             <Card
                 title={<Image src={logoSrc || FALLBACK_IMAGE} style={IMAGE_STYLES} preview={false} fallback={FALLBACK_IMAGE}/>}
                 bordered={false}
-                onClick={instrument(AmplitudeEventType.clickLink, clickHandler)}
+                onClick={clickHandler}
             >
                 <Row gutter={[0, 12]}>
                     <Col span={24}>

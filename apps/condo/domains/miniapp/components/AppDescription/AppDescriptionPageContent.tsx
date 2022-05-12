@@ -58,7 +58,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                 const value = get(target, 'attributes.href.value', '')
                 const title = get(target, 'textContent', '')
 
-                logEvent(AmplitudeEventType.clickLink, {
+                logEvent<AmplitudeEventType>(AmplitudeEventType.OpenDescriptionLink, {
                     user: eventProperties.user,
                     page: eventProperties.page,
                     link: { title, value },

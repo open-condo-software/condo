@@ -4,7 +4,8 @@ import { useIntl } from '@core/next/intl'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import Carousel from '@condo/domains/common/components/Carousel'
 import AmplitudeAuthorizedUser from '@condo/domains/common/components/containers/amplitude/AmplitudeAuthorizedUser'
-import { TrackPageLoadEvent, AmplitudePageState } from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
+import { TrackPageLoadEvent } from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
+import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 import { Section } from './Section'
 import { CardsContainer, CardsPerRowType } from './CardsContainer'
 import { AppCarouselCard } from './AppCarouselCard'
@@ -182,7 +183,7 @@ export const AppSelectPageContent: React.FC = () => {
                                             isAnyBillingAvailable && (
                                                 <Tabs.TabPane tab={BillingCategoryMessage} key={'billing'}>
                                                     <AmplitudeAuthorizedUser>
-                                                        <TrackPageLoadEvent pageState={AmplitudePageState.Success}>
+                                                        <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingAppListPage}>
                                                             <CardsContainer cardsPerRow={appsPerRow}>
                                                                 {
                                                                     unconnectedBillingsApps.map(app => {

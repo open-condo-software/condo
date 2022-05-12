@@ -12,7 +12,8 @@ import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { AlreadyConnectedBilling } from '@condo/domains/miniapp/components/AppDescription/Alerts/AlreadyConnectedBilling'
 import { useRouter } from 'next/router'
 import AmplitudeAuthorizedUser from '@condo/domains/common/components/containers/amplitude/AmplitudeAuthorizedUser'
-import { TrackPageLoadEvent, AmplitudePageState } from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
+import { TrackPageLoadEvent } from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
+import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 
 interface AboutBillingAppPageProps {
     id: string,
@@ -85,7 +86,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
             <PageWrapper>
                 <PageContent>
                     <AmplitudeAuthorizedUser>
-                        <TrackPageLoadEvent pageState={AmplitudePageState.Success}>
+                        <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingAboutPage}>
                             <AppDescriptionPageContent
                                 title={integration.name}
                                 description={integration.shortDescription}

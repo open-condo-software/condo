@@ -8,9 +8,13 @@ import {
     CONTEXT_ERROR_STATUS,
 } from '@condo/domains/miniapp/constants'
 import { ApolloError } from '@apollo/client'
-import { AmplitudePageState, TrackPageLoadEvent } from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
+import {
+    AmplitudePageState,
+    TrackPageLoadEvent,
+} from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
 import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'
+import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 
 const BILLING_SETTINGS_ROUTE = '/miniapps?tab=billing'
 
@@ -43,7 +47,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (!access) {
         return (
-            <TrackPageLoadEvent pageState={AmplitudePageState.AccessError}>
+            <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingPage} pageState={AmplitudePageState.AccessError}>
                 <BasicEmptyListView>
                     <Typography.Title level={3}>
                         {NoPermissionsMessage}
@@ -61,7 +65,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (contextError) {
         return (
-            <TrackPageLoadEvent pageState={AmplitudePageState.Error}>
+            <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingPage} pageState={AmplitudePageState.Error}>
                 <BasicEmptyListView>
                     <Typography.Title level={3}>
                         {contextError}
@@ -73,7 +77,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (!context) {
         return (
-            <TrackPageLoadEvent pageState={AmplitudePageState.Empty}>
+            <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingPage} pageState={AmplitudePageState.Empty}>
                 <EmptyListView
                     label={NoBillingTitle}
                     message={NoBillingMessage}
@@ -86,7 +90,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
         return (
-            <TrackPageLoadEvent pageState={AmplitudePageState.InProgress}>
+            <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingPage} pageState={AmplitudePageState.InProgress}>
                 <BasicEmptyListView image={'/dino/waiting.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
                     <Typography.Title level={3}>
                         {ConnectionInProgressMessage}
@@ -101,7 +105,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (context.status === CONTEXT_ERROR_STATUS) {
         return (
-            <TrackPageLoadEvent pageState={AmplitudePageState.Error}>
+            <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingPage} pageState={AmplitudePageState.Error}>
                 <BasicEmptyListView image={'/dino/fail.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
                     <Typography.Title level={3}>
                         {ErrorOccurredMessage}
@@ -115,7 +119,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     }
 
     return (
-        <TrackPageLoadEvent pageState={AmplitudePageState.Success}>
+        <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingPage}>
             <MainContent context={context}/>
         </TrackPageLoadEvent>
     )

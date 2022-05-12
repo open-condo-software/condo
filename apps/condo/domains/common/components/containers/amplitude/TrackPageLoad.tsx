@@ -12,23 +12,30 @@ export enum AmplitudePageState {
 }
 
 interface IAmplitudeLogOnMountEvent {
-    pageState: AmplitudePageState
+    eventType: AmplitudeEventType
+    pageState?: AmplitudePageState
+    extraEventProperties?: Record<string, number | string>
 }
 
-const TrackPageLoadEvent: React.FC<IAmplitudeLogOnMountEvent> = ({ children, pageState }) => (
-    <>
-        <LogOnMount
-            eventType={AmplitudeEventType.pageLoad}
-            eventProperties={(baseEventProperties: AuthorizedUserEventProperties) => ({
-                ...baseEventProperties,
-                page: {
-                    ...baseEventProperties.page,
-                    state: pageState,
-                },
-            })}
-        />
-        {children}
-    </>
-)
+const TrackPageLoadEvent: React.FC<IAmplitudeLogOnMountEvent> = (props) => {
+    const { children, eventType, pageState = AmplitudePageState.Success, extraEventProperties = {} } = props
+
+    return (
+        <>
+            <LogOnMount
+                eventType={eventType}
+                eventProperties={(baseEventProperties: AuthorizedUserEventProperties) => ({
+                    ...baseEventProperties,
+                    page: {
+                        ...baseEventProperties.page,
+                        state: pageState,
+                    },
+                    ...extraEventProperties,
+                })}
+            />
+            {children}
+        </>
+    )
+}
 
 export { TrackPageLoadEvent }

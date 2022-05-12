@@ -17,9 +17,10 @@ export type BaseEventProperties = {
 }
 
 export enum AmplitudeEventType {
-    pageLoad = 'PageLoad',
-    clickLink = 'ClickLink',
-    clickButton = 'ClickButton',
+    VisitBillingAppListPage = 'VisitBillingAppListPage',
+    VisitBillingPage = 'VisitBillingPage',
+    VisitBillingAboutPage = 'VisitBillingAboutPage',
+    OpenDescriptionLink = 'OpenDescriptionLink',
 }
 
 const AmplitudeProvider: React.FC = ({ children }) => {
