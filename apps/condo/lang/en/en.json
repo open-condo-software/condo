@@ -1088,7 +1088,7 @@
   "api.user.authenticateUserWithPhoneAndPassword.WRONG_PHONE_FORMAT": "Wrong phone format",
   "api.user.authenticateUserWithPhoneAndPassword.WRONG_PASSWORD": "Wrong password",
   "api.user.authenticateUserWithPhoneAndPassword.USER_NOT_FOUND": "User not found by specified phone number",
-  "api.user.changePhoneNumberResidentUser.NOT_FOUND": "Could not find token to change phone or it was expired. Try to start phone changing procedure from scratch.",
+  "api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION": "Could not find token to change phone or it was expired. Try to start phone changing procedure from scratch.",
   "api.user.checkPasswordRecoveryToken.TOKEN_NOT_FOUND": "Could not find token to recover password or it was expired. Try to start password recovery procedure from scratch.",
   "api.user.startPasswordRecovery.USER_NOT_FOUND": "Could not find user to recover access for",
   "api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND": "Something went wrong. Ask support for further assistance",

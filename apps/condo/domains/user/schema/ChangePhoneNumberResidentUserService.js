@@ -19,7 +19,7 @@ const errors = {
         mutation: 'changePhoneNumberResidentUser',
         message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
         variable: ['data', 'token'],
-        messageForUser: 'api.user.changePhoneNumberResidentUser.NOT_FOUND',
+        messageForUser: 'api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION',
     },
 }
 
