@@ -35830,8 +35830,6 @@ export enum SortTicketCommentFilesBy {
 }
 
 export enum SortTicketCommentHistoryRecordsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
   ContentAsc = 'content_ASC',
@@ -35846,6 +35844,8 @@ export enum SortTicketCommentHistoryRecordsBy {
   UpdatedAtDesc = 'updatedAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -35853,8 +35853,6 @@ export enum SortTicketCommentHistoryRecordsBy {
 }
 
 export enum SortTicketCommentsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
   TicketAsc = 'ticket_ASC',
@@ -35876,7 +35874,9 @@ export enum SortTicketCommentsBy {
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC'
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortTicketCommentsTimeHistoryRecordsBy {
@@ -39477,10 +39477,6 @@ export type TicketComment = {
    *  4. As an alias to the 'id' field on the TicketComment List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
   /**  Comment type (internal for an organization or with a resident)  */
   type?: Maybe<Scalars['String']>;
   /**  Related ticket of the comment  */
@@ -39499,11 +39495,13 @@ export type TicketComment = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
 };
 
 export type TicketCommentCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   type?: Maybe<Scalars['String']>;
   ticket?: Maybe<TicketRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
@@ -39515,6 +39513,8 @@ export type TicketCommentCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 /**  File attached to the ticket comment  */
@@ -39863,8 +39863,6 @@ export type TicketCommentHistoryRecord = {
    *  4. As an alias to the 'id' field on the TicketCommentHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   ticket?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
@@ -39877,14 +39875,14 @@ export type TicketCommentHistoryRecord = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<TicketCommentHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
 };
 
 export type TicketCommentHistoryRecordCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   ticket?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
@@ -39896,6 +39894,8 @@ export type TicketCommentHistoryRecordCreateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<TicketCommentHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -39908,8 +39908,6 @@ export enum TicketCommentHistoryRecordHistoryActionType {
 }
 
 export type TicketCommentHistoryRecordUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   ticket?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
@@ -39921,6 +39919,8 @@ export type TicketCommentHistoryRecordUpdateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<TicketCommentHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -39929,18 +39929,6 @@ export type TicketCommentHistoryRecordUpdateInput = {
 export type TicketCommentHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<TicketCommentHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<TicketCommentHistoryRecordWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   type?: Maybe<Scalars['String']>;
   type_not?: Maybe<Scalars['String']>;
   type_contains?: Maybe<Scalars['String']>;
@@ -40033,6 +40021,18 @@ export type TicketCommentHistoryRecordWhereInput = {
   newId_not?: Maybe<Scalars['JSON']>;
   newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -40072,8 +40072,6 @@ export type TicketCommentRelateToOneInput = {
 };
 
 export type TicketCommentUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   type?: Maybe<Scalars['String']>;
   ticket?: Maybe<TicketRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
@@ -40085,23 +40083,13 @@ export type TicketCommentUpdateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 export type TicketCommentWhereInput = {
   AND?: Maybe<Array<Maybe<TicketCommentWhereInput>>>;
   OR?: Maybe<Array<Maybe<TicketCommentWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   type?: Maybe<Scalars['String']>;
   type_not?: Maybe<Scalars['String']>;
   type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -40172,6 +40160,18 @@ export type TicketCommentWhereInput = {
   newId_not?: Maybe<Scalars['String']>;
   newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
 };
 
 export type TicketCommentWhereUniqueInput = {
