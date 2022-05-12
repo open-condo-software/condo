@@ -10,7 +10,6 @@ import { useApolloClient } from '@core/next/apollo'
 import { WhereType } from '../utils/tables.utils'
 import throttle from 'lodash/throttle'
 import { isNeedToLoadNewElements } from '../utils/select.utils'
-import { SelectStyled } from './SelectStyled'
 
 
 type GraphQlSearchInputOption = {
@@ -169,7 +168,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     }, [data, isLoading, throttledSearchMore, value])
 
     return (
-        <SelectStyled
+        <Select
             showSearch
             autoClearSearchValue={autoClearSearchValue || false}
             allowClear={true}
@@ -185,6 +184,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             {...restProps}
         >
             {options}
-        </SelectStyled>
+        </Select>
     )
 }
