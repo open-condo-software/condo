@@ -33,7 +33,7 @@ const AlertBody: React.FC = () => {
     )
 }
 
-export const ConnectedBilling: React.FC = () => {
+export const AlreadyConnectedBilling: React.FC = () => {
     const intl = useIntl()
     const AlertTitle = intl.formatMessage({ id: 'miniapps.billing.AlreadyConnected.title' })
 
