@@ -49,7 +49,6 @@ import {
 } from '../utils/filters.utils'
 import { colors } from '../constants/style'
 import { Tooltip } from '../components/Tooltip'
-import { SelectStyled } from '../components/SelectStyled'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -212,10 +211,9 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
             const options: OptionType[] = get(component, 'options')
 
             return (
-                <SelectStyled
+                <Select
                     defaultValue={get(filters, keyword)}
                     optionFilterProp={'title'}
-                    raisedClearButton
                     {...props}
                 >
                     {options.map(option => (
@@ -227,7 +225,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                             {option.label}
                         </Select.Option>
                     ))}
-                </SelectStyled>
+                </Select>
             )
         }
 
@@ -244,7 +242,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
 
         case ComponentType.TagsSelect: {
             return (
-                <SelectStyled
+                <Select
                     mode="tags"
                     allowClear
                     style={TAGS_SELECT_STYLE}
