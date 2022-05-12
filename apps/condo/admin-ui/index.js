@@ -1,3 +1,4 @@
+// @ts-ignore
 import { ItemId, AddNewItem } from '@keystonejs/app-admin-ui/components'
 import React, { useCallback } from 'react'
 import { useMutation, gql } from '@apollo/client'
