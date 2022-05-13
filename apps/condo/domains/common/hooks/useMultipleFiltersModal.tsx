@@ -235,6 +235,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
             return (
                 <GraphQlSearchInput
                     initialValue={initialData}
+                    allowClear={false}
                     {...props}
                 />
             )
