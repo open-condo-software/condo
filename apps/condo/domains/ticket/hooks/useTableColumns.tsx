@@ -45,7 +45,7 @@ const COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN = {
 }
 
 const COLUMNS_WIDTH_SMALLER_XXL_SCREEN = {
-    number: '6%',
+    number: '10%',
     createdAt: '7%',
     status: '9%',
     address: '10%',
@@ -53,8 +53,8 @@ const COLUMNS_WIDTH_SMALLER_XXL_SCREEN = {
     details: '10%',
     categoryClassifier: '12%',
     clientName: '8%',
-    executor: '12%',
-    assignee: '13%',
+    executor: '11%',
+    assignee: '10%',
 }
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets: ITicketUIState[]) {
