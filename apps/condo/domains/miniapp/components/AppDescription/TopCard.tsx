@@ -121,7 +121,7 @@ export const TopCard: React.FC<TopCardProps> = ({
     const intl = useIntl()
     const DeveloperMessage = intl.formatMessage({ id: 'Developer' })
     const PublishedMessage = intl.formatMessage({ id: 'Published' })
-    const PartnerSiteMessage = intl.formatMessage({ id: 'services.PartnerSite' })
+    const PartnerSiteMessage = intl.formatMessage({ id: 'miniapps.PartnerSite' })
 
     const { width } = useWindowSize()
     const isSmallLayout = Boolean(width && width < TITLE_VERTICAL_MARK)
@@ -148,11 +148,9 @@ export const TopCard: React.FC<TopCardProps> = ({
                     </Typography.Text>
                     {
                         partnerUrl && (
-                            <a href={partnerUrl} target='_blank' rel='noreferrer'>
-                                <Typography.Link>
-                                    {PartnerSiteMessage}
-                                </Typography.Link>
-                            </a>
+                            <Typography.Link target={'_blank'} href={partnerUrl}>
+                                {PartnerSiteMessage}
+                            </Typography.Link>
                         )
                     }
                 </Space>

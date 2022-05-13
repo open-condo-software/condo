@@ -20,7 +20,7 @@ interface IndexAcquiringAppPageProps {
 export const IndexAcquiringAppPage: React.FC<IndexAcquiringAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const AcquiringMessage = intl.formatMessage({ id: `services.category.${ACQUIRING_APP_TYPE}` })
+    const AcquiringMessage = intl.formatMessage({ id: `miniapps.category.${ACQUIRING_APP_TYPE}` })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
@@ -38,14 +38,12 @@ export const IndexAcquiringAppPage: React.FC<IndexAcquiringAppPageProps> = ({ id
         },
     })
 
-    // NOTE: Page visiting is valid if:
-    // Context exists or integration has appUrl
-    // If no context and no appUrl -> redirect to about page
+    // NOTE: Page visiting is valid only if context exist:
     useEffect(() => {
-        if (integration && !contextLoading && !contextError && !context && !integration.appUrl) {
+        if (!contextLoading && !contextError && !context) {
             router.push(`/miniapps/${id}/about?type=${ACQUIRING_APP_TYPE}`)
         }
-    }, [router, integration, context, id, contextLoading, integrationLoading, contextError])
+    }, [router, context, id, contextLoading, contextError])
 
     if (integrationLoading || contextLoading || integrationError || contextError) {
         return (

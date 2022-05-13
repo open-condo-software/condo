@@ -62,7 +62,7 @@ const PARAGRAPH_STYLE: CSSProperties = { margin: 0, height: 66 }
 
 export const AppSelectCard: React.FC<AppSelectCardProps> = ({ logoSrc, tag, disabled, url, title, description }) => {
     const intl = useIntl()
-    const MoreMessage = intl.formatMessage({ id: 'services.More' })
+    const MoreMessage = intl.formatMessage({ id: 'miniapps.More' })
 
     const router = useRouter()
 

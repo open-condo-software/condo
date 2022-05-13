@@ -10,7 +10,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 
 const AllMiniAppsPage = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'menu.Services' })
+    const PageTitle = intl.formatMessage({ id: 'menu.MiniApps' })
     const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
 
     const userOrganization = useOrganization()

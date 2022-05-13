@@ -1,11 +1,10 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { Col, Row, Typography } from 'antd'
 import { TopCard } from './TopCard'
 import { AboutCard, AboutBlockProps } from './AboutCard'
 import { useIntl } from '@core/next/intl'
 import { MarkDown } from '@condo/domains/common/components/MarkDown'
 import { Button } from '@condo/domains/common/components/Button'
-import { useRouter } from 'next/router'
 
 interface AppDescriptionPageContentProps {
     title: string,
@@ -19,6 +18,8 @@ interface AppDescriptionPageContentProps {
     instruction?: string,
     appUrl?: string,
     disabledConnect?: boolean,
+    connectAction: () => void
+    connectButtonMessage?: string,
 }
 
 export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps> = ({
@@ -34,18 +35,16 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
     appUrl,
     children,
     disabledConnect,
+    connectAction,
+    connectButtonMessage,
 }) => {
     const intl = useIntl()
-    const HowToSetupMessage = intl.formatMessage({ id: 'services.HowToSetup' })
-    const SetupMessage = intl.formatMessage({ id: 'services.SetupService' })
-    const DefaultInstructionMessage = intl.formatMessage({ id: 'services.instruction.default' })
-
-    const router = useRouter()
-    const { query: { id, type } } = router
-
-    const handleButtonClick = useCallback(() => {
-        router.push(`/miniapps/${id}?type=${type}`)
-    }, [router, id, type])
+    const HowToSetupMessage = intl.formatMessage({ id: 'miniapps.HowToSetup' })
+    const ConnectButtonDefaultMessage = intl.formatMessage({ id: 'miniapps.ConnectApp' })
+    const ConnectButtonLabel = connectButtonMessage || ConnectButtonDefaultMessage
+    const DefaultInstructionMessage = intl.formatMessage({ id: 'miniapps.instruction.default' }, {
+        buttonLabel: ConnectButtonLabel,
+    })
 
     return (
         <Row gutter={[0, 60]}>
@@ -98,10 +97,10 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                             <Col span={24}>
                                 <Button
                                     type={'sberDefaultGradient'}
-                                    onClick={handleButtonClick}
+                                    onClick={connectAction}
                                     disabled={disabledConnect}
                                 >
-                                    {SetupMessage}
+                                    {ConnectButtonLabel}
                                 </Button>
                             </Col>
                         )

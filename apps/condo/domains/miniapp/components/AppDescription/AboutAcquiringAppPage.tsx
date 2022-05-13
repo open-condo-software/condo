@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { AcquiringIntegration, AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import get from 'lodash/get'
@@ -10,7 +10,7 @@ import Error from 'next/error'
 import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
-import { NoConnectedBillings } from '@condo/domains/acquiring/components/Alerts/NoConnectedBillings'
+import { NoConnectedBillings } from '@condo/domains/miniapp/components/AppDescription/Alerts/NoConnectedBillings'
 import { useRouter } from 'next/router'
 
 interface AboutAcquiringAppPageProps {
@@ -20,7 +20,7 @@ interface AboutAcquiringAppPageProps {
 export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const AcquiringMessage = intl.formatMessage({ id: `services.category.${ACQUIRING_APP_TYPE}` })
+    const AcquiringMessage = intl.formatMessage({ id: `miniapps.category.${ACQUIRING_APP_TYPE}` })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
@@ -42,14 +42,27 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
         },
     })
 
+    const redirectUrl = `/miniapps/${id}?type=${ACQUIRING_APP_TYPE}`
+
+    const initialAction = AcquiringIntegrationContext.useCreate({
+        settings: { dv: 1 },
+        state: { dv: 1 },
+    }, () => {
+        router.push(redirectUrl)
+    })
+
+    const createContextAction = useCallback(() => {
+        initialAction({ organization: organizationId, integration: id } )
+    }, [initialAction, id, organizationId])
+
     // NOTE: Page visiting is valid if:
     // Acquiring context not exist
     // If context exist -> redirect to app index page
     useEffect(() => {
         if (integration && !contextLoading && !contextError && context) {
-            router.push(`/miniapps/${id}?type=${ACQUIRING_APP_TYPE}`)
+            router.push(redirectUrl)
         }
-    }, [router, integration, contextLoading, contextError, context, id])
+    }, [router, integration, contextLoading, contextError, context, id, redirectUrl])
 
     if (integrationLoading || billingsLoading || integrationError || billingsError) {
         return (
@@ -90,6 +103,7 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
                         instruction={integration.instruction}
                         appUrl={integration.appUrl}
                         disabledConnect={!isAnyBillingConnected}
+                        connectAction={createContextAction}
                     >
                         {
                             !isAnyBillingConnected && (

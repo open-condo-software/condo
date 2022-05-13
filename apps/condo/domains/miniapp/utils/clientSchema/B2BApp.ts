@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { B2BApp as B2BAppGQL } from '@condo/domains/miniapp/gql'
 import { B2BApp, B2BAppUpdateInput, QueryAllB2BAppsArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'logo', 'shortDescription', 'about', 'developer', 'partnerUrl', 'instruction', 'connectedMessage', 'appUrl', 'category']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'logo', 'shortDescription', 'about', 'developer', 'partnerUrl', 'instruction', 'connectedMessage', 'appUrl', 'category', 'setupButtonMessage']
 const RELATIONS = []
 
 export interface IB2BAppUIState extends B2BApp {

@@ -56,7 +56,7 @@ const DESCRIPTION_TEXT_STYLE: CSSProperties = { lineHeight: '24px', fontSize: 16
 
 export const AboutCard: React.FC<AboutCardProps> = ({ sections }) => {
     const intl = useIntl()
-    const AboutServiceMessage = intl.formatMessage({ id: 'services.AboutService' })
+    const AboutServiceMessage = intl.formatMessage({ id: 'miniapps.AboutService' })
 
     const { width } = useWindowSize()
     const isSingleRow = Boolean(width && width < SINGLE_CARD_WIDTH_MARK)

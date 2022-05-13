@@ -10,8 +10,8 @@ const ALERT_BOX_STYLE: CSSProperties = {
 
 const AlertBody: React.FC = () => {
     const intl = useIntl()
-    const AlertMessage = intl.formatMessage({ id: 'services.billing.AlreadyConnected.message' })
-    const AlertButtonMessage = intl.formatMessage({ id: 'services.billing.AlreadyConnected.button' })
+    const AlertMessage = intl.formatMessage({ id: 'miniapps.billing.AlreadyConnected.message' })
+    const AlertButtonMessage = intl.formatMessage({ id: 'miniapps.billing.AlreadyConnected.button' })
 
     const router = useRouter()
     const handleClick = useCallback(() => {
@@ -33,9 +33,9 @@ const AlertBody: React.FC = () => {
     )
 }
 
-export const ConnectedBilling: React.FC = () => {
+export const AlreadyConnectedBilling: React.FC = () => {
     const intl = useIntl()
-    const AlertTitle = intl.formatMessage({ id: 'services.billing.AlreadyConnected.title' })
+    const AlertTitle = intl.formatMessage({ id: 'miniapps.billing.AlreadyConnected.title' })
 
     return (
         <Alert

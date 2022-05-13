@@ -17,7 +17,6 @@ import { useOrganization, withOrganization } from '@core/next/organization'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
-import BehaviorRecorder from '@condo/domains/common/components/containers/BehaviorRecorder'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
@@ -108,7 +107,7 @@ const MenuItems: React.FC = () => {
     }, {
         path: 'miniapps',
         icon: ShoppingFilled,
-        label: 'menu.Services',
+        label: 'menu.MiniApps',
     }]
 
     return (

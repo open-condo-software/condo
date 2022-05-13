@@ -9,7 +9,7 @@ import { useIntl } from '@core/next/intl'
 
 export const AppPageWrapper: React.FC = ({ children }) => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'menu.Services' })
+    const PageTitle = intl.formatMessage({ id: 'menu.MiniApps' })
     const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
 
     const { query: { type, id } } = useRouter()
