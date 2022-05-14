@@ -6,7 +6,7 @@ const { Text, Relationship, Integer, Select, Checkbox, DateTimeUtc, CalendarDay,
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@{{app}}/domains/common/schema/fields')
+const { dvAndSender } = require('@{{app}}/domains/common/schema/plugins/dvAndSender')
 const access = require('@{{app}}/domains/{{ domain }}/access/{{name}}')
 
 
@@ -14,8 +14,6 @@ const {{ name }} = new GQLListSchema('{{ name }}', {
     // TODO(codegen): write doc for the {{ name }} domain model!
     schemaDoc: 'TODO DOC!',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
 {% for field in signature %}
         {{ field.name }}: {
             // TODO(codegen): write doc for {{ name }}.{{ field.name }} field!
@@ -38,7 +36,7 @@ const {{ name }} = new GQLListSchema('{{ name }}', {
         },
 {% endfor %}
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canRead{{ pluralize.plural(name) }},
         create: access.canManage{{ pluralize.plural(name) }},
