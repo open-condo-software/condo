@@ -294,6 +294,7 @@ function createschema (argv) {
                     case 'Json':
                     case 'Uuid':
                     case 'Checkbox':
+                    case 'Url':
                         if (result.length !== 2) throw new Error(`Wrong number of argument for filed signature "${field}"`)
                         break
                     case 'Select':
