@@ -102,13 +102,13 @@ const PdfView = () => {
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
 
-    const { loading, obj: ticket, error } = Ticket.useObject({ where: { id:id } })
+    const { loading: ticketIsLoading, obj: ticket, error } = Ticket.useObject({ where: { id:id } })
 
     const ticketOrganizationId = get(ticket, ['organization', 'id'], null)
     const ticketExecutorUserId = get(ticket, ['executor', 'id'], null)
     const ticketAssigneeUserId = get(ticket, ['assignee', 'id'], null)
 
-    const { obj: executor } = OrganizationEmployee.useObject({
+    const { loading: executorIsLoading, obj: executor } = OrganizationEmployee.useObject({
         where: {
             organization: {
                 id: ticketOrganizationId,
@@ -119,7 +119,7 @@ const PdfView = () => {
         },
     })
 
-    const { obj: assignee } = OrganizationEmployee.useObject({
+    const { loading: assigneeIsLoading, obj: assignee } = OrganizationEmployee.useObject({
         where: {
             organization: {
                 id: ticketOrganizationId,
@@ -129,9 +129,10 @@ const PdfView = () => {
             },
         },
     })
+    const loading = ticketIsLoading || assigneeIsLoading || executorIsLoading
 
     useEffect(() => {
-        if (ticket) {
+        if (ticket && !loading) {
             // TODO: (savelevmatthew) let user choose format?
             createPdf({ element: containerRef.current, fileName: getTicketPdfName(intl, ticket), format: 'a5' }).catch((e) => {
                 notification.error({
