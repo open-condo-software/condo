@@ -12,7 +12,7 @@ async function canRead{{ pluralize.plural(name) }} ({ authentication: { item: us
     if (user.isAdmin) return {}
 
     // TODO(codegen): write canRead{{ pluralize.plural(name) }} logic for user!
-    return {}
+    return false
 }
 
 async function canManage{{ pluralize.plural(name) }} ({ authentication: { item: user }, originalInput, operation, itemId }) {
@@ -22,10 +22,10 @@ async function canManage{{ pluralize.plural(name) }} ({ authentication: { item: 
 
     if (operation === 'create') {
         // TODO(codegen): write canManage{{ pluralize.plural(name) }} create logic!
-        return true
+        return false
     } else if (operation === 'update') {
         // TODO(codegen): write canManage{{ pluralize.plural(name) }} update logic!
-        return true
+        return false
     }
 
     return false
