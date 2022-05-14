@@ -19,6 +19,9 @@ const GLOBAL_QUERY_LIMIT = 1000
 class GqlWithKnexLoadList {
 
     constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [] }) {
+        if (!Reflect.has(where, 'deletedAt')) {
+            where.deletedAt = null
+        }
         this.listKey = listKey
         this.fields = fields
         this.where = where
