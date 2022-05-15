@@ -4,7 +4,7 @@
 
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/notification/access/Message')
 const { MESSAGE_STATUSES, MESSAGE_SENDING_STATUS } = require('../constants/constants')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
@@ -13,9 +13,6 @@ const { LOCALES } = require('@condo/domains/common/constants/locale')
 const Message = new GQLListSchema('Message', {
     schemaDoc: 'Notification message',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         organization: {
             schemaDoc: 'This message is related to some organization. Organization can manage their messages',
             type: 'Relationship',
@@ -119,7 +116,7 @@ const Message = new GQLListSchema('Message', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadMessages,
         create: access.canManageMessages,
