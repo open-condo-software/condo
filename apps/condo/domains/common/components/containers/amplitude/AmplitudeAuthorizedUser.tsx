@@ -2,9 +2,9 @@ import React from 'react'
 import { Amplitude, useAmplitude } from 'react-amplitude-hooks'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
+import get from 'lodash/get'
 import omit from 'lodash/omit'
 import { BaseEventProperties } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 const USER_OMITTED_FIELDS = ['phone', 'email', '__typename', 'avatar', 'isAdmin']
 
@@ -17,35 +17,17 @@ export type AuthorizedUserEventProperties = Pick<BaseEventProperties, 'page'> & 
 
 const AmplitudeAuthorizedUser: React.FC = ({ children }) => {
     const { user } = useAuth()
-    const { organization } = useOrganization()
+    const { link } = useOrganization()
     const { eventProperties } = useAmplitude()
 
     let userProperties: AmplitudeUserProperties = {}
-    let organizationEmployeeWhere = {}
-
-    if (user && organization) {
-        organizationEmployeeWhere = {
-            user: {
-                id: user.id,
-            },
-            organization: {
-                id: organization.id,
-            },
-            isAccepted: true,
-        }
-    }
-
-    const { obj: userOrganization } = OrganizationEmployee.useObject(
-        { where: organizationEmployeeWhere },
-        { fetchPolicy: 'cache-first' }
-    )
 
     if (user) {
         userProperties = omit(user, USER_OMITTED_FIELDS)
 
-        if (userOrganization) {
-            userProperties.role = userOrganization.role.name
-            userProperties.organization = userOrganization.organization.name
+        if (link) {
+            userProperties.role = get(link, 'role.name')
+            userProperties.organization = get(link, 'organization.name')
         }
     }
 
