@@ -2,7 +2,7 @@ const Queue = require('bull')
 const falsey = require('falsey')
 const pino = require('pino')
 const { serializeError } = require('serialize-error')
-const redis = require('ioredis')
+const IORedis = require('ioredis')
 
 const conf = require('@core/config')
 const { prepareKeystoneExpressApp } = require('./test.utils')
@@ -16,7 +16,7 @@ const WORKER_REDIS_URL = conf.WORKER_REDIS_URL || conf.REDIS_URL
 if (!WORKER_REDIS_URL) throw new Error('No WORKER_REDIS_URL environment')
 const taskQueue = new Queue('tasks', WORKER_REDIS_URL, {
     createClient: (type, opts) => {
-        return new redis(opts)
+        return new IORedis(opts)
     },
 })
 // NOTE: same as keystone logger
