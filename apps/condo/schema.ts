@@ -9447,6 +9447,8 @@ export type Contact = {
   property?: Maybe<Property>;
   /**  Property unit, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future  */
   unitName?: Maybe<Scalars['String']>;
+  /**  Type of unit, such as parking lot or flat  */
+  unitType?: Maybe<Scalars['String']>;
   /**  Normalized contact email of this person  */
   email?: Maybe<Scalars['String']>;
   /**  Normalized contact phone of this person in E.164 format without spaces  */
@@ -9471,6 +9473,7 @@ export type ContactCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
@@ -9499,6 +9502,7 @@ export type ContactHistoryRecord = {
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
@@ -9521,6 +9525,7 @@ export type ContactHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
@@ -9548,6 +9553,7 @@ export type ContactHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
@@ -9604,6 +9610,24 @@ export type ContactHistoryRecordWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_contains?: Maybe<Scalars['String']>;
+  unitType_not_contains?: Maybe<Scalars['String']>;
+  unitType_starts_with?: Maybe<Scalars['String']>;
+  unitType_not_starts_with?: Maybe<Scalars['String']>;
+  unitType_ends_with?: Maybe<Scalars['String']>;
+  unitType_not_ends_with?: Maybe<Scalars['String']>;
+  unitType_i?: Maybe<Scalars['String']>;
+  unitType_not_i?: Maybe<Scalars['String']>;
+  unitType_contains_i?: Maybe<Scalars['String']>;
+  unitType_not_contains_i?: Maybe<Scalars['String']>;
+  unitType_starts_with_i?: Maybe<Scalars['String']>;
+  unitType_not_starts_with_i?: Maybe<Scalars['String']>;
+  unitType_ends_with_i?: Maybe<Scalars['String']>;
+  unitType_not_ends_with_i?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   email?: Maybe<Scalars['String']>;
   email_not?: Maybe<Scalars['String']>;
   email_contains?: Maybe<Scalars['String']>;
@@ -9750,6 +9774,7 @@ export type ContactUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
@@ -9799,6 +9824,10 @@ export type ContactWhereInput = {
   unitName_not_ends_with_i?: Maybe<Scalars['String']>;
   unitName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Scalars['String']>;
+  unitType_not?: Maybe<Scalars['String']>;
+  unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   email?: Maybe<Scalars['String']>;
   email_not?: Maybe<Scalars['String']>;
   email_contains?: Maybe<Scalars['String']>;
@@ -16822,7 +16851,7 @@ export type Mutation = {
    *     "data",
    *     "token"
    *   ],
-   *   "messageForUser": "api.user.changePhoneNumberResidentUser.NOT_FOUND"
+   *   "messageForUser": "api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
    * }`
    */
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
@@ -17440,6 +17469,22 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"accountId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"userId": {
    * 				"required": true
    * 			},
    * 			"url": {
@@ -31196,7 +31241,8 @@ export enum SendMessageType {
   TicketStatusReturned = 'TICKET_STATUS_RETURNED',
   TicketStatusDeclined = 'TICKET_STATUS_DECLINED',
   TicketCommentAdded = 'TICKET_COMMENT_ADDED',
-  BillingReceiptAvailableManual = 'BILLING_RECEIPT_AVAILABLE_MANUAL'
+  BillingReceiptAvailableManual = 'BILLING_RECEIPT_AVAILABLE_MANUAL',
+  BillingReceiptAvailableNoAccountManual = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL'
 }
 
 export type SenderField = {
@@ -33811,6 +33857,8 @@ export enum SortContactHistoryRecordsBy {
   DvDesc = 'dv_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
   PhoneAsc = 'phone_ASC',
@@ -33842,6 +33890,8 @@ export enum SortContactsBy {
   PropertyDesc = 'property_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  UnitTypeAsc = 'unitType_ASC',
+  UnitTypeDesc = 'unitType_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
   PhoneAsc = 'phone_ASC',

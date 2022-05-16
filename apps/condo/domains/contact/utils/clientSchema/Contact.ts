@@ -8,14 +8,15 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { Contact as ContactGQL } from '@condo/domains/contact/gql'
-import { Contact, ContactUpdateInput, QueryAllContactsArgs } from '@app/condo/schema'
+import { Contact, ContactUpdateInput, QueryAllContactsArgs, BuildingUnitSubType } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'property', 'name', 'phone', 'unitName', 'email', 'organization']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'property', 'name', 'phone', 'unitName', 'unitType', 'email', 'organization']
 const RELATIONS = ['organization', 'property']
 
 export interface IContactUIState extends Contact {
     id: string
     unitName?: string
+    unitType?: BuildingUnitSubType
     email?: string
     phone: string
     name: string
@@ -31,6 +32,7 @@ export interface IContactFormState {
     organization: string,
     property?: string,
     unitName?: string,
+    unitType?: BuildingUnitSubType,
     phone: string,
     name: string,
     email?: string

@@ -231,7 +231,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const handleSubmit = useCallback(async (values) => {
         let createdContact
         if (role && role.canManageContacts && canCreateContactRef.current) {
-            createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
+            createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current, selectedUnitTypeRef.current)
         }
 
         for (const [meterId, newMeterReading] of Object.entries(newMeterReadings)) {
