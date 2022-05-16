@@ -3,11 +3,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, FormItemProps } from 'antd'
-import { get, isEmpty }  from 'lodash'
+import { get, isEmpty } from 'lodash'
 import styled from '@emotion/styled'
 import { useRouter } from 'next/router'
-import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
 
+import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
@@ -29,7 +29,6 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { RESIDENT } from '@condo/domains/user/constants/common'
 const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
-
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
@@ -291,7 +290,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const action = async (variables, ...args) => {
         const { details, ...otherVariables } = variables
-        const deadline = get(variables, 'deadline')
         let createdContact
 
         if (role.canManageContacts && canCreateContactRef.current) {
@@ -302,7 +300,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             ...otherVariables,
             details: normalizeText(details),
             contact: get(createdContact, 'id') || variables.contact,
-            deadline: deadline && deadline.startOf('day'),
         }, ...args)
 
         await syncModifiedFiles(result.id)
