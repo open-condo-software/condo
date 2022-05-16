@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
+import { BuildingUnitSubType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ErrorsContainer } from '@condo/domains/contact/components/ErrorsContainer'
@@ -68,6 +69,9 @@ export const CreateContactForm: React.FC = () => {
     const selectedPropertyIdRef = useRef(selectedPropertyId)
     const [selectedUnitName, setSelectedUnitName] = useState(null)
     const selectedUnitNameRef = useRef(selectedUnitName)
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
+    const selectedUnitTypeRef = useRef(selectedUnitType)
+
     const { loading, obj: property } = Property.useObject({ where:{ id: selectedPropertyId ? selectedPropertyId : null } })
 
     useEffect(() => {
@@ -77,6 +81,10 @@ export const CreateContactForm: React.FC = () => {
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
     }, [selectedUnitName])
+
+    useEffect(() => {
+        selectedUnitTypeRef.current = selectedUnitType
+    }, [selectedUnitType])
 
     // @ts-ignore
     const action = Contact.useCreate({
@@ -93,6 +101,7 @@ export const CreateContactForm: React.FC = () => {
             formValuesToMutationDataPreprocessor={(values) => {
                 values.property = selectedPropertyIdRef.current
                 values.unitName = selectedUnitNameRef.current
+                values.unitType = selectedUnitTypeRef.current
                 return values
             }}
         >
@@ -122,6 +131,7 @@ export const CreateContactForm: React.FC = () => {
                                                 onChange={() => {
                                                     form.setFieldsValue({ 'unitName': null })
                                                     setSelectedPropertyId(null)
+                                                    setSelectedUnitType(null)
                                                 }}
                                                 placeholder={AddressPlaceholderMessage}
 
@@ -145,9 +155,12 @@ export const CreateContactForm: React.FC = () => {
                                                 onChange={(_, option: UnitNameInputOption) => {
                                                     if (!option) {
                                                         setSelectedUnitName(null)
+                                                        setSelectedUnitType(null)
                                                     } else {
                                                         const unitName = get(option, 'data-unitName')
                                                         setSelectedUnitName(unitName)
+                                                        const unitType = get(option, 'data-unitType', BuildingUnitSubType.Flat)
+                                                        setSelectedUnitType(unitType)
                                                     }
                                                 }}
                                             />

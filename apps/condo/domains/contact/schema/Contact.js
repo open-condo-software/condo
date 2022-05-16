@@ -5,7 +5,7 @@
 const { Text, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema, find } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { SENDER_FIELD, DV_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/contact/access/Contact')
 const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR, PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
@@ -37,6 +37,10 @@ const Contact = new GQLListSchema('Contact', {
             schemaDoc: 'Property unit, that is a subject of an issue, reported by this person in first ticket. Meaning of this field will be revised in the future',
             type: Text,
             isRequired: false,
+        },
+
+        unitType: {
+            ...UNIT_TYPE_FIELD,
         },
 
         email: {
@@ -96,7 +100,7 @@ const Contact = new GQLListSchema('Contact', {
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError }) => {
             const newItem = { ...existingItem, ...resolvedData }
-            const { property, unitName, name, phone } = newItem
+            const { property, unitName, unitType, name, phone } = newItem
 
             if (operation === 'create' && !property) {
                 return addValidationError(`${ PROPERTY_REQUIRED_ERROR }] no property for contact`)
@@ -104,6 +108,7 @@ const Contact = new GQLListSchema('Contact', {
             const condition = {
                 property: { id: property },
                 unitName: unitName || null,
+                unitType,
                 name,
                 phone,
                 deletedAt: null,
