@@ -10,7 +10,7 @@ const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const CONTACT_FIELDS = `{ organization { id name } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } name phone unitName email ${COMMON_FIELDS} }`
+const CONTACT_FIELDS = `{ organization { id name } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } name phone unitName unitType email ${COMMON_FIELDS} }`
 const Contact = generateGqlQueries('Contact', CONTACT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
