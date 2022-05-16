@@ -12,7 +12,11 @@ import { Form, Space } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 import { useApolloClient } from '@core/next/apollo'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { get } from 'lodash'
+import dayjs from 'dayjs'
+import isToday from 'dayjs/plugin/isToday'
+
+dayjs.extend(isToday)
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
@@ -75,7 +79,13 @@ export const CreateTicketForm: React.FC = () => {
             router.push('/ticket')
         })
 
-    const createAction = useCallback((attrs) => action({ ...attrs, organization }), [organization])
+    const createAction = useCallback((variables) => {
+        let deadline = get(variables, 'deadline')
+        if (deadline.isToday()) {
+            deadline = deadline.endOf('day')
+        }
+        return action({ ...variables, deadline, organization })
+    }, [organization])
 
     const initialValues = useMemo(() => ({
         assignee: auth.user.id,
