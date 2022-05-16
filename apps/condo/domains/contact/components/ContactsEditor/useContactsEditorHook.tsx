@@ -4,6 +4,7 @@ import { ContactFields, ContactsEditor, IContactEditorProps } from './index'
 import { IContactUIState } from '../../utils/clientSchema/Contact'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
+import { BuildingUnitSubType } from '@app/condo/schema'
 
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
@@ -12,8 +13,10 @@ interface IContactsEditorHookArgs {
     allowLandLine?: boolean,
 }
 
+type CreateContactType = (organization: string, property: string, unitName: string, unitType?: BuildingUnitSubType) => Promise<IContactUIState>
+
 interface IContactsEditorHookResult {
-    createContact: (organization: string, property: string, unitName: string) => Promise<IContactUIState>,
+    createContact: CreateContactType,
     ContactsEditorComponent: React.FC<IContactEditorProps>,
     // Explicitly indicates, that we have enough data to call `createContact` action
     canCreateContact: boolean,
@@ -47,7 +50,7 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
         setShouldCreateContact(isNew)
     }
 
-    const createContact = async (organization, property, unitName) => {
+    const createContact: CreateContactType = async (organization, property, unitName, unitType = BuildingUnitSubType.Flat) => {
         if (shouldCreateContactRef.current) {
             // property is a required field for contact creation
             if (!property) {
@@ -60,6 +63,7 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
                     organization,
                     property,
                     unitName,
+                    unitType,
                 })
             } catch (e) {
                 // Duplicated contacts should be figured out on the client,

@@ -281,7 +281,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         let createdContact
 
         if (role.canManageContacts && canCreateContactRef.current) {
-            createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current)
+            createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current, selectedUnitTypeRef.current)
         }
 
         const result = await _action({
