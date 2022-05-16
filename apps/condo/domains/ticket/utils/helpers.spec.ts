@@ -23,7 +23,7 @@ import {
     getAggregatedData,
     TICKET_PAGE_SIZE,
     filterToQuery,
-    ticketAnalyticsPageFilters, getChartOptions, hasUnreadResidentComments,
+    ticketAnalyticsPageFilters, getChartOptions, hasUnreadResidentComments, getDeadlineType, TicketDeadlineType,
 } from './helpers'
 
 describe('Helpers', () => {
@@ -790,6 +790,32 @@ describe('Helpers', () => {
                     ])
                 })
             })
+        })
+    })
+
+    describe('getDeadlineType', () => {
+        it('returns MORE_THAN_DAY if more than 1 day is left before the deadline', () => {
+            const ticketFields = {
+                deadline: dayjs().add(2, 'days'),
+            }
+            // @ts-ignore
+            expect(getDeadlineType(ticketFields)).toEqual(TicketDeadlineType.MORE_THAN_DAY)
+        })
+
+        it('returns OVERDUE if today is the deadline day or the deadline has passed', () => {
+            const ticketFields = {
+                deadline: dayjs().subtract(1, 'day'),
+            }
+            // @ts-ignore
+            expect(getDeadlineType(ticketFields)).toEqual(TicketDeadlineType.OVERDUE)
+        })
+
+        it('returns LESS_THAN_DAY if today is the deadline day or the deadline has passed', () => {
+            const ticketFields = {
+                deadline: dayjs().add(1, 'minute'),
+            }
+            // @ts-ignore
+            expect(getDeadlineType(ticketFields)).toEqual(TicketDeadlineType.LESS_THAN_DAY)
         })
     })
 
