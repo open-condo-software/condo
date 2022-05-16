@@ -12,6 +12,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { Contact, createTestContact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 describe('Contact', () => {
     test('required fields', async () => {
@@ -20,6 +21,7 @@ describe('Contact', () => {
         const emptyFields = {
             email: null,
             unitName: null,
+            unitType: COMMERCIAL_UNIT_TYPE,
         }
         const [obj, attrs] = await createTestContact(adminClient, userClient.organization, userClient.property, emptyFields)
         expect(obj.id).toMatch(UUID_RE)
@@ -37,6 +39,7 @@ describe('Contact', () => {
         expect(obj.updatedAt).toMatch(DATETIME_RE)
         expect(obj.email).toEqual(emptyFields.email)
         expect(obj.unitName).toEqual(emptyFields.unitName)
+        expect(obj.unitType).toEqual(emptyFields.unitType)
         expect(obj.property).toEqual(expect.objectContaining({ id: userClient.property.id }))
     })
 
@@ -159,6 +162,7 @@ describe('Contact', () => {
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)
             expect(obj.unitName).toMatch(attrs.unitName)
+            expect(obj.unitType).toMatch(FLAT_UNIT_TYPE)
             expect(obj.name).toMatch(attrs.name)
             expect(obj.phone).toMatch(attrs.phone)
             expect(obj.email).toMatch(attrs.email)
@@ -187,6 +191,7 @@ describe('Contact', () => {
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)
             expect(obj.unitName).toMatch(attrs.unitName)
+            expect(obj.unitType).toMatch(FLAT_UNIT_TYPE)
             expect(obj.name).toMatch(attrs.name)
             expect(obj.phone).toMatch(attrs.phone)
             expect(obj.email).toMatch(attrs.email)
@@ -474,6 +479,7 @@ describe('Contact', () => {
             await Contact.softDelete(userClient, contact.id)
             const [newContact] = await createTestContact(adminClient, userClient.organization, userClient.property, {
                 unitName: contact.unitName,
+                unitType: contact.unitType,
                 name: contact.name,
                 phone: contact.phone,
                 email: contact.email,
@@ -481,6 +487,7 @@ describe('Contact', () => {
             expect(newContact).toHaveProperty(['organization', 'id'], contact.organization.id)
             expect(newContact).toHaveProperty(['property', 'id'], contact.property.id)
             expect(newContact).toHaveProperty(['unitName'], contact.unitName)
+            expect(newContact).toHaveProperty(['unitType'], contact.unitType)
             expect(newContact).toHaveProperty(['name'], contact.name)
             expect(newContact).toHaveProperty(['phone'], contact.phone)
             expect(newContact).toHaveProperty(['email'], contact.email)
@@ -490,6 +497,7 @@ describe('Contact', () => {
 
             const [newestContact] = await createTestContact(adminClient, userClient.organization, userClient.property, {
                 unitName: contact.unitName,
+                unitType: contact.unitType,
                 name: contact.name,
                 phone: contact.phone,
                 email: contact.email,
@@ -497,6 +505,7 @@ describe('Contact', () => {
             expect(newestContact).toHaveProperty(['organization', 'id'], contact.organization.id)
             expect(newestContact).toHaveProperty(['property', 'id'], contact.property.id)
             expect(newestContact).toHaveProperty(['unitName'], contact.unitName)
+            expect(newestContact).toHaveProperty(['unitType'], contact.unitType)
             expect(newestContact).toHaveProperty(['name'], contact.name)
             expect(newestContact).toHaveProperty(['phone'], contact.phone)
             expect(newestContact).toHaveProperty(['email'], contact.email)
