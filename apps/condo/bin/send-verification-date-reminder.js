@@ -8,7 +8,7 @@
 const dayjs = require('dayjs')
 
 const path = require('path')
-const { VERIFICATION_DATE_REMINDER_30_DAYS_TYPE } = require('@condo/domains/notification/constants/constants')
+const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { sendVerificationDateReminder } = require('@condo/domains/meter/integrations/sendVerificationDateReminder')
 
@@ -21,7 +21,7 @@ async function main () {
     await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
     await keystone.connect()
 
-    await sendVerificationDateReminder(dayjs(), VERIFICATION_DATE_REMINDER_30_DAYS_TYPE, 0, 30)
+    await sendVerificationDateReminder(dayjs(), METER_VERIFICATION_DATE_REMINDER_TYPE, 30, 30)
 }
 
 main().catch((e) => {
