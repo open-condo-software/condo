@@ -2,19 +2,16 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
-import { Checkbox, Col, Form, Input, Row, Typography, Tooltip, Tabs, Alert, FormItemProps } from 'antd'
+import { Alert, Checkbox, Col, Form, FormItemProps, Input, Row, Typography } from 'antd'
 import { get, isEmpty } from 'lodash'
-import styled from '@emotion/styled'
 import { useRouter } from 'next/router'
-
 import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
-import { TicketFile, ITicketFileUIState } from '@condo/domains/ticket/utils/clientSchema'
+import { ITicketFileUIState, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { normalizeText } from '@condo/domains/common/utils/text'
@@ -27,21 +24,12 @@ import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { RESIDENT } from '@condo/domains/user/constants/common'
-const { PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
+import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
 
-const { TabPane } = Tabs
-
-const ContactsInfoFocusContainer = styled(FocusContainer)`
-  position: relative;
-  left: ${({ padding }) => padding ? padding : '24px'};
-  box-sizing: border-box;
-  width: 100%;
-  background: ${colors.backgroundLightGrey};
-`
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
