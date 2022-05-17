@@ -1,5 +1,6 @@
-import React from 'react'
-import { LogOnMount } from 'react-amplitude-hooks'
+import React, { useEffect } from 'react'
+import get from 'lodash/get'
+import { useAmplitude } from '@condo/domains/common/utils/amplitudeUtils'
 import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 import { AuthorizedUserEventProperties } from '@condo/domains/common/components/containers/amplitude/AmplitudeAuthorizedUser'
 
@@ -19,20 +20,30 @@ interface IAmplitudeLogOnMountEvent {
 
 const TrackPageLoadEvent: React.FC<IAmplitudeLogOnMountEvent> = (props) => {
     const { children, eventType, pageState = AmplitudePageState.Success, extraEventProperties = {} } = props
+    const { logEvent, eventProperties } = useAmplitude()
+    // eventProperties={(baseEventProperties: AuthorizedUserEventProperties) => ({
+    //     ...baseEventProperties,
+    //     page: {
+    //         ...baseEventProperties.page,
+    //         state: pageState,
+    //     },
+    //     ...extraEventProperties,
+    // })}
+
+    const pageProps = get(eventProperties, 'page', {})
+    useEffect(() => {
+        // FIXME: replace with global logEvent (not amplitude hook)
+        logEvent(eventType, {
+            page: {
+                ...pageProps,
+                state: pageState,
+            },
+            ...extraEventProperties,
+        })
+    }, [])
 
     return (
         <>
-            <LogOnMount
-                eventType={eventType}
-                eventProperties={(baseEventProperties: AuthorizedUserEventProperties) => ({
-                    ...baseEventProperties,
-                    page: {
-                        ...baseEventProperties.page,
-                        state: pageState,
-                    },
-                    ...extraEventProperties,
-                })}
-            />
             {children}
         </>
     )

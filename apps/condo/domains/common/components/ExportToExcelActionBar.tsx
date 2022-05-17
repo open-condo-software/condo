@@ -8,7 +8,6 @@ import { Form, notification } from 'antd'
 import { DocumentNode } from 'graphql'
 import { get } from 'lodash'
 import React, { useCallback } from 'react'
-import { Amplitude, useAmplitude } from 'react-amplitude-hooks'
 
 interface IExportToExcelActionBarProps {
     hidden?: boolean
@@ -32,8 +31,6 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
     const intl = useIntl()
     const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
-
-    const { instrument } = useAmplitude()
 
     const [
         exportToExcel,
@@ -79,7 +76,7 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
                     secondary
                     icon={<DatabaseFilled/>}
                     loading={isXlsLoading}
-                    onClick={instrument('ExportExcel', handleExportToExcel)}
+                    onClick={handleExportToExcel}
                     disabled={disabled}
                 >
                     {ExportAsExcelLabel}

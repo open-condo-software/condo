@@ -2,7 +2,8 @@ import React from 'react'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 
-import { AmplitudeProvider as CoreAmplitudeProvider, Amplitude } from 'react-amplitude-hooks'
+// import { AmplitudeProvider as CoreAmplitudeProvider, Amplitude } from 'react-amplitude-hooks'
+import { AmplitudeProvider as CoreAmplitudeProvider, Amplitude } from '@condo/domains/common/utils/amplitudeUtils'
 import amplitude, { Identify } from 'amplitude-js'
 import { getCurrentUserId } from '@condo/domains/common/utils/userid.utils'
 
@@ -85,9 +86,7 @@ class AmplitudeInstance extends TrackerInstance {
             </CoreAmplitudeProvider>
         )
     }
-
 }
-
 
 const AmplitudeProvider: React.FC = ({ children }) => {
     const { publicRuntimeConfig: { amplitudeToken } } = getConfig()
@@ -115,14 +114,13 @@ const AmplitudeProvider: React.FC = ({ children }) => {
 
     return (
         <CoreAmplitudeProvider amplitudeInstance={amplitudeInstance} apiKey={amplitudeToken} userId={userId}>
-            <Amplitude eventProperties={{
-                page: {
-                    path: asPath,
-                },
-                user: {
-                    sessionId: userId,
-                },
-            }}>
+            <Amplitude
+                eventProperties={{
+                    page: {
+                        path: asPath,
+                    },
+                }}
+            >
                 {children}
             </Amplitude>
         </CoreAmplitudeProvider>

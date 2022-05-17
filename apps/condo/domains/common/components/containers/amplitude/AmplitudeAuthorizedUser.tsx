@@ -1,5 +1,5 @@
 import React from 'react'
-import { Amplitude, useAmplitude } from 'react-amplitude-hooks'
+import { Amplitude } from '@condo/domains/common/utils/amplitudeUtils'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
@@ -18,7 +18,6 @@ export type AuthorizedUserEventProperties = Pick<BaseEventProperties, 'page'> & 
 const AmplitudeAuthorizedUser: React.FC = ({ children }) => {
     const { user } = useAuth()
     const { link } = useOrganization()
-    const { eventProperties } = useAmplitude()
 
     let userProperties: AmplitudeUserProperties = {}
 
@@ -33,15 +32,7 @@ const AmplitudeAuthorizedUser: React.FC = ({ children }) => {
 
     return (
         <Amplitude
-            eventProperties={{
-                page: {
-                    ...eventProperties.page,
-                },
-                user: {
-                    ...eventProperties.user,
-                    ...userProperties,
-                },
-            }}
+            userProperties={userProperties}
         >
             {children}
         </Amplitude>

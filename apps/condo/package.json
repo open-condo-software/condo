@@ -90,7 +90,6 @@
     "raw-loader": "^4.0.2",
     "rc-queue-anim": "^1.8.5",
     "react": "^16.13.1",
-    "react-amplitude-hooks": "^0.10.6",
     "react-dom": "^16.13.1",
     "react-fittext": "^1.0.0",
     "react-google-recaptcha-v3": "1.9.4",

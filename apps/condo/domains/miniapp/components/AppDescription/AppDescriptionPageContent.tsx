@@ -7,7 +7,7 @@ import get from 'lodash/get'
 import { MarkDown } from '@condo/domains/common/components/MarkDown'
 import { Button } from '@condo/domains/common/components/Button'
 import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
-import { useAmplitude } from 'react-amplitude-hooks'
+import { useAmplitude } from '@condo/domains/common/utils/amplitudeUtils'
 
 interface AppDescriptionPageContentProps {
     title: string,
@@ -49,7 +49,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
         buttonLabel: ConnectButtonLabel,
     })
 
-    const { logEvent, eventProperties } = useAmplitude()
+    const { logEvent } = useAmplitude()
 
     useEffect(() => {
         const routeChangeStart = (event: MouseEvent) => {
@@ -58,9 +58,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                 const value = get(target, 'attributes.href.value', '')
                 const title = get(target, 'textContent', '')
 
-                logEvent<AmplitudeEventType>(AmplitudeEventType.OpenDescriptionLink, {
-                    user: eventProperties.user,
-                    page: eventProperties.page,
+                logEvent(AmplitudeEventType.OpenDescriptionLink, {
                     link: { title, value },
                 })
             }

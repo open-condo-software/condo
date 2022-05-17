@@ -17624,13 +17624,6 @@ react-addons-shallow-compare@^15.6.2:
   dependencies:
     object-assign "^4.1.0"
 
-react-amplitude-hooks@^0.10.6:
-  version "0.10.6"
-  resolved "https://registry.yarnpkg.com/react-amplitude-hooks/-/react-amplitude-hooks-0.10.6.tgz#53101df7ad0da6b29a0f283e44e357269fc5cfda"
-  integrity sha512-A2jOqfD2tb3wAX39NIlayQwn0H1bOl4H81/WjEUpG1GZsnWjpchpGlQ6B6auyQfxxavsqhQ3zS28RgnqU346pA==
-  dependencies:
-    prop-types "^15.7.2"
-
 react-codemirror2@^7.2.1:
   version "7.2.1"
   resolved "https://registry.yarnpkg.com/react-codemirror2/-/react-codemirror2-7.2.1.tgz#38dab492fcbe5fb8ebf5630e5bb7922db8d3a10c"
