@@ -191,13 +191,19 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
  * String representation of related items in a `many: true` relationship.
  * Will be displayed in UI in changes history block.
  * 👉 When a new "many" relation field will be added to Ticket, new resolver should be implemented here
+ * In the example below, we are adding resolver for field `files`, that should exist in `Ticket`
+ * and for display text in change history we are using field `name` of `TicketFile` schema.
+ * NOTE: This is how it was implemented before deprecation of all many-to-many relationships in `Ticket` schema
+ * for performance reasons. Implementation of resolvers will also be changed after it.
+ * @example
+ * const relatedManyToManyResolvers = {
+ *     'files': async (args) => {
+ *           return resolveManyToManyField('files', 'TicketFile', 'name', args)
+ *     }
+ * }
  */
 const relatedManyToManyResolvers = {}
-/* relatedManyToManyResolvers example 
-    'resolver_name': async (args) => {
-        return resolveManyToManyField('Field_name_in_Ticket_schema', 'List_name', 'field_name_from_the_list', args)
-    }
-*/
+
 module.exports = {
     createTicketChange,
     ticketChangeDisplayNameResolversForSingleRelations,
