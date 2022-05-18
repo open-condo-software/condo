@@ -18,6 +18,7 @@ import { useOrganization } from '@core/next/organization'
 import  { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { canManageContacts } from '@condo/domains/organization/permissions'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { BuildingUnitSubType } from '@app/condo/schema'
 
 const FieldPairRow = (props) => {
     const {
@@ -46,7 +47,6 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const UnitShortMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
@@ -55,7 +55,10 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const contactName = get(contact, 'name')
     const contactEmail = get(contact, 'email', '')
     const contactUnitName = get(contact, 'unitName')
-    const unitSuffix = contactUnitName ? `${UnitShortMessage} ${contactUnitName}` : ''
+    const contactUnitType = get(contact, 'unitType', BuildingUnitSubType.Flat)
+    const unitSuffix = contactUnitName
+        ? `${intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${contactUnitType}` }).toLowerCase()} ${contactUnitName}`
+        : ''
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
 
     const { isSmall } = useLayoutContext()
