@@ -32,6 +32,11 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 const IS_ENABLE_CACHE = conf.ENABLE_CACHE === '1'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 
+// TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
+if (IS_BUILD_PHASE) {
+    process.env.FILE_FIELD_ADAPTER = 'local' // Test
+}
+
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
