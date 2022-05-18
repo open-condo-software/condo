@@ -1,52 +1,88 @@
-import React, { createContext, useContext } from 'react'
+import React, { createContext, useContext, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import TrackerInstance from './trackers/TrackerInstance'
+import pick from 'lodash/pick'
+import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
 import AmplitudeInstance from './trackers/AmplitudeInstance'
 
-interface ITrackingContext {
-    eventProperties: Record<string, unknown>
-    userProperties: Record<string, unknown>
-    trackerInstances: Array<TrackerInstance>
+const TRACKING_INITIAL_VALUE = {
+    trackerInstances: { amplitude: new AmplitudeInstance() },
 }
 
-const TrackingContext = createContext<ITrackingContext>({
-    eventProperties: {},
-    userProperties: {},
-    trackerInstances: [],
-})
+interface ITrackingContext {
+    eventProperties?: Record<string, unknown>
+    userProperties?: Record<string, unknown>
+    trackerInstances?: Record<string, TrackerInstance>
+    setUserProperties? (newProps: Record<string, unknown>): void
+    setEventProperties? (newProps: Record<string, unknown>): void
+}
+
+interface ILogEventTo extends ITrackerLogEventType {
+    destination: Array<string>
+}
+
+const TrackingContext = createContext<ITrackingContext>(TRACKING_INITIAL_VALUE)
 
 const useTrackingContext = (): ITrackingContext => useContext<ITrackingContext>(TrackingContext)
 
 const useTracking = () => {
-    const {trackerInstances} = useTrackingContext()
+    const { trackerInstances, eventProperties, userProperties, setUserProperties, setEventProperties } = useTrackingContext()
+    const logEvent = ({ eventName, eventProperties }: ITrackerLogEventType) => {
+        Object.values(trackerInstances).map(trackerInstance => trackerInstance.logEvent({ eventName, eventProperties }))
+    }
 
-    const logEvent = () => {
-        // trackerInstances.map(tc => tc.logEvent())
-        console.log('some app event log')
+    const logEventTo = ({ eventName, eventProperties, destination }: ILogEventTo) => {
+        Object.values(pick(trackerInstances, destination)).map(trackerInstance => trackerInstance.logEvent({ eventName, eventProperties }))
     }
 
     return {
+        eventProperties,
+        userProperties,
+        trackerInstances,
         logEvent,
+        logEventTo,
+        setEventProperties,
+        setUserProperties,
     }
 }
 
 const TrackingProvider: React.FC = ({ children }) => {
     const { asPath } = useRouter()
+    //TODO: rewrite to ref
     const trackingProviderValue = {
+        trackerInstances: TRACKING_INITIAL_VALUE.trackerInstances,
         eventProperties: {
             page: {
                 path: asPath,
             },
         },
         userProperties: {},
-        trackerInstances: [new AmplitudeInstance()],
+    }
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            Object.values(trackingProviderValue.trackerInstances).map(trackerInstance => trackerInstance.init())
+        }
+    }, [])
+
+    const setUserProperties = (newProps) => {
+        trackingProviderValue.userProperties = Object.assign(trackingProviderValue.userProperties, newProps)
+    }
+
+    const setEventProperties = (newProps) => {
+        trackingProviderValue.eventProperties = Object.assign(trackingProviderValue.eventProperties, newProps)
     }
 
     return (
-        <TrackingContext.Provider value={trackingProviderValue}>
+        <TrackingContext.Provider value={{
+            eventProperties: trackingProviderValue.eventProperties,
+            userProperties: trackingProviderValue.userProperties,
+            trackerInstances: trackingProviderValue.trackerInstances,
+            setUserProperties,
+            setEventProperties,
+        }}>
             {children}
         </TrackingContext.Provider>
     )
 }
 
-export { useTrackingContext, useTracking, TrackingProvider }
+export { useTracking, TrackingProvider }

@@ -17,7 +17,7 @@ import { useOrganization, withOrganization } from '@core/next/organization'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
-import AmplitudeProvider from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
+import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
@@ -174,7 +174,7 @@ const MyApp = ({ Component, pageProps }) => {
                 <CacheProvider value={cache}>
                     <GlobalStyle/>
                     <FocusContextProvider>
-                        <AmplitudeProvider>
+                        <TrackingProvider>
                             <OnBoardingProvider>
                                 <SubscriptionProvider>
                                     <LayoutContextProvider>
@@ -191,7 +191,7 @@ const MyApp = ({ Component, pageProps }) => {
                                     </LayoutContextProvider>
                                 </SubscriptionProvider>
                             </OnBoardingProvider>
-                        </AmplitudeProvider>
+                        </TrackingProvider>
                     </FocusContextProvider>
                     <GoogleAnalytics/>
                     <YandexMetrika/>

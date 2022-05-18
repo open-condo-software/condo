@@ -9,7 +9,7 @@ import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import AmplitudeAuthorizedUser from '@condo/domains/common/components/containers/amplitude/AmplitudeAuthorizedUser'
+import TrackingAuthorizedUser from '@condo/domains/common/components/containers/amplitude/TrackingAuthorizedUser'
 
 const BillingPage = () => {
     const intl = useIntl()
@@ -44,14 +44,14 @@ const BillingPage = () => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                 <TablePageContent>
-                    <AmplitudeAuthorizedUser>
+                    <TrackingAuthorizedUser>
                         <BillingPageContent
                             access={canReadBillingReceipts}
                             contextLoading={contextLoading}
                             contextError={contextError}
                             context={currentContext}
                         />
-                    </AmplitudeAuthorizedUser>
+                    </TrackingAuthorizedUser>
                 </TablePageContent>
             </PageWrapper>
         </>

@@ -1,5 +1,6 @@
 import React from 'react'
-import { Amplitude } from '@condo/domains/common/utils/amplitudeUtils'
+// import { Amplitude } from '@condo/domains/common/utils/amplitudeUtils'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
@@ -15,28 +16,24 @@ export type AmplitudeUserProperties = Partial<BaseEventProperties['user']> & {
 
 export type AuthorizedUserEventProperties = Pick<BaseEventProperties, 'page'> & AmplitudeUserProperties
 
-const AmplitudeAuthorizedUser: React.FC = ({ children }) => {
+const TrackingAuthorizedUser: React.FC = ({ children }) => {
     const { user } = useAuth()
     const { link } = useOrganization()
+    const { setUserProperties } = useTracking()
 
-    let userProperties: AmplitudeUserProperties = {}
+    let newUserProperties: AmplitudeUserProperties = {}
 
     if (user) {
-        userProperties = omit(user, USER_OMITTED_FIELDS)
+        newUserProperties = omit(user, USER_OMITTED_FIELDS)
 
         if (link) {
-            userProperties.role = get(link, 'role.name')
-            userProperties.organization = get(link, 'organization.name')
+            newUserProperties.role = get(link, 'role.name')
+            newUserProperties.organization = get(link, 'organization.name')
         }
+        setUserProperties(newUserProperties)
     }
 
-    return (
-        <Amplitude
-            userProperties={userProperties}
-        >
-            {children}
-        </Amplitude>
-    )
+    return <>{children}</>
 }
 
-export default AmplitudeAuthorizedUser
+export default TrackingAuthorizedUser

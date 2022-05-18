@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import get from 'lodash/get'
-import { useAmplitude } from '@condo/domains/common/utils/amplitudeUtils'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
-import { AuthorizedUserEventProperties } from '@condo/domains/common/components/containers/amplitude/AmplitudeAuthorizedUser'
+// import { AuthorizedUserEventProperties } from 'domains/common/components/containers/amplitude/TrackingAuthorizedUser'
 
 export enum AmplitudePageState {
     Empty = 'Empty',
@@ -20,7 +20,8 @@ interface IAmplitudeLogOnMountEvent {
 
 const TrackPageLoadEvent: React.FC<IAmplitudeLogOnMountEvent> = (props) => {
     const { children, eventType, pageState = AmplitudePageState.Success, extraEventProperties = {} } = props
-    const { logEvent, eventProperties } = useAmplitude()
+    const { eventProperties, logEvent, trackerInstances } = useTracking()
+    // const { logEvent, eventProperties } = useAmplitude()
     // eventProperties={(baseEventProperties: AuthorizedUserEventProperties) => ({
     //     ...baseEventProperties,
     //     page: {
@@ -30,16 +31,17 @@ const TrackPageLoadEvent: React.FC<IAmplitudeLogOnMountEvent> = (props) => {
     //     ...extraEventProperties,
     // })}
 
-    const pageProps = get(eventProperties, 'page', {})
+    const pageProps = get(eventProperties, 'page', {}) as Record<string, unknown>
     useEffect(() => {
-        // FIXME: replace with global logEvent (not amplitude hook)
-        logEvent(eventType, {
+        console.log('tracker instances on page ready to log')
+        console.log(trackerInstances.amplitude)
+        logEvent({ eventName: eventType, eventProperties: {
             page: {
                 ...pageProps,
                 state: pageState,
             },
             ...extraEventProperties,
-        })
+        } })
     }, [])
 
     return (

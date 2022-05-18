@@ -1,6 +1,7 @@
 export type ITrackerLogEventType = { eventName: string, eventProperties: Record<string, unknown> }
 
 abstract class TrackerInstance {
+    instance = null
     token: string
     configParams: Record<string, unknown>
 
@@ -9,9 +10,9 @@ abstract class TrackerInstance {
         this.configParams = configParams
     }
 
-    abstract init<InstanceType> (): InstanceType
+    abstract init (): void
 
-    abstract getProvider (children: React.ReactChildren): React.ReactElement
+    // abstract getProvider (children: ReactChildren): ReactElement
     abstract logEvent ({ eventName, eventProperties }: ITrackerLogEventType): void
 }
 

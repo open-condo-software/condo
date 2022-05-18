@@ -3,7 +3,7 @@ import { Typography, Row, Col, Tabs } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import Carousel from '@condo/domains/common/components/Carousel'
-import AmplitudeAuthorizedUser from '@condo/domains/common/components/containers/amplitude/AmplitudeAuthorizedUser'
+import TrackingAuthorizedUser from '@condo/domains/common/components/containers/amplitude/TrackingAuthorizedUser'
 import { TrackPageLoadEvent } from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
 import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 import { Section } from './Section'
@@ -182,7 +182,7 @@ export const AppSelectPageContent: React.FC = () => {
                                         {
                                             isAnyBillingAvailable && (
                                                 <Tabs.TabPane tab={BillingCategoryMessage} key={'billing'}>
-                                                    <AmplitudeAuthorizedUser>
+                                                    <TrackingAuthorizedUser>
                                                         <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingAppListPage}>
                                                             <CardsContainer cardsPerRow={appsPerRow}>
                                                                 {
@@ -205,7 +205,7 @@ export const AppSelectPageContent: React.FC = () => {
                                                                 }
                                                             </CardsContainer>
                                                         </TrackPageLoadEvent>
-                                                    </AmplitudeAuthorizedUser>
+                                                    </TrackingAuthorizedUser>
                                                 </Tabs.TabPane>
                                             )
                                         }
