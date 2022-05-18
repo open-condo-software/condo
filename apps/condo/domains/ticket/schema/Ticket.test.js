@@ -103,7 +103,6 @@ describe('Ticket', () => {
             expect(obj.assignee).toEqual(null)
             expect(obj.executor).toEqual(null)
             expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
-            expect(obj.watchers).toEqual([])
         })
 
         test('user: create Ticket without status', async () => {

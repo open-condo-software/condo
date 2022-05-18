@@ -35,7 +35,6 @@ describe('GetAllResidentTicketsService', () => {
         await createResidentTicketByTestClient(userClient, userClient.property)
 
         const [ticket] = await ResidentTicket.getAll(userClient, {})
-        expect(ticket.watchers).toBeUndefined()
         expect(ticket.meta).toBeUndefined()
         expect(ticket.sourceMeta).toBeUndefined()
         expect(ticket.updatedBy).toBeUndefined()
