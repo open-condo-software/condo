@@ -54,7 +54,6 @@ describe('TicketChange', () => {
                 source: { connect: { id: sources[0].id } },
                 related: { connect: { id: ticket2.id } },
                 // TODO(antonal): figure out how to get old list of related items in many-to-many relationship.
-                watchers: { connect: [{ id: client2.user.id }, { id: client3.user.id }] },
             })
 
             const payload = {
@@ -81,10 +80,6 @@ describe('TicketChange', () => {
                 classifier: { connect: { id: classifiers[1].id } },
                 source: { connect: { id: sources[1].id } },
                 related: { connect: { id: ticket3.id } },
-                watchers: {
-                    disconnect: [{ id: client2.user.id }],
-                    connect: [{ id: client4.user.id }],
-                },
             }
 
             const [updatedTicket] = await updateTestTicket(admin, ticket.id, payload)
@@ -178,14 +173,6 @@ describe('TicketChange', () => {
             expect(objs[0].relatedDisplayNameTo).toEqual(ticket3.number.toString())
 
             // TODO(antonal): figure out how to get old list of related items in many-to-many relationship.
-            expect(objs[0].watchersIdsFrom).toEqual(expect.arrayContaining([client2.user.id, client3.user.id]))
-            expect(objs[0].watchersIdsTo).toEqual(expect.arrayContaining([client3.user.id, client4.user.id]))
-            expect(objs[0].watchersIdsFrom).toHaveLength(2)
-            expect(objs[0].watchersIdsTo).toHaveLength(2)
-            expect(objs[0].watchersDisplayNamesFrom).toEqual(expect.arrayContaining([client2.user.name, client3.user.name]))
-            expect(objs[0].watchersDisplayNamesTo).toEqual(expect.arrayContaining([client3.user.name, client4.user.name]))
-            expect(objs[0].watchersDisplayNamesFrom).toHaveLength(2)
-            expect(objs[0].watchersDisplayNamesTo).toHaveLength(2)
         })
 
         it('not gets created when Ticket has no changes', async () => {
