@@ -44,7 +44,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
         <Col span={24}>
             <TicketFormItem shouldUpdate noStyle>
                 {({ getFieldsValue }) => {
-                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                    const { unitName, unitType } = getFieldsValue(['unitName', 'unitType'])
 
                     return (
                         <ContactsEditorComponent
@@ -59,6 +59,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                             // sets `Property.address` as its value, but we need `Property.id` here
                             property={selectedPropertyId}
                             unitName={unitName}
+                            unitType={unitType}
                         />
                     )
                 }}

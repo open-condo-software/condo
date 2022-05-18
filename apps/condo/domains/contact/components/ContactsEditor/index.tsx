@@ -22,6 +22,7 @@ import { IContactUIState } from '@condo/domains/contact/utils/clientSchema/Conta
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
 import { ContactOption } from './ContactOption'
+import { BuildingUnitSubType } from '@app/condo/schema'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -61,7 +62,8 @@ export interface IContactEditorProps {
     role?: Record<string, boolean>,
     property?: string,
     unitName?: string,
-    allowLandLine?: boolean;
+    unitType?: BuildingUnitSubType,
+    allowLandLine?: boolean,
     disabled?: boolean
 }
 
@@ -102,7 +104,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
 
-    const { form, fields, value: initialValue, onChange, organization, role, property, unitName, allowLandLine } = props
+    const { form, fields, value: initialValue, onChange, organization, role, property, unitName, unitType, allowLandLine } = props
     const isNotContact = useMemo(() => !initialValue.id && initialValue.phone, [initialValue.id, initialValue.phone])
 
     const [selectedContact, setSelectedContact] = useState(null)
@@ -120,7 +122,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         organization: { id: organization },
         property: { id: property ? property : null },
         unitName: unitName ? unitName : undefined,
-    }), [organization, property, unitName])
+        unitType: unitType ? unitType : undefined,
+    }), [organization, property, unitName, unitType])
 
     const initialEmployeesQuery = useMemo(() => ({
         organization: { id: organization },
@@ -172,7 +175,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setIsInitialContactsLoaded(false)
         setSelectedContact(null)
         setManuallyTypedContact(null)
-    }, [unitName])
+    }, [unitName, unitType])
 
     const handleClickOnPlusButton = () => {
         setDisplayEditableContactFields(true)
