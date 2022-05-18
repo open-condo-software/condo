@@ -102,7 +102,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Typography.Title level={3}><span style={{ 'color': colors.brightRed }}>*</span>{DescriptionLabel}</Typography.Title>
+                            <Typography.Title level={3}>{DescriptionLabel}<span style={{ 'color': colors.brightRed }}>*</span></Typography.Title>
                         </Col>
                         <Col span={isSmall ? 24 : 20}>
                             <Row>
