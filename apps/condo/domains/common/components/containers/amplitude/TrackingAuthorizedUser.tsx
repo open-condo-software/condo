@@ -1,5 +1,4 @@
 import React from 'react'
-// import { Amplitude } from '@condo/domains/common/utils/amplitudeUtils'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
@@ -33,7 +32,7 @@ const TrackingAuthorizedUser: React.FC = ({ children }) => {
         setUserProperties(newUserProperties)
     }
 
-    return <>{children}</>
+    return children as React.ReactElement
 }
 
 export default TrackingAuthorizedUser

@@ -1,5 +1,6 @@
 export type ITrackerLogEventType = { eventName: string, eventProperties: Record<string, unknown> }
 
+/* Abstract class representing a tracking instance library, such as amplitude.js */
 abstract class TrackerInstance {
     instance = null
     token: string
@@ -12,7 +13,6 @@ abstract class TrackerInstance {
 
     abstract init (): void
 
-    // abstract getProvider (children: ReactChildren): ReactElement
     abstract logEvent ({ eventName, eventProperties }: ITrackerLogEventType): void
 }
 

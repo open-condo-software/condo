@@ -1,5 +1,5 @@
 import React from 'react'
-
+// TODO: remove this file completely
 type AmplitudeInstance = {
     init: (apiKey: string, userId: string | undefined, config: Record<string, unknown>) => void
     logEvent: ILogEvent
