@@ -16663,9 +16663,9 @@ export type Mutation = {
    *     "phone"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "WRONG_FORMAT",
+   *   "type": "WRONG_PHONE_FORMAT",
    *   "message": "Wrong format of provided phone number",
-   *   "messageForUser": "api.user.registerNewUser.WRONG_PHONE_FORMAT",
+   *   "messageForUser": "api.common.WRONG_PHONE_FORMAT",
    *   "correctExample": "+79991234567"
    * }`
    *
@@ -16958,21 +16958,23 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "ALREADY_INVITED",
    *   "message": "Already invited into the organization",
-   *   "messageForUser": "api.inviteNewOrganizationEmployee.ALREADY_INVITED"
+   *   "messageForUser": "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED"
    * }`
    *
    * `{
    *   "mutation": "inviteNewOrganizationEmployee",
    *   "code": "BAD_USER_INPUT",
-   *   "type": "WRONG_FORMAT",
-   *   "message": "Wrong phone format"
+   *   "type": "WRONG_PHONE_FORMAT",
+   *   "message": "Wrong phone format",
+   *   "messageForUser": "api.common.WRONG_PHONE_FORMAT"
    * }`
    *
    * `{
    *   "mutation": "inviteNewOrganizationEmployee",
    *   "code": "INTERNAL_ERROR",
-   *   "type": "",
-   *   "message": "Unable to register user"
+   *   "type": "UNABLE_TO_REGISTER_USER",
+   *   "message": "Unable to register user",
+   *   "messageForUser": "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER"
    * }`
    */
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -16989,35 +16991,40 @@ export type Mutation = {
    *   "mutation": "reInviteOrganizationEmployee",
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_FORMAT",
-   *   "message": "Wrong phone format"
+   *   "message": "Wrong phone format",
+   *   "messageForUser": "api.common.WRONG_PHONE_FORMAT"
    * }`
    *
    * `{
    *   "mutation": "reInviteOrganizationEmployee",
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
-   *   "message": "Could not find Organization by specified search criteria"
+   *   "message": "Could not find Organization by specified search criteria",
+   *   "messageForUser": "api.organization.reInviteOrganizationEmployee.ORGANIZATION_NOT_FOUND"
    * }`
    *
    * `{
    *   "mutation": "reInviteOrganizationEmployee",
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
-   *   "message": "Could not find User by specified phone or email"
+   *   "message": "Could not find User by specified phone or email",
+   *   "messageForUser": "api.organization.reInviteOrganizationEmployee.USER_NOT_FOUND"
    * }`
    *
    * `{
    *   "mutation": "reInviteOrganizationEmployee",
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
-   *   "message": "Could not find OrganizationEmployee that has not accepted invitation for found User"
+   *   "message": "Could not find OrganizationEmployee that has not accepted invitation for found User",
+   *   "messageForUser": "api.organization.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND"
    * }`
    *
    * `{
    *   "mutation": "reInviteOrganizationEmployee",
    *   "code": "BAD_USER_INPUT",
    *   "type": "ALREADY_ACCEPTED_INVITATION",
-   *   "message": "Corresponding OrganizationEmployee has already accepted invitation"
+   *   "message": "Corresponding OrganizationEmployee has already accepted invitation",
+   *   "messageForUser": "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION"
    * }`
    */
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -36347,8 +36354,6 @@ export enum SortTicketsBy {
   AssigneeDesc = 'assignee_DESC',
   ExecutorAsc = 'executor_ASC',
   ExecutorDesc = 'executor_DESC',
-  WatchersAsc = 'watchers_ASC',
-  WatchersDesc = 'watchers_DESC',
   ClassifierAsc = 'classifier_ASC',
   ClassifierDesc = 'classifier_DESC',
   PlaceClassifierAsc = 'placeClassifier_ASC',
@@ -36688,9 +36693,6 @@ export type Ticket = {
   assignee?: Maybe<User>;
   /**  Executor employee/user who perform the issue  */
   executor?: Maybe<User>;
-  /**  Staff/person who want to watch ticket changes  */
-  watchers: Array<User>;
-  _watchersMeta?: Maybe<_QueryMeta>;
   /**  [DEPRECATED] Old classifier will be removed after migration of existed data  */
   classifier?: Maybe<TicketClassifier>;
   /**  Describe where incident took place  */
@@ -36743,28 +36745,6 @@ export type Ticket = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
-};
-
-
-/**  Users request or contact with the user  */
-export type TicketWatchersArgs = {
-  where?: Maybe<UserWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortUsersBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Users request or contact with the user  */
-export type Ticket_WatchersMetaArgs = {
-  where?: Maybe<UserWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortUsersBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
 };
 
 export enum TicketAnalyticsGroupBy {
@@ -37368,14 +37348,6 @@ export type TicketChange = {
   sourceDisplayNameFrom?: Maybe<Scalars['String']>;
   /**  New display name of related entity. Ticket source channel/system. Examples: call, email, visit, ...  */
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
-  /**  Old list of ids of related entities. Staff/person who want to watch ticket changes  */
-  watchersIdsFrom?: Maybe<Scalars['JSON']>;
-  /**  New list of ids of related entities. Staff/person who want to watch ticket changes  */
-  watchersIdsTo?: Maybe<Scalars['JSON']>;
-  /**  Old version of display names of related entities. Staff/person who want to watch ticket changes  */
-  watchersDisplayNamesFrom?: Maybe<Scalars['JSON']>;
-  /**  New version of display names of related entities. Staff/person who want to watch ticket changes  */
-  watchersDisplayNamesTo?: Maybe<Scalars['JSON']>;
   /**  Type of employee who changed the ticket, can be employee role from same organization or related, resident or deleted employee  */
   changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -37494,10 +37466,6 @@ export type TicketChangeCreateInput = {
   sourceIdTo?: Maybe<Scalars['ID']>;
   sourceDisplayNameFrom?: Maybe<Scalars['String']>;
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
-  watchersIdsFrom?: Maybe<Scalars['JSON']>;
-  watchersIdsTo?: Maybe<Scalars['JSON']>;
-  watchersDisplayNamesFrom?: Maybe<Scalars['JSON']>;
-  watchersDisplayNamesTo?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37623,10 +37591,6 @@ export type TicketChangeUpdateInput = {
   sourceIdTo?: Maybe<Scalars['ID']>;
   sourceDisplayNameFrom?: Maybe<Scalars['String']>;
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
-  watchersIdsFrom?: Maybe<Scalars['JSON']>;
-  watchersIdsTo?: Maybe<Scalars['JSON']>;
-  watchersDisplayNamesFrom?: Maybe<Scalars['JSON']>;
-  watchersDisplayNamesTo?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38747,22 +38711,6 @@ export type TicketChangeWhereInput = {
   sourceDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   sourceDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sourceDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  watchersIdsFrom?: Maybe<Scalars['JSON']>;
-  watchersIdsFrom_not?: Maybe<Scalars['JSON']>;
-  watchersIdsFrom_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  watchersIdsFrom_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  watchersIdsTo?: Maybe<Scalars['JSON']>;
-  watchersIdsTo_not?: Maybe<Scalars['JSON']>;
-  watchersIdsTo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  watchersIdsTo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  watchersDisplayNamesFrom?: Maybe<Scalars['JSON']>;
-  watchersDisplayNamesFrom_not?: Maybe<Scalars['JSON']>;
-  watchersDisplayNamesFrom_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  watchersDisplayNamesFrom_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  watchersDisplayNamesTo?: Maybe<Scalars['JSON']>;
-  watchersDisplayNamesTo_not?: Maybe<Scalars['JSON']>;
-  watchersDisplayNamesTo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  watchersDisplayNamesTo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -40611,7 +40559,6 @@ export type TicketCreateInput = {
   operator?: Maybe<UserRelateToOneInput>;
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
-  watchers?: Maybe<UserRelateToManyInput>;
   classifier?: Maybe<TicketClassifierRelateToOneInput>;
   placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
   categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
@@ -43497,7 +43444,6 @@ export type TicketUpdateInput = {
   operator?: Maybe<UserRelateToOneInput>;
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
-  watchers?: Maybe<UserRelateToManyInput>;
   classifier?: Maybe<TicketClassifierRelateToOneInput>;
   placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
   categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
@@ -43691,12 +43637,6 @@ export type TicketWhereInput = {
   assignee_is_null?: Maybe<Scalars['Boolean']>;
   executor?: Maybe<UserWhereInput>;
   executor_is_null?: Maybe<Scalars['Boolean']>;
-  /**  condition must be true for all nodes  */
-  watchers_every?: Maybe<UserWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  watchers_some?: Maybe<UserWhereInput>;
-  /**  condition must be false for all nodes  */
-  watchers_none?: Maybe<UserWhereInput>;
   classifier?: Maybe<TicketClassifierWhereInput>;
   classifier_is_null?: Maybe<Scalars['Boolean']>;
   placeClassifier?: Maybe<TicketPlaceClassifierWhereInput>;
@@ -44870,13 +44810,6 @@ export type UserHistoryRecordsCreateInput = {
 export type UserHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<UserHistoryRecordUpdateInput>;
-};
-
-export type UserRelateToManyInput = {
-  create?: Maybe<Array<Maybe<UserCreateInput>>>;
-  connect?: Maybe<Array<Maybe<UserWhereUniqueInput>>>;
-  disconnect?: Maybe<Array<Maybe<UserWhereUniqueInput>>>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
 export type UserRelateToOneInput = {

@@ -152,12 +152,6 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
-        watchers: {
-            schemaDoc: 'Staff/person who want to watch ticket changes',
-            type: Relationship,
-            ref: 'User',
-            many: true,
-        },
         classifier: {
             schemaDoc: '[DEPRECATED] Old classifier will be removed after migration of existed data',
             type: Relationship,

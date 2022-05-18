@@ -192,12 +192,12 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
  * Will be displayed in UI in changes history block.
  * 👉 When a new "many" relation field will be added to Ticket, new resolver should be implemented here
  */
-const relatedManyToManyResolvers = {
-    'watchers': async (args) => {
-        return resolveManyToManyField('watchers', 'User', 'name', args)
-    },
-}
-
+const relatedManyToManyResolvers = {}
+/* relatedManyToManyResolvers example 
+    'resolver_name': async (args) => {
+        return resolveManyToManyField('Field_name_in_Ticket_schema', 'List_name', 'field_name_from_the_list', args)
+    }
+*/
 module.exports = {
     createTicketChange,
     ticketChangeDisplayNameResolversForSingleRelations,
