@@ -51,7 +51,11 @@ const { sendTicketNotifications } = require('../utils/handlers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES } = require('../constants')
 
 const Ticket = new GQLListSchema('Ticket', {
-    schemaDoc: 'Users request or contact with the user',
+    schemaDoc: 'Users request or contact with the user. ' +
+        'It has fields `clientName`, `clientPhone`, `clientEmail`, which stores contact information at the moment of creating or updating. ' +
+        'Values of these fields are independent from related entities, like Contact, Resident etc. ' +
+        'If by some reason related entities will be deleted, unavailable or will change its contact information, these fields will stay unchanged.' +
+        'So, by creating a new ticket with connection to some contact entity (Contact, Resident), these fields will be populated by its contact information if other values are not explicitly provided.',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
