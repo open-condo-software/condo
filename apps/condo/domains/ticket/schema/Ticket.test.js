@@ -1593,7 +1593,7 @@ describe('Ticket', () => {
 
                 const [resident] = await createTestResident(admin, userClient.user, userClient.organization, userClient.property, { unitName })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
-
+                
                 expect(ticket.client.id).toEqual(userClient.user.id)
 
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
@@ -1681,6 +1681,47 @@ describe('Ticket', () => {
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
                 await sleep(1000)
                 const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
+                const messageCount = await Message.count(admin, messageWhere)
+
+                expect(messageCount).toEqual(0)
+            })
+
+            it('update status to TICKET_STATUS_IN_PROGRESS on hidden ticket and check that there was no notification', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const { phone } = residentClient.userAttrs
+                const randomFakeSuccessPushToken = `${PUSH_FAKE_TOKEN_FAIL}-${faker.datatype.uuid()}`
+                const tokenData = { pushToken: randomFakeSuccessPushToken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+                const payload = getRandomTokenData(tokenData)
+                const [device] = await syncDeviceByTestClient(residentClient, payload)
+
+                expect(device.pushTransport).toEqual(payload.pushTransport)
+
+                await createTestResident(admin, residentClient.user, residentClient.organization, residentClient.property, {
+                    unitName,
+                    unitType,
+                })
+                const [contact] = await createTestContact(admin, residentClient.organization, residentClient.property, {
+                    phone,
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(admin, residentClient.organization, residentClient.property, {
+                    unitName,
+                    unitType,
+                    contact: { connect: { id: contact.id } },
+                    canReadByResident: false,
+                })
+
+                const readTicket = await Ticket.getOne(admin, { id: ticket.id })
+
+                expect(readTicket.client.id).toEqual(residentClient.user.id)
+
+                await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
+                await sleep(1000)
+
+                const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
                 const messageCount = await Message.count(admin, messageWhere)
 
                 expect(messageCount).toEqual(0)
