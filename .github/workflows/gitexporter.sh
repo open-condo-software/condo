@@ -90,6 +90,7 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     "werf.yaml",
     ".helm",
     ".github/workflows/cleanup.yaml",
+    ".github/workflows/nodejs.apps.build.yml",
     ".github/workflows/gitexporter*"
   ]
 }
