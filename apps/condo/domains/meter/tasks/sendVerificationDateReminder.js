@@ -140,7 +140,7 @@ const generateReminderMessages = async ({ context, reminderWindowSize, reminders
         // prepare a message for each resident
         messages.push(
             ...residents.map(resident => ({
-                sender: { dv: 1, fingerprint: 'cron-push' },
+                sender: { dv: 1, fingerprint: 'meters-validation-date-cron-push' },
                 to: { user: { id: resident.user.id } },
                 type: METER_VERIFICATION_DATE_REMINDER_TYPE,
                 lang,
