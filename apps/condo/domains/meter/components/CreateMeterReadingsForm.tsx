@@ -103,6 +103,7 @@ export const PropertyMetersForm = ({
         },
         orderBy: SortMetersBy.CreatedAtDesc,
     })
+
     const meterIds = meters.map(meter => meter.id)
     const { objs: meterReadings, refetch: refetchMeterReadings, loading: meterReadingsLoading } = MeterReading.useObjects({
         where: {
@@ -116,7 +117,7 @@ export const PropertyMetersForm = ({
     }, [refetchMeterReadings, refetchMeters])
 
     const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, selectedUnitName, refetch)
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, selectedUnitName, selectedUnitType, refetch)
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {

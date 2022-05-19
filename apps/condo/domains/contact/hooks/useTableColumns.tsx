@@ -6,12 +6,16 @@ import { useIntl } from '@core/next/intl'
 
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { getAddressRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import {
+    getAddressRender,
+    getTableCellRenderer,
+    getUnitNameRender,
+} from '@condo/domains/common/components/Table/Renders'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
 import { IFilters } from '../utils/helpers'
-import { BuildingUnitSubType } from '@app/condo/schema'
+import { Contact } from '@app/condo/schema'
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
@@ -31,22 +35,9 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         (_, contact) => getAddressRender(get(contact, 'property'), DeletedMessage, search),
         [DeletedMessage, search])
 
-    const renderUnitName = useCallback((text, contact) => {
-        let unitNamePrefix = null
-        let extraTitle = null
-        const unitType = get(contact, 'unitType', BuildingUnitSubType.Flat)
-
-        if (text) {
-            extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
-            if (unitType !== BuildingUnitSubType.Flat) {
-                unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
-            }
-        }
-
-        const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
-
-        return getTableCellRenderer(search, true, null, null, null, extraTitle)(unitName)
-    }, [search])
+    const renderUnitName = useCallback(
+        (text, contact) => getUnitNameRender<Contact>(intl, text, contact, search)
+        , [search])
 
     const render = useMemo(() => getTableCellRenderer(search), [search])
 
