@@ -8,9 +8,8 @@
 const dayjs = require('dayjs')
 
 const path = require('path')
-const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { sendVerificationDateReminder } = require('@condo/domains/meter/integrations/sendVerificationDateReminder')
+const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 
 
 async function main () {
@@ -23,7 +22,6 @@ async function main () {
 
     await sendVerificationDateReminder({
         date: dayjs().add(2, 'month'),
-        reminderType: METER_VERIFICATION_DATE_REMINDER_TYPE,
         searchWindowDaysShift: 30,
         daysCount: 30,
     })
