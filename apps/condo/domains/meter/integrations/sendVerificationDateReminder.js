@@ -7,7 +7,7 @@ const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/ser
 const { get, flatten, uniq } = require('lodash')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 
-const readMetersPage = async (context, offset, pageSize, date, searchWindowDaysShift, daysCount) => {
+const readMetersPage = async ({ context, offset, pageSize, date, searchWindowDaysShift, daysCount }) => {
     // calc window
     const startWindowDate = dayjs(date).add(searchWindowDaysShift, 'day').format('YYYY-MM-DD')
     const endWindowDate = dayjs(date)
@@ -26,7 +26,7 @@ const readMetersPage = async (context, offset, pageSize, date, searchWindowDaysS
     )
 }
 
-const connectResidents = async (context, meters) => {
+const connectResidents = async ({ context, meters }) => {
     // first step is get service consumers by accountNumbers
     const accountNumbers = uniq(meters.map(meter => meter.accountNumber))
     const servicesConsumers = await ServiceConsumer.getAll(context, {
@@ -71,7 +71,7 @@ const connectResidents = async (context, meters) => {
         .filter(item => item.residents.length > 0)
 }
 
-const filterSentReminders = async (context, date, reminderType, reminderWindowSize, remindersPairs) => {
+const filterSentReminders = async ({ context, date, reminderType, reminderWindowSize, remindersPairs }) => {
     // let's get all user in those reminders
     const users = uniq(flatten(remindersPairs.map(pair => pair.residents.map(resident => resident.user.id))))
 
@@ -129,7 +129,7 @@ const getOrganizationLang = async (context, id) => {
      */
     return get(COUNTRIES, get(organization, 'country.locale'), DEFAULT_LOCALE)
 }
-const generateReminderMessages = async (context, reminderType, reminderWindowSize, reminders) => {
+const generateReminderMessages = async ({ context, reminderType, reminderWindowSize, reminders }) => {
     const messages = []
 
     await Promise.all(reminders.map(async (reminder) => {
@@ -158,13 +158,13 @@ const generateReminderMessages = async (context, reminderType, reminderWindowSiz
     return messages
 }
 
-const sendReminders = async (context, messages) => {
+const sendReminders = async ({ context, messages }) => {
     await Promise.all(messages.map(async (message) => {
         await sendMessage(context, message)
     }))
 }
 
-const sendVerificationDateReminder = async (date, reminderType, searchWindowDaysShift, daysCount) => {
+const sendVerificationDateReminder = async ({ date, reminderType, searchWindowDaysShift, daysCount }) => {
     // prepare vars
     if (!date) date = dayjs().format('YYYY-MM-DD')
     const reminderWindowSize = searchWindowDaysShift + daysCount
@@ -179,18 +179,24 @@ const sendVerificationDateReminder = async (date, reminderType, searchWindowDays
     let offset = 0
     let hasMore = false
     do {
-        const meters = await readMetersPage(context, offset, pageSize, date, searchWindowDaysShift, daysCount)
+        const meters = await readMetersPage({
+            context, offset, pageSize, date, searchWindowDaysShift, daysCount,
+        })
 
         if (meters.length > 0) {
             // connect residents to meter through the property field
-            const remindersPairs = await connectResidents(context, meters)
+            const remindersPairs = await connectResidents({ context, meters })
 
             if (remindersPairs.length > 0) {
                 // filter out meters that was already reminded
-                const reminders = await filterSentReminders(context, date, reminderType, reminderWindowSize, remindersPairs)
+                const reminders = await filterSentReminders({
+                    context, date, reminderType, reminderWindowSize, remindersPairs,
+                })
 
                 // generate messages
-                const messages = await generateReminderMessages(context, reminderType, reminderWindowSize, reminders)
+                const messages = await generateReminderMessages({
+                    context, reminderType, reminderWindowSize, reminders,
+                })
 
                 // push to queue only unique messages
                 messages.forEach(message => {
@@ -209,7 +215,7 @@ const sendVerificationDateReminder = async (date, reminderType, searchWindowDays
     } while (hasMore)
 
     // send reminders
-    await sendReminders(context, messagesQueue)
+    await sendReminders({ context, messages: messagesQueue })
 }
 
 module.exports = {
