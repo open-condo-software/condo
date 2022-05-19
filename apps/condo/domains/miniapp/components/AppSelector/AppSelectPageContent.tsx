@@ -3,7 +3,6 @@ import { Typography, Row, Col, Tabs } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import Carousel from '@condo/domains/common/components/Carousel'
-import TrackingAuthorizedUser from '@condo/domains/common/components/containers/amplitude/TrackingAuthorizedUser'
 import { TrackPageLoadEvent } from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
 import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
 import { Section } from './Section'
@@ -182,30 +181,28 @@ export const AppSelectPageContent: React.FC = () => {
                                         {
                                             isAnyBillingAvailable && (
                                                 <Tabs.TabPane tab={BillingCategoryMessage} key={'billing'}>
-                                                    <TrackingAuthorizedUser>
-                                                        <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingAppListPage}>
-                                                            <CardsContainer cardsPerRow={appsPerRow}>
-                                                                {
-                                                                    unconnectedBillingsApps.map(app => {
-                                                                        const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
+                                                    <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingAppListPage}>
+                                                        <CardsContainer cardsPerRow={appsPerRow}>
+                                                            {
+                                                                unconnectedBillingsApps.map(app => {
+                                                                    const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
 
-                                                                        const url = `/miniapps/${app.id}/about?type=${app.type}`
-                                                                        const logo = app.logo || undefined
-                                                                        return (
-                                                                            <AppSelectCard
-                                                                                key={app.name}
-                                                                                title={app.name}
-                                                                                description={app.shortDescription}
-                                                                                url={url}
-                                                                                tag={tag}
-                                                                                logoSrc={logo}
-                                                                            />
-                                                                        )
-                                                                    })
-                                                                }
-                                                            </CardsContainer>
-                                                        </TrackPageLoadEvent>
-                                                    </TrackingAuthorizedUser>
+                                                                    const url = `/miniapps/${app.id}/about?type=${app.type}`
+                                                                    const logo = app.logo || undefined
+                                                                    return (
+                                                                        <AppSelectCard
+                                                                            key={app.name}
+                                                                            title={app.name}
+                                                                            description={app.shortDescription}
+                                                                            url={url}
+                                                                            tag={tag}
+                                                                            logoSrc={logo}
+                                                                        />
+                                                                    )
+                                                                })
+                                                            }
+                                                        </CardsContainer>
+                                                    </TrackPageLoadEvent>
                                                 </Tabs.TabPane>
                                             )
                                         }

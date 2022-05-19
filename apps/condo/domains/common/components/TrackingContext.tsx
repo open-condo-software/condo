@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useEffect } from 'react'
+import { useAuth } from '@core/next/auth'
+import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
+import get from 'lodash/get'
 import pick from 'lodash/pick'
+import omit from 'lodash/omit'
 import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
 import AmplitudeInstance from './trackers/AmplitudeInstance'
 
@@ -26,6 +30,7 @@ const useTrackingContext = (): ITrackingContext => useContext<ITrackingContext>(
 
 const useTracking = () => {
     const { trackerInstances, eventProperties, userProperties, setUserProperties, setEventProperties } = useTrackingContext()
+
     const logEvent = ({ eventName, eventProperties }: ITrackerLogEventType) => {
         Object.values(trackerInstances).map(trackerInstance => trackerInstance.logEvent({ eventName, eventProperties }))
     }
@@ -45,8 +50,13 @@ const useTracking = () => {
     }
 }
 
+const USER_OMITTED_FIELDS = ['phone', 'email', '__typename', 'avatar', 'isAdmin']
+
 const TrackingProvider: React.FC = ({ children }) => {
+    const { user } = useAuth()
+    const { link } = useOrganization()
     const { asPath } = useRouter()
+
     //TODO: rewrite to ref
     const trackingProviderValue = {
         trackerInstances: TRACKING_INITIAL_VALUE.trackerInstances,
@@ -56,6 +66,15 @@ const TrackingProvider: React.FC = ({ children }) => {
             },
         },
         userProperties: {},
+    }
+
+    if (user) {
+        trackingProviderValue.userProperties = omit(user, USER_OMITTED_FIELDS)
+
+        if (link) {
+            trackingProviderValue.userProperties['role'] = get(link, 'role.name')
+            trackingProviderValue.userProperties['organization'] = get(link, 'organization.name')
+        }
     }
 
     useEffect(() => {
