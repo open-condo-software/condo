@@ -21,7 +21,12 @@ async function main () {
     await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
     await keystone.connect()
 
-    await sendVerificationDateReminder(dayjs().add(2, 'month'), METER_VERIFICATION_DATE_REMINDER_TYPE, 30, 30)
+    await sendVerificationDateReminder({
+        date: dayjs().add(2, 'month'),
+        reminderType: METER_VERIFICATION_DATE_REMINDER_TYPE,
+        searchWindowDaysShift: 30,
+        daysCount: 30,
+    })
 }
 
 main().catch((e) => {
