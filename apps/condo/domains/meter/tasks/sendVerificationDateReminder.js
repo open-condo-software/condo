@@ -4,6 +4,7 @@ const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { get, flatten, uniq } = require('lodash')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -30,17 +31,25 @@ const readMetersPage = async ({ context, offset, pageSize, date, searchWindowDay
 const connectResidents = async ({ context, meters }) => {
     // first step is get service consumers by accountNumbers
     const accountNumbers = uniq(meters.map(meter => meter.accountNumber))
-    const servicesConsumers = await ServiceConsumer.getAll(context, {
-        accountNumber_in: accountNumbers,
-    }, { first: 100000 })
+    const servicesConsumers = await loadListByChunks({
+        context,
+        list: ServiceConsumer,
+        where: {
+            accountNumber_in: accountNumbers,
+        },
+    })
 
     // second step is to get all resident ids
     const residentsIds = uniq(servicesConsumers.map(item => item.resident.id))
 
     // now let's get residents for the list of ids
-    const residents = await Resident.getAll(context, {
-        id_in: residentsIds,
-    }, { first: 100000 })
+    const residents = await loadListByChunks({
+        context,
+        list: Resident,
+        where: {
+            id_in: residentsIds,
+        },
+    })
 
     // next step - connect residents to services consumers
     const servicesConsumerWithConnectedResidents = servicesConsumers.map(servicesConsumer => {
