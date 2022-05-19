@@ -82,16 +82,6 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     return result
 }
 
-const getResident = async (context, userId, propertyId, organizationId ) => {
-    const where = {
-        user: { id: userId },
-        property: { id: propertyId },
-        organization: { id: organizationId },
-    }
-
-    return await Resident.getOne(context, where)
-}
-
 /**
  * Basically sends different kinds of notifications when assignee/executable added to Ticket, status changed, etc.
  * @param operation
@@ -114,6 +104,7 @@ const sendTicketNotifications = async (requestData) => {
     const statusReopenedCounter = get(updatedItem, 'statusReopenedCounter')
     const createdBy = get(updatedItem, 'createdBy')
     const updatedBy = get(updatedItem, 'updatedBy')
+    const canReadByResident = get(updatedItem, 'canReadByResident') || get(existingItem, 'canReadByResident')
 
     // TODO(DOMA-2822): get rid of this extra request by returning country within nested organization data
     const organization = await getByCondition('Organization', {
@@ -168,7 +159,7 @@ const sendTicketNotifications = async (requestData) => {
         })
     }
 
-    if (eventTypes[STATUS_CHANGED_EVENT_TYPE]) {
+    if (eventTypes[STATUS_CHANGED_EVENT_TYPE] && canReadByResident) {
         let ticketStatusType
 
         switch (nextStatusId) {
@@ -238,21 +229,25 @@ const sendTicketCommentNotifications = async (requestData) => {
     const propertyId = get(ticket, 'property.id')
     const unitName = get(ticket, 'unitName')
     const unitType = get(ticket, 'unitType')
+    const canReadByResident = get(ticket, 'canReadByResident')
 
-    // TODO(DOMA-2822): get rid of this extra request by returning country within nested organization data
-    const organization = await getByCondition('Organization', {
-        id: organizationId,
-        deletedAt: null,
-    })
-
-    /**
-     * Detect message language
-     * Use DEFAULT_LOCALE if organization.country is unknown
-     * (not defined within @condo/domains/common/constants/countries)
-     */
-    const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
+    // Don't send notifications on tickets with canReadByResident === FALSE
+    if (!canReadByResident) return
 
     if (client && createdBy !== client && commentType === RESIDENT_COMMENT_TYPE) {
+        // TODO(DOMA-2822): get rid of this extra request by returning country within nested organization data
+        const organization = await getByCondition('Organization', {
+            id: organizationId,
+            deletedAt: null,
+        })
+
+        /**
+         * Detect message language
+         * Use DEFAULT_LOCALE if organization.country is unknown
+         * (not defined within @condo/domains/common/constants/countries)
+         */
+        const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
+
         const where = {
             user: { id: clientId },
             property: { id: propertyId },
