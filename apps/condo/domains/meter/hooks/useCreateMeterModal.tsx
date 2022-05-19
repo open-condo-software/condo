@@ -4,8 +4,9 @@ import { Typography } from 'antd'
 
 import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter } from '../utils/clientSchema'
+import { BuildingUnitSubType } from '@app/condo/schema'
 
-export function useCreateMeterModal (organizationId: string, propertyId: string, unitName: string, refetch) {
+export function useCreateMeterModal (organizationId: string, propertyId: string, unitName: string, unitType: BuildingUnitSubType, refetch) {
     const intl = useIntl()
     const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
 
@@ -14,15 +15,16 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
 
     const handleMeterCreate = useCallback(values => {
         const numberOfTariffs = values.numberOfTariffs || 1
-        createMeterAction({ ...values, numberOfTariffs, organization: organizationId, property: propertyId, unitName })
+        createMeterAction({ ...values, numberOfTariffs, organization: organizationId, property: propertyId, unitName, unitType })
         setIsCreateMeterModalVisible(false)
     },
-    [createMeterAction, organizationId, propertyId, unitName])
+    [createMeterAction, organizationId, propertyId, unitName, unitType])
 
     const initialValues = useMemo(() => ({
         propertyId,
         unitName,
-    }), [propertyId, unitName])
+        unitType,
+    }), [propertyId, unitName, unitType])
 
     const handleCancelModal = useCallback(() => setIsCreateMeterModalVisible(false),
         [setIsCreateMeterModalVisible])
@@ -32,6 +34,7 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
             <BaseMeterModalForm
                 propertyId={propertyId}
                 unitName={unitName}
+                unitType={unitType}
                 initialValues={initialValues}
                 ModalTitleMsg={<Typography.Title level={3}>{AddMeterMessage}</Typography.Title>}
                 visible={isCreateMeterModalVisible}

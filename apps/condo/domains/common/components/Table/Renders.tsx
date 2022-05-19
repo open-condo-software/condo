@@ -16,7 +16,7 @@ import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
 import { ELLIPSIS_ROWS } from '../../constants/style'
 
 import { EmptyTableCell } from './EmptyTableCell'
-import { Property } from '@app/condo/schema'
+import { Property, BuildingUnitSubType } from '@app/condo/schema'
 import { getAddressDetails } from '../../utils/helpers'
 
 type RenderReturnType = string | React.ReactNode
@@ -148,6 +148,23 @@ export const getAddressRender = (property: Property, DeletedMessage?: string, se
     const postfix = renderPostfix + ' ' + deletedMessage
 
     return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetPart)
+}
+
+export const getUnitNameRender = <T extends Record<string, unknown>>(intl, text: string, record: T, search?: FilterValue | string) => {
+    let unitNamePrefix = null
+    let extraTitle = null
+    const unitType = get(record, 'unitType', BuildingUnitSubType.Flat)
+
+    if (text) {
+        extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+        if (unitType !== BuildingUnitSubType.Flat) {
+            unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
+        }
+    }
+
+    const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
+
+    return getTableCellRenderer(search, false, null, null, null, extraTitle)(unitName)
 }
 
 export const getDateRender = (intl, search?: FilterValue | string) => {
