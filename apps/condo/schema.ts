@@ -17464,7 +17464,7 @@ export type Mutation = {
    * 			}
    * 		}
    * 	},
-   * 	"BILLING_RECEIPT_AVAILABLE_MANUAL": {
+   * 	"BILLING_RECEIPT_AVAILABLE": {
    * 		"dv": {
    * 			"required": true
    * 		},
@@ -17486,7 +17486,23 @@ export type Mutation = {
    * 			}
    * 		}
    * 	},
-   * 	"BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL": {
+   * 	"BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RESIDENT_ADD_ACCOUNT": {
    * 		"dv": {
    * 			"required": true
    * 		},
@@ -31248,8 +31264,9 @@ export enum SendMessageType {
   TicketStatusReturned = 'TICKET_STATUS_RETURNED',
   TicketStatusDeclined = 'TICKET_STATUS_DECLINED',
   TicketCommentAdded = 'TICKET_COMMENT_ADDED',
-  BillingReceiptAvailableManual = 'BILLING_RECEIPT_AVAILABLE_MANUAL',
-  BillingReceiptAvailableNoAccountManual = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL'
+  BillingReceiptAvailable = 'BILLING_RECEIPT_AVAILABLE',
+  BillingReceiptAvailableNoAccount = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT',
+  ResidentAddAccount = 'RESIDENT_ADD_ACCOUNT'
 }
 
 export type SenderField = {
