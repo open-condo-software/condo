@@ -75,7 +75,7 @@ const ADDRESS_META_FIELD = {
 }
 
 const CLIENT_FIELD = {
-    schemaDoc: 'Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client',
+    schemaDoc: 'Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client.',
     type: Relationship,
     ref: 'User',
     kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
