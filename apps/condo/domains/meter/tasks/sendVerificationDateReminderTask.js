@@ -5,7 +5,7 @@ const { sendVerificationDateReminder } = require('./sendVerificationDateReminder
 /**
  * Syncs new and cancelled subscriptions
  */
-const sendVerificationDateReminderTask = createCronTask('sendVerificationDateReminder', '* * * * *', async (date) => {
+const sendVerificationDateReminderTask = createCronTask('sendVerificationDateReminder', '* 13-18 * * *', async (date) => {
     await sendVerificationDateReminder({
         date: dayjs(),
         searchWindowDaysShift: 0,
