@@ -53,8 +53,8 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
         {
             access: true,
             schema: 'authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
-                const { phone: inputPhone, password } = info.variableValues
+            resolver: async (parent, args, context) => {
+                const { data: { phone: inputPhone, password } } = args
                 const phone = normalizePhone(inputPhone)
                 if (!phone) {
                     throw new GQLError(errors.WRONG_PHONE_FORMAT, context)
