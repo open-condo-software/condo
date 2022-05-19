@@ -122,7 +122,7 @@ const Ticket = new GQLListSchema('Ticket', {
         client: {
             ...CLIENT_FIELD,
             schemaDoc: CLIENT_FIELD.schemaDoc +
-                'This field indicates, that the Ticket is visible to a Resident and it has access to it. ' +
+                ' This field indicates, that the Ticket is visible to a Resident and it has access to it. ' +
                 'This field will be set to User of corresponding Resident in following cases: ' +
                 '1) the Ticket was created by Resident from mobile app;' +
                 '2) the Ticket was created by OrganizationEmployee with phone number, that matches some Resident;' +
