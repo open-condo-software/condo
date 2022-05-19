@@ -84,6 +84,7 @@ export const PropertyMetersForm = ({
     handleSave,
     selectedPropertyId,
     selectedUnitName,
+    selectedUnitType,
     organizationId,
     tableColumns,
     newMeterReadings,
@@ -98,6 +99,7 @@ export const PropertyMetersForm = ({
         where: {
             property: { id: selectedPropertyId },
             unitName: selectedUnitName,
+            unitType: selectedUnitType,
         },
         orderBy: SortMetersBy.CreatedAtDesc,
     })
@@ -120,7 +122,7 @@ export const PropertyMetersForm = ({
     useEffect(() => {
         refetch()
         setNewMeterReadings({})
-    }, [selectedPropertyId, selectedUnitName])
+    }, [selectedPropertyId, selectedUnitName, selectedUnitType])
 
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const handleRowAction = useCallback((record) => {
@@ -340,6 +342,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                             <PropertyMetersForm
                                 selectedPropertyId={selectedPropertyId}
                                 selectedUnitName={selectedUnitName}
+                                selectedUnitType={selectedUnitType}
                                 handleSave={handleSave}
                                 organizationId={organization.id}
                                 tableColumns={tableColumns}
