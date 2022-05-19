@@ -1,5 +1,5 @@
-const sendVerificationDateReminder = require('./sendVerificationDateReminder')
+const sendVerificationDateReminderTask = require('./sendVerificationDateReminderTask')
 
 module.exports = {
-    sendVerificationDateReminder,
+    sendVerificationDateReminderTask,
 }
