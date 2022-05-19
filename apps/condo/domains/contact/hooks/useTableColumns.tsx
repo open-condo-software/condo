@@ -11,6 +11,7 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 
 import { IFilters } from '../utils/helpers'
+import { BuildingUnitSubType } from '@app/condo/schema'
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()
@@ -29,6 +30,23 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const renderAddress = useCallback(
         (_, contact) => getAddressRender(get(contact, 'property'), DeletedMessage, search),
         [DeletedMessage, search])
+
+    const renderUnitName = useCallback((text, contact) => {
+        let unitNamePrefix = null
+        let extraTitle = null
+        const unitType = get(contact, 'unitType', BuildingUnitSubType.Flat)
+
+        if (text) {
+            extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+            if (unitType !== BuildingUnitSubType.Flat) {
+                unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
+            }
+        }
+
+        const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
+
+        return getTableCellRenderer(search, true, null, null, null, extraTitle)(unitName)
+    }, [search])
 
     const render = useMemo(() => getTableCellRenderer(search), [search])
 
@@ -67,7 +85,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'unitName',
                 sorter: true,
                 width: '15%',
-                render,
+                render: renderUnitName,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
             },
@@ -97,5 +115,5 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render,
             },
         ]
-    }, [AddressMessage, EmailMessage, NameMessage, PhoneMessage, filterMetas, filters, render, renderAddress, sorterMap])
+    }, [AddressMessage, EmailMessage, NameMessage, PhoneMessage, filterMetas, filters, render, renderAddress, sorterMap, renderUnitName])
 }
