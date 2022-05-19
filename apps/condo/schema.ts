@@ -11359,10 +11359,6 @@ export type Message = {
    *  4. As an alias to the 'id' field on the Message List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
   /**  This message is related to some organization. Organization can manage their messages  */
   organization?: Maybe<Organization>;
   /**  to User  */
@@ -11399,11 +11395,13 @@ export type Message = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
 };
 
 export type MessageCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   phone?: Maybe<Scalars['String']>;
@@ -11424,6 +11422,8 @@ export type MessageCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 /**  A keystone list  */
@@ -11437,8 +11437,6 @@ export type MessageHistoryRecord = {
    *  4. As an alias to the 'id' field on the MessageHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
@@ -11460,14 +11458,14 @@ export type MessageHistoryRecord = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<MessageHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
 };
 
 export type MessageHistoryRecordCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
@@ -11488,6 +11486,8 @@ export type MessageHistoryRecordCreateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<MessageHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -11500,8 +11500,6 @@ export enum MessageHistoryRecordHistoryActionType {
 }
 
 export type MessageHistoryRecordUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
@@ -11522,6 +11520,8 @@ export type MessageHistoryRecordUpdateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<MessageHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -11530,18 +11530,6 @@ export type MessageHistoryRecordUpdateInput = {
 export type MessageHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<MessageHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<MessageHistoryRecordWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   organization?: Maybe<Scalars['String']>;
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -11738,6 +11726,18 @@ export type MessageHistoryRecordWhereInput = {
   newId_not?: Maybe<Scalars['JSON']>;
   newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -11786,8 +11786,6 @@ export enum MessageStatusType {
 }
 
 export type MessageUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   phone?: Maybe<Scalars['String']>;
@@ -11808,23 +11806,13 @@ export type MessageUpdateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 export type MessageWhereInput = {
   AND?: Maybe<Array<Maybe<MessageWhereInput>>>;
   OR?: Maybe<Array<Maybe<MessageWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   user?: Maybe<UserWhereInput>;
@@ -11985,6 +11973,18 @@ export type MessageWhereInput = {
   newId_not?: Maybe<Scalars['String']>;
   newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
 };
 
 export type MessageWhereUniqueInput = {
@@ -34080,8 +34080,6 @@ export enum SortForgotPasswordActionsBy {
 }
 
 export enum SortMessageHistoryRecordsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   PhoneAsc = 'phone_ASC',
   PhoneDesc = 'phone_DESC',
   EmailAsc = 'email_ASC',
@@ -34110,6 +34108,8 @@ export enum SortMessageHistoryRecordsBy {
   UpdatedAtDesc = 'updatedAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -34117,8 +34117,6 @@ export enum SortMessageHistoryRecordsBy {
 }
 
 export enum SortMessagesBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
   UserAsc = 'user_ASC',
@@ -34154,7 +34152,9 @@ export enum SortMessagesBy {
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC'
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortMeterHistoryRecordsBy {
@@ -36642,7 +36642,7 @@ export type SyncDeviceInput = {
   meta?: Maybe<Scalars['JSON']>;
 };
 
-/**  Users request or contact with the user  */
+/**  Users request or contact with the user. It has fields `clientName`, `clientPhone`, `clientEmail`, which stores contact information at the moment of creating or updating. Values of these fields are independent from related entities, like Contact, Resident etc. If by some reason related entities will be deleted, unavailable or will change its contact information, these fields will stay unchanged.So, by creating a new ticket with connection to some contact entity (Contact, Resident), these fields will be populated by its contact information if other values are not explicitly provided.  */
 export type Ticket = {
   __typename?: 'Ticket';
   /**
@@ -37254,11 +37254,11 @@ export type TicketChange = {
   statusDisplayNameTo?: Maybe<Scalars['String']>;
   /**  Old id of related entity. Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client  */
   clientIdFrom?: Maybe<Scalars['ID']>;
-  /**  New id of related entity. Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client  */
+  /**  New id of related entity. Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client.This field indicates, that the Ticket is visible to a Resident and it has access to it. This field will be set to User of corresponding Resident in following cases: 1) the Ticket was created by Resident from mobile app;2) the Ticket was created by OrganizationEmployee with phone number, that matches some Resident;3) a Resident was registered after this Ticket was created and the Resident have the same phone number as in this Ticket, so this Ticket will be automatically connected to it.  */
   clientIdTo?: Maybe<Scalars['ID']>;
-  /**  Old display name of related entity. Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client  */
+  /**  Old display name of related entity. Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client.This field indicates, that the Ticket is visible to a Resident and it has access to it. This field will be set to User of corresponding Resident in following cases: 1) the Ticket was created by Resident from mobile app;2) the Ticket was created by OrganizationEmployee with phone number, that matches some Resident;3) a Resident was registered after this Ticket was created and the Resident have the same phone number as in this Ticket, so this Ticket will be automatically connected to it.  */
   clientDisplayNameFrom?: Maybe<Scalars['String']>;
-  /**  New display name of related entity. Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client  */
+  /**  New display name of related entity. Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client.This field indicates, that the Ticket is visible to a Resident and it has access to it. This field will be set to User of corresponding Resident in following cases: 1) the Ticket was created by Resident from mobile app;2) the Ticket was created by OrganizationEmployee with phone number, that matches some Resident;3) a Resident was registered after this Ticket was created and the Resident have the same phone number as in this Ticket, so this Ticket will be automatically connected to it.  */
   clientDisplayNameTo?: Maybe<Scalars['String']>;
   /**  Old id of related entity. Contact, that reported issue, described in this ticket  */
   contactIdFrom?: Maybe<Scalars['ID']>;
