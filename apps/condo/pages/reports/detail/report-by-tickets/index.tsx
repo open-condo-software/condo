@@ -267,18 +267,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                             onChange={onDateRangeChange}
                             placeholder={[startDateMessage, endDateMessage]}
                         />
-                        <Typography.Paragraph>
-                            <Radio.Group
-                                css={radioButtonBorderlessCss}
-                                size={'small'}
-                                onChange={onRangePresetChange}
-                            >
-                                <Radio.Button value={'week'}>{PresetWeek}</Radio.Button>
-                                <Radio.Button value={'month'}>{PresetMonth}</Radio.Button>
-                                <Radio.Button value={'quarter'}>{PresetQuarter}</Radio.Button>
-                                <Radio.Button value={'year'}>{PresetYear}</Radio.Button>
-                            </Radio.Group>
-                        </Typography.Paragraph>
                     </Form.Item>
                 </Col>
                 <Col xs={24} sm={12} lg={4} offset={isSmall ? 0 : 1}>
