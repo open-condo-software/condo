@@ -3,7 +3,9 @@
  */
 
 const DELETED_USER_NAME = 'Deleted User'
+const TRACKING_USER_FIELDS = ['id', 'name']
 
 module.exports = {
     DELETED_USER_NAME,
+    TRACKING_USER_FIELDS,
 }

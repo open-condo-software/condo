@@ -4,7 +4,7 @@ import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
-import omit from 'lodash/omit'
+import { TRACKING_USER_FIELDS } from '@condo/domains/user/constants'
 import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
 import AmplitudeInstance from './trackers/AmplitudeInstance'
 
@@ -68,8 +68,7 @@ const useTracking: IUseTracking = () => {
     }
 }
 
-//TODO: move to user domain or rewrite user fields extraction
-const USER_OMITTED_FIELDS = ['phone', 'email', '__typename', 'avatar', 'isAdmin']
+
 
 const TrackingProvider: React.FC = ({ children }) => {
     const { user } = useAuth()
@@ -101,7 +100,7 @@ const TrackingProvider: React.FC = ({ children }) => {
     // Collect user & organization related data to slice custom groups based on given attributes
     useEffect(() => {
         if (user) {
-            trackingProviderValueRef.current.userProperties = omit(user, USER_OMITTED_FIELDS)
+            trackingProviderValueRef.current.userProperties = pick(user, TRACKING_USER_FIELDS)
 
             if (link) {
                 trackingProviderValueRef.current.userProperties['role'] = get(link, 'role.name')
