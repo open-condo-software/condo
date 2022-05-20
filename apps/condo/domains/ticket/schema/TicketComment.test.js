@@ -998,7 +998,7 @@ describe('TicketComment', () => {
 
 
     // NOTE: disabled at 2022-04-25 because of @MikhailRumanovskii request until ticket comments will be implemented in all mobile applications for all platforms
-    describe.skip('notifications', () => {
+    describe('notifications', () => {
         it('Checks that resident user receives push notification when employee comments his ticket', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentAccessAndProperty()
@@ -1018,11 +1018,11 @@ describe('TicketComment', () => {
             await createTestResident(admin, residentClient.user, residentClient.organization, residentClient.property, { unitName: unitName1 })
 
             const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, { unitName })
-            const extraAttrs = { type: ORGANIZATION_COMMENT_TYPE, content }
+            const extraAttrs = { type: RESIDENT_COMMENT_TYPE, content }
             const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user, extraAttrs)
 
             expect(ticketComment.id).toMatch(UUID_RE)
-            expect(ticketComment.type).toMatch(ORGANIZATION_COMMENT_TYPE)
+            expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
             expect(ticketComment.content).toMatch(content)
 
             const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
