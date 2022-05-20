@@ -11,9 +11,8 @@ class AmplitudeInstance extends TrackerInstance {
         super(amplitudeToken)
     }
 
-
     init () {
-        if (this.token) {
+        if (this.token && !this.instance) {
             const amplitudeInstance = amplitude.getInstance()
 
             const userId = getCurrentUserId()
@@ -21,7 +20,6 @@ class AmplitudeInstance extends TrackerInstance {
 
             amplitudeInstance.init(this.token, null, {
                 userId,
-                includeReferrer: true,
                 includeGclid: true,
                 includeUtm: true,
             })
@@ -40,7 +38,6 @@ class AmplitudeInstance extends TrackerInstance {
             this.instance.logEvent(eventName, eventProperties)
         }
     }
-
 }
 
 export default AmplitudeInstance

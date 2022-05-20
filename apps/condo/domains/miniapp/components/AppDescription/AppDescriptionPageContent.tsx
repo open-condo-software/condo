@@ -6,7 +6,7 @@ import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 import { MarkDown } from '@condo/domains/common/components/MarkDown'
 import { Button } from '@condo/domains/common/components/Button'
-import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
+import { BILLING_TRACKING_EVENTS } from '@condo/domains/billing/constants/constants'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 
 interface AppDescriptionPageContentProps {
@@ -58,7 +58,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                 const value = get(target, 'attributes.href.value', '')
                 const title = get(target, 'textContent', '')
 
-                logEvent({ eventName: AmplitudeEventType.OpenDescriptionLink, eventProperties: {
+                logEvent({ eventName: BILLING_TRACKING_EVENTS.BILLING_OPEN_DESCRIPTION_LINK, eventProperties: {
                     ...eventProperties,
                     link: { title, value },
                 } })

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react'
+import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
@@ -9,13 +9,21 @@ import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstanc
 import AmplitudeInstance from './trackers/AmplitudeInstance'
 
 const TRACKING_INITIAL_VALUE = {
+    // Here you should create app related tracker instances
     trackerInstances: { amplitude: new AmplitudeInstance() },
 }
 
+export type TrackingEventPropertiesType = {
+    page?: {
+        path: string
+        state?: string
+    }
+}
+
 interface ITrackingContext {
-    eventProperties?: Record<string, unknown>
+    trackerInstances: Record<string, TrackerInstance>
+    eventProperties?: TrackingEventPropertiesType
     userProperties?: Record<string, unknown>
-    trackerInstances?: Record<string, TrackerInstance>
     setUserProperties? (newProps: Record<string, unknown>): void
     setEventProperties? (newProps: Record<string, unknown>): void
 }
@@ -28,7 +36,18 @@ const TrackingContext = createContext<ITrackingContext>(TRACKING_INITIAL_VALUE)
 
 const useTrackingContext = (): ITrackingContext => useContext<ITrackingContext>(TrackingContext)
 
-const useTracking = () => {
+interface IUseTracking {
+    (): {
+        eventProperties: ITrackingContext['eventProperties']
+        userProperties: Pick<ITrackingContext, 'userProperties'>
+        logEvent: (logEventProps: ITrackerLogEventType) => void
+        logEventTo: (logEventToProps: ILogEventTo) => void
+        setEventProperties: (newProps: Record<string, unknown>) => void
+        setUserProperties: (newProps: Record<string, unknown>) => void
+    }
+}
+
+const useTracking: IUseTracking = () => {
     const { trackerInstances, eventProperties, userProperties, setUserProperties, setEventProperties } = useTrackingContext()
 
     const logEvent = ({ eventName, eventProperties }: ITrackerLogEventType) => {
@@ -42,7 +61,6 @@ const useTracking = () => {
     return {
         eventProperties,
         userProperties,
-        trackerInstances,
         logEvent,
         logEventTo,
         setEventProperties,
@@ -50,6 +68,7 @@ const useTracking = () => {
     }
 }
 
+//TODO: move to user domain or rewrite user fields extraction
 const USER_OMITTED_FIELDS = ['phone', 'email', '__typename', 'avatar', 'isAdmin']
 
 const TrackingProvider: React.FC = ({ children }) => {
@@ -57,51 +76,86 @@ const TrackingProvider: React.FC = ({ children }) => {
     const { link } = useOrganization()
     const { asPath } = useRouter()
 
-    //TODO: rewrite to ref
-    const trackingProviderValue = {
+    const trackingProviderValueRef = useRef<ITrackingContext>({
         trackerInstances: TRACKING_INITIAL_VALUE.trackerInstances,
+        userProperties: {},
         eventProperties: {
             page: {
                 path: asPath,
             },
         },
-        userProperties: {},
-    }
-
-    if (user) {
-        trackingProviderValue.userProperties = omit(user, USER_OMITTED_FIELDS)
-
-        if (link) {
-            trackingProviderValue.userProperties['role'] = get(link, 'role.name')
-            trackingProviderValue.userProperties['organization'] = get(link, 'organization.name')
-        }
-    }
+        setUserProperties (newProps: Record<string, unknown>) {
+            this.userProperties = Object.assign(this.userProperties, newProps)
+        },
+        setEventProperties (newProps: Record<string, unknown>) {
+            this.eventProperties = Object.assign(this.eventProperties, newProps)
+        },
+    })
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            Object.values(trackingProviderValue.trackerInstances).map(trackerInstance => trackerInstance.init())
+            Object.values(trackingProviderValueRef.current.trackerInstances).map(trackerInstance => trackerInstance.init())
         }
     }, [])
 
-    const setUserProperties = (newProps) => {
-        trackingProviderValue.userProperties = Object.assign(trackingProviderValue.userProperties, newProps)
-    }
+    // Collect user & organization related data to slice custom groups based on given attributes
+    useEffect(() => {
+        if (user) {
+            trackingProviderValueRef.current.userProperties = omit(user, USER_OMITTED_FIELDS)
 
-    const setEventProperties = (newProps) => {
-        trackingProviderValue.eventProperties = Object.assign(trackingProviderValue.eventProperties, newProps)
-    }
+            if (link) {
+                trackingProviderValueRef.current.userProperties['role'] = get(link, 'role.name')
+                trackingProviderValueRef.current.userProperties['organization'] = get(link, 'organization.name')
+            }
+        }
+    }, [user, link])
+
+    // Page path changed -> change value at context object
+    useEffect(() => {
+        trackingProviderValueRef.current.eventProperties['page']['path'] = asPath
+    }, [asPath])
 
     return (
-        <TrackingContext.Provider value={{
-            eventProperties: trackingProviderValue.eventProperties,
-            userProperties: trackingProviderValue.userProperties,
-            trackerInstances: trackingProviderValue.trackerInstances,
-            setUserProperties,
-            setEventProperties,
-        }}>
+        <TrackingContext.Provider value={trackingProviderValueRef.current}>
             {children}
         </TrackingContext.Provider>
     )
 }
 
-export { useTracking, TrackingProvider }
+export enum TrackingPageState {
+    Empty = 'Empty',
+    InProgress = 'InProgress',
+    Error = 'Error',
+    Success = 'Success',
+    AccessError = 'AccessError',
+}
+
+interface TrackingComponentLoadEvent {
+    eventType: string
+    pageState?: TrackingPageState
+    extraEventProperties?: Record<string, number | string>
+}
+
+const TrackingComponentLoadEvent: React.FC<TrackingComponentLoadEvent> = (props) => {
+    const { children, eventType, pageState = TrackingPageState.Success, extraEventProperties = {} } = props
+    const { eventProperties, logEvent } = useTracking()
+
+    const pageProps = get(eventProperties, 'page', {}) as Record<string, unknown>
+    useEffect(() => {
+        logEvent({ eventName: eventType, eventProperties: {
+            page: {
+                ...pageProps,
+                state: pageState,
+            },
+            ...extraEventProperties,
+        } })
+    }, [])
+
+    return (
+        <>
+            {children}
+        </>
+    )
+}
+
+export { useTracking, TrackingProvider, TrackingComponentLoadEvent }

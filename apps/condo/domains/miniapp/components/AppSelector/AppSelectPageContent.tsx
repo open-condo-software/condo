@@ -3,8 +3,8 @@ import { Typography, Row, Col, Tabs } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import Carousel from '@condo/domains/common/components/Carousel'
-import { TrackPageLoadEvent } from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
-import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
+import { TrackingComponentLoadEvent } from '@condo/domains/common/components/TrackingContext'
+import { BILLING_TRACKING_EVENTS } from '@condo/domains/billing/constants/constants'
 import { Section } from './Section'
 import { CardsContainer, CardsPerRowType } from './CardsContainer'
 import { AppCarouselCard } from './AppCarouselCard'
@@ -181,7 +181,9 @@ export const AppSelectPageContent: React.FC = () => {
                                         {
                                             isAnyBillingAvailable && (
                                                 <Tabs.TabPane tab={BillingCategoryMessage} key={'billing'}>
-                                                    <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingAppListPage}>
+                                                    <TrackingComponentLoadEvent
+                                                        eventType={BILLING_TRACKING_EVENTS.BILLING_VISIT_APP_LIST_PAGE}
+                                                    >
                                                         <CardsContainer cardsPerRow={appsPerRow}>
                                                             {
                                                                 unconnectedBillingsApps.map(app => {
@@ -202,7 +204,7 @@ export const AppSelectPageContent: React.FC = () => {
                                                                 })
                                                             }
                                                         </CardsContainer>
-                                                    </TrackPageLoadEvent>
+                                                    </TrackingComponentLoadEvent>
                                                 </Tabs.TabPane>
                                             )
                                         }

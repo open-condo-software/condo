@@ -7,12 +7,12 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { useIntl } from '@core/next/intl'
 import Error from 'next/error'
 import Head from 'next/head'
+import { BILLING_TRACKING_EVENTS } from '@condo/domains/billing/constants/constants'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { AlreadyConnectedBilling } from '@condo/domains/miniapp/components/AppDescription/Alerts/AlreadyConnectedBilling'
 import { useRouter } from 'next/router'
-import { TrackPageLoadEvent } from '@condo/domains/common/components/containers/amplitude/TrackPageLoad'
-import { AmplitudeEventType } from '@condo/domains/common/components/containers/amplitude/AmplitudeProvider'
+import { TrackingComponentLoadEvent } from '@condo/domains/common/components/TrackingContext'
 
 interface AboutBillingAppPageProps {
     id: string,
@@ -84,7 +84,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <TrackPageLoadEvent eventType={AmplitudeEventType.VisitBillingAboutPage}>
+                    <TrackingComponentLoadEvent eventType={BILLING_TRACKING_EVENTS.BILLING_VISIT_ABOUT_PAGE}>
                         <AppDescriptionPageContent
                             title={integration.name}
                             description={integration.shortDescription}
@@ -104,7 +104,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
                                 )
                             }
                         </AppDescriptionPageContent>
-                    </TrackPageLoadEvent>
+                    </TrackingComponentLoadEvent>
                 </PageContent>
             </PageWrapper>
         </>
