@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, FunctionComponent } from 'react'
+import React, { CSSProperties, FunctionComponent, useEffect } from 'react'
 import { jsx } from '@emotion/core'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -20,6 +20,8 @@ import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import { Header } from './Header'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { ITrackerLogEventType } from '@condo/domains/common/components/trackers/TrackerInstance'
 
 interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>
@@ -57,10 +59,20 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
 interface IPageWrapperProps {
     className?: string
     style?: CSSProperties
+    loadTrackEvent?: ITrackerLogEventType
 }
 
-const PageWrapper: FunctionComponent<IPageWrapperProps> = ({ children, className, style }) => {
+const PageWrapper: FunctionComponent<IPageWrapperProps> = (props) => {
+    const { children, className, style, loadTrackEvent } = props
     const { isSmall } = useLayoutContext()
+    const { logEvent } = useTracking()
+
+    useEffect(() => {
+        if (loadTrackEvent) {
+            logEvent(loadTrackEvent)
+        }
+    }, [])
+
     return (
         <StyledPageWrapper isSmall={isSmall} className={classnames('page-wrapper', className)} style={style}>
             {children}
