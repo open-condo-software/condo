@@ -23,6 +23,9 @@ const Meter = generateGQLTestUtils(MeterGQL)
 const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 const MeterReadingFilterTemplate = generateGQLTestUtils(MeterReadingFilterTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
+const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema/index.js')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+
 
 async function createTestMeterResource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -77,6 +80,20 @@ async function updateTestMeterReadingSource (client, id, extraAttrs = {}) {
     const obj = await MeterReadingSource.update(client, id, attrs)
     return [obj, attrs]
 }
+
+async function createTestMeterWithResident (extraMeterAttrs = {}) {
+    const client = await makeClientWithServiceConsumer()
+    const adminClient = await makeLoggedInAdminClient()
+    const { property, organization, resident, serviceConsumer, user } = client
+    const [resource] = await MeterResource.getAll(client)
+    const [meter, attrs] = await createTestMeter(adminClient, organization, property, resource, {
+        accountNumber: serviceConsumer.accountNumber,
+        unitName: resident.unitName,
+        ...extraMeterAttrs,
+    })
+    return { property, organization, resident, serviceConsumer, meter, resource, meterAttrs: attrs, phone: client.userAttrs.phone, user }
+}
+
 
 async function createTestMeter (client, organization, property, resource, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -211,5 +228,6 @@ module.exports = {
     MeterReading, createTestMeterReading, updateTestMeterReading,
     exportMeterReadingsByTestClient,
     MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    createTestMeterWithResident,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }
