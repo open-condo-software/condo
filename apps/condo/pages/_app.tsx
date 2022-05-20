@@ -20,10 +20,8 @@ import YandexMetrika from '@condo/domains/common/components/containers/YandexMet
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { extractReqLocale } from '@condo/domains/common/utils/locale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
-import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { FocusElement } from '@condo/domains/common/components/Focus/FocusElement'
-import { BarChartIcon } from '@condo/domains/common/components/icons/BarChart'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
 import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -33,7 +31,6 @@ import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/compo
 import {
     BILLING_RECEIPT_SERVICE_FIELD_NAME,
 } from '@condo/domains/billing/constants/constants'
-import { MeterLog } from '@condo/domains/common/components/icons/MeterLogIcon'
 import {
     SubscriptionProvider,
     useServiceSubscriptionContext,
@@ -45,6 +42,16 @@ import {
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import JIRAServiceDeskWidget from '@condo/domains/common/components/JIRAServiceDeskWidget'
+import { BarTicketIcon } from '@condo/domains/common/components/icons/BarTicketIcon'
+import { BarEmployeeIcon } from '@condo/domains/common/components/icons/BarEmployeeIcon'
+import { BarPropertyIcon } from '@condo/domains/common/components/icons/BarPropertyIcon'
+import { BarUserIcon } from '@condo/domains/common/components/icons/BarUserIcon'
+import { BarBillingIcon } from '@condo/domains/common/components/icons/BarBillingIcon'
+import { BarPaymentsIcon } from '@condo/domains/common/components/icons/BarPaymentsIcon'
+import { BarMeterIcon } from '@condo/domains/common/components/icons/BarMeterIcon'
+import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniAppsIcon'
+import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
+import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -75,39 +82,39 @@ const MenuItems: React.FC = () => {
 
     const menuItemsData: IMenuItemData[] = [{
         path: 'reports',
-        icon: BarChartIcon,
+        icon: BarChartIconNew,
         label: 'menu.Analytics',
     }, {
         path: 'ticket',
-        icon: ThunderboltFilled,
+        icon: BarTicketIcon,
         label: 'menu.ControlRoom',
     }, {
         path: 'property',
-        icon: HomeFilled,
+        icon: BarPropertyIcon,
         label: 'menu.Property',
     }, {
         path: 'contact',
-        icon: UserIcon,
+        icon: BarUserIcon,
         label: 'menu.Contacts',
     }, {
         path: 'employee',
-        icon: UserIcon,
+        icon: BarEmployeeIcon,
         label: 'menu.Employees',
     }, {
         path: 'billing',
-        icon: ApiFilled,
+        icon: BarBillingIcon,
         label: 'menu.Billing',
     }, {
         path: 'payments',
-        icon: GoldFilled,
+        icon: BarPaymentsIcon,
         label: 'menu.Payments',
     }, {
         path: 'meter',
-        icon: MeterLog,
+        icon: BarMeterIcon,
         label: 'menu.Meters',
     }, {
         path: 'miniapps',
-        icon: ShoppingFilled,
+        icon: BarMiniAppsIcon,
         label: 'menu.MiniApps',
     }]
 
@@ -138,7 +145,7 @@ const MenuItems: React.FC = () => {
                 <MenuItem
                     key="menu-item-settings"
                     path={'/settings'}
-                    icon={SettingFilled}
+                    icon={BarSettingIcon}
                     label={'menu.Settings'}
                     disabled={!link}
                     isCollapsed={isCollapsed}
