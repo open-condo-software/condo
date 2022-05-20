@@ -28,7 +28,7 @@ const readMetersPage = async ({ context, offset, pageSize, date, searchWindowDay
     )
 }
 
-const connectResidents = async ({ context, meters }) => {
+const getMetersConnectedWithResidents = async ({ context, meters }) => {
     // first step is get service consumers by accountNumbers
     const accountNumbers = uniq(meters.map(meter => meter.accountNumber))
     const servicesConsumers = await loadListByChunks({
@@ -81,9 +81,9 @@ const connectResidents = async ({ context, meters }) => {
         .filter(item => item.residents.length > 0)
 }
 
-const filterSentReminders = async ({ context, date, reminderWindowSize, remindersPairs }) => {
+const filterSentReminders = async ({ context, date, reminderWindowSize, metersConnectedWithResidents }) => {
     // let's get all user in those reminders
-    const users = uniq(flatten(remindersPairs.map(pair => pair.residents.map(resident => resident.user.id))))
+    const users = uniq(flatten(metersConnectedWithResidents.map(item => item.residents.map(resident => resident.user.id))))
 
     // now let's retrieve already sent messages by users and message type where statement
     // filter out messages old that 2 months
@@ -96,9 +96,9 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, reminder
     })
 
     // do filter
-    return remindersPairs
-        .map(pair => {
-            const { meter, residents } = pair
+    return metersConnectedWithResidents
+        .map(item => {
+            const { meter, residents } = item
 
             // let's filter residents that already got a notification
             const residentsWithoutNotifications = residents.filter(resident => {
@@ -127,7 +127,7 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, reminder
                 residents: residentsWithoutNotifications,
             }
         })
-        .filter(pair => pair.residents.length > 0)
+        .filter(item => item.residents.length > 0)
 }
 
 const getOrganizationLang = async (context, id) => {
@@ -183,8 +183,7 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
     const reminderWindowSize = searchWindowDaysShift + daysCount
 
     // initialize context stuff
-    const { keystone } = await getSchemaCtx('Meter')
-    const context = await keystone.createContext({ skipAccessControl: true })
+    const { keystone: context } = await getSchemaCtx('Meter')
 
     // let's proceed meters page by page
     const messagesQueue = []
@@ -198,12 +197,14 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
 
         if (meters.length > 0) {
             // connect residents to meter through the property field
-            const remindersPairs = await connectResidents({ context, meters })
+            const metersConnectedWithResidents = await getMetersConnectedWithResidents(
+                { context, meters }
+            )
 
-            if (remindersPairs.length > 0) {
+            if (metersConnectedWithResidents.length > 0) {
                 // filter out meters that was already reminded
                 const reminders = await filterSentReminders({
-                    context, date, reminderWindowSize, remindersPairs,
+                    context, date, reminderWindowSize, metersConnectedWithResidents,
                 })
 
                 // generate messages
