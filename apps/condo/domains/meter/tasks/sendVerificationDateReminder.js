@@ -114,6 +114,7 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, reminder
                     const startOfReminderWindow = endOfReminderWindow.add(-reminderWindowSize, 'day')
 
                     return sentMessage.user.id === resident.user.id
+                        && meter.id === sentMessage.meta.data.meterId
                         && messageCreateAt.unix() >= startOfReminderWindow.unix()
                 })
                 return message == null
@@ -159,6 +160,8 @@ const generateReminderMessages = async ({ context, reminderWindowSize, reminders
                         reminderWindowSize,
                         reminderDate: dayjs(meter.nextVerificationDate).locale(lang).format('D MMM'),
                         meterId: meter.id,
+                        userId: resident.user.id,
+                        residentId: resident.id,
                     },
                 },
             }))
@@ -210,7 +213,11 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
 
                 // push to queue only unique messages
                 messages.forEach(message => {
-                    const queuedMessage = messagesQueue.find(queued => queued.to.user.id === message.to.user.id)
+                    const queuedMessage = messagesQueue.find(queued =>
+                        queued.to.user.id === message.to.user.id
+                        && queued.meta.data.meterId === message.meta.data.meterId
+                        && queued.meta.data.reminderDate === message.reminderDate
+                    )
 
                     if (queuedMessage == null) {
                         messagesQueue.push(message)

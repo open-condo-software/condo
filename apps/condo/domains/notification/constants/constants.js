@@ -226,6 +226,8 @@ const MESSAGE_META = {
             reminderDate: { required: true },
             meterId: { required: true },
             reminderWindowSize: { required: true },
+            userId: { required: true },
+            residentId: { required: true },
         },
     },
 }
