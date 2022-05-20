@@ -13,7 +13,7 @@ const access = require('@condo/domains/ticket/access/TicketComment')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { normalizeText } = require('@condo/domains/common/utils/text')
-const { sendDifferentKindsOfNotifications } = require('@condo/domains/ticket/utils/handlers')
+const { sendTicketCommentNotifications } = require('@condo/domains/ticket/utils/handlers')
 
 const { createOrUpdateTicketCommentsTime } = require('../utils/handlers')
 
@@ -91,8 +91,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
                 await createOrUpdateTicketCommentsTime(context, updatedItem, userType)
             }
 
-            // NOTE: disabled at 2022-04-25 because of @MikhailRumanovskii request until ticket comments will be implemented in all mobile applications for all platforms
-            // await sendTicketCommentNotifications(requestData)
+            await sendTicketCommentNotifications(requestData)
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
