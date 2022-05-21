@@ -1,3 +1,8 @@
+/**
+ * @jest-environment node
+ */
+
+
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
 const { createTestMeterWithResident } = require('../utils/testSchema')
 const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder.js')
@@ -8,7 +13,7 @@ let keystone = null
 
 
 const getNotificationsFromMeter = async ({ verificationDate, nextVerificationDate, searchWindowDaysShift = 0 }) => {
-    const { resident: { user: { id } } } = await createTestMeterWithResident({ verificationDate, nextVerificationDate })
+    const { user: { id } } = await createTestMeterWithResident({ verificationDate, nextVerificationDate })
     await sendVerificationDateReminder({ date: null, searchWindowDaysShift, daysCount: 30 })
     return await MessageApi.getAll(keystone, { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE })
 }
@@ -21,7 +26,7 @@ describe('Meter verification notification', () => {
         keystone = result.keystone
     })
 
-    it('should not send messages on null next verificationDate', async () => {
+    it('should not send messages on null nextVerificationDate', async () => {
         const messages = await getNotificationsFromMeter({
             verificationDate: null,
             nextVerificationDate: null,
@@ -29,7 +34,7 @@ describe('Meter verification notification', () => {
         expect(messages).toHaveLength(0)
     })
 
-    it.skip('should not send messages on equal verificationDate and nextVerificationDate', async () => {
+    it('should not send messages on equal verificationDate and nextVerificationDate', async () => {
         const now = new Date()
         const messages = await getNotificationsFromMeter({
             verificationDate: dayjs(now).add('25', 'day').toISOString(),
@@ -38,7 +43,7 @@ describe('Meter verification notification', () => {
         expect(messages).toHaveLength(0)
     })
 
-    it.skip('should not send messages if verificationDate is greater then nextVerificationDate', async () => {
+    it('should not send messages if verificationDate is greater then nextVerificationDate', async () => {
         const messages = await getNotificationsFromMeter({
             verificationDate: dayjs().add('25', 'day').toISOString(),
             nextVerificationDate: dayjs().add('24', 'day').toISOString(),
@@ -46,7 +51,7 @@ describe('Meter verification notification', () => {
         expect(messages).toHaveLength(0)
     })
 
-    it('should not create notifications if verification date is too far', async () => {
+    it('should not create notifications if verificationDate is too far', async () => {
         const messages = await getNotificationsFromMeter({
             verificationDate: dayjs().subtract('1', 'year').toISOString(),
             nextVerificationDate: dayjs().add('100', 'day').toISOString(),
