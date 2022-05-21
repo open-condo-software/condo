@@ -23,7 +23,7 @@ const Meter = generateGQLTestUtils(MeterGQL)
 const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 const MeterReadingFilterTemplate = generateGQLTestUtils(MeterReadingFilterTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
-const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema/index.js')
+const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 
@@ -84,14 +84,17 @@ async function updateTestMeterReadingSource (client, id, extraAttrs = {}) {
 async function createTestMeterWithResident (extraMeterAttrs = {}) {
     const client = await makeClientWithServiceConsumer()
     const adminClient = await makeLoggedInAdminClient()
-    const { property, organization, resident, serviceConsumer, user } = client
+    const { property, organization, serviceConsumer, resident } = client
     const [resource] = await MeterResource.getAll(client)
+    client.resource = resource
     const [meter, attrs] = await createTestMeter(adminClient, organization, property, resource, {
         accountNumber: serviceConsumer.accountNumber,
         unitName: resident.unitName,
         ...extraMeterAttrs,
     })
-    return { property, organization, resident, serviceConsumer, meter, resource, meterAttrs: attrs, phone: client.userAttrs.phone, user }
+    client.meterAttrs = attrs
+    client.meter = meter
+    return client
 }
 
 

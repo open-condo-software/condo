@@ -191,8 +191,13 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
     let offset = 0
     let hasMore = false
     do {
-        const meters = await readMetersPage({
+        const metersToChek = await readMetersPage({
             context, offset, pageSize, date, searchWindowDaysShift, daysCount,
+        })
+
+        // remove meters with wrong nextVerificationDate
+        const meters = metersToChek.filter(({ verificationDate, nextVerificationDate }) => {
+            return nextVerificationDate && verificationDate && dayjs(nextVerificationDate).diff(verificationDate, 'month') > 1
         })
 
         if (meters.length > 0) {
