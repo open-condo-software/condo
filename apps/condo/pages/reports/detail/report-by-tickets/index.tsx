@@ -877,7 +877,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             if (prevState !== key) {
                 setAnalyticsData(null)
                 return key
-            } else return prevState
+            } else { 
+                return prevState
+            }
         })
         if (key === 'status') {
             setViewMode('line')
