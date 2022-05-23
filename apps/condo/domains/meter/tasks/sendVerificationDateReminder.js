@@ -9,6 +9,12 @@ const { get, flatten, uniq } = require('lodash')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
 
+const rightJoin = (heads, edges, joinFn, selectFn) => {
+    return heads.map(head => {
+        return selectFn(head, edges.filter(edge => joinFn(head, edge)))
+    })
+}
+
 const readMetersPage = async ({ context, offset, pageSize, date, searchWindowDaysShift, daysCount }) => {
     // calc window
     const startWindowDate = dayjs(date).add(searchWindowDaysShift, 'day').format('YYYY-MM-DD')
@@ -52,29 +58,37 @@ const getMetersConnectedWithResidents = async ({ context, meters }) => {
     })
 
     // next step - connect residents to services consumers
-    const servicesConsumerWithConnectedResidents = servicesConsumers.map(servicesConsumer => {
-        return {
-            servicesConsumer,
-            residents: residents.filter(resident => resident.id === servicesConsumer.resident.id),
-        }
-    })
+    const servicesConsumerWithConnectedResidents = rightJoin(
+        servicesConsumers,
+        residents,
+        (servicesConsumer, resident) => resident.id === servicesConsumer.resident.id,
+        (servicesConsumer, residents) => ({ servicesConsumer, residents })
+    )
 
     // next step - connect meters to residents using previously created connection
-    return meters
-        .map(meter => {
-            const servicesConsumers = servicesConsumerWithConnectedResidents
-                .filter(item => item.servicesConsumer.accountNumber === meter.accountNumber)
+    const metersWithServiceConsumers = rightJoin(
+        meters,
+        servicesConsumerWithConnectedResidents,
+        (meter, item) => item.servicesConsumer.accountNumber === meter.accountNumber,
+        (meter, servicesConsumers) => ({ meter, servicesConsumers })
+    )
+        .filter(item => item.servicesConsumers != null && item.servicesConsumers.length > 0)
+
+    return metersWithServiceConsumers
+        .map(meterWithServiceConsumers => {
+            const { meter, servicesConsumers } = meterWithServiceConsumers
+
             const residents = flatten(
                 servicesConsumers.map(item =>
                     item.residents.filter(resident =>
                         resident.unitName === meter.unitName
+                        // TODO introduce unitType check once it appears on the production DB
                     )
                 )
             )
 
             return {
                 meter,
-                servicesConsumers,
                 residents,
             }
         })
@@ -157,7 +171,6 @@ const generateReminderMessages = async ({ context, reminderWindowSize, reminders
                 meta: {
                     dv: 1,
                     data: {
-                        reminderWindowSize,
                         reminderDate: dayjs(meter.nextVerificationDate).locale(lang).format('D MMM'),
                         meterId: meter.id,
                         userId: resident.user.id,
@@ -186,17 +199,16 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
     const { keystone: context } = await getSchemaCtx('Meter')
 
     // let's proceed meters page by page
-    const messagesQueue = []
     const pageSize = 100
     let offset = 0
     let hasMore = false
     do {
-        const metersToChek = await readMetersPage({
+        const metersToCheck = await readMetersPage({
             context, offset, pageSize, date, searchWindowDaysShift, daysCount,
         })
 
         // remove meters with wrong nextVerificationDate
-        const meters = metersToChek.filter(({ verificationDate, nextVerificationDate }) => {
+        const meters = metersToCheck.filter(({ verificationDate, nextVerificationDate }) => {
             return nextVerificationDate && verificationDate && dayjs(nextVerificationDate).diff(verificationDate, 'month') > 1
         })
 
@@ -217,28 +229,15 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
                     context, reminderWindowSize, reminders,
                 })
 
-                // push to queue only unique messages
-                messages.forEach(message => {
-                    const queuedMessage = messagesQueue.find(queued =>
-                        queued.to.user.id === message.to.user.id
-                        && queued.meta.data.meterId === message.meta.data.meterId
-                        && queued.meta.data.reminderDate === message.reminderDate
-                    )
-
-                    if (queuedMessage == null) {
-                        messagesQueue.push(message)
-                    }
-                })
+                // send reminders
+                await sendReminders({ context, messages })
             }
         }
 
         // check if we have more pages
-        hasMore = meters.length > 0
+        hasMore = metersToCheck.length > 0
         offset += pageSize
     } while (hasMore)
-
-    // send reminders
-    await sendReminders({ context, messages: messagesQueue })
 }
 
 module.exports = {
