@@ -6,7 +6,6 @@ import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
 import Head from 'next/head'
-import { ThunderboltFilled, HomeFilled, SettingFilled, ApiFilled, GoldFilled, ShoppingFilled } from '@ant-design/icons'
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
