@@ -65,8 +65,6 @@ describe('Meter verification notification', () => {
             nextVerificationDate: dayjs().add('15', 'day').toISOString(),
         })
         expect(messages).toHaveLength(1)
-        const type =  messages[0].meta.data.reminderWindowSize
-        expect(type).toEqual(30)
     })
 
     it('should create 60 days remain notification', async () => {
@@ -76,8 +74,6 @@ describe('Meter verification notification', () => {
             searchWindowDaysShift: 30,
         })
         expect(messages).toHaveLength(1)
-        const type =  messages[0].meta.data.reminderWindowSize
-        expect(type).toEqual(60)
     })
 
     it('should not send 30 days notification on next day if already sent 30 day notification yesterday', async () => {
@@ -111,10 +107,6 @@ describe('Meter verification notification', () => {
         await sendVerificationDateReminder({ date: dayjs().add(35, 'day').toISOString(), searchWindowDaysShift: 0, daysCount: 30 })
         const messages = await MessageApi.getAll(keystone, { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE })
         expect(messages).toHaveLength(2)
-        const reminder60 = messages.find(({ meta: { data: { reminderWindowSize } } }) => reminderWindowSize === 60)
-        const reminder30 = messages.find(({ meta: { data: { reminderWindowSize } } }) => reminderWindowSize === 30)
-        expect(reminder60).toBeDefined()
-        expect(reminder30).toBeDefined()
     })
 
 })
