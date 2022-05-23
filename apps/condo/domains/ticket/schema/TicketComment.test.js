@@ -997,7 +997,6 @@ describe('TicketComment', () => {
     })
 
 
-    // NOTE: disabled at 2022-04-25 because of @MikhailRumanovskii request until ticket comments will be implemented in all mobile applications for all platforms
     describe('notifications', () => {
         it('Checks that resident user receives push notification when employee comments his ticket', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -1041,7 +1040,6 @@ describe('TicketComment', () => {
             expect(message1.meta.data.residentId).toEqual(resident.id)
             expect(message1.meta.data.userId).toEqual(residentClient.user.id)
             expect(message1.processingMeta.transport).toEqual('push')
-
         })
 
         it('checks that notification is not being sent on employee comment create if there is no resident connected to ticket', async () => {
@@ -1076,6 +1074,40 @@ describe('TicketComment', () => {
             const messageCount = await Message.count(userClient, messageWhere)
 
             expect(messageCount).toEqual(0)
+        })
+
+        it('checks that notifications is not being sent on comment edit', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const residentClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            const content = faker.lorem.sentence()
+            const randomFakeSuccessPushtoken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
+            const tokenData = { pushToken: randomFakeSuccessPushtoken, pushTransport: PUSH_TRANSPORT_FIREBASE }
+            const payload = getRandomTokenData(tokenData)
+            const [device] = await syncDeviceByTestClient(residentClient, payload)
+
+            expect(device.pushTransport).toEqual(payload.pushTransport)
+
+            await createTestResident(admin, residentClient.user, residentClient.organization, residentClient.property, { unitName })
+
+            const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, { unitName })
+            const extraAttrs = { type: RESIDENT_COMMENT_TYPE, content }
+            const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user, extraAttrs)
+
+            expect(ticketComment.id).toMatch(UUID_RE)
+            expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
+            expect(ticketComment.content).toMatch(content)
+
+            const payload1 = { content: faker.random.alphaNumeric(10) }
+            const [objUpdated] = await updateTestTicketComment(admin, ticketComment.id, payload1)
+
+            expect(objUpdated.id).toEqual(ticketComment.id)
+            expect(objUpdated.v).toEqual(2)
+
+            const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+            const messages = await Message.getAll(admin, messageWhere)
+
+            expect(messages.length).toEqual(1)
         })
 
     })
