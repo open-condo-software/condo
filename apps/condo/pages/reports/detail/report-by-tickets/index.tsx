@@ -873,8 +873,12 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     }
 
     const onTabChange = useCallback((key: GroupTicketsByTypes) => {
-        setAnalyticsData(null)
-        setGroupTicketsBy(key)
+        setGroupTicketsBy((prevState) => {
+            if (prevState !== key) {
+                setAnalyticsData(null)
+                return key
+            } else return prevState
+        })
         if (key === 'status') {
             setViewMode('line')
         } else {
