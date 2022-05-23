@@ -6,6 +6,8 @@ import get from 'lodash/get'
 import { Contact } from '../utils/clientSchema'
 import { searchProperty, searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
 import { useIntl } from '@core/next/intl'
+import { BuildingUnitSubType } from '@app/condo/schema'
+import { FLAT_UNIT_TYPE, APARTMENT_UNIT_TYPE, WAREHOUSE_UNIT_TYPE, PARKING_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } from '@condo/domains/property/constants/common'
 
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
@@ -30,6 +32,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.PropertyNotFound' })
     const IncorrectContactNameMessage = intl.formatMessage({ id: 'errors.import.IncorrectContactName' })
     const IncorrectUnitNameMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitName' })
+    const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitType' })
     const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
     const IncorrectPhonesMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhonesFormat' })
     const AlreadyCreatedContactMessage = intl.formatMessage({ id: 'errors.import.AlreadyCreatedContact' })
@@ -38,6 +41,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const PhoneTitle = intl.formatMessage({ id: 'Phone' })
     const NameTitle = intl.formatMessage({ id: 'field.FullName.short' })
     const EmailTitle = intl.formatMessage({ id: 'field.EMail' })
+    const UnitTypeTitle = intl.formatMessage({ id: 'field.UnitType' })
+    const FlatUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.flat' })
+    const ParkingUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.parking' })
+    const ApartmentUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.apartment' })
+    const WarehouseUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.warehouse' })
+    const CommercialUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.commercial' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -55,13 +64,26 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: 'Phones', type: 'string', required: true, label: PhoneTitle },
         { name: 'Full Name', type: 'string', required: true, label: NameTitle },
         { name: 'Email', type: 'string', required: false, label: EmailTitle },
+        { name: 'Unit Type', type: 'string', required: true, label: UnitTypeTitle },
     ]
 
     const contactNormalizer: RowNormalizer = (row) => {
-        const addons = { address: null, property: null, phones: null, fullName: null, email: null }
+        const addons = { address: null, property: null, phones: null, fullName: null, email: null, unitType: null }
         if (row.length !== columns.length) return Promise.resolve({ row })
-        const [address, , phones, fullName, email] = row
+        const [address, , phones, fullName, email, unitType] = row
         email.value = email.value && String(email.value).trim().length ? String(email.value).trim() : undefined
+
+        const unitTypeValue = String(get(unitType, 'value', '')).trim().toLowerCase()
+        const UNIT_TYPE_TRANSLATION_TO_TYPE = {
+            [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
+            [ParkingUnitTypeValue.toLowerCase()]: PARKING_UNIT_TYPE,
+            [ApartmentUnitTypeValue.toLowerCase()]: APARTMENT_UNIT_TYPE,
+            [WarehouseUnitTypeValue.toLowerCase()]: WAREHOUSE_UNIT_TYPE,
+            [CommercialUnitTypeValue.toLowerCase()]: COMMERCIAL_UNIT_TYPE,
+        }
+
+        addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[unitTypeValue]
+
         return addressApi.getSuggestions(String(address.value)).then(result => {
             const suggestion = get(result, ['suggestions', 0])
             if (suggestion) {
@@ -101,6 +123,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const unitName = get(row, ['row', '1', 'value'], '')
         if (!unitName || String(unitName).trim().length === 0) errors.push(IncorrectUnitNameMessage)
 
+        const unitType = get(row, ['addons', 'unitType'], '')
+        if (!unitType || String(unitType).trim().length === 0) errors.push(IncorrectUnitTypeMessage)
+
         const phones = get(row, ['addons', 'phones'], []).filter(Boolean)
         if (!phones || phones.length === 0) errors.push(IncorrectPhonesMessage)
 
@@ -108,6 +133,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             organizationId: userOrganizationId,
             propertyId: row.addons.property,
             unitName,
+            unitType,
         })
         const alreadyCreated = data.objs.some(contact => phones.includes(contact.phone) && contact.name === row.addons.fullName)
 
@@ -139,6 +165,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     organization: String(userOrganizationId),
                     property: String(row.addons.property),
                     unitName,
+                    unitType: row.addons.unitType,
                     phone: phone,
                     name: row.addons.fullName,
                     email: row.addons.email,

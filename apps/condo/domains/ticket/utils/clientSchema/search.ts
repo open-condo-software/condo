@@ -241,6 +241,6 @@ export function getEmployeeWithEmail (organizationId) {
     }
 }
 
-export function searchContacts (client, { organizationId, propertyId, unitName }) {
-    return _search(client, GET_ALL_CONTACTS_QUERY, { organizationId, propertyId, unitName })
+export function searchContacts (client, { organizationId, propertyId, unitName, unitType }) {
+    return _search(client, GET_ALL_CONTACTS_QUERY, { organizationId, propertyId, unitName, unitType })
 }
