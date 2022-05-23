@@ -140,7 +140,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
                 filterIcon: getFilterIcon,
                 render: getTicketNumberRender(intl, breakpoints, userTicketsCommentReadTime, ticketsCommentsTime, search),
-                align: 'right',
+                align: 'center',
             },
             {
                 title: DateMessage,
