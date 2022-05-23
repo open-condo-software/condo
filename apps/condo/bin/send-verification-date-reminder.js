@@ -21,7 +21,7 @@ async function main () {
     await keystone.connect()
 
     await sendVerificationDateReminder({
-        date: dayjs().add(2, 'month'),
+        date: dayjs(),
         searchWindowDaysShift: 30,
         daysCount: 30,
     })
