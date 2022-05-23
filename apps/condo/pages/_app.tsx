@@ -44,6 +44,7 @@ import {
 } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
+import JIRAServiceDeskWidget from '@condo/domains/common/components/JIRAServiceDeskWidget'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -194,6 +195,7 @@ const MyApp = ({ Component, pageProps }) => {
                     <YandexMetrika/>
                 </CacheProvider>
             </ConfigProvider>
+            <JIRAServiceDeskWidget/>
         </>
     )
 }
