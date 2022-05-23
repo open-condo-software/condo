@@ -218,8 +218,9 @@ const sendTicketNotifications = async (requestData) => {
 }
 
 const sendTicketCommentNotifications = async (requestData) => {
-    const { updatedItem, context } = requestData
+    const { updatedItem, context, operation } = requestData
     const createdBy = get(updatedItem, 'createdBy')
+    const isCreateOperation =  operation === 'create'
 
     const ticket = await Ticket.getOne(context, { id: updatedItem.ticket })
     const clientId = get(ticket, 'client.id')
@@ -234,7 +235,7 @@ const sendTicketCommentNotifications = async (requestData) => {
     // Don't send notifications on tickets with canReadByResident === FALSE
     if (!canReadByResident) return
 
-    if (client && createdBy !== client && commentType === RESIDENT_COMMENT_TYPE) {
+    if (client && isCreateOperation && createdBy !== client && commentType === RESIDENT_COMMENT_TYPE) {
         // TODO(DOMA-2822): get rid of this extra request by returning country within nested organization data
         const organization = await getByCondition('Organization', {
             id: organizationId,
