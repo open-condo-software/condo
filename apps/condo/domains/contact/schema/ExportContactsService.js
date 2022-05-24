@@ -55,6 +55,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
                         name: contact.name,
                         address: contact.property,
                         unitName: contact.unitName,
+                        unitType: i18n(`pages.condo.ticket.field.unitType.${contact.unitType}`, { locale }),
                         phone: contact.phone,
                         email: contact.email,
                     }
