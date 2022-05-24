@@ -18,7 +18,9 @@ abstract class TrackerInstance {
 
     protected constructor (instanceName: string) {
         this.instanceName = instanceName
-        const { publicRuntimeConfig: { trackingConfig } } = getConfig()
+        const config = getConfig()
+
+        const trackingConfig = get(config, 'trackingConfig.publicRuntimeConfig')
 
         if (trackingConfig) {
             this.token = get(trackingConfig, ['trackers', this.instanceName, 'token'])
