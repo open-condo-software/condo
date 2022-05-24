@@ -1126,6 +1126,7 @@
   "excelExport.headers.contacts.name": "Name",
   "excelExport.headers.contacts.address": "Address",
   "excelExport.headers.contacts.unitName": "Unit name",
+  "excelExport.headers.contacts.unitType": "Unit type",
   "excelExport.headers.contacts.phone": "Phone",
   "excelExport.headers.contacts.email": "Email",
   "excelExport.headers.meters.date": "Reading date",
