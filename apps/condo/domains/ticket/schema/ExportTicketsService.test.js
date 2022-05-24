@@ -18,6 +18,8 @@ describe('ExportTicketService', () => {
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
                         where: { organization: { id: client.organization.id } },
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
                         sortBy: 'id_ASC',
                         timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
                     },
