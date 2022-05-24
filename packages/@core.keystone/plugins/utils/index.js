@@ -12,7 +12,7 @@ const composeResolveInputHook = (originalHook, newHook) => async params => {
 
 const composeNonResolveInputHook = (originalHook, newHook) => async params => {
     // NOTE(pahaz): validateInput, beforeChange, afterChange and others hooks should ignore return value!
-    await originalHook(params)
+    if (originalHook) await originalHook(params)
     return newHook({ ...params })
 }
 
