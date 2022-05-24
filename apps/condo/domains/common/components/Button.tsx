@@ -4,6 +4,7 @@ import { css, jsx } from '@emotion/core'
 import { green } from '@ant-design/colors'
 import { Button as DefaultButton, ButtonProps } from 'antd'
 import { colors, gradients, transitions } from '../constants/style'
+import { ITrackingComponent, useTracking } from './TrackingContext'
 
 const buttonCss = (color) => {
     // Ant returns an array of hue-separated colors, check them out here
@@ -256,7 +257,7 @@ const sberBlackCss = css`
   }
 `
 
-export interface CustomButtonProps extends Omit<ButtonProps, 'type'>{
+export interface CustomButtonProps extends Omit<ButtonProps, 'type'>, ITrackingComponent{
     type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction'
     | 'sberDangerGhost' | 'sberDefaultGradient' | 'sberBlack' | ButtonProps['type'],
     secondary?: boolean
@@ -275,7 +276,10 @@ const BUTTON_TYPE_STYLES = {
     sberBlack: sberBlackCss,
 }
 
-export const Button: React.FC<CustomButtonProps> = ({ type, secondary, ...restProps }) => {
+export const Button: React.FC<CustomButtonProps> = (props) => {
+    const { type, secondary, eventName, eventProperties, ...restProps } = props
+    const { logEvent } = useTracking()
+
     if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
         return <DefaultButton {...restProps} type={type as ButtonProps['type']}/>
     }

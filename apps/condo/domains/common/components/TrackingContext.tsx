@@ -20,6 +20,13 @@ export type TrackingEventPropertiesType = {
     }
 }
 
+type TrackingEventProperties = Record<string, unknown>
+
+export interface ITrackingComponent {
+    eventName?: string
+    eventProperties?: Record<string, unknown>
+}
+
 interface ITrackingContext {
     trackerInstances: Record<string, TrackerInstance>
     eventProperties?: TrackingEventPropertiesType
@@ -58,6 +65,15 @@ const useTracking: IUseTracking = () => {
         Object.values(pick(trackerInstances, destination)).map(trackerInstance => trackerInstance.logEvent({ eventName, eventProperties }))
     }
 
+    const instrument = (eventName: string, func?: any) => {
+        function fn (...params: any) {
+            const retVal = func ? func(...params) : undefined
+            logEvent({ eventName, eventProperties })
+            return retVal
+        }
+        return fn as any
+    }
+
     return {
         eventProperties,
         userProperties,
@@ -67,8 +83,6 @@ const useTracking: IUseTracking = () => {
         setUserProperties,
     }
 }
-
-
 
 const TrackingProvider: React.FC = ({ children }) => {
     const { user } = useAuth()
