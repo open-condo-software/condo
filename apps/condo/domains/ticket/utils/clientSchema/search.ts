@@ -92,8 +92,8 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL = gql`
 `
 
 const GET_ALL_CONTACTS_QUERY = gql`
-    query selectContact ($organizationId: ID, $propertyId: ID, $unitName: String) {
-        objs: allContacts(where: {organization: { id: $organizationId }, property: { id: $propertyId }, unitName: $unitName}) {
+    query selectContact ($organizationId: ID, $propertyId: ID, $unitName: String, $unitType: String) {
+        objs: allContacts(where: {organization: { id: $organizationId }, property: { id: $propertyId }, unitName: $unitName, unitType: $unitType}) {
             id
             name
             phone
