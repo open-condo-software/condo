@@ -1,14 +1,14 @@
-import getConfig from 'next/config'
 import amplitude, { Identify } from 'amplitude-js'
 import { getCurrentUserId } from '@condo/domains/common/utils/userid.utils'
 import TrackerInstance, { ITrackerLogEventType } from './TrackerInstance'
+
+const INSTANCE_NAME = 'amplitude'
 
 class AmplitudeInstance extends TrackerInstance {
     public userId: string
 
     constructor () {
-        const { publicRuntimeConfig: { amplitudeToken } } = getConfig()
-        super(amplitudeToken)
+        super(INSTANCE_NAME)
     }
 
     init () {
@@ -22,6 +22,7 @@ class AmplitudeInstance extends TrackerInstance {
                 userId,
                 includeGclid: true,
                 includeUtm: true,
+                ...this.configParams,
             })
 
             if (amplitudeInstance.isNewSession()) {

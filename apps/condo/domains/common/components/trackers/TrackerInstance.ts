@@ -1,3 +1,6 @@
+import getConfig from 'next/config'
+import get from 'lodash/get'
+
 export type ITrackerLogEventType = { eventName: string, eventProperties: Record<string, unknown> }
 
 /**
@@ -5,15 +8,23 @@ export type ITrackerLogEventType = { eventName: string, eventProperties: Record<
  * @abstract
  * @class TrackerInstance
  * @classdesc Should be implemented when new tracking library would be connected
+ * @param {string} instanceName string representation of tracker key inside environment runtime config
  */
 abstract class TrackerInstance {
-    instance = null
-    token: string
-    configParams: Record<string, unknown>
+    protected readonly token: string | null = null
+    protected readonly configParams: Record<string, unknown> = {}
+    protected readonly instanceName: string
+    protected instance = null
 
-    protected constructor (token: string, configParams: Record<string, unknown> = {}) {
-        this.token = token
-        this.configParams = configParams
+    protected constructor (instanceName: string) {
+        this.instanceName = instanceName
+        const { publicRuntimeConfig: { trackingConfig } } = getConfig()
+
+        if (trackingConfig) {
+            this.token = get(trackingConfig, ['trackers', this.instanceName, 'token'])
+            this.configParams = get(trackingConfig, ['trackers', this.instanceName, 'config'])
+        }
+
     }
 
     /**

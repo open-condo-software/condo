@@ -18,7 +18,7 @@ const featureFlagsConfig = conf['FEATURE_FLAGS_CONFIG']
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE_RECAPTCHA_CONFIG'])
 const yandexMetrikaID = conf['YANDEX_METRIKA_ID']
-const amplitudeToken = conf['AMPLITUDE_TOKEN']
+const trackingConfig = conf['TRACKING_CONFIG']
 const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
 
@@ -34,7 +34,7 @@ module.exports = withTM(withLess(withCSS({
         featureFlagsConfig,
         docsConfig,
         yandexMetrikaID,
-        amplitudeToken,
+        trackingConfig,
         defaultLocale,
         insuranceAppUrl,
     },
