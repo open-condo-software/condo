@@ -278,10 +278,12 @@ const BUTTON_TYPE_STYLES = {
 
 export const Button: React.FC<CustomButtonProps> = (props) => {
     const { type, secondary, eventName, eventProperties, ...restProps } = props
-    const { logEvent } = useTracking()
+    const { instrument } = useTracking()
+
+    const onClick = eventName ? instrument(eventName, restProps.onClick) : restProps.onClick
 
     if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
-        return <DefaultButton {...restProps} type={type as ButtonProps['type']}/>
+        return <DefaultButton {...restProps} type={type as ButtonProps['type']} onClick={onClick}/>
     }
 
     let buttonStyles
@@ -293,5 +295,5 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
         buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
     }
 
-    return <DefaultButton css={buttonStyles} {...restProps}/>
+    return <DefaultButton css={buttonStyles} {...restProps} onClick={onClick}/>
 }

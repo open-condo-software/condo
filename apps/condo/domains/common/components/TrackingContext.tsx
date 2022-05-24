@@ -20,19 +20,19 @@ export type TrackingEventPropertiesType = {
     }
 }
 
-type TrackingEventProperties = Record<string, unknown>
+type TrackingCommonEventProperties = Record<string, unknown>
 
 export interface ITrackingComponent {
     eventName?: string
-    eventProperties?: Record<string, unknown>
+    eventProperties?: TrackingCommonEventProperties
 }
 
 interface ITrackingContext {
     trackerInstances: Record<string, TrackerInstance>
     eventProperties?: TrackingEventPropertiesType
-    userProperties?: Record<string, unknown>
-    setUserProperties? (newProps: Record<string, unknown>): void
-    setEventProperties? (newProps: Record<string, unknown>): void
+    userProperties?: TrackingCommonEventProperties
+    setUserProperties? (newProps: TrackingCommonEventProperties): void
+    setEventProperties? (newProps: TrackingCommonEventProperties): void
 }
 
 interface ILogEventTo extends ITrackerLogEventType {
@@ -49,8 +49,9 @@ interface IUseTracking {
         userProperties: Pick<ITrackingContext, 'userProperties'>
         logEvent: (logEventProps: ITrackerLogEventType) => void
         logEventTo: (logEventToProps: ILogEventTo) => void
-        setEventProperties: (newProps: Record<string, unknown>) => void
-        setUserProperties: (newProps: Record<string, unknown>) => void
+        setEventProperties: (newProps: TrackingCommonEventProperties) => void
+        setUserProperties: (newProps: TrackingCommonEventProperties) => void
+        instrument: (eventName: string, func?: any) => any
     }
 }
 
@@ -81,6 +82,7 @@ const useTracking: IUseTracking = () => {
         logEventTo,
         setEventProperties,
         setUserProperties,
+        instrument,
     }
 }
 
@@ -97,10 +99,10 @@ const TrackingProvider: React.FC = ({ children }) => {
                 path: asPath,
             },
         },
-        setUserProperties (newProps: Record<string, unknown>) {
+        setUserProperties (newProps: TrackingCommonEventProperties) {
             this.userProperties = Object.assign(this.userProperties, newProps)
         },
-        setEventProperties (newProps: Record<string, unknown>) {
+        setEventProperties (newProps: TrackingCommonEventProperties) {
             this.eventProperties = Object.assign(this.eventProperties, newProps)
         },
     })
@@ -153,7 +155,7 @@ const TrackingComponentLoadEvent: React.FC<TrackingComponentLoadEvent> = (props)
     const { children, eventType, pageState = TrackingPageState.Success, extraEventProperties = {} } = props
     const { eventProperties, logEvent } = useTracking()
 
-    const pageProps = get(eventProperties, 'page', {}) as Record<string, unknown>
+    const pageProps = get(eventProperties, 'page', {}) as TrackingCommonEventProperties
     useEffect(() => {
         logEvent({ eventName: eventType, eventProperties: {
             page: {
