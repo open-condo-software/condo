@@ -38,6 +38,7 @@ import {
     GroupTicketsByTypes,
     specificationTypes,
     ticketAnalyticsPageFilters,
+    isEmptyAnalyticsData,
 } from '@condo/domains/ticket/utils/helpers'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
@@ -1017,10 +1018,10 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         </Row>
                     </Col>
                     <ActionBar hidden={isSmall}>
-                        <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
+                        <Button disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
                             {PrintTitle}
                         </Button>
-                        <Button disabled={isControlsDisabled || isEmpty(analyticsData)} onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>
+                        <Button disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>
                             {ExcelTitle}
                         </Button>
                     </ActionBar>

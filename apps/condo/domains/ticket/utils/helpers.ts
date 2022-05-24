@@ -650,3 +650,22 @@ export function hasUnreadResidentComments (lastResidentCommentAt, readResidentCo
 
     return false
 }
+
+/** analyticsData array validation function. 
+ * The array can only be empty on the first render. Even if there are no tickets, mock objects are placed in analyticsData. 
+ * For the correct operation of the unload button in Excel, it is necessary to check the objects nested in the array for the presence of at least one ticket */
+export function isEmptyAnalyticsData (analyticsData) {
+    if (analyticsData === null) {
+        return true
+    } else {
+        let count = 0
+        for (let i = 0; i < analyticsData.length; i++) {
+            count += analyticsData[i].count
+        }
+        if (count === 0 ) {
+            return true
+        } else {
+            return false
+        }
+    } 
+}
