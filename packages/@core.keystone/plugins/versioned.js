@@ -1,4 +1,4 @@
-const { composeHook } = require('./utils')
+const { composeResolveInputHook } = require('./utils')
 const { plugin } = require('./utils/typing')
 
 const versioned = ({ versionField = 'v', startBy = 1 } = {}) => plugin(({ fields = {}, hooks = {}, ...rest }) => {
@@ -24,7 +24,7 @@ const versioned = ({ versionField = 'v', startBy = 1 } = {}) => plugin(({ fields
         return resolvedData
     }
     const originalResolveInput = hooks.resolveInput
-    hooks.resolveInput = composeHook(originalResolveInput, newResolveInput)
+    hooks.resolveInput = composeResolveInputHook(originalResolveInput, newResolveInput)
     return { fields, hooks, ...rest }
 })
 

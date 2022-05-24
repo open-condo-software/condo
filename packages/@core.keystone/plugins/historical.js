@@ -1,7 +1,7 @@
 const { v4: uuid } = require('uuid')
 const { get, isFunction } = require('lodash')
 
-const { composeHook, isValidDate } = require('./utils')
+const { composeNonResolveInputHook, isValidDate } = require('./utils')
 const { plugin } = require('./utils/typing')
 const { GQLListSchema } = require('../schema')
 
@@ -161,9 +161,9 @@ const historical = ({ historyField = 'history', ignoreFieldTypes = ['Content'], 
     }
 
     const originalAfterChange = hooks.afterChange
-    hooks.afterChange = composeHook(originalAfterChange, hook)
+    hooks.afterChange = composeNonResolveInputHook(originalAfterChange, hook)
     const originalBeforeDelete = hooks.beforeDelete
-    hooks.beforeDelete = composeHook(originalBeforeDelete, hook)
+    hooks.beforeDelete = composeNonResolveInputHook(originalBeforeDelete, hook)
     return { fields, hooks, access, ...rest }
 })
 

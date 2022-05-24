@@ -1,20 +1,19 @@
 const { getType } = require('@keystonejs/utils')
 const { get } = require('lodash')
 
-/**
- * Takes combine 2 hooks together
- * @param originalHook original hook which will be applied first
- * @param newHook hook which will be applied second
- * @param chainResolvedData determines if hook newHook shouldAccept original resolvedData or modified result of originalHook.
- * @returns {function(*): Promise<*>}
- */
-const composeHook = (originalHook, newHook, chainResolvedData = true) => async params => {
+const composeResolveInputHook = (originalHook, newHook) => async params => {
+    // NOTE(pahaz): resolveInput should return a new resolvedData!
     let { resolvedData } = params
     if (originalHook) {
         resolvedData = await originalHook(params)
     }
+    return newHook({ ...params, resolvedData })
+}
 
-    return chainResolvedData ? newHook({ ...params, resolvedData }) : newHook(params)
+const composeNonResolveInputHook = (originalHook, newHook) => async params => {
+    // NOTE(pahaz): validateInput, beforeChange, afterChange and others hooks should ignore return value!
+    await originalHook(params)
+    return newHook({ ...params })
 }
 
 function isValidDate (date) {
@@ -42,7 +41,8 @@ async function evaluateKeystoneAccessResult (access, operation, args, keystone =
 }
 
 module.exports = {
-    composeHook,
+    composeResolveInputHook,
+    composeNonResolveInputHook,
     isValidDate,
     evaluateKeystoneAccessResult,
 }
