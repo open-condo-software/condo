@@ -1,4 +1,4 @@
-const { composeHook } = require('./utils')
+const { composeResolveInputHook } = require('./utils')
 const { plugin } = require('./utils/typing')
 
 const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', updatedAtField = 'updatedAt', updatedByField = 'updatedBy' } = {}) => plugin(({ fields = {}, hooks = {}, ...rest }) => {
@@ -85,7 +85,7 @@ const tracked = ({ createdAtField = 'createdAt', createdByField = 'createdBy', u
         return resolvedData
     }
     const originalResolveInput = hooks.resolveInput
-    hooks.resolveInput = composeHook(originalResolveInput, newResolveInput)
+    hooks.resolveInput = composeResolveInputHook(originalResolveInput, newResolveInput)
     return { fields, hooks, ...rest }
 })
 

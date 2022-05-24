@@ -1,7 +1,7 @@
 const { get, isPlainObject } = require('lodash')
 const { getType } = require('@keystonejs/utils')
 
-const { composeHook, evaluateKeystoneAccessResult } = require('./utils')
+const { composeResolveInputHook, evaluateKeystoneAccessResult } = require('./utils')
 const { plugin } = require('./utils/typing')
 
 const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName }) => {
@@ -62,7 +62,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     }
 
     const originalResolveInput = hooks.resolveInput
-    hooks.resolveInput = composeHook(originalResolveInput, newResolveInput)
+    hooks.resolveInput = composeResolveInputHook(originalResolveInput, newResolveInput)
 
     const newAccess = async (args) => {
         const { operation } = args
