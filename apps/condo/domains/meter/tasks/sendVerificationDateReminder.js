@@ -108,12 +108,16 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, metersCo
 
     // now let's retrieve already sent messages by users and message type where statement
     // filter out messages old that 2 months
-    const sentMessages = await Message.getAll(context, {
-        type: METER_VERIFICATION_DATE_REMINDER_TYPE,
-        user: {
-            id_in: users,
+    const sentMessages = await loadListByChunks({
+        context,
+        list: Message,
+        where: {
+            type: METER_VERIFICATION_DATE_REMINDER_TYPE,
+            user: {
+                id_in: users,
+            },
+            createdAt_gte: dayjs(date).add(-2, 'month').format('YYYY-MM-DD'),
         },
-        createdAt_gte: dayjs(date).add(-2, 'month').format('YYYY-MM-DD'),
     })
 
     // do filter
