@@ -22,7 +22,7 @@ const readMetersPage = async ({ context, offset, pageSize, date, searchWindowDay
         .add(searchWindowDaysShift + daysCount + 1, 'day')
         .format('YYYY-MM-DD')
 
-    return await Meter.getAll(
+    const metersToCheck = await Meter.getAll(
         context, {
             nextVerificationDate_gte: startWindowDate,
             nextVerificationDate_lte: endWindowDate,
@@ -32,9 +32,19 @@ const readMetersPage = async ({ context, offset, pageSize, date, searchWindowDay
             skip: offset,
         }
     )
+
+    // remove meters with wrong nextVerificationDate
+    const meters = metersToCheck.filter(({ verificationDate, nextVerificationDate }) => {
+        return nextVerificationDate && verificationDate && dayjs(nextVerificationDate).diff(verificationDate, 'month') > 1
+    })
+
+    return {
+        meters,
+        count: metersToCheck.length,
+    }
 }
 
-const getMetersConnectedWithResidents = async ({ context, meters }) => {
+const joinResidents = async ({ context, meters }) => {
     // first step is get service consumers by accountNumbers
     const accountNumbers = uniq(meters.map(meter => meter.accountNumber))
     const servicesConsumers = await loadListByChunks({
@@ -78,14 +88,11 @@ const getMetersConnectedWithResidents = async ({ context, meters }) => {
         .map(meterWithServiceConsumers => {
             const { meter, servicesConsumers } = meterWithServiceConsumers
 
-            const residents = flatten(
-                servicesConsumers.map(item =>
-                    item.residents.filter(resident =>
-                        resident.unitName === meter.unitName
-                        // TODO introduce unitType check once it appears on the production DB
-                    )
+            const residents = flatten(servicesConsumers.map(item => item.residents))
+                .filter(resident =>
+                    // TODO introduce unitType check once it appears on the production DB
+                    resident.unitName === meter.unitName
                 )
-            )
 
             return {
                 meter,
@@ -114,11 +121,10 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, metersCo
         .map(item => {
             const { meter, residents } = item
 
-            // let's filter residents that already got a notification
-            const residentsWithoutNotifications = residents.filter(resident => {
-                // if we have at least one message
-                // that means we shouldn't send notification again
-                const message = sentMessages.find(sentMessage => {
+            const residentsWithoutNotifications = rightJoin(
+                residents,
+                sentMessages,
+                (resident, sentMessage) => {
                     // we have to check the following things
                     // 1. Get message for particular resident
                     // 2. Filter out messages related to other meters
@@ -130,9 +136,16 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, metersCo
                     return sentMessage.user.id === resident.user.id
                         && meter.id === sentMessage.meta.data.meterId
                         && messageCreateAt.unix() >= startOfReminderWindow.unix()
-                })
-                return message == null
-            })
+                },
+                (resident, messages) => ({
+                    resident,
+                    message: messages.length > 0 ? messages[0] : null,
+                }),
+            )
+                // let's filter residents that already got a notification
+                .filter(residentWithMessage => residentWithMessage.message == null)
+                // remap to have resident object at the root level
+                .map(residentWithMessage => residentWithMessage.resident)
 
             // create a pair again
             // and filter out meter with empty residents
@@ -154,6 +167,7 @@ const getOrganizationLang = async (context, id) => {
      */
     return get(COUNTRIES, get(organization, 'country.locale'), DEFAULT_LOCALE)
 }
+
 const generateReminderMessages = async ({ context, reminderWindowSize, reminders }) => {
     const messages = []
 
@@ -203,39 +217,32 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
     let offset = 0
     let hasMore = false
     do {
-        const metersToCheck = await readMetersPage({
+        const { meters, count } = await readMetersPage({
             context, offset, pageSize, date, searchWindowDaysShift, daysCount,
-        })
-
-        // remove meters with wrong nextVerificationDate
-        const meters = metersToCheck.filter(({ verificationDate, nextVerificationDate }) => {
-            return nextVerificationDate && verificationDate && dayjs(nextVerificationDate).diff(verificationDate, 'month') > 1
         })
 
         if (meters.length > 0) {
             // connect residents to meter through the property field
-            const metersConnectedWithResidents = await getMetersConnectedWithResidents(
+            const metersConnectedWithResidents = await joinResidents(
                 { context, meters }
             )
 
-            if (metersConnectedWithResidents.length > 0) {
-                // filter out meters that was already reminded
-                const reminders = await filterSentReminders({
-                    context, date, reminderWindowSize, metersConnectedWithResidents,
-                })
+            // filter out meters that was already reminded
+            const reminders = await filterSentReminders({
+                context, date, reminderWindowSize, metersConnectedWithResidents,
+            })
 
-                // generate messages
-                const messages = await generateReminderMessages({
-                    context, reminderWindowSize, reminders,
-                })
+            // generate messages
+            const messages = await generateReminderMessages({
+                context, reminderWindowSize, reminders,
+            })
 
-                // send reminders
-                await sendReminders({ context, messages })
-            }
+            // send reminders
+            await sendReminders({ context, messages })
         }
 
         // check if we have more pages
-        hasMore = metersToCheck.length > 0
+        hasMore = count > 0
         offset += pageSize
     } while (hasMore)
 }
