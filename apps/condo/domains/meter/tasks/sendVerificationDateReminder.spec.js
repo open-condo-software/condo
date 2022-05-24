@@ -4,16 +4,16 @@
 
 
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
-const { createTestMeterWithResident } = require('../utils/testSchema')
-const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder.js')
-const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema/index.js')
+const { makeClientWithResidentAndMeter } = require('../utils/testSchema')
+const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
+const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
 const dayjs = require('dayjs')
 let keystone = null
 
 
 const getNotificationsFromMeter = async ({ verificationDate, nextVerificationDate, searchWindowDaysShift = 0 }) => {
-    const { user: { id } } = await createTestMeterWithResident({ verificationDate, nextVerificationDate })
+    const { user: { id } } = await makeClientWithResidentAndMeter({ verificationDate, nextVerificationDate })
     await sendVerificationDateReminder({ date: null, searchWindowDaysShift, daysCount: 30 })
     return await MessageApi.getAll(keystone, { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE })
 }
@@ -77,7 +77,7 @@ describe('Meter verification notification', () => {
     })
 
     it('should not send 30 days notification on next day if already sent 30 day notification yesterday', async () => {
-        const { resident: { user: { id } } } = await createTestMeterWithResident({
+        const { resident: { user: { id } } } = await makeClientWithResidentAndMeter({
             verificationDate: dayjs().subtract('1', 'year').toISOString(),
             nextVerificationDate: dayjs().add('15', 'day').toISOString(),
         })
@@ -88,7 +88,7 @@ describe('Meter verification notification', () => {
     })
 
     it('should not send 60 days notification on next day if already sent 60 day notification yesterday', async () => {
-        const { resident: { user: { id } } } = await createTestMeterWithResident({
+        const { resident: { user: { id } } } = await makeClientWithResidentAndMeter({
             verificationDate: dayjs().subtract('1', 'year').toISOString(),
             nextVerificationDate: dayjs().add('45', 'day').toISOString(),
         })
@@ -99,7 +99,7 @@ describe('Meter verification notification', () => {
     })
 
     it('should send 60 days reminder then 30 days reminder', async () => {
-        const { resident: { user: { id } } } = await createTestMeterWithResident({
+        const { resident: { user: { id } } } = await makeClientWithResidentAndMeter({
             verificationDate: dayjs().subtract('1', 'year').toISOString(),
             nextVerificationDate: dayjs().add('45', 'day').toISOString(),
         })
