@@ -81,7 +81,7 @@ async function updateTestMeterReadingSource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterWithResident (extraMeterAttrs = {}) {
+async function makeClientWithResidentAndMeter (extraMeterAttrs = {}) {
     const client = await makeClientWithServiceConsumer()
     const adminClient = await makeLoggedInAdminClient()
     const { property, organization, serviceConsumer, resident } = client
@@ -231,6 +231,6 @@ module.exports = {
     MeterReading, createTestMeterReading, updateTestMeterReading,
     exportMeterReadingsByTestClient,
     MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
-    createTestMeterWithResident,
+    makeClientWithResidentAndMeter,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }
