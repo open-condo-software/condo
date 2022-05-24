@@ -1,4 +1,4 @@
-const { composeHook } = require('@core/keystone/plugins/utils')
+const { composeNonResolveInputHook } = require('@core/keystone/plugins/utils')
 const { plugin } = require('@core/keystone/plugins/utils/typing')
 
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
@@ -22,7 +22,7 @@ const dvAndSender = ({ requiredDv = 1 } = {}) => plugin(({ fields = {}, hooks = 
     }
 
     const originalValidateInput = hooks.validateInput
-    hooks.validateInput = composeHook(originalValidateInput, newValidateInput, false)
+    hooks.validateInput = composeNonResolveInputHook(originalValidateInput, newValidateInput)
     return { fields, hooks, ...rest }
 })
 
