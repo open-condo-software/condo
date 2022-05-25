@@ -67,7 +67,7 @@ class BillingContextScriptCore extends ScriptCore {
     }
 
     /**
-     * Requests BillingIntegrationContext data
+     * Loads BillingIntegrationContext data
      * @returns {Promise<void>}
      */
     async loadContextData () {
@@ -88,6 +88,7 @@ class BillingContextScriptCore extends ScriptCore {
     }
 
     /**
+     * Loads organization data
      * Detect message language by lazy loading organization data and extracting country info from it
      * Use DEFAULT_LOCALE if organization.country is unknown
      * (not defined within @condo/domains/common/constants/countries)

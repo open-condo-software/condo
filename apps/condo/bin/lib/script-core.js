@@ -4,8 +4,7 @@ const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 
-const CHUNK_SIZE = 50
-const MAX_ROWS_COUNT = 1000000
+const { CHUNK_SIZE, MAX_ROWS_COUNT } = require('./constants')
 
 class ScriptCore {
     context = null

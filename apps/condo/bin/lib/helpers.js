@@ -43,7 +43,7 @@ const getUniqueByField = (list, fieldPath, jsonFieldPath) => {
 }
 
 /**
- * Maps array of objects (entities) connected to users to a dictionary of { [<userIdX>] : [<entityIdY>, <entityIdZ>, ...], ... }
+ * Maps array of entities connected to other entities as a dictionary of { [<userIdX>] : [<entityIdY>, <entityIdZ>, ...], ... }
  * Different entities mapped to the same key will be stored as an array
  * @param items [{}]
  * @param connection
