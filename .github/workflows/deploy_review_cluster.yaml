@@ -52,4 +52,4 @@ jobs:
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
           WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
-          WERF_REPO_CONTAINER_REGISTRY: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
+          WERF_REPO_CONTAINER_REGISTRY: default
