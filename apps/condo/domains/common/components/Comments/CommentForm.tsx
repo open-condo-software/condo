@@ -1,8 +1,9 @@
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import get from 'lodash/get'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
@@ -12,7 +13,7 @@ import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCou
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ClipIcon } from '@condo/domains/common/components/icons/ClipIcon'
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
-import { getIconByMimetype } from '../../utils/clientSchema/files'
+import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
 import { TComment } from './index'
 
@@ -95,18 +96,21 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     const { organization } = useOrganization()
 
+    const editableCommentFiles = get(editableComment, 'files')
     const { UploadComponent, syncModifiedFiles, resetModifiedFiles, filesCount } = useMultipleFileUploadHook({
         Model: FileModel,
         relationField: relationField,
-        initialFileList: editableComment?.files,
+        initialFileList: editableCommentFiles,
         initialCreateValues: { organization: organization.id, ticket: ticket.id },
         dependenciesForRerenderUploadComponent: [editableComment],
     })
 
     useEffect(() => {
         if (editableComment && form) {
-            form.setFieldsValue({ [fieldName]: editableComment.content })
-            setCommentLength(editableComment.content.length)
+            const editableCommentContent = editableComment.content
+
+            form.setFieldsValue({ [fieldName]: editableCommentContent })
+            setCommentLength(get(editableCommentContent, 'length', 0))
         }
     }, [editableComment, fieldName, form, setCommentLength])
 
@@ -145,7 +149,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     const MemoizedUploadComponent = useCallback(() => (
         <UploadComponent
-            initialFileList={editableComment?.files}
+            initialFileList={editableCommentFiles}
             UploadButton={
                 <Button type={'text'}>
                     <ClipIcon />
