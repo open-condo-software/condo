@@ -38,17 +38,6 @@ jobs:
           pip3 install django
           pip3 install psycopg2-binary
 
-      - name: test front build
-        run: |
-          set -x
-          echo '# Build time .env config!' > .env
-          echo 'COOKIE_SECRET=undefined' >> .env
-          echo 'DATABASE_URL=undefined' >> .env
-          echo 'WORKER_REDIS_URL=undefined' >> .env
-          echo 'NODE_ENV=production' >> .env
-          echo 'FILE_FIELD_ADAPTER=local' >> .env
-          yarn workspace @app/condo build
-
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
@@ -60,13 +49,13 @@ jobs:
 
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
 
-          yarn workspace @app/condo dev &
+          yarn workspace @app/condo dev 2>&1 > condo.dev.log &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
 
           # check migrations
           yarn workspace @app/condo makemigrations --check &> /dev/null
 
-          yarn workspace @app/condo worker &
+          yarn workspace @app/condo worker 2>&1 > condo.worker.log &
           sleep 3
 
           # And check background processes!
@@ -93,6 +82,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: condo.test.log
-          path: condo.test.log
+          name: logs
+          path: |
+            *.log
           retention-days: 2
