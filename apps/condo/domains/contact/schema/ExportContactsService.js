@@ -51,7 +51,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
                     throw new GQLError(errors.NOTHING_TO_EXPORT)
                 }
                 const excelRows = contacts.map(contact => {
-                    const unitType = contact.unitName ? i18n(`pages.condo.ticket.field.unitType.${contact.unitType}`, { locale }) : ''
+                    const unitType = contact.unitName ? i18n(`field.UnitType.${contact.unitType}`, { locale }) : ''
                     return {
                         name: contact.name,
                         address: contact.property,
