@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { notification } from 'antd'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
@@ -13,6 +13,7 @@ import {
     NOTIFICATION_MESSAGE_TYPE,
     LOADED_STATUS_MESSAGE_TYPE,
     RESIZE_MESSAGE_TYPE,
+    COMMAND_MESSAGE_TYPE,
 } from '@condo/domains/common/utils/iframe.utils'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -25,6 +26,7 @@ interface IFrameProps {
     options?: optionsType
     handlers?: Array<HandlerType>
 }
+
 type optionsType = {
     withLoader?: boolean,
 }
@@ -36,6 +38,7 @@ const getIframeStyles: (boolean) => CSSProperties = (isLoading) => ({
 
 export const IFrame: React.FC<IFrameProps> = (props) => {
     const { pageUrl, options, handlers } = props
+    const iFrameRef = useRef()
     const messageHandlers = useMemo(() => {
         return handlers ? handlers : []
     }, [handlers])
@@ -84,6 +87,17 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
         setFrameHeight(message.height)
     }, [])
 
+    const handleCommand = useCallback((message) => {
+        const iFrameReceiver = get(iFrameRef, 'current.contentWindow', null)
+        switch (message.command) {
+            case 'getOrganization':
+                if (iFrameReceiver) {
+                    iFrameReceiver.postMessage({ id: message.id, data: organization }, pageOrigin)
+                }
+                break
+        }
+    }, [])
+
     const handleMessage = useCallback((event) => {
         if (event.origin !== pageOrigin) return
         if (event.data && typeof event.data !== 'object') return
@@ -100,6 +114,8 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
                     return handleLoad()
                 case RESIZE_MESSAGE_TYPE:
                     return handleResize(message)
+                case COMMAND_MESSAGE_TYPE:
+                    return handleCommand(message)
             }
         } else {
             for (const handler of messageHandlers) {
@@ -126,9 +142,9 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
 
     const shouldHaveLoader = get(options, 'withLoader', true)
     const styles = useMemo(() => getIframeStyles(isLoading), [isLoading])
-    return <>
+    return (
         <Wrapper>
-            { shouldHaveLoader && isLoading && <Loader fill size={'large'}/> }
+            {shouldHaveLoader && isLoading && <Loader fill size={'large'}/>}
             <iframe
                 src={pageUrl}
                 onLoad={handleLoad}
@@ -137,7 +153,8 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
                 frameBorder={0}
                 height={frameHeight}
                 scrolling={'no'}
+                ref={iFrameRef}
             />
         </Wrapper>
-    </>
+    )
 }
