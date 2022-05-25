@@ -177,6 +177,9 @@ const TicketCommentsTime = generateGqlQueries('TicketCommentsTime', TICKET_COMME
 const USER_TICKET_COMMENT_READ_TIME_FIELDS = `{ user { id } ticket { id } readResidentCommentAt readCommentAt ${COMMON_FIELDS} }`
 const UserTicketCommentReadTime = generateGqlQueries('UserTicketCommentReadTime', USER_TICKET_COMMENT_READ_TIME_FIELDS)
 
+const EXPORT_TICKET_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file meta ${COMMON_FIELDS} }`
+const ExportTicketTask = generateGqlQueries('ExportTicketTask', EXPORT_TICKET_TASK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -212,5 +215,6 @@ module.exports = {
     TicketCommentFile,
     TicketCommentsTime,
     UserTicketCommentReadTime,
+    ExportTicketTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

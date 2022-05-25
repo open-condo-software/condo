@@ -29,6 +29,7 @@ const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
 const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
+const { ExportTicketTask: ExportTicketTaskGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -49,6 +50,7 @@ const TicketFilterTemplate = generateGQLTestUtils(TicketFilterTemplateGQL)
 const TicketCommentFile = generateGQLTestUtils(TicketCommentFileGQL)
 const TicketCommentsTime = generateGQLTestUtils(TicketCommentsTimeGQL)
 const UserTicketCommentReadTime = generateGQLTestUtils(UserTicketCommentReadTimeGQL)
+const ExportTicketTask = generateGQLTestUtils(ExportTicketTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -539,6 +541,37 @@ async function getTicketAnalyticsExport(client, extraAttrs = {}) {
     return [data.result, extraAttrs]
 }
 
+async function createTestExportTicketTask (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestExportTicketTask logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ExportTicketTask.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestExportTicketTask (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestExportTicketTask logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ExportTicketTask.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -580,5 +613,6 @@ module.exports = {
     UserTicketCommentReadTime, createTestUserTicketCommentReadTime, updateTestUserTicketCommentReadTime,
     getTicketReport,
     getTicketAnalyticsReport, getTicketAnalyticsExport,
+    ExportTicketTask, createTestExportTicketTask, updateTestExportTicketTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
