@@ -6,7 +6,6 @@ import get from 'lodash/get'
 import { Contact } from '../utils/clientSchema'
 import { searchProperty, searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
 import { useIntl } from '@core/next/intl'
-import { BuildingUnitSubType } from '@app/condo/schema'
 import { FLAT_UNIT_TYPE, APARTMENT_UNIT_TYPE, WAREHOUSE_UNIT_TYPE, PARKING_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } from '@condo/domains/property/constants/common'
 
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -61,10 +60,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const columns: Columns = [
         { name: 'Address', type: 'string', required: true, label: AddressTitle },
         { name: 'Unit Name', type: 'string', required: true, label: UnitTitle },
+        { name: 'Unit Type', type: 'string', required: true, label: UnitTypeTitle },
         { name: 'Phones', type: 'string', required: true, label: PhoneTitle },
         { name: 'Full Name', type: 'string', required: true, label: NameTitle },
         { name: 'Email', type: 'string', required: false, label: EmailTitle },
-        { name: 'Unit Type', type: 'string', required: true, label: UnitTypeTitle },
     ]
 
     const contactNormalizer: RowNormalizer = (row) => {
@@ -115,7 +114,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!get(row, ['addons', 'property'])) errors.push(PropertyNotFoundMessage)
         if (!get(row, ['addons', 'fullName', 'length'])) errors.push(IncorrectContactNameMessage)
 
-        const rowEmail = get(row, ['row', '4', 'value'])
+        const rowEmail = get(row, ['row', '5', 'value'])
         if (rowEmail && !get(row, ['addons', 'email'])) {
             errors.push(IncorrectEmailMessage)
         }
@@ -151,7 +150,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!row) return Promise.resolve()
         const unitName = String(get(row.row, ['1', 'value'])).trim().toLowerCase()
         const contactPool = []
-        const splitPhones = String(row.row[2].value).split(SPLIT_PATTERN)
+        const splitPhones = String(row.row[3].value).split(SPLIT_PATTERN)
         const inValidPhones = []
 
         for (let i = 0; i < row.addons.phones.length; i++) {
@@ -174,7 +173,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
         return Promise.all(contactPool).then(() => {
             if (inValidPhones.length > 0) {
-                row.row[2].value = inValidPhones.join('; ')
+                row.row[3].value = inValidPhones.join('; ')
                 row.shouldBeReported = true
             }
         })
