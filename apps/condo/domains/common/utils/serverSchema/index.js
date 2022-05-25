@@ -17,7 +17,7 @@ const GLOBAL_QUERY_LIMIT = 1000
 
 class GqlWithKnexLoadList {
 
-    constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [] }) {
+    constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [], offset, limit }) {
         if (!Reflect.has(where, 'deletedAt')) {
             where.deletedAt = null
         }
@@ -48,14 +48,14 @@ class GqlWithKnexLoadList {
         return all
     }
 
-    async loadChunk (skip = 0) {
+    async loadChunk (offset = 0, limit) {
         const mainTableObjects = await getItems({
             keystone: this.keystone,
             listKey: this.listKey,
             where: this.where,
             sortBy: this.sortBy,
-            skip: skip,
-            first: GLOBAL_QUERY_LIMIT,
+            skip: offset,
+            first: limit || GLOBAL_QUERY_LIMIT,
             returnFields: this.fields,
         })
         if (mainTableObjects.length === 0) {
@@ -79,6 +79,12 @@ class GqlWithKnexLoadList {
             knexQuery.leftJoin(...join(idx))
         })
         knexQuery.whereIn('mainModel.id', ids)
+        if (this.offset) {
+            knexQuery.offset(this.offset)
+        }
+        if (this.limit) {
+            knexQuery.limit(this.limit)
+        }
         const joinTablesObjects = await knexQuery
         const main = Object.fromEntries(mainTableObjects.map(object => ([object.id, object])))
         const joins = Object.fromEntries(joinTablesObjects.map(object => ([object.id, object])))
