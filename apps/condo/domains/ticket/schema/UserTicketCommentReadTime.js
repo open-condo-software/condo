@@ -43,6 +43,16 @@ const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime',
             type: DateTimeUtc,
         },
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['user', 'ticket'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'unique_user_and_ticket',
+            },
+        ],
+    },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadUserTicketCommentReadTimes,

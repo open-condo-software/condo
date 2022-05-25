@@ -6,7 +6,7 @@ const faker = require('faker')
 
 const { makeLoggedInAdminClient, UUID_RE } = require('@core/keystone/test.utils')
 
-const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
     createTestOrganization, createTestOrganizationEmployee,
@@ -15,6 +15,7 @@ const { makeClientWithProperty, createTestProperty } = require('@condo/domains/p
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestTicket, createTestUserTicketCommentReadTime, updateTestUserTicketCommentReadTime, UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/testSchema')
+const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('UserTicketCommentReadTime', () => {
     describe('employee', () => {
@@ -40,6 +41,19 @@ describe('UserTicketCommentReadTime', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
+                })
+            })
+
+            it('cannot create UserTicketCommentReadTime with same user and ticket fields', async () => {
+                const userClient = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
+                await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
+
+                await catchErrorFrom(async () => {
+                    await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
+                }, ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0].message).toContain(`${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_ticket"`)
                 })
             })
         })
@@ -94,6 +108,23 @@ describe('UserTicketCommentReadTime', () => {
                     await updateTestUserTicketCommentReadTime(userClient1, userTicketCommentRead.id, {
                         readResidentCommentAt: newReadResidentCommentAt,
                     })
+                })
+            })
+
+            it('cannot update UserTicketCommentReadTime with same user and ticket fields', async () => {
+                const userClient = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
+                const [ticket1] = await createTestTicket(userClient, userClient.organization, userClient.property)
+                await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
+                const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket1)
+
+                await catchErrorFrom(async () => {
+                    await updateTestUserTicketCommentReadTime(userClient, userTicketCommentReadTime.id, {
+                        ticket: { connect: { id: ticket.id } },
+                    })
+                }, ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0].message).toContain(`${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_ticket"`)
                 })
             })
         })

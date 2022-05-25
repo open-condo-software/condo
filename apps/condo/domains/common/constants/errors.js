@@ -26,6 +26,8 @@ const NOTHING_TO_EXPORT = 'NOTHING_TO_EXPORT'
 
 const NETWORK_ERROR = 'failed to fetch'
 
+const UNIQUE_CONSTRAINT_ERROR = 'duplicate key value violates unique constraint'
+
 // A record with specified set of field values already exists, so, the request violates unique constraints
 const NOT_UNIQUE = 'NOT_UNIQUE'
 // Provided value does not matches specified format. For example not matches regexp, string length requirement etc.
@@ -63,4 +65,5 @@ module.exports = {
     WRONG_PHONE_FORMAT,
     UNKNOWN_ATTRIBUTE,
     PROPERTY_REQUIRED_ERROR,
+    UNIQUE_CONSTRAINT_ERROR,
 }
