@@ -20,8 +20,15 @@ async function main () {
     await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
     await keystone.connect()
 
+    const now = dayjs()
     await sendVerificationDateReminder({
-        date: dayjs(),
+        date: now,
+        searchWindowDaysShift: 0,
+        daysCount: 30,
+    })
+
+    await sendVerificationDateReminder({
+        date: now,
         searchWindowDaysShift: 30,
         daysCount: 30,
     })
