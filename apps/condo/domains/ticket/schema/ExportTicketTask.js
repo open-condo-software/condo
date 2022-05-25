@@ -9,7 +9,10 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/ticket/access/ExportTicketTask')
 const { EXPORT_STATUS_VALUES, EXPORT_FORMAT_VALUES } = require('@condo/domains/common/constants/export')
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 
+const TICKET_EXPORT_TASK_FOLDER_NAME = 'ticketExport'
+const Adapter = new FileAdapter(TICKET_EXPORT_TASK_FOLDER_NAME)
 
 const ExportTicketTask = new GQLListSchema('ExportTicketTask', {
     // TODO(codegen): write doc for the ExportTicketTask domain model!
@@ -50,6 +53,7 @@ const ExportTicketTask = new GQLListSchema('ExportTicketTask', {
             // TODO(codegen): write doc for ExportTicketTask.file field!
             schemaDoc: 'TODO DOC!',
             type: File,
+            adapter: Adapter,
         },
 
         meta: {
