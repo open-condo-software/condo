@@ -28,6 +28,7 @@ const { TicketCommentsTime } = require('./TicketCommentsTime')
 const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
 const { TicketPropertyHint } = require('./TicketPropertyHint')
 const { TicketPropertyHintProperty } = require('./TicketPropertyHintProperty')
+const { ExportTicketTask } = require('./ExportTicketTask')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -55,5 +56,6 @@ module.exports = {
     UserTicketCommentReadTime,
     TicketPropertyHint,
     TicketPropertyHintProperty,
+    ExportTicketTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
