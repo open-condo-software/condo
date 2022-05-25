@@ -227,6 +227,7 @@ const MESSAGE_META = {
             meterId: { required: true },
             userId: { required: true },
             residentId: { required: true },
+            url: { defaultValue: '', required: true },
         },
     },
 }

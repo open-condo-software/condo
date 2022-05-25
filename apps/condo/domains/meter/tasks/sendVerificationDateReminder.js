@@ -1,4 +1,5 @@
 const dayjs = require('dayjs')
+const conf = require('@core/config')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
@@ -193,6 +194,7 @@ const generateReminderMessages = async ({ context, reminderWindowSize, reminders
                         meterId: meter.id,
                         userId: resident.user.id,
                         residentId: resident.id,
+                        url: `${conf.SERVER_URL}/meter`,
                     },
                 },
             }))
