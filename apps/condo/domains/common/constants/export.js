@@ -1,9 +1,21 @@
-export const PROCESSING = 'processing'
-export const COMPLETED = 'completed'
-export const ERROR = 'error'
+const PROCESSING = 'processing'
+const COMPLETED = 'completed'
+const ERROR = 'error'
 
-export const EXPORT_STATUS_VALUES = [PROCESSING, COMPLETED, ERROR]
+const EXPORT_STATUS_VALUES = [PROCESSING, COMPLETED, ERROR]
 
-export const EXCEL = 'excel'
+const EXCEL = 'excel'
 
-export const EXPORT_FORMAT_VALUES = [EXCEL]
+const EXPORT_FORMAT_VALUES = [EXCEL]
+
+const EXPORT_PROCESSING_BATCH_SIZE = 1000
+
+module.exports = {
+    PROCESSING,
+    COMPLETED,
+    ERROR,
+    EXCEL,
+    EXPORT_STATUS_VALUES,
+    EXPORT_FORMAT_VALUES,
+    EXPORT_PROCESSING_BATCH_SIZE,
+}
