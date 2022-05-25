@@ -837,6 +837,8 @@
   "notification.messages.BILLING_RECEIPT_AVAILABLE_MANUAL.push.title": "Вам квитанция!",
   "notification.messages.BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL.email.subject": "Вам квитанция!",
   "notification.messages.BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL.push.title": "Вам квитанция!",
+  "notification.messages.METER_VERIFICATION_DATE_REMINDER_TYPE.email.subject": "Время сделать поверку счетчика!",
+  "notification.messages.METER_VERIFICATION_DATE_REMINDER_TYPE.push.title": "Время сделать поверку счетчика!",
   "TicketDeadline": "Срок выполнения заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",
