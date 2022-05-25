@@ -74,7 +74,7 @@ jobs:
           sleep 3
 
           # Note: as long as we have tests with non-linear logic, we cannot use more than 1 worker
-          yarn workspace @app/condo test --silent --coverage --testTimeout=15000 --forceExit --detectOpenHandles
+          yarn workspace @app/condo test --coverage --testTimeout=15000 --forceExit --detectOpenHandles --silent=false --verbose 2>&1 > condo.test.log
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
@@ -88,3 +88,11 @@ jobs:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
           DISABLE_LOGGING: true
+
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: condo.test.log
+          path: condo.test.log
+          retention-days: 2
