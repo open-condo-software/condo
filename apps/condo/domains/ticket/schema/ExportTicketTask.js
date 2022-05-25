@@ -15,50 +15,45 @@ const TICKET_EXPORT_TASK_FOLDER_NAME = 'ticketExport'
 const Adapter = new FileAdapter(TICKET_EXPORT_TASK_FOLDER_NAME)
 
 const ExportTicketTask = new GQLListSchema('ExportTicketTask', {
-    // TODO(codegen): write doc for the ExportTicketTask domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Stores requested export format, status of export job, link to exported file and information about progress of export job',
     fields: {
 
         status: {
-            // TODO(codegen): write doc for ExportTicketTask.status field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Status of export job',
             type: Select,
             options: EXPORT_STATUS_VALUES,
             isRequired: true,
         },
 
         format: {
-            // TODO(codegen): write doc for ExportTicketTask.format field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Requested export file format',
             type: Select,
             options: EXPORT_FORMAT_VALUES,
             isRequired: true,
         },
 
         exportedRecordsCount: {
-            // TODO(codegen): write doc for ExportTicketTask.exportedRecordsCount field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'How many records at the moment are exported',
             type: Integer,
             isRequired: true,
+            defaultValue: 0,
         },
 
         totalRecordsCount: {
-            // TODO(codegen): write doc for ExportTicketTask.totalRecordsCount field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Total records to export. Can be unknown due to implementation specifics',
             type: Integer,
-            isRequired: true,
+            isRequired: false,
+            defaultValue: 0,
         },
 
         file: {
-            // TODO(codegen): write doc for ExportTicketTask.file field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Link to exported file',
             type: File,
             adapter: Adapter,
         },
 
         meta: {
-            // TODO(codegen): write doc for ExportTicketTask.meta field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Stores information about query and ids of exported and failed records',
             type: Json,
         },
 
