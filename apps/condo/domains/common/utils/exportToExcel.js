@@ -20,7 +20,7 @@ const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_PAYMENTS]: ['date', 'account', 'address', 'unitName', 'type', 'transaction', 'amount'],
     [EXPORT_TYPE_CONTACTS]: ['name', 'address', 'unitName', 'unitType', 'phone', 'email'],
     [EXPORT_TYPE_METERS]: [
-        'date', 'address', 'unitName', 'accountNumber', 'resource',
+        'date', 'address', 'unitName', 'unitType', 'accountNumber', 'resource',
         'number', 'place', 'value1', 'value2', 'value3', 'value4', 'clientName', 'source',
     ],
     [EXPORT_TYPE_BUILDINGS]: ['organization', 'address', 'unitsCount', 'uninhabitedUnitsCount', 'ticketsInWork', 'ticketsClosed'],

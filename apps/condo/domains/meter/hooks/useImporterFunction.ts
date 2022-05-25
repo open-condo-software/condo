@@ -17,6 +17,12 @@ import {
 } from '@condo/domains/common/utils/importer'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchema/search'
+import {
+    APARTMENT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE,
+    FLAT_UNIT_TYPE,
+    PARKING_UNIT_TYPE,
+    WAREHOUSE_UNIT_TYPE,
+} from '@app/condo/domains/property/constants/common'
 
 import { Meter, MeterReading } from '../utils/clientSchema'
 import { searchMeter } from '../utils/clientSchema/search'
@@ -61,6 +67,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     // to avoid sudden regressed changes of column names when many clients will already use provided spreadsheet
     const AddressColumnMessage = intl.formatMessage({ id: 'meter.import.column.address' })
     const UnitNameColumnMessage = intl.formatMessage({ id: 'meter.import.column.unitName' })
+    const UnitTypeColumnMessage = intl.formatMessage({ id: 'meter.import.column.unitType' })
     const AccountNumberColumnMessage = intl.formatMessage({ id: 'meter.import.column.accountNumber' })
     const MeterTypeColumnMessage = intl.formatMessage({ id: 'meter.import.column.meterType' })
     const MeterNumberColumnMessage = intl.formatMessage({ id: 'meter.import.column.meterNumber' })
@@ -76,16 +83,19 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const CommissioningDateMessage = intl.formatMessage({ id: 'meter.import.column.CommissioningDate' })
     const SealingDateMessage = intl.formatMessage({ id: 'meter.import.column.SealingDate' })
     const ControlReadingsDate = intl.formatMessage({ id: 'meter.import.column.ControlReadingsDate' })
-
-    const MeterResourceNotFoundMessage = intl.formatMessage({ id: 'meter.import.error.MeterResourceNotFound' })
-
     const HotWaterResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.hotWater' })
     const ColdWaterResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.coldWater' })
     const ElectricityResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.electricity' })
     const HeatSupplyResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.heatSupply' })
     const GasSupplyResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.gasSupply' })
-
+    const FlatUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.flat' })
+    const ParkingUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.parking' })
+    const ApartmentUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.apartment' })
+    const WarehouseUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.warehouse' })
+    const CommercialUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.commercial' })
+    const MeterResourceNotFoundMessage = intl.formatMessage({ id: 'meter.import.error.MeterResourceNotFound' })
     const NoValuesErrorMessage = intl.formatMessage({ id: 'meter.import.error.ZeroValuesSpecified' })
+    const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitType' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -102,6 +112,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const columns: Columns = [
         { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },
         { name: UnitNameColumnMessage, type: 'string', required: true, label: UnitNameColumnMessage },
+        { name: UnitTypeColumnMessage, type: 'string', required: true, label: UnitTypeColumnMessage },
         { name: AccountNumberColumnMessage, type: 'string', required: true, label: AccountNumberColumnMessage },
         { name: MeterTypeColumnMessage, type: 'string', required: true, label: MeterTypeColumnMessage },
         { name: MeterNumberColumnMessage, type: 'string', required: true, label: MeterNumberColumnMessage },
@@ -120,11 +131,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     ]
 
     const meterReadingNormalizer: RowNormalizer = async (row) => {
-        const addons = { address: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null, invalidReadingSubmissionDate: null, valuesAmount: 0 }
+        const addons = { address: null, unitType: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null, invalidReadingSubmissionDate: null, valuesAmount: 0 }
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [
             address,
             unitName,
+            unitType,
             accountNumber,
             meterResourceTypeAbbr,
             meterNumber,
@@ -161,10 +173,20 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         addons.propertyId = propertyId
         addons.propertyMap = propertyMap
 
+        const UNIT_TYPE_TRANSLATION_TO_TYPE = {
+            [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
+            [ParkingUnitTypeValue.toLowerCase()]: PARKING_UNIT_TYPE,
+            [ApartmentUnitTypeValue.toLowerCase()]: APARTMENT_UNIT_TYPE,
+            [WarehouseUnitTypeValue.toLowerCase()]: WAREHOUSE_UNIT_TYPE,
+            [CommercialUnitTypeValue.toLowerCase()]: COMMERCIAL_UNIT_TYPE,
+        }
+        addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[String(unitType)]
+
         const searchMeterWhereConditions = {
             organization: { id: userOrganizationId },
             property: { id: propertyId },
             unitName,
+            unitType: addons.unitType,
             accountNumber,
             number: meterNumber,
         }
@@ -198,6 +220,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!get(processedRow, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
         if (!get(processedRow, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
         if (!get(processedRow, ['addons', 'valuesAmount'])) errors.push(NoValuesErrorMessage)
+
+        const unitType = get(processedRow, ['addons', 'unitType'], '')
+        if (!unitType || String(unitType).trim().length === 0) errors.push(IncorrectUnitTypeMessage)
         // TODO(mrfoxpro): Implement custom validation https://github.com/open-condo-software/condo/pull/978
 
         const propertyMap = get(processedRow, ['addons', 'propertyMap'])
