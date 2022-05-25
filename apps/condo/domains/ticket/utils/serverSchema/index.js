@@ -61,8 +61,15 @@ const UserTicketCommentReadTime = generateServerUtils(UserTicketCommentReadTimeG
 const ExportTicketTask = generateServerUtils(ExportTicketTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-
-const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+/**
+ * Loads specified chunk of tickets, determined by `offset` and `limit` params in terms of database
+ * @param where
+ * @param sortBy
+ * @param offset
+ * @param limit
+ * @return {Promise<[]|*>}
+ */
+const loadTicketsBatchForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'], offset, limit }) => {
     const ticketStatusLoader = new GqlWithKnexLoadList({
         listKey: 'TicketStatus',
         fields: 'id type',
@@ -109,14 +116,7 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
         sortBy,
         where,
     })
-    const tickets = await ticketsLoader.load()
-    tickets.forEach(ticket => {
-        // if task has assigner then it was started on creation
-        if (ticket.assignee && !ticket.startedAt && ticket.status !== 'new_or_reopened'){
-            ticket.startedAt = ticket.createdAt
-        }
-        ticket.TicketComment = compact(ticket.TicketComment)
-    })
+    const tickets = await ticketsLoader.loadChunk(offset, limit)
     return tickets
 }
 
@@ -158,7 +158,7 @@ module.exports = {
     TicketClassifierRule,
     ResidentTicket,
     TicketSource,
-    loadTicketsForExcelExport,
+    loadTicketsBatchForExcelExport,
     loadTicketCommentsForExcelExport,
     TicketFilterTemplate,
     predictTicketClassification,
