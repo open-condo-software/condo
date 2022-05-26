@@ -5,9 +5,9 @@ interface EmployeeIconProps {
     viewBox?: string
 }
 
-const EmployeeIconSVG: React.FC<EmployeeIconProps> = ({ viewBox = '0 0 22 22' }) => {
+const EmployeeIconSVG: React.FC<EmployeeIconProps> = ({ viewBox = '0 0 20 20' }) => {
     return (
-        <svg width='24' height='24' viewBox={viewBox} fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.834 11a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0-8.333a3.333 3.333 0 1 1 0 6.666 3.333 3.333 0 0 1 0-6.666ZM9.833 13c-2.12.002-4.987.761-6.487 2.11-1.5 1.35-2.344 3.18-2.346 5.09 0 .212.094.416.26.566.167.15.393.234.629.234a.942.942 0 0 0 .628-.235.762.762 0 0 0 .26-.565c0-1.485.656-2.91 1.823-3.96 1.167-1.05 3.583-1.64 5.233-1.64 1.65 0 4.067.59 5.234 1.64 1.167 1.05 1.822 2.475 1.822 3.96 0 .212.094.416.26.566.167.15.393.234.629.234a.942.942 0 0 0 .629-.235.762.762 0 0 0 .26-.565c-.002-1.91-.846-3.74-2.346-5.09-1.5-1.349-4.367-2.108-6.488-2.11Z" fill="currentColor" stroke="#82879F"/></svg>
+        <svg width="20" height="20" fill="none" viewBox={viewBox} xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M13 5c0 1.6569-1.3431 3-3 3S7 6.6569 7 5c0-1.6568 1.3431-3 3-3s3 1.3432 3 3Zm2 0c0 2.7614-2.2386 5-5 5S5 7.7614 5 5s2.2386-5 5-5 5 2.2386 5 5ZM3 19c0-3.1925 3.0044-6 7-6s7 2.8075 7 6c0 .5523.4477 1 1 1s1-.4477 1-1c0-4.5395-4.159-8-9-8s-9 3.4605-9 8c0 .5523.4477 1 1 1s1-.4477 1-1Z" fill="currentColor"/></svg>
     )
 }
 
