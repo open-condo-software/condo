@@ -1,5 +1,5 @@
 const path = require('path')
-const { find } = require('@core/keystone/schema')
+const { find, getByCondition } = require('@core/keystone/schema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const get = require('lodash/get')
@@ -21,34 +21,31 @@ class FixTicketClients {
     async findBrokenTickets () {
         // Ticket created from resident, but has missing fields
         this.brokenTickets = await find('Ticket', {
-            AND: [
-                { createdBy: { type: RESIDENT } },
-                {
-                    OR: [
-                        { client_is_null: true },
-                        { clientName: null },
-                        { clientPhone: null },
-                    ],
-                },
-            ],
+            createdBy: { type: RESIDENT },
+            contact_is_null: true,
         })
     }
 
     async fixBrokenTickets () {
         if (!get(this.brokenTickets, 'length')) return
-        const users = await find('User', {
-            id_in: this.brokenTickets.map(ticket => ticket.createdBy),
-        })
-        const usersByIds = Object.assign({}, ...users.map(user => ({ [user.id]: user })))
+
         for (const ticket of this.brokenTickets) {
-            const user = get(usersByIds, ticket.createdBy)
-            await Ticket.update(this.context, ticket.id, {
-                clientName: get(user, 'name'),
-                clientPhone: get(user, 'phone'),
-                client: { connect: { id: get(user, 'id') } },
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'fixTicketScript' },
+            const contact = getByCondition('Contact', {
+                organization: { id: ticket.organization },
+                property: { id: ticket.property },
+                unitName: ticket.unitName,
+                unitType: ticket.unitType,
+                phone: ticket.clientPhone,
+                name: ticket.clientName,
             })
+
+            if (contact) {
+                await Ticket.update(this.context, ticket.id, {
+                    contact: { connect: { id: contact.id } },
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'fixTicketScript' },
+                })
+            }
         }
     }
 }
