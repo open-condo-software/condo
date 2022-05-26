@@ -96,7 +96,7 @@ const generateSmsCode = (phone) => {
 const updateEmployeesRelatedToUser = async (context, user) => {
     const acceptedInviteEmployees = await OrganizationEmployee.getAll(context, { user: { id: user.id }, isAccepted: true })
     if (acceptedInviteEmployees.length > 0) {
-        acceptedInviteEmployees.forEach(employee => {
+        await Promise.all(acceptedInviteEmployees.map(employee => {
             OrganizationEmployee.update(context, employee.id, {
                 dv: user.dv,
                 sender: user.sender,
@@ -104,7 +104,7 @@ const updateEmployeesRelatedToUser = async (context, user) => {
                 email: user.email,
                 phone: user.phone,
             })
-        })
+        }))
     }
 }
 
