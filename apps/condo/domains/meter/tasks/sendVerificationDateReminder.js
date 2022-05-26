@@ -181,7 +181,6 @@ const getOrganizationLang = async (context, id) => {
 
 const generateReminderMessages = async ({ context, reminderWindowSize, reminders }) => {
     const messages = []
-
     await Promise.all(reminders.map(async (reminder) => {
         const { meter, residents } = reminder
         const lang = await getOrganizationLang(context, meter.organization.id)
@@ -197,7 +196,7 @@ const generateReminderMessages = async ({ context, reminderWindowSize, reminders
                     data: {
                         reminderDate: dayjs(meter.nextVerificationDate).locale(lang).format('D MMM'),
                         meterId: meter.id,
-                        resource: { name: get(meter, 'resource.name') },
+                        resource: { name: get(meter, 'resource.name', '') },
                         userId: resident.user.id,
                         residentId: resident.id,
                         url: `${conf.SERVER_URL}/meter`,
