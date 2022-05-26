@@ -2,14 +2,16 @@
  * @jest-environment node
  */
 
-const { syncSubscriptions } = require('./syncSubscriptions')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
-const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
+const { setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { find } = require('lodash')
 const { SUBSCRIPTION_TYPE, SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
 const dayjs = require('dayjs')
+
+const { keystone } = require('../../../../../index')
+const { syncSubscriptions } = require('./syncSubscriptions')
 
 const firstInn = '7784523718'
 const secondInn = '1234567890'
@@ -32,18 +34,9 @@ jest.mock('../SbbolFintechApi', () => ({
 
 }))
 
-let keystone
 
 describe('syncSubscriptions', () => {
     setFakeClientMode(require.resolve('../../../../../index'))
-
-    beforeAll(async () => {
-        // We don't have a way to obtain instance of initialized Keystone app, because
-        // a function `setFakeClientMode` does't returns it.
-        // Create another instance for exclusive usage in these test module
-        const result = await prepareKeystoneExpressApp(require.resolve('../../../../../index'))
-        keystone = result.keystone
-    })
 
     describe('Fintech API returns active offer for current organization', () => {
         beforeAll(() => {

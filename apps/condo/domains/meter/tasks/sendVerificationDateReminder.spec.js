@@ -1,17 +1,16 @@
 /**
  * @jest-environment node
  */
+
 const dayjs = require('dayjs')
 
-const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
-
+const { setFakeClientMode } = require('@core/keystone/test.utils')
 const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
 
+const { keystone } = require('../../../index')
 const { makeClientWithResidentAndMeter } = require('../utils/testSchema')
-
-let keystone = null
 
 const getNotificationsFromMeter = async ({ verificationDate, nextVerificationDate, searchWindowDaysShift = 0 }) => {
     const { user: { id } } = await makeClientWithResidentAndMeter({ verificationDate, nextVerificationDate })
@@ -20,12 +19,7 @@ const getNotificationsFromMeter = async ({ verificationDate, nextVerificationDat
 }
 
 describe('Meter verification notification', () => {
-
-    beforeAll(async () => {
-        setFakeClientMode(require.resolve('../../../index'))
-        const result = await prepareKeystoneExpressApp(require.resolve('../../../index'))
-        keystone = result.keystone
-    })
+    setFakeClientMode(require.resolve('../../../index'))
 
     it('should not send messages on null nextVerificationDate', async () => {
         const messages = await getNotificationsFromMeter({
