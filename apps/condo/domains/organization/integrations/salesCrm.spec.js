@@ -6,16 +6,18 @@ const mockPushSubscriptionActivationToSalesCRM = jest.fn()
 const mockPushOrganizationToSalesCRM = jest.fn()
 
 const dayjs = require('dayjs')
-const { prepareKeystoneExpressApp, setFakeClientMode, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { MockSbbolResponses } = require('./sbbol/sync/MockSbbolResponses')
-const { createTestOrganization } = require('../utils/testSchema')
+
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { createTestServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 const { rightSbbolOfferAccept } = require('@condo/domains/subscription/utils/testSchema/constants')
-const { syncOrganization } = require('./sbbol/sync/syncOrganization')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { SBBOL_FINGERPRINT_NAME } = require('./sbbol/common')
-const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
 
+const { keystone } = require('../../../index')
+const { createTestOrganization } = require('../utils/testSchema')
+const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
+const { syncOrganization } = require('./sbbol/sync/syncOrganization')
+const { MockSbbolResponses } = require('./sbbol/sync/MockSbbolResponses')
+const { SBBOL_FINGERPRINT_NAME } = require('./sbbol/common')
 
 jest.mock('../utils/serverSchema/Organization')
 jest.mock('../utils/serverSchema/Organization', () => {
@@ -27,14 +29,9 @@ jest.mock('../utils/serverSchema/Organization', () => {
     }
 })
 
-let keystone
-
 describe('Ineraction with sales CRM', () => {
     setFakeClientMode(require.resolve('../../../index'))
-    beforeAll(async () => {
-        const result = await prepareKeystoneExpressApp(require.resolve('../../../index'))
-        keystone = result.keystone
-    })
+
     it('should send to sales crm new organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
         expect(mockPushOrganizationToSalesCRM).toBeCalled()

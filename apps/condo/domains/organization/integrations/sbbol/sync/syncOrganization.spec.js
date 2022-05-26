@@ -3,24 +3,19 @@
  */
 
 const faker = require('faker')
-const { syncOrganization } = require('./syncOrganization')
-const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
-const { MockSbbolResponses } = require('./MockSbbolResponses')
-const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
 const { getItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 
-let keystone
+const { setFakeClientMode } = require('@core/keystone/test.utils')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
+
+const { keystone } = require('../../../../../index')
+const { MockSbbolResponses } = require('./MockSbbolResponses')
+const { syncOrganization } = require('./syncOrganization')
 
 describe('syncOrganization from SBBOL', () => {
     setFakeClientMode(require.resolve('../../../../../index'))
-
-    beforeAll(async () => {
-        const result = await prepareKeystoneExpressApp(require.resolve('../../../../../index'))
-        keystone = result.keystone
-    })
 
     describe('Organization not exists', function () {
 
