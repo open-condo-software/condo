@@ -36,7 +36,7 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
   }
 
   .icon {
-    color: ${colors.lightGrey[5]};
+    color: ${colors.textSecondary};
     font-size: 20px;
     transition: ${transitions.allDefault};
   }
