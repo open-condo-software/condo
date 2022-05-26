@@ -209,7 +209,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: insurance-app
+image: insurance
 fromImage: base
 fromCacheVersion: "1"
 git:
