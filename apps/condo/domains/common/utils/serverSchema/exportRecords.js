@@ -34,7 +34,7 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecords, convertRe
     return rows
 }
 
-const exportJob = ({ context, loadRecords, format, taskServerUtils, task, convertRecord, saveToFile }) => {
+const exportTask = ({ context, loadRecords, format, taskServerUtils, task, convertRecord, saveToFile }) => {
     loadRecordsAndConvertToFileRows({ context, loadRecords, convertRecord, task, taskServerUtils })
         .then(rows => {
             saveToFile({ format, rows })
@@ -56,7 +56,7 @@ const exportJob = ({ context, loadRecords, format, taskServerUtils, task, conver
  * @param taskServerUtils - task server utils
  * @return {Promise<*>}
  */
-async function startExportJob ({ context, dv, sender, format, loadRecords, convertRecord, taskServerUtils }) {
+async function startExportTask ({ context, dv, sender, format, loadRecords, convertRecord, taskServerUtils }) {
     const task = await taskServerUtils.create(context, {
         dv,
         sender,
@@ -64,7 +64,7 @@ async function startExportJob ({ context, dv, sender, format, loadRecords, conve
         format,
     })
 
-    await exportJob.delay({
+    await exportTask.delay({
         context,
         format,
         loadRecords,
@@ -77,5 +77,5 @@ async function startExportJob ({ context, dv, sender, format, loadRecords, conve
 }
 
 module.exports = {
-    startExportJob,
+    startExportTask,
 }
