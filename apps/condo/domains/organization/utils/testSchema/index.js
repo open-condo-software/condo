@@ -4,8 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const {makeClientWithProperty} = require('@condo/domains/property/utils/testSchema')
-const {createTestProperty} = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require ('@condo/domains/common/constants/countries')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require ('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient } = require ('@core/keystone/test.utils')
