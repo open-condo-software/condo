@@ -31,6 +31,7 @@ export interface IMeterFormState {
     property?: string
     accountNumber?: string
     unitName?: string
+    unitType?: string
     place?: string
     resource?: string
     installationDate?: string

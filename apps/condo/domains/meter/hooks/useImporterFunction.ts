@@ -55,6 +55,14 @@ const parseDateOrMonth = (value) => {
     throw new RangeError()
 }
 
+const mapSectionsToUnitLabels = (sections) => sections.map(
+    section => section.floors.map(
+        floor => floor.units.map(
+            unit => unit.label
+        )
+    )
+).flat(2)
+
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
 
@@ -180,7 +188,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             [WarehouseUnitTypeValue.toLowerCase()]: WAREHOUSE_UNIT_TYPE,
             [CommercialUnitTypeValue.toLowerCase()]: COMMERCIAL_UNIT_TYPE,
         }
-        addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[String(unitType)]
+        addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[String(unitType).toLowerCase()]
 
         const searchMeterWhereConditions = {
             organization: { id: userOrganizationId },
@@ -227,12 +235,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         const propertyMap = get(processedRow, ['addons', 'propertyMap'])
         const sections = get(propertyMap, 'sections', [])
-        const propertyUnitLabels = sections.map(
-            section => section.floors.map(
-                floor => floor.units.map(
-                    unit => unit.label)
-            )
-        ).flat(2)
+        const parking = get(propertyMap, 'parking', [])
+        const sectionsUnitLabels = mapSectionsToUnitLabels(sections)
+        const parkingUnitLabels = mapSectionsToUnitLabels(parking)
 
         processedRow.row.forEach((cell, i) => {
             switch (columns[i].label) {
@@ -250,8 +255,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                         errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label, format: DATE_PARSING_FORMAT }))
                     break
                 case UnitNameColumnMessage:
-                    if (!propertyUnitLabels.includes(cell.value))
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].label }))
+                    if (unitType === PARKING_UNIT_TYPE && parkingUnitLabels.includes(cell.value)) break
+                    if (unitType !== PARKING_UNIT_TYPE && sectionsUnitLabels.includes(cell.value)) break
+
+                    errors.push(intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].label }))
                     break
                 default: 
                     break
@@ -271,6 +278,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const [
             address,
             unitName,
+            unitType,
             accountNumber,
             meterType,
             meterNumber,
@@ -297,6 +305,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 property: String(addons.propertyId),
                 resource: addons.meterResourceId,
                 unitName: String(unitName),
+                unitType: String(addons.unitType),
                 accountNumber: String(accountNumber),
                 number: String(meterNumber),
                 numberOfTariffs: parseInt(String(numberOfTariffs)),

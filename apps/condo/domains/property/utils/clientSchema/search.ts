@@ -13,7 +13,7 @@ const GET_ALL_PROPERTIES_WITH_MAP_BY_VALUE_QUERY = gql`
         objs: allProperties(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
             id
             address
-            map { sections { floors { units { label } } } }
+            map { sections { floors { units { type label } } } parking { floors { units { type label } } } }
         }
     }
 `
