@@ -214,3 +214,32 @@ from: postgres:13.2
 ---
 image: redisreview
 from: redis:6.2
+
+
+docker:
+  ENV:
+    LANG: C.UTF-8
+---
+image: insurance-app
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+      setup:
+        - "apps/**"
+        - "packages/**"
+        - "bin/**/*"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
