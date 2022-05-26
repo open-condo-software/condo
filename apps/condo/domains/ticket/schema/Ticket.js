@@ -39,7 +39,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
-    calculateTicketOrder, calculateReopenedCounter, createContactIfNotExists,
+    calculateTicketOrder, calculateReopenedCounter, getOrCreateContact,
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
     overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
@@ -366,10 +366,11 @@ const Ticket = new GQLListSchema('Ticket', {
             }
 
             if (userType === RESIDENT && operation === 'create') {
-                await createContactIfNotExists(context, resolvedData)
+                overrideTicketFieldsForResidentUserType(context, resolvedData)
+                const contact = await getOrCreateContact(context, resolvedData)
+                resolvedData.contact = contact.id
                 await setSectionAndFloorFieldsByDataFromPropertyMap(context, resolvedData)
                 setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
-                overrideTicketFieldsForResidentUserType(context, resolvedData)
             }
 
             const newItem = { ...existingItem, ...resolvedData }
