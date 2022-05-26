@@ -10,11 +10,11 @@ iframe[name='JSD widget'] {
 
 const JIRAServiceDeskWidget: React.FC = () => {
     const { publicRuntimeConfig } = getConfig()
-    const { JSDWDataKey } = publicRuntimeConfig
-    return JSDWDataKey ? (
+    const { JIRAServiceDeskWidgetKey } = publicRuntimeConfig
+    return JIRAServiceDeskWidgetKey ? (
         <>
             <style>{JSDWcss}</style>
-            <script data-jsd-embedded data-key={JSDWDataKey} data-base-url="https://jsd-widget.atlassian.com" src="https://jsd-widget.atlassian.com/assets/embed.js"></script>
+            <script data-jsd-embedded data-key={JIRAServiceDeskWidgetKey} data-base-url="https://jsd-widget.atlassian.com" src="https://jsd-widget.atlassian.com/assets/embed.js"></script>
         </>
     ) : null
 }
