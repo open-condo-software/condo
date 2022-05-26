@@ -1,5 +1,6 @@
 const { v4: uuid } = require('uuid')
 const isEmpty = require('lodash/isEmpty')
+const pick = require('lodash/pick')
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const { captchaCheck } = require('@condo/domains/user/utils/googleRecaptcha3')
 const {
@@ -118,6 +119,13 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         {
             access: true,
             schema: 'getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput',
+            doc: {
+                summary: 'Returns phone number information from ConfirmPhoneAction, that matches provided search conditions',
+                errors: pick(errors, [
+                    CAPTCHA_CHECK_FAILED,
+                    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
+                ]),
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { token, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'get_confirm_phone_token_info')
@@ -142,6 +150,13 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         {
             access: true,
             schema: 'startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput',
+            doc: {
+                summary: 'Send confirmation phone SMS message and return confirmation token. You can use the token for completeConfirmPhoneAction mutation. And then use the token in other mutations to prove that the phone number is verified',
+                errors: pick(errors, [
+                    CAPTCHA_CHECK_FAILED,
+                    WRONG_PHONE_FORMAT,
+                ]),
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { phone: inputPhone, sender, dv, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'start_confirm_phone')
@@ -191,6 +206,13 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         {
             access: true,
             schema: 'resendConfirmPhoneActionSms(data: ResendConfirmPhoneActionSmsInput!): ResendConfirmPhoneActionSmsOutput',
+            doc: {
+                summary: 'Resend the confirm phone SMS message for existing token',
+                errors: pick(errors, [
+                    CAPTCHA_CHECK_FAILED,
+                    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
+                ]),
+            },
             resolver: async (parent, args, context, info, extra) => {
                 const { token, sender, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'resend_sms')
@@ -233,6 +255,16 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         {
             access: true,
             schema: 'completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput',
+            doc: {
+                summary: 'The final step of a phone number confirmation. You should use the token from startConfirmPhoneAction and a secret code from the confirm phone SMS message. After success call, you can use the token in other mutations to prove that you have access to the phone number',
+                errors: pick(errors, [
+                    CAPTCHA_CHECK_FAILED,
+                    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
+                    SMS_CODE_EXPIRED,
+                    SMS_CODE_MAX_RETRIES_REACHED,
+                    SMS_CODE_VERIFICATION_FAILED,
+                ]),
+            },
             resolver: async (parent, args, context, info, extra) => {
                 const { token, smsCode, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'complete_verify_phone')
