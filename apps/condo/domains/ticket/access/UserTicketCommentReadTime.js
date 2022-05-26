@@ -25,7 +25,7 @@ async function canReadUserTicketCommentReadTimes ({ authentication: { item: user
 async function canManageUserTicketCommentReadTimes ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     if (user.type !== RESIDENT) {
         if (operation === 'create') {
