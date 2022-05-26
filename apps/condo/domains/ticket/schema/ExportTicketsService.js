@@ -22,7 +22,7 @@ const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { isNull } = require('lodash')
 const { EXCEL } = require('@condo/domains/common/constants/export')
-const { startExportJob } = require('@condo/domains/common/utils/serverSchema/exportRecords')
+const { startExportTask } = require('@condo/domains/common/utils/serverSchema/exportRecords')
 const { ExportTicketTask } = require('../utils/serverSchema')
 
 const HEADER_DATE_FORMAT = 'DD.MM.YYYY'
@@ -88,7 +88,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
                 }
 
-                const task = await startExportJob({
+                const task = await startExportTask({
                     context,
                     dv,
                     sender,
