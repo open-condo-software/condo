@@ -31,6 +31,7 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 
 const IS_ENABLE_CACHE = conf.ENABLE_CACHE === '1'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
+const IS_ON_WORKER = conf.PHASE === 'worker'
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
@@ -162,7 +163,7 @@ module.exports = {
             authStrategy,
             hooks: require.resolve('@app/condo/admin-ui'),
         }),
-        conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
+        conf.NODE_ENV === 'test' || IS_ON_WORKER ? undefined : new NextApp({ dir: '.' }),
     ].filter(identity),
 
     /** @type {(app: import('express').Application) => void} */
