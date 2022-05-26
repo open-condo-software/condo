@@ -12,9 +12,9 @@ import {
     getDateRender,
     renderMeterReading,
     getTextRender,
-    getTableCellRenderer, getAddressRender, getUnitNameRender,
+    getTableCellRenderer, getAddressRender,
 } from '@condo/domains/common/components/Table/Renders'
-import { MeterReading } from '@app/condo/schema'
+import { getUnitRender } from '@condo/domains/meter/utils/clientSchema/Renders'
 
 const renderMeterRecord = (record) => {
     const value1 = get(record, 'value1')
@@ -51,10 +51,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         getAddressRender(get(meterReading, ['meter', 'property']), DeletedMessage, search),
     [DeletedMessage, search])
 
-    const renderUnitName = useCallback((text, meterReading) =>
-        getUnitNameRender<MeterReading>(intl, text, get(meterReading, 'meter'), search),
-    [search])
-
     return useMemo(() => {
         return [
             {
@@ -83,7 +79,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'unitName',
                 dataIndex: ['meter', 'unitName'],
                 width: '10%',
-                render: renderUnitName,
+                render: getUnitRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
             },
