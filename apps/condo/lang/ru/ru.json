@@ -850,7 +850,7 @@
   "notification.messages.RESIDENT_ADD_BILLING_ACCOUNT.email.subject": "Добавьте лицевой счёт",
   "notification.messages.RESIDENT_ADD_BILLING_ACCOUNT.push.title": "Добавьте лицевой счёт",
   "notification.messages.METER_VERIFICATION_DATE_REMINDER.email.subject": "Время сделать поверку счетчика!",
-  "notification.messages.METER_VERIFICATION_DATE_REMINDER.push.title": "Время сделать поверку счетчика!",
+  "notification.messages.METER_VERIFICATION_DATE_REMINDER.push.title": "Doma ⏰",
   "TicketDeadline": "Срок выполнения заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",
