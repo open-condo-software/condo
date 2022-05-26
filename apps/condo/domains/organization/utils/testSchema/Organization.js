@@ -115,9 +115,7 @@ async function acceptOrRejectOrganizationInviteById (client, invite, extraAttrs 
         data: { ...attrs },
     })
     if (raw) return { data, errors }
-    if (errors && errors.length > 0) {
-        throw new ApolloError('Mutation error', 'INTERNAL_SERVER_ERROR', { data, errors })
-    }
+    throwIfError(data, errors)
     return [data.obj, attrs]
 }
 
@@ -136,9 +134,7 @@ async function acceptOrRejectOrganizationInviteByCode (client, inviteCode, extra
         data: { ...attrs },
     })
     if (raw) return { data, errors }
-    if (errors && errors.length > 0) {
-        throw new ApolloError('Mutation error', 'INTERNAL_SERVER_ERROR', { data, errors })
-    }
+    throwIfError(data, errors)
     return [data.obj, attrs]
 }
 
