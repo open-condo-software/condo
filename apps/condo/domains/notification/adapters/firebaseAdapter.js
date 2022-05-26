@@ -12,35 +12,9 @@ const { logger } = require('@condo/domains/notification/utils')
 const { PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL, FIREBASE_CONFIG_ENV } = require('../constants/constants')
 const { EMPTY_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('../constants/errors')
 
-const IS_BUILD_PHASE = conf.PHASE === 'build'
-// const IS_PRODUCTION = conf.NODE_ENV === 'production'
 const FAKE_SUCCESS_MESSAGE_PREFIX = 'fake-success-message'
 
-let FIREBASE_CONFIG = null
-
-if (!IS_BUILD_PHASE) {
-    const FIREBASE_CONFIG_JSON = conf[FIREBASE_CONFIG_ENV] || process.env[FIREBASE_CONFIG_ENV]
-
-    if (!FIREBASE_CONFIG_JSON) {
-        //throw new Error(EMPTY_CONFIG_ERROR)
-        logger.error(EMPTY_CONFIG_ERROR)
-    }
-
-    // JSON.parse would throw for a broken JSON, so we should take care of it here
-    try {
-        FIREBASE_CONFIG = JSON.parse(FIREBASE_CONFIG_JSON)
-    } catch (error) {
-        // throw new Error(EMPTY_CONFIG_ERROR)
-        logger.error(EMPTY_CONFIG_ERROR)
-    }
-
-    if (isEmpty(FIREBASE_CONFIG)) {
-        // throw new Error(EMPTY_CONFIG_ERROR)
-        logger.error(EMPTY_CONFIG_ERROR)
-    }
-} else {
-    FIREBASE_CONFIG = { error: 'Build faze' }
-}
+const FIREBASE_CONFIG = conf[FIREBASE_CONFIG_ENV] ? JSON.parse(conf[FIREBASE_CONFIG_ENV]) : null
 
 /**
  * Send push notification to pushToken via app, configured by FIREBASE_CONFIG in .helm (.env)
