@@ -17,7 +17,7 @@ const { syncOrganization } = require('./syncOrganization')
 describe('syncOrganization from SBBOL', () => {
     setFakeClientMode(require.resolve('../../../../../index'))
 
-    describe('Organization not exists', function () {
+    describe('Organization not exists', () => {
 
         it('should update existed organization with a same tin', async () => {
             const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
@@ -136,7 +136,7 @@ describe('syncOrganization from SBBOL', () => {
             })
             const userData2 = {
                 ...userData,
-                importId: faker.random.uuid(),
+                importId: faker.datatype.uuid(),
                 email: faker.internet.email(),
                 phone: faker.phone.phoneNumber('+79#########'),
             }
