@@ -209,17 +209,6 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: postgresreview
-from: postgres:13.2
----
-image: redisreview
-from: redis:6.2
-
-
-docker:
-  ENV:
-    LANG: C.UTF-8
----
 image: insurance-app
 fromImage: base
 fromCacheVersion: "1"
@@ -243,3 +232,31 @@ git:
       - werf-giterminism.yaml
     owner: app
     group: app
+
+shell:
+  install:
+    - "cd /app"
+    - "yarn install --frozen-lockfile"
+  setup:
+  - "cd /app"
+  - "echo '# Build time .env config!' >> /app/.env"
+  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+  - "echo 'WORKER_REDIS_URL=undefined' >> /app/.env"
+  - "echo 'NODE_ENV=production' >> /app/.env"
+  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+  - "yarn workspace @app/eps next telemetry disable"
+  - "yarn workspace @app/eps build"
+  - "rm -rf /app/.env"
+  - "rm -rf /app/.config"
+  - "rm -rf /app/.yarn"
+
+docker:
+  ENV:
+    LANG: C.UTF-8
+---
+image: postgresreview
+from: postgres:13.2
+---
+image: redisreview
+from: redis:6.2
