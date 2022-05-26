@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, FunctionComponent, useEffect } from 'react'
+import React, { CSSProperties, FunctionComponent, useEffect, ElementType } from 'react'
 import { jsx } from '@emotion/core'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -16,11 +16,10 @@ import {
     SUB_LAYOUT_CSS,
     TABLE_PAGE_CONTENT_CSS,
 } from './components/styles'
-import { ElementType } from 'react'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import { Header } from './Header'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { ITrackerLogEventType } from '@condo/domains/common/components/trackers/TrackerInstance'
 
 interface IBaseLayoutProps {
@@ -65,12 +64,13 @@ interface IPageWrapperProps {
 const PageWrapper: FunctionComponent<IPageWrapperProps> = (props) => {
     const { children, className, style, loadTrackEvent } = props
     const { isSmall } = useLayoutContext()
-    const { logEvent } = useTracking()
+    const { logEvent, getEventName } = useTracking()
 
     useEffect(() => {
-        if (loadTrackEvent) {
-            logEvent(loadTrackEvent)
-        }
+        console.log(getEventName(TrackingEventType.visit))
+        // if (loadTrackEvent) {
+        // logEvent(loadTrackEvent)
+        // }
     }, [])
 
     return (

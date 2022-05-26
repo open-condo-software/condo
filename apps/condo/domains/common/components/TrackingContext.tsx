@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
-import { useRouter } from 'next/router'
+import { useRouter, NextRouter } from 'next/router'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
+import compact from 'lodash/compact'
 import { TRACKING_USER_FIELDS } from '@condo/domains/user/constants'
 import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
 import AmplitudeInstance from './trackers/AmplitudeInstance'
@@ -43,6 +44,14 @@ const TrackingContext = createContext<ITrackingContext>(TRACKING_INITIAL_VALUE)
 
 const useTrackingContext = (): ITrackingContext => useContext<ITrackingContext>(TrackingContext)
 
+export enum TrackingEventType {
+    visit = 'Visit',
+    click = 'Click',
+    input = 'Input',
+    select = 'Select',
+
+}
+
 interface IUseTracking {
     (): {
         eventProperties: ITrackingContext['eventProperties']
@@ -52,10 +61,12 @@ interface IUseTracking {
         setEventProperties: (newProps: TrackingCommonEventProperties) => void
         setUserProperties: (newProps: TrackingCommonEventProperties) => void
         instrument: (eventName: string, func?: any) => any
+        getEventName: (eventType: TrackingEventType) => string
     }
 }
 
 const useTracking: IUseTracking = () => {
+    const { route } = useRouter()
     const { trackerInstances, eventProperties, userProperties, setUserProperties, setEventProperties } = useTrackingContext()
 
     const logEvent = ({ eventName, eventProperties }: ITrackerLogEventType) => {
@@ -75,6 +86,37 @@ const useTracking: IUseTracking = () => {
         return fn as any
     }
 
+    const getEventName = (eventType: TrackingEventType) => {
+        const [domainName, isDetail, suffix] = compact(route.split('/'))
+        const domain = domainName.charAt(0).toUpperCase() + domainName.slice(1)
+        let domainPostfix = 'Index'
+        let domainSuffix = ''
+
+        switch (isDetail) {
+            case '[id]':
+                domainPostfix = 'Detail'
+                break
+            case 'create':
+                domainPostfix = 'Create'
+                break
+            default:
+                break
+        }
+
+        switch (suffix) {
+            case 'update':
+                domainSuffix = 'Update'
+                break
+            case 'pdf':
+                domainSuffix = 'Pdf'
+                break
+            default:
+                break
+        }
+
+        return `${domain}${eventType}${domainPostfix}${domainSuffix}`
+    }
+
     return {
         eventProperties,
         userProperties,
@@ -83,6 +125,7 @@ const useTracking: IUseTracking = () => {
         setEventProperties,
         setUserProperties,
         instrument,
+        getEventName,
     }
 }
 

@@ -13,6 +13,7 @@ export type ITrackerLogEventType = { eventName: string, eventProperties: Record<
 abstract class TrackerInstance {
     protected readonly token: string | null = null
     protected readonly configParams: Record<string, unknown> = {}
+    protected readonly allowedDomains: Record<string, unknown> = {}
     protected readonly instanceName: string
     protected instance = null
 
@@ -22,13 +23,21 @@ abstract class TrackerInstance {
         const trackingConfig = get(config, 'publicRuntimeConfig.trackingConfig')
 
         if (trackingConfig) {
-            this.token = get(trackingConfig, ['trackers', this.instanceName, 'token'])
-            this.configParams = get(trackingConfig, ['trackers', this.instanceName, 'config'])
+            const token = get(trackingConfig, ['trackers', this.instanceName, 'token'])
+            const configParams = get(trackingConfig, ['trackers', this.instanceName, 'config'])
+            if (!token) {
+                console.error(`No token for ${this.instanceName} tracker instance was provided!`)
+            }
+
+            this.token = token
+            this.configParams = configParams
+            this.allowedDomains = get(trackingConfig, 'domains')
         }
     }
 
     /**
-     * This method is called when the component is created
+     * This method is called when the component is created.
+     * Should be wrapped at window object exists condition if it is necessary!
      * @abstract
      * @return void
      */
@@ -42,6 +51,19 @@ abstract class TrackerInstance {
      * @return void
      */
     abstract logEvent ({ eventName, eventProperties }: ITrackerLogEventType): void
+
+    /**
+     *
+     * @param {Object} eventProperties - event properties contains base props
+     */
+    isNeedToSendEvent (eventProperties: ITrackerLogEventType['eventProperties']): boolean {
+        const currentPath = get(eventProperties, ['page', 'path'], '')
+        console.log(currentPath)
+
+        const hadDomainLevelPermission = false
+
+        return Boolean(this.instance) && Boolean(this.token) && hadDomainLevelPermission
+    }
 }
 
 export default TrackerInstance

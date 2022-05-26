@@ -35,7 +35,7 @@ class AmplitudeInstance extends TrackerInstance {
     }
 
     logEvent ({ eventName, eventProperties }: ITrackerLogEventType): void {
-        if (this.instance && this.token) {
+        if (this.isNeedToSendEvent(eventProperties)) {
             this.instance.logEvent(eventName, eventProperties)
         }
     }
