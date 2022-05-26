@@ -12465,8 +12465,7 @@ export type ExportTicketsToExcelInput = {
 
 export type ExportTicketsToExcelOutput = {
   __typename?: 'ExportTicketsToExcelOutput';
-  status: Scalars['String'];
-  linkToFile: Scalars['String'];
+  task?: Maybe<ExportTicketTask>;
 };
 
 export type FeeDistributionField = {
