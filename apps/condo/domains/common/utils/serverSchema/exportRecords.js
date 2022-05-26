@@ -1,5 +1,6 @@
 const { EXPORT_PROCESSING_BATCH_SIZE } = require('../../constants/export')
 const { COMPLETED, PROCESSING } = require('@condo/domains/common/constants/export')
+const { createTask } = require('@core/keystone/tasks')
 
 /**
  * Queries records in batches and converts them to rows, that will be saved to file
@@ -34,7 +35,7 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecords, convertRe
     return rows
 }
 
-const exportTask = ({ context, loadRecords, format, taskServerUtils, task, convertRecord, saveToFile }) => {
+const exportRecordsTask = createTask('exportRecords', ({ context, loadRecords, format, taskServerUtils, task, convertRecord, saveToFile }) => {
     loadRecordsAndConvertToFileRows({ context, loadRecords, convertRecord, task, taskServerUtils })
         .then(rows => {
             saveToFile({ format, rows })
@@ -45,7 +46,7 @@ const exportTask = ({ context, loadRecords, format, taskServerUtils, task, conve
                 file: url,
             })
         })
-}
+})
 
 /**
  * Creates an export task, starts delayed export job and returns task
@@ -64,7 +65,7 @@ async function startExportTask ({ context, dv, sender, format, loadRecords, conv
         format,
     })
 
-    await exportTask.delay({
+    await exportRecordsTask.delay({
         context,
         format,
         loadRecords,
