@@ -420,7 +420,7 @@ describe('MultiPayment', () => {
                     }, MULTIPAYMENT_MISSING_REQUIRED_FIELDS)
                 })
             })
-            describe('Frozen fields cannot be changed', async () => {
+            describe('Frozen fields cannot be changed', () => {
                 const relations = ['integration', 'user']
                 const values = ['amountWithoutExplicitFee', 'currencyCode']
                 const statuses = [MULTIPAYMENT_INIT_STATUS, MULTIPAYMENT_PROCESSING_STATUS, MULTIPAYMENT_WITHDRAWN_STATUS]
