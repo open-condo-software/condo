@@ -6,6 +6,7 @@ import map from 'lodash/map'
 import isEmpty from 'lodash/isEmpty'
 import { SortMetersBy } from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
+import { useMemo } from 'react'
 
 import {
     Columns,
@@ -117,7 +118,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const meterReadingCreateAction = MeterReading.useCreate({},
         () => Promise.resolve())
 
-    const columns: Columns = [
+    const columns: Columns = useMemo(() => ([
         { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },
         { name: UnitNameColumnMessage, type: 'string', required: true, label: UnitNameColumnMessage },
         { name: UnitTypeColumnMessage, type: 'string', required: true, label: UnitTypeColumnMessage },
@@ -136,7 +137,19 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: CommissioningDateMessage, type: 'date', required: false, label: CommissioningDateMessage },
         { name: SealingDateMessage, type: 'date', required: false, label: SealingDateMessage },
         { name: ControlReadingsDate, type: 'date', required: false, label: ControlReadingsDate },
-    ]
+    ]), [AccountNumberColumnMessage, AddressColumnMessage, CommissioningDateMessage, ControlReadingsDate,
+        InstallationDateMessage, MeterNumberColumnMessage, MeterTariffsNumberColumnMessage, MeterTypeColumnMessage,
+        NextVerificationDateMessage, ReadingSubmissionDateMessage, SealingDateMessage, UnitNameColumnMessage,
+        UnitTypeColumnMessage, Value1ColumnMessage, Value2ColumnMessage, Value3ColumnMessage, Value4ColumnMessage,
+        VerificationDateMessage])
+
+    const UNIT_TYPE_TRANSLATION_TO_TYPE = useMemo(() => ({
+        [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
+        [ParkingUnitTypeValue.toLowerCase()]: PARKING_UNIT_TYPE,
+        [ApartmentUnitTypeValue.toLowerCase()]: APARTMENT_UNIT_TYPE,
+        [WarehouseUnitTypeValue.toLowerCase()]: WAREHOUSE_UNIT_TYPE,
+        [CommercialUnitTypeValue.toLowerCase()]: COMMERCIAL_UNIT_TYPE,
+    }), [ApartmentUnitTypeValue, CommercialUnitTypeValue, FlatUnitTypeValue, ParkingUnitTypeValue, WarehouseUnitTypeValue])
 
     const meterReadingNormalizer: RowNormalizer = async (row) => {
         const addons = { address: null, unitType: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null, invalidReadingSubmissionDate: null, valuesAmount: 0 }
@@ -180,14 +193,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         addons.propertyId = propertyId
         addons.propertyMap = propertyMap
-
-        const UNIT_TYPE_TRANSLATION_TO_TYPE = {
-            [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
-            [ParkingUnitTypeValue.toLowerCase()]: PARKING_UNIT_TYPE,
-            [ApartmentUnitTypeValue.toLowerCase()]: APARTMENT_UNIT_TYPE,
-            [WarehouseUnitTypeValue.toLowerCase()]: WAREHOUSE_UNIT_TYPE,
-            [CommercialUnitTypeValue.toLowerCase()]: COMMERCIAL_UNIT_TYPE,
-        }
         addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[String(unitType).toLowerCase()]
 
         const searchMeterWhereConditions = {
