@@ -9,7 +9,7 @@ const { COMPLETED, PROCESSING } = require('@condo/domains/common/constants/expor
  * @param taskSchema
  * @return {Promise<*[]>}
  */
-const loadRecordsAndConvertToFileRows = async ({ loadRecords, convertRecord, task, taskServerUtils }) => {
+const loadRecordsAndConvertToFileRows = async ({ context, loadRecords, convertRecord, task, taskServerUtils }) => {
     let hasMore
     let offset = 0
     let rows = []
@@ -23,7 +23,7 @@ const loadRecordsAndConvertToFileRows = async ({ loadRecords, convertRecord, tas
             ]
         }
 
-        taskServerUtils.update(task.id, {
+        taskServerUtils.update(context, task.id, {
             exportedRecordsCount: task.exportedRecordsCount + batch.length,
         })
 
@@ -34,13 +34,13 @@ const loadRecordsAndConvertToFileRows = async ({ loadRecords, convertRecord, tas
     return rows
 }
 
-const exportJob = ({ loadRecords, format, taskServerUtils, task, convertRecord, saveToFile }) => {
-    loadRecordsAndConvertToFileRows({ loadRecords, convertRecord, task, taskServerUtils })
+const exportJob = ({ context, loadRecords, format, taskServerUtils, task, convertRecord, saveToFile }) => {
+    loadRecordsAndConvertToFileRows({ context, loadRecords, convertRecord, task, taskServerUtils })
         .then(rows => {
             saveToFile({ format, rows })
         })
         .then(url => {
-            taskServerUtils.update(task.id, {
+            taskServerUtils.update(context, task.id, {
                 status: COMPLETED,
                 file: url,
             })
@@ -56,17 +56,19 @@ const exportJob = ({ loadRecords, format, taskServerUtils, task, convertRecord, 
  * @param taskServerUtils - task server utils
  * @return {Promise<*>}
  */
-async function startExportJob ({ format, loadRecords, convertRecord, saveToFile, taskServerUtils }) {
-    const task = taskServerUtils.create({
+async function startExportJob ({ context, dv, sender, format, loadRecords, convertRecord, taskServerUtils }) {
+    const task = await taskServerUtils.create(context, {
+        dv,
+        sender,
         status: PROCESSING,
         format,
     })
 
     await exportJob.delay({
+        context,
         format,
         loadRecords,
         convertRecord,
-        saveToFile,
         task,
         taskServerUtils,
     })

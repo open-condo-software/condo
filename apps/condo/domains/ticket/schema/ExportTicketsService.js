@@ -76,7 +76,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
             access: access.canExportTicketsToExcel,
             schema: 'exportTicketsToExcel(data: ExportTicketsToExcelInput!): ExportTicketsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { where, sortBy, timeZone: timeZoneFromUser } = args.data
+                const { dv, sender, where, sortBy, timeZone: timeZoneFromUser } = args.data
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date, dateFormat = DATE_FORMAT) => dayjs(date).tz(timeZone).format(dateFormat)
                 const statuses = await TicketStatus.getAll(context, {})
@@ -89,6 +89,9 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 }
 
                 const task = await startExportJob({
+                    context,
+                    dv,
+                    sender,
                     format: EXCEL,
                     taskServerUtils: ExportTicketTask,
                     loadRecords: async (offset, limit) => {
@@ -190,8 +193,9 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                             },
                         })
                     },
-
                 })
+
+                console.debug('> task', task)
 
                 return { task }
             },
