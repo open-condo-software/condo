@@ -30,9 +30,7 @@ class GqlWithKnexLoadList {
     }
 
     async load () {
-        const { keystone: modelAdapter } = await getSchemaCtx(this.listKey)
-        this.keystone = modelAdapter
-        this.knex = modelAdapter.adapter.knex
+        await this.initContext()
         let skip = 0
         let newchunk = []
         let all = []
@@ -49,6 +47,7 @@ class GqlWithKnexLoadList {
     }
 
     async loadChunk (offset = 0, limit) {
+        await this.initContext()
         const mainTableObjects = await getItems({
             keystone: this.keystone,
             listKey: this.listKey,
@@ -93,6 +92,12 @@ class GqlWithKnexLoadList {
             merged[id] = { ...main[id], ...joins[id] }
         }
         return Object.values(merged)
+    }
+
+    async initContext () {
+        const { keystone: modelAdapter } = await getSchemaCtx(this.listKey)
+        this.keystone = modelAdapter
+        this.knex = modelAdapter.adapter.knex
     }
 }
 
