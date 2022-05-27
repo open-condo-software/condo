@@ -486,7 +486,7 @@ describe('Payment', () => {
                 const valueFields = ['amount', 'currencyCode', 'period', 'accountNumber', 'recipientBic', 'recipientBankAccount']
                 // NOTE: Cannot transit from other statuses, so checking only this ones
                 const statuses = [PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS]
-                describe('Value-fields', async () => {
+                describe('Value-fields', () => {
                     const fieldCases = Object.keys(PAYMENT_FROZEN_FIELDS)
                         .filter(status => statuses.includes(status))
                         .map(status => {

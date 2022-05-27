@@ -29,7 +29,7 @@ const {
 
 describe('BillingReceipt', () => {
 
-    describe('Validators', async () => {
+    describe('Validators', () => {
         test('organization integration manager: update BillingReceipt toPayDetail', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
@@ -241,7 +241,7 @@ describe('BillingReceipt', () => {
         })
     })
 
-    describe('Constrains', async () => {
+    describe('Constrains', () => {
 
         const TEST_IMPORT_ID = 'bedrock_220v'
 
@@ -484,7 +484,7 @@ describe('BillingReceipt', () => {
 
     })
 
-    describe('Create', async () => {
+    describe('Create', () => {
         test('admin can create BillingReceipt', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -689,7 +689,7 @@ describe('BillingReceipt', () => {
         })
     })
 
-    describe('Update', async () => {
+    describe('Update', () => {
         test('admin can update BillingReceipt', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -744,7 +744,7 @@ describe('BillingReceipt', () => {
         })
     })
 
-    describe('Delete', async () => {
+    describe('Delete', () => {
         test('user cannot delete BillingReceipt', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()

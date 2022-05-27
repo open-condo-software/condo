@@ -5,7 +5,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { checkPropertyWithAddressExistByTestClient } = require('@condo/domains/property/utils/testSchema')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
-describe('CheckPropertyWithAddressExistService', async () => {
+describe('CheckPropertyWithAddressExistService', () => {
     test('user finds result', async () => {
         const client = await makeClientWithProperty(true)
         const payload = {
