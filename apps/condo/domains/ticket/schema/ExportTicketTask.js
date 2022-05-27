@@ -61,12 +61,14 @@ const ExportTicketTask = new GQLListSchema('ExportTicketTask', {
             schemaDoc: 'Filtering conditions for records to export',
             type: Json,
             isRequired: true,
+            // TODO(antonal): add validation by reusing `TicketWhereInput` as a GraphQL type
         },
 
         sortBy: {
             schemaDoc: 'Sorting parameters for records to export',
             type: Json,
             isRequired: true,
+            // TODO(antonal): add validation by reusing `SortTicketsBy` as a GraphQL type
         },
 
         locale: {
