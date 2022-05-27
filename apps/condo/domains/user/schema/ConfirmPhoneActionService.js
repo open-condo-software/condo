@@ -19,13 +19,13 @@ const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/c
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-const { GQLError, GQLErrorCode: { NOT_FOUND, BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const {
     CAPTCHA_CHECK_FAILED,
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
     SMS_CODE_EXPIRED,
     SMS_CODE_MAX_RETRIES_REACHED,
-    SMS_CODE_VERIFICATION_FAILED,
+    SMS_CODE_VERIFICATION_FAILED, GQL_ERRORS,
 } = require('../constants/errors')
 
 const redisGuard = new RedisGuard()
@@ -152,10 +152,15 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput',
             doc: {
                 summary: 'Send confirmation phone SMS message and return confirmation token. You can use the token for completeConfirmPhoneAction mutation. And then use the token in other mutations to prove that the phone number is verified',
-                errors: pick(errors, [
-                    CAPTCHA_CHECK_FAILED,
-                    WRONG_PHONE_FORMAT,
-                ]),
+                errors: {
+                    ...pick(errors, [
+                        CAPTCHA_CHECK_FAILED,
+                        WRONG_PHONE_FORMAT,
+                    ]),
+                    TOO_MANY_REQUESTS: GQL_ERRORS.TOO_MANY_REQUESTS,
+                    SMS_FOR_PHONE_DAY_LIMIT_REACHED: GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED,
+                    SMS_FOR_IP_DAY_LIMIT_REACHED: GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED,
+                },
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { phone: inputPhone, sender, dv, captcha } = args.data
@@ -208,10 +213,15 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'resendConfirmPhoneActionSms(data: ResendConfirmPhoneActionSmsInput!): ResendConfirmPhoneActionSmsOutput',
             doc: {
                 summary: 'Resend the confirm phone SMS message for existing token',
-                errors: pick(errors, [
-                    CAPTCHA_CHECK_FAILED,
-                    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
-                ]),
+                errors: {
+                    ...pick(errors, [
+                        CAPTCHA_CHECK_FAILED,
+                        UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
+                    ]),
+                    TOO_MANY_REQUESTS: GQL_ERRORS.TOO_MANY_REQUESTS,
+                    SMS_FOR_PHONE_DAY_LIMIT_REACHED: GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED,
+                    SMS_FOR_IP_DAY_LIMIT_REACHED: GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED,
+                },
             },
             resolver: async (parent, args, context, info, extra) => {
                 const { token, sender, captcha } = args.data
@@ -257,13 +267,16 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput',
             doc: {
                 summary: 'The final step of a phone number confirmation. You should use the token from startConfirmPhoneAction and a secret code from the confirm phone SMS message. After success call, you can use the token in other mutations to prove that you have access to the phone number',
-                errors: pick(errors, [
-                    CAPTCHA_CHECK_FAILED,
-                    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
-                    SMS_CODE_EXPIRED,
-                    SMS_CODE_MAX_RETRIES_REACHED,
-                    SMS_CODE_VERIFICATION_FAILED,
-                ]),
+                errors: {
+                    ...pick(errors, [
+                        CAPTCHA_CHECK_FAILED,
+                        UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
+                        SMS_CODE_EXPIRED,
+                        SMS_CODE_MAX_RETRIES_REACHED,
+                        SMS_CODE_VERIFICATION_FAILED,
+                    ]),
+                    TOO_MANY_REQUESTS: GQL_ERRORS.TOO_MANY_REQUESTS,
+                },
             },
             resolver: async (parent, args, context, info, extra) => {
                 const { token, smsCode, captcha } = args.data

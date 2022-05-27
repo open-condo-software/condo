@@ -33,13 +33,33 @@ const CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED = '[confirm:phone:smscode:verif
 const SMS_CODE_VERIFICATION_FAILED = 'SMS_CODE_VERIFICATION_FAILED'
 const CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED = '[confirm:phone:smscode:tooManyRequests'
 const SMS_CODE_MAX_RETRIES_REACHED = 'SMS_CODE_MAX_RETRIES_REACHED'
-const TOO_MANY_REQUESTS = '[security:tooManyRequests'
+
+const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
+const SMS_FOR_PHONE_DAY_LIMIT_REACHED = 'SMS_FOR_PHONE_DAY_LIMIT_REACHED'
+const SMS_FOR_IP_DAY_LIMIT_REACHED = 'SMS_FOR_IP_DAY_LIMIT_REACHED'
+
 const CAPTCHA_CHECK_FAILED = 'CAPTCHA_CHECK_FAILED'
-const SMS_FOR_IP_DAY_LIMIT_REACHED = '[security:sms:for:ip:day:limit'
-const SMS_FOR_PHONE_DAY_LIMIT_REACHED = '[security:sms:for:phone:day:limit'
 
 const UNABLE_TO_FIND_CONFIRM_PHONE_ACTION = 'UNABLE_TO_FIND_CONFIRM_PHONE_ACTION'
 const CANNOT_RESET_ADMIN_USER = 'CANNOT_RESET_ADMIN_USER'
+
+const GQL_ERRORS = {
+    TOO_MANY_REQUESTS: {
+        code: 'BAD_USER_INPUT',
+        type: TOO_MANY_REQUESTS,
+        message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+    },
+    SMS_FOR_PHONE_DAY_LIMIT_REACHED: {
+        code: 'BAD_USER_INPUT',
+        type: SMS_FOR_PHONE_DAY_LIMIT_REACHED,
+        message: 'Too many sms requests for this phone number. Try again tomorrow',
+    },
+    SMS_FOR_IP_DAY_LIMIT_REACHED: {
+        code: 'BAD_USER_INPUT',
+        type: SMS_FOR_IP_DAY_LIMIT_REACHED,
+        message: 'Too many sms requests from this ip address. Try again tomorrow',
+    },
+}
 
 module.exports = {
     WRONG_PASSWORD_ERROR,
@@ -75,4 +95,5 @@ module.exports = {
     SMS_FOR_PHONE_DAY_LIMIT_REACHED,
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
     CANNOT_RESET_ADMIN_USER,
+    GQL_ERRORS,
 }

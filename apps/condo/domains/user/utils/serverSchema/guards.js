@@ -5,14 +5,7 @@ const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 dayjs.extend(utc)
 
-const {
-    ApolloError,
-} = require('apollo-errors')
-const {
-    SMS_FOR_IP_DAY_LIMIT_REACHED,
-    SMS_FOR_PHONE_DAY_LIMIT_REACHED,
-    TOO_MANY_REQUESTS,
-} = require('@condo/domains/user/constants/errors')
+const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 
 const {
     MAX_SMS_FOR_IP_BY_DAY,
@@ -21,6 +14,10 @@ const {
 
 const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
 const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
+
+const { GQLError } = require('@core/keystone/errors')
+
+
 class RedisGuard {
 
     constructor () {
@@ -32,12 +29,11 @@ class RedisGuard {
     async checkLock (lockName, action) {
         const isLocked = await this.isLocked(lockName, action)
         if (isLocked) {
-            const timeRemain = await this.lockTimeRemain(lockName, action)
-            throw new ApolloError(`${TOO_MANY_REQUESTS}]`, {
-                message: `${TOO_MANY_REQUESTS}] resend timeout not expired`,
-                data: {
-                    time: new Date().toISOString(),
-                    timeRemain,
+            const secondsRemaining = await this.lockTimeRemain(lockName, action)
+            throw new GQLError({
+                ...GQL_ERRORS.TOO_MANY_REQUESTS,
+                messageInterpolation: {
+                    secondsRemaining,
                 },
             })
         }
@@ -47,11 +43,11 @@ class RedisGuard {
         const ip = rawIp.split(':').pop()
         const byPhoneCounter = await this.incrementDayCounter(phone)
         if (byPhoneCounter > MAX_SMS_FOR_PHONE_BY_DAY && !phoneWhiteList.includes(phone)) {
-            throw new Error(`${SMS_FOR_PHONE_DAY_LIMIT_REACHED}] too many sms requests for this phone number. Try again tomorrow`)
+            throw new GQLError(GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED)
         }
         const byIpCounter = await this.incrementDayCounter(ip)
         if (byIpCounter > MAX_SMS_FOR_IP_BY_DAY && !ipWhiteList.includes(ip)) {
-            throw new Error(`${SMS_FOR_IP_DAY_LIMIT_REACHED}] too many sms requests from this ip address. Try again tomorrow`)
+            throw new GQLError(GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED)
         }
     }
 
