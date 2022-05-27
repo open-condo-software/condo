@@ -89,32 +89,36 @@ const useTracking: IUseTracking = () => {
     const getEventName = (eventType: TrackingEventType) => {
         const [domainName, isDetail, suffix] = compact(route.split('/'))
         const domain = domainName.charAt(0).toUpperCase() + domainName.slice(1)
-        let domainPostfix = 'Index'
-        let domainSuffix = ''
+        let domainSuffix = 'Index'
+        let domainPostfix = ''
 
         switch (isDetail) {
             case '[id]':
-                domainPostfix = 'Detail'
+                domainSuffix = 'Detail'
                 break
             case 'create':
-                domainPostfix = 'Create'
+                domainSuffix = 'Create'
                 break
             default:
                 break
         }
 
-        switch (suffix) {
-            case 'update':
-                domainSuffix = 'Update'
-                break
-            case 'pdf':
-                domainSuffix = 'Pdf'
-                break
-            default:
-                break
+        if (suffix) {
+            switch (suffix) {
+                case 'update':
+                    domainPostfix = 'Update'
+                    break
+                case 'pdf':
+                    domainPostfix = 'Pdf'
+                    break
+                default:
+                    // convert string from domain-related-page to DomainRelatedPage
+                    domainPostfix = suffix.replace(/(-\w|^\w)/g, (_, g) => g.slice(-1).toUpperCase())
+                    break
+            }
         }
 
-        return `${domain}${eventType}${domainPostfix}${domainSuffix}`
+        return `${domain}${eventType}${domainSuffix}${domainPostfix}`
     }
 
     return {
