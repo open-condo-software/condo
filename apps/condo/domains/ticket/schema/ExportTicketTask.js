@@ -63,6 +63,12 @@ const ExportTicketTask = new GQLListSchema('ExportTicketTask', {
             isRequired: true,
         },
 
+        sortBy: {
+            schemaDoc: 'Sorting parameters for records to export',
+            type: Json,
+            isRequired: true,
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
