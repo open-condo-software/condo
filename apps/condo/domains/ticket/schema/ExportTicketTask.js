@@ -75,6 +75,12 @@ const ExportTicketTask = new GQLListSchema('ExportTicketTask', {
             isRequired: true,
         },
 
+        timeZone: {
+            schemaDoc: 'To requested timeZone all datetime fields will be converted',
+            type: Text,
+            isRequired: true,
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
