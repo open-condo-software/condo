@@ -439,6 +439,8 @@ module.exports = {
     deleteSchemaObject,
     getSchemaObject,
     gql,
+    DEFAULT_TEST_ADMIN_IDENTITY,
+    DEFAULT_TEST_ADMIN_SECRET,
     DEFAULT_TEST_USER_IDENTITY,
     DEFAULT_TEST_USER_SECRET,
     getRandomString,
