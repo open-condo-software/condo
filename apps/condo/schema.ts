@@ -12482,6 +12482,8 @@ export type ExportTicketTask = {
   where?: Maybe<Scalars['JSON']>;
   /**  Sorting parameters for records to export  */
   sortBy?: Maybe<Scalars['JSON']>;
+  /**  Requested export locale, in that the resulting file will be rendered  */
+  locale?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12507,6 +12509,7 @@ export type ExportTicketTaskCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12541,6 +12544,7 @@ export type ExportTicketTaskHistoryRecord = {
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12565,6 +12569,7 @@ export type ExportTicketTaskHistoryRecordCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12594,6 +12599,7 @@ export type ExportTicketTaskHistoryRecordUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12679,6 +12685,24 @@ export type ExportTicketTaskHistoryRecordWhereInput = {
   sortBy_not?: Maybe<Scalars['JSON']>;
   sortBy_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sortBy_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  locale?: Maybe<Scalars['String']>;
+  locale_not?: Maybe<Scalars['String']>;
+  locale_contains?: Maybe<Scalars['String']>;
+  locale_not_contains?: Maybe<Scalars['String']>;
+  locale_starts_with?: Maybe<Scalars['String']>;
+  locale_not_starts_with?: Maybe<Scalars['String']>;
+  locale_ends_with?: Maybe<Scalars['String']>;
+  locale_not_ends_with?: Maybe<Scalars['String']>;
+  locale_i?: Maybe<Scalars['String']>;
+  locale_not_i?: Maybe<Scalars['String']>;
+  locale_contains_i?: Maybe<Scalars['String']>;
+  locale_not_contains_i?: Maybe<Scalars['String']>;
+  locale_starts_with_i?: Maybe<Scalars['String']>;
+  locale_not_starts_with_i?: Maybe<Scalars['String']>;
+  locale_ends_with_i?: Maybe<Scalars['String']>;
+  locale_not_ends_with_i?: Maybe<Scalars['String']>;
+  locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -12785,6 +12809,7 @@ export type ExportTicketTaskUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12839,6 +12864,24 @@ export type ExportTicketTaskWhereInput = {
   sortBy_not?: Maybe<Scalars['JSON']>;
   sortBy_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sortBy_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  locale?: Maybe<Scalars['String']>;
+  locale_not?: Maybe<Scalars['String']>;
+  locale_contains?: Maybe<Scalars['String']>;
+  locale_not_contains?: Maybe<Scalars['String']>;
+  locale_starts_with?: Maybe<Scalars['String']>;
+  locale_not_starts_with?: Maybe<Scalars['String']>;
+  locale_ends_with?: Maybe<Scalars['String']>;
+  locale_not_ends_with?: Maybe<Scalars['String']>;
+  locale_i?: Maybe<Scalars['String']>;
+  locale_not_i?: Maybe<Scalars['String']>;
+  locale_contains_i?: Maybe<Scalars['String']>;
+  locale_not_contains_i?: Maybe<Scalars['String']>;
+  locale_starts_with_i?: Maybe<Scalars['String']>;
+  locale_not_starts_with_i?: Maybe<Scalars['String']>;
+  locale_ends_with_i?: Maybe<Scalars['String']>;
+  locale_not_ends_with_i?: Maybe<Scalars['String']>;
+  locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -37921,6 +37964,8 @@ export enum SortExportTicketTaskHistoryRecordsBy {
   ExportedRecordsCountDesc = 'exportedRecordsCount_DESC',
   TotalRecordsCountAsc = 'totalRecordsCount_ASC',
   TotalRecordsCountDesc = 'totalRecordsCount_DESC',
+  LocaleAsc = 'locale_ASC',
+  LocaleDesc = 'locale_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -37948,6 +37993,8 @@ export enum SortExportTicketTasksBy {
   ExportedRecordsCountDesc = 'exportedRecordsCount_DESC',
   TotalRecordsCountAsc = 'totalRecordsCount_ASC',
   TotalRecordsCountDesc = 'totalRecordsCount_DESC',
+  LocaleAsc = 'locale_ASC',
+  LocaleDesc = 'locale_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

@@ -69,6 +69,12 @@ const ExportTicketTask = new GQLListSchema('ExportTicketTask', {
             isRequired: true,
         },
 
+        locale: {
+            schemaDoc: 'Requested export locale, in that the resulting file will be rendered',
+            type: Text,
+            isRequired: true,
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
