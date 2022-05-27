@@ -53,7 +53,7 @@ describe('AcquiringIntegrationContext', () => {
                 expect(context).toHaveProperty(['organization', 'id'], organization.id)
                 expect(context).toHaveProperty(['integration', 'id'], integration.id)
             })
-            describe('user', async () => {
+            describe('user', () => {
                 test('can with if it\'s integration manager of organization (has `canManageIntegration`)', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)

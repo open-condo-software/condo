@@ -58,7 +58,7 @@ describe('B2BAppContext', () => {
                 expect(context).toHaveProperty(['organization', 'id'], organization.id)
                 expect(context).toHaveProperty(['app', 'id'], app.id)
             })
-            describe('User', async () => {
+            describe('User', () => {
                 test('Employee with canManageIntegrations can', async () => {
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
