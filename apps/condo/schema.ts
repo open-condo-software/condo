@@ -16832,6 +16832,24 @@ export type Mutation = {
    *   "correctExample": "+79991234567",
    *   "messageForUser": "api.common.WRONG_PHONE_FORMAT"
    * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "TOO_MANY_REQUESTS",
+   *   "message": "You have to wait {secondsRemaining} seconds to be able to send request again"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_FOR_PHONE_DAY_LIMIT_REACHED",
+   *   "message": "Too many sms requests for this phone number. Try again tomorrow"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_FOR_IP_DAY_LIMIT_REACHED",
+   *   "message": "Too many sms requests from this ip address. Try again tomorrow"
+   * }`
    */
   startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
   /**
@@ -16863,6 +16881,24 @@ export type Mutation = {
    *   "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
    *   "message": "Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again",
    *   "messageForUser": "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "TOO_MANY_REQUESTS",
+   *   "message": "You have to wait {secondsRemaining} seconds to be able to send request again"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_FOR_PHONE_DAY_LIMIT_REACHED",
+   *   "message": "Too many sms requests for this phone number. Try again tomorrow"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_FOR_IP_DAY_LIMIT_REACHED",
+   *   "message": "Too many sms requests from this ip address. Try again tomorrow"
    * }`
    */
   resendConfirmPhoneActionSms?: Maybe<ResendConfirmPhoneActionSmsOutput>;
@@ -16931,6 +16967,12 @@ export type Mutation = {
    *   "type": "SMS_CODE_VERIFICATION_FAILED",
    *   "message": "SMS code verification mismatch",
    *   "messageForUser": "api.user.completeConfirmPhoneAction.SMS_CODE_VERIFICATION_FAILED"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "TOO_MANY_REQUESTS",
+   *   "message": "You have to wait {secondsRemaining} seconds to be able to send request again"
    * }`
    */
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
