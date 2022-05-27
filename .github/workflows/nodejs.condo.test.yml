@@ -64,7 +64,7 @@ jobs:
           sleep 3
 
           # Note: as long as we have tests with non-linear logic, we cannot use more than 1 worker
-          yarn workspace @app/condo test --coverage --testTimeout=15000 --forceExit --detectOpenHandles --silent=false --verbose --bail 2>&1 > condo.test.log
+          yarn workspace @app/condo test --coverage --testTimeout=15000 --runInBand --forceExit --detectOpenHandles --silent=false --verbose --bail 2>&1 > condo.test.log
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
