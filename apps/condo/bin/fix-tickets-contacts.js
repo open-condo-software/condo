@@ -30,7 +30,7 @@ class FixTicketClients {
         if (!get(this.brokenTickets, 'length')) return
 
         for (const ticket of this.brokenTickets) {
-            const contact = getByCondition('Contact', {
+            const contact = await getByCondition('Contact', {
                 organization: { id: ticket.organization },
                 property: { id: ticket.property },
                 unitName: ticket.unitName,
