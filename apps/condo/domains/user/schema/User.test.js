@@ -3,7 +3,7 @@
  */
 
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
-const { getRandomString, makeLoggedInAdminClient, makeClient, DEFAULT_TEST_ADMIN_IDENTITY } = require('@core/keystone/test.utils')
+const { getRandomString, makeLoggedInAdminClient, makeClient, DEFAULT_TEST_ADMIN_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
 
 const {
     User,
@@ -19,7 +19,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
-const { DEFAULT_TEST_USER_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
+const { DEFAULT_TEST_USER_IDENTITY } = require('@core/keystone/test.utils')
 const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -31,8 +31,8 @@ describe('SIGNIN', () => {
             'identity': DEFAULT_TEST_USER_IDENTITY,
             'secret': DEFAULT_TEST_USER_SECRET,
         })
-        expect(data.auth.user.id).toMatch(/[a-zA-Z0-9-_]+/)
         expect(errors).toEqual(undefined)
+        expect(data.obj.item.id).toMatch(/[a-zA-Z0-9-_]+/)
     })
 
     test('anonymous: GET_MY_USERINFO', async () => {
@@ -55,7 +55,7 @@ describe('SIGNIN', () => {
             'identity': DEFAULT_TEST_USER_IDENTITY,
             'secret': 'wrong password',
         })
-        expect(data).toEqual({ 'auth': null })
+        expect(data).toEqual({ 'obj': null })
         expect(JSON.stringify(errors)).toMatch((WRONG_PASSWORD_ERROR))
     })
 
@@ -65,7 +65,7 @@ describe('SIGNIN', () => {
             'identity': 'some3571592131usermail@example.com',
             'secret': 'wrong password',
         })
-        expect(data).toEqual({ 'auth': null })
+        expect(data).toEqual({ 'obj': null })
         expect(JSON.stringify(errors)).toMatch(WRONG_EMAIL_ERROR)
     })
 
