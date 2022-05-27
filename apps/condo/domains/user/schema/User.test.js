@@ -3,7 +3,7 @@
  */
 
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
-const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { getRandomString, makeLoggedInAdminClient, makeClient, DEFAULT_TEST_ADMIN_IDENTITY } = require('@core/keystone/test.utils')
 
 const {
     User,
@@ -266,6 +266,23 @@ describe('User utils', () => {
                 messages: [ '[format:phone] invalid format' ],
             },
         }])
+    })
+
+    test('makeLoggedInClient() without arguments', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const client = await makeLoggedInClient()
+        const userObj = await UserAdmin.getOne(admin, { id: client.user.id })
+        expect(userObj).toMatchObject({
+            email: DEFAULT_TEST_USER_IDENTITY,
+            isAdmin: false,
+            isSupport: false,
+        })
+        const adminObj = await UserAdmin.getOne(admin, { id: admin.user.id })
+        expect(adminObj).toMatchObject({
+            email: DEFAULT_TEST_ADMIN_IDENTITY,
+            isAdmin: true,
+            isSupport: false,
+        })
     })
 })
 
