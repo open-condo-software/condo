@@ -276,12 +276,14 @@ describe('User utils', () => {
             email: DEFAULT_TEST_USER_IDENTITY,
             isAdmin: false,
             isSupport: false,
+            type: 'staff',
         })
         const adminObj = await UserAdmin.getOne(admin, { id: admin.user.id })
         expect(adminObj).toMatchObject({
             email: DEFAULT_TEST_ADMIN_IDENTITY,
             isAdmin: true,
             isSupport: false,
+            type: 'staff',
         })
     })
 })
