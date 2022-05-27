@@ -91,11 +91,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
         data: attrs,
     })
     if (raw) return { data, errors }
-
-    // This test util used by cypress task of which context 'expect' method is missing
-    if (typeof expect === 'function') {
-        expect(errors).toEqual(undefined)
-    }
+    throwIfError(data, errors)
     return [data.user, attrs]
 }
 
@@ -141,7 +137,7 @@ async function addAdminAccess (user) {
 
 async function addSupportAccess (user) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { isSupport: true})
+    await User.update(admin, user.id, { isSupport: true })
 }
 
 async function addResidentAccess (user) {
