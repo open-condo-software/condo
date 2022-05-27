@@ -12484,6 +12484,8 @@ export type ExportTicketTask = {
   sortBy?: Maybe<Scalars['JSON']>;
   /**  Requested export locale, in that the resulting file will be rendered  */
   locale?: Maybe<Scalars['String']>;
+  /**  To requested timeZone all datetime fields will be converted  */
+  timeZone?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12510,6 +12512,7 @@ export type ExportTicketTaskCreateInput = {
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12545,6 +12548,7 @@ export type ExportTicketTaskHistoryRecord = {
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12570,6 +12574,7 @@ export type ExportTicketTaskHistoryRecordCreateInput = {
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12600,6 +12605,7 @@ export type ExportTicketTaskHistoryRecordUpdateInput = {
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12703,6 +12709,24 @@ export type ExportTicketTaskHistoryRecordWhereInput = {
   locale_not_ends_with_i?: Maybe<Scalars['String']>;
   locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone?: Maybe<Scalars['String']>;
+  timeZone_not?: Maybe<Scalars['String']>;
+  timeZone_contains?: Maybe<Scalars['String']>;
+  timeZone_not_contains?: Maybe<Scalars['String']>;
+  timeZone_starts_with?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with?: Maybe<Scalars['String']>;
+  timeZone_ends_with?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with?: Maybe<Scalars['String']>;
+  timeZone_i?: Maybe<Scalars['String']>;
+  timeZone_not_i?: Maybe<Scalars['String']>;
+  timeZone_contains_i?: Maybe<Scalars['String']>;
+  timeZone_not_contains_i?: Maybe<Scalars['String']>;
+  timeZone_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -12810,6 +12834,7 @@ export type ExportTicketTaskUpdateInput = {
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12882,6 +12907,24 @@ export type ExportTicketTaskWhereInput = {
   locale_not_ends_with_i?: Maybe<Scalars['String']>;
   locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone?: Maybe<Scalars['String']>;
+  timeZone_not?: Maybe<Scalars['String']>;
+  timeZone_contains?: Maybe<Scalars['String']>;
+  timeZone_not_contains?: Maybe<Scalars['String']>;
+  timeZone_starts_with?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with?: Maybe<Scalars['String']>;
+  timeZone_ends_with?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with?: Maybe<Scalars['String']>;
+  timeZone_i?: Maybe<Scalars['String']>;
+  timeZone_not_i?: Maybe<Scalars['String']>;
+  timeZone_contains_i?: Maybe<Scalars['String']>;
+  timeZone_not_contains_i?: Maybe<Scalars['String']>;
+  timeZone_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -37966,6 +38009,8 @@ export enum SortExportTicketTaskHistoryRecordsBy {
   TotalRecordsCountDesc = 'totalRecordsCount_DESC',
   LocaleAsc = 'locale_ASC',
   LocaleDesc = 'locale_DESC',
+  TimeZoneAsc = 'timeZone_ASC',
+  TimeZoneDesc = 'timeZone_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -37995,6 +38040,8 @@ export enum SortExportTicketTasksBy {
   TotalRecordsCountDesc = 'totalRecordsCount_DESC',
   LocaleAsc = 'locale_ASC',
   LocaleDesc = 'locale_DESC',
+  TimeZoneAsc = 'timeZone_ASC',
+  TimeZoneDesc = 'timeZone_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
