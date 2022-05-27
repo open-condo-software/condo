@@ -12480,6 +12480,8 @@ export type ExportTicketTask = {
   meta?: Maybe<Scalars['JSON']>;
   /**  Filtering conditions for records to export  */
   where?: Maybe<Scalars['JSON']>;
+  /**  Sorting parameters for records to export  */
+  sortBy?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12504,6 +12506,7 @@ export type ExportTicketTaskCreateInput = {
   file?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12537,6 +12540,7 @@ export type ExportTicketTaskHistoryRecord = {
   file?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12560,6 +12564,7 @@ export type ExportTicketTaskHistoryRecordCreateInput = {
   file?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12588,6 +12593,7 @@ export type ExportTicketTaskHistoryRecordUpdateInput = {
   file?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12669,6 +12675,10 @@ export type ExportTicketTaskHistoryRecordWhereInput = {
   where_not?: Maybe<Scalars['JSON']>;
   where_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   where_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sortBy?: Maybe<Scalars['JSON']>;
+  sortBy_not?: Maybe<Scalars['JSON']>;
+  sortBy_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sortBy_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -12774,6 +12784,7 @@ export type ExportTicketTaskUpdateInput = {
   file?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12824,6 +12835,10 @@ export type ExportTicketTaskWhereInput = {
   where_not?: Maybe<Scalars['JSON']>;
   where_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   where_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sortBy?: Maybe<Scalars['JSON']>;
+  sortBy_not?: Maybe<Scalars['JSON']>;
+  sortBy_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sortBy_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
