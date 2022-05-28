@@ -2,8 +2,8 @@
 // should be instantiated before any module import
 const mockLoggerError = jest.fn()
 
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { buildBicryptId } = require('./buildBicryptId')
-const { catchErrorFrom } = require('../../../../common/utils/testSchema')
 
 jest.mock('../common', () => ({
     logger: {
@@ -14,7 +14,7 @@ jest.mock('../common', () => ({
 }))
 
 // NOTE: Despite of We should still use `async` function,
-const checkValidationAgainstIncorrectValue = (field, invalidValue, errorFields) => {
+const checkValidationAgainstIncorrectValue = async (field, invalidValue, errorFields) => {
     mockLoggerError.mockClear()
     const cryptoInfo = {
         firstName: 'Ivan',
@@ -24,7 +24,7 @@ const checkValidationAgainstIncorrectValue = (field, invalidValue, errorFields) 
         certCenterNum: '01',
     }
     cryptoInfo[field] = invalidValue
-    catchErrorFrom(() => {
+    await catchErrorFrom(() => {
         buildBicryptId(cryptoInfo)
     }, e => {
         expect(e.message).toBe('Wrong format of arguments, passed to `buildBicryptId` function')
@@ -37,101 +37,101 @@ const checkValidationAgainstIncorrectValue = (field, invalidValue, errorFields) 
 }
 
 describe('buildBicryptId', () => {
-    it('throws error if `certCenterNum` argument has incorrect value or is not specified', () => {
-        checkValidationAgainstIncorrectValue('certCenterNum', null, {
+    it('throws error if `certCenterNum` argument has incorrect value or is not specified', async () => {
+        await checkValidationAgainstIncorrectValue('certCenterNum', null, {
             instancePath: '/certCenterNum',
             message: 'must be string',
         })
-        checkValidationAgainstIncorrectValue('certCenterNum', '', {
+        await checkValidationAgainstIncorrectValue('certCenterNum', '', {
             instancePath: '/certCenterNum',
             message: 'must match pattern "^[0-9A-Z]{2}$"',
         })
-        checkValidationAgainstIncorrectValue('certCenterNum', undefined, {
+        await checkValidationAgainstIncorrectValue('certCenterNum', undefined, {
             instancePath: '',
             message: 'must have required property \'certCenterNum\'',
         })
     })
 
-    it('throws error if `certCenterNum` argument has incorrect value format', () => {
+    it('throws error if `certCenterNum` argument has incorrect value format', async () => {
         const incorrectValues = [
             '0', '9', 'A', 'Z',
             '0.', '9-', 'A_', 'Z!',
             '000', 'AAA', '010', '01A', 'A01',
             '.', '-', '_', '!',
         ]
-        incorrectValues.map(incorrectValue => {
-            checkValidationAgainstIncorrectValue('certCenterNum', incorrectValue, {
+        await Promise.all(incorrectValues.map(incorrectValue => {
+            return checkValidationAgainstIncorrectValue('certCenterNum', incorrectValue, {
                 instancePath: '/certCenterNum',
                 message: 'must match pattern "^[0-9A-Z]{2}$"',
             })
-        })
+        }))
     })
 
-    it('throws error if `certCenterCode` argument is null', () => {
-        checkValidationAgainstIncorrectValue('certCenterCode', null, {
+    it('throws error if `certCenterCode` argument is null', async () => {
+        await checkValidationAgainstIncorrectValue('certCenterCode', null, {
             instancePath: '/certCenterCode',
             message: 'must be string',
         })
-        checkValidationAgainstIncorrectValue('certCenterCode', '', {
+        await checkValidationAgainstIncorrectValue('certCenterCode', '', {
             instancePath: '/certCenterCode',
             message: 'must match pattern "^(?:[0-9A-Z]{4}|[0-9A-Z]{6})$"',
         })
-        checkValidationAgainstIncorrectValue('certCenterCode', undefined, {
+        await checkValidationAgainstIncorrectValue('certCenterCode', undefined, {
             instancePath: '',
             message: 'must have required property \'certCenterCode\'',
         })
     })
 
-    it('throws error if `certCenterCode` argument has incorrect length', () => {
+    it('throws error if `certCenterCode` argument has incorrect length', async () => {
         const incorrectValues = ['0', '01', '012', '01234', '0123456']
-        incorrectValues.map(incorrectValue => {
-            checkValidationAgainstIncorrectValue('certCenterCode', incorrectValue, {
+        await Promise.all(incorrectValues.map(incorrectValue => {
+            return checkValidationAgainstIncorrectValue('certCenterCode', incorrectValue, {
                 instancePath: '/certCenterCode',
                 message: 'must match pattern "^(?:[0-9A-Z]{4}|[0-9A-Z]{6})$"',
             })
-        })
+        }))
     })
 
-    it('throws error if `firstName` argument is not specified', () => {
-        checkValidationAgainstIncorrectValue('firstName', null, {
+    it('throws error if `firstName` argument is not specified', async () => {
+        await checkValidationAgainstIncorrectValue('firstName', null, {
             instancePath: '/firstName',
             message: 'must be string',
         })
-        checkValidationAgainstIncorrectValue('firstName', '', {
+        await checkValidationAgainstIncorrectValue('firstName', '', {
             instancePath: '/firstName',
             message: 'must NOT have fewer than 1 characters',
         })
-        checkValidationAgainstIncorrectValue('firstName', undefined, {
+        await checkValidationAgainstIncorrectValue('firstName', undefined, {
             instancePath: '',
             message: 'must have required property \'firstName\'',
         })
     })
 
     it('throws error if `lastName` argument is not specified', async () => {
-        checkValidationAgainstIncorrectValue('lastName', null, {
+        await checkValidationAgainstIncorrectValue('lastName', null, {
             instancePath: '/lastName',
             message: 'must be string',
         })
-        checkValidationAgainstIncorrectValue('lastName', '', {
+        await checkValidationAgainstIncorrectValue('lastName', '', {
             instancePath: '/lastName',
             message: 'must NOT have fewer than 1 characters',
         })
-        checkValidationAgainstIncorrectValue('lastName', undefined, {
+        await checkValidationAgainstIncorrectValue('lastName', undefined, {
             instancePath: '',
             message: 'must have required property \'lastName\'',
         })
     })
 
-    it('throws error if `patronymic` argument is not specified', () => {
-        checkValidationAgainstIncorrectValue('patronymic', null, {
+    it('throws error if `patronymic` argument is not specified', async () => {
+        await checkValidationAgainstIncorrectValue('patronymic', null, {
             instancePath: '/patronymic',
             message: 'must be string',
         })
-        checkValidationAgainstIncorrectValue('patronymic', '', {
+        await checkValidationAgainstIncorrectValue('patronymic', '', {
             instancePath: '/patronymic',
             message: 'must NOT have fewer than 1 characters',
         })
-        checkValidationAgainstIncorrectValue('patronymic', undefined, {
+        await checkValidationAgainstIncorrectValue('patronymic', undefined, {
             instancePath: '',
             message: 'must have required property \'patronymic\'',
         })
