@@ -20,7 +20,6 @@ import MenuItem from 'antd/lib/menu/MenuItem'
 import { Header } from './Header'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
-import { ITrackerLogEventType } from '@condo/domains/common/components/trackers/TrackerInstance'
 
 interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>
@@ -58,19 +57,16 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
 interface IPageWrapperProps {
     className?: string
     style?: CSSProperties
-    loadTrackEvent?: ITrackerLogEventType
 }
 
 const PageWrapper: FunctionComponent<IPageWrapperProps> = (props) => {
-    const { children, className, style, loadTrackEvent } = props
+    const { children, className, style } = props
     const { isSmall } = useLayoutContext()
     const { logEvent, getEventName } = useTracking()
 
     useEffect(() => {
-        console.log(getEventName(TrackingEventType.visit))
-        // if (loadTrackEvent) {
-        // logEvent(loadTrackEvent)
-        // }
+        const eventName = getEventName(TrackingEventType.Visit)
+        logEvent({ eventName })
     }, [])
 
     return (

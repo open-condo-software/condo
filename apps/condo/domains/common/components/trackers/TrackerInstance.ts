@@ -1,7 +1,7 @@
 import getConfig from 'next/config'
 import get from 'lodash/get'
 
-export type ITrackerLogEventType = { eventName: string, eventProperties: Record<string, unknown> }
+export type ITrackerLogEventType = { eventName: string, eventProperties?: Record<string, unknown> }
 
 /**
  * Abstract class representing a tracking instance library, such as amplitude.js
@@ -16,6 +16,7 @@ abstract class TrackerInstance {
     protected readonly allowedDomains: Record<string, unknown> = {}
     protected readonly instanceName: string
     protected instance = null
+    private prevEvent: string
 
     protected constructor (instanceName: string) {
         this.instanceName = instanceName
@@ -53,16 +54,21 @@ abstract class TrackerInstance {
     abstract logEvent ({ eventName, eventProperties }: ITrackerLogEventType): void
 
     /**
-     *
+     * Check for duplicated events by name and component path restrictions from app config
      * @param {Object} eventProperties - event properties contains base props
+     * @return {boolean}
      */
-    isNeedToSendEvent (eventProperties: ITrackerLogEventType['eventProperties']): boolean {
-        const currentPath = get(eventProperties, ['page', 'path'], '')
-        console.log(currentPath)
+    isNeedToSendEvent ({ eventName, eventProperties }: ITrackerLogEventType): boolean {
+        if (this.prevEvent !== eventName) {
+            this.prevEvent = eventName
+            const currentPath = get(eventProperties, ['page', 'path'], '')
+            //TODO: add parsing for path
+            const hadDomainLevelPermission = true
 
-        const hadDomainLevelPermission = false
+            return Boolean(this.instance) && Boolean(this.token) && hadDomainLevelPermission
+        }
 
-        return Boolean(this.instance) && Boolean(this.token) && hadDomainLevelPermission
+        return false
     }
 }
 

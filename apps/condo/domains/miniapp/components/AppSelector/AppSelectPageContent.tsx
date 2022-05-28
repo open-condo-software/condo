@@ -181,30 +181,26 @@ export const AppSelectPageContent: React.FC = () => {
                                         {
                                             isAnyBillingAvailable && (
                                                 <Tabs.TabPane tab={BillingCategoryMessage} key={'billing'}>
-                                                    <TrackingComponentLoadEvent
-                                                        eventType={BILLING_TRACKING_EVENTS.BILLING_VISIT_APP_LIST_PAGE}
-                                                    >
-                                                        <CardsContainer cardsPerRow={appsPerRow}>
-                                                            {
-                                                                unconnectedBillingsApps.map(app => {
-                                                                    const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
+                                                    <CardsContainer cardsPerRow={appsPerRow}>
+                                                        {
+                                                            unconnectedBillingsApps.map(app => {
+                                                                const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
 
-                                                                    const url = `/miniapps/${app.id}/about?type=${app.type}`
-                                                                    const logo = app.logo || undefined
-                                                                    return (
-                                                                        <AppSelectCard
-                                                                            key={app.name}
-                                                                            title={app.name}
-                                                                            description={app.shortDescription}
-                                                                            url={url}
-                                                                            tag={tag}
-                                                                            logoSrc={logo}
-                                                                        />
-                                                                    )
-                                                                })
-                                                            }
-                                                        </CardsContainer>
-                                                    </TrackingComponentLoadEvent>
+                                                                const url = `/miniapps/${app.id}/about?type=${app.type}`
+                                                                const logo = app.logo || undefined
+                                                                return (
+                                                                    <AppSelectCard
+                                                                        key={app.name}
+                                                                        title={app.name}
+                                                                        description={app.shortDescription}
+                                                                        url={url}
+                                                                        tag={tag}
+                                                                        logoSrc={logo}
+                                                                    />
+                                                                )
+                                                            })
+                                                        }
+                                                    </CardsContainer>
                                                 </Tabs.TabPane>
                                             )
                                         }

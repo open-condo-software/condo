@@ -34,9 +34,11 @@ class AmplitudeInstance extends TrackerInstance {
         }
     }
 
-    logEvent ({ eventName, eventProperties }: ITrackerLogEventType): void {
-        if (this.isNeedToSendEvent(eventProperties)) {
-            this.instance.logEvent(eventName, eventProperties)
+    logEvent (trackerLogEventProps: ITrackerLogEventType): void {
+        if (this.isNeedToSendEvent(trackerLogEventProps)) {
+            console.log(`${trackerLogEventProps.eventName}`)
+            // console.log('------')
+            // this.instance.logEvent(eventName, eventProperties)
         }
     }
 }

@@ -44,16 +44,11 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (!access) {
         return (
-            <TrackingComponentLoadEvent
-                eventType={BILLING_TRACKING_EVENTS.BILLING_VISIT_INDEX_PAGE}
-                pageState={TrackingPageState.AccessError}
-            >
-                <BasicEmptyListView>
-                    <Typography.Title level={3}>
-                        {NoPermissionsMessage}
-                    </Typography.Title>
-                </BasicEmptyListView>
-            </TrackingComponentLoadEvent>
+            <BasicEmptyListView>
+                <Typography.Title level={3}>
+                    {NoPermissionsMessage}
+                </Typography.Title>
+            </BasicEmptyListView>
         )
     }
 
@@ -65,76 +60,52 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (contextError) {
         return (
-            <TrackingComponentLoadEvent
-                eventType={BILLING_TRACKING_EVENTS.BILLING_VISIT_INDEX_PAGE}
-                pageState={TrackingPageState.Error}
-            >
-                <BasicEmptyListView>
-                    <Typography.Title level={3}>
-                        {contextError}
-                    </Typography.Title>
-                </BasicEmptyListView>
-            </TrackingComponentLoadEvent>
+            <BasicEmptyListView>
+                <Typography.Title level={3}>
+                    {contextError}
+                </Typography.Title>
+            </BasicEmptyListView>
         )
     }
 
     if (!context) {
         return (
-            <TrackingComponentLoadEvent
-                eventType={BILLING_TRACKING_EVENTS.BILLING_VISIT_INDEX_PAGE}
-                pageState={TrackingPageState.Empty}
-            >
-                <EmptyListView
-                    label={NoBillingTitle}
-                    message={NoBillingMessage}
-                    createRoute={BILLING_SETTINGS_ROUTE}
-                    createLabel={NoBillingActionLabel}
-                />
-            </TrackingComponentLoadEvent>
+            <EmptyListView
+                label={NoBillingTitle}
+                message={NoBillingMessage}
+                createRoute={BILLING_SETTINGS_ROUTE}
+                createLabel={NoBillingActionLabel}
+            />
         )
     }
 
     if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
         return (
-            <TrackingComponentLoadEvent
-                eventType={BILLING_TRACKING_EVENTS.BILLING_VISIT_INDEX_PAGE}
-                pageState={TrackingPageState.InProgress}
-            >
-                <BasicEmptyListView image={'/dino/waiting.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
-                    <Typography.Title level={3}>
-                        {ConnectionInProgressMessage}
-                    </Typography.Title>
-                    <Typography.Text type={'secondary'}>
-                        {WillBeReadySoonMessage}
-                    </Typography.Text>
-                </BasicEmptyListView>
-            </TrackingComponentLoadEvent>
+            <BasicEmptyListView image={'/dino/waiting.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
+                <Typography.Title level={3}>
+                    {ConnectionInProgressMessage}
+                </Typography.Title>
+                <Typography.Text type={'secondary'}>
+                    {WillBeReadySoonMessage}
+                </Typography.Text>
+            </BasicEmptyListView>
         )
     }
 
     if (context.status === CONTEXT_ERROR_STATUS) {
         return (
-            <TrackingComponentLoadEvent
-                eventType={BILLING_TRACKING_EVENTS.BILLING_VISIT_INDEX_PAGE}
-                pageState={TrackingPageState.Error}
-            >
-                <BasicEmptyListView image={'/dino/fail.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
-                    <Typography.Title level={3}>
-                        {ErrorOccurredMessage}
-                    </Typography.Title>
-                    <Typography.Text type={'secondary'}>
-                        {ConnectSupportMessage}
-                    </Typography.Text>
-                </BasicEmptyListView>
-            </TrackingComponentLoadEvent>
+            <BasicEmptyListView image={'/dino/fail.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
+                <Typography.Title level={3}>
+                    {ErrorOccurredMessage}
+                </Typography.Title>
+                <Typography.Text type={'secondary'}>
+                    {ConnectSupportMessage}
+                </Typography.Text>
+            </BasicEmptyListView>
         )
     }
 
     return (
-        <TrackingComponentLoadEvent
-            eventType={BILLING_TRACKING_EVENTS.BILLING_VISIT_INDEX_PAGE}
-        >
-            <MainContent context={context}/>
-        </TrackingComponentLoadEvent>
+        <MainContent context={context}/>
     )
 }

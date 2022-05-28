@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
-import { useRouter, NextRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
 import compact from 'lodash/compact'
@@ -45,11 +45,10 @@ const TrackingContext = createContext<ITrackingContext>(TRACKING_INITIAL_VALUE)
 const useTrackingContext = (): ITrackingContext => useContext<ITrackingContext>(TrackingContext)
 
 export enum TrackingEventType {
-    visit = 'Visit',
-    click = 'Click',
-    input = 'Input',
-    select = 'Select',
-
+    Visit = 'Visit',
+    Click = 'Click',
+    Input = 'Input',
+    Select = 'Select',
 }
 
 interface IUseTracking {
@@ -69,12 +68,26 @@ const useTracking: IUseTracking = () => {
     const { route } = useRouter()
     const { trackerInstances, eventProperties, userProperties, setUserProperties, setEventProperties } = useTrackingContext()
 
-    const logEvent = ({ eventName, eventProperties }: ITrackerLogEventType) => {
-        Object.values(trackerInstances).map(trackerInstance => trackerInstance.logEvent({ eventName, eventProperties }))
+    const logEvent = ({ eventName, eventProperties: localEventProperties = {} }: ITrackerLogEventType) => {
+        const resultEventProperties = {
+            ...eventProperties,
+            ...localEventProperties,
+        }
+        Object.values(trackerInstances).map(trackerInstance => trackerInstance.logEvent({
+            eventName,
+            eventProperties: resultEventProperties,
+        }))
     }
 
-    const logEventTo = ({ eventName, eventProperties, destination }: ILogEventTo) => {
-        Object.values(pick(trackerInstances, destination)).map(trackerInstance => trackerInstance.logEvent({ eventName, eventProperties }))
+    const logEventTo = ({ eventName, eventProperties: localEventProperties = {}, destination }: ILogEventTo) => {
+        const resultEventProperties = {
+            ...eventProperties,
+            ...localEventProperties,
+        }
+        Object.values(pick(trackerInstances, destination)).map(trackerInstance => trackerInstance.logEvent({
+            eventName,
+            eventProperties: resultEventProperties,
+        }))
     }
 
     const instrument = (eventName: string, func?: any) => {
@@ -178,7 +191,7 @@ const TrackingProvider: React.FC = ({ children }) => {
     }, [asPath])
 
     return (
-        <TrackingContext.Provider value={trackingProviderValueRef.current}>
+        <TrackingContext.Provider value={{ ...trackingProviderValueRef.current }}>
             {children}
         </TrackingContext.Provider>
     )
@@ -201,7 +214,6 @@ interface TrackingComponentLoadEvent {
 const TrackingComponentLoadEvent: React.FC<TrackingComponentLoadEvent> = (props) => {
     const { children, eventType, pageState = TrackingPageState.Success, extraEventProperties = {} } = props
     const { eventProperties, logEvent } = useTracking()
-
     const pageProps = get(eventProperties, 'page', {}) as TrackingCommonEventProperties
     useEffect(() => {
         logEvent({ eventName: eventType, eventProperties: {

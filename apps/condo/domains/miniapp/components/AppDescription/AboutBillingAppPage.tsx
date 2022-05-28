@@ -84,27 +84,25 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <TrackingComponentLoadEvent eventType={BILLING_TRACKING_EVENTS.BILLING_VISIT_ABOUT_PAGE}>
-                        <AppDescriptionPageContent
-                            title={integration.name}
-                            description={integration.shortDescription}
-                            published={integration.createdAt}
-                            logoSrc={get(integration, ['logo', 'publicUrl'])}
-                            tag={TagMessage}
-                            developer={integration.developer}
-                            partnerUrl={get(integration, 'partnerUrl')}
-                            aboutSections={aboutSections}
-                            instruction={integration.instruction}
-                            appUrl={integration.appUrl}
-                            disabledConnect={isAnyBillingConnected}
-                            connectAction={createContextAction}>
-                            {
-                                isAnyBillingConnected && (
-                                    <AlreadyConnectedBilling/>
-                                )
-                            }
-                        </AppDescriptionPageContent>
-                    </TrackingComponentLoadEvent>
+                    <AppDescriptionPageContent
+                        title={integration.name}
+                        description={integration.shortDescription}
+                        published={integration.createdAt}
+                        logoSrc={get(integration, ['logo', 'publicUrl'])}
+                        tag={TagMessage}
+                        developer={integration.developer}
+                        partnerUrl={get(integration, 'partnerUrl')}
+                        aboutSections={aboutSections}
+                        instruction={integration.instruction}
+                        appUrl={integration.appUrl}
+                        disabledConnect={isAnyBillingConnected}
+                        connectAction={createContextAction}>
+                        {
+                            isAnyBillingConnected && (
+                                <AlreadyConnectedBilling/>
+                            )
+                        }
+                    </AppDescriptionPageContent>
                 </PageContent>
             </PageWrapper>
         </>
