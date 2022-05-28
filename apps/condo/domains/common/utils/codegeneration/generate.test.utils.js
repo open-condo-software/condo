@@ -1,8 +1,16 @@
 const faker = require('faker')
 
+const conf = require('@core/config')
+
+const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+
 function throwIfError (data, errors) {
     if (errors) {
-        const err = new Error('TestRequestError')
+        if (IS_DEBUG && errors.some(e => e.originalError.data || e.originalError.internalData)) {
+            errors.forEach((e) => console.warn(e.originalError.data, '\n', e.originalError.internalData))
+        }
+        if (IS_DEBUG) console.error(errors)
+        const err = new Error(`TestRequestError: ${JSON.stringify(errors, null, 2)}`)
         err.errors = errors
         err.data = data
         throw err
