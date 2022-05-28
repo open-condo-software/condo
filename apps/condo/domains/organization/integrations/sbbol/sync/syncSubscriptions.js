@@ -7,7 +7,7 @@ const { dvSenderFields } = require('../constants')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const { getSchemaCtx } = require('@core/keystone/schema')
 
-const conf = process.env
+const conf = require('@core/config')
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 
 const logger = baseLogger.child({ module: 'syncSubscriptions' })

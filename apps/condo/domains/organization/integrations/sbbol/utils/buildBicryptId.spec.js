@@ -24,7 +24,7 @@ const checkValidationAgainstIncorrectValue = async (field, invalidValue, errorFi
         certCenterNum: '01',
     }
     cryptoInfo[field] = invalidValue
-    await catchErrorFrom(() => {
+    await catchErrorFrom(async () => {
         buildBicryptId(cryptoInfo)
     }, e => {
         expect(e.message).toBe('Wrong format of arguments, passed to `buildBicryptId` function')
