@@ -31,13 +31,13 @@ const isEmpty = require('lodash/isEmpty')
  * @return {Promise<*>}
  */
 export const catchErrorFrom = async (testFunc, inspect) => {
-    let thrownError
+    let thrownError = null
     try {
         await testFunc()
     } catch (e) {
         thrownError = e
     }
-    expect(thrownError).toBeDefined()
+    if (!thrownError) throw new Error('catchErrorFrom() error not found')
     return inspect(thrownError)
 }
 
@@ -148,6 +148,7 @@ export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
  */
 export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
     await catchErrorFrom(testFunc, ({ errors, data }) => {
+        console.log(errors, data)
         expect(errors[0]).toMatchObject({
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
@@ -188,7 +189,7 @@ export const expectToThrowAuthenticationError = async (testFunc, path='objs') =>
 }
 
 export const expectToThrowValidationFailureError = async (testFunc, messageContains = undefined, path = 'obj') => {
-    await catchErrorFrom(testFunc, ({errors}) => {
+    await catchErrorFrom(testFunc, ({ errors}) => {
         expect(errors[0]).toMatchObject({
             message: 'You attempted to perform an invalid mutation',
             name: 'ValidationFailureError',
@@ -210,7 +211,7 @@ export const expectToThrowValidationFailureError = async (testFunc, messageConta
 }
 
 export const expectToThrowMutationError = async (testFunc, messageContains, path = ['result'], name = 'GraphQLError') => {
-    await catchErrorFrom(testFunc, ({errors}) => {
+    await catchErrorFrom(testFunc, ({ errors}) => {
         expect(errors[0]).toMatchObject({
             message: expect.stringContaining(messageContains),
             name,
@@ -220,7 +221,7 @@ export const expectToThrowMutationError = async (testFunc, messageContains, path
 }
 
 export const expectToThrowUserInputError = async (testFunc, messageContains, name = 'UserInputError') => {
-    await catchErrorFrom(testFunc, ({errors}) => {
+    await catchErrorFrom(testFunc, ({ errors}) => {
         expect(errors[0]).toMatchObject({
             message: expect.stringContaining(messageContains),
             name,
@@ -238,4 +239,12 @@ export const expectToThrowAuthenticationErrorToObjects = async (testFunc) => {
 
 export const expectToThrowAuthenticationErrorToResult = async (testFunc) => {
     return await expectToThrowAuthenticationError(testFunc, 'result')
+}
+
+export const expectToThrowGraphQLRequestError = async (testFunc, message) => {
+    return await catchErrorFrom(testFunc, ({ errors, data }) => {
+        expect(errors[0]).toMatchObject({ name: 'UserInputError' })
+        expect(errors[0].message).toMatch(message)
+        expect(data).toBeUndefined()
+    })
 }
