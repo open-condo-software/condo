@@ -10,6 +10,13 @@ const { logger } = require('./logger')
 
 class OIDCMiddleware {
     prepareMiddleware ({ keystone, dev, distDir }) {
+        // NOTE(pahaz): #MEMORYLEAK it's memory leak at:
+        //       at new CacheableLookup (../../node_modules/oidc-provider/node_modules/cacheable-lookup/source/index.js:91:14)
+        //       at Object.<anonymous> (../../node_modules/oidc-provider/lib/helpers/request.js:11:19)
+        //       at Object.<anonymous> (../../node_modules/oidc-provider/lib/helpers/request_uri_cache.js:7:17)
+        //
+        // There is no way to fix it at the moment ...
+        //
         const provider = new Provider(conf.SERVER_URL, configuration)
         const app = express()
 
