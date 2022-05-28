@@ -148,7 +148,6 @@ export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
  */
 export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
     await catchErrorFrom(testFunc, ({ errors, data }) => {
-        console.log(errors, data)
         expect(errors[0]).toMatchObject({
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
