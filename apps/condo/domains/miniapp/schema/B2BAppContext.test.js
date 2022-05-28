@@ -23,7 +23,7 @@ const {
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
-const { catchErrorFrom } = require('../../common/utils/testSchema')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 describe('B2BAppContext', () => {
     describe('CRUD', () => {
