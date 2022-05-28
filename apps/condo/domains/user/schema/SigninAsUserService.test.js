@@ -7,7 +7,7 @@ const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSch
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
 const { signinAsUserByTestClient } = require('@condo/domains/user/utils/testSchema')
 const { GET_MY_USERINFO } = require('@condo/domains/user/gql')
-import { catchErrorFrom } from '@condo/domains/common/utils/testSchema'
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 describe('SigninAsUserService', () => {
     describe('Support', () => {
