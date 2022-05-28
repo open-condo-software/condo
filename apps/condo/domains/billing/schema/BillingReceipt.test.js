@@ -6,7 +6,7 @@ const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowGraphQLRequestError } = require('@condo/domains/common/utils/testSchema')
 const { updateTestResident, registerServiceConsumerByTestClient, updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -111,14 +111,10 @@ describe('BillingReceipt', () => {
                 },
             }
 
-            await catchErrorFrom(
+            await expectToThrowGraphQLRequestError(
                 async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
-                ({ errors, _ }) => {
-                    expect(errors[0]).toMatchObject({
-                        name: 'UserInputError',
-                        extensions: { code: 'BAD_USER_INPUT' },
-                    })
-                })
+                '"data.toPayDetails"; Field "formula" of required type "String!" was not provided.'
+            )
         })
 
         test('organization integration manager: update BillingReceipt with wrong data in period', async () => {
@@ -165,14 +161,9 @@ describe('BillingReceipt', () => {
                 ],
             }
 
-            await catchErrorFrom(
-                async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
-                ({ errors, _ }) => {
-                    expect(errors[0]).toMatchObject({
-                        name: 'UserInputError',
-                        extensions: { code: 'BAD_USER_INPUT' },
-                    })
-                })
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestBillingReceipt(managerUserClient, obj.id, payload)
+            }, '"data.services[0].toPayDetails"; Field "formula" of required type "String!" was not provided.')
         })
 
         test('organization integration manager: update BillingReceipt with wrong data in services 2', async () => {
@@ -196,14 +187,10 @@ describe('BillingReceipt', () => {
                 ],
             }
 
-            await catchErrorFrom(
+            await expectToThrowGraphQLRequestError(
                 async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
-                ({ errors, _ }) => {
-                    expect(errors[0]).toMatchObject({
-                        name: 'UserInputError',
-                        extensions: { code: 'BAD_USER_INPUT' },
-                    })
-                })
+                '"data.services[0]"; Field "name" of required type "String!" was not provided.'
+            )
         })
 
         test('organization integration manager: update BillingReceipt period', async () => {
