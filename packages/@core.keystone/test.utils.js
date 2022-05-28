@@ -410,6 +410,30 @@ const getSchemaObject = async (schemaList, fields, where) => {
     return result.data.obj
 }
 
+async function waitFor (callback, options = { timeout: 2000, interval: 50 }) {
+    const timeout = options.timeout || 2000
+    const interval = options.interval || 50
+    let savedError = 'no-error'
+
+    return new Promise((res, rej) => {
+        const handler1 = setInterval(async () => {
+            try {
+                const result = await callback()
+                clearInterval(handler1)
+                clearTimeout(handler2)
+                res(result)
+            } catch (e) {
+                savedError = e
+            }
+        }, interval)
+        const handler2 = setTimeout(() => {
+            clearInterval(handler1)
+            clearTimeout(handler2)
+            rej(savedError || new Error('waitForTimeout'))
+        }, timeout)
+    })
+}
+
 class EmptyApp {
     prepareMiddleware ({ keystone, dev, distDir }) {
         return express()
@@ -425,6 +449,7 @@ const isMongo = () => {
 }
 
 module.exports = {
+    waitFor,
     isPostgres, isMongo,
     EmptyApp,
     prepareKeystoneExpressApp,
