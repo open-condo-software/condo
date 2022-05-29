@@ -165,7 +165,7 @@ describe('BillingProperty', () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const payload = {
                 raw: faker.lorem.words(),
-                address: faker.lorem.words(),
+                address: faker.address.streetAddress(true),
             }
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -196,8 +196,8 @@ describe('BillingProperty', () => {
             const client = await makeClient()
             const payload = {
                 raw: faker.lorem.words(),
-                globalId: faker.lorem.words(),
-                address: faker.lorem.words(),
+                globalId: faker.random.alphaNumeric(10),
+                address: faker.address.streetAddress(true),
             }
 
             await expectToThrowAuthenticationErrorToObj(async () => {

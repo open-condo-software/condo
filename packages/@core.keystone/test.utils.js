@@ -415,7 +415,7 @@ const getSchemaObject = async (schemaList, fields, where) => {
 }
 
 async function waitFor (callback, options = { timeout: 2000, interval: 50 }) {
-    const timeout = options.timeout || 2000
+    const timeout = options.timeout || 5000
     const interval = options.interval || 50
     let savedError = null
 

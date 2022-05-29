@@ -14,7 +14,7 @@ const { makeClientWithPropertyAndBilling, createTestRecipient } = require('@cond
 
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
+const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt } = require('../utils/testSchema')
 const { registerServiceConsumerByTestClient, updateTestServiceConsumer, registerResidentByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -30,7 +30,7 @@ describe('AllResidentBillingReceiptsService', () => {
         const [integration] = await createTestBillingIntegration(support)
         const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
 
-        const integrationClient = await makeLoggedInClient()
+        const integrationClient = await makeClientWithServiceUser()
         await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
         const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
             address: userClient.property.address,

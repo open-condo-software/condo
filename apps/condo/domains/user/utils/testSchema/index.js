@@ -5,6 +5,7 @@
  */
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
+const { countryPhoneData } = require('phone')
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION, COMPLETE_CONFIRM_PHONE_MUTATION } = require('@condo/domains/user/gql')
@@ -20,8 +21,9 @@ const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 
+const usAreaCodes = countryPhoneData[0].mobile_begin_with.filter(x => x.length === 3)
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
-const createTestPhone = () => faker.phone.phoneNumber('+79#########')
+const createTestPhone = () => faker.random.arrayElement([faker.phone.phoneNumber('+79#########'), `+1${faker.random.arrayElement(usAreaCodes)}${faker.phone.phoneNumber('#######')}`])
 const createTestLandlineNumber = () => faker.phone.phoneNumber('+7343#######')
 
 const {
