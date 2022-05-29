@@ -72,6 +72,11 @@ function prepareDefaultKeystoneConfig (conf) {
         defaultAccess: { list: false, field: true, custom: false },
         queryLimits: { maxTotalResults: 1000 },
         sessionStore,
+        appVersion: {
+            version: '1.0.0',
+            addVersionToHttpHeaders: false,
+            access: true,
+        },
     }
 }
 
