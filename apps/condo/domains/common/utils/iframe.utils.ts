@@ -9,6 +9,7 @@ export const REQUIREMENT_MESSAGE_TYPE = 'requirement'
 export const LOADED_STATUS_MESSAGE_TYPE = 'loading'
 export const RESIZE_MESSAGE_TYPE = 'resize'
 export const ERROR_MESSAGE_TYPE = 'error'
+export const COMMAND_MESSAGE_TYPE = 'command'
 
 export type NotificationType = 'info' | 'warning' | 'error' | 'success'
 export type RequirementType = 'auth' | 'organization'
@@ -42,7 +43,20 @@ type ResizeMessageType = {
     height: number,
 }
 
-type SystemMessageType = RequirementMessageType | NotificationMessageType | LoadedStatusMessageType | ErrorMessageType | ResizeMessageType
+type CommandMessageType = {
+    type: 'command',
+    id: string,
+    command: string,
+    data?: Record<string, unknown>,
+}
+
+type SystemMessageType =
+    RequirementMessageType
+    | NotificationMessageType
+    | LoadedStatusMessageType
+    | ErrorMessageType
+    | ResizeMessageType
+    | CommandMessageType
 
 type SystemMessageReturnType = {
     type: 'system'
@@ -65,6 +79,7 @@ const AvailableMessageTypes = [
     LOADED_STATUS_MESSAGE_TYPE,
     ERROR_MESSAGE_TYPE,
     RESIZE_MESSAGE_TYPE,
+    COMMAND_MESSAGE_TYPE,
 ]
 
 const MessagesRequiredProperties = {
@@ -73,6 +88,7 @@ const MessagesRequiredProperties = {
     [LOADED_STATUS_MESSAGE_TYPE]: ['status'],
     [ERROR_MESSAGE_TYPE]: ['message'],
     [RESIZE_MESSAGE_TYPE]: ['height'],
+    [COMMAND_MESSAGE_TYPE]: ['id', 'command', 'data'],
 }
 
 const SystemMessageDetectorSchema = {
@@ -92,8 +108,11 @@ const SystemMessageSchema = {
         message: { type: 'string' },
         requirement: { enum: ['auth', 'organization'] },
         status: { const: 'done' },
-        requestMessage: {  type: 'object' },
+        requestMessage: { type: 'object' },
         height: { type: 'number' },
+        id: { type: 'string' },
+        command: { type: 'string' },
+        data: { type: 'object' },
     },
     additionalProperties: false,
     required: ['type'],
@@ -156,6 +175,16 @@ export const parseMessage: parseMessageType = (data) => {
                         height: data.height,
                     },
                 }
+            case COMMAND_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: COMMAND_MESSAGE_TYPE,
+                        id: data.id,
+                        command: data.command,
+                        data: get(data, 'data', null),
+                    },
+                }
         }
     } else {
         return { type: 'custom', message: data }
@@ -179,7 +208,7 @@ export const sendNotification = (message: string, messageType: NotificationType,
 
 export const sendRequirementRequest = (requirement: RequirementType, receiver: Window, receiverOrigin: string): void => {
     sendMessage({
-        type:REQUIREMENT_MESSAGE_TYPE,
+        type: REQUIREMENT_MESSAGE_TYPE,
         requirement,
     }, receiver, receiverOrigin)
 }

@@ -20,6 +20,7 @@ const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE
 const yandexMetrikaID = conf['YANDEX_METRIKA_ID']
 const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
+const JIRAServiceDeskWidgetKey = conf['JIRA_SERVICE_DESK_WIDGET_KEY']
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -35,6 +36,7 @@ module.exports = withTM(withLess(withCSS({
         yandexMetrikaID,
         defaultLocale,
         insuranceAppUrl,
+        JIRAServiceDeskWidgetKey,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

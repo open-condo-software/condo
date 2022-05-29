@@ -29,9 +29,10 @@ const TICKET_STATUS_COMPLETED_TYPE = 'TICKET_STATUS_COMPLETED'
 const TICKET_STATUS_RETURNED_TYPE = 'TICKET_STATUS_RETURNED'
 const TICKET_STATUS_DECLINED_TYPE = 'TICKET_STATUS_DECLINED'
 const TICKET_COMMENT_ADDED_TYPE = 'TICKET_COMMENT_ADDED'
-const BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE = 'BILLING_RECEIPT_AVAILABLE_MANUAL'
-const BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL_TYPE = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL'
 const METER_VERIFICATION_DATE_REMINDER_TYPE = 'METER_VERIFICATION_DATE_REMINDER'
+const BILLING_RECEIPT_AVAILABLE_TYPE = 'BILLING_RECEIPT_AVAILABLE'
+const BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT'
+const RESIDENT_ADD_BILLING_ACCOUNT_TYPE = 'RESIDENT_ADD_BILLING_ACCOUNT'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -51,9 +52,10 @@ const MESSAGE_TYPES = [
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
-    BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE,
-    BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL_TYPE,
     METER_VERIFICATION_DATE_REMINDER_TYPE,
+    BILLING_RECEIPT_AVAILABLE_TYPE,
+    BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
+    RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
 ]
 
 /**
@@ -202,7 +204,7 @@ const MESSAGE_META = {
             residentId: { defaultValue: '', required: true },
         },
     },
-    [BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE]: {
+    [BILLING_RECEIPT_AVAILABLE_TYPE]: {
         dv: { required: true },
         data: {
             receiptId: { required: true },
@@ -210,14 +212,26 @@ const MESSAGE_META = {
             accountId: { required: true },
             url: { required: true },
             residentId: { required: true },
+            period: { required: true },
         },
     },
-    [BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL_TYPE]: {
+    [BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE]: {
         dv: { required: true },
         data: {
             userId: { required: true },
             url: { required: true },
             residentId: { required: true },
+            residentIds: { required: true },
+            period: { required: true },
+        },
+    },
+    [RESIDENT_ADD_BILLING_ACCOUNT_TYPE]: {
+        dv: { required: true },
+        data: {
+            userId: { required: true },
+            url: { required: true },
+            residentId: { required: true },
+            residentIds: { required: true },
         },
     },
     [METER_VERIFICATION_DATE_REMINDER_TYPE]: {
@@ -227,6 +241,7 @@ const MESSAGE_META = {
             meterId: { required: true },
             userId: { required: true },
             residentId: { required: true },
+            url: { defaultValue: '', required: true },
         },
     },
 }
@@ -312,7 +327,8 @@ module.exports = {
     DEFAULT_TEMPLATE_FILE_NAME,
     MESSAGE_TYPES_TRANSPORTS,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
-    BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE,
-    BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL_TYPE,
     METER_VERIFICATION_DATE_REMINDER_TYPE,
+    BILLING_RECEIPT_AVAILABLE_TYPE,
+    BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
+    RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
 }

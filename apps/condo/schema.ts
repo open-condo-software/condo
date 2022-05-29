@@ -17464,7 +17464,7 @@ export type Mutation = {
    * 			}
    * 		}
    * 	},
-   * 	"BILLING_RECEIPT_AVAILABLE_MANUAL": {
+   * 	"BILLING_RECEIPT_AVAILABLE": {
    * 		"dv": {
    * 			"required": true
    * 		},
@@ -17483,10 +17483,13 @@ export type Mutation = {
    * 			},
    * 			"residentId": {
    * 				"required": true
+   * 			},
+   * 			"period": {
+   * 				"required": true
    * 			}
    * 		}
    * 	},
-   * 	"BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL": {
+   * 	"BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT": {
    * 		"dv": {
    * 			"required": true
    * 		},
@@ -17498,6 +17501,53 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"residentIds": {
+   * 				"required": true
+   * 			},
+   * 			"period": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RESIDENT_ADD_BILLING_ACCOUNT": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"residentIds": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"METER_VERIFICATION_DATE_REMINDER": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"reminderDate": {
+   * 				"required": true
+   * 			},
+   * 			"meterId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
    * 				"required": true
    * 			}
    * 		}
@@ -31248,8 +31298,10 @@ export enum SendMessageType {
   TicketStatusReturned = 'TICKET_STATUS_RETURNED',
   TicketStatusDeclined = 'TICKET_STATUS_DECLINED',
   TicketCommentAdded = 'TICKET_COMMENT_ADDED',
-  BillingReceiptAvailableManual = 'BILLING_RECEIPT_AVAILABLE_MANUAL',
-  BillingReceiptAvailableNoAccountManual = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL'
+  MeterVerificationDateReminder = 'METER_VERIFICATION_DATE_REMINDER',
+  BillingReceiptAvailable = 'BILLING_RECEIPT_AVAILABLE',
+  BillingReceiptAvailableNoAccount = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT',
+  ResidentAddBillingAccount = 'RESIDENT_ADD_BILLING_ACCOUNT'
 }
 
 export type SenderField = {

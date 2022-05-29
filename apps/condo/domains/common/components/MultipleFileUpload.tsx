@@ -120,6 +120,10 @@ export const useMultipleFileUploadHook = ({
     const updateAction = Model.useUpdate({}, () => Promise.resolve())
     const deleteAction = Model.useSoftDelete({}, () => Promise.resolve())
 
+    useEffect(() => {
+        setFilesCount(initialFileList.length)
+    }, [initialFileList.length])
+
     const syncModifiedFiles = useCallback(async (id: string) => {
         const { added, deleted } = modifiedFilesRef.current
         for (const file of added) {

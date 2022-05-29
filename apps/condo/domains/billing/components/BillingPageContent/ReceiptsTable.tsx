@@ -23,10 +23,12 @@ import { ServicesModal } from '../ServicesModal'
 import { IBillingReceiptUIState } from '@condo/domains/billing/utils/clientSchema/BillingReceipt'
 
 const addressFilter = getStringContainsFilter(['property', 'address'])
+const unitNameFilter = getStringContainsFilter(['account', 'unitName'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
 const periodFilter = (period: string) => ({ period })
 const staticQueryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
     { keyword: 'address', filters: [addressFilter] },
+    { keyword: 'unitName', filters: [unitNameFilter] },
     { keyword: 'account', filters: [accountFilter] },
 ]
 
@@ -49,7 +51,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const queryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
         ...staticQueryMetas,
         { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
-        { keyword: 'search', filters: [addressFilter, accountFilter], combineType: 'OR' },
+        { keyword: 'search', filters: [addressFilter, unitNameFilter, accountFilter], combineType: 'OR' },
     ]
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
     const {

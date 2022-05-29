@@ -74,7 +74,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
             type: Text,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    return normalizeText(resolvedData['content'])
+                    return normalizeText(resolvedData['content']) || ''
                 },
             },
         },

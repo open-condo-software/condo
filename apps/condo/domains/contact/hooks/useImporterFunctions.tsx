@@ -69,7 +69,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const contactNormalizer: RowNormalizer = (row) => {
         const addons = { address: null, property: null, phones: null, fullName: null, email: null, unitType: null }
         if (row.length !== columns.length) return Promise.resolve({ row })
-        const [address, , phones, fullName, email, unitType] = row
+        const [address, , unitType, phones, fullName, email] = row
         email.value = email.value && String(email.value).trim().length ? String(email.value).trim() : undefined
 
         const unitTypeValue = String(get(unitType, 'value', '')).trim().toLowerCase()

@@ -1,74 +1,61 @@
 const conf = require('@core/config')
-const { flatten, uniq } = require('lodash')
 
-const { BillingReceipt, BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
 
 const { Message, Device } = require('@condo/domains/notification/utils/serverSchema')
 const {
-    BILLING_RECEIPT_AVAILABLE_TYPE,
-    BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
+    RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
     MESSAGE_SENT_STATUS, MESSAGE_DELIVERED_STATUS, MESSAGE_READ_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const { getUniqueByField, getConnectionsMapping, getStartDates } = require('./lib/helpers')
 const { BillingContextScriptCore, prepareAndProceed } = require('./lib/billing-context-script-core')
-
-// These are needed temporarily for backwards compatibility in order not to add extra migrations
-const BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE = 'BILLING_RECEIPT_AVAILABLE_MANUAL'
-const BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL_TYPE = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL'
+const { flatten, uniq } = require('lodash')
 
 /**
  This script sends push notifications to all users who are:
      * residents of the properties:
         - of the organization with provided billingContextId
-        - having at least one billing receipt for provided period on the property
+        - and have no accounts added
      * have available pushTokens
      * have not been sent this king of notifications during current month yet
  */
 class ResidentsNotificationSender extends BillingContextScriptCore {
     async proceed () {
-        const receiptsWhere = { context: { id: this.billingContextId, deletedAt: null }, period_in: [this.period], deletedAt: null }
-        const receipts = await this.loadListByChunks(BillingReceipt, receiptsWhere)
+        const serviceConsumerWhere = { billingIntegrationContext: { id: this.billingContextId, deletedAt: null }, accountNumber_not: null, deletedAt: null }
+        const serviceConsumers = await this.loadListByChunks(ServiceConsumer, serviceConsumerWhere)
+        const consumerResidentIds = getUniqueByField(serviceConsumers, 'resident.id')
 
-        if (!receipts.length) {
-            console.error('No BillingReceipt records found for provided billingContextId and period')
+        console.info('[INFO] residents with account numbers found:', consumerResidentIds.length)
 
-            process.exit(1)
-        }
-
-        console.info(`[INFO] ${receipts.length} Receipt rows found.`)
-
-        const billingPropertyIds = getUniqueByField(receipts, 'property.id')
-
-        const billingPropertiesWhere = { deletedAt: null, id_in: billingPropertyIds }
+        const billingPropertiesWhere = { deletedAt: null, context: { id: this.billingContextId, deletedAt: null } }
         const billingProperties = await this.loadListByChunks(BillingProperty, billingPropertiesWhere)
-
-        console.info(`[INFO] ${billingProperties.length} BillingProperty rows found for ${billingPropertyIds.length} ids:`, billingPropertyIds)
-
         const propertyAddresses = getUniqueByField(billingProperties, 'address')
 
-        console.info(`[INFO] ${propertyAddresses.length} addresses found:`, propertyAddresses)
+        console.info('[INFO] billing property addresses found within context:', propertyAddresses.length)
 
-        const propertiesWhere = { deletedAt: null, address_in: propertyAddresses }
+        /**
+         *  Here we search for all non-deleted properties that are:
+         *  - belong to the organization
+         *  - match by address non-deleted BillingProperties related to BillingContext of the organization
+         */
+        const propertiesWhere = { deletedAt: null, organization: { id: this.billingContext.organization.id, deletedAt: null }, address_in: propertyAddresses }
         const properties = await this.loadListByChunks(Property, propertiesWhere)
-
         const propertyIds = getUniqueByField(properties, 'id')
 
-        console.info(`[INFO] ${propertyIds.length} properties found for ${propertyAddresses.length} addresses`)
+        console.info('[INFO] properties found matching addresses within organization billing properties:', propertyIds.length)
 
         const { thisMonthStart, nextMonthStart } = getStartDates()
+
+        console.info('[INFO] Requesting sent messages for period:', { thisMonthStart, nextMonthStart })
+
         const messagesWhere = {
             deletedAt: null,
-            type_in: [
-                BILLING_RECEIPT_AVAILABLE_TYPE,
-                BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
-                BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE,
-                BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_MANUAL_TYPE,
-            ],
+            type_in: [this.messageType],
             status_in: [MESSAGE_SENT_STATUS, MESSAGE_DELIVERED_STATUS, MESSAGE_READ_STATUS],
             createdAt_gte: thisMonthStart,
             createdAt_lt: nextMonthStart,
@@ -78,20 +65,28 @@ class ResidentsNotificationSender extends BillingContextScriptCore {
         const sentResidentIds1 = getUniqueByField(messagesSent, 'meta.data', 'residentId')
         const sentResidentIds2 = flatten(getUniqueByField(messagesSent, 'meta.data', 'residentIds'))
         /**
-         * Here we collect all ids of residents that have been sent same notifications within current month
-         * during previous executions of this script or any other script/code invoking same type of notification
+         * Here we build array of ids of all resident that:
+         * - has billing account connected
+         * - had already been sent notification this month
          */
-        const excludeResidentIds = uniq(flatten([...sentResidentIds1, ...sentResidentIds2]))
+        const sentResidentIds = uniq([...sentResidentIds1, ...sentResidentIds2])
+        const excludeResidentIds = uniq([...consumerResidentIds, ...sentResidentIds])
 
-        console.info(`[INFO] ${excludeResidentIds.length} users already received notifications.`)
+        console.info('[INFO] residents that already had been sent notifications this month:', sentResidentIds.length)
+        console.info('[INFO] residents that will be excluded:', excludeResidentIds.length)
 
-        console.info('[INFO] Reading residents info.')
-
+        /**
+         * Here we are searching for all non-deleted residents that are:
+         * - belong to organization of provided context
+         * - haven't received notification of type RESIDENT_ADD_BILLING_ACCOUNT_TYPE yet this month
+         * - aren't mentioned in ServiceConsumer relations
+         */
         const residentsWhere = { deletedAt: null, property: { id_in: propertyIds }, id_not_in: excludeResidentIds }
         const residents = await this.loadListByChunks(Resident, residentsWhere)
-
-        // get only users, whom we didn't send notifications within current month yet.
-        const userIds = getUniqueByField(residents, 'user.id')
+        const userIds = getUniqueByField(properties, 'user.id')
+        /**
+         * We need userId -> residentId mapping
+         */
         const usersToResidentsMapping = getConnectionsMapping(residents, 'user.id')
 
         console.info(`[INFO] ${userIds.length} users without notifications found among ${residents.length} residents.`)
@@ -130,4 +125,4 @@ class ResidentsNotificationSender extends BillingContextScriptCore {
     }
 }
 
-prepareAndProceed(ResidentsNotificationSender, BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE, true).then()
+prepareAndProceed(ResidentsNotificationSender, RESIDENT_ADD_BILLING_ACCOUNT_TYPE).then()

@@ -11,7 +11,6 @@ const access = require('@condo/domains/meter/access/ExportMeterReadingsService')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const dayjs = require('dayjs')
-const meterReadingDataMapper = require('../utils/serverSchema/meterReadingDataMapper')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const {
@@ -84,6 +83,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                     meterReading.source = sourceName
                     meterReading.resource = resourceName
                     meterReading.unitName = meter.unitName
+                    meterReading.unitType = meter.unitType
                     meterReading.accountNumber = meter.accountNumber
                     meterReading.number = meter.number
                     meterReading.place = meter.place
@@ -93,21 +93,23 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                 })
 
                 const excelRows = mappedMeterReadings.map(meterReading => {
-                    const { rows } = meterReadingDataMapper({ row: meterReading })
+                    const unitType = meterReading.unitType ? i18n(`pages.condo.ticket.field.unitType.${meterReading.unitType}`, { locale }) : ''
+
                     return {
-                        date: formatDate(rows.date()),
-                        address: rows.address(),
-                        unitName: rows.unitName(),
-                        accountNumber: rows.accountNumber(),
-                        resource: rows.resource(),
-                        number: rows.number(),
-                        place: rows.place(),
-                        value1: rows.value1(),
-                        value2: rows.value2(),
-                        value3: rows.value3(),
-                        value4: rows.value4(),
-                        clientName: rows.clientName(),
-                        source: rows.source(),
+                        date: formatDate(meterReading.date),
+                        address: meterReading.address,
+                        unitName: meterReading.unitName,
+                        unitType,
+                        accountNumber: meterReading.accountNumber,
+                        resource: meterReading.resource,
+                        number: meterReading.number,
+                        place: meterReading.place,
+                        value1: meterReading.value1,
+                        value2: meterReading.value2,
+                        value3: meterReading.value3,
+                        value4: meterReading.value4,
+                        clientName: meterReading.clientName,
+                        source: meterReading.source,
                     }
                 })
 

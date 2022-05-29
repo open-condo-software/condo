@@ -1,13 +1,20 @@
 const dayjs = require('dayjs')
-const { getSchemaCtx } = require('@core/keystone/schema')
-const { Meter } = require('@condo/domains/meter/utils/serverSchema')
-const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { get, flatten, uniq } = require('lodash')
+
+const conf = require('@core/config')
+const { getSchemaCtx } = require('@core/keystone/schema')
+
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
+
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+
+const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
+
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+
+const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const rightJoin = (heads, edges, joinFn, selectFn) => {
     return heads.map(head => {
@@ -174,11 +181,9 @@ const getOrganizationLang = async (context, id) => {
 
 const generateReminderMessages = async ({ context, reminderWindowSize, reminders }) => {
     const messages = []
-
     await Promise.all(reminders.map(async (reminder) => {
         const { meter, residents } = reminder
         const lang = await getOrganizationLang(context, meter.organization.id)
-
         // prepare a message for each resident
         messages.push(
             ...residents.map(resident => ({
@@ -191,8 +196,10 @@ const generateReminderMessages = async ({ context, reminderWindowSize, reminders
                     data: {
                         reminderDate: dayjs(meter.nextVerificationDate).locale(lang).format('D MMM'),
                         meterId: meter.id,
+                        resource: { name: get(meter, 'resource.name', '') },
                         userId: resident.user.id,
                         residentId: resident.id,
+                        url: `${conf.SERVER_URL}/meter`,
                     },
                 },
             }))

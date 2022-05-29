@@ -38,17 +38,6 @@ jobs:
           pip3 install django
           pip3 install psycopg2-binary
 
-      - name: test front build
-        run: |
-          set -x
-          echo '# Build time .env config!' > .env
-          echo 'COOKIE_SECRET=undefined' >> .env
-          echo 'DATABASE_URL=undefined' >> .env
-          echo 'WORKER_REDIS_URL=undefined' >> .env
-          echo 'NODE_ENV=production' >> .env
-          echo 'FILE_FIELD_ADAPTER=local' >> .env
-          yarn workspace @app/condo build
-
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
@@ -60,13 +49,13 @@ jobs:
 
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
 
-          yarn workspace @app/condo dev &
+          yarn workspace @app/condo dev 2>&1 > condo.dev.log &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
 
           # check migrations
           yarn workspace @app/condo makemigrations --check &> /dev/null
 
-          yarn workspace @app/condo worker &
+          yarn workspace @app/condo worker 2>&1 > condo.worker.log &
           sleep 3
 
           # And check background processes!
@@ -74,7 +63,7 @@ jobs:
           sleep 3
 
           # Note: as long as we have tests with non-linear logic, we cannot use more than 1 worker
-          yarn workspace @app/condo test --silent --coverage --testTimeout=15000 --forceExit --detectOpenHandles
+          yarn workspace @app/condo test --coverage --testTimeout=15000 --forceExit --detectOpenHandles --silent=false --verbose 2>&1 > condo.test.log
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
@@ -88,3 +77,12 @@ jobs:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
           DISABLE_LOGGING: true
+
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: logs
+          path: |
+            *.log
+          retention-days: 2

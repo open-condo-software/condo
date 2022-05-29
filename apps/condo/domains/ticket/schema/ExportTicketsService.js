@@ -47,7 +47,7 @@ const renderComment = (comment, locale) => {
     const filesCount = comment.TicketCommentFiles
     const filesCountToRender = filesCount > 0 ? `(${i18n('excelExport.ticket.ticketCommentFilesCount', { locale })}: ${filesCount})` : ''
 
-    return `${createdAt}, ${createdBy} (${userType}): «${content}» ${filesCountToRender}`
+    return `${createdAt}, ${createdBy} (${userType}): ${content ? `«${content}»` : ''} ${filesCountToRender}`
 }
 
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone

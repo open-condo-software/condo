@@ -1,16 +1,17 @@
 /**
  * @jest-environment node
  */
-
+const dayjs = require('dayjs')
 
 const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
-const { makeClientWithResidentAndMeter } = require('../utils/testSchema')
+
 const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
-const dayjs = require('dayjs')
-let keystone = null
 
+const { makeClientWithResidentAndMeter } = require('../utils/testSchema')
+
+let keystone = null
 
 const getNotificationsFromMeter = async ({ verificationDate, nextVerificationDate, searchWindowDaysShift = 0 }) => {
     const { user: { id } } = await makeClientWithResidentAndMeter({ verificationDate, nextVerificationDate })

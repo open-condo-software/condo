@@ -1,141 +1,69 @@
-const path = require('path')
-const dayjs = require('dayjs')
 const isEmpty = require('lodash/isEmpty')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 const conf = require('@core/config')
 
-const { BillingReceipt, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
-const { BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE } = require('@condo/domains/notification/constants/constants')
-
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { BILLING_RECEIPT_AVAILABLE_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const get = require('lodash/get')
-const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 
-const BASE_NAME = path.posix.basename(process.argv[1])
+const { BillingContextScriptCore, prepareAndProceed } = require('./lib/billing-context-script-core')
 
 /**
  This script sends push notifications to all users who are:
     * residents of the properties mentioned in billing receipts for provided period
  )
  */
-class ReceiptsNotificationSender {
-    context = null
-
-    constructor ({ billingContextId, period, forceSend }) {
-        this.billingContextId = billingContextId
-        this.period = period
-        this.billingContext = null
-        this.forceSend = forceSend
-    }
-
-    async connect () {
-        const resolved = path.resolve('./index.js')
-        const { distDir, keystone, apps } = require(resolved)
-        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
-        // we need only apollo
-        await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
-        await keystone.connect()
-        this.context = await keystone.createContext({ skipAccessControl: true })
-    }
-
+class ReceiptsNotificationSender extends BillingContextScriptCore {
     async proceed () {
-        try {
-            const billingContext = await BillingIntegrationOrganizationContext.getOne(this.context, { id: this.billingContextId, status: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS })
-
-            if (billingContext.length === 0) throw new Error(`Provided billingContextId not found or status is not ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FINISHED_STATUS}`)
-
-            this.billingContext = billingContext
-        } catch (e) {
-            throw new Error('Provided billingContextId was invalid')
-        }
-
         const receiptsWhere = { context: { id: this.billingContextId, deletedAt: null }, period_in: [this.period], deletedAt: null }
-        const receipts = await BillingReceipt.getAll(this.context, receiptsWhere)
+        const receipts = await this.loadListByChunks(BillingReceipt, receiptsWhere)
 
         if (!receipts.length) {
-            console.error('No BillingReceipt records for provided billingContextId and period')
+            console.info('No BillingReceipt records for provided billingContextId and period with toPay > 0')
 
-            return 1
+            process.exit(0)
         }
 
         let count = 0
 
         for (const receipt of receipts) {
-            // don't send notification if there is no debt on a bill
-            if (+receipt.toPay <= 0) continue
+            // ignore bills that are not payable
+            if (parseFloat(receipt.toPay) > 0) {
+                const serviceConsumerWhere = { billingIntegrationContext: { id: this.billingContextId, deletedAt: null }, billingAccount: { id: receipt.account.id, deletedAt: null }, deletedAt: null }
+                const serviceConsumers = await this.loadListByChunks(ServiceConsumer, serviceConsumerWhere)
 
-            const serviceConsumerWhere = { billingIntegrationContext: { id: this.billingContextId, deletedAt: null }, billingAccount: { id: receipt.account.id, deletedAt: null }, deletedAt: null }
-            const serviceConsumers = await ServiceConsumer.getAll(this.context, serviceConsumerWhere)
+                if (isEmpty(serviceConsumers)) continue
 
-            if (isEmpty(serviceConsumers)) continue
+                for (const consumer of serviceConsumers) {
+                    const resident = await Resident.getOne(this.context, { id: consumer.resident.id, deletedAt: null })
 
-            for (const consumer of serviceConsumers) {
-                const resident = await Resident.getOne(this.context, { id: consumer.resident.id, deletedAt: null })
+                    if (!isEmpty(resident)) {
+                        count++
 
-                if (!isEmpty(resident)) {
-                    const data = {
-                        receiptId: receipt.id,
-                        residentId: resident.id,
-                        userId: resident.user.id,
-                        accountId: receipt.account.id,
-                        url: `${conf.SERVER_URL}/billing/receipts/${receipt.id}`,
+                        if (this.forceSend) {
+                            const data = {
+                                receiptId: receipt.id,
+                                residentId: resident.id,
+                                userId: resident.user.id,
+                                accountId: receipt.account.id,
+                                url: `${conf.SERVER_URL}/billing/receipts/${receipt.id}`,
+                            }
+
+                            await this.sendLocalizedMessage(resident.user.id, data)
+                        }
                     }
 
-                    count++
-                    if (this.forceSend) {
-                        const organization = await Organization.getOne(this.context, { id: resident.organization.id, deletedAt: null })
-
-                        /**
-                         * Detect message language
-                         * Use DEFAULT_LOCALE if organization.country is unknown
-                         * (not defined within @condo/domains/common/constants/countries)
-                         */
-                        const lang = get(COUNTRIES, get(organization, 'country.locale'), DEFAULT_LOCALE)
-
-                        await sendMessage(this.context, {
-                            lang,
-                            to: { user: { id: resident.user.id } },
-                            type: BILLING_RECEIPT_AVAILABLE_MANUAL_TYPE,
-                            meta: { dv: 1, data },
-                            sender: { dv: 1, fingerprint: `condo/bin/${BASE_NAME}` },
-                        })
-                    } else {
-                        console.info('[INFO] Billing receipt available for userId: ', resident.user.id)
-                    }
+                    if (count >= this.maxSendCount) break
                 }
             }
+
+            if (count >= this.maxSendCount) break
         }
 
         console.info(`[INFO] ${count} notifications ${!this.forceSend ? 'to be' : ''} sent.`)
     }
 }
 
-async function main ([billingContextId, periodRaw, forceSend]) {
-    if (!billingContextId || !periodRaw)
-        throw new Error(`No billingContextId and period were provided – please use like this: yarn workspace @app/condo node ./bin/${BASE_NAME} <contextId> <period> [FORCE_SEND]`)
-    if (!dayjs(periodRaw).isValid())
-        throw new Error('Incorrect period format was provided. Available: YYYY-MM-01')
-
-    const period = dayjs(periodRaw).date(1).format('YYYY-MM-DD')
-    const ReceiptsManager = new ReceiptsNotificationSender({ billingContextId, period, forceSend: forceSend === 'FORCE_SEND' })
-
-    console.time('keystone')
-    await ReceiptsManager.connect()
-    console.timeEnd('keystone')
-
-    await ReceiptsManager.proceed()
-}
-
-main(process.argv.slice(2)).then(() => {
-    console.log('\r\n')
-    console.log('All done')
-    process.exit(0)
-}).catch((err) => {
-    console.error('Failed to done', err)
-})
+prepareAndProceed(ReceiptsNotificationSender, BILLING_RECEIPT_AVAILABLE_TYPE, true).then()

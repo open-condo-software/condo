@@ -32,35 +32,41 @@ async function calculateReopenedCounter (context, existingItem, resolvedData) {
     }
 }
 
-async function createContactIfNotExists (context, resolvedData) {
+async function getOrCreateContact (context, resolvedData) {
     const user = get(context, ['req', 'user'])
     const organizationId = get(resolvedData, 'organization', null)
     const propertyId = get(resolvedData, 'property', null)
     const unitName = get(resolvedData, 'unitName', null)
+    const unitType = get(resolvedData, 'unitType', null)
 
     const residentName = user.name
     const residentPhone = user.phone
     const residentEmail = user.email
 
     const [contact] = await Contact.getAll(context, {
-        phone: residentPhone, organization: { id: organizationId }, property: { id: propertyId },
+        phone: residentPhone,
+        organization: { id: organizationId },
+        property: { id: propertyId },
+        unitName,
+        unitType,
     })
 
-    if (!contact) {
-        const dv = get(resolvedData, 'dv')
-        const sender = get(resolvedData, 'sender')
+    if (contact) return contact
 
-        await Contact.create(context, {
-            dv,
-            sender,
-            organization: { connect: { id: organizationId } },
-            property: { connect: { id: propertyId } },
-            unitName,
-            email: residentEmail,
-            phone: residentPhone,
-            name: residentName,
-        })
-    }
+    const dv = get(resolvedData, 'dv')
+    const sender = get(resolvedData, 'sender')
+
+    return Contact.create(context, {
+        dv,
+        sender,
+        organization: { connect: { id: organizationId } },
+        property: { connect: { id: propertyId } },
+        unitName,
+        unitType,
+        email: residentEmail,
+        phone: residentPhone,
+        name: residentName,
+    })
 }
 
 async function setSectionAndFloorFieldsByDataFromPropertyMap (context, resolvedData) {
@@ -137,7 +143,7 @@ async function setClientIfContactPhoneAndTicketAddressMatchesResidentFields (ope
 module.exports = {
     calculateReopenedCounter,
     calculateTicketOrder,
-    createContactIfNotExists,
+    getOrCreateContact,
     setSectionAndFloorFieldsByDataFromPropertyMap,
     setClientNamePhoneEmailFieldsByDataFromUser,
     overrideTicketFieldsForResidentUserType,
