@@ -23,6 +23,7 @@ const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { KeystoneCacheMiddleware } = require('@core/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
+const { GraphQLLoggerApp } = require('@condo/domains/common/utils/GraphQLLoggerApp')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 
@@ -129,23 +130,12 @@ class SberBuisnessOnlineMiddleware {
     }
 }
 
-/**
- * We need a custom body parser for custom file upload limit
- */
-class CustomBodyParserMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
-        const app = express()
-        app.use(bodyParser.json({ limit: '100mb', extended: true }))
-        app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
-        return app
-    }
-}
 
 module.exports = {
     keystone,
     apps: [
+        new GraphQLLoggerApp(),
         new OIDCMiddleware(),
-        new CustomBodyParserMiddleware(),
         IS_ENABLE_CACHE ? new KeystoneCacheMiddleware() : undefined,
         new GraphQLApp({
             apollo: {
@@ -169,6 +159,9 @@ module.exports = {
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
         app.set('trust proxy', true)
+        // NOTE(toplenboren): we need a custom body parser for custom file upload limit
+        app.use(bodyParser.json({ limit: '100mb', extended: true }))
+        app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
 
         const requestIdHeaderName = 'X-Request-Id'
         app.use(function reqId (req, res, next) {
