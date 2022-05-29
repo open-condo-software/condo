@@ -39,7 +39,7 @@ async function createTestResident (client, user, organization, property, extraAt
         dv: 1,
         sender,
         user: { connect: { id: user.id } },
-        unitName: faker.random.alphaNumeric(3),
+        unitName: faker.random.alphaNumeric(8),
         unitType: FLAT_UNIT_TYPE,
         address,
         addressMeta,
