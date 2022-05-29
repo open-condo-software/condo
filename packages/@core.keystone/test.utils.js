@@ -62,15 +62,15 @@ let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
 
-function setFakeClientMode (path) {
+function setFakeClientMode (entryPoint, { excludeApps } = {}) {
     if (__expressApp !== null) return
     if (__isAwaiting) return
-    const module = require(path)
+    const module = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
     let mode = null
     if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
         mode = 'keystone'
         beforeAll(async () => {
-            const res = await prepareKeystoneExpressApp(path)
+            const res = await prepareKeystoneExpressApp(entryPoint)
             __expressApp = res.app
             __keystone = res.keystone
             __expressServer = http.createServer(__expressApp).listen(0)
@@ -83,13 +83,13 @@ function setFakeClientMode (path) {
             __expressServer = null
         }, 10000)
     }
-    if (!mode) throw new Error('setFakeServerOption(path) unknown module type')
+    if (!mode) throw new Error('setFakeServerOption(entryPoint) unknown module type')
     jest.setTimeout(30000)
     __isAwaiting = true
 }
 
 const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
-    const dev = process.env.NODE_ENV === 'development'
+    const dev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
     const {
         distDir,
         keystone,
@@ -120,24 +120,44 @@ const prepareNextExpressApp = async (dir) => {
  * @param {Object} params
  * @returns {Promise<Object>}
  */
-async function doGqlRequest (callable, params) {
+async function doGqlRequest (callable, { mutation, query, variables }, logResponseErrors) {
     try {
-        return await callable({
-            ...params,
+        const { errors, data } = await callable({
+            mutation, query, variables,
             // About error policies see https://www.apollographql.com/docs/react/v2/data/error-handling/#error-policies
             errorPolicy: 'all',
             fetchPolicy: 'no-cache',
         })
+        if (logResponseErrors && errors) {
+            console.warn(`[GraphQL error]: errors=${JSON.stringify(errors)}; data=${JSON.stringify(data)};`)
+        }
+        return { errors, data }
     } catch (e) {
+        // NOTE(pahaz): to understand whats going on here look at https://www.apollographql.com/docs/react/data/error-handling
+        //     In a few words: in case of response status code != 200 the ApolloClient throw and an exception and there is
+        //     NO RIGHT WAY TO GET ORIGINAL SERVER RESPONSE FROM APOLLO CLIENT in case of != 200 response.
+        //     Code below is just a hack: We try to return the original error response to use it in our tests!
         const errors = []
 
         if (e.graphQLErrors && e.graphQLErrors.length > 0) {
+            if (logResponseErrors) {
+                e.graphQLErrors.forEach((gqlError) => {
+                    console.warn(`[GraphQL error]: ${(e.operation) ? e.operation.operationName : '??'} ${JSON.stringify(gqlError)}}`)
+                })
+            }
+
             e.graphQLErrors.map((graphQLError) => {
                 errors.push(graphQLError)
             })
         }
 
         if (e.networkError) {
+            if (logResponseErrors) {
+                console.warn(`[Network error]: ${JSON.stringify(e.networkError)}`)
+            }
+
+            // NOTE(pahaz): apollo client group by their custom logic %) we need to split errors related to Network errors (fetch errors)
+            if (typeof e.networkError.statusCode !== 'number' || e.networkError.type === 'system') throw e.networkError
             if (e.networkError.result && e.networkError.result.errors) {
                 e.networkError.result.errors.forEach((err) => errors.push(err))
             }
@@ -178,24 +198,6 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
     }
 
     const apolloLinks = []
-
-    if (logResponseErrors) {
-        // Log any GraphQL errors or network error that occurred
-        const errorLink = onError(({ graphQLErrors, networkError }) => {
-            if (graphQLErrors) {
-                graphQLErrors.forEach((gqlError) => {
-                    console.warn(`[GraphQL error]: ${JSON.stringify(gqlError)}}`)
-                })
-            }
-
-            if (networkError) {
-                console.warn(`[Network error]: ${networkError}`)
-            }
-        })
-
-        apolloLinks.push(errorLink)
-    }
-
     // Terminating link must be in the end of links chain
     apolloLinks.push(createUploadLink({
         uri: `${serverUrl}${API_PATH}`,
@@ -235,6 +237,7 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
     }))
 
     const client = new ApolloClient({
+        uri: serverUrl,
         cache: new InMemoryCache({
             addTypename: false,
         }),
@@ -249,10 +252,10 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
             customHeaders = { ...customHeaders, ...headers }
         },
         mutate: async (mutation, variables = {}) => {
-            return doGqlRequest(client.mutate, { mutation, variables })
+            return doGqlRequest(client.mutate, { mutation, variables }, logResponseErrors)
         },
         query: async (query, variables = {}) => {
-            return doGqlRequest(client.query, { query, variables })
+            return doGqlRequest(client.query, { query, variables }, logResponseErrors)
         },
     }
 }
