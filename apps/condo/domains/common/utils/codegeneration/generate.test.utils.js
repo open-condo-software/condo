@@ -1,16 +1,31 @@
 const faker = require('faker')
+const { print } = require('graphql')
+const { get } = require('lodash')
 
 const conf = require('@core/config')
+const { normalizeQuery } = require('../GraphQLLoggerApp')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
-function throwIfError (data, errors) {
+function _contextToString (context) {
+    if (!context) return ''
+    let msg = ''
+    if (get(context, 'query')) {
+        msg += `QUERY: ${normalizeQuery(print(context.query))}\n`
+    }
+    if (get(context, 'variables')) {
+        msg += `VARIABLES: ${JSON.stringify(context.variables)}`
+    }
+    return msg
+}
+
+function throwIfError (data, errors, context = {}) {
     if (errors) {
         if (IS_DEBUG && errors.some(e => e.originalError.data || e.originalError.internalData)) {
             errors.forEach((e) => console.warn(e.originalError.data, '\n', e.originalError.internalData))
         }
         if (IS_DEBUG) console.error(errors)
-        const err = new Error(`TestRequestError: ${JSON.stringify(errors, null, 2)}`)
+        const err = new Error(`TestRequestError: ${JSON.stringify(errors, null, 2)}\n\n${_contextToString(context)}`)
         err.errors = errors
         err.data = data
         throw err
@@ -29,7 +44,7 @@ function generateGQLTestUtils (gql) {
         checkClient(client)
         const { data, errors } = await client.query(gql.GET_ALL_OBJS_QUERY, { where: where, sortBy })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.GET_ALL_OBJS_QUERY, variables: { where: where, sortBy } })
         return data.objs
     }
 
@@ -45,7 +60,7 @@ function generateGQLTestUtils (gql) {
         checkClient(client)
         const { data, errors } = await client.query(gql.GET_COUNT_OBJS_QUERY, { where: where })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.GET_COUNT_OBJS_QUERY, variables: { where: where } })
         return data.meta.count
     }
 
@@ -53,7 +68,7 @@ function generateGQLTestUtils (gql) {
         checkClient(client)
         const { data, errors } = await client.query(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, { where: where })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.GET_ALL_OBJS_WITH_COUNT_QUERY, variables: { where: where } })
         return data.meta.count
     }
 
@@ -63,7 +78,7 @@ function generateGQLTestUtils (gql) {
             data: { ...attrs },
         })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.CREATE_OBJ_MUTATION, variables: { data: { ...attrs } } })
         return data.obj
     }
 
@@ -73,7 +88,7 @@ function generateGQLTestUtils (gql) {
             id, data: { ...attrs },
         })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.UPDATE_OBJ_MUTATION, variables: { id, data: { ...attrs } } })
         return data.obj
     }
 
@@ -81,7 +96,7 @@ function generateGQLTestUtils (gql) {
         checkClient(client)
         const { data, errors } = await client.mutate(gql.DELETE_OBJ_MUTATION, { id })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.DELETE_OBJ_MUTATION, variables: { id } })
         return data.obj
     }
 
@@ -96,7 +111,7 @@ function generateGQLTestUtils (gql) {
         checkClient(client)
         const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, { id, data: { ...attrs } })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.UPDATE_OBJ_MUTATION, variables: { id, data: { ...attrs } } })
         return [data.obj, attrs]
     }
 

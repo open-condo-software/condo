@@ -52,5 +52,6 @@ class GraphQLLoggerApp {
 }
 
 module.exports = {
+    normalizeQuery,
     GraphQLLoggerApp,
 }
