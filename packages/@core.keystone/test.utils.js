@@ -89,7 +89,7 @@ function setFakeClientMode (entryPoint, { excludeApps } = {}) {
 }
 
 const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
-    const dev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+    const dev = process.env.NODE_ENV === 'development'
     const {
         distDir,
         keystone,
