@@ -10,10 +10,10 @@ if (conf.TESTS_FAKE_WORKER_MODE) createWorker(require.resolve('./index')).catch(
 })
 
 // Patch tests to include their own name
-jasmine.getEnv().addReporter({
-    specStarted: result => jasmine.currentTest = result,
-    specDone: result => jasmine.currentTest = result,
+jasmine.getEnv().addReporter({ // eslint-disable-line
+    specStarted: result => jasmine.currentTest = result, // eslint-disable-line
+    specDone: result => jasmine.currentTest = result, // eslint-disable-line
 })
 
-beforeEach(() => console.log('[BEGIN] TEST:', jasmine['currentTest']))
-afterEach(() => console.log('[END] TEST:', jasmine['currentTest']))
+beforeEach(() => console.log('[BEGIN] TEST:', jasmine['currentTest'])) // eslint-disable-line
+afterEach(() => console.log('[END] TEST:', jasmine['currentTest'])) // eslint-disable-line
