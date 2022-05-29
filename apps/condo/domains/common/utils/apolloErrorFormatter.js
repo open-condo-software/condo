@@ -44,7 +44,7 @@ const safeFormatError = (error, hideInternals = false) => {
 
     // error keyst: message, name, stack
     const pickKeys1 = (hideInternals) ? ['message', 'name'] : ['message', 'name', 'stack']
-    Object.assign(result, pick(serializeError(error), pickKeys1))
+    Object.assign(result, pick(error, pickKeys1))
 
     // keystoneError keys: time_thrown, message, data, internalData, locations, path
     if (isKeystoneErrorInstance(error)) {
