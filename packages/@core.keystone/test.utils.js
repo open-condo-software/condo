@@ -62,7 +62,7 @@ let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
 
-function setFakeClientMode (entryPoint, { excludeApps } = {}) {
+function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     if (__expressApp !== null) return
     if (__isAwaiting) return
     const module = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
@@ -70,7 +70,7 @@ function setFakeClientMode (entryPoint, { excludeApps } = {}) {
     if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
         mode = 'keystone'
         beforeAll(async () => {
-            const res = await prepareKeystoneExpressApp(entryPoint)
+            const res = await prepareKeystoneExpressApp(entryPoint, prepareKeystoneOptions)
             __expressApp = res.app
             __keystone = res.keystone
             __expressServer = http.createServer(__expressApp).listen(0)
@@ -296,6 +296,7 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
 
 const makeLoggedInClient = async (args) => {
     if (!args) {
+        console.warn('Called makeLoggedInClient() without arguments! Try to create a new user and pass their credentials as argument to avoid unexpected test dependencies!')
         args = {
             email: DEFAULT_TEST_USER_IDENTITY,
             password: DEFAULT_TEST_USER_SECRET,
