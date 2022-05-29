@@ -79,6 +79,12 @@ jobs:
           NODE_ENV: development
           DISABLE_LOGGING: true
 
+      - name: Collect docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
+        with:
+          dest: './docker-logs'
+
       - name: Upload log artifact
         uses: actions/upload-artifact@v3
         if: failure()
@@ -86,5 +92,5 @@ jobs:
           name: logs
           path: |
             *.log
-            /var/lib/docker/containers/*/*json.log
+            ./docker-logs
           retention-days: 2
