@@ -91,7 +91,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-fittext": "^1.0.0",
-    "react-google-recaptcha-v3": "1.9.4",
+    "react-google-recaptcha-v3": "1.9.8",
     "react-hotkeys-hook": "3.4.4",
     "react-indiana-drag-scroll": "^2.0.1",
     "react-infinite-scroller": "^1.2.4",
