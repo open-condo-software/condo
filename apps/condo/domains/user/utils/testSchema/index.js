@@ -28,7 +28,7 @@ const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
 } = require('@condo/domains/user/constants/common')
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
 async function createTestUser (client, extraAttrs = {},  { raw = false } = {}) {
     if (!client) throw new Error('no client')
@@ -130,6 +130,15 @@ async function makeClientWithStaffUser() {
     return client
 }
 
+async function makeClientWithServiceUser() {
+    const [user, userAttrs] = await registerNewUser(await makeClient())
+    const client = await makeLoggedInClient(userAttrs)
+    await addServiceAccess(user)
+    client.user = user
+    client.userAttrs = userAttrs
+    return client
+}
+
 async function addAdminAccess (user) {
     const admin = await makeLoggedInAdminClient()
     await User.update(admin, user.id, { isAdmin: true })
@@ -148,6 +157,11 @@ async function addResidentAccess (user) {
 async function addStaffAccess (user) {
     const admin = await makeLoggedInAdminClient()
     await User.update(admin, user.id, { type: STAFF })
+}
+
+async function addServiceAccess (user) {
+    const admin = await makeLoggedInAdminClient()
+    await User.update(admin, user.id, { type: SERVICE })
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
@@ -306,13 +320,15 @@ module.exports = {
     updateTestUser,
     registerNewUser,
     makeLoggedInClient,
-    makeClientWithResidentUser,
-    makeClientWithStaffUser,
     makeClientWithSupportUser,
+    makeClientWithResidentUser,
+    makeClientWithServiceUser,
+    makeClientWithStaffUser,
     makeClientWithNewRegisteredAndLoggedInUser,
     addAdminAccess,
     addSupportAccess,
     addResidentAccess,
+    addServiceAccess,
     addStaffAccess,
     createTestEmail,
     createTestPhone,
