@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "mkdirp dist/admin && node --unhandled-rejections=strict --trace-uncaught --expose-gc ./node_modules/.bin/jest",
+    "test": "mkdirp dist/admin && node --unhandled-rejections=strict ./node_modules/.bin/jest",
     "dev": "keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "cross-env PHASE=build keystone build",
