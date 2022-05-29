@@ -237,7 +237,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                         isPhoneVerified: true,
                     })
                     if (!action) {
-                        console.error('errors.changePasswordWithToken.TOKEN_NOT_FOUND')
                         throw new GQLError(errors.changePasswordWithToken.TOKEN_NOT_FOUND, context)
                     }
                     phone = action.phone
