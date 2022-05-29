@@ -195,7 +195,7 @@ async function createTestBillingProperty (client, context, extraAttrs = {}) {
         context: { connect: { id: context.id } },
         raw: { foo: faker.lorem.words() },
         globalId: faker.random.alphaNumeric(10),
-        address: faker.lorem.words(),
+        address: faker.address.streetAddress(true),
         meta: {
             test: 123,
         },

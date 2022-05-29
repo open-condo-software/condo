@@ -1,6 +1,4 @@
-const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { EXPORT_TICKETS_TO_EXCEL } = require('@condo/domains/ticket/gql')
 const { makeClient } = require('@core/keystone/test.utils')
@@ -28,9 +26,7 @@ describe('ExportTicketService', () => {
         })
 
         it('can not get tickets export from another organization', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [, userAttrs] = await createTestUser(admin)
-            const client = await makeLoggedInClient(userAttrs)
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const client2 = await makeClientWithProperty()
             await createTestTicket(client2, client2.organization, client2.property)
             const { data: { result }, errors } = await client.query(EXPORT_TICKETS_TO_EXCEL, {

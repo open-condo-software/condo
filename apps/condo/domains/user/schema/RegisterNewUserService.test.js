@@ -50,6 +50,7 @@ describe('RegisterNewUserService', () => {
         const client = await makeClient()
         const phone = createTestLandlineNumber()
 
+        // TODO(pahaz): refactor this! use expect error function!
         const { data, errors } = await registerNewUser(client, { phone }, { raw: true })
 
         expect(data).toEqual({ 'user': null })
