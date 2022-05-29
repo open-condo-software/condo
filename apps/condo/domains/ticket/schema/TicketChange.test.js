@@ -28,8 +28,8 @@ describe('TicketChange', () => {
             const client3 = await makeClientWithProperty()
             const client4 = await makeClientWithProperty()
 
-            const openedStatus = (await TicketStatus.getAll(admin, { id: STATUS_IDS.OPEN }))[0]
-            const inProgressStatus = (await TicketStatus.getAll(admin, { id: STATUS_IDS.IN_PROGRESS }))[0]
+            const openedStatus = await TicketStatus.getOne(admin, { id: STATUS_IDS.OPEN })
+            const inProgressStatus = await TicketStatus.getOne(admin, { id: STATUS_IDS.IN_PROGRESS })
             const classifiers = await TicketClassifier.getAll(admin, {})
             const sources = await TicketSource.getAll(admin, {})
             const [contact] = await createTestContact(client, client.organization, client.property)
@@ -58,7 +58,7 @@ describe('TicketChange', () => {
 
             const payload = {
                 details: faker.lorem.sentence(),
-                number: ticket.number + 1,
+                number: ticket.number + 1000, // NOTE: you need to avoid +1 because some parallel tests trying to create new Ticket
                 statusReason: faker.lorem.sentence(),
                 clientName: faker.name.firstName(),
                 clientEmail: faker.internet.email(),
