@@ -86,4 +86,5 @@ jobs:
           name: logs
           path: |
             *.log
+            /var/lib/docker/containers/*/*json.log
           retention-days: 2
