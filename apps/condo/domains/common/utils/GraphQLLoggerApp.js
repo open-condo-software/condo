@@ -2,6 +2,22 @@ const express = require('express')
 const gql = require('graphql-tag')
 const { get, set } = require('lodash')
 
+function normalizeQuery (string) {
+    if (!string) return ''
+    return string.replace(/[\s,]+/g, ' ').trim()
+}
+
+function normalizeVariables (object) {
+    if (!object) return undefined
+    const data = JSON.parse(JSON.stringify(object))
+    for (const key of ['secret', 'password', 'data.password', 'data.secret']) {
+        if (get(data, key)) {
+            set(data, key, '***')
+        }
+    }
+    return data
+}
+
 class GraphQLLoggerApp {
     prepareMiddleware () {
         const app = express()
@@ -32,22 +48,6 @@ class GraphQLLoggerApp {
         })
 
         return app
-
-        function normalizeQuery (string) {
-            if (!string) return ''
-            return string.replace(/[\s,]+/g, ' ').trim()
-        }
-
-        function normalizeVariables (object) {
-            if (!object) return undefined
-            const data = JSON.parse(JSON.stringify(object))
-            for (const key of ['secret', 'password', 'data.password', 'data.secret']) {
-                if (get(data, key)) {
-                    set(data, key, '***')
-                }
-            }
-            return data
-        }
     }
 }
 
