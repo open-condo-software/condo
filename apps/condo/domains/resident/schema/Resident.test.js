@@ -632,7 +632,7 @@ describe('Resident', () => {
 
             await catchErrorFrom(async () => {
                 const payload = {
-                    address: faker.lorem.words(),
+                    address: faker.address.streetAddress(true),
                 }
                 await updateTestResident(adminClient, obj.id, payload)
             }, ({ errors, data }) => {
@@ -775,7 +775,7 @@ describe('Resident', () => {
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
 
             const notAllowedPayload = {
-                address: faker.lorem.words(),
+                address: faker.address.streetAddress(true),
             }
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
