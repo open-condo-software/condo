@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const USER_FIELDS = `{ type name avatar { publicUrl } meta isPhoneVerified isEmailVerified importId importRemoteSystem ${COMMON_FIELDS} }`
+const USER_FIELDS = `{ type name avatar { publicUrl } meta isPhoneVerified isEmailVerified importId importRemoteSystem isAdmin isSupport ${COMMON_FIELDS} }`
 const User = generateGqlQueries('User', USER_FIELDS)
 const UserAdmin = generateGqlQueries('User', '{ id type name isAdmin isSupport email isEmailVerified phone isPhoneVerified importId importRemoteSystem updatedBy { id } createdBy { id } }')
 

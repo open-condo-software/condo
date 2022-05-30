@@ -72,6 +72,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             kmigratorOptions: { null: true },
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
+                    if (resolvedData['phone'] === null) return null
                     return normalizePhone(resolvedData['phone'])
                 },
             },
