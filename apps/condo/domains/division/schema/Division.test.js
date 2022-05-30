@@ -520,27 +520,24 @@ describe('Division', () => {
 
     describe('Read', () => {
         it('can be read by admin', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeEmployeeUserClientWithAbilities({
-                canBeAssignedAsResponsible: true,
-            })
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeEmployeeUserClientWithAbilities({ canBeAssignedAsResponsible: true })
+            const [obj, attrs] = await createTestDivision(admin, userClient.organization, userClient.employee)
 
-            const [obj, attrs] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const objs = await Division.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
-            const objs = await Division.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
-
-            expect(objs.length >= 1).toBeTruthy()
-            expect(objs[0].id).toMatch(obj.id)
-            expect(objs[0].dv).toEqual(1)
-            expect(objs[0].sender).toEqual(attrs.sender)
-            expect(objs[0].v).toEqual(1)
-            expect(objs[0].newId).toEqual(null)
-            expect(objs[0].deletedAt).toEqual(null)
-            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-            expect(objs[0].createdAt).toMatch(obj.createdAt)
-            expect(objs[0].updatedAt).toMatch(obj.updatedAt)
-            expect(objs[0].name).toEqual(attrs.name)
+            expect(objs.length).toBeGreaterThanOrEqual(1)
+            expect(objs).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    id: obj.id,
+                    sender: attrs.sender,
+                    createdBy: expect.objectContaining({ id: admin.user.id }),
+                    updatedBy: expect.objectContaining({ id: admin.user.id }),
+                    createdAt: obj.createdAt,
+                    updatedAt: obj.updatedAt,
+                    name: attrs.name,
+                }),
+            ]))
         })
 
         it('can be read by employee only in scope of its organization', async () => {
