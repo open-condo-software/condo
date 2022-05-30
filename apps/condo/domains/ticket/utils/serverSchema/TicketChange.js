@@ -29,58 +29,72 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
  */
 const ticketChangeDisplayNameResolversForSingleRelations = {
     'organization': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('Organization', itemId)
         return get(item, 'name')
     },
     'property': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('Property', itemId)
         return get(item, 'address')
     },
     'status': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('TicketStatus', itemId)
         return get(item, 'name')
     },
     'client': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
     'contact': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('Contact', itemId)
         return get(item, 'name')
     },
     'operator': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
     'assignee': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
     'executor': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
     'classifier': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('TicketClassifier', itemId)
         return get(item, 'name')
     },
     'placeClassifier': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('TicketPlaceClassifier', itemId)
         return get(item, 'name')
     },
     'categoryClassifier': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('TicketCategoryClassifier', itemId)
         return get(item, 'name')
     },
     'problemClassifier': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('TicketProblemClassifier', itemId)
         return get(item, 'name')
     },
     'source': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('TicketSource', itemId)
         return get(item, 'name')
     },
     'related': async (itemId) => {
+        if (!itemId) return null
         const item = await getById('Ticket', itemId)
         if (!item) {
             return null
