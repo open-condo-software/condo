@@ -6,6 +6,8 @@ const HIDE_GRAPHQL_VARIABLES_KEYS = ['secret', 'password', 'data.password', 'dat
 
 function normalizeQuery (string) {
     if (!string) return ''
+    // NOTE(pahaz): https://spec.graphql.org/June2018/#sec-Insignificant-Commas
+    //   Similar to white space and line terminators, commas (,) are used to improve the legibility of source text
     return string.replace(/[\s,]+/g, ' ').trim()
 }
 
