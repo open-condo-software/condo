@@ -82,11 +82,11 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput, position: String, specializations: TicketCategoryClassifierRelateToManyInput}',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput, position: String, specializations: TicketCategoryClassifierRelateToManyInput }',
         },
         {
             access: true,
-            type: 'input ReInviteOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!}',
+            type: 'input ReInviteOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String! }',
         },
     ],
     mutations: [
