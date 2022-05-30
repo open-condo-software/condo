@@ -4,7 +4,7 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor } = require('@core/keystone/test.utils')
 
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -1209,13 +1209,12 @@ describe('Ticket', () => {
                 })
 
                 // NOTE: give worker some time
-                // TODO(DOMA-2765) Get rid of sleep
-                await sleep(1500)
-
-                const [changedTicket] = await Ticket.getAll(client, { id: ticket.id })
-                expect(changedTicket).toBeDefined()
-                expect(changedTicket).toHaveProperty('propertyAddress', client2.property.address)
-                expect(changedTicket).toHaveProperty('propertyAddressMeta', client2.property.addressMeta)
+                await waitFor(async () => {
+                    const [changedTicket] = await Ticket.getAll(client, { id: ticket.id })
+                    expect(changedTicket).toBeDefined()
+                    expect(changedTicket).toHaveProperty('propertyAddress', client2.property.address)
+                    expect(changedTicket).toHaveProperty('propertyAddressMeta', client2.property.addressMeta)
+                })
             })
 
             test('Cannot be created / changed manually', async () => {
@@ -1391,21 +1390,20 @@ describe('Ticket', () => {
 
                 expect(message.id).toMatch(UUID_RE)
 
-                // TODO(DOMA-2765) Get rid of sleep
-                await sleep(1000)
+                await waitFor(async () => {
+                    const message1 = await Message.getOne(admin, messageWhere)
 
-                const message1 = await Message.getOne(admin, messageWhere)
+                    expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(message1.processingMeta.transport).toEqual('push')
 
-                expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
-                expect(message1.processingMeta.transport).toEqual('push')
+                    const content = message1.processingMeta.messageContext
 
-                const content = message1.processingMeta.messageContext
-
-                expect(content.data.url).toBeDefined()
-                expect(content.data.ticketId).toEqual(ticket.id)
-                expect(content.data.ticketNumber).toEqual(ticket.number)
-                expect(content.data.userId).toEqual(assignee.user.id)
-                expect(content.data.notificationId).toEqual(message.id)
+                    expect(content.data.url).toBeDefined()
+                    expect(content.data.ticketId).toEqual(ticket.id)
+                    expect(content.data.ticketNumber).toEqual(ticket.number)
+                    expect(content.data.userId).toEqual(assignee.user.id)
+                    expect(content.data.notificationId).toEqual(message.id)
+                })
             })
 
             test('push message with error status is created when assignee with no registered pushToken is connected to ticket on create', async () => {
@@ -1422,14 +1420,12 @@ describe('Ticket', () => {
 
                 expect(message.id).toMatch(UUID_RE)
 
-                // TODO(DOMA-2765) Get rid of sleep
-                await sleep(1000)
-
-                const message1 = await Message.getOne(admin, messageWhere)
-
-                expect(message1.status).toEqual(MESSAGE_ERROR_STATUS)
-                expect(message1.meta.data.ticketId).toEqual(ticket.id)
-                expect(message1.processingMeta.transport).toEqual('push')
+                await waitFor(async () => {
+                    const message1 = await Message.getOne(admin, messageWhere)
+                    expect(message1.status).toEqual(MESSAGE_ERROR_STATUS)
+                    expect(message1.meta.data.ticketId).toEqual(ticket.id)
+                    expect(message1.processingMeta.transport).toEqual('push')
+                })
 
                 // EMAIL was disabled for a while as main fallback transport for push
                 // expect(message1.processingMeta.transport).toEqual('email')
@@ -1458,20 +1454,16 @@ describe('Ticket', () => {
 
                 expect(message.id).toMatch(UUID_RE)
 
-                // TODO(DOMA-2765) Get rid of sleep
-                await sleep(1000)
-
-                const message1 = await Message.getOne(admin, messageWhere)
-
-                expect(message1.status).toEqual(MESSAGE_ERROR_STATUS)
-                expect(message1.meta.data.ticketId).toEqual(ticket.id)
-                expect(message1.processingMeta.transport).toEqual('push')
-
-                // EMAIL was disabled for a while as main fallback transport for push
-                // expect(message1.processingMeta.transport).toEqual('email')
-                // SMS was disabled for a while as main fallback transport for push
-                // expect(message1.processingMeta.transport).toEqual('sms')
-
+                await waitFor(async () => {
+                    const message1 = await Message.getOne(admin, messageWhere)
+                    expect(message1.status).toEqual(MESSAGE_ERROR_STATUS)
+                    expect(message1.meta.data.ticketId).toEqual(ticket.id)
+                    expect(message1.processingMeta.transport).toEqual('push')
+                    // EMAIL was disabled for a while as main fallback transport for push
+                    // expect(message1.processingMeta.transport).toEqual('email')
+                    // SMS was disabled for a while as main fallback transport for push
+                    // expect(message1.processingMeta.transport).toEqual('sms')
+                })
             })
 
             test('executor with registered pushToken and connected to ticket on create receives push notification with all required fields', async () => {
@@ -1974,16 +1966,17 @@ describe('Ticket', () => {
                 expect(ticket.client.id).toEqual(userClient.user.id)
 
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.DECLINED } } })
-                await sleep(1000)
-                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
+                await waitFor(async () => {
+                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
 
-                expect(message.status).toEqual(MESSAGE_SENT_STATUS)
-                expect(message.meta.data.userId).toEqual(userClient.user.id)
-                expect(message.meta.data.residentId).toEqual(resident.id)
-                expect(message.meta.data.ticketId).toEqual(ticket.id)
-                expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-                expect(message.processingMeta.transport).toEqual('push')
+                    expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(message.meta.data.userId).toEqual(userClient.user.id)
+                    expect(message.meta.data.residentId).toEqual(resident.id)
+                    expect(message.meta.data.ticketId).toEqual(ticket.id)
+                    expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+                    expect(message.processingMeta.transport).toEqual('push')
+                })
             })
 
             it('update status to TICKET_STATUS_DECLINED and send sms for resident with no registered pushToken', async () => {
@@ -1996,21 +1989,22 @@ describe('Ticket', () => {
                 expect(ticket.client.id).toEqual(userClient.user.id)
 
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.DECLINED } } })
-                await sleep(1000)
-                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
+                await waitFor(async () => {
+                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
 
-                expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
-                expect(message.meta.data.userId).toEqual(userClient.user.id)
-                expect(message.meta.data.residentId).toEqual(resident.id)
-                expect(message.meta.data.ticketId).toEqual(ticket.id)
-                expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-                expect(message.processingMeta.transport).toEqual('push')
+                    expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
+                    expect(message.meta.data.userId).toEqual(userClient.user.id)
+                    expect(message.meta.data.residentId).toEqual(resident.id)
+                    expect(message.meta.data.ticketId).toEqual(ticket.id)
+                    expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+                    expect(message.processingMeta.transport).toEqual('push')
 
-                // EMAIL was disabled for a while as main fallback transport for push
-                // expect(message.processingMeta.transport).toEqual('email')
-                // SMS was disabled for a while as main fallback transport for push
-                // expect(message.processingMeta.transport).toEqual('sms')
+                    // EMAIL was disabled for a while as main fallback transport for push
+                    // expect(message.processingMeta.transport).toEqual('email')
+                    // SMS was disabled for a while as main fallback transport for push
+                    // expect(message.processingMeta.transport).toEqual('sms')
+                })
             })
 
             it('update status to TICKET_STATUS_DECLINED and send sms for resident with registered invalid pushToken', async () => {
@@ -2030,21 +2024,22 @@ describe('Ticket', () => {
                 expect(ticket.client.id).toEqual(userClient.user.id)
 
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.DECLINED } } })
-                await sleep(1000)
-                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
+                await waitFor(async () => {
+                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
 
-                expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
-                expect(message.meta.data.userId).toEqual(userClient.user.id)
-                expect(message.meta.data.residentId).toEqual(resident.id)
-                expect(message.meta.data.ticketId).toEqual(ticket.id)
-                expect(message.meta.data.ticketNumber).toEqual(ticket.number)
-                expect(message.processingMeta.transport).toEqual('push')
+                    expect(message.status).toEqual(MESSAGE_ERROR_STATUS)
+                    expect(message.meta.data.userId).toEqual(userClient.user.id)
+                    expect(message.meta.data.residentId).toEqual(resident.id)
+                    expect(message.meta.data.ticketId).toEqual(ticket.id)
+                    expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+                    expect(message.processingMeta.transport).toEqual('push')
 
-                // EMAIL was disabled for a while as main fallback transport for push
-                // expect(message.processingMeta.transport).toEqual('email')
-                // SMS was disabled for a while as main fallback transport for push
-                // expect(message.processingMeta.transport).toEqual('sms')
+                    // EMAIL was disabled for a while as main fallback transport for push
+                    // expect(message.processingMeta.transport).toEqual('email')
+                    // SMS was disabled for a while as main fallback transport for push
+                    // expect(message.processingMeta.transport).toEqual('sms')
+                })
             })
 
             it('update status to TICKET_STATUS_DECLINED and can`t send notification there is no resident', async () => {
@@ -2062,12 +2057,11 @@ describe('Ticket', () => {
                     status: { connect: { id: STATUS_IDS.DECLINED } },
                 })
 
-                await sleep(1000)
-
-                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
-                const messageCount = await Message.count(admin, messageWhere)
-
-                expect(messageCount).toEqual(0)
+                await waitFor(async () => {
+                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
+                    const messageCount = await Message.count(admin, messageWhere)
+                    expect(messageCount).toEqual(0)
+                })
             })
         })
     })
