@@ -66,10 +66,11 @@ jobs:
           sleep 3
 
           # Note: as long as we have tests with non-linear logic, we cannot use more than 1 worker
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern='/domains/acquiring/|/domains/billing/' 2>&1 > condo.test.1.log
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern='/domains/ticket/|/domains/meter/|/domains/contact/' 2>&1 > condo.test.2.log
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern='/domains/organization/|/domains/user/' 2>&1 > condo.test.3.log
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathIgnorePatterns='/domains/acquiring/|/domains/billing/|/domains/ticket/|/domains/meter/|/domains/contact/|/domains/organization/|/domains/user/' 2>&1 > condo.test.4.log
+          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern='/domains/organization/' 2>&1 > condo.test.organization.log
+          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern='/domains/user/' 2>&1 > condo.test.user.log
+          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern='/domains/acquiring/|/domains/billing/' 2>&1 > condo.test.billing-acquiring.log
+          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern='/domains/ticket/|/domains/meter/|/domains/contact/' 2>&1 > condo.test.ticket-meter-contact.log
+          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathIgnorePatterns='/domains/acquiring/|/domains/billing/|/domains/ticket/|/domains/meter/|/domains/contact/|/domains/organization/|/domains/user/' 2>&1 > condo.test.other.log
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
