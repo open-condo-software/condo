@@ -28,7 +28,6 @@ const Holder = styled.div`
       padding: 0;
     }
   }
-
   
   .ant-form-item-explain {
     display: none;
