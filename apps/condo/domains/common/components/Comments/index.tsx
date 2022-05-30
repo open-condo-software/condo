@@ -73,7 +73,11 @@ const Body = styled.div`
   overflow-y: scroll;
   flex: 1 1 auto;
 `
-const Footer = styled.div`
+const Footer = styled.div<{ isSmall: boolean }>`
+  .ant-form {
+    padding-right: ${({ isSmall }) => isSmall ? '60px' : '0'};
+  }
+  
   border-top: 1px solid ${colors.inputBorderGrey};
   padding: 8px;
 `
@@ -112,7 +116,7 @@ const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
         padding: 28px 0;
         border-bottom: 1px solid ${colors.inputBorderGrey};
         margin: 0;
-        border-radius: ${({ isTitleHidden }) => isTitleHidden ? '8px' : '0'};;
+        border-radius: ${({ isTitleHidden }) => isTitleHidden ? '8px' : '0'};
         
         .ant-tabs-tab {
           border: none;
@@ -437,7 +441,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                     </TabPane>
                 </Tabs>
             </CommentsTabsContainer>
-            <Footer>
+            <Footer isSmall={isSmall}>
                 {canCreateComments ? (
                     <CommentForm
                         ticket={ticket}
