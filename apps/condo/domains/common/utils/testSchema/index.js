@@ -1,19 +1,7 @@
-/**
- * Callback function to examine GraphQLError, thrown by Keystone
- * @callback ErrorInspectionCallback
- * @param {GraphQLError} error
- */
-
-/**
- * Function, expected to throw an error
- * @callback TestFunc
- */
-
-const get = require('lodash/get')
-const isEmpty = require('lodash/isEmpty')
+const { isFunction, get, isEmpty } = require('lodash')
 const falsey = require('falsey')
 
-const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
+const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))
 
 /**
  * Implements correct expecting of GraphQLError, thrown by Keystone.
@@ -22,18 +10,20 @@ const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
  * https://stackoverflow.com/questions/48707111/asserting-against-thrown-error-objects-in-jest
  *
  * @example
- * catchErrorFrom(async () => {
+ * await catchErrorFrom(async () => {
  *     await doSomethingThatShouldThrowAnError()
  * }, (e) => {
  *     // any `expect` checks for catched error
  * })
  *
  *
- * @param {TestFunc} testFunc - Function, expected to throw an error
- * @param {ErrorInspectionCallback} inspect - Function, that should inspect the error in details
+ * @param {() => Promise<*>} testFunc - Function, expected to throw an error
+ * @param {(Error) => void} inspect - Function, that should inspect the error in details
  * @return {Promise<*>}
  */
-export const catchErrorFrom = async (testFunc, inspect) => {
+const catchErrorFrom = async (testFunc, inspect) => {
+    if (testFunc.constructor.name !== 'AsyncFunction') throw new Error('catchErrorFrom( testFunc ) testFunc is not an AsyncFunction!')
+    if (!isFunction(inspect)) throw new Error('catchErrorFrom( inspect ) inspect is not a function!')
     let thrownError = null
     try {
         await testFunc()
@@ -41,7 +31,7 @@ export const catchErrorFrom = async (testFunc, inspect) => {
         if (EXTRA_LOGGING) console.warn('catchErrorFrom() caught error:', e)
         thrownError = e
     }
-    if (!thrownError) throw new Error('catchErrorFrom() no caught error')
+    if (!thrownError) throw new Error(`catchErrorFrom() no caught error for: ${testFunc}`)
     return inspect(thrownError)
 }
 
@@ -63,8 +53,8 @@ export const catchErrorFrom = async (testFunc, inspect) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAccessDeniedError = async (testFunc, path ) => {
-    await catchErrorFrom(testFunc, ({errors, data}) => {
+const expectToThrowAccessDeniedError = async (testFunc, path) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
         const expectedError = {
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
@@ -97,8 +87,8 @@ export const expectToThrowAccessDeniedError = async (testFunc, path ) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
-    await catchErrorFrom(testFunc, ({errors, data}) => {
+const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
@@ -123,8 +113,8 @@ export const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
-    await catchErrorFrom(testFunc, ({errors, data}) => {
+const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
+    await catchErrorFrom(testFunc, ({ errors, data }) => {
         expect(errors[0]).toMatchObject({
             'message': 'You do not have access to this resource',
             'name': 'AccessDeniedError',
@@ -150,7 +140,7 @@ export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
+const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
     const path = 'result'
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
@@ -161,13 +151,12 @@ export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
                 'name': 'AccessDeniedError',
                 'path': [path],
                 'extensions': {
-                    'code': 'INTERNAL_SERVER_ERROR'
-                }
-            })]
+                    'code': 'INTERNAL_SERVER_ERROR',
+                },
+            })],
         })
     })
 }
-
 
 /**
  * Expects a GraphQL 'AuthenticationError' Error, thrown by access check if case of UNAUTHENTICATED user access.
@@ -184,7 +173,7 @@ export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-export const expectToThrowAuthenticationError = async (testFunc, path='objs') => {
+const expectToThrowAuthenticationError = async (testFunc, path = 'objs') => {
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
@@ -194,15 +183,27 @@ export const expectToThrowAuthenticationError = async (testFunc, path='objs') =>
                 'name': 'AuthenticationError',
                 'path': [path],
                 'extensions': {
-                    'code': 'UNAUTHENTICATED'
-                }
-            })]
+                    'code': 'UNAUTHENTICATED',
+                },
+            })],
         })
     })
 }
 
-export const expectToThrowValidationFailureError = async (testFunc, messageContains = undefined, path = 'obj') => {
-    await catchErrorFrom(testFunc, ({ errors}) => {
+const expectToThrowAuthenticationErrorToObj = async (testFunc) => {
+    await expectToThrowAuthenticationError(testFunc, 'obj')
+}
+
+const expectToThrowAuthenticationErrorToObjects = async (testFunc) => {
+    await expectToThrowAuthenticationError(testFunc, 'objs')
+}
+
+const expectToThrowAuthenticationErrorToResult = async (testFunc) => {
+    await expectToThrowAuthenticationError(testFunc, 'result')
+}
+
+const expectToThrowValidationFailureError = async (testFunc, messageContains = undefined, path = 'obj') => {
+    await catchErrorFrom(testFunc, ({ errors }) => {
         expect(errors[0]).toMatchObject({
             message: 'You attempted to perform an invalid mutation',
             name: 'ValidationFailureError',
@@ -213,28 +214,28 @@ export const expectToThrowValidationFailureError = async (testFunc, messageConta
                 originalError: {
                     data: {
                         messages: expect.arrayContaining([
-                            expect.stringContaining(messageContains)
-                        ])
+                            expect.stringContaining(messageContains),
+                        ]),
 
-                    }
-                }
+                    },
+                },
             })
         }
     })
 }
 
-export const expectToThrowMutationError = async (testFunc, messageContains, path = ['result'], name = 'GraphQLError') => {
-    await catchErrorFrom(testFunc, ({ errors}) => {
+const expectToThrowMutationError = async (testFunc, messageContains, path = ['result'], name = 'GraphQLError') => {
+    await catchErrorFrom(testFunc, ({ errors }) => {
         expect(errors[0]).toMatchObject({
             message: expect.stringContaining(messageContains),
             name,
-            path
+            path,
         })
     })
 }
 
-export const expectToThrowUserInputError = async (testFunc, messageContains, name = 'UserInputError') => {
-    await catchErrorFrom(testFunc, ({ errors}) => {
+const expectToThrowUserInputError = async (testFunc, messageContains, name = 'UserInputError') => {
+    await catchErrorFrom(testFunc, ({ errors }) => {
         expect(errors[0]).toMatchObject({
             message: expect.stringContaining(messageContains),
             name,
@@ -242,19 +243,7 @@ export const expectToThrowUserInputError = async (testFunc, messageContains, nam
     })
 }
 
-export const expectToThrowAuthenticationErrorToObj = async (testFunc) => {
-    await expectToThrowAuthenticationError(testFunc, 'obj')
-}
-
-export const expectToThrowAuthenticationErrorToObjects = async (testFunc) => {
-    await expectToThrowAuthenticationError(testFunc, 'objs')
-}
-
-export const expectToThrowAuthenticationErrorToResult = async (testFunc) => {
-    await expectToThrowAuthenticationError(testFunc, 'result')
-}
-
-export const expectToThrowGraphQLRequestError = async (testFunc, message) => {
+const expectToThrowGraphQLRequestError = async (testFunc, message) => {
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
@@ -272,4 +261,20 @@ export const expectToThrowGraphQLRequestError = async (testFunc, message) => {
         //  SyntaxError - The GraphQL operation string contains a syntax error.
         expect(errors[0].name).toMatch(/(UserInputError|ValidationError|SyntaxError)/)
     })
+}
+
+module.exports = {
+    catchErrorFrom,
+    expectToThrowAccessDeniedError,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedErrorToResult,
+    expectToThrowAuthenticationError,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToResult,
+    expectToThrowValidationFailureError,
+    expectToThrowMutationError,
+    expectToThrowUserInputError,
+    expectToThrowGraphQLRequestError,
 }
