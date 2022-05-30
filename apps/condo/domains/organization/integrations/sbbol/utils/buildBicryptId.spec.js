@@ -22,8 +22,8 @@ const checkValidationAgainstIncorrectValue = async (field, invalidValue, errorFi
         patronymic: 'Ivanovich',
         certCenterCode: '09AZ',
         certCenterNum: '01',
+        [field]: invalidValue,
     }
-    cryptoInfo[field] = invalidValue
     await catchErrorFrom(async () => {
         buildBicryptId(cryptoInfo)
     }, e => {
@@ -59,12 +59,12 @@ describe('buildBicryptId', () => {
             '000', 'AAA', '010', '01A', 'A01',
             '.', '-', '_', '!',
         ]
-        await Promise.all(incorrectValues.map(incorrectValue => {
-            return checkValidationAgainstIncorrectValue('certCenterNum', incorrectValue, {
+        for (const incorrectValue of incorrectValues) {
+            await checkValidationAgainstIncorrectValue('certCenterNum', incorrectValue, {
                 instancePath: '/certCenterNum',
                 message: 'must match pattern "^[0-9A-Z]{2}$"',
             })
-        }))
+        }
     })
 
     it('throws error if `certCenterCode` argument is null', async () => {
@@ -84,12 +84,12 @@ describe('buildBicryptId', () => {
 
     it('throws error if `certCenterCode` argument has incorrect length', async () => {
         const incorrectValues = ['0', '01', '012', '01234', '0123456']
-        await Promise.all(incorrectValues.map(incorrectValue => {
-            return checkValidationAgainstIncorrectValue('certCenterCode', incorrectValue, {
+        for (const incorrectValue of incorrectValues) {
+            await checkValidationAgainstIncorrectValue('certCenterCode', incorrectValue, {
                 instancePath: '/certCenterCode',
                 message: 'must match pattern "^(?:[0-9A-Z]{4}|[0-9A-Z]{6})$"',
             })
-        }))
+        }
     })
 
     it('throws error if `firstName` argument is not specified', async () => {
