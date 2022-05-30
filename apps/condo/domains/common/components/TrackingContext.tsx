@@ -32,8 +32,6 @@ interface ITrackingContext {
     trackerInstances: Record<string, TrackerInstance>
     eventProperties?: TrackingEventPropertiesType
     userProperties?: TrackingCommonEventProperties
-    setUserProperties? (newProps: TrackingCommonEventProperties): void
-    setEventProperties? (newProps: TrackingCommonEventProperties): void
 }
 
 interface ILogEventTo extends ITrackerLogEventType {
@@ -57,16 +55,14 @@ interface IUseTracking {
         userProperties: Pick<ITrackingContext, 'userProperties'>
         logEvent: (logEventProps: ITrackerLogEventType) => void
         logEventTo: (logEventToProps: ILogEventTo) => void
-        setEventProperties: (newProps: TrackingCommonEventProperties) => void
-        setUserProperties: (newProps: TrackingCommonEventProperties) => void
-        instrument: (eventName: string, func?: any) => any
+        instrument: (eventName: string, eventProperties?: TrackingEventPropertiesType, func?: any) => any
         getEventName: (eventType: TrackingEventType) => string
     }
 }
 
 const useTracking: IUseTracking = () => {
     const { route } = useRouter()
-    const { trackerInstances, eventProperties, userProperties, setUserProperties, setEventProperties } = useTrackingContext()
+    const { trackerInstances, eventProperties, userProperties } = useTrackingContext()
 
     const logEvent = ({ eventName, eventProperties: localEventProperties = {} }: ITrackerLogEventType) => {
         const resultEventProperties = {
@@ -90,7 +86,7 @@ const useTracking: IUseTracking = () => {
         }))
     }
 
-    const instrument = (eventName: string, func?: any) => {
+    const instrument = (eventName: string, eventProperties?: TrackingEventPropertiesType, func?: any) => {
         function fn (...params: any) {
             const retVal = func ? func(...params) : undefined
             logEvent({ eventName, eventProperties })
@@ -111,8 +107,6 @@ const useTracking: IUseTracking = () => {
                 break
             case 'create':
                 domainSuffix = 'Create'
-                break
-            default:
                 break
         }
 
@@ -139,8 +133,6 @@ const useTracking: IUseTracking = () => {
         userProperties,
         logEvent,
         logEventTo,
-        setEventProperties,
-        setUserProperties,
         instrument,
         getEventName,
     }
@@ -149,27 +141,34 @@ const useTracking: IUseTracking = () => {
 const TrackingProvider: React.FC = ({ children }) => {
     const { user } = useAuth()
     const { link } = useOrganization()
-    const { asPath } = useRouter()
+    const router = useRouter()
 
     const trackingProviderValueRef = useRef<ITrackingContext>({
         trackerInstances: TRACKING_INITIAL_VALUE.trackerInstances,
         userProperties: {},
         eventProperties: {
             page: {
-                path: asPath,
+                path: router.asPath,
             },
-        },
-        setUserProperties (newProps: TrackingCommonEventProperties) {
-            this.userProperties = Object.assign(this.userProperties, newProps)
-        },
-        setEventProperties (newProps: TrackingCommonEventProperties) {
-            this.eventProperties = Object.assign(this.eventProperties, newProps)
         },
     })
 
+    const routeChangeStart = (url) => {
+        trackingProviderValueRef.current.eventProperties.page.path = url
+    }
+
     useEffect(() => {
+
+        // Page path changed -> change value at context object
+        router.events.on('routeChangeStart', routeChangeStart)
+
+        // Init all instances of trackers only on client side rendering
         if (typeof window !== 'undefined') {
             Object.values(trackingProviderValueRef.current.trackerInstances).map(trackerInstance => trackerInstance.init())
+        }
+
+        return () => {
+            router.events.off('routeChangeStart', routeChangeStart)
         }
     }, [])
 
@@ -184,11 +183,6 @@ const TrackingProvider: React.FC = ({ children }) => {
             }
         }
     }, [user, link])
-
-    // Page path changed -> change value at context object
-    useEffect(() => {
-        trackingProviderValueRef.current.eventProperties['page']['path'] = asPath
-    }, [asPath])
 
     return (
         <TrackingContext.Provider value={{ ...trackingProviderValueRef.current }}>

@@ -1,5 +1,6 @@
 import getConfig from 'next/config'
-import get from 'lodash/get'
+import { get, has, compact } from 'lodash'
+import { validate as uuidValidate } from 'uuid'
 
 export type ITrackerLogEventType = { eventName: string, eventProperties?: Record<string, unknown> }
 
@@ -55,17 +56,32 @@ abstract class TrackerInstance {
 
     /**
      * Check for duplicated events by name and component path restrictions from app config
-     * @param {Object} eventProperties - event properties contains base props
+     * @param {Object} ITrackerLogEventType - object with eventName and eventProperties props
      * @return {boolean}
      */
     isNeedToSendEvent ({ eventName, eventProperties }: ITrackerLogEventType): boolean {
         if (this.prevEvent !== eventName) {
+            let hasDomainLevelPermission = false
             this.prevEvent = eventName
-            const currentPath = get(eventProperties, ['page', 'path'], '')
-            //TODO: add parsing for path
-            const hadDomainLevelPermission = true
 
-            return Boolean(this.instance) && Boolean(this.token) && hadDomainLevelPermission
+            if (this.allowedDomains) {
+                const route = compact<string>(get(eventProperties, ['page', 'path'], '').split('/'))
+
+                if (route.length === 1) {
+                    hasDomainLevelPermission = has(this.allowedDomains, route)
+                } else if (route.length === 2) {
+                    const currentDomainConfig = get(this.allowedDomains, route[0], []) as Array<string>
+                    const pageConfigName = uuidValidate(route[1]) ? 'id' : route[1]
+
+                    hasDomainLevelPermission = currentDomainConfig.indexOf(pageConfigName) !== -1
+                } else if (route.length === 3) {
+                    const currentDomainConfig = get(this.allowedDomains, route[0], []) as Array<string>
+
+                    hasDomainLevelPermission = currentDomainConfig.some(pageRoute => route[2].includes(pageRoute))
+                }
+            }
+
+            return Boolean(this.instance) && Boolean(this.token) && hasDomainLevelPermission
         }
 
         return false

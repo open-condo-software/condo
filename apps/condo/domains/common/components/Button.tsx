@@ -280,7 +280,7 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
     const { type, secondary, eventName, eventProperties, ...restProps } = props
     const { instrument } = useTracking()
 
-    const onClick = eventName ? instrument(eventName, restProps.onClick) : restProps.onClick
+    const onClick = eventName ? instrument(eventName, eventProperties, restProps.onClick) : restProps.onClick
 
     if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
         return <DefaultButton {...restProps} type={type as ButtonProps['type']} onClick={onClick}/>
