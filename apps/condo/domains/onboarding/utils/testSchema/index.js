@@ -14,17 +14,19 @@ const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql')
 
 const OnBoarding = generateGQLTestUtils(OnBoardingGQL)
 const OnBoardingStep = generateGQLTestUtils(OnBoardingStepGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestOnBoarding (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestOnBoarding logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        type: 'ADMINISTRATOR',
+        user: (client.user) ? { connect: { id: client.user.id } } : undefined,
+        stepsTransitions: {},
         ...extraAttrs,
     }
     const obj = await OnBoarding.create(client, attrs)
@@ -50,12 +52,17 @@ async function createTestOnBoardingStep (client, onBoarding, extraAttrs = {}) {
     if (!onBoarding || !onBoarding.id) throw new Error('no onBoarding.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestOnBoardingStep logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
         onBoarding: { connect: { id: onBoarding.id } },
+        icon: 'organization',
+        required: true,
+        title: faker.random.alphaNumeric(8),
+        description: faker.random.alphaNumeric(8),
+        action: 'create',
+        entity: 'Organization',
+        order: 1,
         ...extraAttrs,
     }
     const obj = await OnBoardingStep.create(client, attrs)
@@ -67,8 +74,6 @@ async function updateTestOnBoardingStep (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestOnBoardingStep logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -78,7 +83,7 @@ async function updateTestOnBoardingStep (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createOnBoardingByTestClient(client, extraAttrs = {}) {
+async function createOnBoardingByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -91,6 +96,7 @@ async function createOnBoardingByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
