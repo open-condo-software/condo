@@ -574,11 +574,21 @@ describe('Resident', () => {
     describe('Read', () => {
         it('can be read by admin', async () => {
             const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
-            const objs = await Resident.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs.length >= 1).toBeTruthy()
-            expect(objs[0].id).toMatch(obj.id)
+            const admin = await makeLoggedInAdminClient()
+            const [obj, attrs] = await createTestResident(admin, userClient.user, userClient.organization, userClient.property)
+            const objs = await Resident.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
+            expect(objs.length).toBeGreaterThanOrEqual(1)
+            expect(objs).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    id: obj.id,
+                    sender: attrs.sender,
+                    createdBy: expect.objectContaining({ id: admin.user.id }),
+                    updatedBy: expect.objectContaining({ id: admin.user.id }),
+                    createdAt: obj.createdAt,
+                    updatedAt: obj.updatedAt,
+                    address: attrs.address,
+                }),
+            ]))
         })
 
         it('cannot be read by user, who is employed in organization, which manages associated property', async () => {
