@@ -62,6 +62,7 @@ function findAllByKey (obj, keyToFind) {
         , [])
 }
 
+const EMPTY_VALUE = '—'
 
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
 const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
@@ -135,25 +136,26 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         isEmergency: ticket.isEmergency ? 'X' : '',
                         isWarranty: ticket.isWarranty ? 'X' : '',
                         isPaid: ticket.isPaid ? 'X' : '',
-                        classifier: ticket.classifier || '',
-                        place: ticket.placeClassifier || '',
-                        category: ticket.categoryClassifier || '',
-                        description: ticket.problemClassifier || '',
+                        classifier: ticket.classifier || EMPTY_VALUE,
+                        place: ticket.placeClassifier || EMPTY_VALUE,
+                        category: ticket.categoryClassifier || EMPTY_VALUE,
+                        description: ticket.problemClassifier || EMPTY_VALUE,
                         createdAt: formatDate(ticket.createdAt),
                         updatedAt: formatDate(ticket.updatedAt),
-                        inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : '',
-                        completedAt: ticket.completedAt ? formatDate(ticket.completedAt) : '',
+                        inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : EMPTY_VALUE,
+                        completedAt: ticket.completedAt ? formatDate(ticket.completedAt) : EMPTY_VALUE,
+                        closedAt: ticket.closedAt ? formatDate(ticket.closedAt) : EMPTY_VALUE,
                         status: indexedStatuses[ticket.status],
-                        operator: ticket.operator || ticket.createdBy || '',
-                        executor: ticket.executor || '',
-                        assignee: ticket.assignee || '',
+                        operator: ticket.operator || ticket.createdBy || EMPTY_VALUE,
+                        executor: ticket.executor || EMPTY_VALUE,
+                        assignee: ticket.assignee || EMPTY_VALUE,
+                        source: ticket.source || EMPTY_VALUE,
+                        deadline: ticket.deadline ? formatDate(ticket.deadline) : EMPTY_VALUE,
+                        reviewValue: ticket.reviewValue ? reviewValueText[ticket.reviewValue] : EMPTY_VALUE,
+                        reviewComment: ticket.reviewComment || EMPTY_VALUE,
+                        statusReopenedCounter: ticket.statusReopenedCounter || EMPTY_VALUE,
                         organizationComments: organizationCommentsToRender.join(TICKET_COMMENTS_SEPARATOR),
                         residentComments: residentCommentsToRender.join(TICKET_COMMENTS_SEPARATOR),
-                        source: ticket.source || '',
-                        deadline: ticket.deadline ? formatDate(ticket.deadline) : '',
-                        reviewValue: ticket.reviewValue ? reviewValueText[ticket.reviewValue] : '',
-                        reviewComment: ticket.reviewComment || '',
-                        statusReopenedCounter: ticket.statusReopenedCounter || '',
                     }
                 })
 

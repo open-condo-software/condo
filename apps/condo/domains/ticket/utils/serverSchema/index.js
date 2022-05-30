@@ -68,7 +68,7 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
         fields: 'id type',
     })
     const statuses = await ticketStatusLoader.load()
-    const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id ])))
+    const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id])))
     const ticketsLoader = new GqlWithKnexLoadList({
         listKey: 'Ticket',
         fields: 'id number unitName sectionName floorName clientName clientPhone isEmergency isPaid isWarranty details createdAt updatedAt deadline reviewValue reviewComment statusReopenedCounter',
@@ -95,6 +95,12 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
             ],
             [
                 (idx, knex) => knex.raw(`MAX(mr${idx}."createdAt") as "completedAt"`),
+                idx => [`TicketChange as mr${idx}`, function () {
+                    this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.completed])
+                }],
+            ],
+            [
+                (idx, knex) => knex.raw(`MAX(mr${idx}."createdAt") as "closedAt"`),
                 idx => [`TicketChange as mr${idx}`, function () {
                     this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.canceled, statusIndexes.completed])
                 }],

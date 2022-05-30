@@ -27,7 +27,7 @@ const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_TICKETS]: [
         'number', 'organization', 'property', 'unitName', 'unitType', 'entranceName', 'floorName', 'clientName', 'clientPhone',
         'details', 'isEmergency', 'isWarranty', 'isPaid', 'classifier', 'place', 'category', 'description',
-        'createdAt', 'updatedAt', 'inworkAt', 'completedAt', 'status', 'operator', 'executor', 'assignee',
+        'createdAt', 'updatedAt', 'inworkAt', 'completedAt', 'closedAt', 'status', 'operator', 'executor', 'assignee',
         'organizationComments', 'residentComments', 'source', 'deadline', 'reviewValue', 'reviewComment', 'statusReopenedCounter',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_PROPERTY_STATUS}`]: [
