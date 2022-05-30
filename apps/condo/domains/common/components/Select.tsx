@@ -1,10 +1,10 @@
 import React from 'react'
 import { Select as DefaultSelect, SelectProps } from 'antd'
-import { useTracking } from './TrackingContext'
+import { useTracking, TrackingEventPropertiesType } from './TrackingContext'
 
 export interface CustomSelectProps<T> extends SelectProps<T> {
     eventName?: string
-    eventProperties?: Record<string, unknown>
+    eventProperties?: TrackingEventPropertiesType
 }
 
 const Select = <T extends string> (props: CustomSelectProps<T>) => {
