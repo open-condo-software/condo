@@ -7,7 +7,7 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowGraphQLRequestError } = require('../../common/utils/testSchema')
 
 describe('Message', () => {
     test('admin: create Message', async () => {
@@ -132,17 +132,9 @@ describe('Message', () => {
 
     test('admin: create with wrong sender', async () => {
         const admin = await makeLoggedInAdminClient()
-        await catchErrorFrom(
+        await expectToThrowGraphQLRequestError(
             async () => await createTestMessage(admin, { sender: 'invalid' }),
-            ({ errors, data }) => {
-                expect(data).toEqual(undefined)
-                expect(errors[0]).toMatchObject({
-                    name: 'UserInputError',
-                    message: 'Variable "$data" got invalid value "invalid" at "data.sender"; Expected type "SenderFieldInput" to be an object.',
-                    extensions: { code: 'BAD_USER_INPUT' },
-                    uid: expect.any(String),
-                })
-            },
+            'Variable "$data" got invalid value "invalid" at "data.sender"; Expected type "SenderFieldInput" to be an object.',
         )
     })
 })
