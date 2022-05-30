@@ -3,19 +3,32 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { getById } = require('@core/keystone/schema')
+const get = require('lodash/get')
 
 async function canReadOnBoardings ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-
-    return {}
+    return {
+        user: { id: user.id },
+    }
 }
 
-async function canManageOnBoardings ({ authentication: { item: user } }) {
+async function canManageOnBoardings ({ authentication: { item: user }, itemId, operation, originalInput }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return true
+    if (operation === 'create') {
+        console.log(originalInput)
+        const userId = get(originalInput, ['user', 'connect', 'id'])
+        if (!userId) return false
+        return userId === user.id
+    } else if (operation === 'update') {
+        const obj = await getById('OnBoarding', itemId)
+        if (!obj) return false
+        return obj.user === user.id
+    }
+    return false
 }
 
 /*
