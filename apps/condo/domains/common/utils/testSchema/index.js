@@ -11,6 +11,9 @@
 
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
+const falsey = require('falsey')
+
+const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
 
 /**
  * Implements correct expecting of GraphQLError, thrown by Keystone.
@@ -35,9 +38,10 @@ export const catchErrorFrom = async (testFunc, inspect) => {
     try {
         await testFunc()
     } catch (e) {
+        if (EXTRA_LOGGING) console.warn('catchErrorFrom() caught error:', e)
         thrownError = e
     }
-    if (!thrownError) throw new Error('catchErrorFrom() error not found')
+    if (!thrownError) throw new Error('catchErrorFrom() no caught error')
     return inspect(thrownError)
 }
 
