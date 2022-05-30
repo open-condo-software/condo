@@ -5,19 +5,18 @@ const { CookieJar, Cookie } = require('tough-cookie')
 const urlParse = require('url').parse
 const crypto = require('crypto')
 const express = require('express')
-const { GQL_LIST_SCHEMA_TYPE } = require('@core/keystone/schema')
-const util = require('util')
-const conf = require('@core/config')
-const getRandomString = () => crypto.randomBytes(6).hexSlice()
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
-const { onError } = require('@apollo/client/link/error')
 const { createUploadLink } = require('apollo-upload-client')
 const FormData = require('form-data')
 const fetch = require('node-fetch')
 const http = require('http')
 const https = require('https')
-const { flattenDeep, fromPairs, toPairs } = require('lodash')
+const { flattenDeep, fromPairs, toPairs, get } = require('lodash')
 const fs = require('fs')
+
+const conf = require('@core/config')
+
+const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
 const NUMBER_RE = /^[1-9][0-9]*$/i
@@ -45,14 +44,6 @@ const SIGNIN_BY_EMAIL_MUTATION = gql`
             user: item {
                 id
             }
-        }
-    }
-`
-
-const CREATE_USER_MUTATION = gql`
-    mutation createNewUser($data: UserCreateInput) {
-        user: createUser(data: $data) {
-            id
         }
     }
 `
@@ -104,15 +95,6 @@ const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
     if (configureExpress) configureExpress(app)
     app.use(middlewares)
     return { keystone, app }
-}
-
-const prepareNextExpressApp = async (dir) => {
-    const next = require('next')
-    const dev = process.env.NODE_ENV === 'development'
-    const nextApp = next({ dir, dev })
-    await nextApp.prepare()
-    const app = nextApp.getRequestHandler()
-    return { app }
 }
 
 /**
@@ -340,83 +322,9 @@ const makeLoggedInAdminClient = async () => {
     return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET })
 }
 
-const createUser = async (args = {}) => {
-    const client = await makeLoggedInAdminClient()
-    const data = {
-        name: 'Mr#' + getRandomString(),
-        email: 'xx' + getRandomString().toLowerCase() + '@example.com',
-        password: getRandomString(),
-        ...args,
-    }
-    const result = await client.mutate(CREATE_USER_MUTATION, { data })
-    if (result.errors && result.errors.length > 0) {
-        console.warn(util.inspect(result.errors, { showHidden: false, depth: null }))
-        throw new Error(result.errors[0].message)
-    }
-    if (!result.data.user.id) {
-        throw new Error('createUser() no ID returned')
-    }
-    return { ...data, id: result.data.user.id }
-}
-
-const createSchemaObject = async (schemaList, args = {}) => {
-    if (schemaList._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Wrong type. Expect ${GQL_LIST_SCHEMA_TYPE}`)
-    const client = await makeLoggedInAdminClient()
-    const data = schemaList._factory(args)
-
-    const mutation = gql`
-        mutation create${schemaList.name}($data: ${schemaList.name}CreateInput) {
-            obj: create${schemaList.name}(data: $data) { id }
-        }
-    `
-    const result = await client.mutate(mutation, { data })
-    if (result.errors && result.errors.length > 0) {
-        throw new Error(result.errors[0].message)
-    }
-    return { id: result.data.obj.id, _raw_query_data: data }
-}
-
-const deleteSchemaObject = async (schemaList, args = {}) => {
-    if (schemaList._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Wrong type. Expect ${GQL_LIST_SCHEMA_TYPE}`)
-    if (!args.id) throw new Error(`No ID`)
-
-    const client = await makeLoggedInAdminClient()
-
-    const mutation = gql`
-        mutation delete${schemaList.name}($id: ID) {
-            obj: delete${schemaList.name}(id: $id) { id }
-        }
-    `
-    const result = await client.mutate(mutation, { id: args.id })
-    if (result.errors && result.errors.length > 0) {
-        throw new Error(result.errors[0].message)
-    }
-    return { id: result.data.obj.id }
-}
-
-const getSchemaObject = async (schemaList, fields, where) => {
-    if (schemaList._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Wrong type. Expect ${GQL_LIST_SCHEMA_TYPE}`)
-    const client = await makeLoggedInAdminClient()
-
-    function fieldsToStr (fields) {
-        return '{ ' + fields.map((f) => Array.isArray(f) ? fieldsToStr(f) : f).join(' ') + ' }'
-    }
-
-    const query = gql`
-        query ${schemaList.name}($where: ${schemaList.name}WhereUniqueInput!) {
-        obj: ${schemaList.name}(where: $where) ${fieldsToStr(fields)}
-        }
-    `
-    const result = await client.query(query, { where })
-    if (result.errors && result.errors.length > 0) {
-        throw new Error(result.errors[0].message)
-    }
-    return result.data.obj
-}
-
-async function waitFor (callback, options = { timeout: 2000, interval: 50 }) {
-    const timeout = options.timeout || 5000
-    const interval = options.interval || 50
+async function waitFor (callback, options = null) {
+    const timeout = get(options, 'timeout', 5000)
+    const interval = get(options, 'interval', 50)
     let savedError = null
 
     return new Promise((res, rej) => {
@@ -457,16 +365,11 @@ module.exports = {
     isPostgres, isMongo,
     EmptyApp,
     prepareKeystoneExpressApp,
-    prepareNextExpressApp,
     setFakeClientMode,
     createAxiosClientWithCookie,
     makeClient,
     makeLoggedInClient,
     makeLoggedInAdminClient,
-    createUser,
-    createSchemaObject,
-    deleteSchemaObject,
-    getSchemaObject,
     gql,
     DEFAULT_TEST_ADMIN_IDENTITY,
     DEFAULT_TEST_ADMIN_SECRET,
