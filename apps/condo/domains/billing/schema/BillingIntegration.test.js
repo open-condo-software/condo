@@ -152,7 +152,7 @@ describe('BillingIntegration', () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const objs = await BillingIntegration.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
-            expect(objs.length >= 1).toBeTruthy()
+            expect(objs.length).toBeGreaterThanOrEqual(1)
             expect(objs).toEqual(expect.arrayContaining([
                 expect.objectContaining({
                     id: obj.id,

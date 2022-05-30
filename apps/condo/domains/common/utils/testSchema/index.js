@@ -151,13 +151,20 @@ export const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
  * @return {Promise<void>}
  */
 export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
-    await catchErrorFrom(testFunc, ({ errors, data }) => {
-        expect(errors[0]).toMatchObject({
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['result'],
+    const path = 'result'
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(caught).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: null },
+            errors: [expect.objectContaining({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': [path],
+                'extensions': {
+                    'code': 'INTERNAL_SERVER_ERROR'
+                }
+            })]
         })
-        expect(data).toEqual({ 'result': null })
     })
 }
 
@@ -178,16 +185,19 @@ export const expectToThrowAccessDeniedErrorToResult = async (testFunc ) => {
  * @return {Promise<void>}
  */
 export const expectToThrowAuthenticationError = async (testFunc, path='objs') => {
-    await catchErrorFrom(testFunc, ({ errors, data }) => {
-        expect(errors[0]).toMatchObject({
-            'message': 'No or incorrect authentication credentials',
-            'name': 'AuthenticationError',
-            'path': [path],
-            'extensions': {
-                'code': 'UNAUTHENTICATED'
-            }
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(caught).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: null },
+            errors: [expect.objectContaining({
+                'message': 'No or incorrect authentication credentials',
+                'name': 'AuthenticationError',
+                'path': [path],
+                'extensions': {
+                    'code': 'UNAUTHENTICATED'
+                }
+            })]
         })
-        expect(data).toEqual({ [path]: null })
     })
 }
 
@@ -233,21 +243,33 @@ export const expectToThrowUserInputError = async (testFunc, messageContains, nam
 }
 
 export const expectToThrowAuthenticationErrorToObj = async (testFunc) => {
-    return await expectToThrowAuthenticationError(testFunc, 'obj')
+    await expectToThrowAuthenticationError(testFunc, 'obj')
 }
 
 export const expectToThrowAuthenticationErrorToObjects = async (testFunc) => {
-    return await expectToThrowAuthenticationError(testFunc, 'objs')
+    await expectToThrowAuthenticationError(testFunc, 'objs')
 }
 
 export const expectToThrowAuthenticationErrorToResult = async (testFunc) => {
-    return await expectToThrowAuthenticationError(testFunc, 'result')
+    await expectToThrowAuthenticationError(testFunc, 'result')
 }
 
 export const expectToThrowGraphQLRequestError = async (testFunc, message) => {
-    return await catchErrorFrom(testFunc, ({ errors, data }) => {
-        expect(errors[0]).toMatchObject({ name: 'UserInputError' })
-        expect(errors[0].message).toMatch(message)
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(caught).toMatchObject({
+            name: 'TestClientResponseError',
+        })
+
+        const { errors, data } = caught
         expect(data).toBeUndefined()
+        expect(errors).toHaveLength(1)
+        expect(errors[0].message).toMatch(message)
+        expect(errors[0].extensions).toBeUndefined()
+        expect(errors[0].path).toBeUndefined()
+        // NOTE(pahaz):
+        //  ValidationError - The GraphQL operation is not valid against the server's schema.
+        //  UserInputError - The GraphQL operation includes an invalid value for a field argument.
+        //  SyntaxError - The GraphQL operation string contains a syntax error.
+        expect(errors[0].name).toMatch(/(UserInputError|ValidationError|SyntaxError)/)
     })
 }
