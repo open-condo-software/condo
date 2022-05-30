@@ -95,6 +95,11 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
                     iFrameReceiver.postMessage({ id: message.id, data: organization }, pageOrigin)
                 }
                 break
+            case 'getUser':
+                if (iFrameReceiver) {
+                    iFrameReceiver.postMessage({ id: message.id, data: user }, pageOrigin)
+                }
+                break
         }
     }, [])
 
