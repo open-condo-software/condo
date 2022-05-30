@@ -8,7 +8,7 @@ const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keys
 
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
-const { createTestPhone, createTestEmail, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestPhone, createTestEmail, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, UserAdmin } = require('@condo/domains/user/utils/testSchema')
 const { acceptOrRejectOrganizationInviteById, inviteNewOrganizationEmployee, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const {
     OrganizationEmployee,
@@ -159,6 +159,22 @@ describe('OrganizationEmployee', () => {
     })
 
     describe('user: update OrganizationEmployee', () => {
+        test('can set phone and email to null', async () => {
+            const client = await makeClientWithRegisteredOrganization()
+            const employee = await OrganizationEmployee.getOne(client, { user: { id: client.user.id } })
+            const [updatedEmployee] = await updateTestOrganizationEmployee(client, employee.id, {
+                phone: null,
+                email: null,
+                name: 'HACKER',
+            })
+            expect(updatedEmployee).toMatchObject({
+                phone: null,
+                email: null,
+                name: 'HACKER',
+                user: { id: client.user.id },
+                organization: { id: client.organization.id },
+            })
+        })
 
         test('cannot without granted "canManageEmployees" permission', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -382,5 +398,32 @@ describe('OrganizationEmployee', () => {
         const [employee] = await OrganizationEmployee.getAll(client1, { user: { id: client2.user.id } })
         expect(employee.phone).toEqual(invitedEmployee.phone)
         expect(employee.email).toEqual(invitedEmployee.email)
+    })
+
+    test('admin: setting User.email/User.phone to null causes OrganizationEmployee to be updated', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const client = await makeClientWithRegisteredOrganization()
+        await updateTestUser(admin, client.user.id, {
+            isSupport: false,
+            isAdmin: false,
+            name: 'DELETED',
+            email: null,
+            phone: null,
+        })
+        const employee = await OrganizationEmployee.getOne(admin, { user: { id: client.user.id } })
+        const updatedUser = await UserAdmin.getOne(admin, { id: client.user.id })
+
+        expect(employee).toMatchObject({
+            email: null,
+            phone: null,
+            name: 'DELETED',
+        })
+        expect(updatedUser).toMatchObject({
+            isSupport: false,
+            isAdmin: false,
+            name: 'DELETED',
+            email: null,
+            phone: null,
+        })
     })
 })
