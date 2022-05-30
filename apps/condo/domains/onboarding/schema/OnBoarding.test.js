@@ -21,7 +21,6 @@ describe('OnBoarding', () => {
                 stepsTransitions: {},
             },
         )
-        console.log(obj)
         expect(obj.id).toMatch(UUID_RE)
         expect(obj.dv).toEqual(1)
         expect(obj.sender).toEqual(attrs.sender)

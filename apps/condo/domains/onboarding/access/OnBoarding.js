@@ -19,7 +19,6 @@ async function canManageOnBoardings ({ authentication: { item: user }, itemId, o
     if (user.deletedAt) return false
 
     if (operation === 'create') {
-        console.log(originalInput)
         const userId = get(originalInput, ['user', 'connect', 'id'])
         if (!userId) return false
         return userId === user.id
