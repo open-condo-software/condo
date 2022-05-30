@@ -75,7 +75,6 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
         }, 10000)
     }
     if (!mode) throw new Error('setFakeServerOption(entryPoint) unknown module type')
-    jest.setTimeout(30000)
     __isAwaiting = true
 }
 
@@ -324,7 +323,7 @@ const makeLoggedInAdminClient = async () => {
 
 async function waitFor (callback, options = null) {
     const timeout = get(options, 'timeout', 5000)
-    const interval = get(options, 'interval', 50)
+    const interval = get(options, 'interval', 100)
     let savedError = null
 
     return new Promise((res, rej) => {
