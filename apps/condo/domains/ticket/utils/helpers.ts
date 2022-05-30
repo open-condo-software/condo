@@ -29,6 +29,7 @@ import {
 } from '../components/TicketChart'
 import { MAX_CHART_LEGEND_ELEMENTS, MAX_CHART_NAME_LENGTH } from '../constants/restrictions'
 import { ITicketUIState } from './clientSchema/Ticket'
+import { isEmpty, isNull, isUndefined } from 'lodash'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -654,30 +655,20 @@ export function hasUnreadResidentComments (lastResidentCommentAt, readResidentCo
 /** analyticsData array validation function. 
  * The array can only be empty on the first render. Even if there are no tickets, mock objects are placed in analyticsData. 
  * For the correct operation of the unload button in Excel, it is necessary to check the objects nested in the array for the presence of at least one ticket 
- * analyticsData array example: 
- * [0:{
-        assignee: null
-        categoryClassifier: null
-        count: 0
-        dayGroup: "23.05.2022"
-        executor: null
-        property: null
-        status: "Открыта"
-        __typename: "TicketGroupedCounter"
-        }
-    ]
+ * @param {Object[]} analyticsData 
+ * @param {string} analyticsData[n].assignee - Employee assigned to the task. Can be null if the selection is not by assignee.
+ * @param {string} analyticsData[n].categoryClassifier - Task categoryClassifier. Can be null if the selection is not by categoryClassifier.
+ * @param {number} analyticsData[n].count - Number of tickets on this date. 
+ * @param {string} analyticsData[n].dayGroup - Sample Date. 
+ * @param {string} analyticsData[n].executor - Employee assigned to the task. Can be null if the selection is not by executor.
+ * @param {string} analyticsData[n].property - Address in string format. Can be null if the selection is not by property.
+ * @param {string} analyticsData[n].status - Task status.
+ * @param {string} analyticsData[n].__typename - Always "TicketGroupedCounter"
+ * @returns {boolean} - Returns true if there are no tickets in analyticsData and false if there is at least one
 */
 export function isEmptyAnalyticsData (analyticsData) {
-    if (analyticsData === null) {
-        return true
-    } else {
-        let count = 0
-        analyticsData.some((date)=>{
-            count += get(date, 'count')
-        })
-        if (count > 0) {
-            return false
-        }
-        return true
-    } 
+    if (isNull(analyticsData) || isUndefined(analyticsData) || isEmpty(analyticsData)) return true
+    
+    const count = analyticsData.reduce((count, date) => count + get(date, 'count'), 0)
+    return count < 1
 }
