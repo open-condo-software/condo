@@ -24,6 +24,7 @@ import {
     TICKET_PAGE_SIZE,
     filterToQuery,
     ticketAnalyticsPageFilters, getChartOptions, hasUnreadResidentComments, getDeadlineType, TicketDeadlineType,
+    isEmptyAnalyticsData,
 } from './helpers'
 
 describe('Helpers', () => {
@@ -847,6 +848,44 @@ describe('Helpers', () => {
             const isCommentUnread = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt)
 
             expect(isCommentUnread).toEqual(false)
+        })
+    })
+    describe('isEmptyAnalyticsData', () => {
+        describe('cases when true is returned', () => {
+            it('should return true if analyticsData is empty object', () => {
+                const analyticsData = []
+                const isNoAnalyticsData = isEmptyAnalyticsData(analyticsData)
+                expect(isNoAnalyticsData).toEqual(true)
+            })
+
+            it('should return true the first time the page is rendered', () => {
+                const analyticsData = null
+                const isNoAnalyticsData = isEmptyAnalyticsData(analyticsData)
+                expect(isNoAnalyticsData).toEqual(true)
+            })
+
+            it('should return true if analyticsData is undefined', () => {
+                const analyticsData = undefined
+                const isNoAnalyticsData = isEmptyAnalyticsData(analyticsData)
+                expect(isNoAnalyticsData).toEqual(true)
+            })
+
+            it('should return true if there are no tickets on the selected date', () => {
+                const analyticsData = [{
+                    count:0,
+                }]
+                const isNoAnalyticsData = isEmptyAnalyticsData(analyticsData)
+                expect(isNoAnalyticsData).toEqual(true)
+            })
+        })
+        describe('cases when false is returned', () => {
+            it('should return false if there is at least 1 ticket in the selected date', () => {
+                const analyticsData = [{
+                    count:1,
+                }]
+                const isNoAnalyticsData = isEmptyAnalyticsData(analyticsData)
+                expect(isNoAnalyticsData).toEqual(false)
+            })
         })
     })
 })
