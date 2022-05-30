@@ -18,8 +18,7 @@ import {
 } from '../helpers'
 import { ITicketUIState } from './Ticket'
 
-const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_SMALLER_THAN_XL: CSSProperties = { position: 'absolute', left: '-50px', top: '35%' }
-const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = { position: 'absolute', left: '-10px', top: '35%' }
+const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = { position: 'absolute', left: '-50px', top: '35%' }
 const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
 const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = { backgroundColor: 'red', borderRadius: '100px', width: '8px', height: '8px' }
 
@@ -62,7 +61,7 @@ export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadT
         const lastCommentAt = get(ticketCommentsTime, 'lastCommentAt')
 
         const postfix = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
-            <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_SMALLER_THAN_XL : NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL}>
+            <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
                 <Tooltip title={NewResidentCommentMessage} placement={'topRight'}>
                     <Typography.Text title={NewResidentCommentMessage}>
                         <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES} >
@@ -178,7 +177,7 @@ export const getStatusRender = (intl, search: FilterValue) => {
 }
 
 // This function is needed to shorten the ClientName so that the field in which it is located is not unnecessarily stretched
-export const getTicketClientNameRender = (search: FilterValue) => { 
+export const getTicketClientNameRender = (search: FilterValue) => {
     return function render (clientName: string, ticket: ITicketUIState) {
         const address = get(ticket, ['property', 'address'])
         const clientNameLength = get(clientName, 'length', 0)
