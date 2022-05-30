@@ -59,16 +59,16 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         const [property1] = await createTestProperty(organizationClient1, organizationClient1.organization, propertyPayload)
 
         await Property.softDelete(organizationClient1, property1.id)
-        await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
+        const [resident] = await registerResidentByTestClient(userClient, { address: addressMeta.value, addressMeta })
 
         const [property] = await createTestProperty(organizationClient, organizationClient.organization, propertyPayload)
 
         // NOTE: give worker some time
         await waitFor(async () => {
-            const resident = await Resident.getOne(userClient, { id: userClient.id })
+            const resident1 = await Resident.getOne(userClient, { id: resident.id })
 
-            expect(resident.organization.id).toEqual(organizationClient.organization.id)
-            expect(resident.property.id).toEqual(property.id)
+            expect(resident1.organization.id).toEqual(organizationClient.organization.id)
+            expect(resident1.property.id).toEqual(property.id)
         })
 
 
@@ -77,7 +77,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         // NOTE: give worker some time
         await waitFor(async () => {
-            const resident1 = await Resident.getOne(userClient, { id: userClient.id })
+            const resident1 = await Resident.getOne(userClient, { id: resident.id })
 
             expect(resident1.organization.id).toEqual(organizationClient.organization.id)
             expect(resident1.property.id).toEqual(property.id)
@@ -116,10 +116,10 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         // NOTE: give worker some time
         await waitFor(async () => {
-            const resident1 = await Resident.getOne(userClient, { id: userClient.id })
+            const resident1 = await Resident.getOne(userClient, { id: resident.id })
 
-            expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
-            expect(get(resident1, 'property.id')).toEqual(property.id)
+            expect(resident1.organization.id).toEqual(organizationClient.organization.id)
+            expect(resident1.property.id).toEqual(property.id)
         })
     })
 
