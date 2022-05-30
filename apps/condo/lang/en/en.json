@@ -1169,6 +1169,7 @@
   "excelExport.headers.tickets.organization": "Organization",
   "excelExport.headers.tickets.property": "Address",
   "excelExport.headers.tickets.unitName": "Unit name",
+  "excelExport.headers.tickets.unitType": "Unit type",
   "excelExport.headers.tickets.entranceName": "Entrance",
   "excelExport.headers.tickets.floorName": "Floor",
   "excelExport.headers.tickets.clientName": "Client",
