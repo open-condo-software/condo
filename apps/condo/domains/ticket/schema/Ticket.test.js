@@ -1357,12 +1357,13 @@ describe('Ticket', () => {
                     unitType,
                 })
 
-                const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
-
-                expect(readTicket.client.id).toEqual(residentClient.user.id)
-                expect(readTicket.clientName).toEqual(name)
-                expect(readTicket.clientEmail).toEqual(email)
-                expect(readTicket.clientPhone).toEqual(phone)
+                await waitFor(async () => {
+                    const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
+                    expect(readTicket.client.id).toEqual(residentClient.user.id)
+                    expect(readTicket.clientName).toEqual(name)
+                    expect(readTicket.clientEmail).toEqual(email)
+                    expect(readTicket.clientPhone).toEqual(phone)
+                })
             })
         })
     })
