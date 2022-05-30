@@ -1,16 +1,17 @@
+const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+
 const {
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole,
     acceptOrRejectOrganizationInviteById,
     acceptOrRejectOrganizationInviteByCode,
     inviteNewOrganizationEmployee,
     makeClientWithRegisteredOrganization,
-} = require('../utils/testSchema/Organization')
-const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY } = require('../utils/testSchema/OrganizationEmployee')
-const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('../../common/utils/testSchema')
+} = require('../utils/testSchema')
+const { GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY } = require('../gql')
 
 describe('AcceptOrRejectOrganizationInviteService', () => {
     describe('acceptOrRejectOrganizationInviteById', () => {
@@ -35,7 +36,6 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
             })
         })
 
-
         describe('Anonymous', () => {
             it('throws access denied error', async () => {
                 const client1 = await makeClientWithRegisteredOrganization()
@@ -50,7 +50,6 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
             })
         })
     })
-
 
     describe('acceptOrRejectOrganizationInviteByCode', () => {
         describe('User', () => {

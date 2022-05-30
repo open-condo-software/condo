@@ -45,7 +45,7 @@ describe('CreateResidentTicketService', () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
 
         const wrongProperty = {
-            id: faker.random.uuid(),
+            id: faker.datatype.uuid(),
         }
 
         await catchErrorFrom(async () => {
@@ -71,7 +71,7 @@ describe('CreateResidentTicketService', () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
         const wrongSource = {
             connect: {
-                id: faker.random.uuid(),
+                id: faker.datatype.uuid(),
             },
         }
 
