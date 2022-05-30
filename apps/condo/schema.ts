@@ -16800,8 +16800,181 @@ export type Mutation = {
    * }`
    */
   changePasswordWithToken?: Maybe<ChangePasswordWithTokenOutput>;
+  /**
+   * Send confirmation phone SMS message and return confirmation token. You can use the token for completeConfirmPhoneAction mutation. And then use the token in other mutations to prove that the phone number is verified
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "captcha"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "CAPTCHA_CHECK_FAILED",
+   *   "message": "Failed to check CAPTCHA",
+   *   "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
+   * }`
+   *
+   * `{
+   *   "mutation": "startConfirmPhoneAction",
+   *   "variable": [
+   *     "data",
+   *     "phone"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_PHONE_FORMAT",
+   *   "message": "Wrong format of provided phone number",
+   *   "correctExample": "+79991234567",
+   *   "messageForUser": "api.common.WRONG_PHONE_FORMAT"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "TOO_MANY_REQUESTS",
+   *   "message": "You have to wait {secondsRemaining} seconds to be able to send request again"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_FOR_PHONE_DAY_LIMIT_REACHED",
+   *   "message": "Too many sms requests for this phone number. Try again tomorrow"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_FOR_IP_DAY_LIMIT_REACHED",
+   *   "message": "Too many sms requests from this ip address. Try again tomorrow"
+   * }`
+   */
   startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
+  /**
+   * Resend the confirm phone SMS message for existing token
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "captcha"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "CAPTCHA_CHECK_FAILED",
+   *   "message": "Failed to check CAPTCHA",
+   *   "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
+   *   "message": "Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again",
+   *   "messageForUser": "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "TOO_MANY_REQUESTS",
+   *   "message": "You have to wait {secondsRemaining} seconds to be able to send request again"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_FOR_PHONE_DAY_LIMIT_REACHED",
+   *   "message": "Too many sms requests for this phone number. Try again tomorrow"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_FOR_IP_DAY_LIMIT_REACHED",
+   *   "message": "Too many sms requests from this ip address. Try again tomorrow"
+   * }`
+   */
   resendConfirmPhoneActionSms?: Maybe<ResendConfirmPhoneActionSmsOutput>;
+  /**
+   * The final step of a phone number confirmation. You should use the token from startConfirmPhoneAction and a secret code from the confirm phone SMS message. After success call, you can use the token in other mutations to prove that you have access to the phone number
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "captcha"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "CAPTCHA_CHECK_FAILED",
+   *   "message": "Failed to check CAPTCHA",
+   *   "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
+   *   "message": "Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again",
+   *   "messageForUser": "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
+   * }`
+   *
+   * `{
+   *   "mutation": "completeConfirmPhoneAction",
+   *   "variable": [
+   *     "data",
+   *     "smsCode"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_CODE_EXPIRED",
+   *   "message": "SMS code expired. Try to initiate phone confirmation again",
+   *   "messageForUser": "api.user.completeConfirmPhoneAction.SMS_CODE_EXPIRED"
+   * }`
+   *
+   * `{
+   *   "mutation": "completeConfirmPhoneAction",
+   *   "variable": [
+   *     "data",
+   *     "smsCode"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_CODE_MAX_RETRIES_REACHED",
+   *   "message": "Max retries reached for SMS code confirmation. Try to initiate phone confirmation again",
+   *   "messageForUser": "api.user.completeConfirmPhoneAction.SMS_CODE_MAX_RETRIES_REACHED"
+   * }`
+   *
+   * `{
+   *   "mutation": "completeConfirmPhoneAction",
+   *   "variable": [
+   *     "data",
+   *     "smsCode"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "SMS_CODE_VERIFICATION_FAILED",
+   *   "message": "SMS code verification mismatch",
+   *   "messageForUser": "api.user.completeConfirmPhoneAction.SMS_CODE_VERIFICATION_FAILED"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "TOO_MANY_REQUESTS",
+   *   "message": "You have to wait {secondsRemaining} seconds to be able to send request again"
+   * }`
+   */
   completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
   /**
    * Authenticates resident user for mobile apps
@@ -17548,6 +17721,7 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"url": {
+   * 				"defaultValue": "",
    * 				"required": true
    * 			}
    * 		}
@@ -27220,6 +27394,37 @@ export type Query = {
    * }`
    */
   checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
+  /**
+   * Returns phone number information from ConfirmPhoneAction, that matches provided search conditions
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "captcha"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "CAPTCHA_CHECK_FAILED",
+   *   "message": "Failed to check CAPTCHA",
+   *   "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
+   *   "message": "Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again",
+   *   "messageForUser": "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
+   * }`
+   */
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   /**
    * Tells, whether a Property with given address exists in condo database

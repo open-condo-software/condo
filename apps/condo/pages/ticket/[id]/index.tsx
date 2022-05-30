@@ -156,7 +156,8 @@ const TicketContent = ({ ticket }) => {
     const intl = useIntl()
     const TicketInfoMessage = intl.formatMessage({ id: 'Problem' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const ClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Client' })
+    const ResidentClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.ResidentClient' })
+    const NotResidentClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.NotResidentClient' })
     const FilesFieldLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Files' })
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
@@ -312,6 +313,8 @@ const TicketContent = ({ ticket }) => {
     ), [TicketUnitMessage, renderPostfix, streetPart, ticket, ticketUnit])
 
     const contactId = get(ticket, ['contact', 'id'])
+    const ClientMessage = useMemo(() => contactId ? ResidentClientMessage : NotResidentClientMessage,
+        [NotResidentClientMessage, ResidentClientMessage, contactId])
 
     return (
         <Col span={24}>
