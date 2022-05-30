@@ -1163,6 +1163,8 @@
   "excelExport.headers.buildings.uninhabitedUnitsCount": "Нежилых помещений",
   "excelExport.headers.buildings.ticketsInWork": "Заявок в работе",
   "excelExport.headers.buildings.ticketsClosed": "Заявок закрыто",
+  "excelExport.header.tickets.forAllTime": "Заявки за всё время",
+  "excelExport.header.tickets.forPeriod": "Заявки за период",
   "excelExport.headers.tickets.number": "Номер заявки",
   "excelExport.headers.tickets.organization": "Наименование УК",
   "excelExport.headers.tickets.property": "Адрес",

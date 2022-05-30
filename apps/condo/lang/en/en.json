@@ -1163,6 +1163,8 @@
   "excelExport.headers.buildings.uninhabitedUnitsCount": "Uninhabited units count",
   "excelExport.headers.buildings.ticketsInWork": "Tickets in work",
   "excelExport.headers.buildings.ticketsClosed": "Closed tickets",
+  "excelExport.header.tickets.forAllTime": "Tickets for all time",
+  "excelExport.header.tickets.forPeriod": "Tickets for the period",
   "excelExport.headers.tickets.number": "#",
   "excelExport.headers.tickets.organization": "Organization",
   "excelExport.headers.tickets.property": "Address",
