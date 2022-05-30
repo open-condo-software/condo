@@ -21,9 +21,11 @@ const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 
-const usAreaCodes = countryPhoneData[0].mobile_begin_with.filter(x => x.length === 3)
+const _usAreaCodes = countryPhoneData[0].mobile_begin_with.filter(x => x.length === 3)
+const _createTestUsMobilePhone = () => `+1${faker.random.arrayElement(_usAreaCodes)}${faker.phone.phoneNumber('#######')}`
+const _createTestRuMobilePhone = () => faker.random.arrayElement([faker.phone.phoneNumber('+79#########'), faker.phone.phoneNumber('+7495#######')])
+const createTestPhone = () => faker.random.arrayElement([_createTestUsMobilePhone(), _createTestRuMobilePhone()])
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
-const createTestPhone = () => faker.random.arrayElement([faker.phone.phoneNumber('+79#########'), `+1${faker.random.arrayElement(usAreaCodes)}${faker.phone.phoneNumber('#######')}`])
 const createTestLandlineNumber = () => faker.phone.phoneNumber('+7343#######')
 
 const {
