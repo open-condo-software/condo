@@ -228,6 +228,7 @@ describe('TicketStatus', () => {
             name_starts_with: 'ticket.status.',
         })
 
+        // NOTE(pahaz): we have a 6 default status transitions. Look at the migrations for details
         expect(statusTranslations.length).toBeGreaterThanOrEqual(6)
         expect(statuses.length).toBeGreaterThanOrEqual(6)
         statuses.forEach((status) => {
