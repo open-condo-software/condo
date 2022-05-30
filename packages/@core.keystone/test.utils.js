@@ -65,14 +65,14 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
             __expressApp = res.app
             __keystone = res.keystone
             __expressServer = http.createServer(__expressApp).listen(0)
-        }, 10000)
+        })
         afterAll(async () => {
             if (__expressServer) __expressServer.close()
             if (__keystone) await __keystone.disconnect()
             __keystone = null
             __expressApp = null
             __expressServer = null
-        }, 10000)
+        })
     }
     if (!mode) throw new Error('setFakeServerOption(entryPoint) unknown module type')
     __isAwaiting = true
