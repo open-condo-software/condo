@@ -64,7 +64,7 @@ const useTracking: IUseTracking = () => {
     const { route } = useRouter()
     const { trackerInstances, eventProperties, userProperties } = useTrackingContext()
 
-    const logEvent = ({ eventName, eventProperties: localEventProperties = {} }: ITrackerLogEventType) => {
+    const logEvent = ({ eventName, eventProperties: localEventProperties = {}, denyDuplicates }: ITrackerLogEventType) => {
         const resultEventProperties = {
             ...eventProperties,
             ...localEventProperties,
@@ -72,10 +72,11 @@ const useTracking: IUseTracking = () => {
         Object.values(trackerInstances).map(trackerInstance => trackerInstance.logEvent({
             eventName,
             eventProperties: resultEventProperties,
+            denyDuplicates,
         }))
     }
 
-    const logEventTo = ({ eventName, eventProperties: localEventProperties = {}, destination }: ILogEventTo) => {
+    const logEventTo = ({ eventName, eventProperties: localEventProperties = {}, destination, denyDuplicates }: ILogEventTo) => {
         const resultEventProperties = {
             ...eventProperties,
             ...localEventProperties,
@@ -83,6 +84,7 @@ const useTracking: IUseTracking = () => {
         Object.values(pick(trackerInstances, destination)).map(trackerInstance => trackerInstance.logEvent({
             eventName,
             eventProperties: resultEventProperties,
+            denyDuplicates,
         }))
     }
 
@@ -158,12 +160,10 @@ const TrackingProvider: React.FC = ({ children }) => {
     }
 
     useEffect(() => {
-
-        // Page path changed -> change value at context object
-        router.events.on('routeChangeStart', routeChangeStart)
-
         // Init all instances of trackers only on client side rendering
         if (typeof window !== 'undefined') {
+            // Page path changed -> change value at context object
+            router.events.on('routeChangeStart', routeChangeStart)
             Object.values(trackingProviderValueRef.current.trackerInstances).map(trackerInstance => trackerInstance.init())
         }
 

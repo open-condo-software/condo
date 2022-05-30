@@ -2,7 +2,11 @@ import getConfig from 'next/config'
 import { get, has, compact } from 'lodash'
 import { validate as uuidValidate } from 'uuid'
 
-export type ITrackerLogEventType = { eventName: string, eventProperties?: Record<string, unknown> }
+export type ITrackerLogEventType = {
+    eventName: string
+    eventProperties?: Record<string, unknown>
+    denyDuplicates?: boolean
+}
 
 /**
  * Abstract class representing a tracking instance library, such as amplitude.js
@@ -33,7 +37,7 @@ abstract class TrackerInstance {
 
             this.token = token
             this.configParams = configParams
-            this.allowedDomains = get(trackingConfig, 'domains')
+            this.allowedDomains = get(trackingConfig, 'domains', {})
         }
     }
 
@@ -50,41 +54,50 @@ abstract class TrackerInstance {
      * @abstract
      * @param {string} eventName - short event description
      * @param {Object} eventProperties - related properties
+     * @param {Boolean} denyDuplicates - enable check for duplicated events on eventName prop comparison
      * @return void
      */
-    abstract logEvent ({ eventName, eventProperties }: ITrackerLogEventType): void
+    abstract logEvent ({ eventName, eventProperties, denyDuplicates }: ITrackerLogEventType): void
 
     /**
      * Check for duplicated events by name and component path restrictions from app config
      * @param {Object} ITrackerLogEventType - object with eventName and eventProperties props
      * @return {boolean}
      */
-    isNeedToSendEvent ({ eventName, eventProperties }: ITrackerLogEventType): boolean {
-        if (this.prevEvent !== eventName) {
-            let hasDomainLevelPermission = false
-            this.prevEvent = eventName
-
-            if (this.allowedDomains) {
-                const route = compact<string>(get(eventProperties, ['page', 'path'], '').split('/'))
-
-                if (route.length === 1) {
-                    hasDomainLevelPermission = has(this.allowedDomains, route)
-                } else if (route.length === 2) {
-                    const currentDomainConfig = get(this.allowedDomains, route[0], []) as Array<string>
-                    const pageConfigName = uuidValidate(route[1]) ? 'id' : route[1]
-
-                    hasDomainLevelPermission = currentDomainConfig.indexOf(pageConfigName) !== -1
-                } else if (route.length === 3) {
-                    const currentDomainConfig = get(this.allowedDomains, route[0], []) as Array<string>
-
-                    hasDomainLevelPermission = currentDomainConfig.some(pageRoute => route[2].includes(pageRoute))
-                }
+    isNeedToSendEvent ({ eventName, eventProperties, denyDuplicates = false }: ITrackerLogEventType): boolean {
+        let permission = false
+        if (denyDuplicates) {
+            if (this.prevEvent !== eventName) {
+                this.prevEvent = eventName
+                permission = this._isNeedToSendEvent(eventProperties)
             }
-
-            return Boolean(this.instance) && Boolean(this.token) && hasDomainLevelPermission
+        } else {
+            permission = this._isNeedToSendEvent(eventProperties)
         }
 
-        return false
+        return permission
+    }
+
+    private _isNeedToSendEvent ( eventProperties: Pick<ITrackerLogEventType, 'eventProperties'>): boolean  {
+        let hasDomainLevelPermission = false
+        if (this.allowedDomains) {
+            const route = compact<string>(get(eventProperties, ['page', 'path'], '').split('/'))
+
+            if (route.length === 1) {
+                hasDomainLevelPermission = Object.keys(this.allowedDomains).some(pageRoute => route[0].includes(pageRoute))
+            } else if (route.length === 2) {
+                const currentDomainConfig = get(this.allowedDomains, route[0], []) as Array<string>
+                const pageConfigName = uuidValidate(route[1]) ? 'id' : route[1]
+
+                hasDomainLevelPermission = currentDomainConfig.indexOf(pageConfigName) !== -1
+            } else if (route.length === 3) {
+                const currentDomainConfig = get(this.allowedDomains, route[0], []) as Array<string>
+
+                hasDomainLevelPermission = currentDomainConfig.some(pageRoute => route[2].includes(pageRoute))
+            }
+        }
+
+        return Boolean(this.instance) && Boolean(this.token) && hasDomainLevelPermission
     }
 }
 

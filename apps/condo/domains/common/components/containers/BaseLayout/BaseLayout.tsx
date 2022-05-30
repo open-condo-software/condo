@@ -66,7 +66,7 @@ const PageWrapper: FunctionComponent<IPageWrapperProps> = (props) => {
 
     useEffect(() => {
         const eventName = getEventName(TrackingEventType.Visit)
-        logEvent({ eventName })
+        logEvent({ eventName, denyDuplicates: true })
     }, [])
 
     return (
