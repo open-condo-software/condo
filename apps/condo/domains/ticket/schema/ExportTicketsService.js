@@ -1,5 +1,7 @@
 const dayjs = require('dayjs')
 const map = require('lodash/map')
+const get = require('lodash/get')
+const flatten = require('lodash/flatten')
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 
@@ -50,6 +52,17 @@ const renderComment = (comment, locale) => {
     return `${createdAt}, ${createdBy} (${userType}): ${content ? `«${content}»` : ''} ${filesCountToRender}`
 }
 
+function findAllByKey (obj, keyToFind) {
+    return Object.entries(obj)
+        .reduce((acc, [key, value]) => (key === keyToFind)
+            ? acc.concat(value)
+            : (typeof value === 'object' && value)
+                ? acc.concat(findAllByKey(value, keyToFind))
+                : acc
+        , [])
+}
+
+
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
 const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
     types: [
@@ -78,6 +91,13 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
                     [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
                 }
+
+                const createdAtGte = get(findAllByKey(where, 'createdAt_gte'), 0)
+                const createdAtLte = get(findAllByKey(where, 'createdAt_lte'), 0)
+
+                let headerMessage = i18n('excelExport.header.tickets.forAllTime', { locale })
+                if (createdAtGte && createdAtLte)
+                    headerMessage = `${i18n('excelExport.header.tickets.forPeriod')} ${dayjs(createdAtGte).format('DD.MM.YYYY')} — ${dayjs(createdAtLte).format('DD.MM.YYYY')}`
 
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
                 if (allTickets.length === 0) {
@@ -140,6 +160,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     fileName: `tickets_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
                     replaces: {
+                        header: headerMessage,
                         tickets: excelRows,
                         i18n: {
                             ...getHeadersTranslations(EXPORT_TYPE_TICKETS, locale),
