@@ -31,8 +31,8 @@ describe('ServiceSubscription', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
 
-            const unitsCount = faker.datatype.number()
-            const unitPrice = faker.datatype.float({ precision: 0.01 }).toString()
+            const unitsCount = faker.datatype.number({ min: 1 })
+            const unitPrice = faker.datatype.float({ precision: 0.01 })
             const totalPrice = (unitPrice * unitsCount).toString()
             const wrongValues = {
                 isTrial: true,

@@ -20,7 +20,10 @@ describe('ServiceSubscriptionPayment', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
 
-            const [subscription] = await createTestServiceSubscription(adminClient, organization)
+            const [subscription] = await createTestServiceSubscription(adminClient, organization, {
+                unitsCount: 1,
+                unitPrice: '100',
+            })
 
             const wrongAttrs = {
                 amount: String(-100.05),
@@ -122,20 +125,22 @@ describe('ServiceSubscriptionPayment', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(adminClient)
             const [subscription] = await createTestServiceSubscription(adminClient, organization)
-            const [obj, attrs] = await createTestServiceSubscriptionPayment(adminClient, organization, subscription)
+            const [payment, attrs] = await createTestServiceSubscriptionPayment(adminClient, organization, subscription)
 
             const objs = await ServiceSubscriptionPayment.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs.length >= 1).toBeTruthy()
-            expect(objs[0].id).toMatch(obj.id)
-            expect(objs[0].dv).toEqual(1)
-            expect(objs[0].sender).toEqual(attrs.sender)
-            expect(objs[0].v).toEqual(1)
-            expect(objs[0].newId).toEqual(null)
-            expect(objs[0].deletedAt).toEqual(null)
-            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-            expect(objs[0].createdAt).toMatch(obj.createdAt)
-            expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+            const obj = objs.find(x => x.id === payment.id)
+            expect(obj.id).toMatch(payment.id)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(obj.createdAt).toMatch(payment.createdAt)
+            expect(obj.updatedAt).toMatch(payment.updatedAt)
+            expect(obj.type).toMatch('default')
         })
 
         it('can be read by user from the same organization', async () => {
