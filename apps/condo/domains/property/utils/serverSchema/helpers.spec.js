@@ -27,14 +27,13 @@ describe('helpers', () => {
             expect(getAddressUpToBuildingFrom(addressMeta)).toEqual(value)
         })
 
-        it('throws an error, if flat is presented in addressMeta without flat_type', () => {
+        it('throws an error, if flat is presented in addressMeta without flat_type', async () => {
             const withFlat = true
             const addressMeta = buildFakeAddressMeta(withFlat)
             addressMeta.data.flat_type = null
-            const { value } = addressMeta
 
-            catchErrorFrom(async () => {
-                getAddressUpToBuildingFrom(value, addressMeta)
+            await catchErrorFrom(async () => {
+                getAddressUpToBuildingFrom(addressMeta)
             }, (error) => {
                 expect(error.message).toEqual(FLAT_WITHOUT_FLAT_TYPE_MESSAGE)
             })
