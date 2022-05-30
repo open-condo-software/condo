@@ -48,13 +48,6 @@ const User = new GQLListSchema('User', {
             defaultValue: STAFF,
             isRequired: true,
         },
-        // TODO(pahaz): useless! remove it or write auth checks!
-        isActive: {
-            schemaDoc: 'Can logged in?',
-            type: Checkbox,
-            defaultValue: false,
-            access: access.canAccessToIsAdminField,
-        },
 
         isAdmin: {
             schemaDoc: 'Superuser access to service data',

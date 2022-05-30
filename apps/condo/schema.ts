@@ -36742,8 +36742,6 @@ export enum SortUserHistoryRecordsBy {
   PasswordDesc = 'password_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
-  IsActiveAsc = 'isActive_ASC',
-  IsActiveDesc = 'isActive_DESC',
   IsAdminAsc = 'isAdmin_ASC',
   IsAdminDesc = 'isAdmin_DESC',
   IsSupportAsc = 'isSupport_ASC',
@@ -36833,8 +36831,6 @@ export enum SortUsersBy {
   NameDesc = 'name_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
-  IsActiveAsc = 'isActive_ASC',
-  IsActiveDesc = 'isActive_DESC',
   IsAdminAsc = 'isAdmin_ASC',
   IsAdminDesc = 'isAdmin_DESC',
   IsSupportAsc = 'isSupport_ASC',
@@ -44654,8 +44650,6 @@ export type User = {
   password_is_set?: Maybe<Scalars['Boolean']>;
   /**  Field that allows you to distinguish CRM users from mobile app users  */
   type?: Maybe<UserTypeType>;
-  /**  Can logged in?  */
-  isActive?: Maybe<Scalars['Boolean']>;
   /**  Superuser access to service data  */
   isAdmin?: Maybe<Scalars['Boolean']>;
   /**  Can access to "/admin/" panel. And do support tasks  */
@@ -44700,7 +44694,6 @@ export type UserCreateInput = {
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<UserTypeType>;
-  isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
@@ -44737,7 +44730,6 @@ export type UserHistoryRecord = {
   hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
-  isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
@@ -44768,7 +44760,6 @@ export type UserHistoryRecordCreateInput = {
   hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
-  isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
@@ -44804,7 +44795,6 @@ export type UserHistoryRecordUpdateInput = {
   hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
-  isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
@@ -44900,8 +44890,6 @@ export type UserHistoryRecordWhereInput = {
   type_not_ends_with_i?: Maybe<Scalars['String']>;
   type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isActive?: Maybe<Scalars['Boolean']>;
-  isActive_not?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isAdmin_not?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
@@ -45441,7 +45429,6 @@ export type UserUpdateInput = {
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<UserTypeType>;
-  isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
@@ -45499,8 +45486,6 @@ export type UserWhereInput = {
   type_not?: Maybe<UserTypeType>;
   type_in?: Maybe<Array<Maybe<UserTypeType>>>;
   type_not_in?: Maybe<Array<Maybe<UserTypeType>>>;
-  isActive?: Maybe<Scalars['Boolean']>;
-  isActive_not?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isAdmin_not?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;

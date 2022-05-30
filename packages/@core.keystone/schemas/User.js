@@ -39,8 +39,6 @@ const User = new GQLListSchema('User', {
         name: {
             type: Text,
         },
-        // TODO(pahaz): check is active on login!
-        isActive: { type: Checkbox, defaultValue: true },
         password: {
             type: Password,
             access: {
@@ -53,8 +51,7 @@ const User = new GQLListSchema('User', {
         },
     },
     access: {
-        // read: access.userIsAdminOrOwner,
-        read: access.canReadOnlyActive,
+        read: access.userIsAdminOrOwner,
         create: access.userIsAdmin,
         update: access.userIsAdminOrIsThisItem,
         delete: access.userIsAdmin,
@@ -65,7 +62,7 @@ const User = new GQLListSchema('User', {
         defaultPageSize: 50,
         maximumPageSize: 200,
         defaultSort: 'email',
-        defaultColumns: 'avatar, name, email, isAdmin, isActive',
+        defaultColumns: 'avatar, name, email, isAdmin',
         // defaultSort: 'name',
     },
 })
