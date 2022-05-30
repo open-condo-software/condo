@@ -2,13 +2,15 @@ const axios = require('axios').default
 const pino = require('pino')
 const falsey = require('falsey')
 const { get } = require('lodash')
+
 const conf = require('@core/config')
-const { Organization, OrganizationEmployee } = require('../../gql')
-const { OrganizationEmployeeRole } = require('./index')
-const { execGqlWithoutAccess } = require('./utils')
 const { getById } = require('@core/keystone/schema')
-const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common')
-const { SBBOL_FINGERPRINT_NAME } = require('@condo/domains/organization/integrations/sbbol/common')
+const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+
+const { OrganizationEmployeeRole } = require('./index')
+const { Organization, OrganizationEmployee } = require('../../gql')
+const { DEFAULT_ROLES } = require('../../constants/common')
+const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/common')
 
 const logger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOGGING) })
 const SALES_CRM_WEBHOOKS_URL = (conf.SALES_CRM_WEBHOOKS_URL) ? JSON.parse(conf.SALES_CRM_WEBHOOKS_URL) : null
@@ -53,7 +55,7 @@ async function createDefaultRoles (context, organization, data) {
             organization: { connect: { id: organization.id } },
             ...roleInfo,
             ...data,
-        }).then(x => ({ [roleId]: x }))
+        }).then(x => ({ [roleId]: x })),
     ))
     return roles.reduce((prev, curr) => ({ ...prev, ...curr }))
 }
@@ -98,7 +100,6 @@ async function findOrganizationEmployee (context, query) {
     })
 }
 
-
 async function pushOrganizationToSalesCRM (organization) {
     if (!SALES_CRM_WEBHOOKS_URL) {
         logger.error({ message: 'Unable to pushOrganizationToSalesCRM, because variable SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', SALES_CRM_WEBHOOKS_URL })
@@ -108,7 +109,7 @@ async function pushOrganizationToSalesCRM (organization) {
     const fingerprint = get(organization, ['sender', 'fingerprint'])
     const { phone: userPhone, name: userName, email } = await getById('User', createdBy.id)
     try {
-        const data =  {
+        const data = {
             orgName,
             userName,
             userPhone,
@@ -118,8 +119,7 @@ async function pushOrganizationToSalesCRM (organization) {
         }
         await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, data)
         logger.info({ message: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
-    }
-    catch (error) {
+    } catch (error) {
         logger.warn({ message: 'Request to sales crm failed', error })
     }
 }
@@ -136,8 +136,7 @@ async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt
             finishAt,
             isTrial,
         })
-    }
-    catch (error) {
+    } catch (error) {
         logger.warn({ message: 'Request to sales crm failed', error })
     }
 }
