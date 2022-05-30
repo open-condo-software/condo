@@ -56,7 +56,7 @@ async function getOrCreateContact (context, resolvedData) {
     const dv = get(resolvedData, 'dv')
     const sender = get(resolvedData, 'sender')
 
-    return Contact.create(context, {
+    return await Contact.create(context, {
         dv,
         sender,
         organization: { connect: { id: organizationId } },
