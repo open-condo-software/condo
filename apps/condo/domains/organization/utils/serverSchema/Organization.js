@@ -2,7 +2,7 @@ const axios = require('axios').default
 const pino = require('pino')
 const falsey = require('falsey')
 const { get } = require('lodash')
-const config = require('@core/config')
+const conf = require('@core/config')
 const { Organization, OrganizationEmployee } = require('../../gql')
 const { OrganizationEmployeeRole } = require('./index')
 const { execGqlWithoutAccess } = require('./utils')
@@ -11,7 +11,7 @@ const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common'
 const { SBBOL_FINGERPRINT_NAME } = require('@condo/domains/organization/integrations/sbbol/common')
 
 const logger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOGGING) })
-const SALES_CRM_WEBHOOKS_URL = (config.SALES_CRM_WEBHOOKS_URL) ? JSON.parse(config.SALES_CRM_WEBHOOKS_URL) : null
+const SALES_CRM_WEBHOOKS_URL = (conf.SALES_CRM_WEBHOOKS_URL) ? JSON.parse(conf.SALES_CRM_WEBHOOKS_URL) : null
 if (SALES_CRM_WEBHOOKS_URL && !SALES_CRM_WEBHOOKS_URL.subscriptions && !SALES_CRM_WEBHOOKS_URL.organizations) {
     throw new Error('Wrong SALES_CRM_WEBHOOKS_URL value')
 }

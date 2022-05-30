@@ -10,12 +10,13 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
 
-const { keystone } = require('../../../../../index')
+const index = require('@app/condo/index')
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { syncOrganization } = require('./syncOrganization')
 
 describe('syncOrganization from SBBOL', () => {
-    setFakeClientMode(require.resolve('../../../../../index'))
+    const { keystone } = index
+    setFakeClientMode(index)
 
     describe('Organization not exists', () => {
 

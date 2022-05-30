@@ -1,6 +1,6 @@
 const faker = require('faker')
 const { print } = require('graphql')
-const { get } = require('lodash')
+const { get, isEmpty } = require('lodash')
 
 const conf = require('@core/config')
 const { normalizeQuery } = require('../GraphQLLoggerApp')
@@ -21,10 +21,11 @@ function _contextToString (context) {
 
 function throwIfError (data, errors, context = {}) {
     if (errors) {
-        if (IS_DEBUG && errors.some(e => e.originalError.data || e.originalError.internalData)) {
-            errors.forEach((e) => console.warn(e.originalError.data, '\n', e.originalError.internalData))
+        if (IS_DEBUG) {
+            const errorsToShow = errors.filter(error => get(error, 'originalError.data') || get(error, 'originalError.internalData'))
+            if (!isEmpty(errorsToShow)) errorsToShow.forEach((error) => console.warn(get(error, 'originalError.data'), '\n', get(error, 'originalError.internalData')))
+            console.error(errors)
         }
-        if (IS_DEBUG) console.error(errors)
         const err = new Error(`TestRequestError: ${JSON.stringify(errors, null, 2)}\n\n${_contextToString(context)}`)
         err.errors = errors
         err.data = data

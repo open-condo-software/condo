@@ -1,4 +1,4 @@
-const { pickBy, get } = require('lodash')
+const { pickBy, get, isEmpty } = require('lodash')
 
 const conf = require('@core/config')
 const { getById } = require('@core/keystone/schema')
@@ -9,10 +9,11 @@ const isNotUndefined = (x) => typeof x !== 'undefined'
 
 function _throwIfError (context, errors, data, errorMessage) {
     if (errors) {
-        if (errors.some(e => e.originalError && e.originalError.data)) {
-            if (IS_DEBUG) console.warn(errors.map((err) => (err.originalError && err.originalError.data)))
+        if (IS_DEBUG) {
+            const errorsToShow = errors.filter(error => get(error, 'originalError.data') || get(error, 'originalError.internalData'))
+            if (!isEmpty(errorsToShow)) errorsToShow.forEach((error) => console.warn(get(error, 'originalError.data'), '\n', get(error, 'originalError.internalData')))
+            console.error(errors)
         }
-        if (IS_DEBUG) console.error(errors)
         // NOTE(pahaz): we will see this results in production at the ApolloErrorFormatter
         const error = new Error(errorMessage)
         error.errors = errors
@@ -25,7 +26,7 @@ function _throwIfError (context, errors, data, errorMessage) {
 }
 
 async function execGqlAsUser (context, user, { query, variables, errorMessage = '[error] Internal Exec as user GQL Error', authedListKey = 'User', dataPath = 'obj' }) {
-    if (!context) throw new Error('wrong context argument')
+    if (!context) throw new Error('missing context argument')
     if (!context.executeGraphQL) throw new Error('wrong context argument: no executeGraphQL')
     if (!context.createContext) throw new Error('wrong context argument: no createContext')
     if (!user) throw new Error('wrong user argument')
@@ -51,7 +52,7 @@ async function execGqlAsUser (context, user, { query, variables, errorMessage = 
 }
 
 async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
-    if (!context) throw new Error('wrong context argument')
+    if (!context) throw new Error('missing context argument')
     if (!context.executeGraphQL) throw new Error('wrong context argument: no executeGraphQL')
     if (!context.createContext) throw new Error('wrong context argument: no createContext')
     if (!query) throw new Error('wrong query argument')
