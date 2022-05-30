@@ -6,19 +6,29 @@
 const faker = require('faker')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require ('@condo/domains/common/constants/countries')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require ('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient } = require ('@core/keystone/test.utils')
+const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const {
     Organization: OrganizationGQL,
     OrganizationEmployee: OrganizationEmployeeGQL,
-    OrganizationEmployeeRole: OrganizationEmployeeRoleGQL
+    OrganizationEmployeeRole: OrganizationEmployeeRoleGQL,
 } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { TokenSet: TokenSetGQL } = require('@condo/domains/organization/gql')
+
+const {
+    registerNewOrganization,
+    createOrganizationEmployee,
+    inviteNewOrganizationEmployee,
+    reInviteNewOrganizationEmployee,
+    acceptOrRejectOrganizationInviteById,
+    acceptOrRejectOrganizationInviteByCode,
+    makeClientWithRegisteredOrganization,
+} = require('./Organization')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -26,6 +36,7 @@ const Organization = generateGQLTestUtils(OrganizationGQL)
 const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 const TokenSet = generateGQLTestUtils(TokenSetGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -35,12 +46,12 @@ const TokenSet = generateGQLTestUtils(TokenSetGQL)
  * @returns {Promise<({data: *, errors: *}|*|{country: (*|string), dv: number, sender: {dv: number, fingerprint: *}, meta: {zipCode: *, number: *, country: (*|string), dv: number, city, street: *, inn: (*), kpp: *}, name: *, description: *})[]>}
  */
 async function createTestOrganization (client, extraAttrs = {}) {
-    if (!client) throw new Error ('no client')
+    if (!client) throw new Error('no client')
 
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric (8) }
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const country = DEFAULT_ENGLISH_COUNTRY
-    const name = faker.company.companyName ()
-    const description = faker.company.catchPhrase ()
+    const name = faker.company.companyName()
+    const description = faker.company.catchPhrase()
     const meta = {
         dv: 1,
         inn: faker.random.alphaNumeric(10),
@@ -226,7 +237,7 @@ async function createTestOrganizationWithAccessToAnotherOrganization () {
     }
 }
 
-async function makeEmployeeUserClientWithAbilities (abilities = {}, accepted=true) {
+async function makeEmployeeUserClientWithAbilities (abilities = {}, accepted = true) {
     const adminClient = await makeLoggedInAdminClient()
     const userClient = await makeClientWithProperty()
     const [organization] = await createTestOrganization(adminClient)
@@ -292,6 +303,13 @@ module.exports = {
     updateTestOrganizationEmployee, createTestOrganizationWithAccessToAnotherOrganization,
     OrganizationLink, createTestOrganizationLink, updateTestOrganizationLink,
     makeEmployeeUserClientWithAbilities,
+    registerNewOrganization,
+    createOrganizationEmployee,
+    inviteNewOrganizationEmployee,
+    reInviteNewOrganizationEmployee,
+    acceptOrRejectOrganizationInviteById,
+    acceptOrRejectOrganizationInviteByCode,
+    makeClientWithRegisteredOrganization,
     TokenSet, createTestTokenSet, updateTestTokenSet,
-}
 /* AUTOGENERATE MARKER <EXPORTS> */
+}

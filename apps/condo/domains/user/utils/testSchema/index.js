@@ -252,7 +252,7 @@ async function signinAsUserByTestClient(client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(SIGNIN_AS_USER_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: SIGNIN_AS_USER_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -266,7 +266,7 @@ async function resetUserByTestClient(client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(RESET_USER_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: RESET_USER_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -287,7 +287,7 @@ async function registerNewServiceUserByTestClient(client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_NEW_SERVICE_USER_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: REGISTER_NEW_SERVICE_USER_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -301,7 +301,7 @@ async function supportSendMessageToSupportByTestClient (client, extraAttrs = {})
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(SEND_MESSAGE_TO_SUPPORT_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: SEND_MESSAGE_TO_SUPPORT_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -312,7 +312,7 @@ async function completeConfirmPhoneActionByTestClient (client, extraAttrs = {}) 
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: COMPLETE_CONFIRM_PHONE_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */

@@ -43,6 +43,23 @@ const GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY = gql`
     }
 `
 
+// Since field `inviteCode` is not exposed for OrganizationEmployee, we need to query it directly
+const GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY = gql`
+    query getOrganizationEmployeeByIdWithInviteCode (
+        $id: ID!
+    ) {
+        objs: allOrganizationEmployees(
+            where: {
+                id: $id
+            }
+            first: 1
+        ) {
+            id
+            inviteCode
+        }
+    }
+`
+
 const REGISTER_NEW_ORGANIZATION_MUTATION = gql`
     mutation registerNewOrganization($data: RegisterNewOrganizationInput!) {
         obj: registerNewOrganization(data: $data) ${ORGANIZATION_FIELDS}
@@ -87,6 +104,7 @@ module.exports = {
     GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
     UPDATE_ORGANIZATION_BY_ID_MUTATION,
     GET_ALL_EMPLOYEE_ORGANIZATIONS_QUERY,
+    GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY,
     REGISTER_NEW_ORGANIZATION_MUTATION,
     REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,

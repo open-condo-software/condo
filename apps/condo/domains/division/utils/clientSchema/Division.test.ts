@@ -14,7 +14,7 @@ describe('convertToGQLInput', () => {
         describe('single-relationship', () => {
             it('connects id of object, presented in form values', () => {
                 const formValues = {
-                    responsible: faker.random.uuid(),
+                    responsible: faker.datatype.uuid(),
                 }
                 const input = convertToGQLInput(formValues)
                 expect(input).toMatchObject({
@@ -29,8 +29,8 @@ describe('convertToGQLInput', () => {
             it('connects ids of objects, presented in form values', () => {
                 const formValues = {
                     properties: [
-                        faker.random.uuid(),
-                        faker.random.uuid(),
+                        faker.datatype.uuid(),
+                        faker.datatype.uuid(),
                     ],
                 }
                 const input = convertToGQLInput(formValues)
@@ -56,11 +56,11 @@ describe('convertToGQLInput', () => {
         test('all together', async () => {
             const formValues = {
                 name: faker.lorem.word(),
-                responsible: faker.random.uuid(),
+                responsible: faker.datatype.uuid(),
                 executors: [],
                 properties: [
-                    faker.random.uuid(),
-                    faker.random.uuid(),
+                    faker.datatype.uuid(),
+                    faker.datatype.uuid(),
                 ],
             }
             const input = convertToGQLInput(formValues)
@@ -84,17 +84,17 @@ describe('convertToGQLInput', () => {
         describe('single-relationship', () => {
             it('connects id of another object', async () => {
                 const someObligatoryFields = {
-                    id:  faker.random.uuid(),
+                    id:  faker.datatype.uuid(),
                     name: faker.lorem.word(),
                     properties: [],
                     executors: [],
                 }
                 const existingObj = {
                     ...someObligatoryFields,
-                    responsible: faker.random.uuid(),
+                    responsible: faker.datatype.uuid(),
                 }
                 const formValues = {
-                    responsible: faker.random.uuid(),
+                    responsible: faker.datatype.uuid(),
                 }
                 const input = convertToGQLInput(formValues, existingObj)
                 expect(input).toMatchObject({
@@ -106,14 +106,14 @@ describe('convertToGQLInput', () => {
 
             it('adds `disconnectAll` field if no id of object is specified', async () => {
                 const someObligatoryFields = {
-                    id:  faker.random.uuid(),
+                    id:  faker.datatype.uuid(),
                     name: faker.lorem.word(),
                     properties: [],
                     executors: [],
                 }
                 const existingObj = {
                     ...someObligatoryFields,
-                    responsible: faker.random.uuid(),
+                    responsible: faker.datatype.uuid(),
                 }
                 const formValues = {
                     responsible: null,
@@ -130,23 +130,23 @@ describe('convertToGQLInput', () => {
         describe('many-relationship', () => {
             it('connects ids, presented in form values but missing in existing object', () => {
                 const someObligatoryFields = {
-                    id:  faker.random.uuid(),
+                    id:  faker.datatype.uuid(),
                     name: faker.lorem.word(),
-                    responsible: faker.random.uuid(),
+                    responsible: faker.datatype.uuid(),
                     executors: [],
                 }
                 const existingObj = {
                     ...someObligatoryFields,
                     properties: [
-                        { id: faker.random.uuid() },
-                        { id: faker.random.uuid() },
+                        { id: faker.datatype.uuid() },
+                        { id: faker.datatype.uuid() },
                     ],
                 }
                 const formValues = {
                     properties: [
                         existingObj.properties[0].id,
                         existingObj.properties[1].id,
-                        faker.random.uuid(),
+                        faker.datatype.uuid(),
                     ],
                 }
                 const input = convertToGQLInput(formValues, existingObj)
@@ -162,21 +162,21 @@ describe('convertToGQLInput', () => {
 
             it('disconnects ids, missing in form values but presented in existing object', () => {
                 const someObligatoryFields = {
-                    id:  faker.random.uuid(),
+                    id:  faker.datatype.uuid(),
                     name: faker.lorem.word(),
-                    responsible: faker.random.uuid(),
+                    responsible: faker.datatype.uuid(),
                     executors: [],
                 }
                 const existingObj = {
                     ...someObligatoryFields,
                     properties: [
-                        { id: faker.random.uuid() },
-                        { id: faker.random.uuid() },
+                        { id: faker.datatype.uuid() },
+                        { id: faker.datatype.uuid() },
                     ],
                 }
                 const formValues = {
                     name: faker.lorem.word(),
-                    responsible: faker.random.uuid(),
+                    responsible: faker.datatype.uuid(),
                     properties: [],
                 }
                 const input = convertToGQLInput(formValues, existingObj)
@@ -194,22 +194,22 @@ describe('convertToGQLInput', () => {
 
         test('all together', () => {
             const existingObj = {
-                id:  faker.random.uuid(),
+                id:  faker.datatype.uuid(),
                 name: faker.lorem.word(),
-                responsible: faker.random.uuid(),
+                responsible: faker.datatype.uuid(),
                 executors: [],
                 properties: [
-                    { id: faker.random.uuid() },
-                    { id: faker.random.uuid() },
+                    { id: faker.datatype.uuid() },
+                    { id: faker.datatype.uuid() },
                 ],
             }
             const formValues = {
                 name: faker.lorem.word(),
-                responsible: faker.random.uuid(),
+                responsible: faker.datatype.uuid(),
                 properties: [
                     existingObj.properties[1].id,
-                    faker.random.uuid(),
-                    faker.random.uuid(),
+                    faker.datatype.uuid(),
+                    faker.datatype.uuid(),
                 ],
             }
             const input = convertToGQLInput(formValues, existingObj)
