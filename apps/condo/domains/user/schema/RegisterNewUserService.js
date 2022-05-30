@@ -4,7 +4,7 @@ const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { ConfirmPhoneAction: ConfirmPhoneActionServerUtils, User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
+const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -71,8 +71,8 @@ const errors = {
 }
 
 async function ensureNotExists (context, field, value) {
-    const existed = await UserServerUtils.getAll(context, { [field]: value, type: STAFF })
-    if (existed.length !== 0) {
+    const existed = await User.getOne(context, { [field]: value, type: STAFF })
+    if (existed) {
         throw new GQLError({
             phone: errors.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS,
             email: errors.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS,
@@ -85,7 +85,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
     types: [
         {
             access: true,
-            type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, name: String!, email: String, password: String!, confirmPhoneActionToken: String, phone: String, meta: JSON }',
+            type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, name: String!, password: String!, confirmPhoneActionToken: String, email: String, phone: String, meta: JSON }',
         },
     ],
     mutations: [
@@ -107,7 +107,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
                 let confirmPhoneActionId = null
                 if (confirmPhoneActionToken) {
-                    const [action] = await ConfirmPhoneActionServerUtils.getAll(context,
+                    const action = await ConfirmPhoneAction.getOne(context,
                         {
                             token: confirmPhoneActionToken,
                             completedAt: null,
@@ -133,29 +133,9 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 if (userData.password.length < MIN_PASSWORD_LENGTH) {
                     throw new GQLError(errors.PASSWORD_IS_TOO_SHORT, context)
                 }
-                // TODO(zuch): fix bug when user can not be created because of createAt and updatedAt fields
-                // const user = await UserServerUtils.create(context, userData)
-                const { data: { result: user }, errors: createErrors } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
-                        mutation create($data: UserCreateInput!) {
-                          result: createUser(data: $data) {
-                            id
-                            name
-                            email
-                            isAdmin
-                            isActive
-                          }
-                        }
-                    `,
-                    variables: { data: userData },
-                })
-                if (createErrors) {
-                    throw new GQLError(errors.UNABLE_TO_CREATE_USER, context)
-                }
-                // end of TODO
+                const user = await User.create(context, userData)
                 if (confirmPhoneActionToken) {
-                    await ConfirmPhoneActionServerUtils.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
+                    await ConfirmPhoneAction.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
                 }
                 const sendChannels = [{
                     to: { phone: userData.phone },
