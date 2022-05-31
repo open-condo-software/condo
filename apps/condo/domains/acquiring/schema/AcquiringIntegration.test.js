@@ -194,8 +194,8 @@ describe('AcquiringIntegration', () => {
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegration(admin, [billingIntegration], {
                     dv: 2,
-                }, DV_UNKNOWN_VERSION_ERROR)
-            })
+                })
+            }, DV_UNKNOWN_VERSION_ERROR)
             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
             await expectToThrowValidationFailureError(async () => {
                 await updateTestAcquiringIntegration(admin, integration.id, {

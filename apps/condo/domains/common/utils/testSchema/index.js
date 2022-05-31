@@ -173,7 +173,8 @@ const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
  * @param {TestFunc} testFunc - Function, expected to throw an error
  * @return {Promise<void>}
  */
-const expectToThrowAuthenticationError = async (testFunc, path = 'objs') => {
+const expectToThrowAuthenticationError = async (testFunc, path) => {
+    if (!path) throw new Error('expectToThrowAccessDeniedError(): no path argument')
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
@@ -202,7 +203,8 @@ const expectToThrowAuthenticationErrorToResult = async (testFunc) => {
     await expectToThrowAuthenticationError(testFunc, 'result')
 }
 
-const expectToThrowValidationFailureError = async (testFunc, messageContains = undefined, path = 'obj') => {
+const expectToThrowValidationFailureError = async (testFunc, messageContains, path = 'obj') => {
+    if (!messageContains) throw new Error('expectToThrowValidationFailureError(): no message argument')
     await catchErrorFrom(testFunc, ({ errors }) => {
         expect(errors[0]).toMatchObject({
             message: 'You attempted to perform an invalid mutation',
