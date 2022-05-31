@@ -7,7 +7,7 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 
-const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+const { Meter, MeterResource } = require('@condo/domains/meter/utils/serverSchema')
 
 const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -179,30 +179,46 @@ const getOrganizationLang = async (context, id) => {
     return get(COUNTRIES, get(organization, 'country.locale'), DEFAULT_LOCALE)
 }
 
-const generateReminderMessages = async ({ context, reminderWindowSize, reminders }) => {
+const generateReminderMessages = async ({ context, reminders }) => {
     const messages = []
     await Promise.all(reminders.map(async (reminder) => {
         const { meter, residents } = reminder
         const lang = await getOrganizationLang(context, meter.organization.id)
+
+        // get context for specific locale
+        const localeDependedContext = {
+            ...context.createContext({ skipAccessControl: true }),
+            req: { locale: lang },
+        }
+
+        // get list of meter resources for certain locale
+        const localizedResources = await MeterResource.getAll(localeDependedContext, {})
+
         // prepare a message for each resident
         messages.push(
-            ...residents.map(resident => ({
-                sender: { dv: 1, fingerprint: 'meters-validation-date-cron-push' },
-                to: { user: { id: resident.user.id } },
-                type: METER_VERIFICATION_DATE_REMINDER_TYPE,
-                lang,
-                meta: {
-                    dv: 1,
-                    data: {
-                        reminderDate: dayjs(meter.nextVerificationDate).locale(lang).format('D MMM'),
-                        meterId: meter.id,
-                        resource: { name: get(meter, 'resource.name', '') },
-                        userId: resident.user.id,
-                        residentId: resident.id,
-                        url: `${conf.SERVER_URL}/meter`,
+            ...residents.map(resident => {
+                const resourceId = get(meter, 'resource.id', '')
+                const localizedResource = localizedResources.find(resource => resource.id === resourceId)
+                const localizedResourceName = get(localizedResource, 'name', '')
+
+                return {
+                    sender: { dv: 1, fingerprint: 'meters-validation-date-cron-push' },
+                    to: { user: { id: resident.user.id } },
+                    type: METER_VERIFICATION_DATE_REMINDER_TYPE,
+                    lang,
+                    meta: {
+                        dv: 1,
+                        data: {
+                            reminderDate: dayjs(meter.nextVerificationDate).locale(lang).format('D MMM'),
+                            meterId: meter.id,
+                            resource: { name: localizedResourceName },
+                            userId: resident.user.id,
+                            residentId: resident.id,
+                            url: `${ conf.SERVER_URL }/meter`,
+                        },
                     },
-                },
-            }))
+                }
+            })
         )
     }))
 
@@ -244,9 +260,7 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
             })
 
             // generate messages
-            const messages = await generateReminderMessages({
-                context, reminderWindowSize, reminders,
-            })
+            const messages = await generateReminderMessages({ context, reminders })
 
             // send reminders
             await sendReminders({ context, messages })
