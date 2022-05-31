@@ -9,7 +9,7 @@ const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, wa
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-    expectToThrowUserInputError,
+    expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@condo/domains/common/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
@@ -1221,22 +1221,22 @@ describe('Ticket', () => {
                 const client = await makeClientWithProperty()
                 const [property] = await createTestProperty(client, client.organization)
                 const [ticket] = await createTestTicket(client, client.organization, client.property)
-                await expectToThrowUserInputError(async () => {
+                await expectToThrowGraphQLRequestError(async () => {
                     await updateTestTicket(client, ticket.id, {
                         propertyAddress: property.address,
                     })
                 }, 'Field "propertyAddress" is not defined by type "TicketUpdateInput"')
-                await expectToThrowUserInputError(async () => {
+                await expectToThrowGraphQLRequestError(async () => {
                     await updateTestTicket(client, ticket.id, {
                         propertyAddressMeta: property.addressMeta,
                     })
                 }, 'Field "propertyAddressMeta" is not defined by type "TicketUpdateInput"')
-                await expectToThrowUserInputError(async () => {
+                await expectToThrowGraphQLRequestError(async () => {
                     await createTestTicket(client, client.organization, client.property, {
                         propertyAddress: property.address,
                     })
                 }, 'Field "propertyAddress" is not defined by type "TicketCreateInput"')
-                await expectToThrowUserInputError(async () => {
+                await expectToThrowGraphQLRequestError(async () => {
                     await createTestTicket(client, client.organization, client.property, {
                         propertyAddressMeta: property.addressMeta,
                     })
