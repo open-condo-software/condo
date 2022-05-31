@@ -6,7 +6,7 @@ const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@co
 const { disconnectUserFromDeviceByTestClient, syncDeviceByTestClient, Device: DeviceAPI } = require('@condo/domains/notification/utils/testSchema')
 
 const { getRandomTokenData } = require('../utils/testSchema/helpers')
-const { expectToThrowUserInputError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowGraphQLRequestError } = require('@condo/domains/common/utils/testSchema')
 
 describe('DisconnectUserFromDeviceService', () => {
     describe('anonymous', () => {
@@ -56,7 +56,7 @@ describe('DisconnectUserFromDeviceService', () => {
             expect(device.id).toBeDefined()
             expect(device.owner.id).toEqual(user.user.id)
 
-            await expectToThrowUserInputError(
+            await expectToThrowGraphQLRequestError(
                 async () => await disconnectUserFromDeviceByTestClient(client, { deviceId: undefined }),
                 'Field "deviceId" of required type "String!" was not provided.',
             )
@@ -111,7 +111,7 @@ describe('DisconnectUserFromDeviceService', () => {
             expect(device.id).toBeDefined()
             expect(device.owner.id).toEqual(user.user.id)
 
-            await expectToThrowUserInputError(
+            await expectToThrowGraphQLRequestError(
                 async () => await disconnectUserFromDeviceByTestClient(user1, { deviceId: undefined }),
                 'Field "deviceId" of required type "String!" was not provided.',
             )

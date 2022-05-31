@@ -12,7 +12,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowMutationError,
-    expectToThrowUserInputError,
+    expectToThrowGraphQLRequestError,
 } = require('@condo/domains/common/utils/testSchema')
 
 const { Device, createTestDevice, updateTestDevice } = require('@condo/domains/notification/utils/testSchema')
@@ -200,7 +200,7 @@ describe('Device', () => {
             const admin = await makeLoggedInAdminClient()
             const extraAttrs = { pushTransport: 'xxxxxxx' }
 
-            await expectToThrowUserInputError(
+            await expectToThrowGraphQLRequestError(
                 async () => await createTestDevice(admin, extraAttrs),
                 `got invalid value "${extraAttrs.pushTransport}" at "data.pushTransport";`,
             )

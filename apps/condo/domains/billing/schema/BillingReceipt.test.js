@@ -6,7 +6,7 @@ const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowGraphQLRequestError } = require('@condo/domains/common/utils/testSchema')
+const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowGraphQLRequestError, expectToThrowValidationFailureError, expectToThrowInternalError } = require('@condo/domains/common/utils/testSchema')
 const { updateTestResident, registerServiceConsumerByTestClient, updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -128,13 +128,10 @@ describe('BillingReceipt', () => {
                 period: '2011-02-15',
             }
 
-            await catchErrorFrom(
+            await expectToThrowValidationFailureError(
                 async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
-                ({ errors, _ }) => {
-                    expect(errors[0]).toMatchObject({
-                        'message': 'You attempted to perform an invalid mutation',
-                    })
-                })
+                'period field validation error. Period day should always equal 1',
+            )
         })
 
         test('organization integration manager: update BillingReceipt with wrong data in services', async () => {
@@ -332,12 +329,10 @@ describe('BillingReceipt', () => {
             const [billingAccount] = await createTestBillingAccount(admin, context, property)
             await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
 
-            await catchErrorFrom(async () => {
-                await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
-            }, (err) => {
-                expect(err).toBeDefined()
-                expect(err.errors[0].developerMessage).toContain('duplicate key value violates unique constraint')
-            })
+            await expectToThrowInternalError(
+                async () => await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID }),
+                'duplicate key value violates unique constraint "BillingReceipt_importId_9da6acbf_uniq"',
+            )
         })
 
         test('cannot create billing receipt with empty import id', async () => {

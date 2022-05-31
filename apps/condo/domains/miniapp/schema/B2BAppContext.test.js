@@ -18,7 +18,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-    expectToThrowUserInputError,
+    expectToThrowGraphQLRequestError,
 } = require('@condo/domains/common/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -247,12 +247,12 @@ describe('B2BAppContext', () => {
             const [context] = await createTestB2BAppContext(admin, app, organization)
             const [secondOrganization] = await registerNewOrganization(admin)
             const [secondApp] = await createTestB2BApp(admin)
-            await expectToThrowUserInputError(async () => {
+            await expectToThrowGraphQLRequestError(async () => {
                 await updateTestB2BAppContext(admin, context.id, {
                     organization: { connect: { id: secondOrganization.id  } },
                 })
             }, 'Field "organization" is not defined')
-            await expectToThrowUserInputError(async () =>{
+            await expectToThrowGraphQLRequestError(async () =>{
                 await updateTestB2BAppContext(admin, context.id, {
                     app: { connect: { id: secondApp.id } },
                 })
