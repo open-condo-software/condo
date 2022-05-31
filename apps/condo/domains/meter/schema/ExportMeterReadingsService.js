@@ -56,12 +56,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                 const { where, sortBy, timeZone: timeZoneFromUser } = args.data
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
-                const [organization] = await Organization.getAll(context, {
-                    id: where.organization.id,
-                })
-
-                const locale = organization.country || extractReqLocale(context.req) || conf.DEFAULT_LOCALE
-
+                const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
                 const meterReadings = await loadMeterReadingsForExcelExport({ where, sortBy })
 
                 if (meterReadings.length === 0) {
@@ -77,6 +72,8 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                     const source = meterReadingSources.find(meterReadingSource => meterReadingSource.id === meterReading.source)
                     const sourceName = get(source, 'name')
                     const meter = meters.find(meter => meter.id === meterReading.meter)
+                    if (!meter) return
+
                     const resource = meterResources.find(meterResource => meterResource.id === meter.resource)
                     const resourceName = get(resource, 'name')
 
@@ -90,7 +87,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                     meterReading.address = meter.property
 
                     return meterReading
-                })
+                }).filter(Boolean)
 
                 const excelRows = mappedMeterReadings.map(meterReading => {
                     const unitType = meterReading.unitType ? i18n(`pages.condo.ticket.field.unitType.${meterReading.unitType}`, { locale }) : ''
