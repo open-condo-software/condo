@@ -47,6 +47,7 @@ export enum TrackingEventType {
     Click = 'Click',
     Input = 'Input',
     Select = 'Select',
+    FollowExternalLink = 'FollowExternalLink',
 }
 
 interface IUseTracking {
@@ -199,31 +200,4 @@ export enum TrackingPageState {
     AccessError = 'AccessError',
 }
 
-interface TrackingComponentLoadEvent {
-    eventType: string
-    pageState?: TrackingPageState
-    extraEventProperties?: Record<string, number | string>
-}
-
-const TrackingComponentLoadEvent: React.FC<TrackingComponentLoadEvent> = (props) => {
-    const { children, eventType, pageState = TrackingPageState.Success, extraEventProperties = {} } = props
-    const { eventProperties, logEvent } = useTracking()
-    const pageProps = get(eventProperties, 'page', {}) as TrackingCommonEventProperties
-    useEffect(() => {
-        logEvent({ eventName: eventType, eventProperties: {
-            page: {
-                ...pageProps,
-                state: pageState,
-            },
-            ...extraEventProperties,
-        } })
-    }, [])
-
-    return (
-        <>
-            {children}
-        </>
-    )
-}
-
-export { useTracking, TrackingProvider, TrackingComponentLoadEvent }
+export { useTracking, TrackingProvider }

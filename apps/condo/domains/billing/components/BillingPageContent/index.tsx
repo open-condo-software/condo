@@ -7,9 +7,8 @@ import {
     CONTEXT_IN_PROGRESS_STATUS,
     CONTEXT_ERROR_STATUS,
 } from '@condo/domains/miniapp/constants'
-import { BILLING_TRACKING_EVENTS } from '@condo/domains/billing/constants/constants'
 import { ApolloError } from '@apollo/client'
-import { TrackingComponentLoadEvent, TrackingPageState } from '@condo/domains/common/components/TrackingContext'
+import { TrackingPageState } from '@condo/domains/common/components/TrackingContext'
 import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'
 
