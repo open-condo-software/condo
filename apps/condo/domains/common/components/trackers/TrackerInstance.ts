@@ -1,5 +1,5 @@
 import getConfig from 'next/config'
-import { get, has, compact } from 'lodash'
+import { get, compact } from 'lodash'
 import { validate as uuidValidate } from 'uuid'
 
 export type ITrackerLogEventType = {
@@ -23,9 +23,9 @@ abstract class TrackerInstance {
     protected instance = null
     private prevEvent: string
 
-    protected constructor (instanceName: string) {
+    protected constructor (instanceName: string, localConfig?: Record<string, unknown>) {
         this.instanceName = instanceName
-        const config = getConfig()
+        const config = localConfig ? localConfig : getConfig()
         const trackingConfig = get(config, 'publicRuntimeConfig.trackingConfig')
 
         if (trackingConfig) {
