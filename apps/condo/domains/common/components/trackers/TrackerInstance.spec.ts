@@ -1,0 +1,133 @@
+import TrackerInstance, { ITrackerLogEventType } from './TrackerInstance'
+import faker from 'faker'
+
+const TRACKER_DOMAIN = faker.datatype.string()
+const TRACKER_DOMAIN_PAGES = ['id', 'about', 'create', 'update']
+const TRACKER_INSTANCE_NAME = faker.datatype.string()
+
+const TRACKING_CONFIG = {
+    domains: {
+        [TRACKER_DOMAIN]: TRACKER_DOMAIN_PAGES,
+    },
+    trackers: {
+        [TRACKER_INSTANCE_NAME]: {
+            token: faker.datatype.string(),
+            config: {},
+        },
+    },
+}
+
+class MockTracker extends TrackerInstance {
+    constructor (instanceName: string, localConfig?: Record<string, unknown>) {
+        const config = {
+            publicRuntimeConfig: { trackingConfig: localConfig },
+        }
+        super(instanceName, config)
+    }
+    init (): void {
+        this.instance = {}
+    }
+
+    logEvent ({ eventName, eventProperties, denyDuplicates }: ITrackerLogEventType): void {
+        void 0
+    }
+}
+
+describe('TrackerInstance', () => {
+    describe('isNeedToSendEvent', () => {
+        describe('Restrict sending events', () => {
+            it('without config provided', () => {
+                const eventName = faker.datatype.string()
+                const trackerInstance = new MockTracker(TRACKER_INSTANCE_NAME)
+
+                expect(trackerInstance.isNeedToSendEvent({
+                    eventName,
+                })).toBeFalsy()
+            })
+
+            it('without token', () => {
+                const notAllowedTracker = faker.datatype.string()
+                const trackerInstance = new MockTracker(notAllowedTracker, TRACKING_CONFIG)
+                const eventName = faker.datatype.string()
+
+                trackerInstance.init()
+
+                expect(trackerInstance.isNeedToSendEvent({
+                    eventName,
+                })).toBeFalsy()
+
+            })
+        })
+
+        describe('Allow sending events', () => {
+            it('when config was provided', () => {
+                const eventName = faker.datatype.string()
+                const trackerInstance = new MockTracker(TRACKER_INSTANCE_NAME, TRACKING_CONFIG)
+                trackerInstance.init()
+
+                const trackerProps: ITrackerLogEventType = {
+                    eventName,
+                    eventProperties: {
+                        page: {
+                            path: `/${TRACKER_DOMAIN}`,
+                        },
+                    },
+                }
+
+                expect(trackerInstance.isNeedToSendEvent(trackerProps)).toBeTruthy()
+            })
+
+            it('when event was sent from detail page', () => {
+                const eventName = faker.datatype.string()
+                const trackerInstance = new MockTracker(TRACKER_INSTANCE_NAME, TRACKING_CONFIG)
+                trackerInstance.init()
+
+                const trackerProps: ITrackerLogEventType = {
+                    eventName,
+                    eventProperties: {
+                        page: {
+                            path: `/${TRACKER_DOMAIN}/${faker.datatype.uuid()}`,
+                        },
+                    },
+                }
+
+                expect(trackerInstance.isNeedToSendEvent(trackerProps)).toBeTruthy()
+            })
+
+            it('when event was sent from create page', () => {
+                const eventName = faker.datatype.string()
+                const trackerInstance = new MockTracker(TRACKER_INSTANCE_NAME, TRACKING_CONFIG)
+                trackerInstance.init()
+
+                const trackerProps: ITrackerLogEventType = {
+                    eventName,
+                    eventProperties: {
+                        page: {
+                            path: `/${TRACKER_DOMAIN}/create`,
+                        },
+                    },
+                }
+
+                expect(trackerInstance.isNeedToSendEvent(trackerProps)).toBeTruthy()
+            })
+
+            it('when event was sent from update page', () => {
+                const eventName = faker.datatype.string()
+                const trackerInstance = new MockTracker(TRACKER_INSTANCE_NAME, TRACKING_CONFIG)
+                trackerInstance.init()
+
+                const trackerProps: ITrackerLogEventType = {
+                    eventName,
+                    eventProperties: {
+                        page: {
+                            path: `/${TRACKER_DOMAIN}/${faker.datatype.uuid()}/update`,
+                        },
+                    },
+                }
+
+                expect(trackerInstance.isNeedToSendEvent(trackerProps)).toBeTruthy()
+            })
+
+        })
+    })
+})
