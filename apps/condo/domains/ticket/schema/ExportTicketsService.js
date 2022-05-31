@@ -47,7 +47,7 @@ const renderComment = (comment, locale) => {
     const userType = comment.userType === RESIDENT ? i18n('Contact', { locale }) : i18n('Employee', { locale })
     const content = comment.content
     const filesCount = comment.TicketCommentFiles
-    const filesCountToRender = filesCount > 0 ? `(${i18n('excelExport.ticket.ticketCommentFilesCount', { locale })}: ${filesCount})` : ''
+    const filesCountToRender = filesCount > 0 ? `(${i18n('excelExport.tickets.ticketCommentFilesCount', { locale })}: ${filesCount})` : ''
 
     return `${createdAt}, ${createdBy} (${userType}): ${content ? `«${content}»` : ''} ${filesCountToRender}`
 }
@@ -87,6 +87,8 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const statuses = await TicketStatus.getAll(context, {})
                 const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                const YesMessage = i18n('Yes', { locale })
+                const NoMessage = i18n('No', { locale })
 
                 const reviewValueText = {
                     [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
@@ -131,11 +133,12 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         entranceName: ticket.sectionName,
                         floorName: ticket.floorName,
                         clientName: ticket.clientName,
+                        contact: ticket.contact ? i18n('excelExport.tickets.ticketFromResident', { locale }) : i18n('excelExport.tickets.ticketFromNonResident', { locale }),
                         clientPhone: ticket.clientPhone,
                         details: ticket.details,
-                        isEmergency: ticket.isEmergency ? i18n('Yes', { locale }) : i18n('No', { locale }),
-                        isWarranty: ticket.isWarranty ? i18n('Yes', { locale }) : i18n('No', { locale }),
-                        isPaid: ticket.isPaid ? i18n('Yes', { locale }) : i18n('No', { locale }),
+                        isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
+                        isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
+                        isPaid: ticket.isPaid ? YesMessage : NoMessage,
                         classifier: ticket.classifier || EMPTY_VALUE,
                         place: ticket.placeClassifier || EMPTY_VALUE,
                         category: ticket.categoryClassifier || EMPTY_VALUE,
