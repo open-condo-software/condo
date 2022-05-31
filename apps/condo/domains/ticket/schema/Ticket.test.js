@@ -394,14 +394,14 @@ describe('Ticket', () => {
             expect(readTicket.id).toEqual(ticket.id)
         })
 
-        test('resident: if no client data but with contact data, client data fills from resident', async () => {
+        test('resident: if no client data but with contact data, client data fills from contact', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const unitName = faker.random.alphaNumeric(5)
-            const { phone, email, name } = residentClient.userAttrs
+            const { phone } = residentClient.userAttrs
 
             await createTestResident(admin, residentClient.user, organization, property, {
                 unitName,
@@ -416,11 +416,11 @@ describe('Ticket', () => {
                 canReadByResident: true,
             })
 
-            const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
+            const [readTicket] = await Ticket.getAll(residentClient, { id: ticket.id })
 
-            expect(readTicket.clientPhone).toEqual(phone)
-            expect(readTicket.clientEmail).toEqual(email)
-            expect(readTicket.clientName).toEqual(name)
+            expect(readTicket.clientPhone).toEqual(contact.phone)
+            expect(readTicket.clientEmail).toEqual(contact.email)
+            expect(readTicket.clientName).toEqual(contact.name)
         })
 
         test('admin: if client data and contact data sended, client data not overwritted', async () => {
@@ -1265,7 +1265,7 @@ describe('Ticket', () => {
                 const [property] = await createTestProperty(admin, organization)
                 const unitName = faker.random.alphaNumeric(5)
                 const unitType = FLAT_UNIT_TYPE
-                const { phone, name, email } = residentClient.userAttrs
+                const { phone } = residentClient.userAttrs
 
                 await createTestResident(admin, residentClient.user, organization, property, {
                     unitName,
@@ -1285,9 +1285,6 @@ describe('Ticket', () => {
                 const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
 
                 expect(readTicket.client.id).toEqual(residentClient.user.id)
-                expect(readTicket.clientName).toEqual(name)
-                expect(readTicket.clientEmail).toEqual(email)
-                expect(readTicket.clientPhone).toEqual(phone)
             })
 
             test('should be filled automatically on ticket update if contact phone number and updated ticket address matches the resident phone number and address', async () => {
@@ -1299,7 +1296,7 @@ describe('Ticket', () => {
                 const unitName = faker.random.alphaNumeric(5)
                 const unitName1 = faker.random.alphaNumeric(5)
                 const unitType = FLAT_UNIT_TYPE
-                const { phone, name, email } = residentClient.userAttrs
+                const { phone } = residentClient.userAttrs
 
                 await createTestResident(admin, residentClient.user, organization, property, {
                     unitName,
@@ -1324,9 +1321,6 @@ describe('Ticket', () => {
                 const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
 
                 expect(readTicket.client.id).toEqual(residentClient.user.id)
-                expect(readTicket.clientName).toEqual(name)
-                expect(readTicket.clientEmail).toEqual(email)
-                expect(readTicket.clientPhone).toEqual(phone)
             })
 
             test('should be filled automatically on create resident with same contact phone and same ticket address', async () => {
@@ -1337,7 +1331,7 @@ describe('Ticket', () => {
                 const [property] = await createTestProperty(admin, organization)
                 const unitName = faker.random.alphaNumeric(5)
                 const unitType = FLAT_UNIT_TYPE
-                const { phone, name, email } = residentClient.userAttrs
+                const { phone } = residentClient.userAttrs
 
                 const [contact] = await createTestContact(admin, organization, property, {
                     phone,
@@ -1360,9 +1354,6 @@ describe('Ticket', () => {
                 await waitFor(async () => {
                     const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
                     expect(readTicket.client.id).toEqual(residentClient.user.id)
-                    expect(readTicket.clientName).toEqual(name)
-                    expect(readTicket.clientEmail).toEqual(email)
-                    expect(readTicket.clientPhone).toEqual(phone)
                 })
             })
         })

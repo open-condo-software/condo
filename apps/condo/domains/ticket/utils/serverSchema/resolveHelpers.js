@@ -133,11 +133,9 @@ async function setClientIfContactPhoneAndTicketAddressMatchesResidentFields (ope
 
     if (residentUserId) {
         const residentUser = await getById('User', residentUserId)
-
-        setClientNamePhoneEmailFieldsByDataFromUser(residentUser, resolvedData)
-    } else {
+        resolvedData.client = residentUser.id
+    } else
         resolvedData.client = null
-    }
 }
 
 module.exports = {
