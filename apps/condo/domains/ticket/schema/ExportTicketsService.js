@@ -1,7 +1,6 @@
 const dayjs = require('dayjs')
 const map = require('lodash/map')
 const get = require('lodash/get')
-const flatten = require('lodash/flatten')
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 
@@ -21,6 +20,7 @@ const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/c
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const access = require('@condo/domains/ticket/access/ExportTicketsService')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
+const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
@@ -50,16 +50,6 @@ const renderComment = (comment, locale) => {
     const filesCountToRender = filesCount > 0 ? `(${i18n('excelExport.tickets.ticketCommentFilesCount', { locale })}: ${filesCount})` : ''
 
     return `${createdAt}, ${createdBy} (${userType}): ${content ? `«${content}»` : ''} ${filesCountToRender}`
-}
-
-function findAllByKey (obj, keyToFind) {
-    return Object.entries(obj)
-        .reduce((acc, [key, value]) => (key === keyToFind)
-            ? acc.concat(value)
-            : (typeof value === 'object' && value)
-                ? acc.concat(findAllByKey(value, keyToFind))
-                : acc
-        , [])
 }
 
 const EMPTY_VALUE = '—'
