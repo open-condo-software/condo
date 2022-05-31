@@ -2,17 +2,17 @@ import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Form from 'antd/lib/form'
 import {
-    Checkbox,
     Col,
     FormInstance,
-    Input,
     Row,
-    Select,
     Tabs,
     Typography,
     Modal as DefaultModal,
     ModalProps,
 } from 'antd'
+import Input from '@condo/domains/common/components/Input'
+import Select from '@condo/domains/common/components/Select'
+import Checkbox from '@condo/domains/common/components/Checkbox'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'

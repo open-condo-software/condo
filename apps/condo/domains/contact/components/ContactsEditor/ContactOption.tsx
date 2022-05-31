@@ -1,5 +1,7 @@
 import React from 'react'
-import { Col, Input, Radio } from 'antd'
+import { Col } from 'antd'
+import Input from '@condo/domains/common/components/Input'
+import Radio from '@condo/domains/common/components/Radio'
 import { Contact as TContact } from '@condo/domains/contact/schema'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 

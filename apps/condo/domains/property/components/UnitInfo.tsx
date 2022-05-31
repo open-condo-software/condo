@@ -1,12 +1,13 @@
 import React from 'react'
 import { useIntl } from '@core/next/intl'
-import { Col, FormInstance, Input, Row } from 'antd'
+import { Col, FormInstance, Row } from 'antd'
+import Input from '@condo/domains/common/components/Input'
 import get from 'lodash/get'
 
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
-import { BuildingSection, BuildingUnitSubType, BuildingUnitType } from '@app/condo/schema'
+import { BuildingSection, BuildingUnitSubType } from '@app/condo/schema'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 

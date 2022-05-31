@@ -4,7 +4,6 @@ import {
     Dropdown,
     Form,
     FormInstance,
-    Input,
     List,
     Menu,
     Modal,
@@ -13,6 +12,7 @@ import {
     Skeleton,
     Typography,
 } from 'antd'
+import Input from '@condo/domains/common/components/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'

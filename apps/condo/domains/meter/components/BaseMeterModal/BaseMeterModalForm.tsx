@@ -1,5 +1,7 @@
-import { Col, Input, Row, Select } from 'antd'
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
+import { Col, Row } from 'antd'
+import Input from '@condo/domains/common/components/Input'
+import Select from '@condo/domains/common/components/Select'
 import { useIntl } from '@core/next/intl'
 import dayjs, { Dayjs } from 'dayjs'
 import { MeterResource } from '@app/condo/schema'

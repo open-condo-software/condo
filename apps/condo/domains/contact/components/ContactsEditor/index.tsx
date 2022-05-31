@@ -1,5 +1,6 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
-import { Col, Form, FormInstance, Input, Row, Tabs } from 'antd'
+import { Col, Form, FormInstance, Row, Tabs } from 'antd'
+import Input from '@condo/domains/common/components/Input'
 import { PlusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { useIntl } from '@core/next/intl'

@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Form, Input, Table } from 'antd'
+import { Form, Table } from 'antd'
+import Input from '@condo/domains/common/components/Input'
 
 const DEFAULT_ROW_CONTEXT = { editing: false }
 const RowFormContext = React.createContext()
