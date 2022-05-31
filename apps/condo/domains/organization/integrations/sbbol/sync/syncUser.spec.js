@@ -10,11 +10,13 @@ const { OnBoarding: OnBoardingApi } = require('@condo/domains/onboarding/utils/s
 const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
-const { keystone } = require('../../../../../index')
 const { syncUser } = require('./syncUser')
 
+const index = require('@app/condo/index')
+const { keystone } = index
+
 describe('syncUser from SBBOL', () => {
-    setFakeClientMode(require.resolve('../../../../../index'))
+    setFakeClientMode(index)
 
     describe('User with given phone does not exists', function () {
         it('should create user', async () => {

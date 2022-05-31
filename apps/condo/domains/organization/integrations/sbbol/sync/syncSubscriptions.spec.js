@@ -10,8 +10,10 @@ const { find } = require('lodash')
 const { SUBSCRIPTION_TYPE, SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
 const dayjs = require('dayjs')
 
-const index = require('@app/condo/index')
 const { syncSubscriptions } = require('./syncSubscriptions')
+
+const index = require('@app/condo/index')
+const { keystone } = index
 
 const firstInn = '7784523718'
 const secondInn = '1234567890'
@@ -36,7 +38,6 @@ jest.mock('../SbbolFintechApi', () => ({
 
 
 describe('syncSubscriptions', () => {
-    const { keystone } = index
     setFakeClientMode(index)
 
     describe('Fintech API returns active offer for current organization', () => {

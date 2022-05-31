@@ -4,8 +4,8 @@ const falsey = require('falsey')
 const { setFakeClientMode } = require('@core/keystone/test.utils')
 const { createWorker } = require('@core/keystone/tasks')
 const conf = require('@core/config')
+const index = require('@app/condo/index')
 
-const index = require('./index')
 const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
 
 jest.setTimeout(60000)
