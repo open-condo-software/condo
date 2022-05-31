@@ -8,7 +8,7 @@ const sample = require('lodash/sample')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@core/keystone/test.utils')
 
-const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
 
 const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
@@ -39,9 +39,9 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         // NOTE: give worker some time
         await waitFor(async () => {
-            const resident = await Resident.getOne(userClient, { id: userClient.id })
-            expect(get(resident, 'organization.id')).toEqual(organizationClient.organization.id)
-            expect(get(resident, 'property.id')).toEqual(property.id)
+            const resident = await Resident.getOne(userClient)
+            expect(resident.organization.id).toEqual(organizationClient.organization.id)
+            expect(resident.property.id).toEqual(property.id)
         })
     })
 
@@ -144,17 +144,17 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // Resident #1 should connect to the only non-deleted property1
         const [resident1] = await registerResidentByTestClient(userClient1, { address: addressMeta.value, addressMeta })
 
-        expect(get(resident1, 'organization.id')).toEqual(organizationClient1.organization.id)
-        expect(get(resident1, 'property.id')).toEqual(property1.id)
+        expect(resident1.organization.id).toEqual(organizationClient1.organization.id)
+        expect(resident1.property.id).toEqual(property1.id)
 
         const [property2] = await createTestProperty(organizationClient2, organizationClient2.organization, propertyPayload)
 
         // NOTE: give worker some time
         await waitFor(async () => {
-            const resident1_1 = await Resident.getOne(userClient1, { id: userClient1.id })
+            const resident1_1 = await Resident.getOne(userClient1, { id: resident1.id })
             // after property2 registration resident1 still stays connected to property1
-            expect(get(resident1_1, 'organization.id')).toEqual(organizationClient1.organization.id)
-            expect(get(resident1_1, 'property.id')).toEqual(property1.id)
+            expect(resident1_1.organization.id).toEqual(organizationClient1.organization.id)
+            expect(resident1_1.property.id).toEqual(property1.id)
         })
 
         const [deletedProperty1] = await Property.softDelete(organizationClient1, property1.id)
@@ -164,10 +164,10 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         // NOTE: give worker some time
         await waitFor(async () => {
-            const resident1_2 = await Resident.getOne(userClient1, { id: userClient1.id })
+            const resident1_2 = await Resident.getOne(userClient1, { id: resident1.id })
             // after property1 deleted resident1 should reconnect to property2
-            expect(get(resident1_2, 'organization.id')).toEqual(organizationClient2.organization.id)
-            expect(get(resident1_2, 'property.id')).toEqual(property2.id)
+            expect(resident1_2.organization.id).toEqual(organizationClient2.organization.id)
+            expect(resident1_2.property.id).toEqual(property2.id)
         })
 
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -177,21 +177,21 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         // NOTE: give worker some time
         await waitFor(async () => {
-            const resident1_3 = await Resident.getOne(userClient1, { id: userClient1.id })
+            const resident1_3 = await Resident.getOne(userClient1, { id: resident1.id })
 
             // after property1 restored resident1 should reconnect to property1
-            expect(get(resident1_3, 'organization.id')).toEqual(organizationClient1.organization.id)
-            expect(get(resident1_3, 'property.id')).toEqual(property1.id)
+            expect(resident1_3.organization.id).toEqual(organizationClient1.organization.id)
+            expect(resident1_3.property.id).toEqual(property1.id)
         })
 
         // Resident #2 should connect to the oldest non-deleted property1
         await registerResidentByTestClient(userClient2, { address: addressMeta.value, addressMeta })
 
         await waitFor(async () => {
-            const resident2 = await Resident.getOne(userClient2, { id: userClient2.id })
+            const resident2 = await Resident.getOne(userClient2)
 
-            expect(get(resident2, 'organization.id')).toEqual(organizationClient1.organization.id)
-            expect(get(resident2, 'property.id')).toEqual(property1.id)
+            expect(resident2.organization.id).toEqual(organizationClient1.organization.id)
+            expect(resident2.property.id).toEqual(property1.id)
         })
     })
 
@@ -279,7 +279,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         // NOTE: give worker some time
         await waitFor(async () => {
-            const resident1 = await Resident.getOne(userClient, { id: userClient.id })
+            const resident1 = await Resident.getOne(userClient, { id: resident.id })
             expect(resident1.organization.id).toEqual(organizationClient1.organization.id)
             expect(resident1.property.id).toEqual(property1.id)
         })
@@ -306,12 +306,12 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
 
         // NOTE: give worker some time
         await waitFor(async () => {
-            const resident1 = await Resident.getOne(userClient, { id: userClient.id })
-            const resident2 = await Resident.getOne(userClient1, { id: userClient1.id })
-            expect(get(resident1, 'property.id')).toEqual(property.id)
-            expect(get(resident1, 'organization.id')).toEqual(organizationClient.organization.id)
-            expect(get(resident2, 'property')).toBeNull()
-            expect(get(resident2, 'organization')).toBeNull()
+            const resident1 = await Resident.getOne(userClient)
+            const resident2 = await Resident.getOne(userClient1)
+            expect(resident1.property.id).toEqual(property.id)
+            expect(resident1.organization.id).toEqual(organizationClient.organization.id)
+            expect(resident2.property).toBeNull()
+            expect(resident2.organization).toBeNull()
         })
 
         const orgAddressMeta1 = { ...addressMeta1, value: address1 }
@@ -323,8 +323,9 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // property address update operation takes more time, than property softDelete or create
         // NOTE: give worker some time
         await waitFor(async () => {
-            const resident1_1 = await Resident.getOne(userClient, { id: userClient.id })
-            const resident2_1 = await Resident.getOne(userClient1, { id: userClient1.id })
+            const resident1_1 = await Resident.getOne(userClient)
+            const resident2_1 = await Resident.getOne(userClient1)
+            expect(resident1_1.id).not.toEqual(resident2_1.id)
             expect(resident1_1.property.id).toEqual(property1.id)
             expect(resident1_1.organization.id).toEqual(property1.organization.id)
             expect(resident2_1.property.id).toEqual(property.id)
@@ -352,14 +353,14 @@ describe('RegisterResidentService', () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         await expectToThrowAccessDeniedErrorToResult(async () => {
             await registerResidentByTestClient(userClient)
-        }, 'result')
+        })
     })
 
     test('anonymous: execute', async () => {
         const client = await makeClient()
-        await expectToThrowAuthenticationError(async () => {
+        await expectToThrowAuthenticationErrorToResult(async () => {
             await registerResidentByTestClient(client)
-        }, 'result')
+        })
     })
 
     test('admin: execute', async () => {
