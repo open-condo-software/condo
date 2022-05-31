@@ -1188,7 +1188,7 @@
   "excelExport.headers.tickets.createdAt": "Зарегистрирована",
   "excelExport.headers.tickets.updatedAt": "Дата изменения",
   "excelExport.headers.tickets.inworkAt": "Поступила в работу",
-  "excelExport.headers.tickets.completedAt": "Дата выполнения",
+  "excelExport.headers.tickets.completedAt": "Выполнена",
   "excelExport.headers.tickets.closedAt": "Закрыта",
   "excelExport.headers.tickets.status": "Статус",
   "excelExport.headers.tickets.operator": "Автор заявки",
