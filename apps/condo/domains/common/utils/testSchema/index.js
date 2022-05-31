@@ -45,103 +45,18 @@ const catchErrorFrom = async (testFunc, inspect) => {
  *
  * test('something, that should throw an error', async () => {
  *     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
- *     await expectToThrowAccessDeniedError(async () => {
- *         await createTestResident(userClient, ...)
- *     }, [ 'objs', 0, 'organization' ])
+ *     await expectToThrowAccessDeniedError(
+ *         async () => await createTestResident(userClient, ...),
+ *         'objs',
+ *     )
  * })
  *
- * @param {TestFunc} testFunc - Function, expected to throw an error
+ * @param {() => Promise<void>} testFunc - Function, expected to throw an error
+ * @param {String} path - path
  * @return {Promise<void>}
  */
 const expectToThrowAccessDeniedError = async (testFunc, path) => {
-    await catchErrorFrom(testFunc, ({ errors, data }) => {
-        const expectedError = {
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-        }
-
-        if (path) {
-            expect(Array.isArray(path)).toBeTruthy()
-            expect(isEmpty(path)).toBeFalsy()
-            expectedError.path = path
-        }
-
-        expect(errors[0]).toMatchObject(expectedError)
-
-        if (path) expect(get(data, path)).toBeNull()
-    })
-}
-
-/**
- * Expects a GraphQLError of type 'AccessDeniedError', thrown by Keystone on access to a single schema object.
- * Should be used to examine access to operation of GraphQL utility wrapper, that returns `obj`.
- * @example
- *
- * test('something, that should throw an error', async () => {
- *     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
- *     await expectToThrowAccessDeniedErrorToObj(async () => {
- *         await createTestOrganization(userClient)
- *     })
- * })
- *
- * @param {TestFunc} testFunc - Function, expected to throw an error
- * @return {Promise<void>}
- */
-const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
-    await catchErrorFrom(testFunc, ({ errors, data }) => {
-        expect(errors[0]).toMatchObject({
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['obj'],
-        })
-        expect(data).toEqual({ 'obj': null })
-    })
-}
-
-/**
- * Expects a GraphQLError of type 'AccessDeniedError', thrown by Keystone on access to a collection of schema objects.
- * Should be used to examine access to `getAll` GraphQL utility wrapper, that returns `objs`.
- * @example
- *
- * test('something, that should throw an error', async () => {
- *     const client = await makeClient()
- *     await expectToThrowAccessDeniedErrorToObj(async () => {
- *         await Organization.getAll(client)
- *     })
- * })
- *
- * @param {TestFunc} testFunc - Function, expected to throw an error
- * @return {Promise<void>}
- */
-const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
-    await catchErrorFrom(testFunc, ({ errors, data }) => {
-        expect(errors[0]).toMatchObject({
-            'message': 'You do not have access to this resource',
-            'name': 'AccessDeniedError',
-            'path': ['objs'],
-        })
-        expect(data).toEqual({ 'objs': null })
-    })
-}
-
-/**
- * Expects a GraphQLError of type 'AccessDeniedError', thrown by Keystone on trying to execute a mutation,
- * which by convention returns `result` object.
- * Should be used to examine access to GraphQL mutations, that returns `result`.
- * @example
- *
- * test('something, that should throw an error', async () => {
- *     const client = await makeClient()
- *     await expectToThrowAccessDeniedErrorToResult(async () => {
- *         await registerResidentByTestClient(client)
- *     })
- * })
- *
- * @param {TestFunc} testFunc - Function, expected to throw an error
- * @return {Promise<void>}
- */
-const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
-    const path = 'result'
+    if (!path) throw new Error('expectToThrowAccessDeniedError(): no path argument')
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
@@ -150,12 +65,28 @@ const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
                 'message': 'You do not have access to this resource',
                 'name': 'AccessDeniedError',
                 'path': [path],
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
                 'extensions': {
                     'code': 'INTERNAL_SERVER_ERROR',
                 },
             })],
         })
     })
+}
+
+const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
+    await expectToThrowAccessDeniedError(testFunc, 'obj')
+}
+
+const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
+    await expectToThrowAccessDeniedError(testFunc, 'objs')
+}
+
+const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
+    await expectToThrowAccessDeniedError(testFunc, 'result')
 }
 
 /**
@@ -165,12 +96,14 @@ const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
  *
  * test('something, that should throw an error', async () => {
  *     const client = await makeClient()
- *     await expectToThrowAuthenticationErrorToObjects(async () => {
- *         await Organization.getAll(client)
- *     })
+ *     await expectToThrowAuthenticationError(
+ *         async () => await Organization.getAll(client),
+ *         'obj',
+ *     )
  * })
  *
- * @param {TestFunc} testFunc - Function, expected to throw an error
+ * @param {() => Promise<void>} testFunc - Function, expected to throw an error
+ * @param {String} path - path
  * @return {Promise<void>}
  */
 const expectToThrowAuthenticationError = async (testFunc, path) => {
@@ -203,26 +136,58 @@ const expectToThrowAuthenticationErrorToResult = async (testFunc) => {
     await expectToThrowAuthenticationError(testFunc, 'result')
 }
 
-const expectToThrowValidationFailureError = async (testFunc, messageContains, path = 'obj') => {
-    if (!messageContains) throw new Error('expectToThrowValidationFailureError(): no message argument')
-    await catchErrorFrom(testFunc, ({ errors }) => {
-        expect(errors[0]).toMatchObject({
-            message: 'You attempted to perform an invalid mutation',
-            name: 'ValidationFailureError',
-            path: [path],
-        })
-        if (messageContains) {
-            expect(errors[0]).toMatchObject({
-                originalError: {
-                    data: {
-                        messages: expect.arrayContaining([
-                            expect.stringContaining(messageContains),
-                        ]),
-
-                    },
+const expectToThrowValidationFailureError = async (testFunc, message, path = 'obj') => {
+    if (!message) throw new Error('expectToThrowValidationFailureError(): no message argument')
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(caught).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: null },
+            errors: [expect.objectContaining({
+                "message": "You attempted to perform an invalid mutation",
+                'name': 'ValidationFailureError',
+                'path': [path],
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
+                'extensions': {
+                    'code': 'INTERNAL_SERVER_ERROR',
                 },
-            })
-        }
+            })],
+        })
+
+        // TODO(pahaz): you really don't have access to originalError in production! need to change this check!
+        expect(caught.errors[0]).toMatchObject({
+            originalError: {
+                data: {
+                    messages: expect.arrayContaining([
+                        expect.stringContaining(message),
+                    ]),
+                },
+            },
+        })
+    })
+}
+
+const expectToThrowInternalError = async (testFunc, message, path = 'obj') => {
+    if (!message) throw new Error('expectToThrowInternalError(): no message argument')
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(caught).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: null },
+            errors: [expect.objectContaining({
+                'message': expect.stringContaining(message),
+                'name': 'GraphQLError',
+                'path': [path],
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
+                'extensions': {
+                    'code': 'INTERNAL_SERVER_ERROR',
+                },
+            })],
+        })
     })
 }
 
@@ -274,6 +239,7 @@ module.exports = {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToResult,
     expectToThrowValidationFailureError,
+    expectToThrowInternalError,
     expectToThrowMutationError,
     expectToThrowUserInputError,
     expectToThrowGraphQLRequestError,
