@@ -77,6 +77,7 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
             ['User', 'operator', 'name'],
             ['User', 'executor', 'name'],
             ['User', 'assignee', 'name'],
+            ['Contact', 'contact', 'name'],
             ['TicketPlaceClassifier', 'placeClassifier', 'name'],
             ['TicketCategoryClassifier', 'categoryClassifier', 'name'],
             ['TicketProblemClassifier', 'problemClassifier', 'name'],
