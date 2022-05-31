@@ -1,6 +1,7 @@
 const { getById } = require('@core/keystone/schema')
 
 const { AdapterFactory } = require('./adapter')
+const { get } = require('lodash')
 
 module.exports = {
     adapter: AdapterFactory,
@@ -22,6 +23,25 @@ module.exports = {
                 }
             },
         }
+    },
+    async loadExistingGrant (ctx) {
+        // This is modified version of default function
+        // https://github.com/panva/node-oidc-provider/blob/HEAD/docs/README.md#loadexistinggrant
+        const grantId = (ctx.oidc.result
+            && ctx.oidc.result.consent
+            && ctx.oidc.result.consent.grantId) || ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId)
+        if (grantId) {
+            const grant = await ctx.oidc.provider.Grant.find(grantId)
+
+            const condoUserId = get(ctx, 'req.query.condoUserId', null)
+            const accountId = get(grant, 'accountId', null)
+            if (!!condoUserId && !!accountId && accountId !== condoUserId) {
+                return undefined
+            }
+
+            return grant
+        }
+        return undefined
     },
     interactions: {
         url (ctx, interaction) { // eslint-disable-line no-unused-vars
