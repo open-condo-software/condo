@@ -191,26 +191,8 @@ const expectToThrowInternalError = async (testFunc, message, path = 'obj') => {
     })
 }
 
-const expectToThrowMutationError = async (testFunc, messageContains, path = ['result'], name = 'GraphQLError') => {
-    await catchErrorFrom(testFunc, ({ errors }) => {
-        expect(errors[0]).toMatchObject({
-            message: expect.stringContaining(messageContains),
-            name,
-            path,
-        })
-    })
-}
-
-const expectToThrowUserInputError = async (testFunc, messageContains, name = 'UserInputError') => {
-    await catchErrorFrom(testFunc, ({ errors }) => {
-        expect(errors[0]).toMatchObject({
-            message: expect.stringContaining(messageContains),
-            name,
-        })
-    })
-}
-
 const expectToThrowGraphQLRequestError = async (testFunc, message) => {
+    if (!message) throw new Error('expectToThrowGraphQLRequestError(): no message argument')
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
@@ -228,6 +210,33 @@ const expectToThrowGraphQLRequestError = async (testFunc, message) => {
     })
 }
 
+/**
+ * HAVE a BUG HERE!
+ * @deprecated
+ */
+const expectToThrowMutationError = async (testFunc, messageContains, path = ['result'], name = 'GraphQLError') => {
+    await catchErrorFrom(testFunc, ({ errors }) => {
+        expect(errors[0]).toMatchObject({
+            message: expect.stringContaining(messageContains),
+            name,
+            path,
+        })
+    })
+}
+
+/**
+ * HAVE a BUG HERE! Use `expectToThrowGraphQLRequestError`
+ * @deprecated
+ */
+const expectToThrowUserInputError = async (testFunc, messageContains, name = 'UserInputError') => {
+    await catchErrorFrom(testFunc, ({ errors }) => {
+        expect(errors[0]).toMatchObject({
+            message: expect.stringContaining(messageContains),
+            name,
+        })
+    })
+}
+
 module.exports = {
     catchErrorFrom,
     expectToThrowAccessDeniedError,
@@ -240,7 +249,7 @@ module.exports = {
     expectToThrowAuthenticationErrorToResult,
     expectToThrowValidationFailureError,
     expectToThrowInternalError,
+    expectToThrowGraphQLRequestError,
     expectToThrowMutationError,
     expectToThrowUserInputError,
-    expectToThrowGraphQLRequestError,
 }
