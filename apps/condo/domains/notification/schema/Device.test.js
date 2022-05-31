@@ -148,9 +148,10 @@ describe('Device', () => {
         it('checks that deviceId is required', async () => {
             const admin = await makeLoggedInAdminClient()
 
-            await expectToThrowValidationFailureError(async () => {
-                await createTestDevice(admin, { deviceId: null })
-            })
+            await expectToThrowValidationFailureError(
+                async () => await createTestDevice(admin, { deviceId: null }),
+                'Required field "deviceId" is null or undefined.',
+            )
         })
 
         it('checks that pushToken is not required', async () => {
@@ -231,7 +232,7 @@ describe('Device', () => {
             await expectToThrowMutationError(
                 async () => await createTestDevice(admin1, extraAttrs),
                 DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
-                ['obj']
+                ['obj'],
             )
         })
 
@@ -245,7 +246,7 @@ describe('Device', () => {
             await expectToThrowMutationError(
                 async () => await createTestDevice(admin1, extraAttrs),
                 DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
-                ['obj']
+                ['obj'],
             )
         })
 
