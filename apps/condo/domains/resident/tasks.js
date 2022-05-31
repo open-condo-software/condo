@@ -74,8 +74,6 @@ async function manageResidentToTicketClientConnections (propertyId, unitType, un
 
     const residentUser = await getById('User', userId)
     const residentUserPhone = get(residentUser, 'phone', null)
-    const residentUserName = get(residentUser, 'name', null)
-    const residentUserEmail = get(residentUser, 'email', null)
 
     if (!residentUserPhone || residentUser.type !== RESIDENT) return
 
@@ -92,9 +90,6 @@ async function manageResidentToTicketClientConnections (propertyId, unitType, un
             dv,
             sender,
             client: { connect: { id: userId } },
-            clientName: residentUserName,
-            clientPhone: residentUserPhone,
-            clientEmail: residentUserEmail,
         })
     }
 }
