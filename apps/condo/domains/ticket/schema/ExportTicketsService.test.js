@@ -11,8 +11,9 @@ const faker = require('faker')
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
-    createTestOrganizationEmployee
+    createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { exportTestTicketsToExcel } = require('../utils/testSchema')
 
 describe('ExportTicketService', () => {
     describe('User', () => {
@@ -33,17 +34,10 @@ describe('ExportTicketService', () => {
                 for (let i = 0; i < 10; i++) {
                     await createTestTicketComment(userClient, ticket, userClient.user)
                 }
-                const { data: { result: { status, linkToFile } } } = await userClient.query(EXPORT_TICKETS_TO_EXCEL, {
-                    data: {
-                        dv: 1,
-                        sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
-                        where: { organization: { id: organization.id } },
-                        sortBy: 'id_ASC',
-                        timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
-                    },
-                })
-                expect(status).toBe('ok')
-                expect(linkToFile).not.toHaveLength(0)
+                const task = await exportTestTicketsToExcel(userClient, { organization: { id: organization.id } })
+                expect(task).toBeDefined()
+                expect(task.format).toBe('excel')
+                expect(task.status).toEqual('processing')
                 // TODO(antonal): automatically examine created export file
             }
         })
