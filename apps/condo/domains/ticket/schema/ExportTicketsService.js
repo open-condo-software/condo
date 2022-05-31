@@ -133,9 +133,9 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         clientName: ticket.clientName,
                         clientPhone: ticket.clientPhone,
                         details: ticket.details,
-                        isEmergency: ticket.isEmergency ? 'X' : '',
-                        isWarranty: ticket.isWarranty ? 'X' : '',
-                        isPaid: ticket.isPaid ? 'X' : '',
+                        isEmergency: ticket.isEmergency ? i18n('Yes', { locale }) : i18n('No', { locale }),
+                        isWarranty: ticket.isWarranty ? i18n('Yes', { locale }) : i18n('No', { locale }),
+                        isPaid: ticket.isPaid ? i18n('Yes', { locale }) : i18n('No', { locale }),
                         classifier: ticket.classifier || EMPTY_VALUE,
                         place: ticket.placeClassifier || EMPTY_VALUE,
                         category: ticket.categoryClassifier || EMPTY_VALUE,
@@ -171,6 +171,8 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
 
                             // These statuses are needed to set cell color using conditional formatting by status name.
                             statusNames: ticketStatusesTranslations(locale),
+                            yes: i18n('Yes', { locale }),
+                            reviewValues: reviewValueText,
                         },
                     },
                     meta: {
