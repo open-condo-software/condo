@@ -191,9 +191,10 @@ describe('Device', () => {
             const admin = await makeLoggedInAdminClient()
             const extraAttrs = { ...getRandomTokenData(), pushTransport: undefined }
 
-            await expectToThrowValidationFailureError(async () => {
-                await createTestDevice(admin, extraAttrs)
-            })
+            await expectToThrowValidationFailureError(
+                async () => await createTestDevice(admin, extraAttrs),
+                '[required:noValue:pushTransport] Value is required',
+            )
         })
 
         it('fails on invalid pushTransport value', async () => {
