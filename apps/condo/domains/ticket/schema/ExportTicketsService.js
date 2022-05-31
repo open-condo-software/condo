@@ -90,7 +90,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
 
                 let headerMessage = i18n('excelExport.header.tickets.forAllTime', { locale })
                 if (createdAtGte && createdAtLte)
-                    headerMessage = `${i18n('excelExport.header.tickets.forPeriod')} ${dayjs(createdAtGte).format('DD.MM.YYYY')} — ${dayjs(createdAtLte).format('DD.MM.YYYY')}`
+                    headerMessage = `${i18n('excelExport.header.tickets.forPeriod', { locale })} ${dayjs(createdAtGte).format('DD.MM.YYYY')} — ${dayjs(createdAtLte).format('DD.MM.YYYY')}`
 
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
                 if (allTickets.length === 0) {
