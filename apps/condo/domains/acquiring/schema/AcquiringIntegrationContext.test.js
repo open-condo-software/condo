@@ -25,6 +25,7 @@ const {
 
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
+const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 
 const dayjs = require('dayjs')
 
@@ -399,13 +400,13 @@ describe('AcquiringIntegrationContext', () => {
                 await createTestAcquiringIntegrationContext(admin, organization, integration, {
                     dv: 2,
                 })
-            })
+            }, DV_UNKNOWN_VERSION_ERROR)
             const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
             await expectToThrowValidationFailureError(async () => {
                 await updateTestAcquiringIntegrationContext(admin, context.id, {
                     dv: 2,
                 })
-            })
+            }, DV_UNKNOWN_VERSION_ERROR)
         })
     })
     describe('Acquiring integration', () => {

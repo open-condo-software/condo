@@ -331,8 +331,8 @@ describe('Payment', () => {
                 await expectToThrowValidationFailureError(async () => {
                     await createTestPayment(admin, organization, null, null, {
                         dv: 2,
-                    }, DV_UNKNOWN_VERSION_ERROR)
-                })
+                    })
+                }, DV_UNKNOWN_VERSION_ERROR)
                 const [payment] = await createTestPayment(admin, organization, null, null)
                 await expectToThrowValidationFailureError(async () => {
                     await updateTestPayment(admin, payment.id, {
@@ -367,8 +367,8 @@ describe('Payment', () => {
                 await expectToThrowValidationFailureError(async () => {
                     await createTestPayment(admin, organization, null, null, {
                         frozenReceipt: { dv: 1, data: billingReceipts[0] },
-                    }, PAYMENT_NO_PAIRED_RECEIPT)
-                })
+                    })
+                }, PAYMENT_NO_PAIRED_RECEIPT)
             })
             test('context should should have same organization as payment',  async () => {
                 const { admin, acquiringContext } = await makePayer()
