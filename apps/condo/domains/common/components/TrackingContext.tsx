@@ -89,13 +89,13 @@ const useTracking: IUseTracking = () => {
         }))
     }
 
-    const instrument = (eventName: string, eventProperties?: TrackingEventPropertiesType, func?: any) => {
-        function fn (...params: any) {
+    const instrument = <T extends (...args: any[]) => any>(eventName: string, eventProperties?: TrackingEventPropertiesType, func?: T): T => {
+        function fn (...params) {
             const retVal = func ? func(...params) : undefined
             logEvent({ eventName, eventProperties })
             return retVal
         }
-        return fn as any
+        return fn as T
     }
 
     const getEventName = (eventType: TrackingEventType) => {
