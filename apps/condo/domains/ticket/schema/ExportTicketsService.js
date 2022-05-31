@@ -126,6 +126,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
 
                     return {
                         number: ticket.number,
+                        source: ticket.source || EMPTY_VALUE,
                         organization: ticket.organization,
                         property: ticket.property,
                         unitName: ticket.unitName,
@@ -152,7 +153,6 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         operator: ticket.operator || ticket.createdBy || EMPTY_VALUE,
                         executor: ticket.executor || EMPTY_VALUE,
                         assignee: ticket.assignee || EMPTY_VALUE,
-                        source: ticket.source || EMPTY_VALUE,
                         deadline: ticket.deadline ? formatDate(ticket.deadline) : EMPTY_VALUE,
                         reviewValue: ticket.reviewValue ? reviewValueText[ticket.reviewValue] : EMPTY_VALUE,
                         reviewComment: ticket.reviewComment || EMPTY_VALUE,
