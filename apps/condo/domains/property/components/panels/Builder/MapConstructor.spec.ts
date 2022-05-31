@@ -286,6 +286,25 @@ describe('Map constructor', () => {
                 expect(unitToCompare.label).toEqual(updatedUnit.label)
             })
 
+            it('should not save map if labels of parking is not unique', () => {
+                const Building = createBuildingParking(10)
+                const jsonMap = Building.getMap()
+                const updatedUnit = jsonMap.parking[5].floors[5].units[5]
+                Building.updateParkingUnit({ ...updatedUnit, ...{
+                    floor: jsonMap.parking[5].floors[5].id,
+                    section: jsonMap.parking[5].id,
+                    label: jsonMap.parking[0].floors[0].units[0].label,
+                } })
+
+                const newJsonMap = Building.getMap()
+                const unitToCompare = newJsonMap.parking[5].floors[5].units[5]
+
+                expect(unitToCompare.name).toEqual(jsonMap.parking[0].floors[0].units[0].label)
+                expect(Building.validate()).not.toBeTruthy()
+                expect(Building.validationErrors).toHaveLength(1)
+                expect(Building.validationErrors[0]).toEqual('Name of unit label must be unique')
+            })
+
             it('should correctly update map if floor/section of parking was changed', () => {
                 const Building = createBuildingParking(10)
                 const jsonMap = Building.getMap()
