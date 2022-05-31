@@ -20,4 +20,6 @@ const Input = (props: CustomInputProps) => {
     )
 }
 
+Input.Password = BaseInput.Password
+
 export default Input

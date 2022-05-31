@@ -23,7 +23,8 @@ import {
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 
-import { Col, Dropdown, Input, Menu, Row, Table, Tooltip, Typography } from 'antd'
+import { Col, Dropdown, Menu, Row, Table, Tooltip, Typography } from 'antd'
+import Input from '@condo/domains/common/components/Input'
 import { debounce, get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'

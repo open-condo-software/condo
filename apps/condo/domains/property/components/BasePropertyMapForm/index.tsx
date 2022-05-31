@@ -1,7 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React, { useState, useCallback } from 'react'
-import { Typography, Form, Input } from 'antd'
+import { Typography, Form } from 'antd'
+import Input from '@condo/domains/common/components/Input'
 import { useIntl } from '@core/next/intl'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'

@@ -1,25 +1,26 @@
 import React from 'react'
-import { Checkbox as DefaultCheckbox, CheckboxProps } from 'antd'
+import { Radio as DefaultRadio, RadioProps } from 'antd'
 import { useTracking, TrackingEventPropertiesType } from './TrackingContext'
 
-export interface CustomCheckboxProps extends CheckboxProps {
+export interface CustomRadioProps extends RadioProps {
     eventName?: string
     eventProperties?: TrackingEventPropertiesType
 }
 
-const Checkbox = (props: CustomCheckboxProps) => {
+const Radio = (props: CustomRadioProps) => {
     const { eventName, eventProperties, children, ...restProps } = props
     const { instrument } = useTracking()
 
     const onChange = eventName ? instrument(eventName, eventProperties, restProps.onChange) : restProps.onChange
 
     return (
-        <DefaultCheckbox {...restProps} onChange={onChange}>
+        <DefaultRadio {...restProps} onChange={onChange}>
             {children}
-        </DefaultCheckbox>
+        </DefaultRadio>
     )
 }
 
-Checkbox.Group = DefaultCheckbox.Group
+Radio.Group = DefaultRadio.Group
+Radio.Button = DefaultRadio.Button
 
-export default Checkbox
+export default Radio

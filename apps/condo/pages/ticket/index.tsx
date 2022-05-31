@@ -1,8 +1,10 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import { Checkbox, Col, Input, Row, Typography } from 'antd'
+import { Col, Row, Typography } from 'antd'
+import Input from '@condo/domains/common/components/Input'
+import Checkbox from '@condo/domains/common/components/Checkbox'
 import { FilterFilled } from '@ant-design/icons'
 import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'

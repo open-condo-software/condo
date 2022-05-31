@@ -1,5 +1,6 @@
 /** @jsx jsx */
-import { Card, Col, Form, Input, Row } from 'antd'
+import { Card, Col, Form, Row } from 'antd'
+import Input from '@condo/domains/common/components/Input'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useEffect } from 'react'
 import { useOrganization } from '@core/next/organization'

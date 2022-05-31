@@ -1,5 +1,6 @@
-import { Col, Form, Row, Space, Typography, Input, RowProps } from 'antd'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { Col, Form, Row, Space, Typography, RowProps } from 'antd'
+import Input from '@condo/domains/common/components/Input'
 import { FormattedMessage } from 'react-intl'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
