@@ -8,9 +8,10 @@ const { setFakeClientMode } = require('@core/keystone/test.utils')
 const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
-
-const { keystone } = require('../../../index')
 const { makeClientWithResidentAndMeter } = require('../utils/testSchema')
+
+const index = require('@app/condo/index')
+const { keystone } = index
 
 const getNotificationsFromMeter = async ({ verificationDate, nextVerificationDate, searchWindowDaysShift = 0 }) => {
     const { user: { id } } = await makeClientWithResidentAndMeter({ verificationDate, nextVerificationDate })
@@ -19,7 +20,7 @@ const getNotificationsFromMeter = async ({ verificationDate, nextVerificationDat
 }
 
 describe('Meter verification notification', () => {
-    setFakeClientMode(require.resolve('../../../index'))
+    setFakeClientMode(index)
 
     it('should not send messages on null nextVerificationDate', async () => {
         const messages = await getNotificationsFromMeter({

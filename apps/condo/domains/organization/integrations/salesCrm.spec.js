@@ -12,12 +12,14 @@ const { createTestServiceSubscription } = require('@condo/domains/subscription/u
 const { rightSbbolOfferAccept } = require('@condo/domains/subscription/utils/testSchema/constants')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { keystone } = require('../../../index')
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
 const { syncOrganization } = require('./sbbol/sync/syncOrganization')
 const { MockSbbolResponses } = require('./sbbol/sync/MockSbbolResponses')
 const { SBBOL_FINGERPRINT_NAME } = require('./sbbol/common')
+
+const index = require('@app/condo/index')
+const { keystone } = index
 
 jest.mock('../utils/serverSchema/Organization')
 jest.mock('../utils/serverSchema/Organization', () => {
@@ -30,7 +32,7 @@ jest.mock('../utils/serverSchema/Organization', () => {
 })
 
 describe('Ineraction with sales CRM', () => {
-    setFakeClientMode(require.resolve('../../../index'))
+    setFakeClientMode(index)
 
     it('should send to sales crm new organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
