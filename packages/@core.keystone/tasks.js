@@ -2,6 +2,7 @@ const Queue = require('bull')
 const falsey = require('falsey')
 const pino = require('pino')
 const { serializeError } = require('serialize-error')
+const IORedis = require('ioredis')
 
 const conf = require('@core/config')
 const { prepareKeystoneExpressApp } = require('./test.utils')
@@ -13,7 +14,11 @@ const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
 const FAKE_WORKER_MODE = conf.FAKE_WORKER_MODE
 const WORKER_REDIS_URL = conf.WORKER_REDIS_URL || conf.REDIS_URL
 if (!WORKER_REDIS_URL) throw new Error('No WORKER_REDIS_URL environment')
-const taskQueue = new Queue('tasks', WORKER_REDIS_URL)
+const taskQueue = new Queue('tasks', WORKER_REDIS_URL, {
+    createClient: (type, opts) => {
+        return new IORedis(opts)
+    },
+})
 // NOTE: same as keystone logger
 const taskLogger = pino({ name: 'worker', enabled: falsey(process.env.DISABLE_LOGGING) })
 const globalTaskOptions = {}

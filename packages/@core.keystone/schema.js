@@ -148,6 +148,7 @@ async function getByCondition (schemaName, condition) {
 }
 
 async function getById (schemaName, id) {
+    if (!id) throw new Error('getById() call without id')
     return await getByCondition(schemaName, { id })
 }
 
