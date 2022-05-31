@@ -8,6 +8,8 @@ const conf = require('@core/config')
 const index = require('./index')
 const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
 
+jest.setTimeout(60000)
+
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(index, { excludeApps: ['NextApp'] })
 if (conf.TESTS_FAKE_WORKER_MODE) createWorker(index).catch((error) => {
     console.error(error)
