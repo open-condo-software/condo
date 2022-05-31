@@ -10,7 +10,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { TICKET_STATUS_TYPES, ORGANIZATION_COMMENT_TYPE } = require('../../constants')
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
+const { Ticket: TicketGQL, EXPORT_TICKETS_TO_EXCEL } = require('@condo/domains/ticket/gql')
 const {
     TicketStatus: TicketStatusGQL,
     TicketChange: TicketChangeGQL,
@@ -30,6 +30,7 @@ const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/tick
 const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 const { ExportTicketTask: ExportTicketTaskGQL } = require('@condo/domains/ticket/gql')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -572,6 +573,21 @@ async function updateTestExportTicketTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function exportTestTicketsToExcel (client, where={}, data={}) {
+    const { data: { result: { task } } } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
+        data: {
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
+            where,
+            sortBy: 'id_ASC',
+            timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
+            ...data,
+        },
+    })
+
+    return task
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -614,5 +630,6 @@ module.exports = {
     getTicketReport,
     getTicketAnalyticsReport, getTicketAnalyticsExport,
     ExportTicketTask, createTestExportTicketTask, updateTestExportTicketTask,
+    exportTestTicketsToExcel,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
