@@ -253,8 +253,6 @@ const expectToThrowGraphQLRequestError = async (testFunc, message) => {
         expect(data).toBeUndefined()
         expect(errors).toHaveLength(1)
         expect(errors[0].message).toMatch(message)
-        expect(errors[0].extensions).toBeUndefined()
-        expect(errors[0].path).toBeUndefined()
         // NOTE(pahaz):
         //  ValidationError - The GraphQL operation is not valid against the server's schema.
         //  UserInputError - The GraphQL operation includes an invalid value for a field argument.
