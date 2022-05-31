@@ -6,8 +6,7 @@ import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
 import { MarkDown } from '@condo/domains/common/components/MarkDown'
 import { Button } from '@condo/domains/common/components/Button'
-import { BILLING_TRACKING_EVENTS } from '@condo/domains/billing/constants/constants'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 interface AppDescriptionPageContentProps {
     title: string,
@@ -49,7 +48,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
         buttonLabel: ConnectButtonLabel,
     })
 
-    const { logEvent, eventProperties } = useTracking()
+    const { logEvent, eventProperties, getEventName } = useTracking()
 
     useEffect(() => {
         const routeChangeStart = (event: MouseEvent) => {
@@ -57,8 +56,9 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
             if (target.tagName === 'A') {
                 const value = get(target, 'attributes.href.value', '')
                 const title = get(target, 'textContent', '')
+                const eventName = getEventName(TrackingEventType.FollowExternalLink)
 
-                logEvent({ eventName: BILLING_TRACKING_EVENTS.BILLING_OPEN_DESCRIPTION_LINK, eventProperties: {
+                logEvent({ eventName, eventProperties: {
                     ...eventProperties,
                     link: { title, value },
                 } })
