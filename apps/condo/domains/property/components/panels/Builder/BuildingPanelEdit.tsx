@@ -206,6 +206,18 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         })
     }, [debouncedQuickSave, mapEdit])
 
+    const saveCallback = useCallback(() => {
+        if (mapEdit.validate()) {
+            handleSave()
+            return
+        }
+
+        notification.error({
+            message: MapValidationError,
+            placement: 'bottomRight',
+        })
+    }, [handleSave, mapValidationError, mapEdit])
+
     useHotkeys('ctrl+s', quickSaveCallback, [map, property])
 
     const scrollToForm = () => {
@@ -372,7 +384,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     <Space size={20} align={'center'}>
                         <Button
                             key='submit'
-                            onClick={handleSave}
+                            onClick={saveCallback}
                             type='sberDefaultGradient'
                             disabled={!address}
                         >
