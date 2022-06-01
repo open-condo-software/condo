@@ -10,16 +10,18 @@ export interface CustomSelectProps<T> extends SelectProps<T> {
 }
 
 const Select = <T extends string | number> (props: CustomSelectProps<T>) => {
-    const { eventProperties = {}, onSelect, ...restProps } = props
+    const { eventProperties = {}, onChange, ...restProps } = props
     const { instrument, getEventName } = useTracking()
     const eventName = getEventName(TrackingEventType.Select)
 
-    const onSelectCallback = eventName && restProps.value
-        ? instrument(eventName, { ...eventProperties, component: { value: restProps.value } }, onSelect)
-        : onSelect
+    const onChangeCallback = eventName && restProps.value
+        ? instrument(eventName, {
+            ...eventProperties, component: { placeholder: restProps.value },
+        }, onChange)
+        : onChange
 
     return (
-        <DefaultSelect <T> {...restProps } onSelect={onSelectCallback} />
+        <DefaultSelect <T> {...restProps } onChange={onChangeCallback} />
     )
 }
 
