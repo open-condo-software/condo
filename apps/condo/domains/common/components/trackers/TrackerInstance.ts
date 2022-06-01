@@ -50,35 +50,53 @@ abstract class TrackerInstance {
     abstract init (): void
 
     /**
+     * Check permission and calls logInstanceEvent if permission was granted
+     * @public
+     * @param eventName
+     * @param eventProperties
+     * @param denyDuplicates
+     * @return {Boolean} - result permission
+     */
+    logEvent ({ eventName, eventProperties, denyDuplicates = false }: ITrackerLogEventType): boolean {
+        const isNeedToSendEvent = this.isNeedToSendEvent({ eventName, eventProperties, denyDuplicates })
+        if (isNeedToSendEvent) {
+            this.logInstanceEvent({ eventName, eventProperties, denyDuplicates })
+        }
+
+        return isNeedToSendEvent
+    }
+
+    /**
      * Common method for sending data to tracker API
-     * @abstract
+     * @protected
      * @param {string} eventName - short event description
      * @param {Object} eventProperties - related properties
      * @param {Boolean} denyDuplicates - enable check for duplicated events on eventName prop comparison
      * @return void
      */
-    abstract logEvent ({ eventName, eventProperties, denyDuplicates }: ITrackerLogEventType): void
+    protected abstract logInstanceEvent ({ eventName, eventProperties, denyDuplicates }: ITrackerLogEventType): void
 
     /**
      * Check for duplicated events by name and component path restrictions from app config
+     * @private
      * @param {Object} ITrackerLogEventType - object with eventName and eventProperties props
-     * @return {boolean}
+     * @return {Boolean}
      */
-    isNeedToSendEvent ({ eventName, eventProperties, denyDuplicates = false }: ITrackerLogEventType): boolean {
+    private isNeedToSendEvent ({ eventName, eventProperties, denyDuplicates = false }: ITrackerLogEventType): boolean {
         let permission = false
         if (denyDuplicates) {
             if (this.prevEvent !== eventName) {
                 this.prevEvent = eventName
-                permission = this._isNeedToSendEvent(eventProperties)
+                permission = this._getLogEventPermissionFromConfig(eventProperties)
             }
         } else {
-            permission = this._isNeedToSendEvent(eventProperties)
+            permission = this._getLogEventPermissionFromConfig(eventProperties)
         }
 
         return permission
     }
 
-    private _isNeedToSendEvent ( eventProperties: Pick<ITrackerLogEventType, 'eventProperties'>): boolean  {
+    private _getLogEventPermissionFromConfig ( eventProperties: Pick<ITrackerLogEventType, 'eventProperties'>): boolean  {
         let hasDomainLevelPermission = false
         if (this.allowedDomains) {
             const route = compact<string>(get(eventProperties, ['page', 'path'], '').split('/'))

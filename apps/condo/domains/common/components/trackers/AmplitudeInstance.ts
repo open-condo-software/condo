@@ -34,10 +34,8 @@ class AmplitudeInstance extends TrackerInstance {
         }
     }
 
-    logEvent (trackerLogEventProps: ITrackerLogEventType): void {
-        if (this.isNeedToSendEvent(trackerLogEventProps)) {
-            this.instance.logEvent(trackerLogEventProps.eventName, trackerLogEventProps.eventProperties)
-        }
+    logInstanceEvent (trackerLogEventProps: ITrackerLogEventType): void {
+        this.instance.logEvent(trackerLogEventProps.eventName, trackerLogEventProps.eventProperties)
     }
 }
 
