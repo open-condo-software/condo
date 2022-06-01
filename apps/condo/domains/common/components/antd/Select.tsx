@@ -9,7 +9,7 @@ export interface CustomSelectProps<T> extends SelectProps<T> {
     ref?: React.Ref<RefSelectProps>
 }
 
-const Select = <T extends string | number> (props: CustomSelectProps<T>) => {
+const Select = <T extends string | number | { value: any, label: any }> (props: CustomSelectProps<T>) => {
     const { eventName: propEventName, eventProperties = {}, onChange, ...restProps } = props
     const { instrument, getEventName } = useTracking()
 

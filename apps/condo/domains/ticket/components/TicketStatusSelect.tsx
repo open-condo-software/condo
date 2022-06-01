@@ -7,7 +7,7 @@ import {
 } from '@condo/domains/ticket/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
-import { Select } from 'antd'
+import Select from '@condo/domains/common/components/antd/Select'
 import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
@@ -85,6 +85,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
             value={selectValue}
             bordered={false}
             labelInValue
+            eventName={'TicketStatusSelect'}
             {...props}
         >
             {options}
