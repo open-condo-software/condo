@@ -20,7 +20,7 @@ import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { Col, Row } from 'antd'
-import Input from '@condo/domains/common/components/Input'
+import Input from '@condo/domains/common/components/antd/Input'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import { get, isEmpty } from 'lodash'

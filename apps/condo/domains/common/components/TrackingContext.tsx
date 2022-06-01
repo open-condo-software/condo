@@ -47,6 +47,8 @@ export enum TrackingEventType {
     Click = 'Click',
     Input = 'Input',
     Select = 'Select',
+    Checkbox = 'Checkbox',
+    Radio = 'Radio',
     FollowExternalLink = 'FollowExternalLink',
 }
 
@@ -56,7 +58,7 @@ interface IUseTracking {
         userProperties: Pick<ITrackingContext, 'userProperties'>
         logEvent: (logEventProps: ITrackerLogEventType) => void
         logEventTo: (logEventToProps: ILogEventTo) => void
-        instrument: (eventName: string, eventProperties?: TrackingEventPropertiesType, func?: any) => any
+        instrument: (eventName: string, eventProperties?: TrackingCommonEventProperties, func?: any) => any
         getEventName: (eventType: TrackingEventType) => string
     }
 }
@@ -70,7 +72,7 @@ const useTracking: IUseTracking = () => {
             ...eventProperties,
             ...localEventProperties,
         }
-        Object.values(trackerInstances).map(trackerInstance => trackerInstance.logEvent({
+        Object.values(trackerInstances).map((trackerInstance) => trackerInstance.logEvent({
             eventName,
             eventProperties: resultEventProperties,
             denyDuplicates,
@@ -100,6 +102,9 @@ const useTracking: IUseTracking = () => {
 
     const getEventName = (eventType: TrackingEventType) => {
         const [domainName, isDetail, suffix] = compact(route.split('/'))
+        if (!domainName) {
+            return ''
+        }
         const domain = domainName.charAt(0).toUpperCase() + domainName.slice(1)
         let domainSuffix = 'Index'
         let domainPostfix = ''

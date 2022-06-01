@@ -3,7 +3,7 @@
 import React, { useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Col, Form, notification, Row, Typography } from 'antd'
-import Input from '@condo/domains/common/components/Input'
+import Input from '@condo/domains/common/components/antd/Input'
 import isEmpty from 'lodash/isEmpty'
 import dayjs from 'dayjs'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'

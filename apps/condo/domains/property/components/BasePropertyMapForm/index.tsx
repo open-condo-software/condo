@@ -2,7 +2,7 @@
 // @ts-nocheck
 import React, { useState, useCallback } from 'react'
 import { Typography, Form } from 'antd'
-import Input from '@condo/domains/common/components/Input'
+import Input from '@condo/domains/common/components/antd/Input'
 import { useIntl } from '@core/next/intl'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'

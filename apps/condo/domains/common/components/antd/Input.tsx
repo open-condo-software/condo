@@ -1,6 +1,6 @@
 import React from 'react'
 import { Input as BaseInput, InputProps } from 'antd'
-import { useTracking, TrackingEventPropertiesType } from './TrackingContext'
+import { useTracking, TrackingEventPropertiesType } from '../TrackingContext'
 
 export interface CustomInputProps extends InputProps {
     eventName?: string

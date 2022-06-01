@@ -1,6 +1,6 @@
 import { OptionProps } from 'antd/lib/mentions'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import Select, { CustomSelectProps } from '@condo/domains/common/components/Select'
+import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import debounce from 'lodash/debounce'
 import throttle from 'lodash/throttle'
 import { useIntl } from '@core/next/intl'
