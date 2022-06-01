@@ -117,7 +117,8 @@ const sendTicketNotifications = async (requestData) => {
      * Use DEFAULT_LOCALE if organization.country is unknown
      * (not defined within @condo/domains/common/constants/countries)
      */
-    const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
+    const organizationCountry = get(organization, 'country')
+    const lang = get(COUNTRIES, [organizationCountry, 'locale'], DEFAULT_LOCALE)
 
     if (eventTypes[ASSIGNEE_CONNECTED_EVENT_TYPE]) {
         const userId = nextAssigneeId || prevAssigneeId

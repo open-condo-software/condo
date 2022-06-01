@@ -416,7 +416,7 @@ describe('Ticket', () => {
                 canReadByResident: true,
             })
 
-            const [readTicket] = await Ticket.getAll(residentClient, { id: ticket.id })
+            const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
 
             expect(readTicket.clientPhone).toEqual(contact.phone)
             expect(readTicket.clientEmail).toEqual(contact.email)
@@ -1321,6 +1321,9 @@ describe('Ticket', () => {
                 const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
 
                 expect(readTicket.client.id).toEqual(residentClient.user.id)
+                expect(readTicket.clientName).toEqual(ticket.clientName)
+                expect(readTicket.clientPhone).toEqual(ticket.clientPhone)
+                expect(readTicket.clientEmail).toEqual(ticket.clientEmail)
             })
 
             test('should be filled automatically on create resident with same contact phone and same ticket address', async () => {
