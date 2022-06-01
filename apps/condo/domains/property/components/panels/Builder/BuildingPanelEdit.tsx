@@ -19,8 +19,8 @@ import {
     Space,
     Typography,
 } from 'antd'
-import Input from '@condo/domains/common/components/Input'
-import Select from '@condo/domains/common/components/Select'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'

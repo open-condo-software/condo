@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { Col, Form, Row, Space, Typography } from 'antd'
-import Input from '@condo/domains/common/components/Input'
+import Input from '@condo/domains/common/components/antd/Input'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { User } from '@condo/domains/user/utils/clientSchema'

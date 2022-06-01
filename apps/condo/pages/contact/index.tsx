@@ -21,7 +21,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { Col, Row, Typography } from 'antd'
-import Input from '@condo/domains/common/components/Input'
+import Input from '@condo/domains/common/components/antd/Input'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import Head from 'next/head'

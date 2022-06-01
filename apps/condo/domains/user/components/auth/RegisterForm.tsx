@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { Col, Form, Row, RowProps, Typography } from 'antd'
-import Input from '@condo/domains/common/components/Input'
+import Input from '@condo/domains/common/components/antd/Input'
 import get from 'lodash/get'
 import { useMutation } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'

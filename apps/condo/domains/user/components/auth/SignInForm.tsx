@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Col, Form, Row, RowProps, Typography } from 'antd'
-import Input from '@condo/domains/common/components/Input'
+import Input from '@condo/domains/common/components/antd/Input'
 import Router, { useRouter } from 'next/router'
 import { FormattedMessage } from 'react-intl'
 import { useIntl } from '@core/next/intl'

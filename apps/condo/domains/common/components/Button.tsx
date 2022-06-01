@@ -4,7 +4,7 @@ import { css, jsx } from '@emotion/core'
 import { green } from '@ant-design/colors'
 import { Button as DefaultButton, ButtonProps } from 'antd'
 import { colors, gradients, transitions } from '../constants/style'
-import { ITrackingComponent, useTracking } from './TrackingContext'
+import { ITrackingComponent, useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 const buttonCss = (color) => {
     // Ant returns an array of hue-separated colors, check them out here
@@ -257,7 +257,7 @@ const sberBlackCss = css`
   }
 `
 
-export interface CustomButtonProps extends Omit<ButtonProps, 'type'>, ITrackingComponent{
+export interface CustomButtonProps extends Omit<ButtonProps, 'type'>, ITrackingComponent {
     type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction'
     | 'sberDangerGhost' | 'sberDefaultGradient' | 'sberBlack' | ButtonProps['type'],
     secondary?: boolean
@@ -277,13 +277,16 @@ const BUTTON_TYPE_STYLES = {
 }
 
 export const Button: React.FC<CustomButtonProps> = (props) => {
-    const { type, secondary, eventName, eventProperties, ...restProps } = props
-    const { instrument } = useTracking()
+    const { type, secondary, onClick, eventProperties = {}, ...restProps } = props
+    const { instrument, getEventName } = useTracking()
+    const eventName = getEventName(TrackingEventType.Click)
 
-    const onClick = eventName ? instrument(eventName, eventProperties, restProps.onClick) : restProps.onClick
+    const onClickCallback = eventName && restProps.children
+        ? instrument(eventName, { ...eventProperties, component: { value: restProps.children } }, onClick)
+        : onClick
 
     if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
-        return <DefaultButton {...restProps} type={type as ButtonProps['type']} onClick={onClick}/>
+        return <DefaultButton {...restProps} type={type as ButtonProps['type']} onClick={onClickCallback}/>
     }
 
     let buttonStyles
@@ -295,5 +298,5 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
         buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
     }
 
-    return <DefaultButton css={buttonStyles} {...restProps} onClick={onClick}/>
+    return <DefaultButton css={buttonStyles} {...restProps} onClick={onClickCallback}/>
 }

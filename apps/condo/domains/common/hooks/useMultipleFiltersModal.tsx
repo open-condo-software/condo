@@ -10,9 +10,9 @@ import {
     Modal as DefaultModal,
     ModalProps,
 } from 'antd'
-import Input from '@condo/domains/common/components/Input'
-import Select from '@condo/domains/common/components/Select'
-import Checkbox from '@condo/domains/common/components/Checkbox'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'

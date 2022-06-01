@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { Col, Form, Row } from 'antd'
-import Input from '@condo/domains/common/components/Input'
-import Select from '@condo/domains/common/components/Select'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
 const { Option } = Select
 import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
