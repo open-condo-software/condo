@@ -83,6 +83,14 @@ const ExportTicketTask = new GQLListSchema('ExportTicketTask', {
             isRequired: true,
         },
 
+        user: {
+            schemaDoc: 'User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user',
+            type: 'Relationship',
+            ref: 'User',
+            isRequired: false,
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
