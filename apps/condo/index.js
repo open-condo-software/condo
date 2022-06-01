@@ -27,7 +27,7 @@ const { GraphQLLoggerApp } = require('@condo/domains/common/utils/GraphQLLoggerA
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 
-const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
+const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const IS_ENABLE_CACHE = conf.ENABLE_CACHE === '1'
