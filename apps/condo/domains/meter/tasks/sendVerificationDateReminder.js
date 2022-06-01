@@ -214,7 +214,7 @@ const generateReminderMessages = async ({ context, reminders }) => {
                             resource: { name: localizedResourceName },
                             userId: resident.user.id,
                             residentId: resident.id,
-                            url: `${ conf.SERVER_URL }/meter`,
+                            url: `${ conf.SERVER_URL }/meter/`,
                         },
                     },
                 }
