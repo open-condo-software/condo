@@ -8,7 +8,7 @@ const {
     BILLING_RECEIPT_SERVICES_FIELD,
     BILLING_RECEIPT_SERVICES_INPUT,
 } = require('@condo/domains/billing/constants/constants')
-const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
+const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 const { Json } = require('@core/keystone/fields')
 
 const ServiceToPayDetailsFields = {

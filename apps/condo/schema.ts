@@ -1759,6 +1759,17 @@ export type AllMiniAppsInput = {
   organization: OrganizationWhereUniqueInput;
 };
 
+export type AppColorSchemaField = {
+  __typename?: 'AppColorSchemaField';
+  main: Scalars['String'];
+  secondary: Scalars['String'];
+};
+
+export type AppColorSchemaFieldInput = {
+  main: Scalars['String'];
+  secondary: Scalars['String'];
+};
+
 export enum AppType {
   Billing = 'BILLING',
   Acquiring = 'ACQUIRING',
@@ -3159,6 +3170,8 @@ export type B2CApp = {
   developer?: Maybe<Scalars['String']>;
   /**  Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
+  /**  The color schema of the B2C application used to display it correctly. The main color is used for texts, icons etc. The secondary color is used for the background  */
+  colorSchema?: Maybe<AppColorSchemaField>;
   /**  Specifies set of service users, who can modify B2CAppProperties of the app as well as perform actions on behalf of the application  */
   accessRights: Array<B2CAppAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
@@ -3520,6 +3533,7 @@ export type B2CAppCreateInput = {
   shortDescription?: Maybe<Scalars['String']>;
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  colorSchema?: Maybe<AppColorSchemaFieldInput>;
   accessRights?: Maybe<B2CAppAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3548,6 +3562,7 @@ export type B2CAppHistoryRecord = {
   shortDescription?: Maybe<Scalars['String']>;
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  colorSchema?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3569,6 +3584,7 @@ export type B2CAppHistoryRecordCreateInput = {
   shortDescription?: Maybe<Scalars['String']>;
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  colorSchema?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3595,6 +3611,7 @@ export type B2CAppHistoryRecordUpdateInput = {
   shortDescription?: Maybe<Scalars['String']>;
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  colorSchema?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3672,6 +3689,10 @@ export type B2CAppHistoryRecordWhereInput = {
   developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  colorSchema?: Maybe<Scalars['JSON']>;
+  colorSchema_not?: Maybe<Scalars['JSON']>;
+  colorSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  colorSchema_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -3776,6 +3797,7 @@ export type B2CAppUpdateInput = {
   shortDescription?: Maybe<Scalars['String']>;
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  colorSchema?: Maybe<AppColorSchemaFieldInput>;
   accessRights?: Maybe<B2CAppAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3851,6 +3873,10 @@ export type B2CAppWhereInput = {
   developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  colorSchema?: Maybe<AppColorSchemaFieldInput>;
+  colorSchema_not?: Maybe<AppColorSchemaFieldInput>;
+  colorSchema_in?: Maybe<Array<Maybe<AppColorSchemaFieldInput>>>;
+  colorSchema_not_in?: Maybe<Array<Maybe<AppColorSchemaFieldInput>>>;
   /**  condition must be true for all nodes  */
   accessRights_every?: Maybe<B2CAppAccessRightWhereInput>;
   /**  condition must be true for at least 1 node  */

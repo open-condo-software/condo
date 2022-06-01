@@ -1,7 +1,7 @@
 const Ajv = require('ajv')
 const { Json } = require('@core/keystone/fields')
 
-const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
+const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 
 const TICKET_FILTER_TYPE_NAME = 'TicketFilter'
 

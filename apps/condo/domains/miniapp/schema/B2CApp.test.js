@@ -9,6 +9,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const faker = require('faker')
@@ -168,6 +169,33 @@ describe('B2CApp', () => {
                 })
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await B2CApp.delete(anonymous, app.id)
+                })
+            })
+        })
+    })
+    describe('Validations', () => {
+        describe('colorSchema field', () => {
+            const correctColors = [['#333'], ['#AcB'], ['#fff'], ['#AAA'], ['#f1F2f3']]
+            const incorrectColors = [['fff'], ['#GGG'], ['#1215G2']]
+            let admin
+            beforeAll(async () => {
+                admin = await makeLoggedInAdminClient()
+            })
+            describe('Should pass with correct colors', () => {
+                test.each(correctColors)('%p', async (color) => {
+                    const payload = { colorSchema: { main: color, secondary: color } }
+                    const [app] = await createTestB2CApp(admin, payload)
+                    expect(app).toBeDefined()
+                    expect(app).toEqual(expect.objectContaining(payload))
+                })
+            })
+            describe('Should fail with incorrect colors', () => {
+                test.each(incorrectColors)('%p', async (color) => {
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestB2CApp(admin, {
+                            colorSchema: { main: color, secondary: color },
+                        })
+                    }, 'colorSchema field validation error')
                 })
             })
         })
