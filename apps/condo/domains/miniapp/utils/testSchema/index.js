@@ -4,6 +4,9 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const path = require('path')
+const conf = require('@core/config')
+const { UploadingFile } = require('@core/keystone/test.utils')
 const { throwIfError, generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
@@ -163,6 +166,8 @@ async function updateTestB2BAppAccessRight (client, id, extraAttrs = {}) {
 async function createTestB2CApp (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const colorSchema = { main: '#fff', secondary: '#123321' }
+    const logoFile = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/user/test-assets/dino.png'))
 
     const attrs = {
         dv: 1,
@@ -171,6 +176,8 @@ async function createTestB2CApp (client, extraAttrs = {}) {
         shortDescription: faker.company.bs(),
         developer: faker.company.companyName(),
         isHidden: true,
+        colorSchema,
+        logo: logoFile,
         ...extraAttrs,
     }
     const obj = await B2CApp.create(client, attrs)

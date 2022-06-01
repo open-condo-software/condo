@@ -33,6 +33,9 @@ const NO_INSTRUCTION_OR_MESSAGE_ERROR = '[integration:noInstructionOrMessage] If
 const NON_SERVICE_USER_ERROR = '[user] No user specified or it has non-service type'
 const NO_CONTEXT_STATUS_ERROR = '[status] Status field cannot be set to null'
 
+const B2C_APP_COLOR_SCHEMA_TYPE_NAME = 'AppColorSchemaField'
+const B2C_APP_COLOR_SCHEMA_INPUT_NAME = 'AppColorSchemaFieldInput'
+
 
 module.exports = {
     BILLING_APP_TYPE,
@@ -48,4 +51,6 @@ module.exports = {
     NON_SERVICE_USER_ERROR,
     NO_INSTRUCTION_OR_MESSAGE_ERROR,
     NO_CONTEXT_STATUS_ERROR,
+    B2C_APP_COLOR_SCHEMA_TYPE_NAME,
+    B2C_APP_COLOR_SCHEMA_INPUT_NAME,
 }

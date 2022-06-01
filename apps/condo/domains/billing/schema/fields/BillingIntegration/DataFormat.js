@@ -3,7 +3,7 @@ const {
     BILLING_INTEGRATION_DATA_FORMAT_FIELD_NAME,
     BILLING_INTEGRATION_DATA_FORMAT_INPUT_NAME,
 } = require('@condo/domains/billing/constants/constants')
-const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
+const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 const { Json } = require('@core/keystone/fields')
 
 const DataFormatFields = {

@@ -4,7 +4,7 @@ const {
     FEE_DISTRIBUTION_SCHEMA_FIELD_NAME,
     FEE_DISTRIBUTION_SCHEMA_INPUT_NAME,
 } = require('@condo/domains/acquiring/constants/gql')
-const { render, getValidator } = require('@condo/domains/billing/schema/fields/utils/json.utils')
+const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 const { Json } = require('@core/keystone/fields')
 const Ajv = require('ajv')
 
