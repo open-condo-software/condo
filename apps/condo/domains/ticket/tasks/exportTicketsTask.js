@@ -206,11 +206,12 @@ const exportTicketsTask = createTask('exportTickets', async (taskId) => {
  * @param taskArgs - arguments that will be saved into ExportTicketTask
  * @return {Promise<*>}
  */
-async function startExportTicketsTask (context, taskArgs) {
+async function startExportTicketsTask (context, user, taskArgs) {
     const { dv, sender, format, where, sortBy, locale, timeZone } = taskArgs
-    const task = await ExportTicketTask.create(context, {
+    const task = await ExportTicketTask.create(context,  {
         dv,
         sender,
+        user: { connect: { id: user.id } },
         format,
         where,
         sortBy,
