@@ -30597,9 +30597,9 @@ export type RegisterNewUserInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   name: Scalars['String'];
-  email?: Maybe<Scalars['String']>;
   password: Scalars['String'];
   confirmPhoneActionToken?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
 };
