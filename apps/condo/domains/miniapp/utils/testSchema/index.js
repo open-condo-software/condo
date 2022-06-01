@@ -10,6 +10,8 @@ const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
 const { B2BApp: B2BAppGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppContext: B2BAppContextGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRight: B2BAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
+const { B2CApp: B2CAppGQL } = require('@condo/domains/miniapp/gql')
+const { B2CAppAccessRight: B2CAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const DOCUMENT_BLOCK_SINGLE_EXAMPLE = [
@@ -41,6 +43,8 @@ const DOCUMENT_BLOCK_MULTIPLE_EXAMPLE = [
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
 const B2BAppContext = generateGQLTestUtils(B2BAppContextGQL)
 const B2BAppAccessRight = generateGQLTestUtils(B2BAppAccessRightGQL)
+const B2CApp = generateGQLTestUtils(B2CAppGQL)
+const B2CAppAccessRight = generateGQLTestUtils(B2CAppAccessRightGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -156,6 +160,68 @@ async function updateTestB2BAppAccessRight (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2CApp (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        name: faker.company.companyName() + ' B2C APP',
+        shortDescription: faker.company.bs(),
+        developer: faker.company.companyName(),
+        isHidden: true,
+        ...extraAttrs,
+    }
+    const obj = await B2CApp.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2CApp (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2CApp.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestB2CAppAccessRight (client, user, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        app: { connect: { id: app.id } },
+        ...extraAttrs,
+    }
+    const obj = await B2CAppAccessRight.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2CAppAccessRight (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppAccessRight.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -165,5 +231,7 @@ module.exports = {
     B2BApp, createTestB2BApp, updateTestB2BApp,
     B2BAppContext, createTestB2BAppContext, updateTestB2BAppContext,
     B2BAppAccessRight, createTestB2BAppAccessRight, updateTestB2BAppAccessRight,
+    B2CApp, createTestB2CApp, updateTestB2CApp,
+    B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
