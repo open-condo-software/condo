@@ -44,22 +44,9 @@ const Organization = new GQLListSchema('Organization', {
         // This field have specific use case for mobile client.
         tin: {
             schemaDoc: 'Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on',
-            type: Virtual,
-            resolver: async (item) => {
-                if (!item) return null
-
-                const country = get(item, 'country')
-                const meta = get(item, 'meta')
-
-                if (!country || !meta) return null
-
-                // TODO(DOMA-663): rename Organization.meta.inn to Organization.meta.tin and fix corresponding code
-                const innValue = get(meta, 'inn', '').toString().trim()
-                const isValid = isValidTin(innValue, item.country)
-
-                return isValid ? innValue : null
-            },
-            graphQLReturnType: 'String',
+            type: Text,
+            isRequired: false,
+            kmigratorOptions: { null: true },
             access: true,
         },
         description: {
@@ -75,7 +62,7 @@ const Organization = new GQLListSchema('Organization', {
         },
         meta: {
             schemaDoc: 'Organization metadata. Depends on country level specific' +
-                'Examples of data keys: `inn`, `kpp`',
+                'Example of data key: `kpp`',
             type: Json,
             isRequired: false,
         },
