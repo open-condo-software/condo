@@ -192,6 +192,7 @@ const generateReminderMessages = async ({ context, reminders }) => {
         }
 
         // get list of meter resources for certain locale
+        // TODO apply DOMA-3174 mechanic for custom request locale
         const localizedResources = await MeterResource.getAll(localeDependedContext, {})
 
         // prepare a message for each resident
