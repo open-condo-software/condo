@@ -171,7 +171,7 @@ const TrackingProvider: React.FC = ({ children }) => {
         if (typeof window !== 'undefined') {
             // Page path changed -> change value at context object
             router.events.on('routeChangeStart', routeChangeStart)
-            Object.values(trackingProviderValueRef.current.trackerInstances).map(trackerInstance => trackerInstance.init())
+            Object.values(trackingProviderValueRef.current.trackerInstances).forEach(trackerInstance => trackerInstance.init())
         }
 
         return () => {
