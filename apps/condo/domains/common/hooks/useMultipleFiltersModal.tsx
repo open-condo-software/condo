@@ -489,6 +489,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             key={'saveFilters'}
             onClick={handleSaveFiltersTemplate}
             disabled={isSaveFiltersTemplateButtonDisabled}
+            eventName={'ModalFilterSaveClick'}
             type={'sberGrey'}
             secondary
         >
@@ -497,6 +498,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         <Button
             key={'submit'}
             onClick={handleSubmitButtonClick}
+            eventName={'ModalFilterSubmitClick'}
             type={'sberPrimary'}
             data-cy={'common__filters-button-submit'}
         >

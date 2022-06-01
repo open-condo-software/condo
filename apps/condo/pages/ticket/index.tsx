@@ -167,6 +167,7 @@ export const TicketsPageContent = ({
                                                                         onChange={handleEmergencyChange}
                                                                         checked={emergency}
                                                                         style={CHECKBOX_STYLE}
+                                                                        eventName={'TicketFilterCheckboxEmergency'}
                                                                         data-cy={'ticket__filter-isEmergency'}
                                                                     >
                                                                         {EmergenciesLabel}
@@ -177,6 +178,7 @@ export const TicketsPageContent = ({
                                                                         onChange={handlePaidChange}
                                                                         checked={paid}
                                                                         style={CHECKBOX_STYLE}
+                                                                        eventName={'TicketFilterCheckboxPaid'}
                                                                         data-cy={'ticket__filter-isPaid'}
                                                                     >
                                                                         {PaidLabel}
@@ -187,6 +189,7 @@ export const TicketsPageContent = ({
                                                                         onChange={handleWarrantyChange}
                                                                         checked={warranty}
                                                                         style={CHECKBOX_STYLE}
+                                                                        eventName={'TicketFilterCheckboxWarranty'}
                                                                         data-cy={'ticket__filter-isWarranty'}
                                                                     >
                                                                         {WarrantiesLabel}
@@ -211,6 +214,7 @@ export const TicketsPageContent = ({
                                                                 type={'sberPrimary'}
                                                                 onClick={() => setIsMultipleFiltersModalVisible(true)}
                                                                 data-cy={'ticket__filters-button'}
+                                                                eventName={'TicketClickOpenFiltersButton'}
                                                             >
                                                                 <FilterFilled/>
                                                                 {FiltersButtonLabel}
