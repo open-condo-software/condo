@@ -28,7 +28,7 @@ class MockTracker extends TrackerInstance {
         this.instance = {}
     }
 
-    logEvent ({ eventName, eventProperties, denyDuplicates }: ITrackerLogEventType): void {
+    logInstanceEvent ({ eventName, eventProperties, denyDuplicates }: ITrackerLogEventType): void {
         void 0
     }
 }
@@ -40,7 +40,7 @@ describe('TrackerInstance', () => {
                 const eventName = faker.datatype.string()
                 const trackerInstance = new MockTracker(TRACKER_INSTANCE_NAME)
 
-                expect(trackerInstance.isNeedToSendEvent({
+                expect(trackerInstance.logEvent({
                     eventName,
                 })).toBeFalsy()
             })
@@ -52,7 +52,7 @@ describe('TrackerInstance', () => {
 
                 trackerInstance.init()
 
-                expect(trackerInstance.isNeedToSendEvent({
+                expect(trackerInstance.logEvent({
                     eventName,
                 })).toBeFalsy()
 
@@ -74,7 +74,7 @@ describe('TrackerInstance', () => {
                     },
                 }
 
-                expect(trackerInstance.isNeedToSendEvent(trackerProps)).toBeTruthy()
+                expect(trackerInstance.logEvent(trackerProps)).toBeTruthy()
             })
 
             it('when event was sent from detail page', () => {
@@ -91,7 +91,7 @@ describe('TrackerInstance', () => {
                     },
                 }
 
-                expect(trackerInstance.isNeedToSendEvent(trackerProps)).toBeTruthy()
+                expect(trackerInstance.logEvent(trackerProps)).toBeTruthy()
             })
 
             it('when event was sent from create page', () => {
@@ -108,7 +108,7 @@ describe('TrackerInstance', () => {
                     },
                 }
 
-                expect(trackerInstance.isNeedToSendEvent(trackerProps)).toBeTruthy()
+                expect(trackerInstance.logEvent(trackerProps)).toBeTruthy()
             })
 
             it('when event was sent from update page', () => {
@@ -125,7 +125,7 @@ describe('TrackerInstance', () => {
                     },
                 }
 
-                expect(trackerInstance.isNeedToSendEvent(trackerProps)).toBeTruthy()
+                expect(trackerInstance.logEvent(trackerProps)).toBeTruthy()
             })
 
         })
