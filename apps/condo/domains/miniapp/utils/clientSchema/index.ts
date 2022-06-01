@@ -6,4 +6,6 @@
 export * as B2BApp from './B2BApp'
 export * as B2BAppContext from './B2BAppContext'
 export * as B2BAppAccessRight from './B2BAppAccessRight'
+export * as B2CApp from './B2CApp'
+export * as B2CAppAccessRight from './B2CAppAccessRight'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

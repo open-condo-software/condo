@@ -1,9 +1,9 @@
 const { getByCondition } = require('@core/keystone/schema')
 const get = require('lodash/get')
 
-async function checkB2BAppAccessRight (userId, appId) {
+async function checkAccessRight (userId, appId, accessRightModel) {
     if (!userId || !appId) return false
-    const accessRight = await getByCondition('B2BAppAccessRight', {
+    const accessRight = await getByCondition(accessRightModel, {
         app: { id: appId },
         user: { id: userId },
         deletedAt: null,
@@ -11,6 +11,15 @@ async function checkB2BAppAccessRight (userId, appId) {
     return !!get(accessRight, 'id')
 }
 
+async function checkB2BAppAccessRight (userId, appId) {
+    return await checkAccessRight(userId, appId, 'B2BAppAccessRight')
+}
+
+async function checkB2CAppAccessRight (userId, appId) {
+    return await checkAccessRight(userId, appId, 'B2CAppAccessRight')
+}
+
 module.exports = {
     checkB2BAppAccessRight,
+    checkB2CAppAccessRight,
 }
