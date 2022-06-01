@@ -12855,6 +12855,8 @@ export type ExportTicketTask = {
   locale?: Maybe<Scalars['String']>;
   /**  To requested timeZone all datetime fields will be converted  */
   timeZone?: Maybe<Scalars['String']>;
+  /**  User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user  */
+  user?: Maybe<User>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12882,6 +12884,7 @@ export type ExportTicketTaskCreateInput = {
   sortBy?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
   timeZone?: Maybe<Scalars['String']>;
+  user?: Maybe<UserRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12918,6 +12921,7 @@ export type ExportTicketTaskHistoryRecord = {
   sortBy?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
   timeZone?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12944,6 +12948,7 @@ export type ExportTicketTaskHistoryRecordCreateInput = {
   sortBy?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
   timeZone?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12975,6 +12980,7 @@ export type ExportTicketTaskHistoryRecordUpdateInput = {
   sortBy?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
   timeZone?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -13096,6 +13102,10 @@ export type ExportTicketTaskHistoryRecordWhereInput = {
   timeZone_not_ends_with_i?: Maybe<Scalars['String']>;
   timeZone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   timeZone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -13204,6 +13214,7 @@ export type ExportTicketTaskUpdateInput = {
   sortBy?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
   timeZone?: Maybe<Scalars['String']>;
+  user?: Maybe<UserRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -13294,6 +13305,8 @@ export type ExportTicketTaskWhereInput = {
   timeZone_not_ends_with_i?: Maybe<Scalars['String']>;
   timeZone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   timeZone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -39076,6 +39089,8 @@ export enum SortExportTicketTasksBy {
   LocaleDesc = 'locale_DESC',
   TimeZoneAsc = 'timeZone_ASC',
   TimeZoneDesc = 'timeZone_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
