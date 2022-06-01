@@ -4,7 +4,8 @@ import {
     RowNormalizer,
     RowValidator,
     ObjectCreator,
-    ProcessedRow, MutationErrorsToMessagesType,
+    ProcessedRow,
+    MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 import { Modal, Popover, Typography, Space } from 'antd'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
@@ -20,6 +21,7 @@ import { DataImporter } from '../DataImporter'
 import { Button } from '../Button'
 import { DownloadOutlined } from '@ant-design/icons'
 import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 interface IColumnsInfoBoxProps {
     columns: Columns
@@ -109,6 +111,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const GetFailedDataMessage = intl.formatMessage({ id: 'GetFailedData' })
     const CloseMessage = intl.formatMessage({ id: 'Close' })
 
+    const { logEvent, getEventName } = useTracking()
+
     const [modal, contextHolder] = Modal.useModal()
     const activeModal = useRef(null)
 
@@ -156,6 +160,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                 const config = getUploadSuccessModalConfig(ImportTitle, message, ImportOKMessage)
                 activeModal.current = modal.success(config)
             }
+            const eventName = getEventName(TrackingEventType.ImportComplete)
+            logEvent({ eventName })
             handleFinish()
         },
         onError: () => {

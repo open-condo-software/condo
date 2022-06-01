@@ -50,6 +50,7 @@ export enum TrackingEventType {
     Checkbox = 'Checkbox',
     Radio = 'Radio',
     FollowExternalLink = 'FollowExternalLink',
+    ImportComplete = 'ImportComplete',
 }
 
 interface IUseTracking {

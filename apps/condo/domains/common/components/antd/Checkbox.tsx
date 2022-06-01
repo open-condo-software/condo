@@ -8,14 +8,18 @@ export interface CustomCheckboxProps extends CheckboxProps {
 }
 
 const Checkbox = (props: CustomCheckboxProps) => {
-    const { eventProperties = {}, onChange, ...restProps } = props
+    const { eventName: propEventName, eventProperties = {}, onChange, ...restProps } = props
     const { instrument, getEventName } = useTracking()
-    const eventName = getEventName(TrackingEventType.Checkbox)
 
-    const onChangeCallback = eventName && restProps.value
-        ? instrument(eventName, {
-            ...eventProperties, component: { value: restProps.value, name: restProps.name },
-        }, onChange)
+    const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Checkbox)
+    const componentProperties = { ...eventProperties }
+
+    if (restProps.children && typeof restProps.children === 'string') {
+        componentProperties['component'] = { value: restProps.children }
+    }
+
+    const onChangeCallback = eventName
+        ? instrument(eventName, componentProperties, onChange)
         : onChange
 
     return (

@@ -277,13 +277,17 @@ const BUTTON_TYPE_STYLES = {
 }
 
 export const Button: React.FC<CustomButtonProps> = (props) => {
-    const { type, secondary, onClick, eventProperties = {}, ...restProps } = props
+    const { type, secondary, onClick, eventName: propEventName, eventProperties = {}, ...restProps } = props
     const { instrument, getEventName } = useTracking()
-    const eventName = getEventName(TrackingEventType.Click)
 
-    const onClickCallback = eventName && restProps.children
-        ? instrument(eventName, { ...eventProperties, component: { value: restProps.children } }, onClick)
-        : onClick
+    const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Click)
+    const componentProperties = { ...eventProperties }
+
+    if (restProps.children && typeof restProps.children === 'string') {
+        componentProperties['components'] = { value: restProps.children }
+    }
+
+    const onClickCallback = eventName ? instrument(eventName, componentProperties, onClick) : onClick
 
     if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
         return <DefaultButton {...restProps} type={type as ButtonProps['type']} onClick={onClickCallback}/>

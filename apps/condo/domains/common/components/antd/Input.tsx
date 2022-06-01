@@ -1,6 +1,6 @@
 import React from 'react'
 import { Input as BaseInput, InputProps } from 'antd'
-import { useTracking, TrackingEventPropertiesType } from '../TrackingContext'
+import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '../TrackingContext'
 
 export interface CustomInputProps extends InputProps {
     eventName?: string
@@ -8,18 +8,26 @@ export interface CustomInputProps extends InputProps {
 }
 
 const Input = (props: CustomInputProps) => {
-    const { children, eventName, eventProperties, ...restProps } = props
-    const { instrument } = useTracking()
+    const { eventName: propEventName, eventProperties, onChange, ...restProps } = props
+    const { instrument, getEventName } = useTracking()
 
-    const onChange = eventName ? instrument(eventName, eventProperties, restProps.onChange) : restProps.onChange
+    const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Input)
+    const componentProperties = { ...eventProperties }
+
+    if (restProps.value) {
+        componentProperties['component'] = { value: restProps.value }
+    }
+
+    const onChangeCallback = eventName ? instrument(eventName, componentProperties, onChange) : onChange
 
     return (
-        <BaseInput {...restProps} onChange={onChange}>
-            {children}
-        </BaseInput>
+        <BaseInput {...restProps} onChange={onChangeCallback} />
     )
 }
 
 Input.Password = BaseInput.Password
+Input.TextArea = BaseInput.TextArea
+Input.Search = BaseInput.Search
+Input.Group = BaseInput.Group
 
 export default Input
