@@ -1018,10 +1018,20 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         </Row>
                     </Col>
                     <ActionBar hidden={isSmall}>
-                        <Button disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf} icon={<FilePdfFilled />} type='sberPrimary' secondary>
+                        <Button 
+                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf} 
+                            icon={<FilePdfFilled />} 
+                            type='sberPrimary' 
+                            secondary>
                             {PrintTitle}
                         </Button>
-                        <Button disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={downloadExcel} loading={isXSLXLoading} icon={<EditFilled />} type='sberPrimary' secondary>
+                        <Button 
+                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} 
+                            onClick={downloadExcel} 
+                            loading={isXSLXLoading} 
+                            icon={<EditFilled />} 
+                            type='sberPrimary' 
+                            secondary>
                             {ExcelTitle}
                         </Button>
                     </ActionBar>
