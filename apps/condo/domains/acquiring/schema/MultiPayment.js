@@ -98,7 +98,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
 
         implicitFee: {
             ...NON_NEGATIVE_MONEY_FIELD,
-            schemaDoc: 'Total amount of money charged from recipients of multipayment as fee for transaction',
+            schemaDoc: 'Total amount of money charged to recipients from amountWithoutExplicitFee of multipayment as fee for transaction',
             isRequired: false,
             access: { read: access.canReadMultiPaymentsSensitiveData },
             hooks: {
