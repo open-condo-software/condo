@@ -2,7 +2,9 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
-import { Alert, Checkbox, Col, Form, FormItemProps, Input, Row, Typography } from 'antd'
+import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
@@ -145,17 +147,23 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                             <Row gutter={[40, 0]}>
                                 <Col span={24} lg={4}>
                                     <Form.Item name={'isEmergency'} valuePropName='checked'>
-                                        <Checkbox disabled={disableUserInteraction}>{EmergencyLabel}</Checkbox>
+                                        <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxEmergency'}>
+                                            {EmergencyLabel}
+                                        </Checkbox>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24} lg={4}>
                                     <Form.Item name={'isPaid'} valuePropName='checked'>
-                                        <Checkbox disabled={disableUserInteraction}>{PaidLabel}</Checkbox>
+                                        <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxIsPaid'}>
+                                            {PaidLabel}
+                                        </Checkbox>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24} lg={4}>
                                     <Form.Item name={'isWarranty'} valuePropName='checked'>
-                                        <Checkbox disabled={disableUserInteraction}>{WarrantyLabel}</Checkbox>
+                                        <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxIsWarranty'}>
+                                            {WarrantyLabel}
+                                        </Checkbox>
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -436,7 +444,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 !isResidentTicket && (
                                                                     <Col span={24}>
                                                                         <Form.Item name={'canReadByResident'} valuePropName='checked' initialValue={initialCanReadByResidentValue}>
-                                                                            <Checkbox disabled={disableUserInteraction}>{CanReadByResidentMessage}</Checkbox>
+                                                                            <Checkbox
+                                                                                disabled={disableUserInteraction}
+                                                                                eventName={'TicketCreateCheckboxCanReadByResident'}
+                                                                            >
+                                                                                {CanReadByResidentMessage}
+                                                                            </Checkbox>
                                                                         </Form.Item>
                                                                     </Col>
                                                                 )
