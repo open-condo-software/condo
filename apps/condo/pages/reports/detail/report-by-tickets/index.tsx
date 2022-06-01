@@ -57,6 +57,7 @@ import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLab
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketWarningModal } from '@condo/domains/ticket/hooks/useTicketWarningModal'
 import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/ticket/constants/restrictions'
+import useBreakpoint from 'antd/lib/grid/hooks/useBreakpoint'
 
 dayjs.extend(quarterOfYear)
 
@@ -77,12 +78,6 @@ const FORM_ITEM_STYLE = {
     wrapperCol: {
         span: 24,
     },
-}
-const DATE_RANGE_PRESETS = {
-    week: [dayjs().subtract(1, 'week'), dayjs()],
-    month: [dayjs().subtract(1, 'month'), dayjs()],
-    quarter: [dayjs().subtract(1, 'quarter'), dayjs()],
-    year: [dayjs().subtract(1, 'year'), dayjs()],
 }
 
 const tabsCss = css`
@@ -142,17 +137,13 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const ExecutorTitle = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleTitle = intl.formatMessage({ id: 'field.Responsible' })
     const ApplyButtonTitle = intl.formatMessage({ id: 'Show' })
-    const PresetWeek = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Week' })
-    const PresetMonth = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Month' })
-    const PresetQuarter = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Quarter' })
-    const PresetYear = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Year' })
     const startDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const endDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'week'), dayjs()])
-    const [dateRangePreset, setDateRangePreset] = useState<null | string>(null)
+    const [setDateRangePreset] = useState<null | string>(null)
     const [addressList, setAddressList] = useState([])
     const [classifierList, setClassifierList] = useState<string []>([])
     const [executorList, setExecutorList] = useState<string []>([])
@@ -203,10 +194,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     }, [])
 
     useEffect(() => {
-        dateRangePreset !== null && setDateRange(DATE_RANGE_PRESETS[dateRangePreset])
-    }, [dateRangePreset])
-
-    useEffect(() => {
         updateUrlFilters()
     }, [viewMode, groupTicketsBy])
 
@@ -255,7 +242,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     }, [responsibleList])
 
     const onSpecificationChange = useCallback((e) => setSpecification(e), [])
-    const onRangePresetChange = useCallback((preset) => setDateRangePreset(preset.target.value), [])
     const onDateRangeChange = useCallback((range) => setDateRange(range), [])
 
     return (
@@ -653,7 +639,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                         const { dataIndex, seriesIndex } = chart
                                         const elementYOffset = 25 * dataIndex
                                         const verticalOffset = isSmall ? 250 : 0
-                                        const horizontalOffset = isSmall ? 50 : 340
+                                        const horizontalOffset = isSmall ? 50 : 300
                                         const yOffset = 75 + verticalOffset + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
                                         return {
                                             x: horizontalOffset,
@@ -985,7 +971,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 mainGroup={groupTicketsBy}
                                 chartConfig={{
                                     animationEnabled: true,
-                                    chartOptions: { renderer: 'svg', width: isSmall ? 300 : 900, height: viewMode === 'line' ? 440 : isSmall ? 500 : 300 },
+                                    chartOptions: { 
+                                        renderer: 'svg', 
+                                        width: isSmall ? 'auto' : 550, 
+                                        height: viewMode === 'line' ? 440 : isSmall ? 500 : 300,
+                                    },
                                 }}
                                 mapperInstance={mapperInstanceRef.current}
                             >

@@ -249,7 +249,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                         hasMore={hasMore}
                         useWindow={false}>
                         <List
-                            grid={{ gutter: 24, xs: 1, sm: 1, md: 1, lg: 1, xl: 2, xxl: 2 }}
+                            grid={{ gutter: 24, xs: 1, sm: 2, md: 2, lg: 1, xl: 2, xxl: 2 }}
                             dataSource={seriesRef.current}
                             renderItem={(chartSeries, index) => {
                                 const { option, opts } = getChartOptions({
@@ -261,7 +261,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                                     color,
                                 })
                                 return (
-                                    <List.Item key={`pie-${index}`} style={{ width: '100%', height:'100%' }}>
+                                    <List.Item key={`pie-${index}`} style={{ width: breakpoints.lg ? '550' : '300', height:'100%' }}>
                                         <ReactECharts
                                             ref={element => chartRefs.current[index] = element}
                                             opts={opts}
@@ -272,7 +272,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                                                 borderColor: colors.lightGrey[6],
                                                 borderRadius: 8,
                                                 height: '100%',
-                                                width: '100%',
+                                                width: 'auto',
                                             }}
                                             option={option}
                                         />
