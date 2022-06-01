@@ -34,8 +34,9 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const { dv, sender, where, sortBy, timeZone: timeZoneFromUser } = args.data
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                const user = context.authedItem
 
-                const task = await startExportTicketsTask(context, {
+                const task = await startExportTicketsTask(context, user, {
                     dv,
                     sender,
                     format: EXCEL,
