@@ -652,9 +652,11 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     labelLayout: (chart) =>  {
                                         const { dataIndex, seriesIndex } = chart
                                         const elementYOffset = 25 * dataIndex
-                                        const yOffset = 75 + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
+                                        const verticalOffset = isSmall ? 250 : 0
+                                        const horizontalOffset = isSmall ? 50 : 340
+                                        const yOffset = 75 + verticalOffset + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
                                         return {
-                                            x: 340,
+                                            x: horizontalOffset,
                                             y: yOffset,
                                             align: 'left',
                                             verticalAlign: 'top',
@@ -766,7 +768,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             const where = { organization: { id: userOrganizationId }, AND }
             loadTicketAnalytics({ variables: { data: { groupBy, where, nullReplaces } } })
         }
-    }, [userOrganizationId, viewMode, groupTicketsBy])
+    }, [userOrganizationId, viewMode, groupTicketsBy, isSmall])
 
     useEffect(() => {
         const queryParams = getQueryParams()
@@ -774,11 +776,12 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         setViewMode(get(queryParams, 'viewMode', 'line'))
     }, [])
 
+    // isSmall need for refresh getAnalyticsData then switch to mobile version
     useEffect(() => {
         ticketTypeRef.current = ticketType
         setAnalyticsData(null)
         getAnalyticsData()
-    }, [groupTicketsBy, userOrganizationId, ticketType, viewMode])
+    }, [groupTicketsBy, userOrganizationId, ticketType, viewMode, isSmall])
 
     // Download excel file when file link was created
     useEffect(() => {
@@ -982,7 +985,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 mainGroup={groupTicketsBy}
                                 chartConfig={{
                                     animationEnabled: true,
-                                    chartOptions: { renderer: 'svg', height: viewMode === 'line' ? 440 : 'auto' },
+                                    chartOptions: { renderer: 'svg', width: isSmall ? 300 : 900, height: viewMode === 'line' ? 440 : isSmall ? 500 : 300 },
                                 }}
                                 mapperInstance={mapperInstanceRef.current}
                             >

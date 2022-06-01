@@ -536,6 +536,88 @@ export const getChartOptions: IGetChartOptions = ({
 
         option['series'] = series
 
+        option['media'] = [
+            {
+                query: { maxWidth: 400 },
+                option: {
+                    series: { 
+                        center: ['50%', '40%'],
+                    },
+                    title: showTitle ? {
+                        show: true,
+                        left: 30,
+                        top: 10,
+                    } : { show: false },
+                },
+            }, {
+                query: { 
+                    minWidth: 401,
+                    maxWidth: 549,
+                },
+                option: {
+                    series: { 
+                        center: ['26%', '40%'],
+                    },
+                    title: showTitle ? {
+                        show: true,
+                        left: 30,
+                        top: 10,
+                    } : { show: false },
+                },
+            },  {
+                query: { 
+                    minWidth: 550,
+                    maxWidth: 800,
+                },
+                option: {
+                    series: { 
+                        center: ['25%', '40%'],
+                    },
+                    title: showTitle ? {
+                        show: true,
+                        left: 30,
+                        top: 10,
+                    } : { show: false },
+                },
+            }, {
+                query: { 
+                    minWidth: 800,
+                    maxWidth: 1200,
+                },
+                option: {
+                    series: { 
+                        center: ['20%', '50%'],
+                    },
+                    title: showTitle ? {
+                        show: true,
+                        left: 335,
+                        top: 30,
+                    } : { show: false },
+                },
+            }, {
+                query: { 
+                    minWidth: 1200,
+                },
+                option: {
+                    series: { 
+                        center: ['22%', '50%'],
+                    },
+                    title: showTitle ? { show: true,
+                        text: formatPieChartName(series[0].name),
+                        left: 335,
+                        top: 30,
+                        textStyle: {
+                            fontSize: fontSizes.content,
+                            fontWeight: 700,
+                            overflow: 'breakAll',
+                            width: 160,
+                            lineHeight: 20,
+                        },
+                    } : { show: false },
+                },
+            },
+        ]
+        
         option['title'] = showTitle ? {
             show: true,
             text: formatPieChartName(series[0].name),

@@ -18,6 +18,7 @@ import { getChartOptions, GroupTicketsByTypes } from '@condo/domains/ticket/util
 import styled from '@emotion/styled'
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined } from '@ant-design/icons'
+import { useLayoutContext } from '../../../common/components/LayoutContext'
 
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | TicketGroupedCounter[]
@@ -57,6 +58,8 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
         mapperInstance,
         mainGroup = 'ticket',
     } = props
+
+    const { breakpoints } = useLayoutContext()
 
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
@@ -190,7 +193,13 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
     }
 
     const hasMore = chartPage * TICKET_CHART_PAGE_SIZE <= seriesRef.current.length
-    let infiniteScrollContainerHeight = seriesRef.current.length > 2 ? '660px' : '340px'
+    let infiniteScrollContainerHeight = '340px'
+    if (breakpoints.md || breakpoints.xs || breakpoints.sm) {
+        infiniteScrollContainerHeight = '520px'
+    }
+    if (breakpoints.lg) {
+        infiniteScrollContainerHeight = '340px'
+    }
     // onChartReadyCallback is used only for pdf generation page to make sure that chart component was rendered at DOM
     if (onChartReady !== undefined) {
         infiniteScrollContainerHeight = '100%'
@@ -252,7 +261,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                                     color,
                                 })
                                 return (
-                                    <List.Item key={`pie-${index}`} style={{ width: 620 }}>
+                                    <List.Item key={`pie-${index}`} style={{ width: '100%', height:'100%' }}>
                                         <ReactECharts
                                             ref={element => chartRefs.current[index] = element}
                                             opts={opts}
@@ -262,6 +271,8 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                                                 border: '1px solid',
                                                 borderColor: colors.lightGrey[6],
                                                 borderRadius: 8,
+                                                height: '100%',
+                                                width: '100%',
                                             }}
                                             option={option}
                                         />
