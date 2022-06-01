@@ -27,6 +27,11 @@ const HEADER_DATE_FORMAT = 'DD.MM.YYYY'
 
 const EMPTY_VALUE = '—'
 
+const buildReviewValuesTranslationsFrom = (locale) => ({
+    [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
+    [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
+})
+
 const renderComment = (comment, locale) => {
     const createdAt = dayjs(comment.createdAt).format(COMMENT_DATE_FORMAT)
     const createdBy = comment.userName
@@ -61,10 +66,7 @@ const loadRecordsBatch = async ({ task, offset, limit }) => {
 const convertRecordToFileRow = async ({ task, ticket, indexedStatuses }) => {
     const { locale, timeZone } = task
 
-    const reviewValueText = {
-        [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
-        [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
-    }
+    const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
 
     const comments = await loadTicketCommentsForExcelExport({ ticketIds: [ticket.id] })
     const renderedOrganizationComments = []
@@ -119,7 +121,7 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses }) => {
         executor: ticket.executor || EMPTY_VALUE,
         assignee: ticket.assignee || EMPTY_VALUE,
         deadline: ticket.deadline ? formatDate(ticket.deadline) : EMPTY_VALUE,
-        reviewValue: ticket.reviewValue ? reviewValueText[ticket.reviewValue] : EMPTY_VALUE,
+        reviewValue: ticket.reviewValue ? reviewValuesTranslations[ticket.reviewValue] : EMPTY_VALUE,
         reviewComment: ticket.reviewComment || EMPTY_VALUE,
         statusReopenedCounter: ticket.statusReopenedCounter || EMPTY_VALUE,
         organizationComments: renderedOrganizationComments.join(TICKET_COMMENTS_SEPARATOR),
@@ -127,7 +129,7 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses }) => {
     }
 }
 
-const saveToFile = async ({ rows, task }) => {
+const saveToFile = async ({ rows, task, idOfFirstTicketForAccessRights }) => {
     const { where, timeZone, locale } = task
     const createdAtGte = get(findAllByKey(where, 'createdAt_gte'), 0)
     const createdAtLte = get(findAllByKey(where, 'createdAt_lte'), 0)
@@ -139,10 +141,7 @@ const saveToFile = async ({ rows, task }) => {
         headerMessage = `${i18n('excelExport.header.tickets.forPeriod', { locale })} ${formatDate(createdAtGte)} — ${formatDate(createdAtLte)}`
     }
 
-    const reviewValueText = {
-        [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
-        [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
-    }
+    const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
 
     await createExportFile({
         fileName: `tickets_${dayjs().format('DD_MM')}.xlsx`,
@@ -158,13 +157,14 @@ const saveToFile = async ({ rows, task }) => {
                 statusNames: ticketStatusesTranslations(locale),
 
                 yes: i18n('Yes', { locale }),
-                reviewValues: reviewValueText,
+                reviewValues: reviewValuesTranslations,
             },
         },
         meta: {
             listkey: 'Ticket',
-            // Used for determining access rights on read exported file by reading access to Ticket with specified `id`
-            // id: allTickets[0].id,
+            // Id of first record will be used by `OBSFilesMiddleware` to determine permission to access exported file
+            // NOTE: Permissions check on access to exported file will be replaced to checking access on `ExportTicketsTask`
+            id: idOfFirstTicketForAccessRights,
         },
     })
 }
@@ -177,11 +177,19 @@ const exportTickets = async (taskId) => {
     const statuses = await TicketStatus.getAll(context, {})
     const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
 
+    let idOfFirstTicketForAccessRights
+
     await exportRecords({
         context,
-        loadRecordsBatch: (offset, limit) => loadRecordsBatch({ context, task, offset, limit }),
+        loadRecordsBatch: (offset, limit) => {
+            const tickets = loadRecordsBatch({ context, task, offset, limit })
+            if (!idOfFirstTicketForAccessRights) {
+                idOfFirstTicketForAccessRights = get(tickets[0], 'id')
+            }
+            return tickets
+        },
         convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses }),
-        saveToFile: (rows) => saveToFile({ rows, task }),
+        saveToFile: (rows) => saveToFile({ rows, task, idOfFirstTicketForAccessRights }),
         task,
         taskServerUtils: ExportTicketTask,
     })
