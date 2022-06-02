@@ -55,11 +55,11 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { id, data } = args
                 const authedItem = context.authedItem
-                let { isRejected, isAccepted, ...restData } = data
+                if (!authedItem.id) throw new Error('Internal error inside the access check. We assume that the user should exists!')
+                let { isRejected, isAccepted, dv, sender } = data
+                if (dv !== 1) throw new GQLError(errors.acceptOrRejectOrganizationInviteById.DV_VERSION_MISMATCH)
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
-
-                if (restData.dv !== 1) throw new GQLError(errors.acceptOrRejectOrganizationInviteById.DV_VERSION_MISMATCH)
 
                 let employee = await OrganizationEmployee.getOne(context, { id, deletedAt: null })
                 if (!employee) throw new GQLError({ ...errors.acceptOrRejectOrganizationInviteById.INVITE_NOT_FOUND, messageInterpolation: { id } })
@@ -67,18 +67,20 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 // if the user accepts the invitation, then update the name, phone number and email address of the employee
                 if (isAccepted) {
                     employee = await OrganizationEmployee.update(context, employee.id, {
+                        dv: 1,
+                        sender,
                         isRejected,
                         isAccepted,
-                        ...restData,
                         name: authedItem.name ? authedItem.name : null,
                         phone: authedItem.phone ? authedItem.phone : null,
                         email: authedItem.email ? authedItem.email : null,
                     })
                 } else {
                     employee = await OrganizationEmployee.update(context, employee.id, {
+                        dv: 1,
+                        sender,
                         isRejected,
                         isAccepted,
-                        ...restData,
                     })
                 }
 
@@ -92,11 +94,11 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 const { inviteCode, data } = args
                 const authedItem = context.authedItem
                 if (!authedItem.id) throw new Error('Internal error inside the access check. We assume that the user should exists!')
-                let { isRejected, isAccepted, ...restData } = data
+                let { isRejected, isAccepted, sender, dv } = data
+                if (dv !== 1) throw new GQLError(errors.acceptOrRejectOrganizationInviteByCode.DV_VERSION_MISMATCH)
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                if (restData.dv !== 1) throw new GQLError(errors.acceptOrRejectOrganizationInviteByCode.DV_VERSION_MISMATCH)
 
                 let employee = await OrganizationEmployee.getOne(context, { inviteCode, user_is_null: true, deletedAt: null })
                 if (!employee) throw new GQLError({ ...errors.acceptOrRejectOrganizationInviteByCode.INVITE_NOT_FOUND, messageInterpolation: { inviteCode } })
@@ -104,20 +106,22 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 // if the user accepts the invitation, then update the name, phone number and email address of the employee
                 if (isAccepted) {
                     employee = await OrganizationEmployee.update(context, employee.id, {
+                        dv: 1,
+                        sender,
                         user: { connect: { id: context.authedItem.id } },
                         isRejected,
                         isAccepted,
-                        ...restData,
                         name: authedItem.name ? authedItem.name : null,
                         phone: authedItem.phone ? authedItem.phone : null,
                         email: authedItem.email ? authedItem.email : null,
                     })
                 } else {
                     employee = await OrganizationEmployee.update(context, employee.id, {
+                        dv: 1,
+                        sender,
                         user: { connect: { id: context.authedItem.id } },
                         isRejected,
                         isAccepted,
-                        ...restData,
                     })
                 }
 

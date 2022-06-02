@@ -27,24 +27,6 @@ async function createOrganization (context, data) {
     })
 }
 
-async function createOrganizationEmployee (context, data) {
-    return await execGqlWithoutAccess(context, {
-        query: OrganizationEmployee.CREATE_OBJ_MUTATION,
-        variables: { data },
-        errorMessage: '[error] Create organization employee internal error',
-        dataPath: 'obj',
-    })
-}
-
-async function updateOrganizationEmployee (context, id, data) {
-    return await execGqlWithoutAccess(context, {
-        query: OrganizationEmployee.UPDATE_OBJ_MUTATION,
-        variables: { id, data },
-        errorMessage: '[error] Update organization employee internal error',
-        dataPath: 'obj',
-    })
-}
-
 async function createDefaultRoles (context, organization, data) {
     if (!context) throw new Error('no context')
     if (!organization.id) throw new Error('wrong organization.id argument')
@@ -143,8 +125,6 @@ async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt
 
 module.exports = {
     createOrganization,
-    createOrganizationEmployee,
-    updateOrganizationEmployee,
     createDefaultRoles,
     createConfirmedEmployee,
     findOrganizationEmployee,
