@@ -31,8 +31,8 @@ describe('SendMessageToSupportService', () => {
         const payload = {
             os,
             attachments: [
-                new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/user/test-assets/simple-text-file.txt')),
-                new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/user/test-assets/dino.png')),
+                new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')),
+                new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')),
             ],
             text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM} and contains an attachment.`,
             emailFrom: EMAIL_FROM, // email passed from mobile application

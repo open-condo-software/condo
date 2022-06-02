@@ -9,6 +9,7 @@ const { B2BAppContext } = require('./B2BAppContext')
 const { B2BAppAccessRight } = require('./B2BAppAccessRight')
 const { B2CApp } = require('./B2CApp')
 const { B2CAppAccessRight } = require('./B2CAppAccessRight')
+const { B2CAppBuild } = require('./B2CAppBuild')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -18,5 +19,6 @@ module.exports = {
     B2BAppAccessRight,
     B2CApp,
     B2CAppAccessRight,
+    B2CAppBuild,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

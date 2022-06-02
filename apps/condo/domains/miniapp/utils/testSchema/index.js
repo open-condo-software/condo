@@ -15,6 +15,7 @@ const { B2BAppContext: B2BAppContextGQL } = require('@condo/domains/miniapp/gql'
 const { B2BAppAccessRight: B2BAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
 const { B2CApp: B2CAppGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppAccessRight: B2CAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
+const { B2CAppBuild: B2CAppBuildGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const DOCUMENT_BLOCK_SINGLE_EXAMPLE = [
@@ -48,6 +49,7 @@ const B2BAppContext = generateGQLTestUtils(B2BAppContextGQL)
 const B2BAppAccessRight = generateGQLTestUtils(B2BAppAccessRightGQL)
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
 const B2CAppAccessRight = generateGQLTestUtils(B2CAppAccessRightGQL)
+const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -167,7 +169,7 @@ async function createTestB2CApp (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const colorSchema = { main: '#fff', secondary: '#123321' }
-    const logoFile = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/user/test-assets/dino.png'))
+    const logoFile = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'))
 
     const attrs = {
         dv: 1,
@@ -229,6 +231,39 @@ async function updateTestB2CAppAccessRight (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2CAppBuild (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const version = `${faker.datatype.number(20)}.${faker.datatype.number(500)}.${faker.datatype.number(99999)}`
+    const data = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/archive.zip'))
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        version,
+        data,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppBuild.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2CAppBuild (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppBuild.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -240,5 +275,6 @@ module.exports = {
     B2BAppAccessRight, createTestB2BAppAccessRight, updateTestB2BAppAccessRight,
     B2CApp, createTestB2CApp, updateTestB2CApp,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
+    B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
