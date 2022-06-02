@@ -1,6 +1,6 @@
 const { getSchemaCtx, getById } = require('@core/keystone/schema')
 const { GQLCustomSchema } = require('@core/keystone/schema')
-const { User: UserServerUtils } = require('@condo/domains/user/utils/serverSchema')
+const { User } = require('@condo/domains/user/utils/serverSchema')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@core/keystone/errors')
@@ -59,7 +59,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 if (!phone) {
                     throw new GQLError(errors.WRONG_PHONE_FORMAT, context)
                 }
-                const users = await UserServerUtils.getAll(context, { phone, type: STAFF })
+                const users = await User.getAll(context, { phone, type: STAFF })
                 if (users.length !== 1) {
                     throw new GQLError(errors.USER_NOT_FOUND, context)
                 }
@@ -72,11 +72,10 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                     throw new GQLError(errors.WRONG_PASSWORD, context)
                 }
                 const token = await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
-                const result = {
+                return {
                     item: user,
                     token,
                 }
-                return result
             },
         },
     ],
