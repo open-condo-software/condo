@@ -445,6 +445,12 @@ describe('OrganizationEmployee', () => {
             }),
             isAccepted: false,
             isRejected: false,
+            createdBy: expect.objectContaining({
+                id: client1.user.id,
+            }),
+            updatedBy: expect.objectContaining({
+                id: client1.user.id,
+            }),
         })
 
         // client2 accept the invite
@@ -459,6 +465,12 @@ describe('OrganizationEmployee', () => {
             }),
             isAccepted: true,
             isRejected: false,
+            createdBy: expect.objectContaining({
+                id: client1.user.id,
+            }),
+            updatedBy: expect.objectContaining({
+                id: client2.user.id,
+            }),
         })
 
         // admin change the user1 name, email and phone
@@ -482,6 +494,12 @@ describe('OrganizationEmployee', () => {
             name: 'UPDATED1',
             user: expect.objectContaining({
                 id: client1.user.id,
+            }),
+            createdBy: expect.objectContaining({
+                id: client1.user.id,
+            }),
+            updatedBy: expect.objectContaining({
+                id: admin.user.id,
             }),
         })
         expect(employee2).toMatchObject({
