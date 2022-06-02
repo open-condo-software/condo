@@ -43,7 +43,7 @@ const TokenSet = generateGQLTestUtils(TokenSetGQL)
  * Creates test organization prefilled with faker data, hydrated with extraAttrs and extraMeta, if provided
  * @param client
  * @param extraAttrs
- * @returns {Promise<({data: *, errors: *}|*|{country: (*|string), dv: number, sender: {dv: number, fingerprint: *}, meta: {zipCode: *, number: *, country: (*|string), dv: number, city, street: *, inn: (*), kpp: *}, name: *, description: *})[]>}
+ * @returns {Promise<({data: *, errors: *}|*|{country: (*|string), dv: number, sender: {dv: number, fingerprint: *}, meta: {zipCode: *, number: *, country: (*|string), dv: number, city, street: *, kpp: *}, name: *, description: *})[]>}
  */
 async function createTestOrganization (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -52,9 +52,9 @@ async function createTestOrganization (client, extraAttrs = {}) {
     const country = DEFAULT_ENGLISH_COUNTRY
     const name = faker.company.companyName()
     const description = faker.company.catchPhrase()
+    const tin = faker.random.alphaNumeric(10)
     const meta = {
         dv: 1,
-        inn: faker.random.alphaNumeric(10),
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
@@ -69,6 +69,7 @@ async function createTestOrganization (client, extraAttrs = {}) {
         name,
         description,
         meta,
+        tin,
         ...extraAttrs,
     }
     const obj = await Organization.create(client, attrs)
@@ -80,9 +81,9 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const tin = faker.random.alphaNumeric(10)
 
     const meta = {
-        inn: faker.random.alphaNumeric(10),
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
@@ -94,6 +95,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
         dv: 1,
         sender,
         meta,
+        tin,
         name: faker.company.companyName(),
         description: faker.company.catchPhrase(),
         country: RUSSIA_COUNTRY,

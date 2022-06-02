@@ -36,7 +36,7 @@ describe('syncOrganization from SBBOL', () => {
                 returnFields: 'id name phone',
             })
             userData.phone = user.phone
-            organizationData.meta.inn = client.organization.meta.inn
+            organizationData.meta.inn = client.organization.tin
             await syncOrganization({
                 context,
                 user: user,

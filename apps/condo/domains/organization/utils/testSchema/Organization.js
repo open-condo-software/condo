@@ -32,8 +32,9 @@ async function registerNewOrganization (client, extraAttrs = {}) {
     const country = 'ru'
     const name = faker.company.companyName()
     const description = faker.company.catchPhrase()
+    const tin = '6670428515'
     const meta = {
-        dv: 1, inn: '6670428515', kpp: '667001001', city: faker.address.city(), zipCode: faker.address.zipCode(),
+        dv: 1, kpp: '667001001', city: faker.address.city(), zipCode: faker.address.zipCode(),
         street: faker.address.streetName(), number: faker.address.secondaryAddress(),
         county: faker.address.county(),
     }
@@ -41,7 +42,7 @@ async function registerNewOrganization (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        country, name, description, meta,
+        country, name, description, meta, tin,
         ...extraAttrs,
     }
 
