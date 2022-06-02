@@ -9,7 +9,7 @@ export interface CustomInputProps extends InputProps {
 
 const Input = (props: CustomInputProps) => {
     const { eventName: propEventName, eventProperties, onChange, ...restProps } = props
-    const { instrument, getEventName } = useTracking()
+    const { getTrackingWrappedCallback, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Input)
     const componentProperties = { ...eventProperties }
@@ -18,7 +18,7 @@ const Input = (props: CustomInputProps) => {
         componentProperties['component'] = { value: restProps.value }
     }
 
-    const onChangeCallback = eventName ? instrument(eventName, componentProperties, onChange) : onChange
+    const onChangeCallback = eventName ? getTrackingWrappedCallback(eventName, componentProperties, onChange) : onChange
 
     return (
         <BaseInput {...restProps} onChange={onChangeCallback} />

@@ -11,7 +11,7 @@ export interface CustomSelectProps<T> extends SelectProps<T> {
 
 const Select = <T extends string | number | { value: any, label: any }> (props: CustomSelectProps<T>) => {
     const { eventName: propEventName, eventProperties = {}, onChange, ...restProps } = props
-    const { instrument, getEventName } = useTracking()
+    const { getTrackingWrappedCallback, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Select)
     const componentProperties = { ...eventProperties }
@@ -21,7 +21,7 @@ const Select = <T extends string | number | { value: any, label: any }> (props: 
     }
 
     const onChangeCallback = eventName
-        ? instrument(eventName, componentProperties, onChange)
+        ? getTrackingWrappedCallback(eventName, componentProperties, onChange)
         : onChange
 
     return (
