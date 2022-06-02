@@ -1,5 +1,9 @@
-const { isFunction, get, isEmpty } = require('lodash')
+const { isFunction, get, isEmpty, template } = require('lodash')
 const falsey = require('falsey')
+
+const conf = require('@core/config')
+const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 
 const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))
 
@@ -191,6 +195,40 @@ const expectToThrowInternalError = async (testFunc, message, path = 'obj') => {
     })
 }
 
+const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
+    if (isEmpty(errorFields) || typeof errorFields !== 'object') throw new Error('expectToThrowGQLError(): wrong errorFields argument')
+    if (!errorFields.code || !errorFields.type) throw new Error('expectToThrowGQLError(): errorFields argument: no code or no type')
+    let interpolatedMessageForUser
+    if (errorFields.messageForUser) {
+        const locale = conf.DEFAULT_LOCALE
+        const translations = getTranslations(locale)
+        const translatedMessage = translations[errorFields.messageForUser]
+        interpolatedMessageForUser = template(translatedMessage)(errorFields.messageInterpolation)
+        if (!interpolatedMessageForUser) throw new Error(`expectToThrowGQLError(): you need to set ${errorFields.messageForUser} for locale=${locale}`)
+    }
+    const message = template(errorFields.message)(errorFields.messageInterpolation)
+
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(caught).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: null },
+            errors: [expect.objectContaining({
+                'message': message,
+                'name': 'GQLError',
+                'path': [path],
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
+                'extensions': {
+                    ...errorFields,
+                    messageForUser: interpolatedMessageForUser,
+                },
+            })],
+        })
+    })
+}
+
 const expectToThrowGraphQLRequestError = async (testFunc, message) => {
     if (!message) throw new Error('expectToThrowGraphQLRequestError(): no message argument')
     await catchErrorFrom(testFunc, (caught) => {
@@ -249,6 +287,7 @@ module.exports = {
     expectToThrowAuthenticationErrorToResult,
     expectToThrowValidationFailureError,
     expectToThrowInternalError,
+    expectToThrowGQLError,
     expectToThrowGraphQLRequestError,
     expectToThrowMutationError,
     expectToThrowUserInputError,
