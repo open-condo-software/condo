@@ -56,7 +56,6 @@ async function inviteNewOrganizationEmployee (client, organization, user, extraA
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
-    if (!user.email) throw new Error('no user.email')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
