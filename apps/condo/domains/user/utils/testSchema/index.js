@@ -6,9 +6,10 @@
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
 const { countryPhoneData } = require('phone')
+const isEmpty = require('lodash/isEmpty')
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION, COMPLETE_CONFIRM_PHONE_MUTATION } = require('@condo/domains/user/gql')
+const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION, COMPLETE_CONFIRM_PHONE_MUTATION, CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
@@ -99,73 +100,74 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     return [data.user, attrs]
 }
 
-async function makeClientWithNewRegisteredAndLoggedInUser () {
+async function makeClientWithNewRegisteredAndLoggedInUser (userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
+    if (!isEmpty(userExtraAttrs)) await addStaffAccess(user, userExtraAttrs)
     client.user = user
     client.userAttrs = userAttrs
     return client
 }
 
-async function makeClientWithSupportUser() {
+async function makeClientWithSupportUser(userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
-    await addSupportAccess(user)
+    await addSupportAccess(user, userExtraAttrs)
     client.user = user
     client.userAttrs = userAttrs
     return client
 }
 
-async function makeClientWithResidentUser() {
+async function makeClientWithResidentUser(userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
-    await addResidentAccess(user)
+    await addResidentAccess(user, userExtraAttrs)
     client.user = user
     client.userAttrs = userAttrs
     return client
 }
 
-async function makeClientWithStaffUser() {
+async function makeClientWithStaffUser(userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
-    await addStaffAccess(user)
+    await addStaffAccess(user, userExtraAttrs)
     client.user = user
     client.userAttrs = userAttrs
     return client
 }
 
-async function makeClientWithServiceUser() {
+async function makeClientWithServiceUser(userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
-    await addServiceAccess(user)
+    await addServiceAccess(user, userExtraAttrs)
     client.user = user
     client.userAttrs = userAttrs
     return client
 }
 
-async function addAdminAccess (user) {
+async function addAdminAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { isAdmin: true })
+    await User.update(admin, user.id, { isAdmin: true, ...extraAttrs })
 }
 
-async function addSupportAccess (user) {
+async function addSupportAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { isSupport: true })
+    await User.update(admin, user.id, { isSupport: true, ...extraAttrs })
 }
 
-async function addResidentAccess (user) {
+async function addResidentAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { type: RESIDENT })
+    await User.update(admin, user.id, { type: RESIDENT, ...extraAttrs })
 }
 
-async function addStaffAccess (user) {
+async function addStaffAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { type: STAFF })
+    await User.update(admin, user.id, { type: STAFF, ...extraAttrs })
 }
 
-async function addServiceAccess (user) {
+async function addServiceAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { type: SERVICE })
+    await User.update(admin, user.id, { type: SERVICE, ...extraAttrs })
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
@@ -315,6 +317,22 @@ async function completeConfirmPhoneActionByTestClient (client, extraAttrs = {}) 
     throwIfError(data, errors, { query: COMPLETE_CONFIRM_PHONE_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
+
+async function changePhoneNumberResidentUserByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+
+    const { data, errors } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data: attrs })
+    throwIfError(data, errors, { query: CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, variables: { data: attrs } })
+    return [data.result, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -348,5 +366,6 @@ module.exports = {
     resetUserByTestClient,
     supportSendMessageToSupportByTestClient,
     completeConfirmPhoneActionByTestClient,
+    changePhoneNumberResidentUserByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
