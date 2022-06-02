@@ -172,5 +172,6 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
 })
 
 module.exports = {
+    errors,
     RegisterNewUserService,
 }

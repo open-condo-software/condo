@@ -2,7 +2,9 @@ const faker = require('faker')
 const { createTestUser, registerNewUser, createTestPhone, createTestEmail, createTestLandlineNumber } = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
 
+const { errors } = require('./RegisterNewUserService')
 
 describe('RegisterNewUserService', () => {
     test('register new user', async () => {
@@ -50,22 +52,11 @@ describe('RegisterNewUserService', () => {
         const client = await makeClient()
         const phone = createTestLandlineNumber()
 
-        // TODO(pahaz): refactor this! use expect error function!
-        const { data, errors } = await registerNewUser(client, { phone }, { raw: true })
-
-        expect(data).toEqual({ 'user': null })
-        expect(errors).toMatchObject([{
-            message: 'Wrong format of provided phone number',
-            name: 'GraphQLError',
-            path: ['user'],
-            extensions: {
-                mutation: 'registerNewUser',
-                variable: ['data', 'phone'],
-                code: 'BAD_USER_INPUT',
-                type: 'WRONG_PHONE_FORMAT',
-                correctExample: '+79991234567',
-            },
-        }])
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { phone }),
+            errors.WRONG_PHONE_FORMAT,
+            'user',
+        )
     })
 
     test('register user with existed email', async () => {
