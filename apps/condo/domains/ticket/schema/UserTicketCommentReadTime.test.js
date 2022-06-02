@@ -6,7 +6,7 @@ const faker = require('faker')
 
 const { makeLoggedInAdminClient, UUID_RE } = require('@core/keystone/test.utils')
 
-const { expectToThrowAccessDeniedErrorToObj, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowInternalError } = require('@condo/domains/common/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
     createTestOrganization, createTestOrganizationEmployee,
@@ -49,12 +49,9 @@ describe('UserTicketCommentReadTime', () => {
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
                 await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
 
-                await catchErrorFrom(async () => {
+                await expectToThrowInternalError(async () => {
                     await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
-                }, ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0].message).toContain(`${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_ticket"`)
-                })
+                }, `${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_ticket"`)
             })
         })
 
@@ -118,14 +115,11 @@ describe('UserTicketCommentReadTime', () => {
                 await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
                 const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket1)
 
-                await catchErrorFrom(async () => {
+                await expectToThrowInternalError(async () => {
                     await updateTestUserTicketCommentReadTime(userClient, userTicketCommentReadTime.id, {
                         ticket: { connect: { id: ticket.id } },
                     })
-                }, ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0].message).toContain(`${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_ticket"`)
-                })
+                }, `${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_ticket"`)
             })
         })
     })
