@@ -4,7 +4,7 @@
 const { pick } = require('lodash')
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, DATETIME_RE, getRandomString } = require('@core/keystone/test.utils')
 
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
@@ -424,6 +424,91 @@ describe('OrganizationEmployee', () => {
             name: 'DELETED',
             email: null,
             phone: null,
+        })
+    })
+
+    test('Case: some user invite another and then both of them changed their names', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const phone = createTestPhone()
+        const email = createTestEmail()
+        const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+        const client1 = await makeClientWithRegisteredOrganization()
+
+        // client1 invite client2 by phone with wrong name!
+        const [invite2_0] = await inviteNewOrganizationEmployee(client1, client1.organization, { phone: client2.userAttrs.phone, name: 'TEST1', email })
+        expect(invite2_0).toMatchObject({
+            name: 'TEST1',
+            phone: client2.userAttrs.phone,
+            email,
+            user: expect.objectContaining({
+                id: client2.user.id,
+            }),
+            isAccepted: false,
+            isRejected: false,
+        })
+
+        // client2 accept the invite
+        const [invite2_1] = await acceptOrRejectOrganizationInviteById(client2, invite2_0, { isAccepted: true })
+        expect(invite2_1).toMatchObject({
+            id: invite2_0.id,
+            name: client2.userAttrs.name,
+            phone: client2.userAttrs.phone,
+            email: client2.userAttrs.email,
+            user: expect.objectContaining({
+                id: client2.user.id,
+            }),
+            isAccepted: true,
+            isRejected: false,
+        })
+
+        // admin change the user1 name, email and phone
+        await updateTestUser(admin, client1.user.id, {
+            name: 'UPDATED1',
+            email: null,
+            phone,
+        })
+        // client2 change their name
+        await updateTestUser(client2, client2.user.id, {
+            name: 'CLIENT2',
+        })
+
+        // check that the changes are reflected
+        const employee1 = await OrganizationEmployee.getOne(admin, { user: { id: client1.user.id } })
+        const employee2 = await OrganizationEmployee.getOne(admin, { user: { id: client2.user.id } })
+        expect(employee1.id).not.toEqual(employee2.id)
+        expect(employee1).toMatchObject({
+            email: null,
+            phone,
+            name: 'UPDATED1',
+            user: expect.objectContaining({
+                id: client1.user.id,
+            }),
+        })
+        expect(employee2).toMatchObject({
+            id: invite2_0.id,
+            name: 'CLIENT2',
+            phone: client2.userAttrs.phone,
+            email: client2.userAttrs.email,
+            user: expect.objectContaining({
+                id: client2.user.id,
+            }),
+            isAccepted: true,
+            isRejected: false,
+        })
+
+        // Updated
+        const user1 = await UserAdmin.getOne(admin, { id: client1.user.id })
+        expect(user1).toMatchObject({
+            name: 'UPDATED1',
+            email: null,
+            phone,
+        })
+        // Not changed
+        const user2 = await UserAdmin.getOne(admin, { id: client2.user.id })
+        expect(user2).toMatchObject({
+            name: 'CLIENT2',
+            email: client2.userAttrs.email,
+            phone: client2.userAttrs.phone,
         })
     })
 })
