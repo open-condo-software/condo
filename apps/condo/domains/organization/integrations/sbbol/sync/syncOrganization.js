@@ -56,6 +56,7 @@ const createOrganization = async ({ context, user, organizationInfo }) => {
                 country: organizationInfo.country,
                 name: organizationInfo.name,
                 meta: organizationInfo.meta,
+                tin: `${organizationInfo.meta.inn}`,
             },
         },
     })

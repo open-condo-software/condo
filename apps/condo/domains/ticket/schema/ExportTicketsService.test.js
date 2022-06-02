@@ -15,6 +15,8 @@ describe('ExportTicketService', () => {
                 await createTestTicket(client, client.organization, client.property)
                 const { data: { result: { status, linkToFile } } } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
                     data: {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) },
                         where: { organization: { id: client.organization.id } },
                         sortBy: 'id_ASC',
                         timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
