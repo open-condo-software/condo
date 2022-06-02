@@ -1,13 +1,58 @@
-const { pickBy, get } = require('lodash')
+const { pickBy, get, isEmpty } = require('lodash')
 
 const conf = require('@core/config')
+const { getById } = require('@core/keystone/schema')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const isNotUndefined = (x) => typeof x !== 'undefined'
 
+function _throwIfError (context, errors, data, errorMessage) {
+    if (errors) {
+        if (IS_DEBUG) {
+            const errorsToShow = errors.filter(error => get(error, 'originalError.data') || get(error, 'originalError.internalData'))
+            if (!isEmpty(errorsToShow)) errorsToShow.forEach((error) => console.warn(get(error, 'originalError.data'), '\n', get(error, 'originalError.internalData')))
+            console.error(errors)
+        }
+        // NOTE(pahaz): we will see this results in production at the ApolloErrorFormatter
+        const error = new Error(errorMessage)
+        error.errors = errors
+        error.reqId = get(context, 'req.id')
+        throw error
+    }
+    if (!data || typeof data !== 'object') {
+        throw new Error('wrong query result')
+    }
+}
+
+async function execGqlAsUser (context, user, { query, variables, errorMessage = '[error] Internal Exec as user GQL Error', authedListKey = 'User', dataPath = 'obj' }) {
+    if (!context) throw new Error('missing context argument')
+    if (!context.executeGraphQL) throw new Error('wrong context argument: no executeGraphQL')
+    if (!context.createContext) throw new Error('wrong context argument: no createContext')
+    if (!user) throw new Error('wrong user argument')
+    if (!user.id) throw new Error('wrong user argument: no id')
+    const item = await getById(authedListKey, user.id)
+    // NOTE(pahaz): we don't check here deletedAt or isActive or any other fields!
+    if (!item) throw new Error('unknown user id')
+    const { errors, data } = await context.executeGraphQL({
+        context: {
+            req: context.req,
+            ...context.createContext({
+                authentication: { item, listKey: authedListKey },
+                skipAccessControl: false,
+            }),
+        },
+        variables: pickBy(variables, isNotUndefined),
+        query,
+    })
+
+    _throwIfError(context, errors, data, errorMessage)
+
+    return (dataPath) ? get(data, dataPath) : data
+}
+
 async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
-    if (!context) throw new Error('wrong context argument')
+    if (!context) throw new Error('missing context argument')
     if (!context.executeGraphQL) throw new Error('wrong context argument: no executeGraphQL')
     if (!context.createContext) throw new Error('wrong context argument: no createContext')
     if (!query) throw new Error('wrong query argument')
@@ -21,21 +66,9 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
         query,
     })
 
-    if (errors) {
-        if (errors.some(e => e.originalError && e.originalError.data)) {
-            if (IS_DEBUG) console.warn(errors.map((err) => (err.originalError && err.originalError.data)))
-        }
-        if (IS_DEBUG) console.error(errors)
-        const error = new Error(errorMessage)
-        error.errors = errors
-        throw error
-    }
+    _throwIfError(context, errors, data, errorMessage)
 
-    if (!data || typeof data !== 'object') {
-        throw new Error('wrong query result')
-    }
-
-    return get(data, dataPath)
+    return (dataPath) ? get(data, dataPath) : data
 }
 
 function generateServerUtils (gql) {
@@ -138,5 +171,6 @@ function generateServerUtils (gql) {
 
 module.exports = {
     generateServerUtils,
+    execGqlAsUser,
     execGqlWithoutAccess,
 }

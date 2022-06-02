@@ -1,10 +1,9 @@
 const faker = require('faker')
 const { pick } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@core/keystone/test.utils')
 
 const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
-const { sleep } = require('@condo/domains/common/utils/sleep')
 
 const {
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -73,12 +72,13 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
                     expect(message.id).toMatch(UUID_RE)
 
-                    await sleep(1000)
+                    await waitFor(async () => {
+                        const message1 = await Message.getOne(admin, messageWhere)
 
-                    const message1 = await Message.getOne(admin, messageWhere)
+                        expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(message1.processingMeta.transport).toEqual(EMAIL_TRANSPORT)
+                    })
 
-                    expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
-                    expect(message1.processingMeta.transport).toEqual(EMAIL_TRANSPORT)
                 })
 
                 it('tries to find employee first by phone first', async () => {
@@ -283,21 +283,18 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
                     expect(reInvitedEmployee.id).toStrictEqual(employee.id)
 
-                    /**
-                     * Give worker task some time
-                     */
-                    await sleep(1000)
+                    await waitFor(async () => {
+                        /**
+                         * Check that notifications about invitation as employee were sent
+                         */
+                        const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
+                        const messages = await Message.getAll(admin, messageWhere)
 
-                    /**
-                     * Check that notifications about invitation as employee were sent
-                     */
-                    const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
-                    const messages = await Message.getAll(admin, messageWhere)
-
-                    expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
-                    expect(messages[0].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
-                    expect(messages[1].status).toEqual(MESSAGE_SENT_STATUS)
-                    expect(messages[1].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
+                        expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(messages[0].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
+                        expect(messages[1].status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(messages[1].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
+                    })
                 })
             })
 

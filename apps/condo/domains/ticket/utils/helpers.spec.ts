@@ -1,5 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs'
-import { randomUUID } from 'crypto'
+import crypto from 'crypto'
 
 import { TicketAnalyticsGroupBy, TicketGroupedCounter } from '@app/condo/schema'
 
@@ -479,7 +479,7 @@ describe('Helpers', () => {
         describe('filterToQuery',  () => {
             describe('it should correctly generate query if', () => {
                 const property = {
-                    id: randomUUID(),
+                    id: crypto.randomBytes(64).toString('hex'),
                     value: 'property address',
                 }
                 const selectedRange: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week').startOf('day'), dayjs().endOf('day')]

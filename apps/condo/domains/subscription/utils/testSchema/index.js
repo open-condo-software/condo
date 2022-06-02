@@ -35,7 +35,7 @@ async function createTestServiceSubscription (client, organization, extraAttrs =
     const startAt = dayjs()
     const finishAt = dayjs().add(15, 'days')
     const unitsCount = faker.datatype.number()
-    const unitPrice = faker.datatype.float({ precision: 0.01 }).toString()
+    const unitPrice = faker.datatype.float({ precision: 0.01 })
     const totalPrice = unitsCount * unitPrice
     const currency = 'RUB'
 

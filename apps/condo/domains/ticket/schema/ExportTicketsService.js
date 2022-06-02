@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 const map = require('lodash/map')
+const get = require('lodash/get')
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 
@@ -19,6 +20,7 @@ const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/c
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const access = require('@condo/domains/ticket/access/ExportTicketsService')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
+const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
@@ -45,10 +47,12 @@ const renderComment = (comment, locale) => {
     const userType = comment.userType === RESIDENT ? i18n('Contact', { locale }) : i18n('Employee', { locale })
     const content = comment.content
     const filesCount = comment.TicketCommentFiles
-    const filesCountToRender = filesCount > 0 ? `(${i18n('excelExport.ticket.ticketCommentFilesCount', { locale })}: ${filesCount})` : ''
+    const filesCountToRender = filesCount > 0 ? `(${i18n('excelExport.tickets.ticketCommentFilesCount', { locale })}: ${filesCount})` : ''
 
     return `${createdAt}, ${createdBy} (${userType}): ${content ? `«${content}»` : ''} ${filesCountToRender}`
 }
+
+const EMPTY_VALUE = '—'
 
 // TODO(zuch): if we add timeZone and locale to organization settings use organization timeZone instead of client's timezone
 const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
@@ -73,10 +77,20 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                 const statuses = await TicketStatus.getAll(context, {})
                 const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                const YesMessage = i18n('Yes', { locale })
+                const NoMessage = i18n('No', { locale })
 
                 const reviewValueText = {
                     [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
                     [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
+                }
+
+                const createdAtGte = get(findAllByKey(where, 'createdAt_gte'), 0)
+                const createdAtLte = get(findAllByKey(where, 'createdAt_lte'), 0)
+
+                let headerMessage = i18n('excelExport.header.tickets.forAllTime', { locale })
+                if (createdAtGte && createdAtLte) {
+                    headerMessage = `${i18n('excelExport.header.tickets.forPeriod', { locale })} ${dayjs(createdAtGte).format('DD.MM.YYYY')} — ${dayjs(createdAtLte).format('DD.MM.YYYY')}`
                 }
 
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
@@ -103,36 +117,39 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
 
                     return {
                         number: ticket.number,
+                        source: ticket.source || EMPTY_VALUE,
                         organization: ticket.organization,
                         property: ticket.property,
                         unitName: ticket.unitName,
+                        unitType: ticket.unitType ? i18n(`pages.condo.ticket.field.unitType.${ticket.unitType}`, { locale }) : '',
                         entranceName: ticket.sectionName,
                         floorName: ticket.floorName,
                         clientName: ticket.clientName,
+                        contact: ticket.contact ? i18n('excelExport.tickets.ticketFromResident', { locale }) : i18n('excelExport.tickets.ticketFromNonResident', { locale }),
                         clientPhone: ticket.clientPhone,
                         details: ticket.details,
-                        isEmergency: ticket.isEmergency ? 'X' : '',
-                        isWarranty: ticket.isWarranty ? 'X' : '',
-                        isPaid: ticket.isPaid ? 'X' : '',
-                        classifier: ticket.classifier || '',
-                        place: ticket.placeClassifier || '',
-                        category: ticket.categoryClassifier || '',
-                        description: ticket.problemClassifier || '',
+                        isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
+                        isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
+                        isPaid: ticket.isPaid ? YesMessage : NoMessage,
+                        classifier: ticket.classifier || EMPTY_VALUE,
+                        place: ticket.placeClassifier || EMPTY_VALUE,
+                        category: ticket.categoryClassifier || EMPTY_VALUE,
+                        description: ticket.problemClassifier || EMPTY_VALUE,
                         createdAt: formatDate(ticket.createdAt),
                         updatedAt: formatDate(ticket.updatedAt),
-                        inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : '',
-                        completedAt: ticket.completedAt ? formatDate(ticket.completedAt) : '',
+                        inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : EMPTY_VALUE,
+                        completedAt: ticket.completedAt ? formatDate(ticket.completedAt) : EMPTY_VALUE,
+                        closedAt: ticket.closedAt ? formatDate(ticket.closedAt) : EMPTY_VALUE,
                         status: indexedStatuses[ticket.status],
-                        operator: ticket.operator || ticket.createdBy || '',
-                        executor: ticket.executor || '',
-                        assignee: ticket.assignee || '',
+                        operator: ticket.operator || ticket.createdBy || EMPTY_VALUE,
+                        executor: ticket.executor || EMPTY_VALUE,
+                        assignee: ticket.assignee || EMPTY_VALUE,
+                        deadline: ticket.deadline ? formatDate(ticket.deadline) : EMPTY_VALUE,
+                        reviewValue: ticket.reviewValue ? reviewValueText[ticket.reviewValue] : EMPTY_VALUE,
+                        reviewComment: ticket.reviewComment || EMPTY_VALUE,
+                        statusReopenedCounter: ticket.statusReopenedCounter || EMPTY_VALUE,
                         organizationComments: organizationCommentsToRender.join(TICKET_COMMENTS_SEPARATOR),
                         residentComments: residentCommentsToRender.join(TICKET_COMMENTS_SEPARATOR),
-                        source: ticket.source || '',
-                        deadline: ticket.deadline ? formatDate(ticket.deadline) : '',
-                        reviewValue: ticket.reviewValue ? reviewValueText[ticket.reviewValue] : '',
-                        reviewComment: ticket.reviewComment || '',
-                        statusReopenedCounter: ticket.statusReopenedCounter || '',
                     }
                 })
 
@@ -140,6 +157,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                     fileName: `tickets_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
                     replaces: {
+                        header: headerMessage,
                         tickets: excelRows,
                         i18n: {
                             ...getHeadersTranslations(EXPORT_TYPE_TICKETS, locale),
@@ -147,6 +165,8 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
 
                             // These statuses are needed to set cell color using conditional formatting by status name.
                             statusNames: ticketStatusesTranslations(locale),
+                            yes: i18n('Yes', { locale }),
+                            reviewValues: reviewValueText,
                         },
                     },
                     meta: {

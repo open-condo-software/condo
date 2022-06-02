@@ -11385,6 +11385,8 @@ export type Message = {
   sentAt?: Maybe<Scalars['String']>;
   /**  Read at time  */
   readAt?: Maybe<Scalars['String']>;
+  /**  Unique message key. You can use it if you need to make sure that the message you are trying to create has not been created before. Fields `user`, `type` and `uniqkey` is to be unique. If you don't have a `user`, the fields `type` and `uniqkey` is to be unique  */
+  uniqKey?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11415,6 +11417,7 @@ export type MessageCreateInput = {
   deliveredAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
+  uniqKey?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11450,6 +11453,7 @@ export type MessageHistoryRecord = {
   deliveredAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
+  uniqKey?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11479,6 +11483,7 @@ export type MessageHistoryRecordCreateInput = {
   deliveredAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
+  uniqKey?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11513,6 +11518,7 @@ export type MessageHistoryRecordUpdateInput = {
   deliveredAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
+  uniqKey?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11678,6 +11684,24 @@ export type MessageHistoryRecordWhereInput = {
   readAt_gte?: Maybe<Scalars['String']>;
   readAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   readAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uniqKey?: Maybe<Scalars['String']>;
+  uniqKey_not?: Maybe<Scalars['String']>;
+  uniqKey_contains?: Maybe<Scalars['String']>;
+  uniqKey_not_contains?: Maybe<Scalars['String']>;
+  uniqKey_starts_with?: Maybe<Scalars['String']>;
+  uniqKey_not_starts_with?: Maybe<Scalars['String']>;
+  uniqKey_ends_with?: Maybe<Scalars['String']>;
+  uniqKey_not_ends_with?: Maybe<Scalars['String']>;
+  uniqKey_i?: Maybe<Scalars['String']>;
+  uniqKey_not_i?: Maybe<Scalars['String']>;
+  uniqKey_contains_i?: Maybe<Scalars['String']>;
+  uniqKey_not_contains_i?: Maybe<Scalars['String']>;
+  uniqKey_starts_with_i?: Maybe<Scalars['String']>;
+  uniqKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  uniqKey_ends_with_i?: Maybe<Scalars['String']>;
+  uniqKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  uniqKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uniqKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -11799,6 +11823,7 @@ export type MessageUpdateInput = {
   deliveredAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
+  uniqKey?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11929,6 +11954,24 @@ export type MessageWhereInput = {
   readAt_gte?: Maybe<Scalars['String']>;
   readAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   readAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uniqKey?: Maybe<Scalars['String']>;
+  uniqKey_not?: Maybe<Scalars['String']>;
+  uniqKey_contains?: Maybe<Scalars['String']>;
+  uniqKey_not_contains?: Maybe<Scalars['String']>;
+  uniqKey_starts_with?: Maybe<Scalars['String']>;
+  uniqKey_not_starts_with?: Maybe<Scalars['String']>;
+  uniqKey_ends_with?: Maybe<Scalars['String']>;
+  uniqKey_not_ends_with?: Maybe<Scalars['String']>;
+  uniqKey_i?: Maybe<Scalars['String']>;
+  uniqKey_not_i?: Maybe<Scalars['String']>;
+  uniqKey_contains_i?: Maybe<Scalars['String']>;
+  uniqKey_not_contains_i?: Maybe<Scalars['String']>;
+  uniqKey_starts_with_i?: Maybe<Scalars['String']>;
+  uniqKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  uniqKey_ends_with_i?: Maybe<Scalars['String']>;
+  uniqKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  uniqKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uniqKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -14430,7 +14473,7 @@ export type MultiPayment = {
   explicitServiceCharge?: Maybe<Scalars['String']>;
   /**  The amount of money charged by service (Doma) for the provision of service after subtracting from it the shares of all participants in the process. Can be part of explicit fee, implicit fee or explicit service charge  */
   serviceFee?: Maybe<Scalars['String']>;
-  /**  Total amount of money charged from recipients of multipayment as fee for transaction  */
+  /**  Total amount of money charged to recipients from amountWithoutExplicitFee of multipayment as fee for transaction  */
   implicitFee?: Maybe<Scalars['String']>;
   /**  The amount of money used to pay bills, initialized by resident.  */
   amountWithoutExplicitFee?: Maybe<Scalars['String']>;
@@ -30597,9 +30640,9 @@ export type RegisterNewUserInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   name: Scalars['String'];
-  email?: Maybe<Scalars['String']>;
   password: Scalars['String'];
   confirmPhoneActionToken?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
 };
@@ -30735,6 +30778,7 @@ export type ResidentBillingReceiptOutput = {
   serviceConsumer: ServiceConsumer;
   currencyCode: Scalars['String'];
   category: BillingCategory;
+  isPayable: Scalars['Boolean'];
 };
 
 export type ResidentBillingReceiptWhereInput = {
@@ -31443,6 +31487,7 @@ export type SendMessageInput = {
   lang: SendMessageLang;
   meta: Scalars['JSON'];
   organization?: Maybe<OrganizationWhereUniqueInput>;
+  uniqKey?: Maybe<Scalars['String']>;
 };
 
 export enum SendMessageLang {
@@ -34355,6 +34400,8 @@ export enum SortMessageHistoryRecordsBy {
   SentAtDesc = 'sentAt_DESC',
   ReadAtAsc = 'readAt_ASC',
   ReadAtDesc = 'readAt_DESC',
+  UniqKeyAsc = 'uniqKey_ASC',
+  UniqKeyDesc = 'uniqKey_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -34396,6 +34443,8 @@ export enum SortMessagesBy {
   SentAtDesc = 'sentAt_DESC',
   ReadAtAsc = 'readAt_ASC',
   ReadAtDesc = 'readAt_DESC',
+  UniqKeyAsc = 'uniqKey_ASC',
+  UniqKeyDesc = 'uniqKey_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -36742,8 +36791,6 @@ export enum SortUserHistoryRecordsBy {
   PasswordDesc = 'password_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
-  IsActiveAsc = 'isActive_ASC',
-  IsActiveDesc = 'isActive_DESC',
   IsAdminAsc = 'isAdmin_ASC',
   IsAdminDesc = 'isAdmin_DESC',
   IsSupportAsc = 'isSupport_ASC',
@@ -36833,8 +36880,6 @@ export enum SortUsersBy {
   NameDesc = 'name_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
-  IsActiveAsc = 'isActive_ASC',
-  IsActiveDesc = 'isActive_DESC',
   IsAdminAsc = 'isAdmin_ASC',
   IsAdminDesc = 'isAdmin_DESC',
   IsSupportAsc = 'isSupport_ASC',
@@ -44654,8 +44699,6 @@ export type User = {
   password_is_set?: Maybe<Scalars['Boolean']>;
   /**  Field that allows you to distinguish CRM users from mobile app users  */
   type?: Maybe<UserTypeType>;
-  /**  Can logged in?  */
-  isActive?: Maybe<Scalars['Boolean']>;
   /**  Superuser access to service data  */
   isAdmin?: Maybe<Scalars['Boolean']>;
   /**  Can access to "/admin/" panel. And do support tasks  */
@@ -44700,7 +44743,6 @@ export type UserCreateInput = {
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<UserTypeType>;
-  isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
@@ -44737,7 +44779,6 @@ export type UserHistoryRecord = {
   hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
-  isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
@@ -44768,7 +44809,6 @@ export type UserHistoryRecordCreateInput = {
   hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
-  isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
@@ -44804,7 +44844,6 @@ export type UserHistoryRecordUpdateInput = {
   hasEmail?: Maybe<Scalars['JSON']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
-  isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
@@ -44900,8 +44939,6 @@ export type UserHistoryRecordWhereInput = {
   type_not_ends_with_i?: Maybe<Scalars['String']>;
   type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isActive?: Maybe<Scalars['Boolean']>;
-  isActive_not?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isAdmin_not?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
@@ -45441,7 +45478,6 @@ export type UserUpdateInput = {
   name?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   type?: Maybe<UserTypeType>;
-  isActive?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
@@ -45499,8 +45535,6 @@ export type UserWhereInput = {
   type_not?: Maybe<UserTypeType>;
   type_in?: Maybe<Array<Maybe<UserTypeType>>>;
   type_not_in?: Maybe<Array<Maybe<UserTypeType>>>;
-  isActive?: Maybe<Scalars['Boolean']>;
-  isActive_not?: Maybe<Scalars['Boolean']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isAdmin_not?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;

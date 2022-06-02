@@ -52,17 +52,6 @@ const userIsAdminOrIsThisItem = auth => {
     return Boolean(isAdmin || isThisItem)
 }
 
-const canReadOnlyActive = (args) => {
-    const { authentication: { item: user } } = args
-    if (!userIsAuthenticated(args)) return false
-    if (user.isAdmin) return {}
-
-    // Approximately; users.filter(user => user.isActive === true);
-    return {
-        isActive: true,
-    }
-}
-
 const userIsNotResidentUser = (args) => {
     const { authentication: { item: user } } = args
     if (!userIsAuthenticated(args)) return false
@@ -132,7 +121,6 @@ module.exports = {
     userIsAdminOrOwner,
     userIsThisItem,
     userIsAdminOrIsThisItem,
-    canReadOnlyActive,
     canReadOnlyIfInUsers,
     isSoftDelete,
     userIsNotResidentUser,

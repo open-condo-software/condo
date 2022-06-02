@@ -10,7 +10,7 @@ const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt completed'
 
-const ON_BOARDING_FIELDS = `{ completed stepsTransitions ${COMMON_FIELDS} type }`
+const ON_BOARDING_FIELDS = `{ completed stepsTransitions ${COMMON_FIELDS} type user { id } }`
 const OnBoarding = generateGqlQueries('OnBoarding', ON_BOARDING_FIELDS)
 
 const ON_BOARDING_STEP_FIELDS = `{ icon title description action entity onBoarding { id } ${COMMON_FIELDS} required order }`

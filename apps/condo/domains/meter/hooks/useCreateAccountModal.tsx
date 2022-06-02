@@ -1,5 +1,6 @@
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import { Form, Input } from 'antd'
+import { Form } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
 import React, { useState } from 'react'
 import { useIntl } from '@core/next/intl'
 

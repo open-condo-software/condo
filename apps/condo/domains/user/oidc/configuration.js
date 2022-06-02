@@ -1,6 +1,7 @@
 const { getById } = require('@core/keystone/schema')
 
 const { AdapterFactory } = require('./adapter')
+const { get } = require('lodash')
 
 module.exports = {
     adapter: AdapterFactory,
@@ -22,6 +23,25 @@ module.exports = {
                 }
             },
         }
+    },
+    async loadExistingGrant (ctx) {
+        // This is modified version of default function
+        // https://github.com/panva/node-oidc-provider/blob/HEAD/docs/README.md#loadexistinggrant
+        const grantId = (ctx.oidc.result
+            && ctx.oidc.result.consent
+            && ctx.oidc.result.consent.grantId) || ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId)
+        if (grantId) {
+            const grant = await ctx.oidc.provider.Grant.find(grantId)
+
+            const condoUserId = get(ctx, 'req.query.condoUserId', null)
+            const accountId = get(grant, 'accountId', null)
+            if (!!condoUserId && !!accountId && accountId !== condoUserId) {
+                return undefined
+            }
+
+            return grant
+        }
+        return undefined
     },
     interactions: {
         url (ctx, interaction) { // eslint-disable-line no-unused-vars
@@ -60,7 +80,8 @@ module.exports = {
         revocation: { enabled: true }, // defaults to false
     },
     ttl: {
-        AccessToken: 1 * 60 * 60, // 1 hour in seconds
+        //todo(AleX83Xpert): back to one hour after DOMA-3165 finished
+        AccessToken: 1 * 60 * 60 * 24, // 24 hour in seconds
         AuthorizationCode: 10 * 60, // 10 minutes in seconds
         IdToken: 1 * 60 * 60, // 1 hour in seconds
         DeviceCode: 10 * 60, // 10 minutes in seconds

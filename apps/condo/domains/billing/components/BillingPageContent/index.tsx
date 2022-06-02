@@ -8,7 +8,10 @@ import {
     CONTEXT_ERROR_STATUS,
 } from '@condo/domains/miniapp/constants'
 import { ApolloError } from '@apollo/client'
-import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clientSchema/BillingIntegrationOrganizationContext'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import {
+    IBillingIntegrationOrganizationContextUIState,
+} from '@condo/domains/billing/utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'
 
 const BILLING_SETTINGS_ROUTE = '/miniapps?tab=billing'
@@ -40,7 +43,11 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
         company: CompanyName,
     })
 
+    const { logEvent } = useTracking()
+
     if (!access) {
+        logEvent({ eventName: 'BillingPageAccessError', denyDuplicates: true })
+
         return (
             <BasicEmptyListView>
                 <Typography.Title level={3}>
@@ -67,6 +74,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     }
 
     if (!context) {
+        logEvent({ eventName: 'BillingPageEmpty', denyDuplicates: true })
         return (
             <EmptyListView
                 label={NoBillingTitle}
@@ -78,6 +86,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     }
 
     if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
+        logEvent({ eventName: 'BillingPageInProgressStatus', denyDuplicates: true })
         return (
             <BasicEmptyListView image={'/dino/waiting.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
                 <Typography.Title level={3}>
@@ -91,6 +100,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     }
 
     if (context.status === CONTEXT_ERROR_STATUS) {
+        logEvent({ eventName: 'BillingPageErrorStatus', denyDuplicates: true })
         return (
             <BasicEmptyListView image={'/dino/fail.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
                 <Typography.Title level={3}>
@@ -104,8 +114,6 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     }
 
     return (
-        <>
-            <MainContent context={context}/>
-        </>
+        <MainContent context={context}/>
     )
 }

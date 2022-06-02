@@ -17,7 +17,7 @@ const {
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowUserInputError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowGraphQLRequestError } = require('@condo/domains/common/utils/testSchema')
 
 describe('PaymentsFilterTemplate', () => {
     describe('Create', () => {
@@ -56,7 +56,7 @@ describe('PaymentsFilterTemplate', () => {
                 wrongField: wrongFieldValue,
             }
 
-            await expectToThrowUserInputError(
+            await expectToThrowGraphQLRequestError(
                 async () => await createTestPaymentsFilterTemplate(user, employee, {
                     fields: wrongFilters,
                 }),
@@ -75,7 +75,7 @@ describe('PaymentsFilterTemplate', () => {
                 type: wrongFieldValue,
             }
 
-            await expectToThrowUserInputError(
+            await expectToThrowGraphQLRequestError(
                 async () => await createTestPaymentsFilterTemplate(user, employee, {
                     fields: wrongFilters,
                 }),

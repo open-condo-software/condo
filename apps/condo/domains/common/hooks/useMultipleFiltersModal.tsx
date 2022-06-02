@@ -2,17 +2,17 @@ import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Form from 'antd/lib/form'
 import {
-    Checkbox,
     Col,
     FormInstance,
-    Input,
     Row,
-    Select,
     Tabs,
     Typography,
     Modal as DefaultModal,
     ModalProps,
 } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
@@ -489,6 +489,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             key={'saveFilters'}
             onClick={handleSaveFiltersTemplate}
             disabled={isSaveFiltersTemplateButtonDisabled}
+            eventName={'ModalFilterSaveClick'}
             type={'sberGrey'}
             secondary
         >
@@ -497,6 +498,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         <Button
             key={'submit'}
             onClick={handleSubmitButtonClick}
+            eventName={'ModalFilterSubmitClick'}
             type={'sberPrimary'}
             data-cy={'common__filters-button-submit'}
         >

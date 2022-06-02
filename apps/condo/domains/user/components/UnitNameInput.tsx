@@ -1,20 +1,23 @@
 import React from 'react'
 import { useIntl } from '@core/next/intl'
-
-import { Input, Select, SelectProps } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 
-import { BuildingSection, BuildingUnit, BuildingUnitSubType, BuildingUnitType } from '@app/condo/schema'
+import { BuildingSection, BuildingUnit, BuildingUnitSubType } from '@app/condo/schema'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { LabeledValue } from 'antd/lib/select'
+import { TrackingEventPropertiesType } from '@condo/domains/common/components/TrackingContext'
 
-export interface IUnitNameInputProps extends Pick<SelectProps<string>, 'onChange' | 'onSelect'> {
+export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'onChange' | 'onSelect'> {
     property: IPropertyUIState
     placeholder?: string
     allowClear?: boolean
     loading: boolean
+    eventName?: string
+    eventProperties?: TrackingEventPropertiesType
 }
 interface IGetOptionGroupBySectionType {
     ({ sections, unitType, groupLabel }: {

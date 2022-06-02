@@ -31,7 +31,7 @@ const { GraphQLError, printError } = require('graphql')
 const ensureError = require('ensure-error')
 const { serializeError } = require('serialize-error')
 const cuid = require('cuid')
-const { pick, pickBy, identity, toArray, _, toString, isObject } = require('lodash')
+const { pick, pickBy, identity, toArray, _, toString, get } = require('lodash')
 
 const { graphqlLogger } = require('@keystonejs/keystone/lib/Keystone/logger')
 
@@ -44,7 +44,7 @@ const safeFormatError = (error, hideInternals = false) => {
 
     // error keyst: message, name, stack
     const pickKeys1 = (hideInternals) ? ['message', 'name'] : ['message', 'name', 'stack']
-    Object.assign(result, pick(serializeError(error), pickKeys1))
+    Object.assign(result, pick(error, pickKeys1))
 
     // keystoneError keys: time_thrown, message, data, internalData, locations, path
     if (isKeystoneErrorInstance(error)) {
@@ -123,10 +123,11 @@ const toGraphQLFormat = (safeFormattedError) => {
 const formatError = error => {
     // error: { locations, path, message, extensions }
     const { originalError } = error
+    const reqId = get(error, 'reqId')
 
     try {
         // For correlating user error reports with logs
-        error.uid = cuid()
+        if (!error.uid) error.uid = cuid()
 
         // NOTE1(pahaz): Keystone use apollo-errors for all their errors. There are:
         //   AccessDeniedError, ValidationFailureError, LimitsExceededError and ParameterError
@@ -134,14 +135,14 @@ const formatError = error => {
         //   SyntaxError, ValidationError, UserInputError, AuthenticationError, ForbiddenError, PersistedQueryNotFoundError, PersistedQueryNotSupportedError, ...
         if (isKeystoneErrorInstance(originalError) || originalError instanceof ApolloError) {
             // originalError: { message name data internalData time_thrown path locations }
-            graphqlLogger.info({ error: safeFormatError(error) })
+            graphqlLogger.info({ reqId, apolloFormatError: safeFormatError(error) })
         } else {
-            graphqlLogger.error({ error: safeFormatError(error) })
+            graphqlLogger.error({ reqId, apolloFormatError: safeFormatError(error) })
         }
     } catch (formatErrorError) {
         // Something went wrong with formatting above, so we log the errors
-        graphqlLogger.error({ error: serializeError(ensureError(error)) })
-        graphqlLogger.error({ error: serializeError(ensureError(formatErrorError)) })
+        graphqlLogger.error({ reqId, error: serializeError(ensureError(error)) })
+        graphqlLogger.error({ reqId, error: serializeError(ensureError(formatErrorError)) })
     }
 
     return safeFormatError(error, IS_HIDE_INTERNALS)

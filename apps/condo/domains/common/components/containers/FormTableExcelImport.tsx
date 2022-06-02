@@ -9,7 +9,9 @@ import {
 } from '@condo/domains/common/utils/excel.utils'
 import { useIntl } from '@core/next/intl'
 import styled from '@emotion/styled'
-import { Button, Col, Form, Input, Progress, Row, Select, Table, Tooltip, Typography, Upload } from 'antd'
+import { Button, Col, Form, Progress, Row, Table, Tooltip, Typography, Upload } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React, { useEffect, useState } from 'react'

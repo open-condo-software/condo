@@ -2,8 +2,7 @@
  * @jest-environment node
  */
 
-const { syncUser } = require('./syncUser')
-const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
+const { setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { User: UserApi } = require('@condo/domains/user/utils/serverSchema')
@@ -11,15 +10,13 @@ const { OnBoarding: OnBoardingApi } = require('@condo/domains/onboarding/utils/s
 const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
-let keystone
+const { syncUser } = require('./syncUser')
+
+const index = require('@app/condo/index')
+const { keystone } = index
 
 describe('syncUser from SBBOL', () => {
-    setFakeClientMode(require.resolve('../../../../../index'))
-
-    beforeAll(async () => {
-        const result = await prepareKeystoneExpressApp(require.resolve('../../../../../index'))
-        keystone = result.keystone
-    })
+    setFakeClientMode(index)
 
     describe('User with given phone does not exists', function () {
         it('should create user', async () => {

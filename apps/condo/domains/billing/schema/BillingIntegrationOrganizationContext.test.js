@@ -141,8 +141,7 @@ describe('BillingIntegrationOrganizationContext', () => {
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-            const contexts = await BillingIntegrationOrganizationContext.getAll(user,
-                { id: context.id })
+            const contexts = await BillingIntegrationOrganizationContext.getAll(user, { id: context.id })
             expect(contexts).toHaveLength(0)
         })
 

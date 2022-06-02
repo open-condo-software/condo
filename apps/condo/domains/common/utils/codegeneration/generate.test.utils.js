@@ -1,27 +1,82 @@
 const faker = require('faker')
+const { print } = require('graphql')
+const { get, isEmpty } = require('lodash')
+const falsey = require('falsey')
 
-function throwIfError (data, errors) {
-    if (errors) {
-        const err = new Error('TestRequestError')
-        err.errors = errors
-        err.data = data
-        throw err
+const { normalizeQuery } = require('../GraphQLLoggerApp')
+
+const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
+
+
+class TestClientResponseError extends Error {
+    constructor (data, errors, context = {}) {
+        super(`Test client caught GraphQL response with not empty errors body! ${_renderDeveloperFriendlyErrorMessage(data, errors, context)}`)
+        this.errors = errors
+        this.data = data
+        this.context = context
+        this.name = 'TestClientResponseError'
     }
 }
 
-function checkClient (client) {
+function throwIfError (data, errors, context = {}) {
+    const supportedKeys = ['query', 'variables']
+    const hasUnsupportedKeys = Object.keys(context).filter((key) => !supportedKeys.includes(key))
+    if (!isEmpty(hasUnsupportedKeys)) throw new Error(`throwIfError(data, errors, context) has unsupported context keys: ${hasUnsupportedKeys.join(', ')}`)
+    if (errors) {
+        if (EXTRA_LOGGING) {
+            const errorsToShow = errors.filter(error => get(error, 'originalError.data') || get(error, 'originalError.internalData'))
+            if (!isEmpty(errorsToShow)) errorsToShow.forEach((error) => console.warn(get(error, 'originalError.data'), '\n', get(error, 'originalError.internalData')))
+            console.warn(errors)
+        }
+        throw new TestClientResponseError(data, errors, context)
+    }
+}
+
+function _checkClient (client) {
     if (!client) throw new Error('no client argument')
     if (typeof client !== 'object') throw new Error('The client argument should be an object type')
     if (client.then) throw new Error('The client argument is a Promise! Probably you should to await it')
 }
 
+function _renderDeveloperFriendlyErrorMessage (data, errors, context) {
+    let msg = ['', '--request--']
+
+    if (get(context, 'query')) {
+        msg.push(`QUERY: ${normalizeQuery(print(context.query))}`)
+    } else {
+        msg.push('QUERY: context was not send! check the throwIfError( ... ) third argument!')
+    }
+
+    if (get(context, 'variables')) {
+        msg.push(`VARIABLES: ${JSON.stringify(context.variables)}`)
+    } else {
+        msg.push('VARIABLES: context was not send! check the throwIfError( ... ) third argument!')
+    }
+
+    msg.push('--response--')
+
+    if (data) {
+        msg.push(`DATA: ${JSON.stringify(data)}`)
+    } else {
+        msg.push('DATA: no or empty')
+    }
+
+    if (errors) {
+        msg.push(`ERRORS: ${JSON.stringify(errors, null, 2)}`)
+    } else {
+        msg.push('ERRORS: no or empty')
+    }
+
+    return msg.join('\n')
+}
+
 function generateGQLTestUtils (gql) {
 
     async function getAll (client, where, { raw = false, sortBy } = {}) {
-        checkClient(client)
+        _checkClient(client)
         const { data, errors } = await client.query(gql.GET_ALL_OBJS_QUERY, { where: where, sortBy })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.GET_ALL_OBJS_QUERY, variables: { where: where, sortBy } })
         return data.objs
     }
 
@@ -34,46 +89,46 @@ function generateGQLTestUtils (gql) {
     }
 
     async function count (client, where, { raw = false } = {}) {
-        checkClient(client)
+        _checkClient(client)
         const { data, errors } = await client.query(gql.GET_COUNT_OBJS_QUERY, { where: where })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.GET_COUNT_OBJS_QUERY, variables: { where: where } })
         return data.meta.count
     }
 
     async function getAllWithMeta (client, where, { raw = false } = {}) {
-        checkClient(client)
+        _checkClient(client)
         const { data, errors } = await client.query(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, { where: where })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.GET_ALL_OBJS_WITH_COUNT_QUERY, variables: { where: where } })
         return data.meta.count
     }
 
     async function create (client, attrs = {}, { raw = false } = {}) {
-        checkClient(client)
+        _checkClient(client)
         const { data, errors } = await client.mutate(gql.CREATE_OBJ_MUTATION, {
             data: { ...attrs },
         })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.CREATE_OBJ_MUTATION, variables: { data: { ...attrs } } })
         return data.obj
     }
 
     async function update (client, id, attrs = {}, { raw = false } = {}) {
-        checkClient(client)
+        _checkClient(client)
         const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, {
             id, data: { ...attrs },
         })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.UPDATE_OBJ_MUTATION, variables: { id, data: { ...attrs } } })
         return data.obj
     }
 
     async function delete_ (client, id, { raw = false } = {}) {
-        checkClient(client)
+        _checkClient(client)
         const { data, errors } = await client.mutate(gql.DELETE_OBJ_MUTATION, { id })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.DELETE_OBJ_MUTATION, variables: { id } })
         return data.obj
     }
 
@@ -85,10 +140,10 @@ function generateGQLTestUtils (gql) {
             deletedAt: 'true',
             ...extraAttrs,
         }
-        checkClient(client)
+        _checkClient(client)
         const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, { id, data: { ...attrs } })
         if (raw) return { data, errors }
-        throwIfError(data, errors)
+        throwIfError(data, errors, { query: gql.UPDATE_OBJ_MUTATION, variables: { id, data: { ...attrs } } })
         return [data.obj, attrs]
     }
 

@@ -94,8 +94,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
                         instruction={integration.instruction}
                         appUrl={integration.appUrl}
                         disabledConnect={isAnyBillingConnected}
-                        connectAction={createContextAction}
-                    >
+                        connectAction={createContextAction}>
                         {
                             isAnyBillingConnected && (
                                 <AlreadyConnectedBilling/>

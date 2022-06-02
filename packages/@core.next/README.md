@@ -98,7 +98,7 @@ If you need a customize GraphQL auth queries, you can do it:
 let USER_QUERY = gql`
     query {
         authenticatedUser {
-            id name avatar { publicUrl } isAdmin isActive
+            id name avatar { publicUrl } isAdmin
         }
     }
 `

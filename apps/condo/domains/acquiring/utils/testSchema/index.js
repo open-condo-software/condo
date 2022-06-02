@@ -246,11 +246,13 @@ async function createTestMultiPayment (client, payments, user, integration, extr
     const amountWithoutExplicitFee = payments.reduce((acc, cur) => acc.plus(cur.amount), Big(0)).toString()
     const explicitFee = payments.reduce((acc, cur) => acc.plus(cur.explicitFee || '0'), Big(0)).toString()
     const explicitServiceCharge = payments.reduce((acc, cur) => acc.plus(cur.explicitServiceCharge || '0'), Big(0)).toString()
+    const implicitFee = payments.reduce((acc, cur) => acc.plus(cur.implicitFee || '0'), Big(0)).toString()
 
     const attrs = {
         dv: 1,
         sender,
         amountWithoutExplicitFee,
+        implicitFee,
         explicitFee,
         explicitServiceCharge,
         currencyCode: 'RUB',

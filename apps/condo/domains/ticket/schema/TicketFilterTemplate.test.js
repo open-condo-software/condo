@@ -60,7 +60,8 @@ describe('TicketFilterTemplate', () => {
             await expectToThrowValidationFailureError(
                 async () => await createTestTicketFilterTemplate(user, employee, {
                     fields: wrongFilters,
-                })
+                }),
+                'fields field validation error. JSON not in the correct format - path: msg:must NOT have additional properties',
             )
         })
 

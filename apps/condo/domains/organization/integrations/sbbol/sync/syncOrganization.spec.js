@@ -3,26 +3,23 @@
  */
 
 const faker = require('faker')
-const { syncOrganization } = require('./syncOrganization')
-const { prepareKeystoneExpressApp, setFakeClientMode } = require('@core/keystone/test.utils')
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
-const { MockSbbolResponses } = require('./MockSbbolResponses')
-const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
 const { getItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 
-let keystone
+const { setFakeClientMode } = require('@core/keystone/test.utils')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
+
+const { MockSbbolResponses } = require('./MockSbbolResponses')
+const { syncOrganization } = require('./syncOrganization')
+
+const index = require('@app/condo/index')
+const { keystone } = index
 
 describe('syncOrganization from SBBOL', () => {
-    setFakeClientMode(require.resolve('../../../../../index'))
+    setFakeClientMode(index)
 
-    beforeAll(async () => {
-        const result = await prepareKeystoneExpressApp(require.resolve('../../../../../index'))
-        keystone = result.keystone
-    })
-
-    describe('Organization not exists', function () {
+    describe('Organization not exists', () => {
 
         it('should update existed organization with a same tin', async () => {
             const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
@@ -141,7 +138,7 @@ describe('syncOrganization from SBBOL', () => {
             })
             const userData2 = {
                 ...userData,
-                importId: faker.random.uuid(),
+                importId: faker.datatype.uuid(),
                 email: faker.internet.email(),
                 phone: faker.phone.phoneNumber('+79#########'),
             }

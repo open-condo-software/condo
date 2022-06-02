@@ -60,11 +60,13 @@ async function createTestTicket (client, organization, property, extraAttrs = {}
     if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const details = faker.random.alphaNumeric(10)
+    const unitName = faker.random.alphaNumeric(5)
 
     const attrs = {
         dv: 1,
         sender,
         details,
+        unitName,
         unitType: FLAT_UNIT_TYPE,
         organization: { connect: { id: organization.id } },
         property: { connect: { id: property.id } },

@@ -38,7 +38,7 @@ const buildFakeAddressMeta = (withFlat = false) => {
     emptyData.street_fias_id = faker.datatype.uuid()
     emptyData.street_kladr_id = String(faker.datatype.number())
 
-    emptyData.house = String(faker.datatype.number())
+    emptyData.house = String(faker.datatype.number({ max: 100000000 }))
     emptyData.house_type = 'д'
     emptyData.house_type_full = 'дом'
     emptyData.house_fias_id = faker.datatype.uuid()

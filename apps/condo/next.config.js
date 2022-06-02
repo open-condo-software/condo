@@ -18,6 +18,7 @@ const featureFlagsConfig = conf['FEATURE_FLAGS_CONFIG']
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE_RECAPTCHA_CONFIG'])
 const yandexMetrikaID = conf['YANDEX_METRIKA_ID']
+const trackingConfig = conf['TRACKING_CONFIG'] && JSON.parse(conf['TRACKING_CONFIG'])
 const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
 const JIRAServiceDeskWidgetKey = conf['JIRA_SERVICE_DESK_WIDGET_KEY']
@@ -34,6 +35,7 @@ module.exports = withTM(withLess(withCSS({
         featureFlagsConfig,
         docsConfig,
         yandexMetrikaID,
+        trackingConfig,
         defaultLocale,
         insuranceAppUrl,
         JIRAServiceDeskWidgetKey,

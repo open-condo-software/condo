@@ -25,7 +25,7 @@ const {
 
 describe('AcquiringIntegrationAccessRight', () => {
     describe('CRUD tests', () => {
-        describe('create', async () => {
+        describe('create', () => {
             test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -78,7 +78,7 @@ describe('AcquiringIntegrationAccessRight', () => {
                 )
             })
         })
-        describe('read', async () => {
+        describe('read',  () => {
             test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -122,7 +122,7 @@ describe('AcquiringIntegrationAccessRight', () => {
                 expect(rights.length).toBeGreaterThan(0)
             })
         })
-        describe('update', async () => {
+        describe('update', () => {
             test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -180,7 +180,7 @@ describe('AcquiringIntegrationAccessRight', () => {
                 }))
             })
         })
-        describe('hard delete', async () => {
+        describe('hard delete', () => {
             test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)

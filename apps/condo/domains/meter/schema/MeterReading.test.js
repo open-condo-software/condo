@@ -13,7 +13,6 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAccessDeniedError,
 } = require('@condo/domains/common/utils/testSchema')
 
 const {
@@ -437,12 +436,9 @@ describe('MeterReading', () => {
                 await sleep(1500)
 
                 // test access after residents reconnection worker task done
-                const testFunc = async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestMeterReading(client, meter, organization, source)
-                }
-
-                await expectToThrowAccessDeniedError(testFunc, null)
-
+                })
             })
 
             test('resident: cannot create MeterReadings in other organization', async () => {

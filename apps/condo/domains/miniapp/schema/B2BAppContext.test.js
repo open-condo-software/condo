@@ -18,12 +18,12 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-    expectToThrowUserInputError,
+    expectToThrowGraphQLRequestError,
 } = require('@condo/domains/common/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
-const { catchErrorFrom } = require('../../common/utils/testSchema')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 describe('B2BAppContext', () => {
     describe('CRUD', () => {
@@ -58,7 +58,7 @@ describe('B2BAppContext', () => {
                 expect(context).toHaveProperty(['organization', 'id'], organization.id)
                 expect(context).toHaveProperty(['app', 'id'], app.id)
             })
-            describe('User', async () => {
+            describe('User', () => {
                 test('Employee with canManageIntegrations can', async () => {
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -247,12 +247,12 @@ describe('B2BAppContext', () => {
             const [context] = await createTestB2BAppContext(admin, app, organization)
             const [secondOrganization] = await registerNewOrganization(admin)
             const [secondApp] = await createTestB2BApp(admin)
-            await expectToThrowUserInputError(async () => {
+            await expectToThrowGraphQLRequestError(async () => {
                 await updateTestB2BAppContext(admin, context.id, {
                     organization: { connect: { id: secondOrganization.id  } },
                 })
             }, 'Field "organization" is not defined')
-            await expectToThrowUserInputError(async () =>{
+            await expectToThrowGraphQLRequestError(async () =>{
                 await updateTestB2BAppContext(admin, context.id, {
                     app: { connect: { id: secondApp.id } },
                 })

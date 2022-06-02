@@ -6,7 +6,7 @@ const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowGraphQLRequestError, expectToThrowValidationFailureError, expectToThrowInternalError } = require('@condo/domains/common/utils/testSchema')
 const { updateTestResident, registerServiceConsumerByTestClient, updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -26,10 +26,9 @@ const {
     makeResidentClientWithOwnReceipt,
 } = require('../utils/testSchema')
 
-
 describe('BillingReceipt', () => {
 
-    describe('Validators', async () => {
+    describe('Validators', () => {
         test('organization integration manager: update BillingReceipt toPayDetail', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
@@ -111,14 +110,10 @@ describe('BillingReceipt', () => {
                 },
             }
 
-            await catchErrorFrom(
+            await expectToThrowGraphQLRequestError(
                 async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
-                ({ errors, _ }) => {
-                    expect(errors[0]).toMatchObject({
-                        name: 'UserInputError',
-                        extensions: { code: 'BAD_USER_INPUT' },
-                    })
-                })
+                '"data.toPayDetails"; Field "formula" of required type "String!" was not provided.',
+            )
         })
 
         test('organization integration manager: update BillingReceipt with wrong data in period', async () => {
@@ -133,13 +128,10 @@ describe('BillingReceipt', () => {
                 period: '2011-02-15',
             }
 
-            await catchErrorFrom(
+            await expectToThrowValidationFailureError(
                 async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
-                ({ errors, _ }) => {
-                    expect(errors[0]).toMatchObject({
-                        'message': 'You attempted to perform an invalid mutation',
-                    })
-                })
+                'period field validation error. Period day should always equal 1',
+            )
         })
 
         test('organization integration manager: update BillingReceipt with wrong data in services', async () => {
@@ -165,14 +157,10 @@ describe('BillingReceipt', () => {
                 ],
             }
 
-            await catchErrorFrom(
-                async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
-                ({ errors, _ }) => {
-                    expect(errors[0]).toMatchObject({
-                        name: 'UserInputError',
-                        extensions: { code: 'BAD_USER_INPUT' },
-                    })
-                })
+            await expectToThrowGraphQLRequestError(
+                async () => { await updateTestBillingReceipt(managerUserClient, obj.id, payload) },
+                '"data.services[0].toPayDetails"; Field "formula" of required type "String!" was not provided.',
+            )
         })
 
         test('organization integration manager: update BillingReceipt with wrong data in services 2', async () => {
@@ -196,14 +184,10 @@ describe('BillingReceipt', () => {
                 ],
             }
 
-            await catchErrorFrom(
+            await expectToThrowGraphQLRequestError(
                 async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
-                ({ errors, _ }) => {
-                    expect(errors[0]).toMatchObject({
-                        name: 'UserInputError',
-                        extensions: { code: 'BAD_USER_INPUT' },
-                    })
-                })
+                '"data.services[0]"; Field "name" of required type "String!" was not provided.',
+            )
         })
 
         test('organization integration manager: update BillingReceipt period', async () => {
@@ -241,7 +225,7 @@ describe('BillingReceipt', () => {
         })
     })
 
-    describe('Constrains', async () => {
+    describe('Constrains', () => {
 
         const TEST_IMPORT_ID = 'bedrock_220v'
 
@@ -334,7 +318,7 @@ describe('BillingReceipt', () => {
             expect(deletedObj.deletedAt).not.toBeNull()
             expect(foundObj.id).toEqual(obj.id)
             expect(restoredObj.deletedAt).toBeNull()
-            expect(changedObj.importId).toEqual( TEST_IMPORT_ID + '22' )
+            expect(changedObj.importId).toEqual(TEST_IMPORT_ID + '22')
         })
 
         test('cannot create billing receipt with same import id in one context', async () => {
@@ -345,12 +329,10 @@ describe('BillingReceipt', () => {
             const [billingAccount] = await createTestBillingAccount(admin, context, property)
             await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
 
-            await catchErrorFrom(async () => {
-                await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID })
-            }, (err) => {
-                expect(err).toBeDefined()
-                expect(err.errors[0].developerMessage).toContain('duplicate key value violates unique constraint')
-            })
+            await expectToThrowInternalError(
+                async () => await createTestBillingReceipt(admin, context, property, billingAccount, { importId: TEST_IMPORT_ID }),
+                'duplicate key value violates unique constraint "BillingReceipt_importId_9da6acbf_uniq"',
+            )
         })
 
         test('cannot create billing receipt with empty import id', async () => {
@@ -392,7 +374,6 @@ describe('BillingReceipt', () => {
             })
         })
 
-
     })
 
     describe('Hooks', () => {
@@ -423,7 +404,7 @@ describe('BillingReceipt', () => {
             const bankAccount = faker.random.alphaNumeric(8)
             const iec = faker.random.alphaNumeric(8)
 
-            const [ billingRecipient ] = await createTestBillingRecipient(support, context, {
+            const [billingRecipient] = await createTestBillingRecipient(support, context, {
                 tin: tin,
                 bic: bic,
                 iec: iec,
@@ -459,7 +440,7 @@ describe('BillingReceipt', () => {
             const bankAccount = faker.random.alphaNumeric(8)
             const iec = faker.random.alphaNumeric(8)
 
-            const [ billingRecipient ] = await createTestBillingRecipient(support, context, {
+            const [billingRecipient] = await createTestBillingRecipient(support, context, {
                 tin: tin,
                 bic: bic,
                 iec: iec,
@@ -484,7 +465,7 @@ describe('BillingReceipt', () => {
 
     })
 
-    describe('Create', async () => {
+    describe('Create', () => {
         test('admin can create BillingReceipt', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -588,7 +569,7 @@ describe('BillingReceipt', () => {
 
             const { residentClient, receipt } = await makeResidentClientWithOwnReceipt()
 
-            const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
+            const objs = await BillingReceipt.getAll(residentClient, {}, { raw: true })
             const obj = objs.data.objs[0]
 
             expect(objs.data.objs).toHaveLength(1)
@@ -626,7 +607,7 @@ describe('BillingReceipt', () => {
             const { resident: resident2 } = await makeResidentClientWithOwnReceipt()
             await updateTestResident(adminClient, resident2.id, { user: { connect: { id: residentClient.user.id } } })
 
-            const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
+            const objs = await BillingReceipt.getAll(residentClient, {}, { raw: true })
 
             expect(objs.data.objs).toHaveLength(3)
         })
@@ -640,7 +621,7 @@ describe('BillingReceipt', () => {
             // Generate other resident's rececipts...
             await makeResidentClientWithOwnReceipt()
 
-            const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
+            const objs = await BillingReceipt.getAll(residentClient, {}, { raw: true })
 
             expect(objs.data.objs).toHaveLength(0)
         })
@@ -654,7 +635,7 @@ describe('BillingReceipt', () => {
             // Generate other resident's rececipts...
             await makeResidentClientWithOwnReceipt()
 
-            const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
+            const objs = await BillingReceipt.getAll(residentClient, {}, { raw: true })
 
             expect(objs.data.objs).toHaveLength(0)
         })
@@ -671,7 +652,7 @@ describe('BillingReceipt', () => {
             // Generate other resident's rececipts...
             await makeResidentClientWithOwnReceipt()
 
-            const objs = await BillingReceipt.getAll(residentClient, {}, { raw:true })
+            const objs = await BillingReceipt.getAll(residentClient, {}, { raw: true })
 
             expect(objs.data.objs).toHaveLength(0)
         })
@@ -689,7 +670,7 @@ describe('BillingReceipt', () => {
         })
     })
 
-    describe('Update', async () => {
+    describe('Update', () => {
         test('admin can update BillingReceipt', async () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -744,7 +725,7 @@ describe('BillingReceipt', () => {
         })
     })
 
-    describe('Delete', async () => {
+    describe('Delete', () => {
         test('user cannot delete BillingReceipt', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()

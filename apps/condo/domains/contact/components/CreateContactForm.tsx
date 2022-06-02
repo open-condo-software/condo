@@ -1,4 +1,5 @@
-import { Col, Form, Input, Row } from 'antd'
+import { Col, Form, Row } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
 import styled from '@emotion/styled'
 import get from 'lodash/get'
 import { Rule } from 'rc-field-form/lib/interface'

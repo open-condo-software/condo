@@ -144,7 +144,18 @@ class Map {
                 )
             )
             .flat(2)
-        if (unitLabels && unitLabels.length !== new Set(unitLabels).size) {
+        const parkingUnitLabels = this.map.parking
+            ?.map((parkingSection) => parkingSection.floors
+                ?.map(parkingFloor => parkingFloor.units
+                    ?.map(parkingUnit => parkingUnit.label)
+                )
+            ).flat(2)
+
+
+        const notUniqSectionLabels = unitLabels && unitLabels.length !== new Set(unitLabels).size
+        const notUniqParkingLabels = parkingUnitLabels && parkingUnitLabels.length !== new Set(parkingUnitLabels).size
+
+        if (notUniqSectionLabels || notUniqParkingLabels) {
             this.validationErrors = ['Name of unit label must be unique']
             return false
         }

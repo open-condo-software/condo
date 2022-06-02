@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Col, Row, Typography } from 'antd'
 import { TopCard } from './TopCard'
 import { AboutCard, AboutBlockProps } from './AboutCard'
 import { useIntl } from '@core/next/intl'
+import get from 'lodash/get'
 import { MarkDown } from '@condo/domains/common/components/MarkDown'
 import { Button } from '@condo/domains/common/components/Button'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 interface AppDescriptionPageContentProps {
     title: string,
@@ -45,6 +47,31 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
     const DefaultInstructionMessage = intl.formatMessage({ id: 'miniapps.instruction.default' }, {
         buttonLabel: ConnectButtonLabel,
     })
+
+    const { logEvent, eventProperties, getEventName } = useTracking()
+
+    useEffect(() => {
+        const routeChangeStart = (event: MouseEvent) => {
+            const target = event.target as HTMLElement
+            if (target.tagName === 'A') {
+                const value = get(target, 'attributes.href.value', '')
+                const title = get(target, 'textContent', '')
+                const eventName = getEventName(TrackingEventType.FollowExternalLink)
+
+                logEvent({ eventName, eventProperties: {
+                    ...eventProperties,
+                    link: { title, value },
+                } })
+            }
+        }
+        if (typeof window !== 'undefined') {
+            document.addEventListener('click', routeChangeStart)
+        }
+        return () => {
+            document.removeEventListener('click', routeChangeStart)
+        }
+    }, [])
+
 
     return (
         <Row gutter={[0, 60]}>

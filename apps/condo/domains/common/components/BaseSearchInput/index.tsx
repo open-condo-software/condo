@@ -1,6 +1,6 @@
 import { OptionProps } from 'antd/lib/mentions'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Select, SelectProps } from 'antd'
+import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import debounce from 'lodash/debounce'
 import throttle from 'lodash/throttle'
 import { useIntl } from '@core/next/intl'
@@ -9,12 +9,13 @@ import { useSelectCareeteControls } from './useSelectCareeteControls'
 import { Loader } from '../Loader'
 import { isNeedToLoadNewElements } from '../../utils/select.utils'
 import uniqBy from 'lodash/uniqBy'
+import { TrackingEventPropertiesType } from '../TrackingContext'
 
 const { Option } = Select
 
 const DEBOUNCE_TIMEOUT = 800
 
-interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
+interface ISearchInput<S> extends Omit<CustomSelectProps<S>, 'onSelect'> {
     loadOptionsOnFocus?: boolean
     renderOption: (dataItem, value, index?) => React.ReactElement
     // TODO(Dimtireee): remove any
@@ -22,6 +23,8 @@ interface ISearchInput<S> extends Omit<SelectProps<S>, 'onSelect'> {
     initialValueGetter?: InitialValuesGetter
     onSelect?: (value: string, option: OptionProps) => void
     infinityScroll?: boolean
+    eventName?: string
+    eventProperties?: TrackingEventPropertiesType
 }
 
 const SELECT_LOADER_STYLE = { display: 'flex', justifyContent: 'center', padding: '10px 0' }
@@ -45,6 +48,8 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         style,
         infinityScroll,
         value,
+        eventName,
+        eventProperties,
         ...restSelectProps
     } = props
 
@@ -211,6 +216,8 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             autoClearSearchValue={false}
             defaultActiveFirstOption={false}
             style={style}
+            eventName={eventName}
+            eventProperties={eventProperties}
         >
             {options}
         </Select>

@@ -1,8 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import React, { useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Input, notification, Row, Typography } from 'antd'
+import { Col, Form, notification, Row, Typography, RowProps, FormInstance } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
 import isEmpty from 'lodash/isEmpty'
 import dayjs from 'dayjs'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
@@ -28,6 +27,9 @@ interface IPropertyFormProps {
     action?: (...args) => void
     type: string
     address?: string
+    children: (
+        { handleSave, isLoading, form }: { handleSave: () => void, isLoading: boolean, form: FormInstance }
+    ) => React.ReactElement
 }
 
 const INPUT_LAYOUT_PROPS = {
@@ -38,8 +40,8 @@ const INPUT_LAYOUT_PROPS = {
 const FORM_WITH_ACTION_STYLES = {
     width: '100%',
 }
-const PROPERTY_FULLSCREEN_ROW_GUTTER = [0, 40]
-const PROPERTY_ROW_GUTTER = [50, 40]
+const PROPERTY_FULLSCREEN_ROW_GUTTER: RowProps['gutter']  = [0, 40]
+const PROPERTY_ROW_GUTTER: RowProps['gutter'] = [50, 40]
 
 const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
 
@@ -160,7 +162,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         <AddressSuggestionsSearchInput
                                             placeholder={AddressTitle}
                                             onSelect={(_, option) => {
-                                                const address = JSON.parse(option.key) as AddressMetaField
+                                                const address = JSON.parse(option.key as string) as AddressMetaField
                                                 if (!validHouseTypes.includes(address.data.house_type_full)) {
                                                     setAddressValidatorError(AddressValidationErrorMsg)
                                                 }

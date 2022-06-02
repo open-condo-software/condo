@@ -59,7 +59,8 @@ describe('MeterReadingFilterTemplate', () => {
             await expectToThrowValidationFailureError(
                 async () => await createTestMeterReadingFilterTemplate(user, employee, {
                     fields: wrongFilters,
-                })
+                }),
+                'fields field validation error. JSON not in the correct format - path: msg:must NOT have additional properties',
             )
         })
 
@@ -77,7 +78,8 @@ describe('MeterReadingFilterTemplate', () => {
             await expectToThrowValidationFailureError(
                 async () => await createTestMeterReadingFilterTemplate(user, employee, {
                     fields: wrongFilters,
-                })
+                }),
+                'fields field validation error. JSON not in the correct format - path:/date msg:must be array',
             )
         })
 

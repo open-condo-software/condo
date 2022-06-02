@@ -6,21 +6,20 @@ const sample = require('lodash/sample')
 
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
+const { DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE } = require('@condo/domains/common/constants/errors')
+
 const {
     expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
-    expectToThrowMutationError,
-    expectToThrowUserInputError,
+    expectToThrowGraphQLRequestError,
+    expectToThrowInternalError,
 } = require('@condo/domains/common/utils/testSchema')
 
+const { PUSH_TRANSPORT_TYPES } = require('@condo/domains/notification/constants/constants')
 const { Device, createTestDevice, updateTestDevice } = require('@condo/domains/notification/utils/testSchema')
-
-const { getRandomTokenData } = require('../utils/testSchema/helpers')
-const { PUSH_TRANSPORT_TYPES } = require('../constants/constants')
-
-const DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE = 'duplicate key value violates unique constraint'
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 
 describe('Device', () => {
     describe('Anonymous', () => {
@@ -148,9 +147,10 @@ describe('Device', () => {
         it('checks that deviceId is required', async () => {
             const admin = await makeLoggedInAdminClient()
 
-            await expectToThrowValidationFailureError(async () => {
-                await createTestDevice(admin, { deviceId: null })
-            })
+            await expectToThrowValidationFailureError(
+                async () => await createTestDevice(admin, { deviceId: null }),
+                'Required field "deviceId" is null or undefined.',
+            )
         })
 
         it('checks that pushToken is not required', async () => {
@@ -191,16 +191,17 @@ describe('Device', () => {
             const admin = await makeLoggedInAdminClient()
             const extraAttrs = { ...getRandomTokenData(), pushTransport: undefined }
 
-            await expectToThrowValidationFailureError(async () => {
-                await createTestDevice(admin, extraAttrs)
-            })
+            await expectToThrowValidationFailureError(
+                async () => await createTestDevice(admin, extraAttrs),
+                '[required:noValue:pushTransport] Value is required',
+            )
         })
 
         it('fails on invalid pushTransport value', async () => {
             const admin = await makeLoggedInAdminClient()
             const extraAttrs = { pushTransport: 'xxxxxxx' }
 
-            await expectToThrowUserInputError(
+            await expectToThrowGraphQLRequestError(
                 async () => await createTestDevice(admin, extraAttrs),
                 `got invalid value "${extraAttrs.pushTransport}" at "data.pushTransport";`,
             )
@@ -227,10 +228,9 @@ describe('Device', () => {
             const [objCreated] = await createTestDevice(admin)
             const extraAttrs = { deviceId: objCreated.deviceId }
 
-            await expectToThrowMutationError(
+            await expectToThrowInternalError(
                 async () => await createTestDevice(admin1, extraAttrs),
                 DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
-                ['obj']
             )
         })
 
@@ -241,10 +241,9 @@ describe('Device', () => {
 
             await createTestDevice(admin, extraAttrs)
 
-            await expectToThrowMutationError(
+            await expectToThrowInternalError(
                 async () => await createTestDevice(admin1, extraAttrs),
                 DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
-                ['obj']
             )
         })
 

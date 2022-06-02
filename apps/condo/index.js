@@ -23,14 +23,16 @@ const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { KeystoneCacheMiddleware } = require('@core/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
+const { GraphQLLoggerApp } = require('@condo/domains/common/utils/GraphQLLoggerApp')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 
-const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
+const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const IS_ENABLE_CACHE = conf.ENABLE_CACHE === '1'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
+const IS_ON_WORKER = conf.PHASE === 'worker'
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
@@ -128,23 +130,12 @@ class SberBuisnessOnlineMiddleware {
     }
 }
 
-/**
- * We need a custom body parser for custom file upload limit
- */
-class CustomBodyParserMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
-        const app = express()
-        app.use(bodyParser.json({ limit: '100mb', extended: true }))
-        app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
-        return app
-    }
-}
 
 module.exports = {
     keystone,
     apps: [
+        new GraphQLLoggerApp(),
         new OIDCMiddleware(),
-        new CustomBodyParserMiddleware(),
         IS_ENABLE_CACHE ? new KeystoneCacheMiddleware() : undefined,
         new GraphQLApp({
             apollo: {
@@ -162,12 +153,15 @@ module.exports = {
             authStrategy,
             hooks: require.resolve('@app/condo/admin-ui'),
         }),
-        conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' }),
+        conf.NODE_ENV === 'test' || IS_ON_WORKER ? undefined : new NextApp({ dir: '.' }),
     ].filter(identity),
 
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
         app.set('trust proxy', true)
+        // NOTE(toplenboren): we need a custom body parser for custom file upload limit
+        app.use(bodyParser.json({ limit: '100mb', extended: true }))
+        app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
 
         const requestIdHeaderName = 'X-Request-Id'
         app.use(function reqId (req, res, next) {

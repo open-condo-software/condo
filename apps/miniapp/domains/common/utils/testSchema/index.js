@@ -31,13 +31,13 @@ const isEmpty = require('lodash/isEmpty')
  * @return {Promise<*>}
  */
 export const catchErrorFrom = async (testFunc, inspect) => {
-    let thrownError
+    let thrownError = null
     try {
         await testFunc()
     } catch (e) {
         thrownError = e
     }
-    expect(thrownError).toBeDefined()
+    if (!thrownError) throw new Error('catchErrorFrom() error not found (miniapp)')
     return inspect(thrownError)
 }
 

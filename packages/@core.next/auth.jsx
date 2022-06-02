@@ -69,10 +69,16 @@ const AuthProvider = ({ children, initialUserValue }) => {
 
     const { data: userData, loading: userLoading, error: userError, refetch } = useQuery(USER_QUERY)
 
+    const [isUserLoading, setIsUserLoading] = useState(userLoading)
+
     useEffect(() => {
         if (userData) onData(userData)
         if (userError) onError(userError)
     }, [userData, userError])
+
+    useEffect(() => {
+        setIsUserLoading(userLoading)
+    }, [userLoading])
 
     const [signin, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION, {
         onCompleted: async ({ authenticateUserWithPassword: { item } = {}, error }) => {
@@ -127,7 +133,7 @@ const AuthProvider = ({ children, initialUserValue }) => {
         <AuthContext.Provider
             value={{
                 isAuthenticated: !!user,
-                isLoading: userLoading || signinLoading || signoutLoading,
+                isLoading: isUserLoading || signinLoading || signoutLoading,
                 refetch: refetchUserData,
                 signin,
                 signout,

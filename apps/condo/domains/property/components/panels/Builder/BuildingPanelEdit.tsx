@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { CloseOutlined, DeleteFilled, DownOutlined } from '@ant-design/icons'
-import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, BuildingUnitType } from '@app/condo/schema'
+import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -12,15 +12,15 @@ import { css, jsx } from '@emotion/core'
 import styled from '@emotion/styled'
 import {
     Col,
-    Input,
     InputNumber,
     notification,
     Row,
     RowProps,
-    Select,
     Space,
     Typography,
 } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
@@ -206,6 +206,18 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         })
     }, [debouncedQuickSave, mapEdit])
 
+    const saveCallback = useCallback(() => {
+        if (mapEdit.validate()) {
+            handleSave()
+            return
+        }
+
+        notification.error({
+            message: MapValidationError,
+            placement: 'bottomRight',
+        })
+    }, [handleSave, mapValidationError, mapEdit])
+
     useHotkeys('ctrl+s', quickSaveCallback, [map, property])
 
     const scrollToForm = () => {
@@ -372,7 +384,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     <Space size={20} align={'center'}>
                         <Button
                             key='submit'
-                            onClick={handleSave}
+                            onClick={saveCallback}
                             type='sberDefaultGradient'
                             disabled={!address}
                         >

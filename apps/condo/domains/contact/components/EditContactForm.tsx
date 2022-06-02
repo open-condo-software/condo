@@ -1,6 +1,7 @@
 import { Gutter } from 'antd/lib/grid/row'
 import React from 'react'
-import { Col, Form, Input, Row, Space, Typography } from 'antd'
+import { Col, Form, Row, Space, Typography } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'

@@ -5,6 +5,7 @@
  */
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
+const { countryPhoneData } = require('phone')
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION, COMPLETE_CONFIRM_PHONE_MUTATION } = require('@condo/domains/user/gql')
@@ -20,15 +21,18 @@ const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 
+const _usAreaCodes = countryPhoneData[0].mobile_begin_with.filter(x => x.length === 3)
+const _createTestUsMobilePhone = () => `+1${faker.random.arrayElement(_usAreaCodes)}${faker.phone.phoneNumber('#######')}`
+const _createTestRuMobilePhone = () => faker.random.arrayElement([faker.phone.phoneNumber('+79#########'), faker.phone.phoneNumber('+7495#######')])
+const createTestPhone = () => faker.random.arrayElement([_createTestUsMobilePhone(), _createTestRuMobilePhone()])
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
-const createTestPhone = () => faker.phone.phoneNumber('+79#########')
 const createTestLandlineNumber = () => faker.phone.phoneNumber('+7343#######')
 
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
 } = require('@condo/domains/user/constants/common')
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
 async function createTestUser (client, extraAttrs = {},  { raw = false } = {}) {
     if (!client) throw new Error('no client')
@@ -91,11 +95,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
         data: attrs,
     })
     if (raw) return { data, errors }
-
-    // This test util used by cypress task of which context 'expect' method is missing
-    if (typeof expect === 'function') {
-        expect(errors).toEqual(undefined)
-    }
+    throwIfError(data, errors, { query: REGISTER_NEW_USER_MUTATION, variables: { data: attrs } })
     return [data.user, attrs]
 }
 
@@ -134,6 +134,15 @@ async function makeClientWithStaffUser() {
     return client
 }
 
+async function makeClientWithServiceUser() {
+    const [user, userAttrs] = await registerNewUser(await makeClient())
+    const client = await makeLoggedInClient(userAttrs)
+    await addServiceAccess(user)
+    client.user = user
+    client.userAttrs = userAttrs
+    return client
+}
+
 async function addAdminAccess (user) {
     const admin = await makeLoggedInAdminClient()
     await User.update(admin, user.id, { isAdmin: true })
@@ -141,7 +150,7 @@ async function addAdminAccess (user) {
 
 async function addSupportAccess (user) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { isSupport: true})
+    await User.update(admin, user.id, { isSupport: true })
 }
 
 async function addResidentAccess (user) {
@@ -152,6 +161,11 @@ async function addResidentAccess (user) {
 async function addStaffAccess (user) {
     const admin = await makeLoggedInAdminClient()
     await User.update(admin, user.id, { type: STAFF })
+}
+
+async function addServiceAccess (user) {
+    const admin = await makeLoggedInAdminClient()
+    await User.update(admin, user.id, { type: SERVICE })
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
@@ -238,7 +252,7 @@ async function signinAsUserByTestClient(client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(SIGNIN_AS_USER_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: SIGNIN_AS_USER_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -252,7 +266,7 @@ async function resetUserByTestClient(client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(RESET_USER_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: RESET_USER_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -273,7 +287,7 @@ async function registerNewServiceUserByTestClient(client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_NEW_SERVICE_USER_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: REGISTER_NEW_SERVICE_USER_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -287,7 +301,7 @@ async function supportSendMessageToSupportByTestClient (client, extraAttrs = {})
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(SEND_MESSAGE_TO_SUPPORT_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: SEND_MESSAGE_TO_SUPPORT_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -298,7 +312,7 @@ async function completeConfirmPhoneActionByTestClient (client, extraAttrs = {}) 
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: COMPLETE_CONFIRM_PHONE_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */
@@ -310,13 +324,15 @@ module.exports = {
     updateTestUser,
     registerNewUser,
     makeLoggedInClient,
-    makeClientWithResidentUser,
-    makeClientWithStaffUser,
     makeClientWithSupportUser,
+    makeClientWithResidentUser,
+    makeClientWithServiceUser,
+    makeClientWithStaffUser,
     makeClientWithNewRegisteredAndLoggedInUser,
     addAdminAccess,
     addSupportAccess,
     addResidentAccess,
+    addServiceAccess,
     addStaffAccess,
     createTestEmail,
     createTestPhone,

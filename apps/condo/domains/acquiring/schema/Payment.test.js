@@ -331,8 +331,8 @@ describe('Payment', () => {
                 await expectToThrowValidationFailureError(async () => {
                     await createTestPayment(admin, organization, null, null, {
                         dv: 2,
-                    }, DV_UNKNOWN_VERSION_ERROR)
-                })
+                    })
+                }, DV_UNKNOWN_VERSION_ERROR)
                 const [payment] = await createTestPayment(admin, organization, null, null)
                 await expectToThrowValidationFailureError(async () => {
                     await updateTestPayment(admin, payment.id, {
@@ -367,8 +367,8 @@ describe('Payment', () => {
                 await expectToThrowValidationFailureError(async () => {
                     await createTestPayment(admin, organization, null, null, {
                         frozenReceipt: { dv: 1, data: billingReceipts[0] },
-                    }, PAYMENT_NO_PAIRED_RECEIPT)
-                })
+                    })
+                }, PAYMENT_NO_PAIRED_RECEIPT)
             })
             test('context should should have same organization as payment',  async () => {
                 const { admin, acquiringContext } = await makePayer()
@@ -486,7 +486,7 @@ describe('Payment', () => {
                 const valueFields = ['amount', 'currencyCode', 'period', 'accountNumber', 'recipientBic', 'recipientBankAccount']
                 // NOTE: Cannot transit from other statuses, so checking only this ones
                 const statuses = [PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS]
-                describe('Value-fields', async () => {
+                describe('Value-fields', () => {
                     const fieldCases = Object.keys(PAYMENT_FROZEN_FIELDS)
                         .filter(status => statuses.includes(status))
                         .map(status => {

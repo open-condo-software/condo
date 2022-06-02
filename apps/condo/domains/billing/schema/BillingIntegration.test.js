@@ -78,7 +78,7 @@ describe('BillingIntegration', () => {
         })
     })
 
-    describe('Create', async () => {
+    describe('Create', () => {
         test('admin can create BillingIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
             const [integration, attrs] = await createTestBillingIntegration(admin)
@@ -110,7 +110,7 @@ describe('BillingIntegration', () => {
         })
     })
 
-    describe('Update', async () => {
+    describe('Update', () => {
         test('support can update BillingIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
@@ -144,7 +144,7 @@ describe('BillingIntegration', () => {
         })
     })
 
-    describe('Read', async () => {
+    describe('Read', () => {
         test('user can read BillingIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
             const [obj, attrs] = await createTestBillingIntegration(admin)
@@ -152,7 +152,7 @@ describe('BillingIntegration', () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const objs = await BillingIntegration.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
-            expect(objs.length >= 1).toBeTruthy()
+            expect(objs.length).toBeGreaterThanOrEqual(1)
             expect(objs).toEqual(expect.arrayContaining([
                 expect.objectContaining({
                     id: obj.id,
@@ -175,7 +175,7 @@ describe('BillingIntegration', () => {
         })
     })
 
-    describe('Delete', async () => {
+    describe('Delete', () => {
         test('user cannot delete BillingIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
@@ -214,7 +214,7 @@ describe('BillingIntegration', () => {
         })
     })
 
-    describe('Cache', async () => {
+    describe('Cache', () => {
         test('cache resets if it detects mutation with itemQuery', async () => {
             const admin = await makeLoggedInAdminClient()
             const [integration] = await createTestBillingIntegration(admin)

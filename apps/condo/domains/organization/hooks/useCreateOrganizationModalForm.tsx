@@ -1,5 +1,6 @@
 import React, { useState, Dispatch, SetStateAction, useCallback } from 'react'
-import { Form, Input, Typography } from 'antd'
+import { Form, Typography } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 

@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
-import { Select, Input, Col, Form, Row } from 'antd'
+import { Col, Form, Row } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
 const { Option } = Select
 import { useApolloClient } from '@core/next/apollo'
 import { useIntl } from '@core/next/intl'
@@ -105,6 +107,7 @@ const useTicketClassifierSelectHook = ({
                     value={selectedRef.current}
                     showAction={['focus', 'click']}
                     placeholder={SelectMessage}
+
                 >
                     {
                         optionsRef.current.map(classifier => (

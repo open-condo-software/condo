@@ -183,6 +183,7 @@ export const AppSelectPageContent: React.FC = () => {
                                                         {
                                                             unconnectedBillingsApps.map(app => {
                                                                 const tag = intl.formatMessage({ id: `miniapps.category.${app.category}` })
+
                                                                 const url = `/miniapps/${app.id}/about?type=${app.type}`
                                                                 const logo = app.logo || undefined
                                                                 return (

@@ -195,7 +195,7 @@ async function createTestBillingProperty (client, context, extraAttrs = {}) {
         context: { connect: { id: context.id } },
         raw: { foo: faker.lorem.words() },
         globalId: faker.random.alphaNumeric(10),
-        address: faker.lorem.words(),
+        address: faker.address.streetAddress(true),
         meta: {
             test: 123,
         },
@@ -229,8 +229,8 @@ async function createTestBillingAccount (client, context, property, extraAttrs =
         context: { connect: { id: context.id } },
         property: { connect: { id: property.id } },
         raw: { foo: faker.lorem.words() },
-        number: faker.random.alphaNumeric(),
-        unitName: faker.random.alphaNumeric(),
+        number: faker.random.alphaNumeric(8),
+        unitName: faker.random.alphaNumeric(8),
         unitType: FLAT_UNIT_TYPE,
         meta: {
             dv: 1,

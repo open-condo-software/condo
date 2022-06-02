@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useContext, useEffect } from 'react'
-import { Button, Form, Input, Space } from 'antd'
+import { Button, Form, Space } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
 import { useIntl } from '@core/next/intl'
 import ExcelExporterButton from './FormTableExcelImport'
 import { CreateFormListItemButton, ExtraDropdownActionsMenu } from './FormList'

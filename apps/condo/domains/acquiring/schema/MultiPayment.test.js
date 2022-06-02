@@ -420,7 +420,7 @@ describe('MultiPayment', () => {
                     }, MULTIPAYMENT_MISSING_REQUIRED_FIELDS)
                 })
             })
-            describe('Frozen fields cannot be changed', async () => {
+            describe('Frozen fields cannot be changed', () => {
                 const relations = ['integration', 'user']
                 const values = ['amountWithoutExplicitFee', 'currencyCode']
                 const statuses = [MULTIPAYMENT_INIT_STATUS, MULTIPAYMENT_PROCESSING_STATUS, MULTIPAYMENT_WITHDRAWN_STATUS]
@@ -527,32 +527,39 @@ describe('MultiPayment', () => {
                         await updateTestMultiPayment(admin, multiPayment.id, {
                             ...multiPaymentDonePayload,
                             [fieldName]: multiPaymentFieldValue,
-                        }, errorMessage)
-                    })
+                        })
+                    }, errorMessage)
                 })
                 describe('All payments inside single MP should either have or not have', () => {
+                    const emptyPayload = {
+                        implicitFee: null,
+                        serviceFee: null,
+                    }
                     const cases = [
                         ['implicit fee', 'implicitFee', MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE],
                         ['service fee', 'serviceFee', MULTIPAYMENT_INCONSISTENT_SERVICE_FEE],
                     ]
                     test.each(cases)('%p', async (name, fieldName, errorMessage) => {
-                        const { payments, acquiringIntegration, admin, client } = await makePayerAndPayments(2)
+                        const { admin, billingReceipts, organization, acquiringContext, acquiringIntegration, client } = await makePayer(2)
                         await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
                             canGroupReceipts: true,
                         })
-                        const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-                        await updateTestPayment(admin, payments[0].id, {
-                            status: PAYMENT_DONE_STATUS,
+                        const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, emptyPayload)
+                        const [secondPayment] = await createTestPayment(admin, organization, billingReceipts[1], acquiringContext, {
+                            ...emptyPayload,
+                            [fieldName]: '50.0',
                         })
-                        await updateTestPayment(admin, payments[1].id, {
-                            status: PAYMENT_DONE_STATUS,
-                            [fieldName]: null,
-                        })
+
+                        const [multiPayment] = await createTestMultiPayment(admin, [firstPayment, secondPayment], client.user, acquiringIntegration)
+
+                        await updateTestPayment(admin, firstPayment.id, { status: PAYMENT_DONE_STATUS })
+                        await updateTestPayment(admin, secondPayment.id, { status: PAYMENT_DONE_STATUS })
+
                         await expectToThrowValidationFailureError(async () => {
                             await updateTestMultiPayment(admin, multiPayment.id, {
                                 ...multiPaymentDonePayload,
-                            }, errorMessage)
-                        })
+                            })
+                        }, errorMessage)
                     })
                 })
                 test('If payments implicit fees are specified, their sum should match with multiPayment one', async () => {
@@ -572,8 +579,8 @@ describe('MultiPayment', () => {
                         await updateTestMultiPayment(admin, multiPayment.id, {
                             ...multiPaymentDonePayload,
                             implicitFee,
-                        }, MULTIPAYMENT_IMPLICIT_FEE_MISMATCH)
-                    })
+                        })
+                    }, MULTIPAYMENT_IMPLICIT_FEE_MISMATCH)
                 })
                 test('All payments should not be deleted', async () => {
                     const { admin, payments, client, acquiringIntegration } = await makePayerAndPayments(1)

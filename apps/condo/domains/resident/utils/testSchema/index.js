@@ -21,10 +21,11 @@ const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/
 
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestResident (client, user, organization, property, extraAttrs = {}) {
@@ -39,7 +40,7 @@ async function createTestResident (client, user, organization, property, extraAt
         dv: 1,
         sender,
         user: { connect: { id: user.id } },
-        unitName: faker.random.alphaNumeric(3),
+        unitName: faker.random.alphaNumeric(8),
         unitType: FLAT_UNIT_TYPE,
         address,
         addressMeta,
@@ -69,7 +70,7 @@ async function updateTestResident (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerResidentByTestClient(client, extraAttrs = {}, withFlat = false) {
+async function registerResidentByTestClient (client, extraAttrs = {}, withFlat = false) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -99,7 +100,7 @@ async function createTestServiceConsumer (client, resident, organization, extraA
         dv: 1,
         sender,
         resident: { connect: { id: resident.id } },
-        organization: { connect: {id: organization.id } },
+        organization: { connect: { id: organization.id } },
         accountNumber: faker.random.alphaNumeric(8),
         ...extraAttrs,
     }
@@ -136,9 +137,10 @@ async function registerServiceConsumerByTestClient (client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.obj, attrs]
 }
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
-async function makeClientWithServiceConsumer() {
+async function makeClientWithServiceConsumer () {
     const client = await makeClientWithResidentAccessAndProperty()
     const adminClient = await makeLoggedInAdminClient()
 
@@ -155,9 +157,9 @@ async function makeClientWithServiceConsumer() {
  * Creates a user with type resident and resident entity.
  * If you want to create only user with type resident use makeClientWithResidentUser
  */
-async function makeClientWithResident() {
+async function makeClientWithResident () {
     const client = await makeClientWithResidentUser()
-    const [ resident, residentAttrs ] = await registerResidentByTestClient(client)
+    const [resident, residentAttrs] = await registerResidentByTestClient(client)
 
     client.resident = resident
     client.residentAttrs = residentAttrs

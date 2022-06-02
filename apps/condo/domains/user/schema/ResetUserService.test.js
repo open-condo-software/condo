@@ -72,10 +72,10 @@ describe('ResetUserService', () => {
         expect(resetUser2.phone).toBeNull()
         expect(resetUser2.email).toBeNull()
     })
- 
+
     test('support cant reset non existing user', async () => {
         const supportClient = await makeClientWithSupportUser()
-        const userId = faker.random.uuid()
+        const userId = faker.datatype.uuid()
         const payload = {
             user: { id: userId },
         }
@@ -137,7 +137,7 @@ describe('ResetUserService', () => {
 
     test('anonymous cant reset user', async () => {
         const client = await makeClient()
-        const userToResetId = faker.random.uuid()
+        const userToResetId = faker.datatype.uuid()
         await catchErrorFrom(async () => {
             await resetUserByTestClient(client, { user: { id: userToResetId } })
         }, (e) => {

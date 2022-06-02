@@ -1,6 +1,7 @@
 import React from 'react'
 import { IDivisionFormState, IDivisionUIState } from '@condo/domains/division/utils/clientSchema/Division'
-import { Col, Form, Input, Row } from 'antd'
+import { Col, Form, Row } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
 import { useIntl } from '@core/next/intl'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -63,7 +64,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
     }
 
     const organizationId = get(props.organization, 'id')
-    
+
     const action = (variables) => {
         props.action(variables)
             .then(result => {
