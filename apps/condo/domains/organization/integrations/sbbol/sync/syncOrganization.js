@@ -30,7 +30,7 @@ const getUserOrganizations = async ({ context, user }) => {
         where: {
             user: { id: user.id },
         },
-        returnFields: 'organization { id meta }',
+        returnFields: 'organization { id tin meta }',
     })
     return uniqBy(links.map(link => link.organization), 'id')
 }
@@ -102,7 +102,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
     })
     if (!importedOrganization) {
         // Organization was not imported from SBBOL, but maybe, it was created before with the same TIN
-        const existingOrganization = userOrganizations.find(({ meta }) => meta.inn === organizationInfo.meta.inn)
+        const existingOrganization = userOrganizations.find(({ tin }) => tin === organizationInfo.meta.inn)
         if (!existingOrganization) {
             const newOrganization = await createOrganization({ context, user, organizationInfo, dvSenderFields })
             return newOrganization

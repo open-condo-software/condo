@@ -102,7 +102,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                 let organizationsData = []
                 if (organizationsIds.length > 0) {
                     const organizations = await Organization.getAll(context, { id_in: organizationsIds })
-                    organizationsData = organizations.map(({ name, meta: { inn } }) => ({ name, inn }))
+                    organizationsData = organizations.map(({ name, tin }) => ({ name, tin }))
                 }
 
                 const messageAttrs = {

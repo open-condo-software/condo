@@ -22743,7 +22743,7 @@ export type Organization = {
   description?: Maybe<Scalars['String']>;
   /**  Customer-friendly avatar  */
   avatar?: Maybe<File>;
-  /**  Organization metadata. Depends on country level specificExamples of data keys: `inn`, `kpp`  */
+  /**  Organization metadata. Depends on country level specificExamples of data keys: `kpp`  */
   meta?: Maybe<Scalars['JSON']>;
   employees: Array<OrganizationEmployee>;
   _employeesMeta?: Maybe<_QueryMeta>;
@@ -22823,6 +22823,7 @@ export type OrganizationCreateInput = {
   sender?: Maybe<SenderFieldInput>;
   country?: Maybe<OrganizationCountryType>;
   name?: Maybe<Scalars['String']>;
+  tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;

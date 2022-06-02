@@ -33,7 +33,7 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     // GraphQL from Keystone does not supports querying of database fields of type JSON.
     const knex = context.adapter.knex
     const result = await knex('Organization')
-        .whereRaw('meta->>\'inn\' = ?', [payerInn])
+        .whereRaw('tin = ?', [payerInn])
         .orderBy('createdAt', 'desc')
         .select('id', 'meta')
 

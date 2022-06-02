@@ -7,6 +7,6 @@ Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}не у
   нет
 {%- else -%}
   {% for org in message.meta.organizationsData %}
-    - {{ org.name }}. ИНН: {{ org.inn }}
+    - {{ org.name }}. ИНН: {{ org.tin }}
   {% endfor %}
 {% endif %}

@@ -309,7 +309,7 @@ describe('organization TIN: various cases',  () => {
     test('admin: create Organization with valid 10 digits RU INN and RU country code ', async () => {
         // TODO(DOMA-1897): Create organization by ordinary user, not admin to respect real flow.
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: VALID_RU_TIN_10 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { tin: VALID_RU_TIN_10, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
@@ -319,7 +319,7 @@ describe('organization TIN: various cases',  () => {
 
     test('admin: create Organization with valid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: VALID_RU_TIN_12 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { tin: VALID_RU_TIN_12, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
@@ -329,7 +329,7 @@ describe('organization TIN: various cases',  () => {
 
     test('admin: create Organization with invalid 10 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: INVALID_RU_TIN_10 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { tin: INVALID_RU_TIN_10, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
@@ -339,7 +339,7 @@ describe('organization TIN: various cases',  () => {
 
     test('admin: create Organization with invalid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: INVALID_RU_TIN_12 }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { tin: INVALID_RU_TIN_12, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
@@ -349,7 +349,7 @@ describe('organization TIN: various cases',  () => {
 
     test('admin: create Organization with random letters 10 chars RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { meta: { inn: SOME_RANDOM_LETTERS }, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { tin: SOME_RANDOM_LETTERS, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 

@@ -49,9 +49,7 @@ describe('syncSubscriptions', () => {
             const today = dayjs()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(userClient, {
-                meta: {
-                    inn: firstInn,
-                },
+                tin: firstInn,
             })
 
             const adminContext = await keystone.createContext({ skipAccessControl: true })
@@ -87,9 +85,7 @@ describe('syncSubscriptions', () => {
             const today = dayjs()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(userClient, {
-                meta: {
-                    inn: firstInn,
-                },
+                tin: firstInn,
             })
 
             const adminContext = await keystone.createContext({ skipAccessControl: true })
@@ -117,9 +113,7 @@ describe('syncSubscriptions', () => {
 
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(userClient, {
-                meta: {
-                    inn: firstInn,
-                },
+                tin: firstInn,
             })
 
             const adminContext = await keystone.createContext({ skipAccessControl: true })
@@ -154,9 +148,7 @@ describe('syncSubscriptions', () => {
 
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(userClient, {
-                meta: {
-                    inn: firstInn,
-                },
+                tin: firstInn,
             })
 
             const adminContext = await keystone.createContext({ skipAccessControl: true })
