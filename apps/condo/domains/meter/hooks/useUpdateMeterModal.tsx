@@ -27,7 +27,7 @@ export const useUpdateMeterModal = (refetch) => {
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.NumberOfMeter' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteMessage' })
-    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const DeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.DeleteMeterAndReadings' })
 
     const [selectedMeter, setSelectedMeter] = useState<IMeterUIState>()
     const meterNumber = get(selectedMeter, 'number')

@@ -573,6 +573,7 @@
   "pages.condo.meter.NoAccountNumber": "Нет номера лицевого счета",
   "pages.condo.meter.AddAccountDescription": "Добавьте лицевой счет, чтобы иметь возможность создавать приборы учета у этого абонента",
   "pages.condo.meter.AddAccount": "Добавить лицевой счет",
+  "pages.condo.meter.DeleteMeterAndReadings": "Удалить прибор и показания",
   "pages.condo.meter.Tariff1Message": "Т1 - День",
   "pages.condo.meter.Tariff2Message": "Т2 - Ночь",
   "pages.condo.meter.Tariff3Message": "Т3",

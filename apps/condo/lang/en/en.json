@@ -573,6 +573,7 @@
   "pages.condo.meter.NoAccountNumber": "There is no account number",
   "pages.condo.meter.AddAccountDescription": "Add account to be able to create meters for this client",
   "pages.condo.meter.AddAccount": "Add account",
+  "pages.condo.meter.DeleteMeterAndReadings": "Delete meter and readings",
   "pages.condo.meter.Tariff1Message": "T1 - Day",
   "pages.condo.meter.Tariff2Message": "T2 - Night",
   "pages.condo.meter.Tariff3Message": "T3",
