@@ -8,4 +8,5 @@ export * as B2BAppContext from './B2BAppContext'
 export * as B2BAppAccessRight from './B2BAppAccessRight'
 export * as B2CApp from './B2CApp'
 export * as B2CAppAccessRight from './B2CAppAccessRight'
+export * as B2CAppBuild from './B2CAppBuild'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

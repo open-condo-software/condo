@@ -32,6 +32,12 @@ const B2CApp = new GQLListSchema('B2CApp', {
         developer: DEVELOPER_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         colorSchema: COLOR_SCHEMA_FIELD,
+        builds: {
+            schemaDoc: 'List of available app builds. Removing item from this list automatically soft-deletes it',
+            type: Relationship,
+            ref: 'B2CAppBuild.app',
+            many: true,
+        },
         accessRights: {
             schemaDoc: 'Specifies set of service users, who can modify B2CAppProperties of the app as well as perform actions on behalf of the application',
             type: Relationship,

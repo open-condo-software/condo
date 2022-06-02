@@ -3172,6 +3172,9 @@ export type B2CApp = {
   isHidden?: Maybe<Scalars['Boolean']>;
   /**  The color schema of the B2C application used to display it correctly. The main color is used for texts, icons etc. The secondary color is used for the background  */
   colorSchema?: Maybe<AppColorSchemaField>;
+  /**  List of available app builds. Removing item from this list automatically soft-deletes it  */
+  builds: Array<B2CAppBuild>;
+  _buildsMeta?: Maybe<_QueryMeta>;
   /**  Specifies set of service users, who can modify B2CAppProperties of the app as well as perform actions on behalf of the application  */
   accessRights: Array<B2CAppAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
@@ -3189,6 +3192,28 @@ export type B2CApp = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
+};
+
+
+/**  B2C App  */
+export type B2CAppBuildsArgs = {
+  where?: Maybe<B2CAppBuildWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2CAppBuildsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  B2C App  */
+export type B2CApp_BuildsMetaArgs = {
+  where?: Maybe<B2CAppBuildWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2CAppBuildsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
 };
 
 
@@ -3527,6 +3552,365 @@ export type B2CAppAccessRightsUpdateInput = {
   data?: Maybe<B2CAppAccessRightUpdateInput>;
 };
 
+/**  Cordova build of B2C Application  */
+export type B2CAppBuild = {
+  __typename?: 'B2CAppBuild';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2CAppBuild List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2CAppBuild List config, or
+   *  3. As an alias to a 'name' field on the B2CAppBuild List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2CAppBuild List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Link to B2C application  */
+  app?: Maybe<B2CApp>;
+  /**  Version of build which used to control builds inside B2CApp model  */
+  version?: Maybe<Scalars['String']>;
+  /**  B2C app cordova build compressed to single .zip file  */
+  data?: Maybe<File>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type B2CAppBuildCreateInput = {
+  app?: Maybe<B2CAppRelateToOneInput>;
+  version?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['Upload']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type B2CAppBuildHistoryRecord = {
+  __typename?: 'B2CAppBuildHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2CAppBuildHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2CAppBuildHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the B2CAppBuildHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2CAppBuildHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  app?: Maybe<Scalars['String']>;
+  version?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2CAppBuildHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type B2CAppBuildHistoryRecordCreateInput = {
+  app?: Maybe<Scalars['String']>;
+  version?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2CAppBuildHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum B2CAppBuildHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type B2CAppBuildHistoryRecordUpdateInput = {
+  app?: Maybe<Scalars['String']>;
+  version?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2CAppBuildHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type B2CAppBuildHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<B2CAppBuildHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<B2CAppBuildHistoryRecordWhereInput>>>;
+  app?: Maybe<Scalars['String']>;
+  app_not?: Maybe<Scalars['String']>;
+  app_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  app_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  version?: Maybe<Scalars['String']>;
+  version_not?: Maybe<Scalars['String']>;
+  version_contains?: Maybe<Scalars['String']>;
+  version_not_contains?: Maybe<Scalars['String']>;
+  version_starts_with?: Maybe<Scalars['String']>;
+  version_not_starts_with?: Maybe<Scalars['String']>;
+  version_ends_with?: Maybe<Scalars['String']>;
+  version_not_ends_with?: Maybe<Scalars['String']>;
+  version_i?: Maybe<Scalars['String']>;
+  version_not_i?: Maybe<Scalars['String']>;
+  version_contains_i?: Maybe<Scalars['String']>;
+  version_not_contains_i?: Maybe<Scalars['String']>;
+  version_starts_with_i?: Maybe<Scalars['String']>;
+  version_not_starts_with_i?: Maybe<Scalars['String']>;
+  version_ends_with_i?: Maybe<Scalars['String']>;
+  version_not_ends_with_i?: Maybe<Scalars['String']>;
+  version_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  version_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  data?: Maybe<Scalars['JSON']>;
+  data_not?: Maybe<Scalars['JSON']>;
+  data_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  data_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<B2CAppBuildHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<B2CAppBuildHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<B2CAppBuildHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<B2CAppBuildHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type B2CAppBuildHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type B2CAppBuildHistoryRecordsCreateInput = {
+  data?: Maybe<B2CAppBuildHistoryRecordCreateInput>;
+};
+
+export type B2CAppBuildHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<B2CAppBuildHistoryRecordUpdateInput>;
+};
+
+export type B2CAppBuildRelateToManyInput = {
+  create?: Maybe<Array<Maybe<B2CAppBuildCreateInput>>>;
+  connect?: Maybe<Array<Maybe<B2CAppBuildWhereUniqueInput>>>;
+  disconnect?: Maybe<Array<Maybe<B2CAppBuildWhereUniqueInput>>>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type B2CAppBuildUpdateInput = {
+  app?: Maybe<B2CAppRelateToOneInput>;
+  version?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['Upload']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type B2CAppBuildWhereInput = {
+  AND?: Maybe<Array<Maybe<B2CAppBuildWhereInput>>>;
+  OR?: Maybe<Array<Maybe<B2CAppBuildWhereInput>>>;
+  app?: Maybe<B2CAppWhereInput>;
+  app_is_null?: Maybe<Scalars['Boolean']>;
+  version?: Maybe<Scalars['String']>;
+  version_not?: Maybe<Scalars['String']>;
+  version_contains?: Maybe<Scalars['String']>;
+  version_not_contains?: Maybe<Scalars['String']>;
+  version_starts_with?: Maybe<Scalars['String']>;
+  version_not_starts_with?: Maybe<Scalars['String']>;
+  version_ends_with?: Maybe<Scalars['String']>;
+  version_not_ends_with?: Maybe<Scalars['String']>;
+  version_i?: Maybe<Scalars['String']>;
+  version_not_i?: Maybe<Scalars['String']>;
+  version_contains_i?: Maybe<Scalars['String']>;
+  version_not_contains_i?: Maybe<Scalars['String']>;
+  version_starts_with_i?: Maybe<Scalars['String']>;
+  version_not_starts_with_i?: Maybe<Scalars['String']>;
+  version_ends_with_i?: Maybe<Scalars['String']>;
+  version_not_ends_with_i?: Maybe<Scalars['String']>;
+  version_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  version_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  data?: Maybe<Scalars['String']>;
+  data_not?: Maybe<Scalars['String']>;
+  data_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  data_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type B2CAppBuildWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type B2CAppBuildsCreateInput = {
+  data?: Maybe<B2CAppBuildCreateInput>;
+};
+
+export type B2CAppBuildsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<B2CAppBuildUpdateInput>;
+};
+
 export type B2CAppCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
@@ -3534,6 +3918,7 @@ export type B2CAppCreateInput = {
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<AppColorSchemaFieldInput>;
+  builds?: Maybe<B2CAppBuildRelateToManyInput>;
   accessRights?: Maybe<B2CAppAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3798,6 +4183,7 @@ export type B2CAppUpdateInput = {
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<AppColorSchemaFieldInput>;
+  builds?: Maybe<B2CAppBuildRelateToManyInput>;
   accessRights?: Maybe<B2CAppAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3877,6 +4263,12 @@ export type B2CAppWhereInput = {
   colorSchema_not?: Maybe<AppColorSchemaFieldInput>;
   colorSchema_in?: Maybe<Array<Maybe<AppColorSchemaFieldInput>>>;
   colorSchema_not_in?: Maybe<Array<Maybe<AppColorSchemaFieldInput>>>;
+  /**  condition must be true for all nodes  */
+  builds_every?: Maybe<B2CAppBuildWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  builds_some?: Maybe<B2CAppBuildWhereInput>;
+  /**  condition must be false for all nodes  */
+  builds_none?: Maybe<B2CAppBuildWhereInput>;
   /**  condition must be true for all nodes  */
   accessRights_every?: Maybe<B2CAppAccessRightWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -17547,6 +17939,30 @@ export type Mutation = {
   deleteB2CAppAccessRight?: Maybe<B2CAppAccessRight>;
   /**  Delete multiple B2CAppAccessRight items by ID.  */
   deleteB2CAppAccessRights?: Maybe<Array<Maybe<B2CAppAccessRight>>>;
+  /**  Create a single B2CAppBuildHistoryRecord item.  */
+  createB2CAppBuildHistoryRecord?: Maybe<B2CAppBuildHistoryRecord>;
+  /**  Create multiple B2CAppBuildHistoryRecord items.  */
+  createB2CAppBuildHistoryRecords?: Maybe<Array<Maybe<B2CAppBuildHistoryRecord>>>;
+  /**  Update a single B2CAppBuildHistoryRecord item by ID.  */
+  updateB2CAppBuildHistoryRecord?: Maybe<B2CAppBuildHistoryRecord>;
+  /**  Update multiple B2CAppBuildHistoryRecord items by ID.  */
+  updateB2CAppBuildHistoryRecords?: Maybe<Array<Maybe<B2CAppBuildHistoryRecord>>>;
+  /**  Delete a single B2CAppBuildHistoryRecord item by ID.  */
+  deleteB2CAppBuildHistoryRecord?: Maybe<B2CAppBuildHistoryRecord>;
+  /**  Delete multiple B2CAppBuildHistoryRecord items by ID.  */
+  deleteB2CAppBuildHistoryRecords?: Maybe<Array<Maybe<B2CAppBuildHistoryRecord>>>;
+  /**  Create a single B2CAppBuild item.  */
+  createB2CAppBuild?: Maybe<B2CAppBuild>;
+  /**  Create multiple B2CAppBuild items.  */
+  createB2CAppBuilds?: Maybe<Array<Maybe<B2CAppBuild>>>;
+  /**  Update a single B2CAppBuild item by ID.  */
+  updateB2CAppBuild?: Maybe<B2CAppBuild>;
+  /**  Update multiple B2CAppBuild items by ID.  */
+  updateB2CAppBuilds?: Maybe<Array<Maybe<B2CAppBuild>>>;
+  /**  Delete a single B2CAppBuild item by ID.  */
+  deleteB2CAppBuild?: Maybe<B2CAppBuild>;
+  /**  Delete multiple B2CAppBuild items by ID.  */
+  deleteB2CAppBuilds?: Maybe<Array<Maybe<B2CAppBuild>>>;
   /**
    * Registers new user and sends notification
    *
@@ -22623,6 +23039,68 @@ export type MutationDeleteB2CAppAccessRightArgs = {
 
 
 export type MutationDeleteB2CAppAccessRightsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateB2CAppBuildHistoryRecordArgs = {
+  data?: Maybe<B2CAppBuildHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateB2CAppBuildHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<B2CAppBuildHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateB2CAppBuildHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<B2CAppBuildHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateB2CAppBuildHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<B2CAppBuildHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteB2CAppBuildHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteB2CAppBuildHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateB2CAppBuildArgs = {
+  data?: Maybe<B2CAppBuildCreateInput>;
+};
+
+
+export type MutationCreateB2CAppBuildsArgs = {
+  data?: Maybe<Array<Maybe<B2CAppBuildsCreateInput>>>;
+};
+
+
+export type MutationUpdateB2CAppBuildArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<B2CAppBuildUpdateInput>;
+};
+
+
+export type MutationUpdateB2CAppBuildsArgs = {
+  data?: Maybe<Array<Maybe<B2CAppBuildsUpdateInput>>>;
+};
+
+
+export type MutationDeleteB2CAppBuildArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteB2CAppBuildsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -28506,6 +28984,22 @@ export type Query = {
   _allB2CAppAccessRightsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the B2CAppAccessRight list.  */
   _B2CAppAccessRightsMeta?: Maybe<_ListMeta>;
+  /**  Search for all B2CAppBuildHistoryRecord items which match the where clause.  */
+  allB2CAppBuildHistoryRecords?: Maybe<Array<Maybe<B2CAppBuildHistoryRecord>>>;
+  /**  Search for the B2CAppBuildHistoryRecord item with the matching ID.  */
+  B2CAppBuildHistoryRecord?: Maybe<B2CAppBuildHistoryRecord>;
+  /**  Perform a meta-query on all B2CAppBuildHistoryRecord items which match the where clause.  */
+  _allB2CAppBuildHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the B2CAppBuildHistoryRecord list.  */
+  _B2CAppBuildHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all B2CAppBuild items which match the where clause.  */
+  allB2CAppBuilds?: Maybe<Array<Maybe<B2CAppBuild>>>;
+  /**  Search for the B2CAppBuild item with the matching ID.  */
+  B2CAppBuild?: Maybe<B2CAppBuild>;
+  /**  Perform a meta-query on all B2CAppBuild items which match the where clause.  */
+  _allB2CAppBuildsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the B2CAppBuild list.  */
+  _B2CAppBuildsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   /**
@@ -31664,6 +32158,56 @@ export type Query_AllB2CAppAccessRightsMetaArgs = {
 };
 
 
+export type QueryAllB2CAppBuildHistoryRecordsArgs = {
+  where?: Maybe<B2CAppBuildHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2CAppBuildHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryB2CAppBuildHistoryRecordArgs = {
+  where: B2CAppBuildHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllB2CAppBuildHistoryRecordsMetaArgs = {
+  where?: Maybe<B2CAppBuildHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2CAppBuildHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllB2CAppBuildsArgs = {
+  where?: Maybe<B2CAppBuildWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2CAppBuildsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryB2CAppBuildArgs = {
+  where: B2CAppBuildWhereUniqueInput;
+};
+
+
+export type Query_AllB2CAppBuildsMetaArgs = {
+  where?: Maybe<B2CAppBuildWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2CAppBuildsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
@@ -34669,6 +35213,50 @@ export enum SortB2CAppAccessRightsBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortB2CAppBuildHistoryRecordsBy {
+  VersionAsc = 'version_ASC',
+  VersionDesc = 'version_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortB2CAppBuildsBy {
+  AppAsc = 'app_ASC',
+  AppDesc = 'app_DESC',
+  VersionAsc = 'version_ASC',
+  VersionDesc = 'version_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortB2CAppHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
@@ -34705,6 +35293,8 @@ export enum SortB2CAppsBy {
   DeveloperDesc = 'developer_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
+  BuildsAsc = 'builds_ASC',
+  BuildsDesc = 'builds_DESC',
   AccessRightsAsc = 'accessRights_ASC',
   AccessRightsDesc = 'accessRights_DESC',
   IdAsc = 'id_ASC',
