@@ -30778,6 +30778,7 @@ export type ResidentBillingReceiptOutput = {
   serviceConsumer: ServiceConsumer;
   currencyCode: Scalars['String'];
   category: BillingCategory;
+  isPayable: Scalars['Boolean'];
 };
 
 export type ResidentBillingReceiptWhereInput = {
