@@ -3,16 +3,15 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
-const { createOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
 const guards = require('../utils/serverSchema/guards')
 const get = require('lodash/get')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { getById } = require('@core/keystone/schema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
-const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED, UNABLE_TO_REGISTER_USER } = require('../constants/errors')
 
 const errors = {
@@ -37,6 +36,13 @@ const errors = {
             type: UNABLE_TO_REGISTER_USER,
             message: 'Unable to register user',
             messageForUser: 'api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER',
+        },
+        DV_VERSION_MISMATCH: {
+            mutation: 'inviteNewOrganizationEmployee',
+            variable: ['data', 'dv'],
+            code: BAD_USER_INPUT,
+            type: DV_VERSION_MISMATCH,
+            message: 'Wrong value for data version number',
         },
     },
     reInviteOrganizationEmployee: {
@@ -107,6 +113,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 let { organization, email, phone, role, position, name, specializations, ...restData } = data
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
+                if (restData.dv !== 1) throw new GQLError(errors.inviteNewOrganizationEmployee.DV_VERSION_MISMATCH)
                 if (!phone) throw new GQLError(errors.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT, context)
                 const userOrganization = await Organization.getOne(context, { id: organization.id })
                 let user = await guards.checkStaffUserExistency(context, email, phone)
@@ -143,7 +150,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     user = registerData.user
                 }
 
-                const employee = await createOrganizationEmployee(context, {
+                const employee = await OrganizationEmployee.create(context, {
                     user: { connect: { id: user.id } },
                     organization: { connect: { id: userOrganization.id } },
                     ...role && { role: { connect: { id: role.id } } },
