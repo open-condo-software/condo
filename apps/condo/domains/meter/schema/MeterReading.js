@@ -10,7 +10,6 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const access = require('@condo/domains/meter/access/MeterReading')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-const { triggersManager } = require('@core/triggers')
 const get = require('lodash/get')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { addClientInfoToResidentMeterReading } = require('../utils/serverSchema/resolveHelpers')
