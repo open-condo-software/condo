@@ -9,7 +9,7 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const MESSAGE_FIELDS = `{ organization { id } user { id email phone } email emailFrom phone lang type meta status processingMeta sentAt deliveredAt readAt ${COMMON_FIELDS} }`
+const MESSAGE_FIELDS = `{ organization { id } user { id email phone } email emailFrom phone lang type meta status processingMeta sentAt deliveredAt readAt uniqKey ${COMMON_FIELDS} }`
 const Message = generateGqlQueries('Message', MESSAGE_FIELDS)
 
 const SEND_MESSAGE = gql`

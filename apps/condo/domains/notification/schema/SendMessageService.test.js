@@ -1,5 +1,5 @@
 const faker = require('faker')
-const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@core/keystone/test.utils')
 const {
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
@@ -8,7 +8,6 @@ const {
 
 const { sendMessageByTestClient, resendMessageByTestClient, Message, createTestMessage } = require('../utils/testSchema')
 
-const { sleep } = require('@condo/domains/common/utils/sleep')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 describe('SendMessageService', () => {
@@ -22,33 +21,43 @@ describe('SendMessageService', () => {
                 expect(data.status).toEqual(MESSAGE_SENDING_STATUS)
             })
 
+            it('returns uniqKey value', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const uniqKey = faker.datatype.uuid()
+
+                const [data] = await sendMessageByTestClient(admin, { uniqKey })
+                const message = await Message.getOne(admin, { id: data.id })
+
+                expect(message.id).toMatch(UUID_RE)
+                expect(message.uniqKey).toEqual(uniqKey)
+            })
+
             it('creates Message sets "sent" status on successful delivery', async () => {
                 const admin = await makeLoggedInAdminClient()
 
                 const [data, attrs] = await sendMessageByTestClient(admin)
 
                 // give worker some time
-                await sleep(1000)
+                await waitFor(async () => {
+                    const message = await Message.getOne(admin, { id: data.id })
 
-                const messages = await Message.getAll(admin, { id: data.id })
-                const message = messages[0]
-
-                expect(message.lang).toEqual(attrs.lang)
-                expect(message.type).toEqual(attrs.type)
-                expect(message.status).toEqual(MESSAGE_SENT_STATUS)
-                expect(message.sentAt).toMatch(DATETIME_RE)
-                expect(message.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(message.updatedBy).toEqual(null)
-                expect(message.organization).toEqual(null)
-                expect(message.user).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(message.processingMeta).toEqual(expect.objectContaining({
-                    dv: 1,
-                    step: MESSAGE_SENT_STATUS,
-                    transport: 'email',
-                    messageContext: expect.objectContaining({
-                        to: attrs.to.email,
-                    }),
-                }))
+                    expect(message.lang).toEqual(attrs.lang)
+                    expect(message.type).toEqual(attrs.type)
+                    expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(message.sentAt).toMatch(DATETIME_RE)
+                    expect(message.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                    expect(message.updatedBy).toEqual(null)
+                    expect(message.organization).toEqual(null)
+                    expect(message.user).toEqual(expect.objectContaining({ id: admin.user.id }))
+                    expect(message.processingMeta).toEqual(expect.objectContaining({
+                        dv: 1,
+                        step: MESSAGE_SENT_STATUS,
+                        transport: 'email',
+                        messageContext: expect.objectContaining({
+                            to: attrs.to.email,
+                        }),
+                    }))
+                })
             })
 
             describe('with INVITE_NEW_EMPLOYEE message type', () => {

@@ -11385,6 +11385,8 @@ export type Message = {
   sentAt?: Maybe<Scalars['String']>;
   /**  Read at time  */
   readAt?: Maybe<Scalars['String']>;
+  /**  Unique message key. You can use it if you need to make sure that the message you are trying to create has not been created before. Fields `user`, `type` and `uniqkey` is to be unique. If you don't have a `user`, the fields `type` and `uniqkey` is to be unique  */
+  uniqKey?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11415,6 +11417,7 @@ export type MessageCreateInput = {
   deliveredAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
+  uniqKey?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11450,6 +11453,7 @@ export type MessageHistoryRecord = {
   deliveredAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
+  uniqKey?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11479,6 +11483,7 @@ export type MessageHistoryRecordCreateInput = {
   deliveredAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
+  uniqKey?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11513,6 +11518,7 @@ export type MessageHistoryRecordUpdateInput = {
   deliveredAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
+  uniqKey?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11678,6 +11684,24 @@ export type MessageHistoryRecordWhereInput = {
   readAt_gte?: Maybe<Scalars['String']>;
   readAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   readAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uniqKey?: Maybe<Scalars['String']>;
+  uniqKey_not?: Maybe<Scalars['String']>;
+  uniqKey_contains?: Maybe<Scalars['String']>;
+  uniqKey_not_contains?: Maybe<Scalars['String']>;
+  uniqKey_starts_with?: Maybe<Scalars['String']>;
+  uniqKey_not_starts_with?: Maybe<Scalars['String']>;
+  uniqKey_ends_with?: Maybe<Scalars['String']>;
+  uniqKey_not_ends_with?: Maybe<Scalars['String']>;
+  uniqKey_i?: Maybe<Scalars['String']>;
+  uniqKey_not_i?: Maybe<Scalars['String']>;
+  uniqKey_contains_i?: Maybe<Scalars['String']>;
+  uniqKey_not_contains_i?: Maybe<Scalars['String']>;
+  uniqKey_starts_with_i?: Maybe<Scalars['String']>;
+  uniqKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  uniqKey_ends_with_i?: Maybe<Scalars['String']>;
+  uniqKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  uniqKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uniqKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -11799,6 +11823,7 @@ export type MessageUpdateInput = {
   deliveredAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['String']>;
+  uniqKey?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11929,6 +11954,24 @@ export type MessageWhereInput = {
   readAt_gte?: Maybe<Scalars['String']>;
   readAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   readAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uniqKey?: Maybe<Scalars['String']>;
+  uniqKey_not?: Maybe<Scalars['String']>;
+  uniqKey_contains?: Maybe<Scalars['String']>;
+  uniqKey_not_contains?: Maybe<Scalars['String']>;
+  uniqKey_starts_with?: Maybe<Scalars['String']>;
+  uniqKey_not_starts_with?: Maybe<Scalars['String']>;
+  uniqKey_ends_with?: Maybe<Scalars['String']>;
+  uniqKey_not_ends_with?: Maybe<Scalars['String']>;
+  uniqKey_i?: Maybe<Scalars['String']>;
+  uniqKey_not_i?: Maybe<Scalars['String']>;
+  uniqKey_contains_i?: Maybe<Scalars['String']>;
+  uniqKey_not_contains_i?: Maybe<Scalars['String']>;
+  uniqKey_starts_with_i?: Maybe<Scalars['String']>;
+  uniqKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  uniqKey_ends_with_i?: Maybe<Scalars['String']>;
+  uniqKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  uniqKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uniqKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -14430,7 +14473,7 @@ export type MultiPayment = {
   explicitServiceCharge?: Maybe<Scalars['String']>;
   /**  The amount of money charged by service (Doma) for the provision of service after subtracting from it the shares of all participants in the process. Can be part of explicit fee, implicit fee or explicit service charge  */
   serviceFee?: Maybe<Scalars['String']>;
-  /**  Total amount of money charged from recipients of multipayment as fee for transaction  */
+  /**  Total amount of money charged to recipients from amountWithoutExplicitFee of multipayment as fee for transaction  */
   implicitFee?: Maybe<Scalars['String']>;
   /**  The amount of money used to pay bills, initialized by resident.  */
   amountWithoutExplicitFee?: Maybe<Scalars['String']>;
@@ -31443,6 +31486,7 @@ export type SendMessageInput = {
   lang: SendMessageLang;
   meta: Scalars['JSON'];
   organization?: Maybe<OrganizationWhereUniqueInput>;
+  uniqKey?: Maybe<Scalars['String']>;
 };
 
 export enum SendMessageLang {
@@ -34355,6 +34399,8 @@ export enum SortMessageHistoryRecordsBy {
   SentAtDesc = 'sentAt_DESC',
   ReadAtAsc = 'readAt_ASC',
   ReadAtDesc = 'readAt_DESC',
+  UniqKeyAsc = 'uniqKey_ASC',
+  UniqKeyDesc = 'uniqKey_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -34396,6 +34442,8 @@ export enum SortMessagesBy {
   SentAtDesc = 'sentAt_DESC',
   ReadAtAsc = 'readAt_ASC',
   ReadAtDesc = 'readAt_DESC',
+  UniqKeyAsc = 'uniqKey_ASC',
+  UniqKeyDesc = 'uniqKey_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
