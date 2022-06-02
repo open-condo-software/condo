@@ -9,7 +9,7 @@ export interface CustomCheckboxProps extends CheckboxProps {
 
 const Checkbox = (props: CustomCheckboxProps) => {
     const { eventName: propEventName, eventProperties = {}, onChange, ...restProps } = props
-    const { instrument, getEventName } = useTracking()
+    const { getTrackingWrappedCallback, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Checkbox)
     const componentProperties = { ...eventProperties }
@@ -19,7 +19,7 @@ const Checkbox = (props: CustomCheckboxProps) => {
     }
 
     const onChangeCallback = eventName
-        ? instrument(eventName, componentProperties, onChange)
+        ? getTrackingWrappedCallback(eventName, componentProperties, onChange)
         : onChange
 
     return (

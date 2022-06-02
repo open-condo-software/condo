@@ -1,10 +1,12 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useCallback } from 'react'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
 import compact from 'lodash/compact'
+import isUndefined from 'lodash/isUndefined'
+import isFunction from 'lodash/isFunction'
 import { TRACKING_USER_FIELDS } from '@condo/domains/user/constants'
 import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
 import AmplitudeInstance from './trackers/AmplitudeInstance'
@@ -59,7 +61,7 @@ interface IUseTracking {
         userProperties: Pick<ITrackingContext, 'userProperties'>
         logEvent: (logEventProps: ITrackerLogEventType) => void
         logEventTo: (logEventToProps: ILogEventTo) => void
-        instrument: (eventName: string, eventProperties?: TrackingCommonEventProperties, func?: any) => any
+        getTrackingWrappedCallback: (eventName: string, eventProperties?: TrackingCommonEventProperties, func?: any) => any
         getEventName: (eventType: TrackingEventType) => string
     }
 }
@@ -68,34 +70,35 @@ const useTracking: IUseTracking = () => {
     const { route } = useRouter()
     const { trackerInstances, eventProperties, userProperties } = useTrackingContext()
 
-    const logEvent = ({ eventName, eventProperties: localEventProperties = {}, denyDuplicates }: ITrackerLogEventType) => {
+    const logEvent = useCallback(({ eventName, eventProperties: localEventProperties = {}, denyDuplicates }: ITrackerLogEventType) => {
         const resultEventProperties = {
             ...eventProperties,
             ...localEventProperties,
         }
-        Object.values(trackerInstances).map((trackerInstance) => trackerInstance.logEvent({
+        Object.values(trackerInstances).forEach((trackerInstance) => trackerInstance.logEvent({
             eventName,
             eventProperties: resultEventProperties,
             denyDuplicates,
             userProperties,
         }))
-    }
+    }, [eventProperties, trackerInstances, userProperties])
 
-    const logEventTo = ({ eventName, eventProperties: localEventProperties = {}, destination, denyDuplicates }: ILogEventTo) => {
+    const logEventTo = useCallback(({ eventName, eventProperties: localEventProperties = {}, destination, denyDuplicates }: ILogEventTo) => {
         const resultEventProperties = {
             ...eventProperties,
             ...localEventProperties,
         }
-        Object.values(pick(trackerInstances, destination)).map(trackerInstance => trackerInstance.logEvent({
+        Object.values(pick(trackerInstances, destination)).forEach(trackerInstance => trackerInstance.logEvent({
             eventName,
             eventProperties: resultEventProperties,
             denyDuplicates,
+            userProperties,
         }))
-    }
+    }, [eventProperties, trackerInstances, userProperties])
 
-    const instrument = <T extends (...args: any[]) => any>(eventName: string, eventProperties?: TrackingEventPropertiesType, func?: T): T => {
+    const getTrackingWrappedCallback = <T extends (...args: any[]) => any>(eventName: string, eventProperties?: TrackingEventPropertiesType, func?: T): T => {
         function fn (...params) {
-            const retVal = func ? func(...params) : undefined
+            const retVal = isFunction(func) ? func(...params) : undefined
             logEvent({ eventName, eventProperties, userProperties })
             return retVal
         }
@@ -143,7 +146,7 @@ const useTracking: IUseTracking = () => {
         userProperties,
         logEvent,
         logEventTo,
-        instrument,
+        getTrackingWrappedCallback,
         getEventName,
     }
 }
@@ -169,7 +172,7 @@ const TrackingProvider: React.FC = ({ children }) => {
 
     useEffect(() => {
         // Init all instances of trackers only on client side rendering
-        if (typeof window !== 'undefined') {
+        if (!isUndefined(window)) {
             // Page path changed -> change value at context object
             router.events.on('routeChangeStart', routeChangeStart)
             Object.values(trackingProviderValueRef.current.trackerInstances).forEach(trackerInstance => trackerInstance.init())
@@ -193,7 +196,7 @@ const TrackingProvider: React.FC = ({ children }) => {
     }, [user, link])
 
     return (
-        <TrackingContext.Provider value={{ ...trackingProviderValueRef.current }}>
+        <TrackingContext.Provider value={trackingProviderValueRef.current}>
             {children}
         </TrackingContext.Provider>
     )

@@ -278,7 +278,7 @@ const BUTTON_TYPE_STYLES = {
 
 export const Button: React.FC<CustomButtonProps> = (props) => {
     const { type, secondary, onClick, eventName: propEventName, eventProperties = {}, ...restProps } = props
-    const { instrument, getEventName } = useTracking()
+    const { getTrackingWrappedCallback, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Click)
     const componentProperties = { ...eventProperties }
@@ -287,7 +287,7 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
         componentProperties['components'] = { value: restProps.children }
     }
 
-    const onClickCallback = eventName ? instrument(eventName, componentProperties, onClick) : onClick
+    const onClickCallback = eventName ? getTrackingWrappedCallback(eventName, componentProperties, onClick) : onClick
 
     if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
         return <DefaultButton {...restProps} type={type as ButtonProps['type']} onClick={onClickCallback}/>

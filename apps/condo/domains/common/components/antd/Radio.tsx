@@ -9,7 +9,7 @@ export interface CustomRadioProps extends RadioProps {
 
 const Radio = (props: CustomRadioProps) => {
     const { eventName: propEventName, eventProperties = {}, onChange, ...restProps } = props
-    const { instrument, getEventName } = useTracking()
+    const { getTrackingWrappedCallback, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Radio)
     const componentProperties = { ...eventProperties }
@@ -18,7 +18,7 @@ const Radio = (props: CustomRadioProps) => {
         componentProperties['component'] = { value: restProps.value }
     }
 
-    const onChangeCallback = eventName ? instrument(eventName, componentProperties, onChange) : onChange
+    const onChangeCallback = eventName ? getTrackingWrappedCallback(eventName, componentProperties, onChange) : onChange
 
     return (
         <DefaultRadio {...restProps} onChange={onChangeCallback} />
