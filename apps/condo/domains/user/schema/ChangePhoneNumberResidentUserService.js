@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/ChangePhoneNumberResidentUserService')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const { NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -20,6 +20,13 @@ const errors = {
         message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
         variable: ['data', 'token'],
         messageForUser: 'api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION',
+    },
+    DV_VERSION_MISMATCH: {
+        mutation: 'changePhoneNumberResidentUser',
+        variable: ['data', 'dv'],
+        code: BAD_USER_INPUT,
+        type: DV_VERSION_MISMATCH,
+        message: 'Wrong value for data version number',
     },
 }
 
@@ -44,9 +51,11 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                 errors,
             },
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { token } } = args
+                const { data: { token, dv, sender } } = args
+                if (dv !== 1) throw new GQLError(errors.DV_VERSION_MISMATCH)
+                if (!context.authedItem.id) throw new Error('Internal error inside the access check. We assume that the user should exists!')
                 const userId = context.authedItem.id
-                const [action] = await ConfirmPhoneAction.getAll(context,
+                const action = await ConfirmPhoneAction.getOne(context,
                     {
                         expiresAt_gte: new Date().toISOString(),
                         token,
@@ -57,13 +66,12 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                 if (!action) {
                     throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
                 }
-                const { phone: newPhone } = action
-                await User.update(context, userId, { phone: newPhone })
-                await ConfirmPhoneAction.update(context, action.id, { completedAt: new Date().toISOString() })
-                const result = {
+                const { phone } = action
+                await User.update(context, userId, { sender, phone, isPhoneVerified: true, dv: 1 })
+                await ConfirmPhoneAction.update(context, action.id, { completedAt: new Date().toISOString(), sender, dv: 1 })
+                return {
                     status: 'ok',
                 }
-                return result
             },
         },
     ],
