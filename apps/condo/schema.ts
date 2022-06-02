@@ -14430,7 +14430,7 @@ export type MultiPayment = {
   explicitServiceCharge?: Maybe<Scalars['String']>;
   /**  The amount of money charged by service (Doma) for the provision of service after subtracting from it the shares of all participants in the process. Can be part of explicit fee, implicit fee or explicit service charge  */
   serviceFee?: Maybe<Scalars['String']>;
-  /**  Total amount of money charged from recipients of multipayment as fee for transaction  */
+  /**  Total amount of money charged to recipients from amountWithoutExplicitFee of multipayment as fee for transaction  */
   implicitFee?: Maybe<Scalars['String']>;
   /**  The amount of money used to pay bills, initialized by resident.  */
   amountWithoutExplicitFee?: Maybe<Scalars['String']>;
@@ -30735,6 +30735,7 @@ export type ResidentBillingReceiptOutput = {
   serviceConsumer: ServiceConsumer;
   currencyCode: Scalars['String'];
   category: BillingCategory;
+  isPayable: Scalars['Boolean'];
 };
 
 export type ResidentBillingReceiptWhereInput = {
