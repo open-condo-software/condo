@@ -1,5 +1,3 @@
-const cloneDeep = require('lodash/cloneDeep')
-
 /**
  * Generic error codes, that should be used in custom queries and mutations
  * We kept its set to minimum to not complicate things for third-party developers
@@ -62,12 +60,14 @@ const cloneDeep = require('lodash/cloneDeep')
  * })
  * ```
  */
+
 const { ApolloError } = require('apollo-server-errors')
-const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const { cloneDeep, get, template, templateSettings } = require('lodash')
+const cuid = require('cuid')
+
 const conf = require('@core/config')
+const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
-const template = require('lodash/template')
-const templateSettings = require('lodash/templateSettings')
 
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
@@ -124,7 +124,6 @@ class GQLError extends ApolloError {
         // second calling of this constructor to work with changed fields
         const extensions = cloneDeep(fields)
         const message = template(fields.message)(fields.messageInterpolation)
-        extensions.message = message
         if (context) {
             // todo use i18n from apps/condo/domains/common/utils/localesLoader.js
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
@@ -134,7 +133,9 @@ class GQLError extends ApolloError {
             extensions.messageForUser = interpolatedMessageForUser
         }
         super(message, fields.code, extensions)
-        Object.defineProperty(this, 'name', { value: 'GraphQLError' })
+        Object.defineProperty(this, 'name', { value: 'GQLError' })
+        this.reqId = get(context, 'req.id')
+        this.uid = cuid()
     }
 }
 
