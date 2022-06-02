@@ -1,26 +1,20 @@
 
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@core/keystone/test.utils')
 const { CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
-const { createTestUser, createTestConfirmPhoneAction, User: UserTestUtils } = require('@condo/domains/user/utils/testSchema')
+const { createTestUser, createTestConfirmPhoneAction, UserAdmin, makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
+const { changePhoneNumberResidentUserByTestClient } = require('../utils/testSchema')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/domains/common/utils/testSchema')
 
 describe('ChangePhoneNumberResidentUserService', () => {
     describe('Anonymous', () => {
         it('can not change phone with token', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
-            const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+            const [{ token }] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
             await createTestUser(admin, { phone: token.phone, type: RESIDENT })
-            const data = {
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'tests' },
-                token: token.token,
-            }
-            const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
-            expect(error).toMatchObject({
-                name: 'AuthenticationError',
-                message: 'No or incorrect authentication credentials',
-                path: [ 'result' ],
+            await expectToThrowAuthenticationErrorToResult(async () => {
+                await changePhoneNumberResidentUserByTestClient(client, { token })
             })
         })
     })
@@ -29,18 +23,16 @@ describe('ChangePhoneNumberResidentUserService', () => {
         describe('Resident', () => {
             it('can change phone with token', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
-                const [createdUser, userAttrs] = await createTestUser(admin, { type: RESIDENT, isPhoneVerified: true })
-                const client = await makeLoggedInClient(userAttrs)
-                const data = {
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: 'tests' },
-                    token: token.token,
-                }
-                const { data: { result: { status } } } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
-                expect(status).toBe('ok')
-                const [updatedUser] = await UserTestUtils.getAll(admin, { phone: token.phone })
-                expect(updatedUser.id).toEqual(createdUser.id)
+                const [{ token, phone }] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+                const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
+                const [result] = await changePhoneNumberResidentUserByTestClient(client, { token })
+                expect(result).toEqual({ 'status': 'ok' })
+                const updatedUser = await UserAdmin.getOne(admin, { phone })
+                expect(updatedUser).toMatchObject({
+                    id: client.user.id,
+                    phone: phone,
+                    isPhoneVerified: true,
+                })
             })
             it('can not change phone with expired token', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -126,17 +118,12 @@ describe('ChangePhoneNumberResidentUserService', () => {
         })
         describe('Staff', () => {
             it('can not change phone with token', async () => {
-                const client = await makeClient()
+                const client = await makeClientWithStaffUser({ isPhoneVerified: false })
                 const admin = await makeLoggedInAdminClient()
-                const [token] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
-                await createTestUser(admin, { phone: token.phone, type: STAFF, isPhoneVerified: false })
-                const data = {
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: 'tests' },
-                    token: token.token,
-                }
-                const { errors: [error] } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
-                expect(error.name).toEqual('AuthenticationError')
+                const [{ token }] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await changePhoneNumberResidentUserByTestClient(client, { token })
+                })
             })
         })
     })
