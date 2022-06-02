@@ -52,7 +52,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { token, dv, sender } } = args
-                if (dv !== 1) throw new GQLError(errors.DV_VERSION_MISMATCH)
+                if (dv !== 1) throw new GQLError(errors.DV_VERSION_MISMATCH, context)
                 if (!context.authedItem.id) throw new Error('Internal error inside the access check. We assume that the user should exists!')
                 const userId = context.authedItem.id
                 const action = await ConfirmPhoneAction.getOne(context,
@@ -66,8 +66,8 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                 if (!action) {
                     throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
                 }
-                const { phone } = action
-                await User.update(context, userId, { sender, phone, isPhoneVerified: true, dv: 1 })
+                const { phone, isPhoneVerified } = action
+                await User.update(context, userId, { sender, phone, isPhoneVerified, dv: 1 })
                 await ConfirmPhoneAction.update(context, action.id, { completedAt: new Date().toISOString(), sender, dv: 1 })
                 return {
                     status: 'ok',
