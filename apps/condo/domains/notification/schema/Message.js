@@ -106,6 +106,13 @@ const Message = new GQLListSchema('Message', {
             type: 'DateTimeUtc',
             isRequired: false,
         },
+
+        uniqKey: {
+            schemaDoc: 'Unique message key. You can use it if you need to make sure that the message you are trying to create has not been created before. Fields `user`, `type` and `uniqkey` is to be unique. If you don\'t have a `user`, the fields `type` and `uniqkey` is to be unique',
+            type: 'Text',
+            isRequired: false,
+        },
+
     },
     kmigratorOptions: {
         constraints: [
@@ -113,6 +120,18 @@ const Message = new GQLListSchema('Message', {
                 type: 'models.CheckConstraint',
                 check: 'Q(user__isnull=False) | Q(phone__isnull=False) | Q(email__isnull=False)',
                 name: 'has_phone_or_email_or_user',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['user', 'type', 'uniqKey'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'message_unique_user_type_uniqKey',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['type', 'uniqKey'],
+                condition: 'Q(user__isnull=True) & Q(deletedAt__isnull=True)',
+                name: 'message_unique_type_uniqKey',
             },
         ],
     },
