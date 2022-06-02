@@ -58,7 +58,7 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, client1.organization)
+                const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
                 // Imitate an employee without user, that will be connected in tested mutation
                 const [employee] = await createTestOrganizationEmployee(adminClient, client1.organization, client1.user, role, { user: null })
                 const { data: { objs: [{ inviteCode }] } } = await adminClient.query(GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY, { id: employee.id })
