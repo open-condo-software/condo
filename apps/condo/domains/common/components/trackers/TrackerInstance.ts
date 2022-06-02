@@ -1,10 +1,11 @@
 import getConfig from 'next/config'
-import { get, compact } from 'lodash'
+import { get, compact, isEmpty } from 'lodash'
 import { validate as uuidValidate } from 'uuid'
 
 export type ITrackerLogEventType = {
     eventName: string
     eventProperties?: Record<string, unknown>
+    userProperties?: Record<string, unknown>
     denyDuplicates?: boolean
 }
 
@@ -26,9 +27,9 @@ abstract class TrackerInstance {
     protected constructor (instanceName: string, localConfig?: Record<string, unknown>) {
         this.instanceName = instanceName
         const config = localConfig ? localConfig : getConfig()
-        const trackingConfig = get(config, 'publicRuntimeConfig.trackingConfig')
+        const trackingConfig = get(config, 'publicRuntimeConfig.trackingConfig', {})
 
-        if (trackingConfig) {
+        if (!isEmpty(trackingConfig)) {
             const token = get(trackingConfig, ['trackers', this.instanceName, 'token'])
             const configParams = get(trackingConfig, ['trackers', this.instanceName, 'config'])
             if (!token) {
@@ -55,12 +56,13 @@ abstract class TrackerInstance {
      * @param eventName
      * @param eventProperties
      * @param denyDuplicates
+     * @param userProperties
      * @return {Boolean} - result permission
      */
-    logEvent ({ eventName, eventProperties, denyDuplicates = false }: ITrackerLogEventType): boolean {
+    logEvent ({ eventName, eventProperties, userProperties, denyDuplicates = false }: ITrackerLogEventType): boolean {
         const isNeedToSendEvent = this.isNeedToSendEvent({ eventName, eventProperties, denyDuplicates })
         if (isNeedToSendEvent) {
-            this.logInstanceEvent({ eventName, eventProperties, denyDuplicates })
+            this.logInstanceEvent({ eventName, eventProperties, userProperties, denyDuplicates })
         }
 
         return isNeedToSendEvent
