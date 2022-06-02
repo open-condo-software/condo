@@ -9,7 +9,9 @@ import {
 } from '@condo/domains/miniapp/constants'
 import { ApolloError } from '@apollo/client'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
-import { IBillingIntegrationOrganizationContextUIState } from '../../utils/clientSchema/BillingIntegrationOrganizationContext'
+import {
+    IBillingIntegrationOrganizationContextUIState,
+} from '@condo/domains/billing/utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'
 
 const BILLING_SETTINGS_ROUTE = '/miniapps?tab=billing'

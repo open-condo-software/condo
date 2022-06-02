@@ -35,6 +35,7 @@ class AmplitudeInstance extends TrackerInstance {
     }
 
     logInstanceEvent (trackerLogEventProps: ITrackerLogEventType): void {
+        this.instance.setUserProperties(trackerLogEventProps.userProperties)
         this.instance.logEvent(trackerLogEventProps.eventName, trackerLogEventProps.eventProperties)
     }
 }

@@ -77,6 +77,7 @@ const useTracking: IUseTracking = () => {
             eventName,
             eventProperties: resultEventProperties,
             denyDuplicates,
+            userProperties,
         }))
     }
 
@@ -95,7 +96,7 @@ const useTracking: IUseTracking = () => {
     const instrument = <T extends (...args: any[]) => any>(eventName: string, eventProperties?: TrackingEventPropertiesType, func?: T): T => {
         function fn (...params) {
             const retVal = func ? func(...params) : undefined
-            logEvent({ eventName, eventProperties })
+            logEvent({ eventName, eventProperties, userProperties })
             return retVal
         }
         return fn as T
