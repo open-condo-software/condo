@@ -48,7 +48,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
 
                 const contacts = await loadContactsForExcelExport({ where, sortBy })
                 if (contacts.length === 0) {
-                    throw new GQLError(errors.NOTHING_TO_EXPORT)
+                    throw new GQLError(errors.NOTHING_TO_EXPORT, context)
                 }
                 const excelRows = contacts.map(contact => {
                     const unitType = contact.unitName ? i18n(`field.UnitType.${contact.unitType}`, { locale }) : ''

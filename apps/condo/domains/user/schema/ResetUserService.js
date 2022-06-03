@@ -76,16 +76,16 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                 const { dv, user } = data
 
                 if (dv !== 1) {
-                    throw new GQLError(errors.DV_VERSION_MISMATCH)
+                    throw new GQLError(errors.DV_VERSION_MISMATCH, context)
                 }
 
                 const userEntity = await getById('User', user.id)
                 if (!userEntity) {
-                    throw new GQLError(errors.USER_NOT_FOUND)
+                    throw new GQLError(errors.USER_NOT_FOUND, context)
                 }
 
                 if (userEntity.isAdmin) {
-                    throw new GQLError(errors.CANNOT_RESET_ADMIN_USER)
+                    throw new GQLError(errors.CANNOT_RESET_ADMIN_USER, context)
                 }
 
                 await User.update(context, user.id, {

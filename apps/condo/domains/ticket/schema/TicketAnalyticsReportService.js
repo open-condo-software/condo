@@ -255,7 +255,7 @@ const getTicketCounts = async ({ context, where, groupBy, extraLabels = {}, null
     return { ticketCounts, translates }
 }
 
-const getXLSXDataMapper = (groupByToken, isSummary = false) => {
+const getXLSXDataMapper = (groupByToken, isSummary, context) => {
     let dataMapper = null
     switch (groupByToken) {
         case 'status-day':
@@ -292,7 +292,7 @@ const getXLSXDataMapper = (groupByToken, isSummary = false) => {
                 messageInterpolation: {
                     value: groupByToken,
                 },
-            })
+            }, context)
     }
     return dataMapper
 }
@@ -403,7 +403,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                             messageInterpolation: {
                                 value: groupByToken,
                             },
-                        })
+                        }, context)
                 }
 
                 const tickets = []
@@ -412,7 +412,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                         prevCount + sum(Object.values(currentAggregateObject)), 0)
 
                 const isSummary = rowColumns.length === 0
-                const mapperInstance = getXLSXDataMapper(groupByToken, isSummary)
+                const mapperInstance = getXLSXDataMapper(groupByToken, isSummary, context)
                 if (isSummary) {
                     const tableColumns = {}
                     Object.entries(result).forEach(([ticketType, dataObject]) => {
@@ -466,7 +466,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                                         messageInterpolation: {
                                             value: groupBy2,
                                         },
-                                    })
+                                    }, context)
                             }
                             const { rows } = mapperInstance(mapperData)
 

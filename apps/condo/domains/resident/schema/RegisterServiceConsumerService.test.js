@@ -248,7 +248,7 @@ describe('RegisterServiceConsumerService', () => {
         }, ({ errors }) => {
             expect(errors).toMatchObject([{
                 message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and organization combination',
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['obj'],
                 extensions: {
                     mutation: 'registerServiceConsumer',
@@ -287,7 +287,7 @@ describe('RegisterServiceConsumerService', () => {
         }, ({ errors }) => {
             expect(errors).toMatchObject([{
                 message: 'Argument "accountNumber" is null or empty',
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['obj'],
                 extensions: {
                     mutation: 'registerServiceConsumer',

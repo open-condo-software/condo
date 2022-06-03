@@ -65,11 +65,11 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
 
                 const { connect: { id: propertyId } } = PropertyRelateToOneInput
                 const [property] = await Property.getAll(context, { id: propertyId })
-                if (!property) throw new GQLError(errors.PROPERTY_NOT_FOUND)
+                if (!property) throw new GQLError(errors.PROPERTY_NOT_FOUND, context)
 
                 const { connect: { id: sourceId } } = SourceRelateToOneInput
                 const [source] = await TicketSource.getAll(context, { id: sourceId })
-                if (!source) throw new GQLError(errors.TICKET_SOURCE_NOT_FOUND)
+                if (!source) throw new GQLError(errors.TICKET_SOURCE_NOT_FOUND, context)
 
                 const organizationId = get(property, ['organization', 'id'])
                 const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)

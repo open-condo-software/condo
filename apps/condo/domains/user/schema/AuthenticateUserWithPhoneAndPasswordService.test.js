@@ -34,7 +34,7 @@ describe('Auth by phone and password', () => {
         const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password: password + Math.random() })
         expect(errors).toMatchObject([{
             message: 'Wrong password',
-            name: 'GraphQLError',
+            name: 'GQLError',
             path: ['obj'],
             extensions: {
                 mutation: 'authenticateUserWithPhoneAndPassword',
@@ -53,7 +53,7 @@ describe('Auth by phone and password', () => {
         const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone: phone + Math.random(), password })
         expect(errors).toMatchObject([{
             message: 'Wrong format of provided phone number',
-            name: 'GraphQLError',
+            name: 'GQLError',
             path: ['obj'],
             extensions: {
                 mutation: 'authenticateUserWithPhoneAndPassword',
