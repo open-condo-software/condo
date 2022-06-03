@@ -13,6 +13,8 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const crypto = require('crypto')
+const adler32 = require('adler32')
+
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
 const { SENDER_FIELD, DV_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
@@ -42,6 +44,8 @@ const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
 const REQUIRED_FIELDS = ['organization', 'type', 'address', 'addressMeta']
+
+adler32.register()
 
 // ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
@@ -294,7 +298,7 @@ const Property = new GQLListSchema('Property', {
             schemaDoc: 'Hash sum of property map field',
             type: Virtual,
             resolver: (property) => {
-                return crypto.createHash('md5').update(JSON.stringify(property.map)).digest('hex')
+                return crypto.createHash('adler32').update(JSON.stringify(property.map)).digest('hex')
             },
         },
     },
