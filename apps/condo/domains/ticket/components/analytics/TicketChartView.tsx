@@ -193,12 +193,13 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
     }
 
     const hasMore = chartPage * TICKET_CHART_PAGE_SIZE <= seriesRef.current.length
+    
     let infiniteScrollContainerHeight = '340px'
     if (breakpoints.md || breakpoints.xs || breakpoints.sm) {
         infiniteScrollContainerHeight = '520px'
     }
     if (breakpoints.lg) {
-        infiniteScrollContainerHeight = '340px'
+        infiniteScrollContainerHeight = '570px'
     }
     // onChartReadyCallback is used only for pdf generation page to make sure that chart component was rendered at DOM
     if (onChartReady !== undefined) {
@@ -249,7 +250,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                         hasMore={hasMore}
                         useWindow={false}>
                         <List
-                            grid={{ gutter: 24, xs: 1, sm: 2, md: 2, lg: 1, xl: 2, xxl: 2 }}
+                            grid={{ gutter: 24, xs: 1, sm: 2, md: 2, lg: 1, xl: 1, xxl: 2 }}
                             dataSource={seriesRef.current}
                             renderItem={(chartSeries, index) => {
                                 const { option, opts } = getChartOptions({
@@ -269,9 +270,9 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                                             notMerge
                                             style={{
                                                 border: '1px solid',
-                                                borderColor: colors.lightGrey[6],
+                                                borderColor: colors.backgroundWhiteSecondary,
                                                 borderRadius: 8,
-                                                height: '100%',
+                                                height: 'auto',
                                                 width: 'auto',
                                             }}
                                             option={option}

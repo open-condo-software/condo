@@ -541,12 +541,12 @@ export const getChartOptions: IGetChartOptions = ({
                 query: { maxWidth: 510 },
                 option: {
                     series: { 
-                        center: ['50%', '38%'],
+                        center: ['50%', '34%'],
                     },
                     title: showTitle ? {
                         show: true,
-                        left: 38,
-                        top: 10,
+                        left: 24,
+                        top: 24,
                     } : { show: false },
                 },
             }, {
@@ -557,9 +557,10 @@ export const getChartOptions: IGetChartOptions = ({
                     series: { 
                         center: ['25%', '50%'],
                     },
-                    title: showTitle ? { show: true,
-                        left: 295,
-                        top: 30,
+                    title: showTitle ? { 
+                        show: true,
+                        left: 274,
+                        top: series[0].name.length > 23 ? 24 : 34,
                     } : { show: false },
                 },
             },
@@ -571,11 +572,11 @@ export const getChartOptions: IGetChartOptions = ({
             left: 335,
             top: 30,
             textStyle: {
-                fontSize: fontSizes.content,
+                fontSize: 20,
                 fontWeight: 700,
                 overflow: 'breakAll',
-                width: 160,
-                lineHeight: 20,
+                width: 250,
+                lineHeight: 24,
             },
         } : { show: false }
     } else {

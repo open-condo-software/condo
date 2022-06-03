@@ -57,7 +57,6 @@ import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLab
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketWarningModal } from '@condo/domains/ticket/hooks/useTicketWarningModal'
 import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/ticket/constants/restrictions'
-import useBreakpoint from 'antd/lib/grid/hooks/useBreakpoint'
 
 dayjs.extend(quarterOfYear)
 
@@ -96,6 +95,32 @@ interface ITicketTypeSelect {
     ticketType: TicketSelectTypes
     setTicketType: Dispatch<SetStateAction<TicketSelectTypes>>
     loading: boolean
+}
+
+const chartConfigWidth = (viewMode, isSmall)=> {
+    if (viewMode === 'pie') {
+        if (isSmall) {
+            return 'auto'
+        } else {
+            return 550
+        }
+    } else {
+        return 'auto'
+    }
+}
+
+const chartConfigHeight = (viewMode, isSmall)=> {
+    if (viewMode === 'line') {
+        if (isSmall) {
+            return 440
+        }
+    } else {
+        if (isSmall) {
+            return 500
+        } else {
+            return 270
+        }
+    }
 }
 
 const TicketTypeSelect: React.FC<ITicketTypeSelect> = (props) => {
@@ -143,7 +168,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'week'), dayjs()])
-    const [setDateRangePreset] = useState<null | string>(null)
     const [addressList, setAddressList] = useState([])
     const [classifierList, setClassifierList] = useState<string []>([])
     const [executorList, setExecutorList] = useState<string []>([])
@@ -606,7 +630,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     data: chartData,
                                     selectedMode: false,
                                     type: viewMode,
-                                    radius: [60, 120],
+                                    radius: [60, 94],
                                     center: ['25%', '50%'],
                                     symbol: 'none',
                                     emphasis: {
@@ -623,9 +647,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                         ].join('\n'),
                                         rich: {
                                             value: {
-                                                fontSize: fontSizes.content,
+                                                fontSize: fontSizes.label,
                                                 align: 'left',
-                                                width: 100,
+                                                width: 180,
                                             },
                                             percent: {
                                                 align: 'left',
@@ -637,10 +661,15 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     },
                                     labelLayout: (chart) =>  {
                                         const { dataIndex, seriesIndex } = chart
-                                        const elementYOffset = 25 * dataIndex
-                                        const verticalOffset = isSmall ? 250 : 0
-                                        const horizontalOffset = isSmall ? 50 : 300
-                                        const yOffset = 75 + verticalOffset + 250 * Math.floor(seriesIndex / 2) + 10 + elementYOffset
+                                        const elementYOffset = 28 * dataIndex
+                                        const verticalOffsetRelatedWithIsSmall = isSmall ? 240 : 20
+                                        const verticalOffsetRelatedWithTitleLength = series[0].name.length > 23 ? 73 : 55 
+                                        const horizontalOffset = isSmall ? 24 : 280
+                                        const yOffset = (
+                                            verticalOffsetRelatedWithTitleLength + 
+                                            verticalOffsetRelatedWithIsSmall + 
+                                            250 * Math.floor(seriesIndex / 2) + 
+                                            elementYOffset )
                                         return {
                                             x: horizontalOffset,
                                             y: yOffset,
@@ -973,8 +1002,8 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     animationEnabled: true,
                                     chartOptions: { 
                                         renderer: 'svg', 
-                                        width: isSmall ? 'auto' : 550, 
-                                        height: viewMode === 'line' ? 440 : isSmall ? 500 : 300,
+                                        width: chartConfigWidth(viewMode, isSmall), 
+                                        height: chartConfigHeight(viewMode, isSmall),
                                     },
                                 }}
                                 mapperInstance={mapperInstanceRef.current}
