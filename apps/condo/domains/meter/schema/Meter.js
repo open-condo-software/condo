@@ -191,9 +191,10 @@ const Meter = new GQLListSchema('Meter', {
                 const deletedMeterAt = get(originalInput, 'deletedAt')
 
                 if (deletedMeterAt) {
-                    const meterId = get(updatedItem, 'id')
+                    const meterId = updatedItem.id
                     const meterReadings = await MeterReading.getAll(context, { meter: { id: meterId } })
 
+                    // TODO(DOMA-3197) move it to worker
                     for (const reading of meterReadings) {
                         await MeterReading.update(context, reading.id, {
                             deletedAt: deletedMeterAt,
