@@ -626,7 +626,7 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
                             code: 'BAD_USER_INPUT',
                             type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                            message: `Cannot pay via deleted acquiring integration with id "${commonData.acquiringIntegration.id}"`,
+                            message: 'Cannot pay via deleted acquiring integration with id "{id}"',
                         },
                     }])
                 })
