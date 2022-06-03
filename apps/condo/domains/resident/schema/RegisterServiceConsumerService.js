@@ -88,16 +88,16 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
             resolver: async (parent, args, context = {}) => {
                 const { data: { dv, sender, residentId, accountNumber, organizationId, extra } } = args
 
-                if (!accountNumber || accountNumber.length === 0) { throw new GQLError(errors.ACCOUNT_NUMBER_IS_NOT_SPECIFIED) }
+                if (!accountNumber || accountNumber.length === 0) { throw new GQLError(errors.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context) }
 
                 const [ resident ] = await Resident.getAll(context, { id: residentId })
                 if (!resident) {
-                    throw new GQLError(errors.RESIDENT_NOT_FOUND)
+                    throw new GQLError(errors.RESIDENT_NOT_FOUND, context)
                 }
 
                 const [ organization ] = await Organization.getAll(context, { id: organizationId })
                 if (!organization) {
-                    throw new GQLError(errors.ORGANIZATION_NOT_FOUND)
+                    throw new GQLError(errors.ORGANIZATION_NOT_FOUND, context)
                 }
 
                 const unitName = get(resident, 'unitName', null)
@@ -124,7 +124,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!attrs.billingAccount) {
                     const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
                     if (meters.length < 1) {
-                        throw new GQLError(errors.BILLING_ACCOUNT_NOT_FOUND)
+                        throw new GQLError(errors.BILLING_ACCOUNT_NOT_FOUND, context)
                     }
                 }
 

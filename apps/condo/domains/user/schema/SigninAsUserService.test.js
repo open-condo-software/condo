@@ -26,7 +26,7 @@ describe('SigninAsUserService', () => {
             }, ({ errors, data }) => {
                 expect(errors).toMatchObject([{
                     message: 'You cannot authenticate for an another support user',
-                    name: 'GraphQLError',
+                    name: 'GQLError',
                     path: ['result'],
                     extensions: {
                         mutation: 'signinAsUser',
@@ -44,7 +44,7 @@ describe('SigninAsUserService', () => {
             }, ({ errors, data }) => {
                 expect(errors).toMatchObject([{
                     message: 'You cannot authenticate for an another admin user',
-                    name: 'GraphQLError',
+                    name: 'GQLError',
                     path: ['result'],
                     extensions: {
                         mutation: 'signinAsUser',

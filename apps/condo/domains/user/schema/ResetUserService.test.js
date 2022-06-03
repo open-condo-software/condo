@@ -85,7 +85,7 @@ describe('ResetUserService', () => {
         }, ({ errors }) => {
             expect(errors).toMatchObject([{
                 message: 'Could not find User by provided id',
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'resetUser',
@@ -110,7 +110,7 @@ describe('ResetUserService', () => {
         }, ({ errors }) => {
             expect(errors).toMatchObject([{
                 message: 'You cannot reset admin user',
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'resetUser',

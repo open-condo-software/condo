@@ -47,7 +47,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const { errors } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
                 expect(errors).toMatchObject([{
                     message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
-                    name: 'GraphQLError',
+                    name: 'GQLError',
                     path: ['result'],
                     extensions: {
                         mutation: 'changePhoneNumberResidentUser',
@@ -71,7 +71,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const { errors } = await client.mutate(CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION, { data })
                 expect(errors).toMatchObject([{
                     message: 'Unable to find a non-expired confirm phone action, that corresponds to provided token',
-                    name: 'GraphQLError',
+                    name: 'GQLError',
                     path: ['result'],
                     extensions: {
                         mutation: 'changePhoneNumberResidentUser',

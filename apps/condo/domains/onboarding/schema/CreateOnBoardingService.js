@@ -56,7 +56,7 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
                         messageInterpolation: {
                             type,
                         },
-                    })
+                    }, context)
                 }
 
                 const onBoardingStepData = ONBOARDING_STEPS[type]
@@ -67,7 +67,7 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
                         messageInterpolation: {
                             type,
                         },
-                    })
+                    }, context)
                 }
 
                 const onBoarding = await OnBoarding.create(context, {

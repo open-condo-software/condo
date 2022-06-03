@@ -37,7 +37,7 @@ describe('RegisterNewUserService', () => {
         })
         expect(errors).toMatchObject([{
             message: 'User with specified phone already exists',
-            name: 'GraphQLError',
+            name: 'GQLError',
             path: ['user'],
             extensions: {
                 mutation: 'registerNewUser',
@@ -81,7 +81,7 @@ describe('RegisterNewUserService', () => {
         })
         expect(errors).toMatchObject([{
             message: 'User with specified email already exists',
-            name: 'GraphQLError',
+            name: 'GQLError',
             path: ['user'],
             extensions: {
                 mutation: 'registerNewUser',

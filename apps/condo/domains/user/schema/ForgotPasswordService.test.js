@@ -48,7 +48,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'changePasswordWithToken',
@@ -70,7 +70,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'changePasswordWithToken',
@@ -100,7 +100,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'changePasswordWithToken',
@@ -150,7 +150,7 @@ describe('ForgotPasswordAction Service', () => {
 
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'changePasswordWithToken',
@@ -174,7 +174,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'changePasswordWithToken',
@@ -196,7 +196,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'changePasswordWithToken',
@@ -226,7 +226,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'changePasswordWithToken',
@@ -271,7 +271,7 @@ describe('ForgotPasswordAction Service', () => {
             expect(result).toBeNull()
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'changePasswordWithToken',
@@ -301,7 +301,7 @@ describe('ForgotPasswordAction Service', () => {
             const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'changePasswordWithToken',
@@ -334,10 +334,11 @@ describe('ForgotPasswordAction Service', () => {
             })
             
             const password = `new_${userAttrs.password}`
+            // TODO(DOMA-3146): use expectToThrowGQLError here and create helper for CHANGE_PASSWORD_WITH_TOKEN_MUTATION
             const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
-                name: 'GraphQLError',
+                name: 'GQLError',
                 path: ['result'],
                 extensions: {
                     mutation: 'changePasswordWithToken',

@@ -57,22 +57,22 @@ const errors = {
     },
 }
 
-async function checkSendMessageMeta (type, meta) {
-    if (meta.dv !== 1) throw new GQLError(errors.DV_VERSION_MISMATCH)
+async function checkSendMessageMeta (type, meta, context) {
+    if (meta.dv !== 1) throw new GQLError(errors.DV_VERSION_MISMATCH, context)
     const schema = MESSAGE_META[type]
     if (!schema) {
-        throw new GQLError({ ...errors.UNKNOWN_MESSAGE_TYPE, messageInterpolation: { type } })
+        throw new GQLError({ ...errors.UNKNOWN_MESSAGE_TYPE, messageInterpolation: { type } }, context)
     }
     for (const attr of Object.keys(schema)) {
         const value = meta[attr]
         const { required } = schema[attr]
         if (required && !value) {
-            throw new GQLError({ ...errors.MISSING_VALUE_FOR_REQUIRED_META_ATTRIBUTE, messageInterpolation: { attr } })
+            throw new GQLError({ ...errors.MISSING_VALUE_FOR_REQUIRED_META_ATTRIBUTE, messageInterpolation: { attr } }, context)
         }
     }
     for (const attr of Object.keys(meta)) {
         if (!schema[attr]) {
-            throw new GQLError({ ...errors.UNKNOWN_META_ATTRIBUTE, messageInterpolation: { attr } })
+            throw new GQLError({ ...errors.UNKNOWN_META_ATTRIBUTE, messageInterpolation: { attr } }, context)
         }
     }
 }
@@ -121,11 +121,11 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 // TODO(pahaz): think about sending emails with attachments
                 const { data } = args
                 const { dv, sender, to, emailFrom, type, meta, lang, uniqKey } = data
-                if (!to.user && !to.email && !to.phone) throw new GQLError(errors.USER_OR_EMAIL_OR_PHONE_REQUIRED)
+                if (!to.user && !to.email && !to.phone) throw new GQLError(errors.USER_OR_EMAIL_OR_PHONE_REQUIRED, context)
 
-                if (emailFrom && !to.email) throw new GQLError(errors.EMAIL_FROM_REQUIRED)
+                if (emailFrom && !to.email) throw new GQLError(errors.EMAIL_FROM_REQUIRED, context)
 
-                await checkSendMessageMeta(type, meta)
+                await checkSendMessageMeta(type, meta, context)
 
                 const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang, emailFrom, uniqKey }
 

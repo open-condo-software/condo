@@ -66,12 +66,12 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                         messageInterpolation: {
                             dv,
                         },
-                    })
+                    }, context)
                 }
                 const flat = get(addressMeta, ['data', 'flat'])
                 const flatType = get(addressMeta, ['data', 'flat_type'])
                 if (flat && !flatType) {
-                    throw new GQLError(errors.FLAT_WITHOUT_FLAT_TYPE)
+                    throw new GQLError(errors.FLAT_WITHOUT_FLAT_TYPE, context)
                 }
 
                 const search = getAddressUpToBuildingFrom(addressMeta)
