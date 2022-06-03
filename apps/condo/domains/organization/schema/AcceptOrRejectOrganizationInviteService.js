@@ -1,3 +1,5 @@
+const { get } = require('lodash')
+
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { getById, GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/organization/access/AcceptOrRejectOrganizationInviteService')
@@ -99,24 +101,22 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-
                 let employee = await OrganizationEmployee.getOne(context, { inviteCode, user_is_null: true, deletedAt: null })
                 if (!employee) throw new GQLError({ ...errors.acceptOrRejectOrganizationInviteByCode.INVITE_NOT_FOUND, messageInterpolation: { inviteCode } })
 
                 // if the user accepts the invitation, then update the name, phone number and email address of the employee
+                const needToUpdateUserData = isAccepted ? {
+                    name: get(authedItem, 'name', null),
+                    phone: get(authedItem, 'phone', null),
+                    email: get(authedItem, 'email', null),
+                } : {}
                 employee = await OrganizationEmployee.update(context, employee.id, {
                     dv: 1,
                     sender,
                     user: { connect: { id: context.authedItem.id } },
                     isRejected,
                     isAccepted,
-                    ...(
-                        isAccepted ? {
-                            name: get(authedItem, 'name', null),
-                            phone: get(authedItem, 'phone', null),
-                            email: get(authedItem, 'email', null),
-                        } : {}
-                    ),
+                    ...needToUpdateUserData,
                 })
 
                 return await getById('OrganizationEmployee', employee.id)
