@@ -103,6 +103,7 @@ describe('ForgotPasswordAction Service', () => {
                 name: 'GQLError',
                 path: ['result'],
                 extensions: {
+                    message: 'Password length is less then {min} characters',
                     mutation: 'changePasswordWithToken',
                     variable: ['data', 'password'],
                     code: 'BAD_USER_INPUT',
