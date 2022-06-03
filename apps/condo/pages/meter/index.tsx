@@ -250,8 +250,11 @@ const MetersPage: IMeterIndexPage = () => {
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const tableColumns = useTableColumns(filterMetas)
-    const searchMeterReadingsQuery = useMemo(() => ({ ...filtersToWhere(filters), organization: { id: userOrganizationId } }),
-        [filters, filtersToWhere, userOrganizationId])
+    const searchMeterReadingsQuery = useMemo(() => ({
+        meter: { deletedAt: null },
+        ...filtersToWhere(filters),
+        organization: { id: userOrganizationId } }),
+    [filters, filtersToWhere, userOrganizationId])
 
     return (
         <MetersPageContent
