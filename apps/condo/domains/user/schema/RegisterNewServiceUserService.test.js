@@ -57,6 +57,7 @@ describe('RegisterNewServiceUserServiceLogic', () => {
         const admin = await makeLoggedInAdminClient()
         const [, userAttrs] = await registerNewServiceUserByTestClient(admin)
         const email = userAttrs.email
+        // TODO(DOMA-3146): use the GQLError util
         await catchErrorFrom(async () => {
             await registerNewServiceUserByTestClient(admin, { email })
         }, ({ errors }) => {
