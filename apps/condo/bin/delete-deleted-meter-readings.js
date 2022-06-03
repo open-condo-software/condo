@@ -3,7 +3,6 @@ const { find } = require('@core/keystone/schema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const get = require('lodash/get')
 const { MeterReading } = require('@condo/domains/meter/utils/serverSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 class FixMeterReadingsClients {
     context = null

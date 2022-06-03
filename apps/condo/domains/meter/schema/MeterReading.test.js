@@ -808,19 +808,18 @@ describe('MeterReading', () => {
         })
 
         test('readings are deleted after the related meter is deleted', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const [organization] = await createTestOrganization(adminClient)
-            const [property] = await createTestProperty(adminClient, organization)
-            const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-            const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-            const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-            const [meterReading1] = await createTestMeterReading(adminClient, meter, organization, source)
-            const [meterReading2] = await createTestMeterReading(adminClient, meter, organization, source)
+            const client = await makeClientWithProperty()
+
+            const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+            const [meterReading1] = await createTestMeterReading(client, meter, client.organization, source)
+            const [meterReading2] = await createTestMeterReading(client, meter, client.organization, source)
 
             expect(meterReading1.deletedAt).toBeNull()
             expect(meterReading2.deletedAt).toBeNull()
 
-            await updateTestMeter(adminClient, meter.id, {
+            await updateTestMeter(client, meter.id, {
                 deletedAt: new Date(),
             })
 
