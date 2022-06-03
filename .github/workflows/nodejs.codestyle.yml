@@ -17,12 +17,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Check lint with eslint
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn install --frozen-lockfile
-      - run: yarn lint
-      - run: yarn workspace @app/condo lint-i18n-translations
-      - run: bash ./bin/lint-common-petterns.sh
 
+      - name: Install packages
+        run: yarn install --frozen-lockfile
+
+      - name: Lint code
+        run: yarn lint
+
+      - name: Lint I18n translation keys
+        run: yarn workspace @app/condo lint-i18n-translations
+
+      - name: Lint common patterns
+        run: bash ./bin/lint-common-petterns.sh
