@@ -9,7 +9,7 @@ const { Property, createTestProperty, updateTestProperty, makeClientWithProperty
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { buildingMapJson, buildingEmptyMapJson } = require('@condo/domains/property/constants/property')
 const faker = require('faker')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
@@ -421,6 +421,26 @@ describe('Property', () => {
             const objs = await Property.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toEqual(property.id)
+        })
+    })
+
+    describe('mapHash', () => {
+        it('should return the same value if there is no change in property map field', async () => {
+            const client = await makeClientWithProperty()
+            const createdAt = client.property.createdAt
+            const mapHash = client.property.mapHash
+            const [updatedProperty] = await updateTestProperty(client, client.property.id, {})
+
+            expect(createdAt).not.toEqual(updatedProperty.updatedAt)
+            expect(mapHash).toEqual(updatedProperty.mapHash)
+        })
+
+        it('should change hash sum of property map if it was changed', async () => {
+            const client = await makeClientWithProperty()
+            const mapHash = client.property.mapHash
+            const [updatedProperty] = await updateTestProperty(client, client.property.id, { map: buildingEmptyMapJson })
+
+            expect(mapHash).not.toEqual(updatedProperty.mapHash)
         })
     })
 })

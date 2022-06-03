@@ -25930,6 +25930,8 @@ export type Property = {
   yearOfConstruction?: Maybe<Scalars['String']>;
   /**  Property area in square meters  */
   area?: Maybe<Scalars['String']>;
+  /**  Hash sum of property map field  */
+  mapHash?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25991,6 +25993,7 @@ export type PropertyHistoryRecord = {
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
+  mapHash?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -26020,6 +26023,7 @@ export type PropertyHistoryRecordCreateInput = {
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
+  mapHash?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26054,6 +26058,7 @@ export type PropertyHistoryRecordUpdateInput = {
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
+  mapHash?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26189,6 +26194,10 @@ export type PropertyHistoryRecordWhereInput = {
   area_gte?: Maybe<Scalars['String']>;
   area_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   area_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  mapHash?: Maybe<Scalars['JSON']>;
+  mapHash_not?: Maybe<Scalars['JSON']>;
+  mapHash_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  mapHash_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

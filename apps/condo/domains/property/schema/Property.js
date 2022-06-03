@@ -12,6 +12,7 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
+const crypto = require('crypto')
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
 const { SENDER_FIELD, DV_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
@@ -286,6 +287,14 @@ const Property = new GQLListSchema('Property', {
             type: Decimal,
             knexOptions: {
                 scale: 2,
+            },
+        },
+
+        mapHash: {
+            schemaDoc: 'Hash sum of property map field',
+            type: Virtual,
+            resolver: (property) => {
+                return crypto.createHash('md5').update(JSON.stringify(property.map)).digest('hex')
             },
         },
     },
