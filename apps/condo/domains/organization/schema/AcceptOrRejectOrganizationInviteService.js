@@ -104,26 +104,20 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 if (!employee) throw new GQLError({ ...errors.acceptOrRejectOrganizationInviteByCode.INVITE_NOT_FOUND, messageInterpolation: { inviteCode } })
 
                 // if the user accepts the invitation, then update the name, phone number and email address of the employee
-                if (isAccepted) {
-                    employee = await OrganizationEmployee.update(context, employee.id, {
-                        dv: 1,
-                        sender,
-                        user: { connect: { id: context.authedItem.id } },
-                        isRejected,
-                        isAccepted,
-                        name: authedItem.name ? authedItem.name : null,
-                        phone: authedItem.phone ? authedItem.phone : null,
-                        email: authedItem.email ? authedItem.email : null,
-                    })
-                } else {
-                    employee = await OrganizationEmployee.update(context, employee.id, {
-                        dv: 1,
-                        sender,
-                        user: { connect: { id: context.authedItem.id } },
-                        isRejected,
-                        isAccepted,
-                    })
-                }
+                employee = await OrganizationEmployee.update(context, employee.id, {
+                    dv: 1,
+                    sender,
+                    user: { connect: { id: context.authedItem.id } },
+                    isRejected,
+                    isAccepted,
+                    ...(
+                        isAccepted ? {
+                            name: get(authedItem, 'name', null),
+                            phone: get(authedItem, 'phone', null),
+                            email: get(authedItem, 'email', null),
+                        } : {}
+                    ),
+                })
 
                 return await getById('OrganizationEmployee', employee.id)
             },
