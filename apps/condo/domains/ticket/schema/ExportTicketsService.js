@@ -22,6 +22,7 @@ const access = require('@condo/domains/ticket/access/ExportTicketsService')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 
+const HEADER_DATE_FORMAT = 'DD.MM.YYYY'
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
 dayjs.extend(utc)
@@ -73,7 +74,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where, sortBy, timeZone: timeZoneFromUser } = args.data
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
-                const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
+                const formatDate = (date, dateFormat = DATE_FORMAT) => dayjs(date).tz(timeZone).format(dateFormat)
                 const statuses = await TicketStatus.getAll(context, {})
                 const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
@@ -90,7 +91,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
 
                 let headerMessage = i18n('excelExport.header.tickets.forAllTime', { locale })
                 if (createdAtGte && createdAtLte) {
-                    headerMessage = `${i18n('excelExport.header.tickets.forPeriod', { locale })} ${dayjs(createdAtGte).format('DD.MM.YYYY')} — ${dayjs(createdAtLte).format('DD.MM.YYYY')}`
+                    headerMessage = `${i18n('excelExport.header.tickets.forPeriod', { locale })} ${formatDate(createdAtGte, HEADER_DATE_FORMAT)} — ${formatDate(createdAtLte, HEADER_DATE_FORMAT)}`
                 }
 
                 const allTickets = await loadTicketsForExcelExport({ where, sortBy })
