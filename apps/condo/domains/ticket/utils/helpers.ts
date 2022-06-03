@@ -663,7 +663,7 @@ export function isEmptyAnalyticsData (analyticsData) {
     if (isEmpty(analyticsData)) return true
 
     const count = analyticsData.reduce((count, date) => { 
-        return count + get(date, 'count')
+        return count + get(date, 'count', 0)
     }, 0)
 
     return count < 1
