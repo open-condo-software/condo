@@ -44,10 +44,10 @@ const {
     DIRECT_PAYMENT_PATH,
 } = require('@condo/domains/acquiring/constants/links')
 const { updateTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
- 
+
 describe('RegisterMultiPaymentService', () => {
     describe('Execute', () => {
-        describe('Resident',  () => {
+        describe('Resident', () => {
             const cases = [[1, 1], [1, 2], [2, 1], [2, 2]]
             test.each(cases)('Consumers: %p | Receipts in each consumer: %p', async (consumers, receipts) => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(consumers, receipts)
@@ -60,9 +60,9 @@ describe('RegisterMultiPaymentService', () => {
                 expect(result).toBeDefined()
                 expect(result).toHaveProperty('dv', 1)
                 expect(result).toHaveProperty('multiPaymentId')
-                expect(result).toHaveProperty('webViewUrl', `${hostUrl}${WEB_VIEW_PATH.replace('[id]', result.multiPaymentId )}`)
-                expect(result).toHaveProperty('feeCalculationUrl', `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', result.multiPaymentId )}`)
-                expect(result).toHaveProperty('directPaymentUrl', `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', result.multiPaymentId )}`)
+                expect(result).toHaveProperty('webViewUrl', `${hostUrl}${WEB_VIEW_PATH.replace('[id]', result.multiPaymentId)}`)
+                expect(result).toHaveProperty('feeCalculationUrl', `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', result.multiPaymentId)}`)
+                expect(result).toHaveProperty('directPaymentUrl', `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', result.multiPaymentId)}`)
             })
         })
         test('Anonymous user', async () => {
@@ -365,7 +365,7 @@ describe('RegisterMultiPaymentService', () => {
                                 variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
                                 code: 'BAD_USER_INPUT',
                                 type: 'RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION',
-                                message: `Receipts cannot be grouped by AcquiringIntegration with id "{id}", because a value of "canGroupReceipts" field is false`,
+                                message: 'Receipts cannot be grouped by AcquiringIntegration with id "{id}", because a value of "canGroupReceipts" field is false',
                             },
                         }])
                     })
@@ -445,7 +445,7 @@ describe('RegisterMultiPaymentService', () => {
                     }])
                 })
             })
-            describe('Cannot pay for receipts with negative toPay',  () => {
+            describe('Cannot pay for receipts with negative toPay', () => {
                 const cases = ['0.0', '-1', '-50.00', '-0.000000']
                 test.each(cases)('ToPay: %p', async (toPay) => {
                     const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
@@ -573,7 +573,7 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
                             code: 'BAD_USER_INPUT',
                             type: 'NOT_FOUND',
-                            message: `Some of specified ServiceConsumers with ids {ids} were deleted, so you cannot pay for them anymore`,
+                            message: 'Some of specified ServiceConsumers with ids {ids} were deleted, so you cannot pay for them anymore',
                         },
                     }])
                 })

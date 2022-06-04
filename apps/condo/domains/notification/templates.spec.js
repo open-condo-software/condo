@@ -1,10 +1,14 @@
+/**
+ * @jest-environment node
+ */
+
 const fs = require('fs')
 const path = require('path')
 const dayjs = require('dayjs')
 const faker = require('faker')
 const { escape, isEmpty, get } = require('lodash')
 
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, setFakeClientMode } = require('@core/keystone/test.utils')
 
 const { LOCALES, EN_LOCALE, RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
@@ -33,6 +37,7 @@ const emailTransport = require('@condo/domains/notification/transports/email')
 const smsTransport = require('@condo/domains/notification/transports/sms')
 
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const index = require('@app/condo/index')
 
 const { SHARE_TICKET_MESSAGE_TYPE, CUSTOMER_IMPORTANT_NOTE_TYPE } = require('./constants/constants')
 
@@ -69,6 +74,8 @@ const ORGANIZATION_NAME_WITH_QUOTES = 'ООО "УК "РЕЗИДЕНЦИЯ У М�
 const TOKEN_URL_PART = 'auth/change-password?token='
 
 describe('Templates', () => {
+    setFakeClientMode(index)
+
     it('All messages types have enough templates', () => {
         let result = true
         for (const locale of Object.keys(LOCALES)) {
@@ -176,7 +183,7 @@ describe('Templates', () => {
         const client = await makeLoggedInAdminClient()
 
         const developerData = { type: 'some text for email subject', data: 'Some "string" data' }
-        const [messageDeveloper, attrsDeveloper] = await createTestMessage(client, {
+        const [messageDeveloper] = await createTestMessage(client, {
             type: DEVELOPER_IMPORTANT_NOTE_TYPE,
             lang: EN_LOCALE,
             meta: { ...developerData, dv: 1 },
@@ -188,7 +195,7 @@ describe('Templates', () => {
             ticketNumber: 42,
             details: 'The "ticket" details',
         }
-        const [messageShare, attrsShare] = await createTestMessage(client, {
+        const [messageShare] = await createTestMessage(client, {
             type: SHARE_TICKET_MESSAGE_TYPE,
             lang: EN_LOCALE,
             meta: { ...ticketData, dv: 1 },
@@ -210,7 +217,7 @@ describe('Templates', () => {
         const admin = await makeLoggedInAdminClient()
 
         client.organization.name = 'Lightning mc\'queen'
-        const [message, attrs] = await createTestMessage(admin, {
+        const [message] = await createTestMessage(admin, {
             type: CUSTOMER_IMPORTANT_NOTE_TYPE,
             lang: RU_LOCALE,
             meta: { organization: client.organization, dv: 1 },
