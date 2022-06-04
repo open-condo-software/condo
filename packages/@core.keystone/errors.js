@@ -62,7 +62,7 @@
  */
 
 const { ApolloError } = require('apollo-server-errors')
-const { cloneDeep, get, template, templateSettings } = require('lodash')
+const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject } = require('lodash')
 const cuid = require('cuid')
 
 const conf = require('@core/config')
@@ -109,7 +109,6 @@ const GQLErrorCode = {
  * @property {String} [messageForUser] - i18n key for localized version of message, that intended to be displayed for user. Value of this property will be replace with translated one
  * @property {Object.<string, string|number>} messageInterpolation - object with values for placeholder variables `{var}`, presented in translated versions of message
  * @property {String} [correctExample] - correct value of an argument
- * @property {Object} [internalError] - error from internal part of the system. Not required, because in some cases it is not secure to expose internal error messages
  * @property {Object} [data] - any kind of data, that will help to figure out a cause of the error
  */
 
@@ -120,6 +119,16 @@ class GQLError extends ApolloError {
      * @see https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors
      */
     constructor (fields, context) {
+        if (isEmpty(fields) || !fields) throw new Error('GQLError: wrong fields argument')
+        if (!fields.code) throw new Error('GQLError: you need to set fields.code')
+        if (!fields.type) throw new Error('GQLError: you need to set fields.type')
+        if (!fields.message) throw new Error('GQLError: you need to set fields.message')
+        if (typeof fields.variable !== 'undefined' && !isArray(fields.variable)) throw new Error('GQLError: wrong argument type! fields.variable should be a list')
+        if (typeof fields.query !== 'undefined' && typeof fields.query !== 'string') throw new Error('GQLError: wrong query argument type! fields.query should be a string')
+        if (typeof fields.mutation !== 'undefined' && typeof fields.mutation !== 'string') throw new Error('GQLError: wrong mutation argument type! fields.mutation should be a string')
+        if (typeof fields.messageForUser !== 'undefined' && typeof fields.messageForUser !== 'string') throw new Error('GQLError: wrong messageForUser argument type! fields.messageForUser should be a string')
+        if (typeof fields.messageInterpolation !== 'undefined' && (isEmpty(fields.messageInterpolation) || !isObject(fields.messageInterpolation))) throw new Error('GQLError: wrong messageInterpolation argument type! fields.messageInterpolation should be an object')
+        if (typeof fields.correctExample !== 'undefined' && typeof fields.correctExample !== 'string') throw new Error('GQLError: wrong correctExample argument type! fields.correctExample should be a string')
         // We need a clone to avoid modification of original errors declaration, that will cause
         // second calling of this constructor to work with changed fields
         const extensions = cloneDeep(fields)
