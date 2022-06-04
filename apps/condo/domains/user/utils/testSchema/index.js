@@ -22,11 +22,11 @@ const {
     CONFIRM_PHONE_ACTION_EXPIRY,
 } = require('@condo/domains/user/constants/common')
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
-const { max, repeat } = require('lodash')
-/* AUTOGENERATE MARKER <IMPORT> */
+const { max, repeat, get } = require('lodash')
 
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
+/* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
     return ('test.' + getRandomString() + '@example.com').toLowerCase()
