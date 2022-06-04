@@ -35,7 +35,7 @@ function createTestEmail () {
 function createTestPhone () {
     const { country_code, mobile_begin_with, phone_number_lengths } = faker.random.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
     const length = max(phone_number_lengths)
-    const code = faker.random.arrayElement(mobile_begin_with)
+    const code = String(faker.random.arrayElement(mobile_begin_with))
     const phone = faker.phone.phoneNumber('+' + country_code + code + repeat('#', length - code.length))
     return phone
 }
