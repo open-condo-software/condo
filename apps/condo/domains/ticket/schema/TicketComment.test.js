@@ -4,9 +4,8 @@
 
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, awaitFor } = require('@core/keystone/test.utils')
 
-const { sleep } = require('@condo/domains/common/utils/sleep')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -1030,16 +1029,16 @@ describe('TicketComment', () => {
             expect(message).toBeDefined()
             expect(message.id).toMatch(UUID_RE)
 
-            // TODO(DOMA-2765) Get rid of sleep
-            await sleep(1000)
-            const message1 = await Message.getOne(admin, messageWhere)
+            await awaitFor(async () => {
+                const message1 = await Message.getOne(admin, messageWhere)
 
-            expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
-            expect(message1.meta.data.ticketId).toEqual(ticket.id)
-            expect(message1.meta.data.commentId).toEqual(ticketComment.id)
-            expect(message1.meta.data.residentId).toEqual(resident.id)
-            expect(message1.meta.data.userId).toEqual(residentClient.user.id)
-            expect(message1.processingMeta.transport).toEqual('push')
+                expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+                expect(message1.meta.data.ticketId).toEqual(ticket.id)
+                expect(message1.meta.data.commentId).toEqual(ticketComment.id)
+                expect(message1.meta.data.residentId).toEqual(resident.id)
+                expect(message1.meta.data.userId).toEqual(residentClient.user.id)
+                expect(message1.processingMeta.transport).toEqual('push')
+            })
         })
 
         it('checks that notification is not being sent on employee comment create if there is no resident connected to ticket', async () => {
@@ -1051,11 +1050,11 @@ describe('TicketComment', () => {
             expect(ticket.client).toEqual(null)
 
             await createTestTicketComment(admin, ticket, userClient.user)
-            await sleep(1000)
-            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
-            const messageCount = await Message.count(admin, messageWhere)
-
-            expect(messageCount).toEqual(0)
+            await awaitFor(async () => {
+                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+                const messageCount = await Message.count(admin, messageWhere)
+                expect(messageCount).toEqual(0)
+            })
         })
 
         it('checks that notifications is not being sent when resident adds comment to ticket', async () => {
