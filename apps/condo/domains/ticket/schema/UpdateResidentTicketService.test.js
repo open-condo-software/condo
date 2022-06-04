@@ -43,7 +43,7 @@ describe('UpdateResidentTicketService', () => {
                 message: `Cannot find ticket with id "${ticket.id}" for current user`,
                 path: ['obj'],
                 extensions: {
-                    message: `Cannot find ticket with id "${ticket.id}" for current user`,
+                    message: 'Cannot find ticket with id "{ticketId}" for current user',
                     mutation: 'updateResidentTicket',
                     variable: ['id'],
                     code: 'BAD_USER_INPUT',
