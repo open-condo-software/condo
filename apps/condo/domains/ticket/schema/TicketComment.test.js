@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, awaitFor } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@core/keystone/test.utils')
 
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -1029,7 +1029,7 @@ describe('TicketComment', () => {
             expect(message).toBeDefined()
             expect(message.id).toMatch(UUID_RE)
 
-            await awaitFor(async () => {
+            await waitFor(async () => {
                 const message1 = await Message.getOne(admin, messageWhere)
 
                 expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
@@ -1050,7 +1050,7 @@ describe('TicketComment', () => {
             expect(ticket.client).toEqual(null)
 
             await createTestTicketComment(admin, ticket, userClient.user)
-            await awaitFor(async () => {
+            await waitFor(async () => {
                 const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
                 const messageCount = await Message.count(admin, messageWhere)
                 expect(messageCount).toEqual(0)
