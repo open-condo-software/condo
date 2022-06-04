@@ -78,7 +78,7 @@ describe('SendMessageService', () => {
                                 variable: ['data', 'meta'],
                                 code: 'BAD_USER_INPUT',
                                 type: 'REQUIRED',
-                                message: 'Missing value for required "meta.inviteCode" attribute',
+                                message: 'Missing value for required "meta.{attr}" attribute',
                             },
                         }])
                         expect(data).toEqual({ 'result': null })
@@ -104,7 +104,7 @@ describe('SendMessageService', () => {
                                 variable: ['data', 'meta'],
                                 code: 'BAD_USER_INPUT',
                                 type: 'UNKNOWN_ATTRIBUTE',
-                                message: 'Unknown attribute "unregisteredAttrName" provided to "meta" variable',
+                                message: 'Unknown attribute "{attr}" provided to "meta" variable',
                             },
                         }])
                         expect(data).toEqual({ 'result': null })

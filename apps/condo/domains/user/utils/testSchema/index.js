@@ -17,25 +17,34 @@ const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
 const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
 const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
-/* AUTOGENERATE MARKER <IMPORT> */
-
-const User = generateGQLTestUtils(UserGQL)
-const UserAdmin = generateGQLTestUtils(UserAdminGQL)
-
-const _usAreaCodes = countryPhoneData[0].mobile_begin_with.filter(x => x.length === 3)
-const _createTestUsMobilePhone = () => `+1${faker.random.arrayElement(_usAreaCodes)}${faker.phone.phoneNumber('#######')}`
-const _createTestRuMobilePhone = () => faker.random.arrayElement([faker.phone.phoneNumber('+79#########'), faker.phone.phoneNumber('+7495#######')])
-const createTestPhone = () => faker.random.arrayElement([_createTestUsMobilePhone(), _createTestRuMobilePhone()])
-const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
-const createTestLandlineNumber = () => faker.phone.phoneNumber('+7343#######')
-
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
 } = require('@condo/domains/user/constants/common')
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
+const { max, repeat } = require('lodash')
+/* AUTOGENERATE MARKER <IMPORT> */
 
-async function createTestUser (client, extraAttrs = {},  { raw = false } = {}) {
+const User = generateGQLTestUtils(UserGQL)
+const UserAdmin = generateGQLTestUtils(UserAdminGQL)
+
+function createTestEmail () {
+    return ('test.' + getRandomString() + '@example.com').toLowerCase()
+}
+
+function createTestPhone () {
+    const { country_code, mobile_begin_with, phone_number_lengths } = faker.random.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
+    const length = max(phone_number_lengths)
+    const code = faker.random.arrayElement(mobile_begin_with)
+    const phone = faker.phone.phoneNumber('+' + country_code + code + repeat('#', length - code.length))
+    return phone
+}
+
+function createTestLandlineNumber () {
+    return faker.phone.phoneNumber('+7343#######')
+}
+
+async function createTestUser (client, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
@@ -109,7 +118,7 @@ async function makeClientWithNewRegisteredAndLoggedInUser (userExtraAttrs = {}) 
     return client
 }
 
-async function makeClientWithSupportUser(userExtraAttrs = {}) {
+async function makeClientWithSupportUser (userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
     await addSupportAccess(user, userExtraAttrs)
@@ -118,7 +127,7 @@ async function makeClientWithSupportUser(userExtraAttrs = {}) {
     return client
 }
 
-async function makeClientWithResidentUser(userExtraAttrs = {}) {
+async function makeClientWithResidentUser (userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
     await addResidentAccess(user, userExtraAttrs)
@@ -127,7 +136,7 @@ async function makeClientWithResidentUser(userExtraAttrs = {}) {
     return client
 }
 
-async function makeClientWithStaffUser(userExtraAttrs = {}) {
+async function makeClientWithStaffUser (userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
     await addStaffAccess(user, userExtraAttrs)
@@ -136,7 +145,7 @@ async function makeClientWithStaffUser(userExtraAttrs = {}) {
     return client
 }
 
-async function makeClientWithServiceUser(userExtraAttrs = {}) {
+async function makeClientWithServiceUser (userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
     await addServiceAccess(user, userExtraAttrs)
@@ -172,6 +181,7 @@ async function addServiceAccess (user, extraAttrs = {}) {
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 const ForgotPasswordAction = generateGQLTestUtils(ForgotPasswordActionGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -243,7 +253,7 @@ async function updateTestForgotPasswordAction (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function signinAsUserByTestClient(client, id, extraAttrs = {}) {
+async function signinAsUserByTestClient (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     if (!id) throw new Error('No user id passed')
@@ -258,7 +268,7 @@ async function signinAsUserByTestClient(client, id, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
-async function resetUserByTestClient(client, extraAttrs = {}) {
+async function resetUserByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -272,7 +282,7 @@ async function resetUserByTestClient(client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
-async function registerNewServiceUserByTestClient(client, extraAttrs = {}) {
+async function registerNewServiceUserByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()

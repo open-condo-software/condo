@@ -267,7 +267,10 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
                             code: 'BAD_USER_INPUT',
                             type: 'NOT_FOUND',
-                            message: `Cannot find specified ServiceConsumers with following ids: ${fakeUuid}`,
+                            message: 'Cannot find specified ServiceConsumers with following ids: {ids}',
+                            messageInterpolation: {
+                                ids: fakeUuid,
+                            },
                         },
                     }])
                 })
@@ -293,7 +296,7 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
                             code: 'BAD_USER_INPUT',
                             type: 'ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING',
-                            message: `ServiceConsumers with ids ${disconnectedServiceConsumerId} does not have AcquiringIntegrationContext`,
+                            message: 'ServiceConsumers with ids {ids} does not have AcquiringIntegrationContext',
                         },
                     }])
                 })
@@ -362,7 +365,7 @@ describe('RegisterMultiPaymentService', () => {
                                 variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
                                 code: 'BAD_USER_INPUT',
                                 type: 'RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION',
-                                message: `Receipts cannot be grouped by AcquiringIntegration with id "${commonData.acquiringIntegration.id}", because a value of "canGroupReceipts" field is false`,
+                                message: `Receipts cannot be grouped by AcquiringIntegration with id "{id}", because a value of "canGroupReceipts" field is false`,
                             },
                         }])
                     })
@@ -386,7 +389,7 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
-                            message: `Cannot find all specified BillingReceipts with ids ${missingReceiptId}`,
+                            message: 'Cannot find all specified BillingReceipts with ids {missingReceiptIds}',
                         },
                     }])
                 })
@@ -412,7 +415,7 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION',
-                            message: `Some of ServiceConsumer's AcquiringIntegration does not supports following BillingReceipt's BillingIntegrations: ${disconnectedBillingIntegrationId}`,
+                            message: 'Some of ServiceConsumer\'s AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegrations: {unsupportedBillingIntegrations}',
                         },
                     }])
                 })
@@ -464,7 +467,7 @@ describe('RegisterMultiPaymentService', () => {
                                 variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
                                 code: 'BAD_USER_INPUT',
                                 type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
-                                message: `Cannot pay for BillingReceipts ${batches[1].billingReceipts[0].id} with negative "toPay" value`,
+                                message: 'Cannot pay for BillingReceipts {ids} with negative "toPay" value',
                             },
                         }])
                     })
@@ -490,7 +493,7 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER',
-                            message: `BillingReceipt with id "${batches[1].billingReceipts[0].id}" does not have common BillingAccount with specified ServiceConsumer with id "${serviceConsumerId}"`,
+                            message: 'BillingReceipt with id "{receiptId}" does not have common BillingAccount with specified ServiceConsumer with id "{serviceConsumerId}"',
                         },
                     }])
                 })
@@ -516,7 +519,7 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER',
-                            message: `BillingReceipt with id "${batches[1].billingReceipts[0].id}" does not have common BillingAccount with specified ServiceConsumer with id "${serviceConsumerId}"`,
+                            message: 'BillingReceipt with id "{receiptId}" does not have common BillingAccount with specified ServiceConsumer with id "{serviceConsumerId}"',
                         },
                     }])
                 })
@@ -544,7 +547,7 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'RECEIPTS_ARE_DELETED',
-                            message: `Cannot pay for deleted receipts ${deletedReceiptId}`,
+                            message: 'Cannot pay for deleted receipts {ids}',
                         },
                     }])
                 })
@@ -570,7 +573,7 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
                             code: 'BAD_USER_INPUT',
                             type: 'NOT_FOUND',
-                            message: `Some of specified ServiceConsumers with ids ${deletedConsumerId} were deleted, so you cannot pay for them anymore`,
+                            message: `Some of specified ServiceConsumers with ids {ids} were deleted, so you cannot pay for them anymore`,
                         },
                     }])
                 })

@@ -1,3 +1,7 @@
+const { countryPhoneData } = require('phone')
+const faker = require('faker')
+const { max, repeat } = require('lodash')
+
 const { normalizePhone } = require('./phone')
 
 describe('normalizePhone()', () => {
@@ -33,5 +37,18 @@ describe('normalizePhone()', () => {
     test('random', () => {
         const data = '+1817' + String(Math.random()).slice(2).slice(-7)
         expect(normalizePhone(data)).toEqual(data)
+    })
+
+    test('Countries', () => {
+        expect(normalizePhone('+35818000000')).toEqual('+35818000000')
+        expect(normalizePhone('+3581800000')).toEqual('+3581800000')
+    })
+
+    test('Codes', () => {
+        const { country_code, mobile_begin_with, phone_number_lengths } = faker.random.arrayElement(countryPhoneData)
+        const length = max(phone_number_lengths)
+        const code = faker.random.arrayElement(mobile_begin_with)
+        const phone = faker.phone.phoneNumber('+' + country_code + code + repeat('#', length - code.length))
+        expect(normalizePhone(phone)).toEqual(phone)
     })
 })
