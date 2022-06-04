@@ -3,9 +3,9 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
-const { USER_NOT_FOUND } = require('../constants/errors')
+const { USER_NOT_FOUND, WRONG_PASSWORD } = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -31,7 +31,8 @@ const errors = {
     },
     WRONG_PASSWORD: {
         mutation: 'authenticateUserWithPhoneAndPassword',
-        code: FORBIDDEN,
+        code: BAD_USER_INPUT,
+        type: WRONG_PASSWORD,
         message: 'Wrong password',
         variable: ['data', 'password'],
         messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_PASSWORD',
