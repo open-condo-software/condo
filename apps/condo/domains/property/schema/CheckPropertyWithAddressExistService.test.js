@@ -50,7 +50,7 @@ describe('CheckPropertyWithAddressExistService', () => {
                         variable: ['data', 'addressMeta', 'dv'],
                         code: 'BAD_USER_INPUT',
                         type: 'DV_VERSION_MISMATCH',
-                        message: 'Version number value 2 is incorrect',
+                        message: 'Version number value {dv} is incorrect',
                     },
                 }])
             })
