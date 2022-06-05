@@ -40,6 +40,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         // NOTE: give worker some time
         await waitFor(async () => {
             const resident = await Resident.getOne(userClient)
+            expect(resident.organization).not.toBeNull()
             expect(resident.organization.id).toEqual(organizationClient.organization.id)
             expect(resident.property.id).toEqual(property.id)
         })
