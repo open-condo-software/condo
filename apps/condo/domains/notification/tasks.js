@@ -23,13 +23,6 @@ const {
 
 const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
 const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
-/**
- * This constant regulates if we should fallback failed push transport bu email.
- * It is disabled by now due to organization's complaints - some of them have only one responsible and assignee
- * for all tickets and get tons of emails, which they didn't like at all. :)
- * @type {boolean}
- */
-const SHOULD_FALLBACK_PUSH_TRANSPORT = false
 
 const TRANSPORTS = {
     [SMS_TRANSPORT]: sms,
@@ -76,15 +69,6 @@ async function _choseMessageTransport (message) {
     // if phone & email are absent, or fallback transport if phone & email are present but fail to deliver message
     if (!isEmpty(user)) {
         transports.push(PUSH_TRANSPORT)
-
-        // By now most of mobile users are not ready to receive push, so almost always it would come to
-        // SMS as a fallback transport, which is quite expensive (we have 13k+) new tickets a month, which could
-        // cause up to x(2 + 5) and even more notifications (13k x 7 x 3 RUB > 250K RUB),
-        // so @MikhailRumanovskii decided to switch this off for a while
-        // if (!isEmpty(user.phone) && !transports.includes(SMS_TRANSPORT)) transports.push(SMS_TRANSPORT)
-
-        // Fallback transport attempts, if PUSH delivery fails
-        if (SHOULD_FALLBACK_PUSH_TRANSPORT && !isEmpty(user.email) && !transports.includes(EMAIL_TRANSPORT)) transports.push(EMAIL_TRANSPORT)
     }
 
     // At this point we return whatever non-empty sequence we've got
