@@ -9,8 +9,8 @@ const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
-// NOTE: If this is True, all tasks will be executed locally by blocking until the task returns.
-// Tasks will be executed locally instead of being sent to the queue.
+
+// NOTE: If this is True, all tasks will be executed in the node process with setTimeout.
 const FAKE_WORKER_MODE = conf.TESTS_FAKE_WORKER_MODE
 const WORKER_REDIS_URL = conf.WORKER_REDIS_URL || conf.REDIS_URL
 if (!WORKER_REDIS_URL) throw new Error('No WORKER_REDIS_URL environment')
@@ -52,11 +52,6 @@ function removeCronTask (name, cron, opts = {}) {
     REMOVE_CRON_TASKS.push([name, taskOpts])
 }
 
-async function _awaitRemoteTaskResult (jobId) {
-    const job = await Queue.Job.fromId(taskQueue, jobId)
-    return await job.finished()
-}
-
 async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
     const job = await taskQueue.add(name, { args: preparedArgs }, preparedOpts)
 
@@ -65,7 +60,7 @@ async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
             return await job.getState()
         },
         awaitResult: async () => {
-            return await _awaitRemoteTaskResult(job.id)
+            return await job.finished()
         },
     }
 }
