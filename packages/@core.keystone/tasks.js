@@ -5,13 +5,13 @@ const { serializeError } = require('serialize-error')
 const IORedis = require('ioredis')
 
 const conf = require('@core/config')
-const { prepareKeystoneExpressApp } = require('./test.utils')
+const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
 // NOTE: If this is True, all tasks will be executed locally by blocking until the task returns.
 // Tasks will be executed locally instead of being sent to the queue.
-const FAKE_WORKER_MODE = conf.FAKE_WORKER_MODE
+const FAKE_WORKER_MODE = conf.TESTS_FAKE_WORKER_MODE
 const WORKER_REDIS_URL = conf.WORKER_REDIS_URL || conf.REDIS_URL
 if (!WORKER_REDIS_URL) throw new Error('No WORKER_REDIS_URL environment')
 const taskQueue = new Queue('tasks', WORKER_REDIS_URL, {
@@ -52,40 +52,82 @@ function removeCronTask (name, cron, opts = {}) {
     REMOVE_CRON_TASKS.push([name, taskOpts])
 }
 
-async function awaitResult (jobId) {
+async function _awaitRemoteTaskResult (jobId) {
     const job = await Queue.Job.fromId(taskQueue, jobId)
     return await job.finished()
+}
+
+async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
+    const job = await taskQueue.add(name, { args: preparedArgs }, preparedOpts)
+
+    return {
+        getState: async () => {
+            return await job.getState()
+        },
+        awaitResult: async () => {
+            return await _awaitRemoteTaskResult(job.id)
+        },
+    }
+}
+
+async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
+    // NOTE: it's just for test purposes
+    // similar to https://docs.celeryproject.org/en/3.1/configuration.html#celery-always-eager
+    console.warn(`ScheduleInProcessTask('${name}', ${JSON.stringify(preparedArgs)}, ${JSON.stringify(preparedOpts)}); // (task options ignored)`)
+
+    const jobId = getRandomString()
+    let error = undefined
+    let result = undefined
+    let status = 'processing'
+    let executor = async function inProcessExecutor () {
+        try {
+            console.info(`ScheduleInProcessTask('${name}', ${JSON.stringify(preparedArgs)}) EXECUTION`)
+            result = await executeTask(name, preparedArgs, { id: jobId })
+            status = 'completed'
+        } catch (e) {
+            console.error('ScheduleInProcessTask() EXCEPTION:', e)
+            status = 'error'
+            error = e
+        }
+    }
+
+    setTimeout(executor, 1)
+
+    return {
+        getState: async () => { return Promise.resolve(status) },
+        awaitResult: async () => {
+            return new Promise((res, rej) => {
+                const handler = setInterval(() => {
+                    console.log(status, result)
+                    if (status === 'completed') {
+                        clearInterval(handler)
+                        res(result)
+                    } else if (status === 'error') {
+                        clearInterval(handler)
+                        rej(error)
+                    }
+                }, 120)
+            })
+        },
+    }
 }
 
 function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
     async function applyAsync (args, taskOptions) {
         if (!isSerializable(args)) throw new Error('arguments is not serializable')
-        if (FAKE_WORKER_MODE) {
-            // NOTE: it's just for test purposes
-            // similar to https://docs.celeryproject.org/en/3.1/configuration.html#celery-always-eager
-            // TODO(pahaz): think about test errors!?
-            console.warn('LocalTaskExecution', name, args, taskOptions, '(task options ignored)')
-            const result = await executeTask(name, createSerializableCopy(args))
-            return {
-                getState: async () => { return Promise.resolve('completed') },
-                awaitResult: async () => { return Promise.resolve(result) },
-            }
-        }
 
-        const job = await taskQueue.add(name, { args: createSerializableCopy([...args]) }, {
+        const preparedArgs =  createSerializableCopy([...args])
+        const preparedOpts = {
             ...globalTaskOptions,
             ...defaultTaskOptions,
             ...taskOptions,
-        })
-
-        return {
-            getState: async () => {
-                return await job.getState()
-            },
-            awaitResult: async () => {
-                return await awaitResult(job.id)
-            },
         }
+
+        if (FAKE_WORKER_MODE) {
+            return await _scheduleInProcessTask(name, preparedArgs, preparedOpts)
+        }
+
+        return await _scheduleRemoteTask(name, preparedArgs, preparedOpts)
     }
 
     async function delay () {

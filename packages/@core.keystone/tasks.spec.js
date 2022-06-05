@@ -1,7 +1,8 @@
 const { createTask, createWorker, taskQueue } = require('./tasks')
 
 async function asyncAddTask (a, b) {
-    return Promise.resolve(a + b)
+    if (b === 0) throw new Error('DivBy0')
+    return Promise.resolve(a / b)
 }
 
 beforeAll(async () => {
@@ -23,21 +24,28 @@ describe('tasks', () => {
 
     test('createTask().delay result', async () => {
         const task = createTask('asyncAddTask2', asyncAddTask)
-        const delayed = await task.delay(33, 44)
+        const delayed = await task.delay(33, 3)
         expect(delayed).toHaveProperty('getState')
         expect(delayed).toHaveProperty('awaitResult')
     })
 
     test('awaitResult', async () => {
         const task = createTask('asyncAddTask3', asyncAddTask, { attempts: 3, backoff: true })
-        const delayed = await task.delay(44, 45)
+        const delayed = await task.delay(44, 2)
         const result = await delayed.awaitResult()
-        expect(result).toEqual(44 + 45)
+        expect(result).toEqual(22)
+    })
+
+    test('awaitResult error', async () => {
+        const task = createTask('asyncAddTask3E', asyncAddTask, { attempts: 1 })
+        const delayed = await task.delay(10, 0)
+        const func = async () => await delayed.awaitResult()
+        await expect(func()).rejects.toThrow('DivBy0')
     })
 
     test('getState', async () => {
         const task = createTask('asyncAddTask4', asyncAddTask)
-        const delayed = await task.delay(44, 45)
+        const delayed = await task.delay(44, 11)
         await delayed.awaitResult()
         const state2 = await delayed.getState()
         expect(state2).toEqual('completed')
@@ -45,7 +53,7 @@ describe('tasks', () => {
 
     test('createTask().applyAsync result', async () => {
         const task = createTask('asyncAddTask5', asyncAddTask)
-        const delayed = await task.applyAsync([33, 44], { attempts: 2, backoff: true })
+        const delayed = await task.applyAsync([333, 3], { attempts: 2, backoff: true })
         expect(delayed).toHaveProperty('getState')
         expect(delayed).toHaveProperty('awaitResult')
     })
