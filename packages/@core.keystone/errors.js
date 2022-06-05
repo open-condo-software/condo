@@ -129,6 +129,7 @@ class GQLError extends ApolloError {
         if (typeof fields.messageForUser !== 'undefined' && typeof fields.messageForUser !== 'string') throw new Error('GQLError: wrong messageForUser argument type! fields.messageForUser should be a string')
         if (typeof fields.messageInterpolation !== 'undefined' && (isEmpty(fields.messageInterpolation) || !isObject(fields.messageInterpolation))) throw new Error('GQLError: wrong messageInterpolation argument type! fields.messageInterpolation should be an object')
         if (typeof fields.correctExample !== 'undefined' && typeof fields.correctExample !== 'string') throw new Error('GQLError: wrong correctExample argument type! fields.correctExample should be a string')
+        if (typeof fields.context !== 'undefined') throw new Error('GQLError: wrong context argument position! You should pass it as the second argument')
         // We need a clone to avoid modification of original errors declaration, that will cause
         // second calling of this constructor to work with changed fields
         const extensions = cloneDeep(fields)
