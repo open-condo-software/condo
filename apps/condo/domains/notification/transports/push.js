@@ -42,6 +42,4 @@ async function send ({ notification, data } = {}) {
 module.exports = {
     prepareMessageToSend,
     send,
-    // NOTE: This forces to run push transport code instead of mocking result even if SEND_TO_CONSOLE is set
-    noSendToConsole: true,
 }
