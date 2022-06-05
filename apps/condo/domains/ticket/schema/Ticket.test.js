@@ -505,7 +505,7 @@ describe('Ticket', () => {
                 canReadByResident: true,
             })
 
-            const [readTicket] = await Ticket.getAll(residentClient1, { })
+            const [readTicket] = await Ticket.getAll(residentClient1, {})
             expect(readTicket.id).toEqual(ticket.id)
 
             const tickets = await Ticket.getAll(residentClient2, {})
@@ -544,13 +544,13 @@ describe('Ticket', () => {
                 canReadByResident: true,
             })
 
-            const [ticketForResidentWithTicket] = await Ticket.getAll(residentWithTicketClient, { })
+            const [ticketForResidentWithTicket] = await Ticket.getAll(residentWithTicketClient, {})
             expect(ticketForResidentWithTicket.id).toEqual(ticket.id)
 
-            const ticketsForResidentFromAnotherProperty = await Ticket.getAll(residentFromAnotherPropertyClient, { })
+            const ticketsForResidentFromAnotherProperty = await Ticket.getAll(residentFromAnotherPropertyClient, {})
             expect(ticketsForResidentFromAnotherProperty).toHaveLength(0)
 
-            const ticketsForResidentFromAnotherUnit = await Ticket.getAll(residentFromAnotherUnitClient, { })
+            const ticketsForResidentFromAnotherUnit = await Ticket.getAll(residentFromAnotherUnitClient, {})
             expect(ticketsForResidentFromAnotherUnit).toHaveLength(0)
         })
 
@@ -589,7 +589,7 @@ describe('Ticket', () => {
                 canReadByResident: true,
             })
 
-            const tickets = await Ticket.getAll(residentClient1, { }, { sortBy: 'createdAt_ASC' })
+            const tickets = await Ticket.getAll(residentClient1, {}, { sortBy: 'createdAt_ASC' })
             expect(tickets).toHaveLength(2)
             expect(tickets[0].id).toMatch(ticket1.id)
             expect(tickets[1].id).toMatch(ticket2.id)
@@ -1137,7 +1137,6 @@ describe('Ticket', () => {
             const tickets = await Ticket.getAll(clientFrom)
             expect(tickets).toHaveLength(0)
         })
-
 
         test('deleted user: cannot read "to" tickets', async () => {
             const admin = await makeLoggedInAdminClient()

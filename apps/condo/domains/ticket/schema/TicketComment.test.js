@@ -995,7 +995,6 @@ describe('TicketComment', () => {
         })
     })
 
-
     describe('notifications', () => {
         it('Checks that resident user receives push notification when employee comments his ticket', async () => {
             const admin = await makeLoggedInAdminClient()
