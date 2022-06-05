@@ -28,6 +28,22 @@ class MyApolloError extends ApolloError {
 }
 
 describe('safeFormatError hide=false', () => {
+    test('safeFormatError(object)', () => {
+        const result = safeFormatError({ message: 'Hello', name: 'No', stack: 'no stack' })
+        expect(result).toEqual({
+            'message': '{ message: \'Hello\', name: \'No\', stack: \'no stack\' }',
+            'name': 'NonError',
+            'stack': expect.stringMatching(/^NonError: { message: 'Hello', name: 'No', stack: 'no stack' }/),
+        })
+    })
+    test('safeFormatError(string)', () => {
+        const result = safeFormatError('developer mistake!')
+        expect(result).toEqual({
+            'message': '\'developer mistake!\'',
+            'name': 'NonError',
+            'stack': expect.stringMatching(/^NonError: 'developer mistake!'/),
+        })
+    })
     test('safeFormatError(new Error)', () => {
         const result = safeFormatError(new Error('Hello'))
         expect(result).toEqual({
