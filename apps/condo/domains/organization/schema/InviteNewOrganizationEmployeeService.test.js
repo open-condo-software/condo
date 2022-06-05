@@ -67,18 +67,13 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     /**
                      * Check that notification about invitation as employee was sent
                      */
-                    const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
-                    const message = await Message.getOne(admin, messageWhere)
-
-                    expect(message.id).toMatch(UUID_RE)
-
                     await waitFor(async () => {
+                        const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
                         const message1 = await Message.getOne(admin, messageWhere)
 
                         expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
                         expect(message1.processingMeta.transport).toEqual(EMAIL_TRANSPORT)
                     })
-
                 })
 
                 it('tries to find employee first by phone first', async () => {
