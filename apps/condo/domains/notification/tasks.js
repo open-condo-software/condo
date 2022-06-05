@@ -4,6 +4,7 @@ const conf = require('@core/config')
 const { createTask } = require('@core/keystone/tasks')
 const { getSchemaCtx } = require('@core/keystone/schema')
 
+const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const { logger } = require('@condo/domains/notification/utils')
 
@@ -52,7 +53,7 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
  * Calculates transport types priority queue for a message according to provided message data,
  * and fallback transports if more prioritized transports fail message delivery.
  * @param message
- * @returns {Promise<*[]>}
+ * @returns {Promise<string[]>}
  * @private
  */
 async function _choseMessageTransport (message) {
@@ -67,6 +68,7 @@ async function _choseMessageTransport (message) {
 
     // if user is provided, we can try to send PUSH notifications wither a priority transport
     // if phone & email are absent, or fallback transport if phone & email are present but fail to deliver message
+    // at the moment we don't want to use fallback!
     if (!isEmpty(user)) {
         transports.push(PUSH_TRANSPORT)
     }
@@ -75,7 +77,7 @@ async function _choseMessageTransport (message) {
     if (!isEmpty(transports)) return transports
 
     // NOTE: none of requirements were met for message state, so we can't send anything anywhere actually.
-    throw new Error(`No appropriate transport found for notification id: ${id}` )
+    throw new Error(`No appropriate transport found for notification id: ${id}`)
 }
 
 /**
@@ -93,13 +95,13 @@ async function deliverMessage (messageId) {
     // Skip messages that are already have been processed
     if (!MESSAGE_SENDING_STATUSES[message.status]) return `already-${message.status}`
 
-    const transports = await _choseMessageTransport(message)
     const baseAttrs = {
-        // TODO(pahaz): it's better to use server side fingerprint?!
         dv: message.dv,
         sender: message.sender,
     }
-    const processingMeta = { dv: 1, transport: transports[0], step: 'init' }
+
+    const transports = await _choseMessageTransport(message)
+    const processingMeta = { dv: 1, transports, step: 'init' }
 
     await Message.update(keystone, message.id, {
         ...baseAttrs,
@@ -110,62 +112,51 @@ async function deliverMessage (messageId) {
         processingMeta,
     })
 
-    const failedMeta = []
+    const transportsMeta = []
+    processingMeta.transportsMeta = transportsMeta
 
     for (const transport of transports) {
+        const transportMeta = { transport }
+        processingMeta.transport = transport
+        transportsMeta.push(transportMeta)
+
         try {
             const adapter = TRANSPORTS[transport]
             // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
             const messageContext = await adapter.prepareMessageToSend(message)
+            processingMeta.messageContext = messageContext
 
             const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext)
+            processingMeta.deliveryMetadata = deliveryMetadata
+            transportMeta.deliveryMetadata = deliveryMetadata
 
             if (isOk) {
-                processingMeta.messageContext = messageContext
-                processingMeta.deliveryMetadata = deliveryMetadata
+                transportMeta.status = MESSAGE_SENT_STATUS
                 processingMeta.step = MESSAGE_SENT_STATUS
-                processingMeta.transport = transport
                 break
             } else {
-                logger.error('Transport send result is not OK. Check deliveryMetadata', deliveryMetadata)
-                failedMeta.push({
-                    error: 'Transport send result is not OK. Check deliveryMetadata',
-                    transport,
-                    messageContext,
-                    deliveryMetadata,
-                })
+                transportMeta.status = MESSAGE_ERROR_STATUS
+                processingMeta.step = MESSAGE_ERROR_STATUS
             }
         } catch (e) {
-            logger.error(e)
-
-            failedMeta.push({ transport, errorStack: e.stack, error: String(e) })
+            transportMeta.status = MESSAGE_ERROR_STATUS
+            transportMeta.exception = safeFormatError(e, false)
+            logger.error({ step: 'deliverMessage()', messageId, transportMeta, transportsMeta, processingMeta })
         }
     }
 
     // message sent either directly or by fallback transport
-    if (processingMeta.step === MESSAGE_SENT_STATUS) {
-        await Message.update(keystone, message.id, {
-            ...baseAttrs,
-            status: MESSAGE_SENT_STATUS,
-            sentAt: new Date().toISOString(),
-            deliveredAt: null,
-            readAt: null,
-            processingMeta: !isEmpty(failedMeta) ? { ...processingMeta, failedMeta } : processingMeta,
-        })
-    } else {
-        await Message.update(keystone, message.id, {
-            ...baseAttrs,
-            status: MESSAGE_ERROR_STATUS,
-            sentAt: null,
-            deliveredAt: null,
-            readAt: null,
-            processingMeta: { ...processingMeta, failedMeta },
-        })
+    const status = (processingMeta.step === MESSAGE_SENT_STATUS) ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+    await Message.update(keystone, message.id, {
+        ...baseAttrs,
+        status,
+        sentAt: (processingMeta.step === MESSAGE_SENT_STATUS) ? new Date().toISOString() : null,
+        deliveredAt: null,
+        readAt: null,
+        processingMeta,
+    })
 
-        throw new Error(processingMeta.error)
-        // TODO(pahaz): need to think about some repeat logic?
-        //  at the moment we just throw the error to worker scheduler!
-    }
+    return status
 }
 
 module.exports = {
