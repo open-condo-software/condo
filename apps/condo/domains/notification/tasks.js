@@ -42,7 +42,7 @@ const MESSAGE_SENDING_STATUSES = {
 }
 
 async function _sendMessageByAdapter (transport, adapter, messageContext) {
-    if (SEND_TO_CONSOLE && !adapter.noSendToConsole) {
+    if (SEND_TO_CONSOLE) {
         if (!DISABLE_LOGGING) console.info(`MESSAGE by ${transport.toUpperCase()} ADAPTER: ${JSON.stringify(messageContext)}`)
 
         return [true, { fakeAdapter: true }]
