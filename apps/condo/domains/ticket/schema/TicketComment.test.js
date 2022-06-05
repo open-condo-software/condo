@@ -996,18 +996,12 @@ describe('TicketComment', () => {
     })
 
     describe('notifications', () => {
-        it('Checks that resident user receives push notification when employee comments his ticket', async () => {
+        it('checks that resident user receives push notification when employee comments his ticket', async () => {
             const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
             const unitName1 = faker.random.alphaNumeric(5)
             const content = faker.lorem.sentence()
-            const randomFakeSuccessPushtoken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
-            const tokenData = { pushToken: randomFakeSuccessPushtoken, pushTransport: PUSH_TRANSPORT_FIREBASE }
-            const payload = getRandomTokenData(tokenData)
-            const [device] = await syncDeviceByTestClient(residentClient, payload)
-
-            expect(device.pushTransport).toEqual(payload.pushTransport)
 
             const [resident] = await createTestResident(admin, residentClient.user, residentClient.organization, residentClient.property, { unitName })
 
@@ -1049,11 +1043,10 @@ describe('TicketComment', () => {
             expect(ticket.client).toEqual(null)
 
             await createTestTicketComment(admin, ticket, userClient.user)
-            await waitFor(async () => {
-                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
-                const messageCount = await Message.count(admin, messageWhere)
-                expect(messageCount).toEqual(0)
-            })
+
+            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+            const messageCount = await Message.count(admin, messageWhere)
+            expect(messageCount).toEqual(0)
         })
 
         it('checks that notifications is not being sent when resident adds comment to ticket', async () => {
@@ -1079,12 +1072,6 @@ describe('TicketComment', () => {
             const residentClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
             const content = faker.lorem.sentence()
-            const randomFakeSuccessPushtoken = `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
-            const tokenData = { pushToken: randomFakeSuccessPushtoken, pushTransport: PUSH_TRANSPORT_FIREBASE }
-            const payload = getRandomTokenData(tokenData)
-            const [device] = await syncDeviceByTestClient(residentClient, payload)
-
-            expect(device.pushTransport).toEqual(payload.pushTransport)
 
             await createTestResident(admin, residentClient.user, residentClient.organization, residentClient.property, { unitName })
 
@@ -1105,7 +1092,7 @@ describe('TicketComment', () => {
             const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
             const messages = await Message.getAll(admin, messageWhere)
 
-            expect(messages.length).toEqual(1)
+            expect(messages).toHaveLength(1)
         })
 
     })
