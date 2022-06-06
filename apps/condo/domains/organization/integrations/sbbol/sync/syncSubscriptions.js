@@ -6,6 +6,8 @@ const { SUBSCRIPTION_TRIAL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/do
 const { dvSenderFields } = require('../constants')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const { getSchemaCtx } = require('@core/keystone/schema')
+const { Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
+
 
 const conf = require('@core/config')
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
@@ -30,14 +32,11 @@ async function stop (subscription, context) {
 const syncSubscriptionsFor = async (advanceAcceptance) => {
     const { payerInn, active } = advanceAcceptance
     const { keystone: context } = await getSchemaCtx('User')
-    // GraphQL from Keystone does not supports querying of database fields of type JSON.
-    const knex = context.adapter.knex
-    const result = await knex('Organization')
-        .whereRaw('tin = ?', [payerInn])
-        .orderBy('createdAt', 'desc')
-        .select('id', 'meta')
 
-    const [organization] = result
+    const [organization] = await OrganizationApi.getAll(context,
+        { tin: payerInn },
+        { sortBy: 'createdAt_DESC' },
+    )
 
     if (!organization) {
         logger.warn({ message: 'Not found organization to sync SBBOL subscriptions for', payerInn })
