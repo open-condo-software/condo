@@ -60,11 +60,27 @@ const EXAMPLE_TOKEN_SET = {
 
 class MockSbbolResponses {
 
-    static getUserInfo () {
-        const inn = faker.datatype.number({
-            min: Math.pow(10, TIN_LENGTH - 1) + 1,
-            max: Math.pow(10, TIN_LENGTH) - 1,
+    static generateInn () {
+        const rnd = () => faker.datatype.number({
+            min: 1,
+            max: 9,
         })
+        const innBase = [rnd(), rnd(), rnd(), rnd(), rnd(), rnd(), rnd(), rnd(), rnd()]
+
+        const RU_TIN_DIGITS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
+        const n = RU_TIN_DIGITS.slice(-10)
+        let sum = 0
+
+        for (let i = 0; i < innBase.length; i++) sum += innBase[i] * n[i]
+
+        const baseRest = sum % 11 % 10
+        innBase.push(baseRest)
+
+        return parseInt(innBase.join(''))
+    }
+
+    static getUserInfo () {
+        const inn = MockSbbolResponses.generateInn()
         return {
             ...EXAMPLE_USER_INFO,
             inn,
