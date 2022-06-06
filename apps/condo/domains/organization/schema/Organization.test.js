@@ -329,31 +329,28 @@ describe('organization TIN: various cases',  () => {
 
     test('admin: create Organization with invalid 10 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { tin: INVALID_RU_TIN_10, country: RUSSIA_COUNTRY })
+        const createOrgAction = async () => {
+            await createTestOrganization(admin, { tin: INVALID_RU_TIN_10, country: RUSSIA_COUNTRY })
+        }
 
-        const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
-
-        expect(organizationData).toHaveLength(1)
-        expect(organizationData[0].tin).toEqual(null)
+        await expect(createOrgAction).rejects.toThrowError('Tin field has not a valid values supplied')
     })
 
     test('admin: create Organization with invalid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { tin: INVALID_RU_TIN_12, country: RUSSIA_COUNTRY })
+        const createOrgAction = async () => {
+            await createTestOrganization(admin, { tin: INVALID_RU_TIN_12, country: RUSSIA_COUNTRY })
+        }
 
-        const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
-
-        expect(organizationData).toHaveLength(1)
-        expect(organizationData[0].tin).toEqual(null)
+        await expect(createOrgAction).rejects.toThrowError('Tin field has not a valid values supplied')
     })
 
     test('admin: create Organization with random letters 10 chars RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { tin: SOME_RANDOM_LETTERS, country: RUSSIA_COUNTRY })
+        const createOrgAction = async () => {
+            await createTestOrganization(admin, { tin: SOME_RANDOM_LETTERS, country: RUSSIA_COUNTRY })
+        }
 
-        const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
-
-        expect(organizationData).toHaveLength(1)
-        expect(organizationData[0].tin).toEqual(null)
+        await expect(createOrgAction).rejects.toThrowError('Tin field has not a valid values supplied')
     })
 })

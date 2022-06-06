@@ -98,7 +98,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
         tin,
         name: faker.company.companyName(),
         description: faker.company.catchPhrase(),
-        country: RUSSIA_COUNTRY,
+        country: DEFAULT_ENGLISH_COUNTRY,
         ...extraAttrs,
     }
     const obj = await Organization.update(client, id, attrs)
