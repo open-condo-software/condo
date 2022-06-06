@@ -8,13 +8,14 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import { Form, Space } from 'antd'
+import { Col, Form, Row, Space } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 import { useApolloClient } from '@core/next/apollo'
 import { get } from 'lodash'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
+import { useLayoutContext } from '../../../common/components/LayoutContext'
 
 dayjs.extend(isToday)
 
@@ -24,6 +25,7 @@ const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
+    const { isSmall } = useLayoutContext()
 
     return (
         <Form.Item noStyle shouldUpdate>
@@ -34,26 +36,29 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
 
                     return (
                         <ActionBar isFormActionBar>
-                            <Space size={12}>
-                                <Button
-                                    key='submit'
-                                    onClick={handleSave}
-                                    type='sberDefaultGradient'
-                                    loading={isLoading}
-                                    disabled={disabledCondition}
-                                    data-cy={'ticket__submit-button'}
-                                >
-                                    {CreateTicketMessage}
-                                </Button>
-                                <ErrorsContainer
-                                    isVisible={disabledCondition}
-                                    property={property}
-                                    details={details}
-                                    placeClassifier={placeClassifier}
-                                    categoryClassifier={categoryClassifier}
-                                    deadline={deadline}
-                                />
-                            </Space>
+                            <Col>
+                                <Row gutter={[0, 24]}>
+                                    <Button
+                                        key='submit'
+                                        onClick={handleSave}
+                                        type='sberDefaultGradient'
+                                        loading={isLoading}
+                                        disabled={disabledCondition}
+                                        data-cy={'ticket__submit-button'}
+                                        style={{ marginRight: '12px' }}
+                                    >
+                                        {CreateTicketMessage}
+                                    </Button>
+                                    <ErrorsContainer
+                                        isVisible={disabledCondition}
+                                        property={property}
+                                        details={details}
+                                        placeClassifier={placeClassifier}
+                                        categoryClassifier={categoryClassifier}
+                                        deadline={deadline}
+                                    />
+                                </Row>
+                            </Col>
                         </ActionBar>
                     )
                 }
