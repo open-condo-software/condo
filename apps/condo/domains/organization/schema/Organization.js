@@ -12,7 +12,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
-const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 
 const access = require('@condo/domains/organization/access/Organization')
@@ -48,6 +48,27 @@ const Organization = new GQLListSchema('Organization', {
             isRequired: false,
             kmigratorOptions: { null: true },
             access: true,
+            hooks: {
+                validateInput: async ({ resolvedData, addFieldValidationError })  => {
+                    const item = resolvedData
+
+                    const country = get(item, 'country')
+                    const tin = get(item, 'tin')
+
+                    if (!country || !tin) {
+                        addFieldValidationError('Country and Tin fields can not be empty')
+                    }
+
+                    // TODO: DOMA-663 add tin validations for countries other than Russian Federation
+                    if (country !== RUSSIA_COUNTRY) {
+                        return
+                    }
+
+                    if (!isValidTin(tin, country)) {
+                        addFieldValidationError('Tin field has not a valid values supplied')
+                    }
+                },
+            },
         },
         description: {
             schemaDoc: 'Customer-friendly description. Friendly text for employee and resident users',
