@@ -48,5 +48,6 @@ jobs:
           export APP_VERSION=$GITHUB_SHA
           export DOKKU_APP_NAME=condo
           ssh root@dev.doma.ai "docker tag apps:condo dokku/${DOKKU_APP_NAME}:${APP_VERSION}"
-          ssh root@dev.doma.ai "dokku tags:deploy ${DOKKU_APP_NAME} ${APP_VERSION}"
+          #ssh root@dev.doma.ai "dokku tags:deploy ${DOKKU_APP_NAME} ${APP_VERSION}"
+          ssh root@dev.doma.ai "dokku git:from-image ${DOKKU_APP_NAME} dokku/${DOKKU_APP_NAME}:${APP_VERSION}"
           ssh root@dev.doma.ai "docker exec -i -u root ${DOKKU_APP_NAME}.web.1 yarn workspace @app/condo migrate"
