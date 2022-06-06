@@ -92,7 +92,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            type: 'input StartConfirmPhoneActionInput { phone: String!, dv:Int!, sender: SenderFieldInput!, captcha: String! }',
+            type: 'input StartConfirmPhoneActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, phone: String! }',
         },
         {
             access: true,
@@ -100,7 +100,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            type: 'input ResendConfirmPhoneActionSmsInput { token: String!, sender: SenderFieldInput!, captcha: String! }',
+            type: 'input ResendConfirmPhoneActionSmsInput { dv: Int, sender: SenderFieldInput!, captcha: String!, token: String! }',
         },
         {
             access: true,
@@ -108,7 +108,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            type: 'input CompleteConfirmPhoneActionInput { token: String!, smsCode: Int!, captcha: String! }',
+            type: 'input CompleteConfirmPhoneActionInput { dv: Int, sender: SenderFieldInput, captcha: String!, token: String!, smsCode: Int! }',
         },
         {
             access: true,
@@ -163,7 +163,8 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 },
             },
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { phone: inputPhone, sender, dv, captcha } = args.data
+                // TODO(DOMA-3209): check dv and sender! and make it required
+                const { phone: inputPhone, sender, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'start_confirm_phone')
                 if (error) {
                     throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'startConfirmPhoneAction', data: { error } }, context)
@@ -183,7 +184,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const smsCodeRequestedAt = new Date(now).toISOString()
                 const smsCodeExpiresAt = new Date(now + SMS_CODE_TTL * 1000).toISOString()
                 const variables = {
-                    dv,
+                    dv: 1,
                     sender,
                     phone,
                     smsCode,
@@ -224,6 +225,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 },
             },
             resolver: async (parent, args, context, info, extra) => {
+                // TODO(DOMA-3209): check dv and sender! and make it required
                 const { token, sender, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'resend_sms')
                 if (error) {
@@ -244,6 +246,8 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const newSmsCode = generateSmsCode(phone)
                 await ConfirmPhoneAction.update(context, id, {
+                    dv: 1,
+                    sender,
                     smsCode: newSmsCode,
                     smsCodeExpiresAt:  new Date(now + SMS_CODE_TTL * 1000).toISOString(),
                     smsCodeRequestedAt: new Date(now).toISOString(),
@@ -257,7 +261,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                         dv: 1,
                         smsCode: newSmsCode,
                     },
-                    sender: sender,
+                    sender,
                 })
                 return { status: 'ok' }
             },
@@ -279,7 +283,8 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 },
             },
             resolver: async (parent, args, context, info, extra) => {
-                const { token, smsCode, captcha } = args.data
+                // TODO(DOMA-3209): check dv and sender! and make it required
+                const { token, smsCode, sender, captcha } = args.data
                 const { error } = await captchaCheck(captcha, 'complete_verify_phone')
                 if (error) {
                     throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'completeConfirmPhoneAction', data: { error } }, context)
@@ -302,17 +307,23 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 }
                 if (retries >= CONFIRM_PHONE_SMS_MAX_RETRIES) {
                     await ConfirmPhoneAction.update(context, id, {
+                        dv: 1,
+                        sender,
                         completedAt: new Date(now).toISOString(),
                     })
                     throw new GQLError(errors.SMS_CODE_MAX_RETRIES_REACHED, context)
                 }
                 if (actionSmsCode !== smsCode) {
                     await ConfirmPhoneAction.update(context, id, {
+                        dv: 1,
+                        sender,
                         retries: retries + 1,
                     })
                     throw new GQLError(errors.SMS_CODE_VERIFICATION_FAILED, context)
                 }
                 await ConfirmPhoneAction.update(context, id, {
+                    dv: 1,
+                    sender,
                     isPhoneVerified: true,
                 })
                 return { status: 'ok' }
