@@ -15,8 +15,6 @@ ALTER TABLE "OrganizationHistoryRecord" ALTER COLUMN "tin" TYPE text USING "tin"
 --
 -- Fill tin field with exists metadata
 --
-UPDATE "Organization" SET "tin" = "meta"::json->>'inn';
-UPDATE "OrganizationHistoryRecord" SET "tin" = "meta"::json->>'inn';
 COMMIT;
 
     `)
