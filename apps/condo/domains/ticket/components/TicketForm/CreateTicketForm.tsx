@@ -15,7 +15,7 @@ import { useApolloClient } from '@core/next/apollo'
 import { get } from 'lodash'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
-import { useLayoutContext } from '../../../common/components/LayoutContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 dayjs.extend(isToday)
 
