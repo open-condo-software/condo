@@ -186,6 +186,7 @@
   "MinutesShort": "${minutes} min.",
   "No": "No",
   "RolesAndAccess": "Roles and accesses",
+  "Help": "Help",
   "Subscription": "Subscription",
   "Yes": "Yes",
   "OneBillingWarning": "Attention! It's impossible to integrate with more than one billing",

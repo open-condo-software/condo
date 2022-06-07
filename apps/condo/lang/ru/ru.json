@@ -186,6 +186,7 @@
   "MinutesShort": "${minutes} мин.",
   "No": "Нет",
   "RolesAndAccess": "Роли и доступы",
+  "Help": "Справка",
   "Subscription": "Подписка",
   "Yes": "Да",
   "OneBillingWarning": "Внимание! Нельзя одновременно интегрироваться более чем с одним биллингом",
