@@ -33,6 +33,7 @@ const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ti
 const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
 const { ExportTicketTask: ExportTicketTaskGQL } = require('@condo/domains/ticket/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { EXCEL, PROCESSING } = require('@condo/domains/common/constants/export')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -630,7 +631,7 @@ async function createTestTicketExportTask (client, user, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestExportTicketTask (client, id, extraAttrs = {}) {
+async function updateTestTicketExportTask (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -702,7 +703,7 @@ module.exports = {
     getTicketAnalyticsReport, getTicketAnalyticsExport,
     TicketPropertyHint, createTestTicketPropertyHint, updateTestTicketPropertyHint,
     TicketPropertyHintProperty, createTestTicketPropertyHintProperty, updateTestTicketPropertyHintProperty,
-    ExportTicketTask, createTestTicketExportTask, updateTestExportTicketTask,
+    ExportTicketTask, createTestTicketExportTask, updateTestTicketExportTask,
     exportTestTicketsToExcel,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
