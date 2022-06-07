@@ -62,6 +62,9 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                     type: RESIDENT,
                     isPhoneVerified: false,
                 }
+                if (!token) {
+                    throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
+                }
                 const action = await ConfirmPhoneAction.getOne(context,
                     {
                         token,
@@ -78,7 +81,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                 }
                 // NOTE(pahaz): it's a time based security issue! You need to use update if the user exists to avoid it.
                 // But, really, we need to have a valid Confirm Phone Token it's a reason why it's not critical
-                let user = await User.getOne(context, { type: RESIDENT, phone: userData.phone })
+                let user = await User.getOne(context, { type: RESIDENT, phone: action.phone })
                 if (!user) {
                     userData.phone = action.phone
                     userData.isPhoneVerified = action.isPhoneVerified
