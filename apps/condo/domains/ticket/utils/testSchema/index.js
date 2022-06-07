@@ -31,6 +31,7 @@ const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ti
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 const { ExportTicketTask: ExportTicketTaskGQL } = require('@condo/domains/ticket/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { EXCEL, PROCESSING } = require('@condo/domains/common/constants/export')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -542,15 +543,20 @@ async function getTicketAnalyticsExport(client, extraAttrs = {}) {
     return [data.result, extraAttrs]
 }
 
-async function createTestExportTicketTask (client, extraAttrs = {}) {
+async function createTestExportTicketTask (client, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestExportTicketTask logic for generate fields
 
     const attrs = {
         dv: 1,
         sender,
+        format: EXCEL,
+        status: PROCESSING,
+        where: {},
+        sortBy: {},
+        locale: 'ru',
+        timeZone: 'Europe/Moscow',
+        user: { connect: { id: user.id } },
         ...extraAttrs,
     }
     const obj = await ExportTicketTask.create(client, attrs)
@@ -561,8 +567,6 @@ async function updateTestExportTicketTask (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestExportTicketTask logic for generate fields
 
     const attrs = {
         dv: 1,
