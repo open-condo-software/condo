@@ -25,7 +25,7 @@ const {
 } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
-const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
+const { PREDICT_TICKET_CLASSIFICATION_QUERY, GET_TICKET_WIDGET_REPORT_DATA } = require('@condo/domains/ticket/gql')
 const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
 const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
@@ -431,6 +431,7 @@ async function predictTicketClassificationByTestClient(client, extraAttrs = {}) 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 async function createTestTicketCommentFile (client, organization, ticket, ticketComment, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
@@ -528,6 +529,18 @@ async function updateTestUserTicketCommentReadTime (client, id, extraAttrs = {})
     return [obj, attrs]
 }
 
+async function getTicketReport(client, periodType = 'calendarWeek', extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const attrs = {
+        periodType,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, { data: attrs })
+    throwIfError(data, errors)
+
+    return [data.result.data, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -568,5 +581,6 @@ module.exports = {
     TicketCommentFile, createTestTicketCommentFile, updateTestTicketCommentFile,
     TicketCommentsTime, createTestTicketCommentsTime, updateTestTicketCommentsTime,
     UserTicketCommentReadTime, createTestUserTicketCommentReadTime, updateTestUserTicketCommentReadTime,
+    getTicketReport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
