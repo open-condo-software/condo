@@ -100,7 +100,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                // TODO(DOMA-3209): check dv! and make it required
+                // TODO(DOMA-3209): check dv, email, phone! and make it required
                 const { confirmPhoneActionToken, dv, phone, email, ...restUserData } = data
                 const userData = {
                     ...restUserData,
