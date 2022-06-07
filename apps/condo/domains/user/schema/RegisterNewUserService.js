@@ -11,6 +11,7 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { GQLError, GQLErrorCode: { NOT_FOUND, BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
 const { NOT_UNIQUE, WRONG_FORMAT, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('../constants/errors')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -99,17 +100,22 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { confirmPhoneActionToken, ...restUserData } = data
+                // TODO(DOMA-3209): check dv! and make it required
+                const { confirmPhoneActionToken, dv, phone, email, ...restUserData } = data
                 const userData = {
                     ...restUserData,
+                    email: normalizeEmail(email),
+                    phone: normalizePhone(phone),
+                    dv: 1,
                     type: STAFF,
                     isPhoneVerified: false,
                 }
-                let confirmPhoneActionId = null
+                let action = null
                 if (confirmPhoneActionToken) {
-                    const action = await ConfirmPhoneAction.getOne(context,
+                    action = await ConfirmPhoneAction.getOne(context,
                         {
                             token: confirmPhoneActionToken,
+                            expiresAt_gte: new Date().toISOString(),
                             completedAt: null,
                             isPhoneVerified: true,
                         }
@@ -117,10 +123,8 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     if (!action) {
                         throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
                     }
-                    confirmPhoneActionId = action.id
-                    const { phone, isPhoneVerified } = action
-                    userData.phone = phone
-                    userData.isPhoneVerified = isPhoneVerified
+                    userData.phone = action.phone
+                    userData.isPhoneVerified = action.isPhoneVerified
                 }
                 if (!normalizePhone(userData.phone)) {
                     throw new GQLError(errors.WRONG_PHONE_FORMAT, context)
@@ -134,8 +138,8 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     throw new GQLError(errors.PASSWORD_IS_TOO_SHORT, context)
                 }
                 const user = await User.create(context, userData)
-                if (confirmPhoneActionToken) {
-                    await ConfirmPhoneAction.update(context, confirmPhoneActionId, { completedAt: new Date().toISOString() })
+                if (action) {
+                    await ConfirmPhoneAction.update(context, action.id, { completedAt: new Date().toISOString() })
                 }
                 const sendChannels = [{
                     to: { phone: userData.phone },
