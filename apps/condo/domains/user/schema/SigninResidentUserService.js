@@ -9,6 +9,7 @@ const { getRandomString } = require('@core/keystone/test.utils')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
 const { TOKEN_NOT_FOUND, UNABLE_TO_CREATE_USER } = require('../constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -58,7 +59,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                 const userData = {
                     dv: 1,
                     sender,
-                    type: 'resident',
+                    type: RESIDENT,
                     isPhoneVerified: false,
                 }
                 const action = await ConfirmPhoneAction.getOne(context,
@@ -75,12 +76,13 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                 if (action.phone !== normalizePhone(action.phone)) {
                     throw new Error('internal error: wrong phone format from ConfirmPhoneAction')
                 }
-                userData.phone = action.phone
-                userData.type = 'resident'
-                userData.isPhoneVerified = true
-                userData.password = getRandomString()
-                let user = await User.getOne(context, { type: 'resident', phone: userData.phone })
+                // NOTE(pahaz): it's a time based security issue! You need to use update if the user exists to avoid it.
+                // But, really, we need to have a valid Confirm Phone Token it's a reason why it's not critical
+                let user = await User.getOne(context, { type: RESIDENT, phone: userData.phone })
                 if (!user) {
+                    userData.phone = action.phone
+                    userData.isPhoneVerified = action.isPhoneVerified
+                    userData.password = getRandomString()
                     user = await User.create(context, userData)
                     if (!user) {
                         throw new GQLError(errors.UNABLE_TO_CREATE_USER, context)
