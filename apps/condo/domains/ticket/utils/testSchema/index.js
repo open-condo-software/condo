@@ -25,7 +25,7 @@ const {
 } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
-const { PREDICT_TICKET_CLASSIFICATION_QUERY, GET_TICKET_WIDGET_REPORT_DATA } = require('@condo/domains/ticket/gql')
+const { PREDICT_TICKET_CLASSIFICATION_QUERY, GET_TICKET_WIDGET_REPORT_DATA, TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } = require('@condo/domains/ticket/gql')
 const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
 const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
@@ -541,6 +541,34 @@ async function getTicketReport(client, periodType = 'calendarWeek', extraAttrs =
     return [data.result.data, attrs]
 }
 
+async function getTicketAnalyticsReport(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const { data, errors } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+        dv: 1,
+        sender,
+        data: extraAttrs,
+    })
+    throwIfError(data, errors)
+
+    return [data.result, extraAttrs]
+}
+
+async function getTicketAnalyticsExport(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const { data, errors } = await client.query(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
+        dv: 1,
+        sender,
+        data: extraAttrs
+    })
+    throwIfError(data, errors)
+
+    return [data.result, extraAttrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -582,5 +610,6 @@ module.exports = {
     TicketCommentsTime, createTestTicketCommentsTime, updateTestTicketCommentsTime,
     UserTicketCommentReadTime, createTestUserTicketCommentReadTime, updateTestUserTicketCommentReadTime,
     getTicketReport,
+    getTicketAnalyticsReport, getTicketAnalyticsExport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
