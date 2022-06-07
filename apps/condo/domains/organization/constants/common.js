@@ -22,6 +22,7 @@ const DEFAULT_ROLES = {
         'canReadPayments': true,
         'canReadBillingReceipts': true,
         'canReadEntitiesOnlyInScopeOfDivision': false,
+        'canManageHelps': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -43,6 +44,7 @@ const DEFAULT_ROLES = {
         'canReadPayments': true,
         'canReadBillingReceipts': true,
         'canReadEntitiesOnlyInScopeOfDivision': false,
+        'canManageHelps': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -64,6 +66,7 @@ const DEFAULT_ROLES = {
         'canReadPayments': false,
         'canReadBillingReceipts': false,
         'canReadEntitiesOnlyInScopeOfDivision': false,
+        'canManageHelps': true,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -85,6 +88,7 @@ const DEFAULT_ROLES = {
         'canReadPayments': false,
         'canReadBillingReceipts': false,
         'canReadEntitiesOnlyInScopeOfDivision': false,
+        'canManageHelps': true,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -106,6 +110,7 @@ const DEFAULT_ROLES = {
         'canReadPayments': false,
         'canReadBillingReceipts': false,
         'canReadEntitiesOnlyInScopeOfDivision': false,
+        'canManageHelps': true,
     },
 }
 module.exports = {

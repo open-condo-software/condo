@@ -91,6 +91,7 @@ registerSchemas(keystone, [
     require('@condo/domains/subscription/schema'),
     require('@condo/domains/acquiring/schema'),
     require('@condo/domains/miniapp/schema'),
+    require('@condo/domains/help/schema'),
 ], [schemaDocPreprocessor])
 
 if (!IS_BUILD_PHASE) {

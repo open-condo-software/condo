@@ -11335,6 +11335,405 @@ export type GetPhoneByConfirmPhoneActionTokenOutput = {
   isPhoneVerified: Scalars['Boolean'];
 };
 
+/**  Help information related to a property or group of properties  */
+export type Help = {
+  __typename?: 'Help';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the Help List config, or
+   *  2. As an alias to the field set on 'labelField' in the Help List config, or
+   *  3. As an alias to a 'name' field on the Help List (if one exists), or
+   *  4. As an alias to the 'id' field on the Help List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Help name, for example LCD name  */
+  name?: Maybe<Scalars['String']>;
+  /**  Properties to which this help applies  */
+  properties: Array<Property>;
+  _propertiesMeta?: Maybe<_QueryMeta>;
+  /**  Help information related to a property or group of properties  */
+  content?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+
+/**  Help information related to a property or group of properties  */
+export type HelpPropertiesArgs = {
+  where?: Maybe<PropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  Help information related to a property or group of properties  */
+export type Help_PropertiesMetaArgs = {
+  where?: Maybe<PropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+export type HelpCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  name?: Maybe<Scalars['String']>;
+  properties?: Maybe<PropertyRelateToManyInput>;
+  content?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type HelpHistoryRecord = {
+  __typename?: 'HelpHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the HelpHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the HelpHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the HelpHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the HelpHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  content?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<HelpHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type HelpHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  content?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<HelpHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum HelpHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type HelpHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  content?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<HelpHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type HelpHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<HelpHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<HelpHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  content?: Maybe<Scalars['JSON']>;
+  content_not?: Maybe<Scalars['JSON']>;
+  content_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  content_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<HelpHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<HelpHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<HelpHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<HelpHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type HelpHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type HelpHistoryRecordsCreateInput = {
+  data?: Maybe<HelpHistoryRecordCreateInput>;
+};
+
+export type HelpHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<HelpHistoryRecordUpdateInput>;
+};
+
+export type HelpUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  name?: Maybe<Scalars['String']>;
+  properties?: Maybe<PropertyRelateToManyInput>;
+  content?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type HelpWhereInput = {
+  AND?: Maybe<Array<Maybe<HelpWhereInput>>>;
+  OR?: Maybe<Array<Maybe<HelpWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  /**  condition must be true for all nodes  */
+  properties_every?: Maybe<PropertyWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  properties_some?: Maybe<PropertyWhereInput>;
+  /**  condition must be false for all nodes  */
+  properties_none?: Maybe<PropertyWhereInput>;
+  content?: Maybe<Scalars['String']>;
+  content_not?: Maybe<Scalars['String']>;
+  content_contains?: Maybe<Scalars['String']>;
+  content_not_contains?: Maybe<Scalars['String']>;
+  content_starts_with?: Maybe<Scalars['String']>;
+  content_not_starts_with?: Maybe<Scalars['String']>;
+  content_ends_with?: Maybe<Scalars['String']>;
+  content_not_ends_with?: Maybe<Scalars['String']>;
+  content_i?: Maybe<Scalars['String']>;
+  content_not_i?: Maybe<Scalars['String']>;
+  content_contains_i?: Maybe<Scalars['String']>;
+  content_not_contains_i?: Maybe<Scalars['String']>;
+  content_starts_with_i?: Maybe<Scalars['String']>;
+  content_not_starts_with_i?: Maybe<Scalars['String']>;
+  content_ends_with_i?: Maybe<Scalars['String']>;
+  content_not_ends_with_i?: Maybe<Scalars['String']>;
+  content_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  content_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type HelpWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type HelpsCreateInput = {
+  data?: Maybe<HelpCreateInput>;
+};
+
+export type HelpsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<HelpUpdateInput>;
+};
+
 export type InviteNewOrganizationEmployeeInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -16679,6 +17078,30 @@ export type Mutation = {
   deleteB2BAppAccessRight?: Maybe<B2BAppAccessRight>;
   /**  Delete multiple B2BAppAccessRight items by ID.  */
   deleteB2BAppAccessRights?: Maybe<Array<Maybe<B2BAppAccessRight>>>;
+  /**  Create a single HelpHistoryRecord item.  */
+  createHelpHistoryRecord?: Maybe<HelpHistoryRecord>;
+  /**  Create multiple HelpHistoryRecord items.  */
+  createHelpHistoryRecords?: Maybe<Array<Maybe<HelpHistoryRecord>>>;
+  /**  Update a single HelpHistoryRecord item by ID.  */
+  updateHelpHistoryRecord?: Maybe<HelpHistoryRecord>;
+  /**  Update multiple HelpHistoryRecord items by ID.  */
+  updateHelpHistoryRecords?: Maybe<Array<Maybe<HelpHistoryRecord>>>;
+  /**  Delete a single HelpHistoryRecord item by ID.  */
+  deleteHelpHistoryRecord?: Maybe<HelpHistoryRecord>;
+  /**  Delete multiple HelpHistoryRecord items by ID.  */
+  deleteHelpHistoryRecords?: Maybe<Array<Maybe<HelpHistoryRecord>>>;
+  /**  Create a single Help item.  */
+  createHelp?: Maybe<Help>;
+  /**  Create multiple Help items.  */
+  createHelps?: Maybe<Array<Maybe<Help>>>;
+  /**  Update a single Help item by ID.  */
+  updateHelp?: Maybe<Help>;
+  /**  Update multiple Help items by ID.  */
+  updateHelps?: Maybe<Array<Maybe<Help>>>;
+  /**  Delete a single Help item by ID.  */
+  deleteHelp?: Maybe<Help>;
+  /**  Delete multiple Help items by ID.  */
+  deleteHelps?: Maybe<Array<Maybe<Help>>>;
   /**
    * Registers new user and sends notification
    *
@@ -17069,6 +17492,17 @@ export type Mutation = {
    *   ],
    *   "messageForUser": "api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
    * }`
+   *
+   * `{
+   *   "mutation": "changePhoneNumberResidentUser",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
+   * }`
    */
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
   /**
@@ -17191,6 +17625,17 @@ export type Mutation = {
    *   "type": "UNABLE_TO_REGISTER_USER",
    *   "message": "Unable to register user",
    *   "messageForUser": "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER"
+   * }`
+   *
+   * `{
+   *   "mutation": "inviteNewOrganizationEmployee",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
    * }`
    */
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -21596,6 +22041,68 @@ export type MutationDeleteB2BAppAccessRightArgs = {
 
 
 export type MutationDeleteB2BAppAccessRightsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateHelpHistoryRecordArgs = {
+  data?: Maybe<HelpHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateHelpHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<HelpHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateHelpHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<HelpHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateHelpHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<HelpHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteHelpHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteHelpHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateHelpArgs = {
+  data?: Maybe<HelpCreateInput>;
+};
+
+
+export type MutationCreateHelpsArgs = {
+  data?: Maybe<Array<Maybe<HelpsCreateInput>>>;
+};
+
+
+export type MutationUpdateHelpArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<HelpUpdateInput>;
+};
+
+
+export type MutationUpdateHelpsArgs = {
+  data?: Maybe<Array<Maybe<HelpsUpdateInput>>>;
+};
+
+
+export type MutationDeleteHelpArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteHelpsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -27413,6 +27920,22 @@ export type Query = {
   _allB2BAppAccessRightsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the B2BAppAccessRight list.  */
   _B2BAppAccessRightsMeta?: Maybe<_ListMeta>;
+  /**  Search for all HelpHistoryRecord items which match the where clause.  */
+  allHelpHistoryRecords?: Maybe<Array<Maybe<HelpHistoryRecord>>>;
+  /**  Search for the HelpHistoryRecord item with the matching ID.  */
+  HelpHistoryRecord?: Maybe<HelpHistoryRecord>;
+  /**  Perform a meta-query on all HelpHistoryRecord items which match the where clause.  */
+  _allHelpHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the HelpHistoryRecord list.  */
+  _HelpHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all Help items which match the where clause.  */
+  allHelps?: Maybe<Array<Maybe<Help>>>;
+  /**  Search for the Help item with the matching ID.  */
+  Help?: Maybe<Help>;
+  /**  Perform a meta-query on all Help items which match the where clause.  */
+  _allHelpsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the Help list.  */
+  _HelpsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   /**
@@ -30465,6 +30988,56 @@ export type Query_AllB2BAppAccessRightsMetaArgs = {
   where?: Maybe<B2BAppAccessRightWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortB2BAppAccessRightsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllHelpHistoryRecordsArgs = {
+  where?: Maybe<HelpHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortHelpHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryHelpHistoryRecordArgs = {
+  where: HelpHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllHelpHistoryRecordsMetaArgs = {
+  where?: Maybe<HelpHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortHelpHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllHelpsArgs = {
+  where?: Maybe<HelpWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortHelpsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryHelpArgs = {
+  where: HelpWhereUniqueInput;
+};
+
+
+export type Query_AllHelpsMetaArgs = {
+  where?: Maybe<HelpWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortHelpsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -34379,6 +34952,54 @@ export enum SortForgotPasswordActionsBy {
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortHelpHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortHelpsBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  PropertiesAsc = 'properties_ASC',
+  PropertiesDesc = 'properties_DESC',
+  ContentAsc = 'content_ASC',
+  ContentDesc = 'content_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortMessageHistoryRecordsBy {
