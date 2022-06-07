@@ -25678,6 +25678,7 @@ export type OrganizationEmployeeRole = {
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   /**  Limits the visibility of entities (such as ticket or meter/meterReading) to division  */
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
+  canManageHelps?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25711,6 +25712,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
+  canManageHelps?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25752,6 +25754,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
+  canManageHelps?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25787,6 +25790,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
+  canManageHelps?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25827,6 +25831,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
+  canManageHelps?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25930,6 +25935,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canBeAssignedAsExecutor_not?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision_not?: Maybe<Scalars['Boolean']>;
+  canManageHelps?: Maybe<Scalars['Boolean']>;
+  canManageHelps_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -26027,6 +26034,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
+  canManageHelps?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26121,6 +26129,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canBeAssignedAsExecutor_not?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision_not?: Maybe<Scalars['Boolean']>;
+  canManageHelps?: Maybe<Scalars['Boolean']>;
+  canManageHelps_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -38102,6 +38112,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanBeAssignedAsExecutorDesc = 'canBeAssignedAsExecutor_DESC',
   CanReadEntitiesOnlyInScopeOfDivisionAsc = 'canReadEntitiesOnlyInScopeOfDivision_ASC',
   CanReadEntitiesOnlyInScopeOfDivisionDesc = 'canReadEntitiesOnlyInScopeOfDivision_DESC',
+  CanManageHelpsAsc = 'canManageHelps_ASC',
+  CanManageHelpsDesc = 'canManageHelps_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -38159,6 +38171,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanBeAssignedAsExecutorDesc = 'canBeAssignedAsExecutor_DESC',
   CanReadEntitiesOnlyInScopeOfDivisionAsc = 'canReadEntitiesOnlyInScopeOfDivision_ASC',
   CanReadEntitiesOnlyInScopeOfDivisionDesc = 'canReadEntitiesOnlyInScopeOfDivision_DESC',
+  CanManageHelpsAsc = 'canManageHelps_ASC',
+  CanManageHelpsDesc = 'canManageHelps_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
