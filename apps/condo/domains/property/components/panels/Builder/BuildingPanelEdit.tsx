@@ -61,12 +61,12 @@ const TopRowCss = css`
     background-color: transparent;
     color: black;
     font-weight: 600;
-    height: 40px;
+    height: 48px;
   }
   & .ant-select.ant-select-single .ant-select-selection-search-input,
   & .ant-select.ant-select-single .ant-select-selector .ant-select-selection-item {
-    height: 40px;
-    line-height: 40px;
+    height: 48px;
+    line-height: 48px;
   }
   & .ant-select.ant-select-single .ant-select-arrow {
     color: black;
@@ -159,8 +159,14 @@ const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible,
     </TopModal>
 )
 
-const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { marginTop: '28px', paddingLeft: '8px' }
-const UNIT_TYPE_COL_STYLE: React.CSSProperties = { backgroundColor: colors.backgroundLightGrey, opacity: 0.9 }
+const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { marginTop: '8px' }
+const UNIT_TYPE_COL_STYLE: React.CSSProperties = {
+    backgroundColor: colors.backgroundLightGrey,
+    opacity: 0.94,
+    borderRadius: '8px',
+    paddingLeft: '8px',
+    paddingRight: '8px',
+}
 const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
@@ -334,8 +340,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 </Row>
                 <Row
                     style={UNIT_TYPE_ROW_STYLE}
-
-                    hidden={mapEdit.viewMode === MapViewMode.parking}
+                    hidden={mapEdit.viewMode === MapViewMode.parking || isSmall}
                 >
                     <Col flex={0} style={UNIT_TYPE_COL_STYLE}>
                         <Row gutter={UNIT_TYPE_ROW_GUTTER}>
@@ -432,6 +437,7 @@ const CHESS_SCROLL_HOLDER_STYLE: React.CSSProperties = {
 const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
     width: '100%',
     height: 'calc(100vh - 150px)',
+    paddingTop: '24px',
     paddingBottom: '8px',
     display: 'flex',
     alignItems: 'center',

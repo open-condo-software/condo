@@ -300,6 +300,7 @@ export const UnitTypeLegendItem = styled.div<{ unitType: BuildingUnitSubType }>`
     display: inline-block;
     width: 20px;
     height: 20px;
+    border-radius: 4px;
     margin-right: 5px;
     background-color: ${({ unitType }) => UNIT_TYPE_COLOR_SET[unitType]};
   }
