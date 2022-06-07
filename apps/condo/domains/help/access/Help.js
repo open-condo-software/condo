@@ -26,19 +26,23 @@ async function canReadHelps ({ authentication: { item: user } }) {
 async function canManageHelps ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
-    let organizationId
+    let helpOrganizationId
 
     if (operation === 'create') {
-        organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        helpOrganizationId = get(originalInput, ['organization', 'connect', 'id'])
     } else if (operation === 'update') {
         if (!itemId) return false
-        const ticket = await getById('Help', itemId)
-        organizationId = get(ticket, 'organization', null)
+        helpOrganizationId = get(originalInput, ['organization', 'connect', 'id'])
+
+        if (!helpOrganizationId) {
+            const help = await getById('Help', itemId)
+            helpOrganizationId = get(help, 'organization', null)
+        }
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageHelps')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, helpOrganizationId, 'canManageHelps')
 }
 
 /*
