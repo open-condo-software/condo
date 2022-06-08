@@ -12,17 +12,11 @@ const { exportTickets } = require('./exportTicketsTask')
 const { createTestExportTicketTask, ExportTicketTask } = require('../utils/testSchema')
 const { PROCESSING, EXCEL } = require('@condo/domains/common/constants/export')
 
-let keystone
+const index = require('../../../index')
 
 describe('exportTicketsTask', () => {
     describe('exportTickets', () => {
-        setFakeClientMode(require('../../../index'))
-
-        beforeAll(async () => {
-            console.log('> beforeAll')
-            const result = await prepareKeystoneExpressApp(require('../../../index'))
-            keystone = result.keystone
-        })
+        setFakeClientMode(index)
 
         it('exports tickets selected by filters specified in provided id of ExportTicketsTask record', async () => {
             console.log('> start')
