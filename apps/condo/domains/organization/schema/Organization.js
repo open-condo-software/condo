@@ -78,19 +78,19 @@ const Organization = new GQLListSchema('Organization', {
                 'Examples of data keys: `inn`, `kpp`',
             type: Json,
             isRequired: true,
-            access: userAccess.canAccessToStaffUserField,
         },
         employees: {
             type: Relationship,
             ref: 'OrganizationEmployee.organization',
             many: true,
-            access: userAccess.canAccessToStaffUserField,
+            access: access.canAccessOnlyAdminField,
         },
         relatedOrganizations: {
             type: Relationship,
             ref: 'OrganizationLink.to',
             many: true,
-            access: userAccess.canAccessToStaffUserField,
+            // TODO(DOMA-3216): we need to change it to access.canAccessOnlyAdminField! (you can read it at the moment)
+            access: userAccess.canAccessToIsAdminField,
         },
         statusTransitions: {
             schemaDoc: 'Graph of possible transitions for statuses. If there is no transition in this graph, ' +
