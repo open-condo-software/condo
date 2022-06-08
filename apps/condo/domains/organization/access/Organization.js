@@ -71,6 +71,13 @@ const canAccessToImportField = {
     create: access.userIsAdmin,
     update: access.userIsAdmin,
 }
+
+const canAccessOnlyAdminField = {
+    read: access.userIsAdmin,
+    create: access.userIsAdmin,
+    update: access.userIsAdmin,
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -79,4 +86,5 @@ module.exports = {
     canReadOrganizations,
     canManageOrganizations,
     canAccessToImportField,
+    canAccessOnlyAdminField,
 }
