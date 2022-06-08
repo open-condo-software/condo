@@ -11,9 +11,10 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, tracked, softDeleted, uuided } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { DV_UNKNOWN_VERSION_ERROR, EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
-const { hasDbFields, hasOneOfFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
+const { hasDbFields, hasOneOfFields } = require('@condo/domains/common/utils/validation.utils')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
     schemaDoc: 'B2B customer employees',
@@ -121,7 +122,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             defaultValue: false,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadOrganizationEmployees,
         create: access.canManageOrganizationEmployees,
@@ -131,15 +132,8 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, addValidationError, context }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             if (!hasDbFields(['organization'], resolvedData, existingItem, context, addValidationError)) return
             if (!hasOneOfFields(['email', 'name', 'phone'], resolvedData, existingItem, addValidationError)) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
-            }
         },
     },
 })
