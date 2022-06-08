@@ -11,6 +11,9 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
+const { find } = require('@core/keystone/schema')
+const { UNIQUE_ALREADY_EXISTS_ERROR } = require(
+    '@condo/domains/common/constants/errors')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { validateReport } = require('@condo/domains/billing/utils/validation.utils')
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
@@ -85,6 +88,22 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
         update: access.canManageBillingIntegrationOrganizationContexts,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        validateInput: async ({ operation, resolvedData, addValidationError }) => {
+            // should have only one explicit (hidden = false) context in organization!
+            if (operation === 'create') {
+                const contextsInThisOrganization = await find('BillingIntegrationOrganizationContext', {
+                    integration: { isHidden: false },
+                    organization: { id: resolvedData.organization },
+                    deletedAt: null,
+                })
+
+                if (contextsInThisOrganization.length > 0) {
+                    addValidationError('Can\'t create two BillingIntegrationOrganizationContexts in same organization!')
+                }
+            }
+        },
     },
 })
 
