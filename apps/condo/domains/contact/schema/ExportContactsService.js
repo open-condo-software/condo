@@ -61,7 +61,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
                         email: contact.email,
                     }
                 })
-                const linkToFile = await createExportFile({
+                const { url: linkToFile } = await createExportFile({
                     fileName: `contacts_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: CONTACTS_EXPORT_TEMPLATE_PATH,
                     replaces: {
