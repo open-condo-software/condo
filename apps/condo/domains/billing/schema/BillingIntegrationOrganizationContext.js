@@ -3,6 +3,7 @@
  */
 
 const { Relationship } = require('@keystonejs/fields')
+const { get } = require('lodash')
 
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
@@ -11,7 +12,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
-const { find } = require('@core/keystone/schema')
+const { find, getById } = require('@core/keystone/schema')
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require(
     '@condo/domains/common/constants/errors')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
@@ -93,9 +94,12 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
         validateInput: async ({ operation, resolvedData, addValidationError }) => {
             // should have only one explicit (hidden = false) context in organization!
             if (operation === 'create') {
+                const integration = await getById('BillingIntegration', get(resolvedData, ['integration']))
+                if (get(integration, 'isHidden') === true) { return } // we can add as many b2c integrations as we like
+
                 const contextsInThisOrganization = await find('BillingIntegrationOrganizationContext', {
                     integration: { isHidden: false },
-                    organization: { id: resolvedData.organization },
+                    organization: { id: get(resolvedData, 'organization') },
                     deletedAt: null,
                 })
 
