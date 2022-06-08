@@ -29,6 +29,7 @@ const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
 const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
+const { TicketHint: TicketHintGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -49,6 +50,7 @@ const TicketFilterTemplate = generateGQLTestUtils(TicketFilterTemplateGQL)
 const TicketCommentFile = generateGQLTestUtils(TicketCommentFileGQL)
 const TicketCommentsTime = generateGQLTestUtils(TicketCommentsTimeGQL)
 const UserTicketCommentReadTime = generateGQLTestUtils(UserTicketCommentReadTimeGQL)
+const TicketHint = generateGQLTestUtils(TicketHintGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -539,6 +541,36 @@ async function getTicketAnalyticsExport(client, extraAttrs = {}) {
     return [data.result, extraAttrs]
 }
 
+async function createTestTicketHint (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        content: extraAttrs.content || faker.random.alphaNumeric(5),
+        ...extraAttrs,
+    }
+    const obj = await TicketHint.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketHint (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketHint.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -580,5 +612,6 @@ module.exports = {
     UserTicketCommentReadTime, createTestUserTicketCommentReadTime, updateTestUserTicketCommentReadTime,
     getTicketReport,
     getTicketAnalyticsReport, getTicketAnalyticsExport,
+    TicketHint, createTestTicketHint, updateTestTicketHint,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
