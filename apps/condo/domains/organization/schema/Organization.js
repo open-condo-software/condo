@@ -77,7 +77,7 @@ const Organization = new GQLListSchema('Organization', {
             schemaDoc: 'Organization metadata. Depends on country level specific' +
                 'Examples of data keys: `inn`, `kpp`',
             type: Json,
-            isRequired: true,
+            isRequired: false,
         },
         employees: {
             type: Relationship,
