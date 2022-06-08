@@ -170,6 +170,7 @@ const saveToFile = async ({ rows, task, idOfFirstTicketForAccessRights }) => {
 }
 
 const exportTickets = async (taskId) => {
+    if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = await getSchemaCtx('ExportTicketTask')
 
     const task = await ExportTicketTask.getOne(context, { id: taskId })
