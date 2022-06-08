@@ -19,13 +19,13 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import { Col, Row } from 'antd'
+import { Col, Row, Modal, Typography} from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
@@ -53,6 +53,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     const filtersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const startDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const endDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
+    const confirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
 
     const { isSmall } = useLayoutContext()
     const router = useRouter()
@@ -73,7 +74,19 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     const appliedFiltersCount = Object.keys(filters).length
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
 
-    const tableColumns = usePaymentsTableColumns(currencyCode)
+    const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
+    const [titleStatusDescModal, setTitleStatusDescModal] = useState('')
+    const [textStatusDescModal, setTextStatusDescModal] = useState('')
+    const openStatusDescModal = (statusType) => {
+        const titleModal = intl.formatMessage({ id: 'payment.status.description.title.' + statusType })
+        const textModal = intl.formatMessage({ id: 'payment.status.description.text.' + statusType })
+
+        setTitleStatusDescModal(titleModal)
+        setTextStatusDescModal(textModal)
+        setIsStatusDescModalVisible(true)
+    }
+
+    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal)
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
     const queryMetas = usePaymentsTableFilters(billingContext, organizationId)
@@ -201,6 +214,27 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                     disabled={count < 1}
                 />
             </Row>
+
+            <Modal
+                visible={isStatusDescModalVisible}
+                onCancel={() => setIsStatusDescModalVisible(false)}
+                title={titleStatusDescModal}
+                centered
+                footer={[
+                    <Button
+                        key={'close'}
+                        type={'sberDefaultGradient'}
+                        onClick={() => setIsStatusDescModalVisible(false)}
+                    >
+                        {confirmTitle}
+                    </Button>,
+                ]}
+            >
+                <Typography.Text type={'secondary'}>
+                    {textStatusDescModal}
+                </Typography.Text>
+            </Modal>
+
             <MultipleFiltersModal/>
         </>
     )
