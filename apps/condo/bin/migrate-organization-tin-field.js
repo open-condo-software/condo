@@ -5,8 +5,6 @@
  *      yarn workspace @app/condo node bin/migrate-organization-tin-field
  */
 
-const dayjs = require('dayjs')
-
 const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { migrateOrganizationTinField } = require('@condo/domains/organization/tasks/migrateOrganizationTinField')
