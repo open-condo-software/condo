@@ -1,11 +1,16 @@
-import { getDateRender, getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
+import {
+    getDateRender,
+    getMoneyRender,
+    getStatusRender,
+    getTextRender,
+} from '@condo/domains/common/components/Table/Renders'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@core/next/intl'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
-export function usePaymentsTableColumns (currencyCode: string): Record<string, unknown>[] {
+export function usePaymentsTableColumns (currencyCode: string, openStatusDescModal): Record<string, unknown>[] {
     const intl = useIntl()
     const router = useRouter()
 
@@ -16,6 +21,7 @@ export function usePaymentsTableColumns (currencyCode: string): Record<string, u
     const typeTitle = intl.formatMessage({ id: 'PaymentType' })
     const transactionTitle = intl.formatMessage({ id: 'Transaction' })
     const paymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
+    const statusTitle = intl.formatMessage({ id: 'Status' })
 
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
@@ -73,6 +79,12 @@ export function usePaymentsTableColumns (currencyCode: string): Record<string, u
                 key: 'transaction',
                 dataIndex: ['multiPayment', 'transactionId'],
                 render: stringSearch,
+            },
+            status: {
+                title: statusTitle,
+                key: 'status',
+                dataIndex: 'status',
+                render: getStatusRender(intl, openStatusDescModal, search),
             },
             amount: {
                 title: paymentAmountTitle,

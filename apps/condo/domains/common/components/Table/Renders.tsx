@@ -27,6 +27,10 @@ const ELLIPSIS_SETTINGS = { rows: ELLIPSIS_ROWS, expandable: false }
 const ELLIPSIS_STYLES = { marginBottom: 0 }
 const DATE_FORMAT = 'DD.MM.YYYY'
 const TIME_FORMAT = 'HH:mm'
+const STATUS_STYLES = {
+    'WITHDRAWN': 'warning',
+    'DONE': 'success',
+}
 
 /**
  * Marks text according to marked flag
@@ -220,5 +224,19 @@ export const getMoneyRender = (
         return formattedParts.map((part, index) => {
             return ['fraction', 'decimal'].includes(part.type) ? dimText(part.value, index) : part.value
         })
+    }
+}
+
+export const getStatusRender = (intl, openStatusDescModal, search?: FilterValue | string) => {
+    return function render (statusType: string): RenderReturnType {
+        const nameStatus = intl.formatMessage({ id: 'payment.status.' + statusType })
+
+        const extraProps: Partial<TTextHighlighterProps> = { type: STATUS_STYLES[statusType] }
+
+        return (
+            <div onClick={() => openStatusDescModal(statusType)}>
+                {getTableCellRenderer(search, false, null, extraProps)(nameStatus)}
+            </div>
+        )
     }
 }
