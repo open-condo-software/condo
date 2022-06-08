@@ -65,7 +65,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
                         ticketsInWork: property.ticketsInWork,
                     }
                 })
-                const linkToFile = await createExportFile({
+                const { url: linkToFile } = await createExportFile({
                     fileName: `properties_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: './domains/property/templates/PropertiesExportTemplate.xlsx',
                     replaces: {
