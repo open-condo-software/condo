@@ -27,7 +27,7 @@ ALTER TABLE "UserHistoryRecord" ADD COLUMN "isActive" boolean NULL;
 --
 -- Remove field isActive from user
 --
-ALTER TABLE "User" ADD COLUMN "isActive" boolean NOT NULL;
+ALTER TABLE "User" ADD COLUMN "isActive" boolean NOT NULL default true;
 COMMIT;
 
     `)
