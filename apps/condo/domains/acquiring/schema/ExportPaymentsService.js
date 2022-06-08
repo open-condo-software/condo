@@ -72,7 +72,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                     }
                 })
 
-                const linkToFile = await createExportFile({
+                const { url: linkToFile } = await createExportFile({
                     fileName: `payments_${dayjs().format('DD_MM')}.xlsx`,
                     templatePath: './domains/acquiring/templates/PaymentsExportTemplate.xlsx',
                     replaces: {

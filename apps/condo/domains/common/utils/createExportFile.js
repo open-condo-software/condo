@@ -23,7 +23,7 @@ async function createExportFile ({ fileName, templatePath, replaces, meta }) {
     const id = uuid()
     // TODO(zuch): add mime types and encoding detector from template
     // mimetype: 'application/vnd.oasis.opendocument.spreadsheet', - for ods
-    const { filename } = await ExportFileAdapter.save({
+    const fileInfo = await ExportFileAdapter.save({
         stream: buffer,
         id,
         filename: fileName,
@@ -31,8 +31,9 @@ async function createExportFile ({ fileName, templatePath, replaces, meta }) {
         mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         encoding: 'UTF-8',
     })
-    const link = ExportFileAdapter.publicUrl({ filename })
-    return link
+    const { filename } = fileInfo
+    const url = ExportFileAdapter.publicUrl({ filename })
+    return { url, fileInfo }
 }
 
 module.exports = {
