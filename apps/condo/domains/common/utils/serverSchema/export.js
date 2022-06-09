@@ -1,3 +1,5 @@
+const fs = require('fs')
+const fetch = require('node-fetch')
 const { EXPORT_PROCESSING_BATCH_SIZE } = require('../../constants/export')
 const { COMPLETED } = require('@condo/domains/common/constants/export')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
@@ -76,7 +78,13 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
     return rows
 }
 
-const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow, saveToFile, task, taskServerUtils }) => (
+// TODO(antonal): figure out how to pass on server side correct storage-agnostic `Upload` GraphQL input to let `File` Keystone field do it's job for saving file and storing value to database `file` column
+// Maybe it should be similar to how `MultipleFileUpload` component works
+const convertContentToGQLUploadInput = ({ content, meta }) => {
+
+}
+
+const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow, buildExportFile, task, taskServerUtils }) => (
     loadRecordsAndConvertToFileRows({
         context,
         loadRecordsBatch,
@@ -84,15 +92,15 @@ const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow
         task,
         taskServerUtils,
     })
-        .then(saveToFile)
-        .then(url => (
-            taskServerUtils.update(context, task.id, {
+        .then(buildExportFile)
+        .then(async ({ content, filename, meta }) => {
+            return taskServerUtils.update(context, task.id, {
                 dv: 1,
                 sender: task.sender,
                 status: COMPLETED,
-                file: url,
+                file: convertContentToGQLUploadInput({ content, filename, meta }),
             })
-        ))
+        })
 )
 
 module.exports = {
