@@ -623,6 +623,7 @@
   "pages.condo.meter.EndDate": "Конечная дата",
   "pages.condo.meter.EnterMeterNumber": "Ввести номер",
   "pages.condo.meter.EnterPlace": "Ввести место установки прибора",
+  "pages.condo.settings.help.createTicketHint": "Создать справку",
   "pages.index.PageTitle": "Аналитика",
   "pages.organizations.CreateOrganizationMessage": "Давайте создадим вашу управляющую компанию",
   "pages.condo.analytics.index.PageTitle": "Аналитика",

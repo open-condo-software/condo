@@ -119,7 +119,7 @@ const SettingsPage = () => {
                                 tab={<SettingsTab title={RolesAndAccessesTitle} />}
                             />
                             <Tabs.TabPane
-                                key="help"
+                                key="hint"
                                 tab={<SettingsTab title={HintTitle} />}
                             >
                                 <TicketHintSettings />
