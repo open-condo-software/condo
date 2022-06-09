@@ -3,98 +3,88 @@
  *
  */
 
-let totalRequests = 0
-let cachedRequests = 0
-
 const express = require('express')
 const { get } = require('lodash')
 
+let totalRequests = 0
+let cacheHits = 0
+
 class AdapterCacheMiddleware {
+
+    // table_name -> queryKey -> { response, lastUpdate}
     cache = {}
 
+    // Should be saved in Redis!
+    // table_name -> lastUpdate (of this table)
+    state = {}
+
     prepareMiddleware ({ keystone, dev, distDir }) {
-        return express()
+        initAdapterCache(keystone, this.cache, this.state)
     }
 }
 
-const generateRequestKey = (gqlName, args) => (
-    `${gqlName}-${JSON.stringify(args)}`
-)
+const UPDATED_AT = 'updatedAt'
 
-const getRequestIdFromContext = (context) => {
-    return get(context, ['req', 'headers', 'x-request-id'], null)
-}
+const initAdapterCache = (keystone, state, cache) => {
+    const adapter = keystone.adapter
 
-const patchMutation = (mutationContext, mutation, isUpdateMutation, cache) => {
-    return async (data, context, mutationState) => {
-        let requestId
-        if (isUpdateMutation) {
-            requestId = getRequestIdFromContext(mutationState)
-        } else {
-            requestId = getRequestIdFromContext(context)
+    const listAdapters = Object.values(adapter.listAdapters)
+    listAdapters.forEach(adapter => {
+
+        const listName = adapter.key
+        state[listName] = ''
+        cache[listName] = {}
+
+        const originalItemsQuery = adapter._itemsQuery
+        adapter._itemsQuery = async ( args, opts ) => {
+            
+            totalRequests++
+            
+            const key = JSON.stringify(args)
+
+            let response = undefined
+            const cached = cache[listName][key]
+            const tableLastUpdate = state[listName]
+
+            if (cached) {
+                const cacheLastUpdate = cached.lastUpdate
+                if (cacheLastUpdate === tableLastUpdate && tableLastUpdate !== '') {
+                    cacheHits++
+                    console.log(`ADAPTER CACHE: ${cacheHits}/${totalRequests}`)
+                    return cache.response
+                }
+            } 
+
+            response = await originalItemsQuery.apply(adapter, [args, opts] )
+            cache[listName][key] = {
+                lastUpdate: tableLastUpdate,
+                response: response,
+            }
+
+            console.log(`ADAPTER CACHE: ${cacheHits}/${totalRequests}`)
+            return response
         }
-        if (requestId) { delete cache[requestId] }
-        return await mutation.call(mutationContext, data, context,
-            mutationState)
-    }
-}
 
-const patchQuery = (queryContext, query, cache) => {
-    return async function (args, context, gqlName, info, from) {
-        let key = null
-        const requestId = getRequestIdFromContext(context)
-
-        totalRequests++
-
-        if (requestId) {
-            key = generateRequestKey(gqlName, args)
-
-            if (!(requestId in cache)) {
-                cache[requestId] = {}
-            }
-
-            // Drop the key, if the operation type is mutation
-            const operationType = get(info, ['operation', 'operation'])
-            if (operationType !== 'query') {
-                delete cache[requestId][key]
-            }
-
-            if (key in cache[requestId]) {
-                cachedRequests++
-                return cache[requestId][key]
-            }
+        const originalUpdate = adapter._update
+        adapter._update = async ( id, data ) => {
+            const updateResult = await originalUpdate.apply(adapter, [id, data] )
+            state[listName] = updateResult[UPDATED_AT]
+            return updateResult
         }
-        const listResult = await query.call(queryContext, args, context, gqlName, info, from)
 
-        if (requestId && key) { cache[requestId][key] = listResult }
+        const originalCreate = adapter._create
+        adapter._create = async ( data ) => {
+            const createResult = await originalCreate.apply(adapter, [data] )
+            state[listName] = createResult[UPDATED_AT]
+            return createResult
+        }
 
-        console.log(`${cachedRequests}/${totalRequests}`)
-
-        return listResult
-    }
-}
-
-const initCache = (keystone, cache) => {
-
-    const originalCreateList = keystone.createList
-
-    keystone.createList = async (...args) => {
-        const list = originalCreateList.apply(keystone, args)
-
-        list.createMutation = patchMutation(list, list.createMutation, false, cache)
-        list.createManyMutation = patchMutation(list, list.createManyMutation, false, cache)
-
-        list.updateMutation = patchMutation(list, list.updateMutation, true, cache)
-        list.updateManyMutation = patchMutation(list, list.updateManyMutation, true, cache)
-
-        list.deleteMutation = patchMutation(list, list.deleteMutation, true, cache)
-        list.deleteManyMutation = patchMutation(list, list.deleteManyMutation, true, cache)
-
-        list.listQuery = patchQuery(list, list.listQuery, cache)
-        list.itemQuery = patchQuery(list, list.itemQuery, cache)
-
-        return list
-    }
+        // const originalDelete = adapter._delete
+        // adapter._delete = async ( id ) => {
+        //     const x = 20
+        //     return await originalDelete.apply(adapter, [id])
+        // }
+    })
 }
 
 module.exports = {
