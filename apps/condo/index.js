@@ -22,7 +22,7 @@ const { hasValidJsonStructure } = require('@condo/domains/common/utils/validatio
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { AdapterCacheMiddleware } = require('@core/keystone/adapterCache')
-const { KeystoneCacheMiddleware } = require('@core/keystone/cache')
+const { KeystoneCacheMiddleware, initCache } = require('@core/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { GraphQLLoggerApp } = require('@condo/domains/common/utils/GraphQLLoggerApp')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
@@ -72,6 +72,9 @@ const keystone = new Keystone({
         }
     },
 })
+
+const cache = {}
+initCache(keystone, cache)
 
 // Because Babel is used only for frontend to transpile and optimise code,
 // backend files will bring unnecessary workload to building stage.
@@ -131,7 +134,6 @@ class SberBuisnessOnlineMiddleware {
         return app
     }
 }
-
 
 module.exports = {
     keystone,

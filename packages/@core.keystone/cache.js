@@ -30,6 +30,9 @@
  *
  */
 
+let totalRequests = 0
+let cachedRequests = 0
+
 const express = require('express')
 const { get } = require('lodash')
 
@@ -81,6 +84,8 @@ const patchQuery = (queryContext, query, cache) => {
         let key = null
         const requestId = getRequestIdFromContext(context)
 
+        totalRequests++
+
         if (requestId) {
             key = generateRequestKey(gqlName, args)
 
@@ -95,12 +100,15 @@ const patchQuery = (queryContext, query, cache) => {
             }
 
             if (key in cache[requestId]) {
+                cachedRequests++
                 return cache[requestId][key]
             }
         }
         const listResult = await query.call(queryContext, args, context, gqlName, info, from)
 
         if (requestId && key) { cache[requestId][key] = listResult }
+
+        console.info(`${cachedRequests}/${totalRequests}`)
 
         return listResult
     }
@@ -131,5 +139,6 @@ const initCache = (keystone, cache) => {
 
 module.exports = {
     KeystoneCacheMiddleware,
+    initCache,
 }
 
