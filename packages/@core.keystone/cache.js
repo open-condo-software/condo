@@ -34,7 +34,14 @@ const express = require('express')
 const { get } = require('lodash')
 
 class KeystoneCacheMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+
+    constructor (keystone) {
+        this.cache = {}
+
+        initCache(keystone, this.cache)
+    }
+
+    prepareMiddleware () {
         // Add a middleware which resets cache after end of each request to avoid memory leak errors
         const app = express()
         app.use((req, res, next) => {
