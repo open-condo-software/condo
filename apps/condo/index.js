@@ -21,7 +21,7 @@ const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatte
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { KeystoneCacheMiddleware } = require('@core/keystone/cache')
+const { KeystoneCacheMiddleware, initCache } = require('@core/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { GraphQLLoggerApp } = require('@condo/domains/common/utils/GraphQLLoggerApp')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
@@ -70,6 +70,9 @@ const keystone = new Keystone({
         }
     },
 })
+
+const cache = {}
+initCache(keystone, {})
 
 // Because Babel is used only for frontend to transpile and optimise code,
 // backend files will bring unnecessary workload to building stage.
