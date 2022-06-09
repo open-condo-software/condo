@@ -325,6 +325,7 @@
   "pages.condo.payments.billingAddress": "Billing address",
   "pages.condo.payments.enterBillingAddress": "Enter billing address",
   "pages.condo.payments.type": "Type",
+  "pages.condo.payments.TotalSum": "Total (per period)",
   "pages.condo.payments.enterType": "Enter type name",
   "pages.condo.payments.enterStatus": "Enter status",
   "pages.condo.property.EmptyBuildingBlock.view.EmptyBuildingDescription": "Map creation may be done by two ways:\nmanually by filling some property parameters or ",

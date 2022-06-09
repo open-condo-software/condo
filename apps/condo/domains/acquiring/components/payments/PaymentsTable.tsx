@@ -1,6 +1,7 @@
 import { FilterFilled } from '@ant-design/icons'
 import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
+import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
@@ -19,21 +20,24 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import { Col, Row, Modal, Typography} from 'antd'
+import { Col, Row, Modal, Space, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
+import { getMoneyRender } from '../../../common/components/Table/Renders'
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
+const DEFAULT_CURRENCY_CODE = 'RUB'
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 const DEFAULT_DATE_RANGE_STR: [string, string] = [String(DEFAULT_DATE_RANGE[0]), String(DEFAULT_DATE_RANGE[1])]
 
-const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
+const ROW_GUTTER: [Gutter, Gutter] = [0, 30]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
+const SUM_BAR_COL_GUTTER: [Gutter, Gutter] = [40, 0]
 const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
 
 /**
@@ -47,6 +51,34 @@ interface IPaymentsTableProps {
     contextsLoading: boolean,
 }
 
+interface IPaymentsSumInfoProps {
+    title: string
+    message: string
+    currencyCode: string
+    type?:  'success' | 'warning'
+}
+
+const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
+    title,
+    message,
+    currencyCode = DEFAULT_CURRENCY_CODE,
+    type,
+}) => {
+    const intl = useIntl()
+
+    return (
+        <Space direction={'horizontal'} size={10}>
+            <Typography.Text type={'secondary'}>{title}</Typography.Text>
+            <Typography.Text
+                {...{ type }}
+                strong={true}
+            >
+                {getMoneyRender(intl, currencyCode)(message)}
+            </Typography.Text>
+        </Space>
+    )
+}
+
 const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contextsLoading }): JSX.Element => {
     const intl = useIntl()
     const searchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -54,6 +86,9 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     const startDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const endDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const confirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
+    const totalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
+    const doneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
+    const withdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
 
     const { isSmall } = useLayoutContext()
     const router = useRouter()
@@ -195,6 +230,36 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                             </Col>
                         </Row>
                     </TableFiltersContainer>
+                </Col>
+
+                <Col span={24}>
+                    <PaymentsSumTable>
+                        <Row justify="center" gutter={SUM_BAR_COL_GUTTER}>
+                            <Col>
+                                <PaymentsSumInfo
+                                    title={totalsSumTitle}
+                                    message={'69815.00'}
+                                    currencyCode={currencyCode}
+                                />
+                            </Col>
+                            <Col>
+                                <PaymentsSumInfo
+                                    title={doneSumTitle}
+                                    message={'69815.00'}
+                                    currencyCode={currencyCode}
+                                    type={'success'}
+                                />
+                            </Col>
+                            <Col>
+                                <PaymentsSumInfo
+                                    title={withdrawnSumTitle}
+                                    message={'0.00'}
+                                    currencyCode={currencyCode}
+                                    type={'warning'}
+                                />
+                            </Col>
+                        </Row>
+                    </PaymentsSumTable>
                 </Col>
 
                 <Col span={24}>

@@ -208,7 +208,7 @@ export const renderMeterReading = (values: string[], resourceId: string, measure
 }
 
 const dimText = (text: string, index: number) => (
-    <Typography.Text type={'secondary'} key={index}>
+    <Typography.Text style={{ color: 'inherit' }} key={index}>
         {text}
     </Typography.Text>
 )
