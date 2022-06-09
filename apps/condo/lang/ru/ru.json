@@ -327,6 +327,7 @@
   "pages.condo.payments.enterBillingAddress": "Укажите платежный адрес",
   "pages.condo.payments.type": "Тип",
   "pages.condo.payments.enterType": "Введите название типа",
+  "pages.condo.payments.enterStatus": "Укажите статус",
   "pages.condo.property.EmptyBuildingBlock.view.EmptyBuildingDescription": "Построить шахматку можно двумя способами:\nвручную, заполнив несколько параметров о доме или ",
   "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingDescription": "Она в верхнем правом углу\nДальше - все интуитивно-понятно \uD83D\uDE0A",
   "pages.condo.property.EmptyBuildingBlock.view.CreateMapTitle": "Создать вручную",
