@@ -1,7 +1,8 @@
+import { DatabaseFilled, PlusCircleOutlined } from '@ant-design/icons'
 import { Col, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { useIntl } from '@core/next/intl'
 
@@ -14,9 +15,10 @@ import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useOrganization } from '@core/next/organization'
 import { SortTicketHintsBy, SortTicketsBy } from '../../../../schema'
+import ActionBar from '../../../common/components/ActionBar'
+import { Button } from '../../../common/components/Button'
 import { useQueryMappers } from '../../../common/hooks/useQueryMappers'
 
-import { EXPORT_TICKETS_TO_EXCEL } from '../../gql'
 import { useTicketHintsTableColumns } from '../../hooks/useTicketHintsTableColumns'
 import { useTicketHintsTableFilters } from '../../hooks/useTicketHintsTableFilters'
 import { TicketHint } from '../../utils/clientSchema'
@@ -29,12 +31,13 @@ export const SettingsContent = () => {
     const intl = useIntl()
     const TicketHintTitle = intl.formatMessage({ id: 'Hint' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const CreateHintMessage = intl.formatMessage({ id: 'pages.condo.settings.help.createTicketHint' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     
     const [search, handleSearchChange] = useSearch<IFilters>(false)
-    const { isSmall, shouldTableScroll } = useLayoutContext()
+    const { shouldTableScroll } = useLayoutContext()
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
@@ -58,6 +61,10 @@ export const SettingsContent = () => {
     })
 
     const tableColumns = useTicketHintsTableColumns(filterMetas)
+
+    const handleAddHintButtonClick = useCallback(async () => {
+        await router.push('/settings/hint/create')
+    }, [router])
 
     return (
         <Row gutter={[0, 40]}>
@@ -90,14 +97,17 @@ export const SettingsContent = () => {
                     data-cy={'ticketHint__table'}
                 />
             </Col>
-            {/*<Col>*/}
-            {/*    <ExportToExcelActionBar*/}
-            {/*        hidden={isSmall}*/}
-            {/*        searchObjectsQuery={searchTicketHintsQuery}*/}
-            {/*        sortBy={sortBy}*/}
-            {/*        exportToExcelQuery={EXPORT_TICKETS_TO_EXCEL}*/}
-            {/*    />*/}
-            {/*</Col>*/}
+            <Col span={24}>
+                <ActionBar>
+                    <Button
+                        type={'sberDefaultGradient'}
+                        icon={<PlusCircleOutlined/>}
+                        onClick={handleAddHintButtonClick}
+                    >
+                        {CreateHintMessage}
+                    </Button>
+                </ActionBar>
+            </Col>
         </Row>
     )
 }

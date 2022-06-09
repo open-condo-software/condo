@@ -623,6 +623,7 @@
   "pages.condo.meter.EndDate": "End date",
   "pages.condo.meter.EnterMeterNumber": "Enter number",
   "pages.condo.meter.EnterPlace": "Enter place",
+  "pages.condo.settings.help.createTicketHint": "Create ticket hint",
   "pages.index.PageTitle": "Analytics",
   "pages.organizations.CreateOrganizationMessage": "Creating new organization",
   "pages.condo.analytics.index.PageTitle": "Analytics",
