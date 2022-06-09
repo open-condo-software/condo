@@ -9,7 +9,7 @@ import {
     FilterComponentSize,
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
-import { BuildingUnitSubType, MeterReadingWhereInput } from '@app/condo/schema'
+import { BuildingUnitSubType, TicketWhereInput } from '@app/condo/schema'
 import {
     getDayRangeFilter,
     getFilter,
@@ -54,7 +54,7 @@ const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
 
-export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
+export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' }).toLowerCase()
