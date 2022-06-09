@@ -21,6 +21,7 @@ const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatte
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { AdapterCacheMiddleware } = require('@core/keystone/adapterCache')
 const { KeystoneCacheMiddleware } = require('@core/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { GraphQLLoggerApp } = require('@condo/domains/common/utils/GraphQLLoggerApp')
@@ -31,6 +32,7 @@ const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABL
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const IS_ENABLE_CACHE = conf.ENABLE_CACHE === '1'
+const IS_ENABLE_ADAPTER_CACHE = conf.ENABLE_ADAPTER_CACHE === '1'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_ON_WORKER = conf.PHASE === 'worker'
 
@@ -137,6 +139,7 @@ module.exports = {
         new GraphQLLoggerApp(),
         new OIDCMiddleware(),
         IS_ENABLE_CACHE ? new KeystoneCacheMiddleware() : undefined,
+        IS_ENABLE_ADAPTER_CACHE ? new AdapterCacheMiddleware() : undefined,
         new GraphQLApp({
             apollo: {
                 formatError,
