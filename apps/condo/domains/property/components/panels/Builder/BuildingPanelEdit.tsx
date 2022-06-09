@@ -46,6 +46,7 @@ import {
 
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapViewMode } from './MapConstructor'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 
 const { Option } = Select
 
@@ -725,6 +726,7 @@ interface IPropertyMapModalForm {
 const MODAL_FORM_ROW_GUTTER: RowProps['gutter'] = [0, 24]
 const MODAL_FORM_ROW_BUTTONS_GUTTER: RowProps['gutter'] = [0, 16]
 const MODAL_FORM_BUTTON_STYLE: React.CSSProperties = { marginTop: '12px' }
+const MODAL_FORM_CHECKBOX_STYLE: React.CSSProperties = { marginTop: '20px' }
 
 const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
@@ -895,7 +897,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 }
 
 const IS_NUMERIC_REGEXP = /^\d+$/
-const BUTTON_SPACE_SIZE = 40
+const BUTTON_SPACE_SIZE = 28
 
 const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
@@ -906,6 +908,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -914,6 +917,8 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
 
     const [sections, setSections] = useState([])
     const [floors, setFloors] = useState([])
+
+    const renameNextUnits = useRef(true)
 
     const updateSection = (value) => {
         setSection(value)
@@ -959,13 +964,15 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
         setSection('')
     }, [])
 
+    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
+
     const applyChanges = useCallback(() => {
         const mapUnit = builder.getSelectedUnit()
         if (mapUnit) {
-            builder.updateUnit({ ...mapUnit, label, floor, section, unitType })
+            builder.updateUnit({ ...mapUnit, label, floor, section, unitType }, renameNextUnits.current)
         } else {
             builder.removePreviewUnit()
-            builder.addUnit({ id: '', label, floor, section, unitType })
+            builder.addUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
             resetForm()
         }
         refresh()
@@ -973,7 +980,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedUnit()
-        builder.removeUnit(mapUnit.id, IS_NUMERIC_REGEXP.test(mapUnit.label))
+        builder.removeUnit(mapUnit.id, IS_NUMERIC_REGEXP.test(mapUnit.label) || renameNextUnits.current)
         refresh()
         resetForm()
     }, [resetForm, refresh, builder])
@@ -1025,6 +1032,9 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                                 return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
                             })}
                         </Select>
+                        <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
+                            {RenameNextUnitsLabel}
+                        </Checkbox>
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
@@ -1054,7 +1064,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     )
 }
 
-const MODAL_FORM_EDIT_GUTTER: RowProps['gutter'] = [0, 40]
+const MODAL_FORM_EDIT_GUTTER: RowProps['gutter'] = [0, 28]
 const MODAL_FORM_BUTTON_GUTTER: RowProps['gutter'] = [0, 16]
 
 const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
@@ -1063,8 +1073,10 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
 
     const [name, setName] = useState<string>('')
+    const renameNextUnits = useRef(true)
 
     const section = builder.getSelectedSection()
 
@@ -1073,6 +1085,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [section])
 
     const setNameValue = useCallback((value) => setName(value ? value.toString() : ''), [])
+    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
 
     const updateSection = useCallback(() => {
         builder.updateSection({ ...section, name })
@@ -1080,7 +1093,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [builder, refresh, name, section])
 
     const deleteSection = useCallback(() => {
-        builder.removeSection(section.id)
+        builder.removeSection(section.id, renameNextUnits.current)
         refresh()
     }, [builder, refresh, section])
 
@@ -1097,6 +1110,9 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         style={INPUT_STYLE}
                     />
                 </Space>
+                <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
+                    {RenameNextUnitsLabel}
+                </Checkbox>
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
                 <Col span={24}>
@@ -1283,13 +1299,15 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.numberOfParkingSection' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
 
     const [parkingName, setParkingName] = useState<string>('')
+    const renameNextUnits = useRef(true)
 
     const parkingSection = builder.getSelectedParking()
 
     const deleteParking = useCallback(() => {
-        builder.removeParking(parkingSection.id)
+        builder.removeParking(parkingSection.id, renameNextUnits.current)
         refresh()
     }, [builder, refresh, parkingSection])
 
@@ -1299,6 +1317,7 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [builder, refresh, parkingName, parkingSection])
 
     const setParkingNameValue = useCallback((value) => setParkingName(value ? value.toString() : ''), [])
+    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
 
     useEffect(() => {
         setParkingName(parkingSection ? parkingSection.name : '')
@@ -1316,6 +1335,9 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         style={INPUT_STYLE}
                     />
                 </Space>
+                <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
+                    {RenameNextUnitsLabel}
+                </Checkbox>
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
                 <Col span={24}>
@@ -1352,6 +1374,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.parkingSection.name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -1359,6 +1382,8 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const [sections, setSections] = useState([])
     const [floors, setFloors] = useState([])
+
+    const renameNextUnits = useRef(true)
 
     const updateSection = (value) => {
         setSection(value)
@@ -1403,13 +1428,15 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         setSection('')
     }, [])
 
+    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
+
     const applyChanges = useCallback(() => {
         const mapUnit = builder.getSelectedParkingUnit()
         if (mapUnit) {
-            builder.updateParkingUnit({ ...mapUnit, label, floor, section })
+            builder.updateParkingUnit({ ...mapUnit, label, floor, section }, renameNextUnits.current)
         } else {
             builder.removePreviewParkingUnit()
-            builder.addParkingUnit({ id: '', label, floor, section })
+            builder.addParkingUnit({ id: '', label, floor, section }, renameNextUnits.current)
             resetForm()
         }
         refresh()
@@ -1417,7 +1444,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedParkingUnit()
-        builder.removeParkingUnit(mapUnit.id, IS_NUMERIC_REGEXP.test(mapUnit.label))
+        builder.removeParkingUnit(mapUnit.id, IS_NUMERIC_REGEXP.test(mapUnit.label) || renameNextUnits.current)
         refresh()
         resetForm()
     }, [resetForm, refresh, builder])
@@ -1449,6 +1476,9 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     <Space direction={'vertical'} size={8}>
                         <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
                         <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
+                        <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
+                            {RenameNextUnitsLabel}
+                        </Checkbox>
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
@@ -1486,6 +1516,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.parkingSection.name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
 
     const [sections, setSections] = useState([])
     const [section, setSection] = useState<number | null>(null)
@@ -1494,9 +1525,11 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const [floor, setFloor] = useState<string>('')
 
     const maxFloor = useRef<number>(0)
+    const renameNextUnits = useRef(true)
 
     const setFloorNumber = useCallback((value) => setFloor(value ? value.toString() : ''), [])
     const setUnitsOnFloorNumber = useCallback((value) => setUnitsOnFloor(value ? value.toString() : ''), [])
+    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
     const applyChanges = useCallback(() => {
         if (floor !== '' && section !== null && unitsOnFloor > 0) {
             builder.addSectionFloor({
@@ -1504,7 +1537,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 index: Number(floor),
                 unitType,
                 unitCount: Number(unitsOnFloor),
-            })
+            }, renameNextUnits.current)
         }
         refresh()
 
@@ -1591,6 +1624,9 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                             type={'number'}
                             min={1}
                         />
+                        <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
+                            {RenameNextUnitsLabel}
+                        </Checkbox>
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
