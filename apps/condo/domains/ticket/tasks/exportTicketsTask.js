@@ -6,7 +6,7 @@ const { createTask } = require('@core/keystone/tasks')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const { loadTicketsBatchForExcelExport, loadTicketCommentsForExcelExport, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
-const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
+const { createExportFile, buildExportFile: _buildExportFile } = require('@condo/domains/common/utils/createExportFile')
 const dayjs = require('dayjs')
 const {
     getHeadersTranslations,
@@ -129,7 +129,7 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses }) => {
     }
 }
 
-const saveToFile = async ({ rows, task, idOfFirstTicketForAccessRights }) => {
+const buildExportFile = async ({ rows, task, idOfFirstTicketForAccessRights }) => {
     const { where, timeZone, locale } = task
     const createdAtGte = get(findAllByKey(where, 'createdAt_gte'), 0)
     const createdAtLte = get(findAllByKey(where, 'createdAt_lte'), 0)
@@ -143,8 +143,7 @@ const saveToFile = async ({ rows, task, idOfFirstTicketForAccessRights }) => {
 
     const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
 
-    await createExportFile({
-        fileName: `tickets_${dayjs().format('DD_MM')}.xlsx`,
+    const { meta, content } = await _buildExportFile({
         templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
         replaces: {
             header: headerMessage,
@@ -167,6 +166,8 @@ const saveToFile = async ({ rows, task, idOfFirstTicketForAccessRights }) => {
             id: idOfFirstTicketForAccessRights,
         },
     })
+    const filename = `tickets_${dayjs().format('DD_MM')}.xlsx`
+    return { content, filename, meta }
 }
 
 const exportTickets = async (taskId) => {
@@ -190,7 +191,7 @@ const exportTickets = async (taskId) => {
             return tickets
         },
         convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses }),
-        saveToFile: (rows) => saveToFile({ rows, task, idOfFirstTicketForAccessRights }),
+        buildExportFile: (rows) => buildExportFile({ rows, task, idOfFirstTicketForAccessRights }),
         task,
         taskServerUtils: ExportTicketTask,
     })
