@@ -6,10 +6,6 @@
  * Requirements:
  * 1. Every request should have x-request-id. If it doesn't have it -- this request will not use cache
  *
- * Installation:
- * 1. Have a custom keystone server
- * 2. Add a middleware KeystoneLevelCache(cache) before keystone AdminApp or GraphQL app
- *
  * How it works:
  *                           -> [GQL Request] -> [DB]
  * [HTTP Request] -> [Cache] -> [GQL Request] -> [DB]
