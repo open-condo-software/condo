@@ -31,7 +31,7 @@ export const SettingsContent = () => {
     const intl = useIntl()
     const TicketHintTitle = intl.formatMessage({ id: 'Hint' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const CreateHintMessage = intl.formatMessage({ id: 'pages.condo.settings.help.createTicketHint' })
+    const CreateHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.createTicketHint' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -66,6 +66,14 @@ export const SettingsContent = () => {
         await router.push('/settings/hint/create')
     }, [router])
 
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: async () => {
+                await router.push(`/settings/hint/${record.id}/`)
+            },
+        }
+    }, [router])
+
     return (
         <Row gutter={[0, 40]}>
             <Col span={24}>
@@ -92,6 +100,7 @@ export const SettingsContent = () => {
                     scroll={getTableScrollConfig(shouldTableScroll)}
                     totalRows={total}
                     loading={isTicketHintsFetching}
+                    onRow={handleRowAction}
                     dataSource={ticketHints}
                     columns={tableColumns}
                     data-cy={'ticketHint__table'}

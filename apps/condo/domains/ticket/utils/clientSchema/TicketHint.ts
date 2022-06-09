@@ -52,6 +52,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
 } = generateReactHooks<TicketHint, TicketHintUpdateInput, ITicketHintFormState, ITicketHintUIState, QueryAllTicketHintsArgs>(TicketHintGQL, { convertToGQLInput, convertToUIState })
 
 export {
@@ -60,5 +61,6 @@ export {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
     convertToUIFormState,
 }
