@@ -11,7 +11,8 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name type } updatedBy { id name } createdAt updatedAt'
 
 const THREE_LVL_CLASSIFIER_FIELDS = 'placeClassifier { id name } categoryClassifier { id name } problemClassifier { id name } classifierRule { id }'
-const TICKET_FIELDS = `{ canReadByResident reviewValue reviewComment deadline organization { id name } property { id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone } operator { id name } assignee { id name } executor { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid isWarranty meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
+const TICKET_PROPERTY_FIELDS = `id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }`
+const TICKET_FIELDS = `{ canReadByResident reviewValue reviewComment deadline organization { id name } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone } operator { id name } assignee { id name } executor { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid isWarranty meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name nameNonLocalized colors { primary secondary additional } ${COMMON_FIELDS} }`
@@ -177,7 +178,7 @@ const TicketCommentsTime = generateGqlQueries('TicketCommentsTime', TICKET_COMME
 const USER_TICKET_COMMENT_READ_TIME_FIELDS = `{ user { id } ticket { id } readResidentCommentAt readCommentAt ${COMMON_FIELDS} }`
 const UserTicketCommentReadTime = generateGqlQueries('UserTicketCommentReadTime', USER_TICKET_COMMENT_READ_TIME_FIELDS)
 
-const TICKET_HINT_FIELDS = `{ organization { id } name properties { id } content ${COMMON_FIELDS} }`
+const TICKET_HINT_FIELDS = `{ organization { id } name properties { ${TICKET_PROPERTY_FIELDS} } content ${COMMON_FIELDS} }`
 const TicketHint = generateGqlQueries('TicketHint', TICKET_HINT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

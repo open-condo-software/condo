@@ -1,7 +1,9 @@
+import { FilterFilled } from '@ant-design/icons'
+import { jsx } from '@emotion/core'
 import React, { useMemo } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { Typography, Tabs, Tooltip, Col } from 'antd'
+import { Typography, Tabs, Col, Row } from 'antd'
 import styled from '@emotion/styled'
 
 import { useIntl } from '@core/next/intl'
@@ -14,6 +16,8 @@ import { shadows, colors, fontSizes } from '@condo/domains/common/constants/styl
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 import { StarIcon } from '@condo/domains/common/components/icons/Star'
+import { SettingsContent as TicketHintSettings } from '@condo/domains/ticket/components/TicketHint/SettingsContent'
+import { TablePageContent } from '../../domains/common/components/containers/BaseLayout/BaseLayout'
 
 const ALWAYS_AVAILABLE_TABS = []
 
@@ -23,6 +27,7 @@ const SettingsTabs = styled(Tabs)`
   }
   
   & > .ant-tabs-nav {
+    margin-left: 72px;
     width: 280px;
     padding: 20px;
     border-radius: 8px;
@@ -58,7 +63,7 @@ const SettingsPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'menu.Settings' })
     const RolesAndAccessesTitle = intl.formatMessage({ id: 'RolesAndAccess' })
-    const HelpTitle = intl.formatMessage({ id: 'Help' })
+    const HintTitle = intl.formatMessage({ id: 'Hint' })
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
@@ -89,38 +94,38 @@ const SettingsPage = () => {
             <PageWrapper>
                 <OrganizationRequired>
                     <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
-                    <PageContent>
-                        <Col lg={20} xs={24}>
-                            <SettingsTabs
-                                tabPosition={'right'}
-                                type={'card'}
-                                defaultActiveKey={defaultTab}
-                                activeKey={defaultTab}
-                                tabBarGutter={8}
-                                style={{ overflow: 'visible' }}
-                                onChange={handleTabChange}
+                    <TablePageContent>
+                        <SettingsTabs
+                            tabPosition={'right'}
+                            type={'card'}
+                            defaultActiveKey={defaultTab}
+                            activeKey={defaultTab}
+                            tabBarGutter={8}
+                            style={{ overflow: 'visible' }}
+                            onChange={handleTabChange}
+                        >
+                            {
+                                hasSubscriptionFeature && (
+                                    <Tabs.TabPane
+                                        key="subscription"
+                                        tab={<SettingsTab title={SubscriptionTitle} />}
+                                    >
+                                        <SubscriptionPane/>
+                                    </Tabs.TabPane>
+                                )
+                            }
+                            <Tabs.TabPane
+                                key="rolesAndAccess"
+                                tab={<SettingsTab title={RolesAndAccessesTitle} />}
+                            />
+                            <Tabs.TabPane
+                                key="help"
+                                tab={<SettingsTab title={HintTitle} />}
                             >
-                                {
-                                    hasSubscriptionFeature && (
-                                        <Tabs.TabPane
-                                            key="subscription"
-                                            tab={<SettingsTab title={SubscriptionTitle} />}
-                                        >
-                                            <SubscriptionPane/>
-                                        </Tabs.TabPane>
-                                    )
-                                }
-                                <Tabs.TabPane
-                                    key="rolesAndAccess"
-                                    tab={<SettingsTab title={RolesAndAccessesTitle} />}
-                                />
-                                <Tabs.TabPane
-                                    key="help"
-                                    tab={<SettingsTab title={HelpTitle} />}
-                                />
-                            </SettingsTabs>
-                        </Col>
-                    </PageContent>
+                                <TicketHintSettings />
+                            </Tabs.TabPane>
+                        </SettingsTabs>
+                    </TablePageContent>
                 </OrganizationRequired>
             </PageWrapper>
         </>
