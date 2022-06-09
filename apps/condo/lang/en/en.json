@@ -326,6 +326,7 @@
   "pages.condo.payments.enterBillingAddress": "Enter billing address",
   "pages.condo.payments.type": "Type",
   "pages.condo.payments.enterType": "Enter type name",
+  "pages.condo.payments.enterStatus": "Enter status",
   "pages.condo.property.EmptyBuildingBlock.view.EmptyBuildingDescription": "Map creation may be done by two ways:\nmanually by filling some property parameters or ",
   "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingDescription": "This is at upper right corner of the screen\nThen everything is intuitive \uD83D\uDE0A",
   "pages.condo.property.EmptyBuildingBlock.view.CreateMapTitle": "Create manually",

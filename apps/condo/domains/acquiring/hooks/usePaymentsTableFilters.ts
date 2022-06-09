@@ -1,10 +1,16 @@
 import { BillingIntegrationOrganizationContext, PaymentWhereInput } from '@app/condo/schema'
 import { searchAcquiringIntegration, searchBillingProperty } from '@condo/domains/acquiring/utils/clientSchema/search'
-import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import {
+    ComponentType,
+    convertToOptions,
+    FilterComponentSize,
+    FiltersMeta,
+} from '@condo/domains/common/utils/filters.utils'
 import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@core/next/intl'
 import { get } from 'lodash'
 import { useMemo } from 'react'
+import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '../constants/payment'
 
 const addressFilter = getStringContainsFilter(['receipt', 'property', 'address'])
 const accountFilter = getStringContainsFilter(['accountNumber'])
@@ -13,6 +19,9 @@ const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionI
 const dateFilter = getDayRangeFilter('advancedAt')
 const propertyFilter = getFilter(['receipt', 'property', 'id'], 'array', 'string', 'in')
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
+const statusFilter = getFilter('status', 'array', 'string', 'in')
+
+const statusType = [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS]
 
 export function usePaymentsTableFilters (
     billingContext: BillingIntegrationOrganizationContext,
@@ -27,6 +36,14 @@ export function usePaymentsTableFilters (
     const enterAddressMessage = intl.formatMessage({ id: 'pages.condo.payments.enterBillingAddress' })
     const typeMessage = intl.formatMessage({ id: 'pages.condo.payments.type' })
     const enterTypeMessage = intl.formatMessage({ id: 'pages.condo.payments.enterType' })
+    const statusTitle = intl.formatMessage({ id: 'Status' })
+    const enterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
+
+    const statuses = statusType.map((item) => ({
+        name: intl.formatMessage({ id: 'payment.status.' + item }),
+        id: item,
+    }))
+    const statusOptions = convertToOptions(statuses, 'name', 'id')
 
     return useMemo(() => {
         return [
@@ -92,6 +109,23 @@ export function usePaymentsTableFilters (
                     },
                     modalFilterComponentWrapper: {
                         label: typeMessage,
+                        size: FilterComponentSize.Large,
+                    },
+                },
+            },
+            {
+                keyword: 'status',
+                filters: [statusFilter],
+                component: {
+                    type: ComponentType.Select,
+                    options: statusOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: enterStatusMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: statusTitle,
                         size: FilterComponentSize.Large,
                     },
                 },
