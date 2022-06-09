@@ -417,6 +417,7 @@
   "pages.condo.property.modal.title.editParkingUnit": "Remove parking place",
   "pages.condo.property.modal.title.addSectionFloor": "Add floor",
   "pages.condo.property.modal.title.unitTypeAtFloor": "Unit type at the floor",
+  "pages.condo.property.modal.RenameNextUnits": "Rename the following units in order",
   "pages.condo.property.modal.UnitType": "Unit type",
   "pages.condo.property.modal.unitType.flat": "Flat",
   "pages.condo.property.modal.unitType.apartment": "Apartment",

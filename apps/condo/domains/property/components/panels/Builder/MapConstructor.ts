@@ -740,7 +740,7 @@ class MapEdit extends MapView {
         this.insertFloor(newSectionFloor, floor.section)
     }
 
-    public addSectionFloor (floor: BuildingFloorArg): void {
+    public addSectionFloor (floor: BuildingFloorArg, renameNextUnits = true): void {
         this.removePreviewSectionFloor()
         const newSectionFloor = this.generateFloor(floor)
         const floorIndex = this.insertFloor(newSectionFloor, floor.section)
@@ -750,7 +750,7 @@ class MapEdit extends MapView {
             previousFloorIndex++
         }
 
-        if (floor.section === 0 && floor.index === 1) {
+        if (renameNextUnits && floor.section === 0 && floor.index === 1) {
             const hasNegativeFloors = Object.keys(this.sectionFloorMap).some(floorLabel => Number(floorLabel) < 0)
             const updateIndex = hasNegativeFloors ? floorIndex : previousFloorIndex
             this.updateUnitNumbers(this.sections[0].floors[updateIndex].units[0])
@@ -758,7 +758,7 @@ class MapEdit extends MapView {
         }
 
         const previousUnit = last(this.sections[floor.section].floors[previousFloorIndex].units)
-        if (previousUnit && Number(get(invert(this.sectionFloorMap), floorIndex, -1)) > 0) {
+        if (renameNextUnits && previousUnit && Number(get(invert(this.sectionFloorMap), floorIndex, -1)) > 0) {
             this.updateUnitNumbers(previousUnit)
         }
         this.notifyUpdater()
@@ -824,10 +824,10 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public removeSection (id: string): void {
+    public removeSection (id: string, renameNextUnits = true): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
         this.map.sections.splice(sectionIndex, 1)
-        this.updateSectionNumbers(sectionIndex)
+        if (renameNextUnits) this.updateSectionNumbers(sectionIndex)
 
         this.editMode = 'addSection'
         this.notifyUpdater()
@@ -842,10 +842,10 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public removeParking (id: string): void {
+    public removeParking (id: string, renameNextUnits = true): void {
         const parkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === id)
         this.map.parking.splice(parkingIndex, 1)
-        this.updateParkingNumbers(parkingIndex)
+        this.updateParkingNumbers(parkingIndex, renameNextUnits)
 
         this.editMode = 'addParking'
         this.notifyUpdater()
@@ -853,7 +853,7 @@ class MapEdit extends MapView {
 
     public removePreviewParking (): void {
         if (this.previewParkingId) {
-            this.removeParking(this.previewParkingId)
+            this.removeParking(this.previewParkingId, false)
             this.previewParkingId = null
         }
     }
@@ -979,7 +979,7 @@ class MapEdit extends MapView {
         this.previewParkingUnitId = newUnit.id
     }
 
-    public addParkingUnit (unit: Partial<BuildingUnitArg>): void {
+    public addParkingUnit (unit: Partial<BuildingUnitArg>, renameNextUnits = true): void {
         const { id, section, floor, label } = unit
         const sectionIndex = this.map.parking.findIndex(mapSection => mapSection.id === section)
         if (sectionIndex === -1) {
@@ -1000,12 +1000,14 @@ class MapEdit extends MapView {
             newUnit.id = String(++this.autoincrement)
         }
         this.map.parking[sectionIndex].floors[floorIndex].units.push(newUnit)
-        this.updateParkingUnitNumbers(newUnit)
+
+        if (renameNextUnits) this.updateParkingUnitNumbers(newUnit)
+
         this.editMode = 'addParkingUnit'
         this.notifyUpdater()
     }
 
-    public addUnit (unit: Partial<BuildingUnitArg>): void {
+    public addUnit (unit: Partial<BuildingUnitArg>, renameNextUnits = true): void {
         const { id, section, floor, label, unitType } = unit
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === section)
         if (sectionIndex === -1) {
@@ -1027,12 +1029,14 @@ class MapEdit extends MapView {
             newUnit.id = String(++this.autoincrement)
         }
         this.map.sections[sectionIndex].floors[floorIndex].units.push(newUnit)
-        this.updateUnitNumbers(newUnit)
+
+        if (renameNextUnits) this.updateUnitNumbers(newUnit)
+
         this.editMode = 'addUnit'
         this.notifyUpdater()
     }
 
-    public removeUnit (id: string, shouldUpdateUnitNumbers = true): void {
+    public removeUnit (id: string, renameNextUnits = true): void {
         const unitIndex = this.getUnitIndex(id)
         const nextUnit = this.getNextUnit(id)
         if (unitIndex.unit !== -1) {
@@ -1041,9 +1045,9 @@ class MapEdit extends MapView {
             if (floorUnits.length === 0) {
                 this.removeFloor(unitIndex.section, unitIndex.floor)
             }
-            if (nextUnit && shouldUpdateUnitNumbers) {
+            if (nextUnit) {
                 nextUnit.label = removedUnit.label
-                this.updateUnitNumbers(nextUnit)
+                if (renameNextUnits) this.updateUnitNumbers(nextUnit)
             }
         }
         this.selectedUnit = null
@@ -1051,7 +1055,7 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public removeParkingUnit (id: string, shouldUpdateUnitNumbers = true): void {
+    public removeParkingUnit (id: string, renameNextUnits = true): void {
         const unitIndex = this.getParkingUnitIndex(id)
         const nextUnit = this.getNextParkingUnit(id)
         if (unitIndex.unit !== -1) {
@@ -1060,9 +1064,9 @@ class MapEdit extends MapView {
             if (floorUnits.length === 0) {
                 this.removeParkingFloor(unitIndex.parking, unitIndex.floor)
             }
-            if (nextUnit && shouldUpdateUnitNumbers) {
+            if (nextUnit) {
                 nextUnit.label = removedUnit.label
-                this.updateParkingUnitNumbers(nextUnit)
+                if (renameNextUnits) this.updateParkingUnitNumbers(nextUnit)
             }
         }
         this.selectedParkingUnit = null
@@ -1070,7 +1074,7 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public updateParkingUnit (unit: BuildingUnitArg): void {
+    public updateParkingUnit (unit: BuildingUnitArg, renameNextUnits = true): void {
         const unitIndex = this.getParkingUnitIndex(unit.id)
         if (unitIndex.unit === -1) {
             return
@@ -1079,18 +1083,18 @@ class MapEdit extends MapView {
         const oldParkingSection = this.map.parking[unitIndex.parking].id
         const oldFloor = this.map.parking[unitIndex.parking].floors[unitIndex.floor].id
         if (oldFloor !== unit.floor || oldParkingSection !== unit.section) {
-            this.removeParkingUnit(unit.id)
+            this.removeParkingUnit(unit.id, renameNextUnits)
             this.addParkingUnit(unit)
         } else {
             this.map.parking[unitIndex.parking].floors[unitIndex.floor].units[unitIndex.unit].name = unit.label
             this.map.parking[unitIndex.parking].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
-            this.updateParkingUnitNumbers(unit)
+            if (renameNextUnits) this.updateParkingUnitNumbers(unit)
         }
         this.editMode = null
         this.notifyUpdater()
     }
 
-    public updateUnit (unit: BuildingUnitArg): void {
+    public updateUnit (unit: BuildingUnitArg, renameNextUnits = true): void {
         const unitIndex = this.getUnitIndex(unit.id)
         if (unitIndex.unit === -1) {
             return
@@ -1100,13 +1104,13 @@ class MapEdit extends MapView {
         const oldFloor = this.map.sections[unitIndex.section].floors[unitIndex.floor].id
 
         if (oldFloor !== unit.floor || oldSection !== unit.section) {
-            this.removeUnit(unit.id)
-            this.addUnit(unit)
+            this.removeUnit(unit.id, renameNextUnits)
+            this.addUnit(unit, renameNextUnits)
         } else {
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].unitType = unit.unitType
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].name = unit.label
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
-            this.updateUnitNumbers(unit)
+            if (renameNextUnits) this.updateUnitNumbers(unit)
         }
         this.editMode = null
         this.notifyUpdater()
@@ -1370,7 +1374,7 @@ class MapEdit extends MapView {
         }
     }
 
-    private updateSectionNumbers (removedIndex: number): void {
+    private updateSectionNumbers (removedIndex: number, renameNextUnits = true): void {
         if (removedIndex === this.map.sections.length) {
             return
         }
@@ -1387,7 +1391,7 @@ class MapEdit extends MapView {
                 const firstSectionUnit = get(
                     last(this.map.sections[removedIndex].floors.filter(floor => floor.index > 0)), 'units.0'
                 )
-                if (firstSectionUnit) {
+                if (firstSectionUnit && renameNextUnits) {
                     firstSectionUnit.label = '1'
                     firstSectionUnit.index = 1
                     this.updateUnitNumbers(firstSectionUnit)
@@ -1395,14 +1399,14 @@ class MapEdit extends MapView {
             } else if (typeof this.map.sections[removedIndex - 1] !== 'undefined') {
                 // Rename from last unit at section - 1 of sectionIndex
                 const lastFloorUnits = get(this.map.sections[removedIndex - 1], 'floors.0.units')
-                if (lastFloorUnits) {
+                if (lastFloorUnits && renameNextUnits) {
                     this.updateUnitNumbers(last(lastFloorUnits))
                 }
             }
         }
     }
 
-    private updateParkingNumbers (removedIndex: number): void {
+    private updateParkingNumbers (removedIndex: number, renameNextUnits = true): void {
         if (removedIndex === this.map.parking.length) {
             return
         }
@@ -1418,12 +1422,12 @@ class MapEdit extends MapView {
                 const firstSectionUnit = get(last(this.map.parking[removedIndex].floors), 'units.0')
                 if (firstSectionUnit) {
                     firstSectionUnit.label = '1'
-                    this.updateParkingUnit(firstSectionUnit)
+                    this.updateParkingUnit(firstSectionUnit, renameNextUnits)
                 }
             } else if (typeof this.map.sections[removedIndex - 1] !== 'undefined') {
                 // Rename from last unit at section - 1 of sectionIndex
                 const lastFloorUnits = get(this.map.parking[removedIndex - 1], 'floors.0.units')
-                if (lastFloorUnits) {
+                if (lastFloorUnits && renameNextUnits) {
                     this.updateParkingUnitNumbers(last(lastFloorUnits))
                 }
             }

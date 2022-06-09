@@ -417,6 +417,7 @@
   "pages.condo.property.modal.title.editParkingUnit": "Редактировать машиноместо",
   "pages.condo.property.modal.title.addSectionFloor": "Добавить этаж",
   "pages.condo.property.modal.title.unitTypeAtFloor": "Тип помещений на этаже",
+  "pages.condo.property.modal.RenameNextUnits": "Переименовать следующие квартиры по порядку",
   "pages.condo.property.modal.UnitType": "Тип помещения",
   "pages.condo.property.modal.unitType.flat": "Квартира",
   "pages.condo.property.modal.unitType.apartment": "Апартаменты",
