@@ -456,7 +456,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
 
                 // March receipt for water
-                const [marchWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
+                await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: MARCH_PERIOD,
                     recipient: WATER_RECIPIENT,
                 })
@@ -472,15 +472,10 @@ describe('AllResidentBillingReceiptsService', () => {
                 const objs = await ResidentBillingReceipt.getAll(userClient, {}, {
                     sortBy: 'period_DESC',
                 })
-                const payableReceipts = objs.filter(receipt => receipt.isPayable)
-                const unPayableReceipts = objs.filter(receipt => !receipt.isPayable)
 
-                expect(objs).toHaveLength(3)
-                expect(payableReceipts).toHaveLength(2)
-                expect(payableReceipts[0].id).toEqual(aprilWaterReceipt.id)
-                expect(payableReceipts[1].id).toEqual(marchElectricityReceipt.id)
-                expect(unPayableReceipts).toHaveLength(1)
-                expect(unPayableReceipts[0].id).toEqual(marchWaterReceipt.id)
+                expect(objs).toHaveLength(2)
+                expect(objs[0].id).toEqual(aprilWaterReceipt.id)
+                expect(objs[1].id).toEqual(marchElectricityReceipt.id)
             })
         })
 
@@ -514,7 +509,8 @@ describe('AllResidentBillingReceiptsService', () => {
                     accountNumber: billingAccountAttrs.number,
                     organizationId: userClient.organization.id,
                 }
-                await registerServiceConsumerByTestClient(userClient, payload)
+
+                const [ serviceConsumer ] = await registerServiceConsumerByTestClient(userClient, payload)
 
                 const MARCH_PERIOD = '2022-03-01'
                 const APRIL_PERIOD = '2022-04-01'
@@ -538,22 +534,24 @@ describe('AllResidentBillingReceiptsService', () => {
                     recipient: WATER_RECIPIENT,
                 })
 
-                const objs = await ResidentBillingReceipt.getAll(userClient, {}, { sortBy: 'period_DESC' })
+
+                const objs = await ResidentBillingReceipt.getAll(userClient, {})
+                const objsFiltered = await ResidentBillingReceipt.getAll(userClient, { serviceConsumer: { id: serviceConsumer.id } })
 
                 expect(marchWaterReceipt.receiver.id).toEqual(aprilWaterReceipt.receiver.id)
                 expect(aprilWaterReceipt.receiver.id).toEqual(mayWaterReceipt.receiver.id)
+
                 expect(marchWaterReceipt.account.id).toEqual(aprilWaterReceipt.account.id)
                 expect(aprilWaterReceipt.account.id).toEqual(mayWaterReceipt.account.id)
+
                 expect(marchWaterReceipt.property.id).toEqual(aprilWaterReceipt.property.id)
                 expect(aprilWaterReceipt.property.id).toEqual(mayWaterReceipt.property.id)
 
-                expect(objs).toHaveLength(3)
+                expect(objs).toHaveLength(1)
                 expect(objs[0].id).toEqual(mayWaterReceipt.id)
-                expect(objs[0].isPayable).toBeTruthy()
-                expect(objs[1].id).toEqual(aprilWaterReceipt.id)
-                expect(objs[1].isPayable).toBeFalsy()
-                expect(objs[2].id).toEqual(marchWaterReceipt.id)
-                expect(objs[2].isPayable).toBeFalsy()
+
+                expect(objsFiltered).toHaveLength(1)
+                expect(objsFiltered[0].id).toEqual(mayWaterReceipt.id)
 
                 // We add one more receipt!
 
@@ -563,17 +561,9 @@ describe('AllResidentBillingReceiptsService', () => {
                     period: JUNE_PERIOD,
                     recipient: WATER_RECIPIENT,
                 })
-                const objsWithJune = await ResidentBillingReceipt.getAll(userClient, {}, { sortBy: 'period_DESC' })
-
-                expect(objsWithJune).toHaveLength(4)
+                const objsWithJune = await ResidentBillingReceipt.getAll(userClient, {})
+                expect(objsWithJune).toHaveLength(1)
                 expect(objsWithJune[0].id).toEqual(juneWaterReceipt.id)
-                expect(objsWithJune[0].isPayable).toBeTruthy()
-                expect(objsWithJune[1].id).toEqual(mayWaterReceipt.id)
-                expect(objsWithJune[1].isPayable).toBeFalsy()
-                expect(objsWithJune[2].id).toEqual(aprilWaterReceipt.id)
-                expect(objsWithJune[2].isPayable).toBeFalsy()
-                expect(objsWithJune[3].id).toEqual(marchWaterReceipt.id)
-                expect(objsWithJune[3].isPayable).toBeFalsy()
             })
         })
     })
