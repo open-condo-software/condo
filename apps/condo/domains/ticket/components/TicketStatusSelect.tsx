@@ -43,7 +43,10 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     const intl = useIntl()
 
     const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
-    const update = Ticket.useUpdate({}, () => onUpdate())
+    const handleUpdate = useCallback(() => {
+
+    }, onUpdate)
+    const update = Ticket.useUpdate({}, handleUpdate)
 
     const updateTicketStatus = useCallback((variables) => runMutation({
         action:() => update(variables, ticket),
