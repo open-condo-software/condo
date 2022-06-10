@@ -55,6 +55,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
         },
     },
     hooks: {
+        // TODO(DOMA-3223): Move data to long-term HDD on cloud services on soft-delete
         resolveInput: async ({ resolvedData }) => {
             if (resolvedData && resolvedData.hasOwnProperty('app') && resolvedData['app'] === null) {
                 resolvedData['deletedAt'] = dayjs().toISOString()
