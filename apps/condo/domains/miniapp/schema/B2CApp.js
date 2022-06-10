@@ -39,20 +39,6 @@ const B2CApp = new GQLListSchema('B2CApp', {
             type: Relationship,
             ref: 'B2CAppBuild.app',
             many: true,
-            hooks: {
-                afterChange: async ({ operation, context }) => {
-                    if (operation === 'update') {
-                        const buildsToDelete = await find('B2CAppBuild', {
-                            app: null,
-                            deletedAt_not: null,
-                        })
-                        const deletedAt = dayjs().toISOString()
-                        for (const build of buildsToDelete) {
-                            await B2CAppBuild.update(context, build.id, { deletedAt })
-                        }
-                    }
-                },
-            },
         },
         accessRights: {
             schemaDoc: 'Specifies set of service users, who can modify B2CAppProperties of the app as well as perform actions on behalf of the application',
@@ -62,6 +48,24 @@ const B2CApp = new GQLListSchema('B2CApp', {
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    hooks: {
+        afterChange: async ({ operation, context }) => {
+            if (operation === 'update') {
+                const buildsToDelete = await find('B2CAppBuild', {
+                    app_is_null: true,
+                    deletedAt: null,
+                })
+                const deletedAt = dayjs().toISOString()
+                for (const build of buildsToDelete) {
+                    await B2CAppBuild.update(context, build.id, {
+                        deletedAt,
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'app-ref-delete' },
+                    })
+                }
+            }
+        },
+    },
     access: {
         read: access.canReadB2CApps,
         create: access.canManageB2CApps,
