@@ -108,7 +108,7 @@ const patchQuery = (queryContext, query, cache) => {
 
         if (requestId && key) { cache[requestId][key] = listResult }
 
-        console.info(`${cachedRequests}/${totalRequests}`)
+        console.info(`X-REQUEST-ID CACHE: ${cachedRequests}/${totalRequests}`)
 
         return listResult
     }
