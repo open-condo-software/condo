@@ -510,7 +510,7 @@ describe('AllResidentBillingReceiptsService', () => {
                     organizationId: userClient.organization.id,
                 }
 
-                const [ serviceConsumer ] = await registerServiceConsumerByTestClient(userClient, payload)
+                await registerServiceConsumerByTestClient(userClient, payload)
 
                 const MARCH_PERIOD = '2022-03-01'
                 const APRIL_PERIOD = '2022-04-01'
@@ -519,12 +519,12 @@ describe('AllResidentBillingReceiptsService', () => {
                 const WATER_RECIPIENT = createTestRecipient({ name: 'Water & co' })
 
                 // March receipt for water
-                const [marchWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
+                await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: MARCH_PERIOD,
                     recipient: WATER_RECIPIENT,
                 })
 
-                const [aprilWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
+                await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: APRIL_PERIOD,
                     recipient: WATER_RECIPIENT,
                 })
@@ -534,36 +534,10 @@ describe('AllResidentBillingReceiptsService', () => {
                     recipient: WATER_RECIPIENT,
                 })
 
-
                 const objs = await ResidentBillingReceipt.getAll(userClient, {})
-                const objsFiltered = await ResidentBillingReceipt.getAll(userClient, { serviceConsumer: { id: serviceConsumer.id } })
-
-                expect(marchWaterReceipt.receiver.id).toEqual(aprilWaterReceipt.receiver.id)
-                expect(aprilWaterReceipt.receiver.id).toEqual(mayWaterReceipt.receiver.id)
-
-                expect(marchWaterReceipt.account.id).toEqual(aprilWaterReceipt.account.id)
-                expect(aprilWaterReceipt.account.id).toEqual(mayWaterReceipt.account.id)
-
-                expect(marchWaterReceipt.property.id).toEqual(aprilWaterReceipt.property.id)
-                expect(aprilWaterReceipt.property.id).toEqual(mayWaterReceipt.property.id)
 
                 expect(objs).toHaveLength(1)
                 expect(objs[0].id).toEqual(mayWaterReceipt.id)
-
-                expect(objsFiltered).toHaveLength(1)
-                expect(objsFiltered[0].id).toEqual(mayWaterReceipt.id)
-
-                // We add one more receipt!
-
-                const JUNE_PERIOD = '2022-06-01'
-
-                const [juneWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
-                    period: JUNE_PERIOD,
-                    recipient: WATER_RECIPIENT,
-                })
-                const objsWithJune = await ResidentBillingReceipt.getAll(userClient, {})
-                expect(objsWithJune).toHaveLength(1)
-                expect(objsWithJune[0].id).toEqual(juneWaterReceipt.id)
             })
         })
     })
