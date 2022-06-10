@@ -6,7 +6,7 @@ const dayjs = require('dayjs')
 const get = require('lodash/get')
 const { Text, Relationship, File } = require('@keystonejs/fields')
 const { NON_ZIP_FILE_ERROR, NO_APP_ERROR } = require('@condo/domains/miniapp/constants')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/miniapp/access/B2CAppBuild')
@@ -17,6 +17,12 @@ const B2C_APP_BUILD_FILE_ADAPTER = new FileAdapter('B2CAppBuilds')
 
 const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
     schemaDoc: 'Cordova build of B2C Application',
+    labelResolver: async (item) => {
+        const app = await getById('B2CApp', item.app)
+        const appName = get(app, 'name', 'deleted')
+        const appDeveloper = get(app, 'developer', 'deleted')
+        return `${appDeveloper}-${appName}-${item.version}`
+    },
     fields: {
         app: {
             schemaDoc: 'Link to B2C application. Exists and required for any non-deleted builds. Setting this to null automatically disconnect build from app, which will cause build deletion',
