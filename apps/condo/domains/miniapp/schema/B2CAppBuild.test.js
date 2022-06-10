@@ -5,7 +5,7 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 const path = require('path')
-const { makeLoggedInAdminClient, makeClient, UploadingFile } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UploadingFile, waitFor } = require('@core/keystone/test.utils')
 const conf = require('@core/config')
 
 const {
@@ -249,6 +249,22 @@ describe('B2CAppBuild', () => {
                     builds: { disconnect: { id: build.id } },
                 })
 
+                await waitFor(async () => {
+                    const builds = await B2CAppBuild.getAll(admin, {
+                        id: build.id,
+                    })
+                    expect(builds).toHaveLength(0)
+                })
+            })
+            test('On removing link to app from build', async () => {
+                const [app] = await createTestB2CApp(admin)
+                const [build] = await createTestB2CAppBuild(admin, app)
+                const [updatedBuild] = await updateTestB2CAppBuild(admin, build.id, {
+                    app: { disconnectAll: true },
+                })
+                expect(updatedBuild).toBeDefined()
+                expect(updatedBuild).toHaveProperty('deletedAt')
+                expect(updatedBuild.deletedAt).not.toBeNull()
             })
         })
     })
