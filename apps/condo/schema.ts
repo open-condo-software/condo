@@ -8969,9 +8969,11 @@ export type CheckPropertyWithAddressExistOutput = {
 };
 
 export type CompleteConfirmPhoneActionInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  captcha: Scalars['String'];
   token: Scalars['String'];
   smsCode: Scalars['Int'];
-  captcha: Scalars['String'];
 };
 
 export type CompleteConfirmPhoneActionOutput = {
@@ -17069,6 +17071,17 @@ export type Mutation = {
    *   ],
    *   "messageForUser": "api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
    * }`
+   *
+   * `{
+   *   "mutation": "changePhoneNumberResidentUser",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
+   * }`
    */
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
   /**
@@ -17191,6 +17204,17 @@ export type Mutation = {
    *   "type": "UNABLE_TO_REGISTER_USER",
    *   "message": "Unable to register user",
    *   "messageForUser": "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER"
+   * }`
+   *
+   * `{
+   *   "mutation": "inviteNewOrganizationEmployee",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
    * }`
    */
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -30670,9 +30694,10 @@ export type RegisterServiceConsumerInputExtra = {
 };
 
 export type ResendConfirmPhoneActionSmsInput = {
-  token: Scalars['String'];
+  dv?: Maybe<Scalars['Int']>;
   sender: SenderFieldInput;
   captcha: Scalars['String'];
+  token: Scalars['String'];
 };
 
 export type ResendConfirmPhoneActionSmsOutput = {
@@ -36912,10 +36937,10 @@ export enum SortUsersBy {
 }
 
 export type StartConfirmPhoneActionInput = {
-  phone: Scalars['String'];
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   captcha: Scalars['String'];
+  phone: Scalars['String'];
 };
 
 export type StartConfirmPhoneActionOutput = {
