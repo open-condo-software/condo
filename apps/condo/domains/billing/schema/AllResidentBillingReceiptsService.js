@@ -64,7 +64,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
         },
         {
             access: true,
-            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! }`,
+            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! }`,
         },
     ],
 
@@ -96,9 +96,6 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     return []
                 }
 
-                //
-                // Get basic receipts representation
-                //
                 const processedReceipts = []
                 for (const serviceConsumer of serviceConsumers) {
 
@@ -135,8 +132,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 }
 
                 //
-                // Set receipt.isPayable field
-                // We select only one latest receipt from each receiver + accountNumber by period
+                // TODO: (@toplenboren) DOMA-2479 Make this look adequate!
+                // AS HOTFIX we select only one latest receipt from each receiver + accountNumber by period
                 // Example:
                 // - John pays for cold water and electricity
                 // - John got the receipt for March for water
@@ -155,27 +152,20 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     const period = dayjs(get(receipt, ['period']), 'YYYY-MM-DD')
 
                     if (!(key in receiptsByAccountAndRecipient)) {
-                        receiptsByAccountAndRecipient[key] = receipt.id
+                        receiptsByAccountAndRecipient[key] = receipt
                         continue
                     }
 
                     // If we have a receipt with later period -- we take it
                     const existingRecipientPeriod = dayjs(get(receiptsByAccountAndRecipient[key], 'period'), 'YYYY-MM-DD')
                     if (existingRecipientPeriod < period) {
-                        receiptsByAccountAndRecipient[key] = receipt.id
+                        receiptsByAccountAndRecipient[key] = receipt
                     }
                 }
+                const processedAndFilteredReceipts = Object.values(receiptsByAccountAndRecipient)
 
-                const payableReceipts = Object.values(receiptsByAccountAndRecipient)
-                processedReceipts.forEach(receipt => {
-                    receipt.isPayable = payableReceipts.includes(receipt.id)
-                })
-
-                //
-                // Set receipt.paid field and calculate fees
-                //
                 const receiptsWithPayments = []
-                for (const receipt of processedReceipts) {
+                for (const receipt of processedAndFilteredReceipts) {
                     const organizationId = get(receipt.serviceConsumer, ['organization'])
                     const accountNumber = get(receipt.serviceConsumer, ['accountNumber'])
                     const paid = await getPaymentsSum(
