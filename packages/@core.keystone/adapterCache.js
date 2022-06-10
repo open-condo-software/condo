@@ -36,26 +36,23 @@ const initAdapterCache = async (keystone, state, cache) => {
         const listName = listAdapter.key
         cache[listName] = {}
 
-        const lastUpdatedItem = await listAdapter._itemsQuery.apply(listAdapter, [{ sortBy: UPDATED_AT_SORT_BY, first: 1 }])
-        state[listName] = lastUpdatedItem[UPDATED_AT]
-
         const originalItemsQuery = listAdapter._itemsQuery
         listAdapter._itemsQuery = async ( args, opts ) => {
             
             totalRequests++
-            
-            const key = JSON.stringify(args) + '_' + JSON.stringify(opts)
 
-            let response = undefined
+            const key = JSON.stringify(args) + '_' + JSON.stringify(get(opts, 'from.fromId', null))
+
+            let response = []
             const cached = cache[listName][key]
             const tableLastUpdate = state[listName]
 
             if (cached) {
                 const cacheLastUpdate = cached.lastUpdate
-                if (cacheLastUpdate === tableLastUpdate && tableLastUpdate !== '') {
+                if (cacheLastUpdate && cacheLastUpdate === tableLastUpdate) {
                     cacheHits++
                     console.log(`ADAPTER CACHE: ${cacheHits}/${totalRequests}`)
-                    return cache.response
+                    return cached.response
                 }
             } 
 
