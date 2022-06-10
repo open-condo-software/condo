@@ -325,6 +325,8 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             { name: 'categoryClassifier', value: ruleRef.current.category },
             { name: 'problemClassifier', value: ruleRef.current.problem },
         ])
+        // the validation call is forced because antd does not make the field touched with setFields
+        ticketForm.current.validateFields(['placeClassifier', 'categoryClassifier', 'problemClassifier'])
     }
     // We need to find out whether user is still following classifiers rules
     // or he just make a search in one of a selects and runied all dependencies
