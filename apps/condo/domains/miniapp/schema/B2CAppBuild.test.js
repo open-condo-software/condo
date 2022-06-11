@@ -27,6 +27,7 @@ const {
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithServiceUser,
+    makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 const {
     NON_ZIP_FILE_ERROR,
@@ -176,6 +177,13 @@ describe('B2CAppBuild', () => {
                         expect(builds).toHaveLength(0)
                     })
                 })
+                test('With type RESIDENT - can', async () => {
+                    const resident = await makeClientWithResidentUser()
+                    const builds = await B2CAppBuild.getAll(resident, { id: build.id })
+                    expect(builds).toBeDefined()
+                    expect(builds).toHaveLength(1)
+                    expect(builds[0]).toHaveProperty('id', build.id)
+                })
                 test('Cannot otherwise', async () => {
                     const builds = await B2CAppBuild.getAll(user, { id: build.id })
                     expect(builds).toBeDefined()
@@ -190,8 +198,10 @@ describe('B2CAppBuild', () => {
         })
         describe('Delete', () => {
             let build
+            let resident
             beforeAll(async () => {
                 [build] = await createTestB2CAppBuild(admin, app)
+                resident = await makeClientWithResidentUser()
             })
             test('Nobody can', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -208,6 +218,9 @@ describe('B2CAppBuild', () => {
                 })
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await B2CAppBuild.delete(user, build.id)
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await B2CAppBuild.delete(resident, build.id)
                 })
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await B2CAppBuild.delete(anonymous, build.id)

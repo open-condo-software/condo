@@ -13,6 +13,7 @@ const { B2BAppAccessRight: B2BAppAccessRightGQL } = require('@condo/domains/mini
 const { B2CApp: B2CAppGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppAccessRight: B2CAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppBuild: B2CAppBuildGQL } = require('@condo/domains/miniapp/gql')
+const { B2CAppProperty: B2CAppPropertyGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 async function allOrganizationApps (context, data) {
@@ -34,6 +35,7 @@ const B2BAppAccessRight = generateServerUtils(B2BAppAccessRightGQL)
 const B2CApp = generateServerUtils(B2CAppGQL)
 const B2CAppAccessRight = generateServerUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateServerUtils(B2CAppBuildGQL)
+const B2CAppProperty = generateServerUtils(B2CAppPropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -44,5 +46,6 @@ module.exports = {
     B2CApp,
     B2CAppAccessRight,
     B2CAppBuild,
+    B2CAppProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

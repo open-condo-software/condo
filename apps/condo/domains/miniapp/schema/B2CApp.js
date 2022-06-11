@@ -77,6 +77,12 @@ const B2CApp = new GQLListSchema('B2CApp', {
                 },
             },
         },
+        properties: {
+            schemaDoc: 'List of all B2C app properties where B2C app can be launched',
+            type: Relationship,
+            ref: 'B2CAppProperty.app',
+            many: true,
+        },
         accessRights: {
             schemaDoc: 'Specifies set of service users, who can modify B2CAppProperties of the app as well as perform actions on behalf of the application',
             type: Relationship,
