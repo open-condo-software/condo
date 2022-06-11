@@ -36,6 +36,9 @@ const B2CAppAccessRight = generateGqlQueries('B2CAppAccessRight', B2C_APP_ACCESS
 const B2C_APP_BUILD_FIELDS = `{ app { id } version ${COMMON_FIELDS} }`
 const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 
+const B2C_APP_PROPERTY_FIELDS = `{ app { id } address ${COMMON_FIELDS} }`
+const B2CAppProperty = generateGqlQueries('B2CAppProperty', B2C_APP_PROPERTY_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -46,5 +49,6 @@ module.exports = {
     B2CApp,
     B2CAppAccessRight,
     B2CAppBuild,
+    B2CAppProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

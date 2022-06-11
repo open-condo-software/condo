@@ -16,6 +16,7 @@ const { B2BAppAccessRight: B2BAppAccessRightGQL } = require('@condo/domains/mini
 const { B2CApp: B2CAppGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppAccessRight: B2CAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppBuild: B2CAppBuildGQL } = require('@condo/domains/miniapp/gql')
+const { B2CAppProperty: B2CAppPropertyGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const DOCUMENT_BLOCK_SINGLE_EXAMPLE = [
@@ -50,6 +51,7 @@ const B2BAppAccessRight = generateGQLTestUtils(B2BAppAccessRightGQL)
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
 const B2CAppAccessRight = generateGQLTestUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
+const B2CAppProperty = generateGQLTestUtils(B2CAppPropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -264,6 +266,36 @@ async function updateTestB2CAppBuild (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2CAppProperty (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        address: faker.random.alphaNumeric(8),
+        ...extraAttrs,
+    }
+    const obj = await B2CAppProperty.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2CAppProperty (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppProperty.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -276,5 +308,6 @@ module.exports = {
     B2CApp, createTestB2CApp, updateTestB2CApp,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild,
+    B2CAppProperty, createTestB2CAppProperty, updateTestB2CAppProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
