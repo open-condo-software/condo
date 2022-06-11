@@ -174,9 +174,9 @@ async function createTestB2CApp (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        name: faker.company.companyName() + ' B2C APP',
+        name: faker.random.word() + ' B2C APP',
         shortDescription: faker.company.bs(),
-        developer: faker.company.companyName(),
+        developer: faker.name.firstName(),
         isHidden: true,
         colorSchema,
         logo: logoFile,
