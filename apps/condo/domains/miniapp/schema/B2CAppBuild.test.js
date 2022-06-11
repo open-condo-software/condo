@@ -9,6 +9,7 @@ const { makeLoggedInAdminClient, makeClient, UploadingFile, waitFor } = require(
 const conf = require('@core/config')
 
 const {
+    B2CApp,
     createTestB2CApp,
     updateTestB2CApp,
     createTestB2CAppAccessRight,
@@ -25,10 +26,14 @@ const {
 const {
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
-    updateTestUser,
+    makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { NON_ZIP_FILE_ERROR, NO_APP_ERROR } = require('@condo/domains/miniapp/constants')
-const { SERVICE } = require('@condo/domains/user/constants/common')
+const {
+    NON_ZIP_FILE_ERROR,
+    NO_APP_ERROR,
+    RESTRICT_APP_CHANGE_ERROR,
+    RESTRICT_BUILD_SELECT_ERROR,
+} = require('@condo/domains/miniapp/constants')
 
 describe('B2CAppBuild', () => {
     let admin
@@ -44,15 +49,12 @@ describe('B2CAppBuild', () => {
         anonymous = await makeClient()
         user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        permittedUser = await makeClientWithNewRegisteredAndLoggedInUser()
-
-        await updateTestUser(admin, permittedUser.user.id, { type: SERVICE })
+        permittedUser = await makeClientWithServiceUser()
         const [b2cApp] = await createTestB2CApp(admin)
         app = b2cApp
         await createTestB2CAppAccessRight(admin, permittedUser.user, app)
 
-        anotherPermittedUser = await makeClientWithNewRegisteredAndLoggedInUser()
-        await updateTestUser(admin, anotherPermittedUser.user.id, { type: SERVICE })
+        anotherPermittedUser = await makeClientWithServiceUser()
         const [secondApp] = await createTestB2CApp(admin)
         await createTestB2CAppAccessRight(admin, anotherPermittedUser.user, secondApp)
     })
@@ -241,7 +243,7 @@ describe('B2CAppBuild', () => {
                 })
             }, NO_APP_ERROR)
         })
-        describe('Auto-delete',  () => {
+        describe('Must auto-delete',  () => {
             test('On removing from app\'s build list', async () => {
                 const [app] = await createTestB2CApp(admin)
                 const [build] = await createTestB2CAppBuild(admin, app)
@@ -257,7 +259,6 @@ describe('B2CAppBuild', () => {
                 })
             })
             test('On removing link to app from build', async () => {
-                const [app] = await createTestB2CApp(admin)
                 const [build] = await createTestB2CAppBuild(admin, app)
                 const [updatedBuild] = await updateTestB2CAppBuild(admin, build.id, {
                     app: { disconnectAll: true },
@@ -266,6 +267,98 @@ describe('B2CAppBuild', () => {
                 expect(updatedBuild).toHaveProperty('deletedAt')
                 expect(updatedBuild.deletedAt).not.toBeNull()
             })
+        })
+        describe('Cannot change app field, except setting it null for deletion',  () => {
+            test('From build itself', async () => {
+                const [secondApp] = await createTestB2CApp(admin)
+                const [build] = await createTestB2CAppBuild(admin, secondApp)
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestB2CAppBuild(admin, build.id, {
+                        app: { connect: { id: app.id } },
+                    })
+                }, RESTRICT_APP_CHANGE_ERROR)
+            })
+            describe('From app "builds" field',  () => {
+                test('On app update', async () => {
+                    const [build] = await createTestB2CAppBuild(admin, app)
+                    const [secondApp] = await createTestB2CApp(admin)
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestB2CApp(admin, secondApp.id, {
+                            builds: { connect: { id: build.id } },
+                        })
+                    }, RESTRICT_APP_CHANGE_ERROR)
+                })
+                test('On app create', async () => {
+                    const [build] = await createTestB2CAppBuild(admin, app)
+                    await expectToThrowValidationFailureError(async () => {
+                        await createTestB2CApp(admin,  {
+                            builds: { connect: { id: build.id } },
+                        })
+                    }, RESTRICT_APP_CHANGE_ERROR)
+                })
+            })
+        })
+        describe('Current build of linked app must set to null on build\'s soft-delete',  () => {
+            let secondApp
+            let build
+            beforeEach(async () => {
+                [secondApp] = await createTestB2CApp(admin)
+                const [newBuild] = await createTestB2CAppBuild(admin, secondApp)
+                build = newBuild
+                await updateTestB2CApp(admin, secondApp.id, {
+                    currentBuild: { connect: { id: newBuild.id } },
+                })
+            })
+            test('Setting deletedAt of build', async () => {
+                await updateTestB2CAppBuild(admin, build.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                await waitFor(async () => {
+                    const [updatedApp] = await B2CApp.getAll(admin, {
+                        id: secondApp.id,
+                    })
+                    expect(updatedApp).toBeDefined()
+                    expect(updatedApp).toHaveProperty('currentBuild', null)
+                })
+            })
+            test('App of build to null', async () => {
+                await updateTestB2CAppBuild(admin, build.id, {
+                    app: { disconnectAll: true },
+                })
+                await waitFor(async () => {
+                    const [updatedApp] = await B2CApp.getAll(admin, {
+                        id: secondApp.id,
+                    })
+                    expect(updatedApp).toBeDefined()
+                    expect(updatedApp).toHaveProperty('currentBuild', null)
+                })
+            })
+            test('Removing build from builds of app', async () => {
+                await updateTestB2CApp(admin, secondApp.id, {
+                    builds: { disconnect: { id: build.id } },
+                })
+                await waitFor(async () => {
+                    const [updatedApp] = await B2CApp.getAll(admin, {
+                        id: secondApp.id,
+                    })
+                    expect(updatedApp).toBeDefined()
+                    expect(updatedApp).toHaveProperty('currentBuild', null)
+                })
+            })
+        })
+        test('Current build cannot cannot be chosen from other apps', async () => {
+            const [build] = await createTestB2CAppBuild(admin, app)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestB2CApp(admin, {
+                    currentBuild: { connect: { id: build.id } },
+                })
+            }, RESTRICT_BUILD_SELECT_ERROR)
+            const [secondApp] = await createTestB2CApp(admin)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestB2CApp(admin, secondApp.id, {
+                    currentBuild: { connect: { id: build.id } },
+                })
+            }, RESTRICT_BUILD_SELECT_ERROR)
         })
     })
 })

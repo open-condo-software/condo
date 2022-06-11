@@ -5,12 +5,13 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const { Text, Relationship, File } = require('@keystonejs/fields')
-const { NON_ZIP_FILE_ERROR, NO_APP_ERROR } = require('@condo/domains/miniapp/constants')
-const { GQLListSchema, getById } = require('@core/keystone/schema')
+const { NON_ZIP_FILE_ERROR, NO_APP_ERROR, RESTRICT_APP_CHANGE_ERROR } = require('@condo/domains/miniapp/constants')
+const { GQLListSchema, getById, getByCondition } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/miniapp/access/B2CAppBuild')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 
 const B2C_APP_BUILD_FILE_ADAPTER = new FileAdapter('B2CAppBuilds')
 
@@ -32,6 +33,15 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
             access: {
                 update: access.canUpdateAppLink,
+            },
+            hooks: {
+                validateInput: async ({ operation, resolvedData, addFieldValidationError }) => {
+                    if (operation === 'update') {
+                        if (resolvedData.hasOwnProperty('app') && resolvedData.app !== null) {
+                            return addFieldValidationError(RESTRICT_APP_CHANGE_ERROR)
+                        }
+                    }
+                },
             },
         },
         version: {
@@ -65,6 +75,21 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
         validateInput: async ({ operation, addValidationError, resolvedData }) => {
             if (operation === 'create' && !resolvedData['app']) {
                 addValidationError(NO_APP_ERROR)
+            }
+        },
+        afterChange: async ({ updatedItem, operation, existingItem, context }) => {
+            if (operation === 'update' && (!updatedItem.app || updatedItem.deletedAt)) {
+                const appToReset = await getByCondition('B2CApp', {
+                    currentBuild: { id: existingItem.id },
+                    deletedAt: null,
+                })
+                if (appToReset) {
+                    await B2CApp.update(context, appToReset.id, {
+                        currentBuild: null,
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'build-ref-delete' },
+                    })
+                }
             }
         },
     },

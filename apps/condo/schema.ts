@@ -3172,6 +3172,8 @@ export type B2CApp = {
   isHidden?: Maybe<Scalars['Boolean']>;
   /**  The color schema of the B2C application used to display it correctly. The main color is used for texts, icons etc. The secondary color is used for the background  */
   colorSchema?: Maybe<AppColorSchemaField>;
+  /**  Link to current active app build  */
+  currentBuild?: Maybe<B2CAppBuild>;
   /**  List of available app builds. Removing item from this list automatically soft-deletes it  */
   builds: Array<B2CAppBuild>;
   _buildsMeta?: Maybe<_QueryMeta>;
@@ -3563,7 +3565,7 @@ export type B2CAppBuild = {
    *  4. As an alias to the 'id' field on the B2CAppBuild List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Link to B2C application  */
+  /**  Link to B2C application. Exists and required for any non-deleted builds. Setting this to null automatically disconnect build from app, which will cause build deletion  */
   app?: Maybe<B2CApp>;
   /**  Version of build which used to control builds inside B2CApp model  */
   version?: Maybe<Scalars['String']>;
@@ -3798,6 +3800,13 @@ export type B2CAppBuildRelateToManyInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+export type B2CAppBuildRelateToOneInput = {
+  create?: Maybe<B2CAppBuildCreateInput>;
+  connect?: Maybe<B2CAppBuildWhereUniqueInput>;
+  disconnect?: Maybe<B2CAppBuildWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type B2CAppBuildUpdateInput = {
   app?: Maybe<B2CAppRelateToOneInput>;
   version?: Maybe<Scalars['String']>;
@@ -3918,6 +3927,7 @@ export type B2CAppCreateInput = {
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<AppColorSchemaFieldInput>;
+  currentBuild?: Maybe<B2CAppBuildRelateToOneInput>;
   builds?: Maybe<B2CAppBuildRelateToManyInput>;
   accessRights?: Maybe<B2CAppAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
@@ -3948,6 +3958,7 @@ export type B2CAppHistoryRecord = {
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<Scalars['JSON']>;
+  currentBuild?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3970,6 +3981,7 @@ export type B2CAppHistoryRecordCreateInput = {
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<Scalars['JSON']>;
+  currentBuild?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3997,6 +4009,7 @@ export type B2CAppHistoryRecordUpdateInput = {
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<Scalars['JSON']>;
+  currentBuild?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4078,6 +4091,10 @@ export type B2CAppHistoryRecordWhereInput = {
   colorSchema_not?: Maybe<Scalars['JSON']>;
   colorSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   colorSchema_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  currentBuild?: Maybe<Scalars['String']>;
+  currentBuild_not?: Maybe<Scalars['String']>;
+  currentBuild_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  currentBuild_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -4183,6 +4200,7 @@ export type B2CAppUpdateInput = {
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<AppColorSchemaFieldInput>;
+  currentBuild?: Maybe<B2CAppBuildRelateToOneInput>;
   builds?: Maybe<B2CAppBuildRelateToManyInput>;
   accessRights?: Maybe<B2CAppAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
@@ -4263,6 +4281,8 @@ export type B2CAppWhereInput = {
   colorSchema_not?: Maybe<AppColorSchemaFieldInput>;
   colorSchema_in?: Maybe<Array<Maybe<AppColorSchemaFieldInput>>>;
   colorSchema_not_in?: Maybe<Array<Maybe<AppColorSchemaFieldInput>>>;
+  currentBuild?: Maybe<B2CAppBuildWhereInput>;
+  currentBuild_is_null?: Maybe<Scalars['Boolean']>;
   /**  condition must be true for all nodes  */
   builds_every?: Maybe<B2CAppBuildWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -35293,6 +35313,8 @@ export enum SortB2CAppsBy {
   DeveloperDesc = 'developer_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
+  CurrentBuildAsc = 'currentBuild_ASC',
+  CurrentBuildDesc = 'currentBuild_DESC',
   BuildsAsc = 'builds_ASC',
   BuildsDesc = 'builds_DESC',
   AccessRightsAsc = 'accessRights_ASC',
