@@ -3,13 +3,26 @@
  *
  */
 
-const express = require('express')
 const { get } = require('lodash')
 
 let totalRequests = 0
 let cacheHits = 0
 
 class AdapterCacheMiddleware {
+
+    constructor (config) {
+        try {
+            const config = JSON.parse(config)
+            this.enabled = get(config, 'enabled', false)
+            this.redisUrl = get(config, 'redis_url')
+            this.excludedTables = get(config, 'excluded_tables', [])
+            this.logging = get(config, 'logging', false)
+        }
+        catch (e) {
+            this.enabled = false
+            console.warn(`UNABLE TO ENABLE CACHE, reason ${e}`)
+        }
+    }
 
     // table_name -> queryKey -> { response, lastUpdate}
     cache = {}
@@ -19,14 +32,15 @@ class AdapterCacheMiddleware {
     state = {}
 
     async prepareMiddleware ({ keystone, dev, distDir }) {
-        await initAdapterCache(keystone, this.cache, this.state)
+        if (this.enabled) {
+            await initAdapterCache(keystone, this.cache, this.state, this.logging, this.excludedTables, this.redisUrl)
+        }
     }
 }
 
 const UPDATED_AT = 'updatedAt'
-const UPDATED_AT_SORT_BY = 'updatedAt_DESC'
 
-const initAdapterCache = async (keystone, state, cache) => {
+const initAdapterCache = async (keystone, state, cache, logging, excludedTables, redisUrl) => {
     const keystoneAdapter = keystone.adapter
 
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
@@ -36,12 +50,16 @@ const initAdapterCache = async (keystone, state, cache) => {
         const listName = listAdapter.key
         cache[listName] = {}
 
+        if (excludedTables.includes(listName)) {
+            continue
+        }
+
         const originalItemsQuery = listAdapter._itemsQuery
         listAdapter._itemsQuery = async ( args, opts ) => {
-            
+
             totalRequests++
 
-            const key = JSON.stringify(args) + '_' + JSON.stringify(get(opts, 'from.fromId', null))
+            const key = JSON.stringify(args) + '_' + get(opts, 'from.fromId', null) + '_' + get(opts, 'from.fromField' )
 
             let response = []
             const cached = cache[listName][key]
@@ -51,10 +69,10 @@ const initAdapterCache = async (keystone, state, cache) => {
                 const cacheLastUpdate = cached.lastUpdate
                 if (cacheLastUpdate && cacheLastUpdate === tableLastUpdate) {
                     cacheHits++
-                    console.log(`ADAPTER CACHE: ${cacheHits}/${totalRequests}`)
+                    if (logging) { console.info(`ADAPTER CACHE: ${cacheHits}/${totalRequests} :: KEY: ${key} :: HIT :: ${JSON.stringify(cached.response)}`) }
                     return cached.response
                 }
-            } 
+            }
 
             response = await originalItemsQuery.apply(listAdapter, [args, opts] )
             cache[listName][key] = {
@@ -62,7 +80,7 @@ const initAdapterCache = async (keystone, state, cache) => {
                 response: response,
             }
 
-            console.log(`ADAPTER CACHE: ${cacheHits}/${totalRequests}`)
+            if (logging) { console.info(`ADAPTER CACHE: ${cacheHits}/${totalRequests} :: KEY: ${key} :: MISS :: ${JSON.stringify(response)}`) }
             return response
         }
 
@@ -70,6 +88,7 @@ const initAdapterCache = async (keystone, state, cache) => {
         listAdapter._update = async ( id, data ) => {
             const updateResult = await originalUpdate.apply(listAdapter, [id, data] )
             state[listName] = updateResult[UPDATED_AT]
+            if (logging) { console.info(`UPDATE: ${updateResult}`) }
             return updateResult
         }
 
@@ -77,6 +96,7 @@ const initAdapterCache = async (keystone, state, cache) => {
         listAdapter._create = async ( data ) => {
             const createResult = await originalCreate.apply(listAdapter, [data] )
             state[listName] = createResult[UPDATED_AT]
+            if (logging) { console.info(`CREATE: ${createResult}`) }
             return createResult
         }
 
@@ -84,6 +104,7 @@ const initAdapterCache = async (keystone, state, cache) => {
         listAdapter._delete = async ( id ) => {
             const deleteResult = await originalDelete.apply(listAdapter, [id])
             state[listName] = deleteResult[UPDATED_AT]
+            if (logging) { console.info(`DELETE: ${deleteResult}`) }
             return deleteResult
         }
     }
