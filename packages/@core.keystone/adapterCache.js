@@ -12,11 +12,11 @@ class AdapterCacheMiddleware {
 
     constructor (config) {
         try {
-            const config = JSON.parse(config)
-            this.enabled = get(config, 'enabled', false)
-            this.redisUrl = get(config, 'redis_url')
-            this.excludedTables = get(config, 'excluded_tables', [])
-            this.logging = get(config, 'logging', false)
+            const parsedConfig = JSON.parse(config)
+            this.enabled = get(parsedConfig, 'enable', false)
+            this.redisUrl = get(parsedConfig, 'redis_url')
+            this.excludedTables = get(parsedConfig, 'excluded_tables', [])
+            this.logging = get(parsedConfig, 'logging', false)
         }
         catch (e) {
             this.enabled = false

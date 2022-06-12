@@ -36,6 +36,8 @@ const IS_ENABLE_ADAPTER_CACHE = conf.ENABLE_ADAPTER_CACHE === '1'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_ON_WORKER = conf.PHASE === 'worker'
 
+const ADAPTER_CACHE_CONFIG_JSON = conf.ADAPTER_CACHE_CONFIG_JSON
+
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
     process.env.FILE_FIELD_ADAPTER = 'local' // Test
@@ -141,7 +143,7 @@ module.exports = {
         new GraphQLLoggerApp(),
         new OIDCMiddleware(),
         IS_ENABLE_CACHE ? new KeystoneCacheMiddleware() : undefined,
-        IS_ENABLE_ADAPTER_CACHE ? new AdapterCacheMiddleware() : undefined,
+        new AdapterCacheMiddleware(ADAPTER_CACHE_CONFIG_JSON),
         new GraphQLApp({
             apollo: {
                 formatError,
