@@ -5,7 +5,7 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const { Text, Relationship, File } = require('@keystonejs/fields')
-const { NON_ZIP_FILE_ERROR, NO_APP_ERROR, RESTRICT_APP_CHANGE_ERROR } = require('@condo/domains/miniapp/constants')
+const { NON_ZIP_FILE_ERROR, NO_APP_ERROR, RESTRICT_BUILD_APP_CHANGE_ERROR } = require('@condo/domains/miniapp/constants')
 const { GQLListSchema, getById, getByCondition } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
@@ -38,7 +38,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
                 validateInput: async ({ operation, resolvedData, addFieldValidationError }) => {
                     if (operation === 'update') {
                         if (resolvedData.hasOwnProperty('app') && resolvedData.app !== null) {
-                            return addFieldValidationError(RESTRICT_APP_CHANGE_ERROR)
+                            return addFieldValidationError(RESTRICT_BUILD_APP_CHANGE_ERROR)
                         }
                     }
                 },
@@ -74,7 +74,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
         },
         validateInput: async ({ operation, addValidationError, resolvedData }) => {
             if (operation === 'create' && !resolvedData['app']) {
-                addValidationError(NO_APP_ERROR)
+                return addValidationError(NO_APP_ERROR)
             }
         },
         afterChange: async ({ updatedItem, operation, existingItem, context }) => {

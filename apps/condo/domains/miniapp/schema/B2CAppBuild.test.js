@@ -32,7 +32,7 @@ const {
 const {
     NON_ZIP_FILE_ERROR,
     NO_APP_ERROR,
-    RESTRICT_APP_CHANGE_ERROR,
+    RESTRICT_BUILD_APP_CHANGE_ERROR,
     RESTRICT_BUILD_SELECT_ERROR,
 } = require('@condo/domains/miniapp/constants')
 
@@ -258,9 +258,9 @@ describe('B2CAppBuild', () => {
         })
         describe('Must auto-delete',  () => {
             test('On removing from app\'s build list', async () => {
-                const [app] = await createTestB2CApp(admin)
-                const [build] = await createTestB2CAppBuild(admin, app)
-                await updateTestB2CApp(admin, app.id, {
+                const [newApp] = await createTestB2CApp(admin)
+                const [build] = await createTestB2CAppBuild(admin, newApp)
+                await updateTestB2CApp(admin, newApp.id, {
                     builds: { disconnect: { id: build.id } },
                 })
 
@@ -289,7 +289,7 @@ describe('B2CAppBuild', () => {
                     await updateTestB2CAppBuild(admin, build.id, {
                         app: { connect: { id: app.id } },
                     })
-                }, RESTRICT_APP_CHANGE_ERROR)
+                }, RESTRICT_BUILD_APP_CHANGE_ERROR)
             })
             describe('From app "builds" field',  () => {
                 test('On app update', async () => {
@@ -299,7 +299,7 @@ describe('B2CAppBuild', () => {
                         await updateTestB2CApp(admin, secondApp.id, {
                             builds: { connect: { id: build.id } },
                         })
-                    }, RESTRICT_APP_CHANGE_ERROR)
+                    }, RESTRICT_BUILD_APP_CHANGE_ERROR)
                 })
                 test('On app create', async () => {
                     const [build] = await createTestB2CAppBuild(admin, app)
@@ -307,7 +307,7 @@ describe('B2CAppBuild', () => {
                         await createTestB2CApp(admin,  {
                             builds: { connect: { id: build.id } },
                         })
-                    }, RESTRICT_APP_CHANGE_ERROR)
+                    }, RESTRICT_BUILD_APP_CHANGE_ERROR)
                 })
             })
         })

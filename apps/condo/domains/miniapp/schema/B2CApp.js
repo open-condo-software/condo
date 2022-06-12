@@ -15,8 +15,8 @@ const {
     IS_HIDDEN_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { COLOR_SCHEMA_FIELD } = require('@condo/domains/miniapp/schema/fields/b2cApp')
-const { B2CAppBuild } = require('@condo/domains/miniapp/utils/serverSchema')
-const { RESTRICT_APP_CHANGE_ERROR, RESTRICT_BUILD_SELECT_ERROR } = require('@condo/domains/miniapp/constants')
+const { B2CAppBuild, B2CAppProperty } = require('@condo/domains/miniapp/utils/serverSchema')
+const { RESTRICT_BUILD_APP_CHANGE_ERROR, RESTRICT_PROPERTY_APP_CHANGE_ERROR, RESTRICT_BUILD_SELECT_ERROR } = require('@condo/domains/miniapp/constants')
 
 
 const B2CApp = new GQLListSchema('B2CApp', {
@@ -72,7 +72,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
                         deletedAt: null,
                     })
                     if (restrictedBuilds.length) {
-                        return addFieldValidationError(RESTRICT_APP_CHANGE_ERROR)
+                        return addFieldValidationError(RESTRICT_BUILD_APP_CHANGE_ERROR)
                     }
                 },
             },
@@ -82,6 +82,20 @@ const B2CApp = new GQLListSchema('B2CApp', {
             type: Relationship,
             ref: 'B2CAppProperty.app',
             many: true,
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, addFieldValidationError, operation, existingItem }) => {
+                    const appId = operation === 'create' ? resolvedData.id : existingItem.id
+                    const propertyIds = resolvedData[fieldPath]
+                    const restrictedProperties = await find('B2CAppProperty', {
+                        id_in: propertyIds,
+                        app: { id_not: appId },
+                        deletedAt: null,
+                    })
+                    if (restrictedProperties.length) {
+                        return addFieldValidationError(RESTRICT_PROPERTY_APP_CHANGE_ERROR)
+                    }
+                },
+            },
         },
         accessRights: {
             schemaDoc: 'Specifies set of service users, who can modify B2CAppProperties of the app as well as perform actions on behalf of the application',
@@ -98,9 +112,20 @@ const B2CApp = new GQLListSchema('B2CApp', {
                     app_is_null: true,
                     deletedAt: null,
                 })
+                const propertiesToDelete = await find('B2CAppProperty', {
+                    app_is_null: true,
+                    deletedAt: null,
+                })
                 const deletedAt = dayjs().toISOString()
                 for (const build of buildsToDelete) {
                     await B2CAppBuild.update(context, build.id, {
+                        deletedAt,
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'app-ref-delete' },
+                    })
+                }
+                for (const property of propertiesToDelete) {
+                    await B2CAppProperty.update(context, property.id, {
                         deletedAt,
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'app-ref-delete' },
