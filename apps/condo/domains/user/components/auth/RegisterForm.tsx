@@ -13,6 +13,7 @@ import {
     MIN_PASSWORD_LENGTH_ERROR,
     CONFIRM_PHONE_ACTION_EXPIRED,
     PHONE_ALREADY_REGISTERED_ERROR,
+    PASSWORD_IS_FREQUENTLY_USED_ERROR,
 } from '@condo/domains/user/constants/errors'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
@@ -55,6 +56,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const EmailMsg = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
     const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
+    const PasswordIsFrequentlyUsedMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsFrequentlyUsed' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
     const RegistrationTitle = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
@@ -77,6 +79,10 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             [MIN_PASSWORD_LENGTH_ERROR]: {
                 name: 'password',
                 errors: [PasswordIsTooShortMsg],
+            },
+            [PASSWORD_IS_FREQUENTLY_USED_ERROR]: {
+                name: 'password',
+                errors: [PasswordIsFrequentlyUsedMsg],
             },
         }
     }, [intl])
