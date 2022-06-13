@@ -242,6 +242,7 @@
   "pages.auth.IHaveReadAndAcceptTheAgreement": "Я прочитал и принимаю ваше соглашение",
   "pages.auth.IsNotImplementedYet": "Пока не реализовано ...",
   "pages.auth.LoggedIn": "Авторизован",
+  "pages.auth.PasswordIsFrequentlyUsed": "Пароль слишком простой. Мы нашли его в списке украденных паролей. Нужно использовать что-то более безопасное",
   "pages.auth.PasswordIsTooShort": "Пароль слишком короткий",
   "pages.auth.PasswordWasChanged": "Пароль изменен",
   "pages.auth.PasswordWasChangedDescription": "Вы уже можете использовать свой новый пароль для входа",

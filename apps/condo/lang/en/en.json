@@ -242,6 +242,7 @@
   "pages.auth.IHaveReadAndAcceptTheAgreement": "I have read and accept the agreement",
   "pages.auth.IsNotImplementedYet": "Is not implemented yet ...",
   "pages.auth.LoggedIn": "Logged in",
+  "pages.auth.PasswordIsFrequentlyUsed": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
   "pages.auth.PasswordIsTooShort": "The password is too short!",
   "pages.auth.PasswordWasChanged": "The password was changed",
   "pages.auth.PasswordWasChangedDescription": "You can use you new password to sign in",
