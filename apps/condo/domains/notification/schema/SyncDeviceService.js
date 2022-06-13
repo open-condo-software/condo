@@ -6,7 +6,7 @@ const get = require('lodash/get')
 const { GQLCustomSchema, getById, getByCondition } = require('@core/keystone/schema')
 
 const access = require('@condo/domains/notification/access/SyncDeviceService')
-const { Device: DeviceAPI } = require('@condo/domains/notification/utils/serverSchema')
+const { Device } = require('@condo/domains/notification/utils/serverSchema')
 
 const { PUSH_TRANSPORT_TYPES } = require('../constants/constants')
 
@@ -40,11 +40,11 @@ const SyncDeviceService = new GQLCustomSchema('SyncDeviceService', {
                      * Clear already used pushToken to avoid collisions
                      */
                     if (get(presentDevice, 'id')) {
-                        await DeviceAPI.update(context, presentDevice.id, { pushToken: null })
+                        await Device.update(context, presentDevice.id, { dv, sender, pushToken: null })
                     }
                 }
 
-                const data = await DeviceAPI.updateOrCreate(context, where, attrs)
+                const data = await Device.updateOrCreate(context, where, attrs)
                 const result = await getById('Device', data.id)
 
                 return result
