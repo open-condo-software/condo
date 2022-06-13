@@ -101,14 +101,15 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
             resolver: async (parent, args, context) => {
                 const { data } = args
                 // TODO(DOMA-3209): check dv, email, phone! and make it required
-                const { confirmPhoneActionToken, dv, phone, email, ...restUserData } = data
+                const { dv, sender, confirmPhoneActionToken, phone, email, ...restUserData } = data
                 const userData = {
                     ...restUserData,
                     email: normalizeEmail(email),
                     phone: normalizePhone(phone),
-                    dv: 1,
                     type: STAFF,
                     isPhoneVerified: false,
+                    sender,
+                    dv: 1,
                 }
                 let action = null
                 if (confirmPhoneActionToken) {
@@ -139,7 +140,8 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
                 const user = await User.create(context, userData)
                 if (action) {
-                    await ConfirmPhoneAction.update(context, action.id, { completedAt: new Date().toISOString() })
+                    const completedAt = new Date().toISOString()
+                    await ConfirmPhoneAction.update(context, action.id, { completedAt, sender, dv: 1 })
                 }
                 const sendChannels = [{
                     to: { phone: userData.phone },
@@ -166,7 +168,8 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                             userPhone: userData.phone,
                             dv: 1,
                         },
-                        sender: data.sender,
+                        sender,
+                        dv: 1,
                     })
                 }))
                 return await getById('User', user.id)
