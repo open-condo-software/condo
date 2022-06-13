@@ -6,11 +6,12 @@ const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/co
 const { GQLCustomSchema, getById } = require('@core/keystone/schema')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { ConfirmPhoneAction: ConfirmPhoneActionUtil, ForgotPasswordAction: ForgotPasswordActionUtil, User } = require('@condo/domains/user/utils/serverSchema')
+const { ConfirmPhoneAction, ForgotPasswordAction, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('../constants/errors')
+const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -43,6 +44,15 @@ const errors = {
             type: 'MULTIPLE_USERS_FOUND',
             message: 'Unable to find exact one user to start password recovery',
             messageForUser: 'api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND',
+        },
+        WRONG_PHONE_FORMAT: {
+            mutation: 'startPasswordRecovery',
+            variable: ['data', 'phone'],
+            code: BAD_USER_INPUT,
+            type: WRONG_PHONE_FORMAT,
+            message: 'Wrong format of provided phone number',
+            correctExample: '+79991234567',
+            messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         },
     },
     changePasswordWithToken: {
@@ -96,7 +106,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
         },
         {
             access: true,
-            type: 'input ChangePasswordWithTokenInput { token: String!, password: String! }',
+            type: 'input ChangePasswordWithTokenInput { token: String!, password: String!, sender: SenderFieldInput, dv: Int }',
         },
         {
             access: true,
@@ -116,7 +126,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             resolver: async (parent, args, context, info, extra) => {
                 const { data: { token } } = args
                 const now = extra.extraNow || Date.now()
-                const [action] = await ForgotPasswordActionUtil.getAll(context, {
+                const [action] = await ForgotPasswordAction.getAll(context, {
                     token,
                     expiresAt_gte: new Date(now).toISOString(),
                     usedAt: null,
@@ -137,8 +147,12 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 errors: errors.startPasswordRecovery,
             },
             resolver: async (parent, args, context, info, extra = {}) => {
+                // TODO(DOMA-3209): check the dv, sender and phone value
                 const { data: { phone: inputPhone, sender, dv } } = args
                 const phone = normalizePhone(inputPhone)
+                if (!phone) {
+                    throw new GQLError(errors.startPasswordRecovery.WRONG_PHONE_FORMAT, context)
+                }
                 const extraToken = extra.extraToken || uuid()
                 const extraTokenExpiration = extra.extraTokenExpiration || parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
                 const extraNowTimestamp = extra.extraNowTimestamp || Date.now()
@@ -157,8 +171,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 }
 
                 const userId = users[0].id
-                await ForgotPasswordActionUtil.create(context, {
-                    dv,
+                await ForgotPasswordAction.create(context, {
+                    dv: 1,
                     sender,
                     user: { connect: { id: userId } },
                     token: extraToken,
@@ -190,7 +204,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                             token: extraToken,
                             dv: 1,
                         },
-                        sender: sender,
+                        sender,
+                        dv: 1,
                     })
                 }))
 
@@ -205,14 +220,16 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 errors: errors.changePasswordWithToken,
             },
             resolver: async (parent, args, context, info, extra) => {
-                const { data: { token, password } } = args
+                // TODO(DOMA-3209): check the dv, sender value
+                const { data: { token, password, sender, dv } } = args
                 const now = extra.extraNow || (new Date(Date.now())).toISOString()
 
                 if (password.length < MIN_PASSWORD_LENGTH) {
                     throw new GQLError(errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT, context)
                 }
 
-                let [action] = await ForgotPasswordActionUtil.getAll(context, {
+                // NOTE(pahaz): try to find ForgotPasswordAction
+                let action = await ForgotPasswordAction.getOne(context, {
                     token,
                     expiresAt_gte: now,
                     usedAt: null,
@@ -222,15 +239,18 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
 
                 if (action) {
                     userId = action.user.id
-                    phone = await getById('User', userId).then(p => p.phone)
-                    const tokenId = action.id
+                    const user = await getById('User', userId)
+                    phone = user.phone
 
                     // mark token as used
-                    await ForgotPasswordActionUtil.update(context, tokenId, {
+                    await ForgotPasswordAction.update(context, action.id, {
+                        dv: 1,
+                        sender,
                         usedAt: now,
                     })
                 } else {
-                    [action] = await ConfirmPhoneActionUtil.getAll(context, {
+                    // NOTE(pahaz): try to find ConfirmPhoneAction
+                    action = await ConfirmPhoneAction.getOne(context, {
                         token, 
                         expiresAt_gte: now,
                         completedAt: null,
@@ -249,12 +269,16 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     if (!userId) {
                         throw new GQLError(errors.changePasswordWithToken.USER_NOT_FOUND, context)
                     }
-                    await ConfirmPhoneActionUtil.update(context, action.id, {
+                    await ConfirmPhoneAction.update(context, action.id, {
+                        dv: 1,
+                        sender,
                         completedAt: now,
                     })
                 }
     
                 await User.update(context, userId, {
+                    dv: 1,
+                    sender,
                     password,
                 })
 
