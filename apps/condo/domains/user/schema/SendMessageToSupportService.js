@@ -57,6 +57,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                 const { dv, sender, text, emailFrom, attachments = [], os, appVersion, lang, meta } = data
 
                 const user = get(context, ['req', 'user'])
+                if (!user) throw new Error('You cant execute sendMessageToSupport without user context!')
 
                 const normalizedEmailFrom = normalizeEmail(emailFrom)
                 if (emailFrom && !normalizedEmailFrom) throw new GQLError(errors.WRONG_EMAIL_FORMAT, context)
