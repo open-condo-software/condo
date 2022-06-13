@@ -73,7 +73,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { dv, user } = data
+                const { dv, sender, user } = data
 
                 if (dv !== 1) {
                     throw new GQLError(errors.DV_VERSION_MISMATCH, context)
@@ -89,6 +89,8 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                 }
 
                 await User.update(context, user.id, {
+                    dv: 1,
+                    sender,
                     phone: null,
                     email: null,
                     password: null,
