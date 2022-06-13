@@ -46,6 +46,7 @@ jobs:
           export DISABLE_LOGGING=false
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
           export NOTIFICATION__DISABLE_LOGGING=true
+          export FAKE_ADDRESS_SUGGESTIONS=true
           export WORKER_CONCURRENCY=50
 
           node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'

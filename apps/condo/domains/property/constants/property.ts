@@ -1,7 +1,8 @@
 import { AddressMetaField } from '@app/condo/schema'
+import { VALID_HOUSE_TYPES } from './common'
 
 // "д" - "дом" or "к" - "корпус"
-const validHouseTypes: AddressMetaField['data']['house_type_full'][] = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение', 'здание']
+const validHouseTypes: AddressMetaField['data']['house_type_full'][] = VALID_HOUSE_TYPES
 
 const buildingEmptyMapJson = {
     'dv': 1,
