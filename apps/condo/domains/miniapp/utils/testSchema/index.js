@@ -266,7 +266,7 @@ async function updateTestB2CAppBuild (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestB2CAppProperty (client, app, extraAttrs = {}) {
+async function createTestB2CAppProperty (client, app, extraAttrs = {}, validAddress = true, validHouse = true) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -275,7 +275,7 @@ async function createTestB2CAppProperty (client, app, extraAttrs = {}) {
         dv: 1,
         sender,
         app: { connect: { id: app.id } },
-        address: faker.random.alphaNumeric(8),
+        address: getFakeAddress(validAddress, validHouse),
         ...extraAttrs,
     }
     const obj = await B2CAppProperty.create(client, attrs)
@@ -297,6 +297,15 @@ async function updateTestB2CAppProperty (client, id, extraAttrs = {}) {
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */
+function getFakeAddress(validAddress = true, validHouse = true) {
+    const cityPart = `город ${faker.name.firstName()}`
+    const streetPart = `улица ${faker.name.firstName()}`
+    const houseType = validHouse ? 'дом' : 'бунгало'
+    const houseNumber = validAddress ? `${faker.datatype.number({min: 1, max: 100})}` : ''
+    const housePart = `${houseType} ${houseNumber}`
+
+    return [cityPart, streetPart, housePart].join(', ')
+}
 
 module.exports = {
     allMiniAppsByTestClient,
@@ -310,4 +319,5 @@ module.exports = {
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild,
     B2CAppProperty, createTestB2CAppProperty, updateTestB2CAppProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
+    getFakeAddress,
 }

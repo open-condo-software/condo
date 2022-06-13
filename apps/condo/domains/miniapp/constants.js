@@ -37,7 +37,8 @@ const NO_APP_ERROR = '[app] Cannot create B2C app build without linking it to ap
 const RESTRICT_BUILD_APP_CHANGE_ERROR = '[build:app] The "app" field of B2CAppBuild can only be updated to null to trigger a soft-delete operation. If you want to relink build to another app, you must create a separate build for it'
 const RESTRICT_PROPERTY_APP_CHANGE_ERROR = '[property:app] The "app" field of B2CAppProperty can only be updated to null to trigger a soft-delete operation. If you want to relink property to another app, you must create a separate property for it'
 const RESTRICT_BUILD_SELECT_ERROR = '[currentBuild] Cannot set current build to build of other B2C app'
-
+const INCORRECT_ADDRESS_ERROR = '[address] Incorrect address was provided. Make sure you use normalized address as input'
+const INCORRECT_HOUSE_TYPE_ERROR = '[address] Address with specified house type is not currently supported'
 const B2C_APP_COLOR_SCHEMA_TYPE_NAME = 'AppColorSchemaField'
 const B2C_APP_COLOR_SCHEMA_INPUT_NAME = 'AppColorSchemaFieldInput'
 
@@ -61,6 +62,8 @@ module.exports = {
     RESTRICT_BUILD_APP_CHANGE_ERROR,
     RESTRICT_PROPERTY_APP_CHANGE_ERROR,
     RESTRICT_BUILD_SELECT_ERROR,
+    INCORRECT_ADDRESS_ERROR,
+    INCORRECT_HOUSE_TYPE_ERROR,
     B2C_APP_COLOR_SCHEMA_TYPE_NAME,
     B2C_APP_COLOR_SCHEMA_INPUT_NAME,
 }
