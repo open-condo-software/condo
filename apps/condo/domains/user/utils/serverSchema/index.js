@@ -47,7 +47,7 @@ async function registerNewServiceUser (context, data) {
         query: REGISTER_NEW_SERVICE_USER_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerNewUserService',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -60,7 +60,7 @@ async function resetUser (context, data) {
         query: RESET_USER_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to resetUser',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -73,7 +73,7 @@ async function sendMessageToSupport (context, data) {
         query: SEND_MESSAGE_TO_SUPPORT_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to sendMessageToSupport',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
