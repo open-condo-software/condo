@@ -11,7 +11,10 @@ import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useLazyQuery, useMutation } from '@core/next/apollo'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
-import { PASSWORD_IS_TOO_SHORT } from '@condo/domains/user/constants/errors'
+import {
+    PASSWORD_IS_TOO_SHORT,
+    PASSWORD_IS_FREQUENTLY_USED_ERROR,
+} from '@condo/domains/user/constants/errors'
 import { useAuth } from '@core/next/auth'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -50,6 +53,7 @@ const ChangePasswordPage: AuthPage = () => {
     const AndSignInMsg = intl.formatMessage({ id: 'pages.auth.reset.AndSignInMsg' })
     const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
+    const PasswordIsFrequentlyUsedMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsFrequentlyUsed' })
     const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
     const ChangePasswordTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorLabel' })
@@ -64,6 +68,10 @@ const ChangePasswordPage: AuthPage = () => {
     const ErrorToFormFieldMsgMapping = {
         [PASSWORD_IS_TOO_SHORT]: {
             name: 'password',
+        },
+        [PASSWORD_IS_FREQUENTLY_USED_ERROR]: {
+            name: 'password',
+            errors: [PasswordIsFrequentlyUsedMsg],
         },
     }
 

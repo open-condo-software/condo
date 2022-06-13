@@ -27,6 +27,7 @@ const PHONE_WRONG_FORMAT_ERROR = '[format:phone'
 
 const PHONE_IS_REQUIRED_ERROR = '[phone:required'
 
+const PASSWORD_IS_FREQUENTLY_USED_ERROR = '[password:rejectCommon'
 const CONFIRM_PHONE_ACTION_EXPIRED = '[confirm:phone:expired'
 const CONFIRM_PHONE_SMS_CODE_EXPIRED = '[confirm:phone:smscode:expired'
 const SMS_CODE_EXPIRED = 'SMS_CODE_EXPIRED'
@@ -84,6 +85,7 @@ module.exports = {
     PASSWORD_IS_TOO_SHORT,
     TOKEN_EXPIRED_ERROR,
     MIN_PASSWORD_LENGTH_ERROR,
+    PASSWORD_IS_FREQUENTLY_USED_ERROR,
     CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
     SMS_CODE_EXPIRED,
