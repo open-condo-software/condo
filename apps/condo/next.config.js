@@ -21,7 +21,7 @@ const yandexMetrikaID = conf['YANDEX_METRIKA_ID']
 const trackingConfig = conf['TRACKING_CONFIG'] && JSON.parse(conf['TRACKING_CONFIG'])
 const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
-const JIRAServiceDeskWidgetKey = conf['JIRA_SERVICE_DESK_WIDGET_KEY']
+const JivoSiteWidgetId = conf['JIVO_SITE_WIDGET_ID']
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -38,7 +38,7 @@ module.exports = withTM(withLess(withCSS({
         trackingConfig,
         defaultLocale,
         insuranceAppUrl,
-        JIRAServiceDeskWidgetKey,
+        JivoSiteWidgetId,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
