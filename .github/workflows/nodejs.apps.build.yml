@@ -42,6 +42,7 @@ jobs:
           echo 'WORKER_REDIS_URL=undefined' >> .env
           echo 'NODE_ENV=production' >> .env
           echo 'FILE_FIELD_ADAPTER=local' >> .env
+          echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
 
       - name: test app/condo
         run: |
