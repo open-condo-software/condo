@@ -104,7 +104,7 @@ const B2CAppProperty = new GQLListSchema('B2CAppProperty', {
                 type: 'models.UniqueConstraint',
                 fields: ['address', 'app'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'b2c_app_build_unique_version',
+                name: 'b2c_app_property_unique_address',
             },
         ],
     },
