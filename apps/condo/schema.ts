@@ -8930,6 +8930,8 @@ export enum CacheControlScope {
 export type ChangePasswordWithTokenInput = {
   token: Scalars['String'];
   password: Scalars['String'];
+  sender?: Maybe<SenderFieldInput>;
+  dv?: Maybe<Scalars['Int']>;
 };
 
 export type ChangePasswordWithTokenOutput = {
@@ -8969,9 +8971,11 @@ export type CheckPropertyWithAddressExistOutput = {
 };
 
 export type CompleteConfirmPhoneActionInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  captcha: Scalars['String'];
   token: Scalars['String'];
   smsCode: Scalars['Int'];
-  captcha: Scalars['String'];
 };
 
 export type CompleteConfirmPhoneActionOutput = {
@@ -16796,6 +16800,19 @@ export type Mutation = {
    *   "message": "Unable to find exact one user to start password recovery",
    *   "messageForUser": "api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND"
    * }`
+   *
+   * `{
+   *   "mutation": "startPasswordRecovery",
+   *   "variable": [
+   *     "data",
+   *     "phone"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_PHONE_FORMAT",
+   *   "message": "Wrong format of provided phone number",
+   *   "correctExample": "+79991234567",
+   *   "messageForUser": "api.common.WRONG_PHONE_FORMAT"
+   * }`
    */
   startPasswordRecovery?: Maybe<StartPasswordRecoveryOutput>;
   /**
@@ -17069,6 +17086,17 @@ export type Mutation = {
    *   ],
    *   "messageForUser": "api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
    * }`
+   *
+   * `{
+   *   "mutation": "changePhoneNumberResidentUser",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
+   * }`
    */
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
   /**
@@ -17191,6 +17219,17 @@ export type Mutation = {
    *   "type": "UNABLE_TO_REGISTER_USER",
    *   "message": "Unable to register user",
    *   "messageForUser": "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER"
+   * }`
+   *
+   * `{
+   *   "mutation": "inviteNewOrganizationEmployee",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
    * }`
    */
   inviteNewOrganizationEmployee?: Maybe<OrganizationEmployee>;
@@ -30670,9 +30709,10 @@ export type RegisterServiceConsumerInputExtra = {
 };
 
 export type ResendConfirmPhoneActionSmsInput = {
-  token: Scalars['String'];
+  dv?: Maybe<Scalars['Int']>;
   sender: SenderFieldInput;
   captcha: Scalars['String'];
+  token: Scalars['String'];
 };
 
 export type ResendConfirmPhoneActionSmsOutput = {
@@ -31483,6 +31523,7 @@ export type SendMessageInput = {
   sender: SenderFieldInput;
   to: SendMessageToInput;
   emailFrom?: Maybe<Scalars['String']>;
+  replyTo?: Maybe<Scalars['String']>;
   type: SendMessageType;
   lang: SendMessageLang;
   meta: Scalars['JSON'];
@@ -36913,10 +36954,10 @@ export enum SortUsersBy {
 }
 
 export type StartConfirmPhoneActionInput = {
-  phone: Scalars['String'];
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   captcha: Scalars['String'];
+  phone: Scalars['String'];
 };
 
 export type StartConfirmPhoneActionOutput = {
