@@ -52,7 +52,7 @@ async function createTestOrganization (client, extraAttrs = {}) {
     const country = DEFAULT_ENGLISH_COUNTRY
     const name = faker.company.companyName()
     const description = faker.company.catchPhrase()
-    const tin = faker.random.alphaNumeric(10)
+    const tin = generateTin(country)
     const meta = {
         dv: 1,
         kpp: faker.random.alphaNumeric(9),
@@ -81,7 +81,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const tin = faker.random.alphaNumeric(10)
+    const tin = generateTin(DEFAULT_ENGLISH_COUNTRY)
 
     const meta = {
         kpp: faker.random.alphaNumeric(9),
@@ -290,6 +290,50 @@ async function updateTestTokenSet (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+function generateInn () {
+    const rnd = () => faker.datatype.number({
+        min: 1,
+        max: 9,
+    })
+    const innBase = [rnd(), rnd(), rnd(), rnd(), rnd(), rnd(), rnd(), rnd(), rnd()]
+
+    const RU_TIN_DIGITS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
+    const n = RU_TIN_DIGITS.slice(-10)
+    let sum = 0
+
+    for (let i = 0; i < innBase.length; i++) sum += innBase[i] * n[i]
+
+    const baseRest = sum % 11 % 10
+    innBase.push(baseRest)
+
+    return parseInt(innBase.join(''))
+}
+
+function generateNiNumber() {
+    // https://ninoapplication.com/letters-in-my-ni-number/
+    // The prefix is simply two letters that are allocated to each new series of NI number.
+    const prefix = 'PL'
+
+    // number of NI
+    const number = faker.datatype.number({
+        min: 100000,
+        max: 999999,
+    })
+
+    // The single letter suffix can be A, B, C or D
+    const suffix = 'D'
+
+    return `${prefix}${number}${suffix}`
+}
+
+function generateTin(country) {
+    if (country === RUSSIA_COUNTRY) {
+        return generateInn()
+    } else {
+        return generateNiNumber()
+    }
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -313,5 +357,6 @@ module.exports = {
     acceptOrRejectOrganizationInviteByCode,
     makeClientWithRegisteredOrganization,
     TokenSet, createTestTokenSet, updateTestTokenSet,
+    generateTin
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

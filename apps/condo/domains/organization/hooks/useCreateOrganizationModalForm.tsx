@@ -39,7 +39,7 @@ const adaptOrganizationMeta = (values) => {
     return convertUIStateToGQLItem({
         name,
         tin: tin.trim(),
-        meta: { v: 1 },
+        meta: { dv: 1 },
     })
 }
 const findPropByValue = (list, path, value) => list.find(item => get(item, path) === value)
