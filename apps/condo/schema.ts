@@ -17332,30 +17332,6 @@ export type Mutation = {
   deleteTicketSource?: Maybe<TicketSource>;
   /**  Delete multiple TicketSource items by ID.  */
   deleteTicketSources?: Maybe<Array<Maybe<TicketSource>>>;
-  /**  Create a single TicketClassifierHistoryRecord item.  */
-  createTicketClassifierHistoryRecord?: Maybe<TicketClassifierHistoryRecord>;
-  /**  Create multiple TicketClassifierHistoryRecord items.  */
-  createTicketClassifierHistoryRecords?: Maybe<Array<Maybe<TicketClassifierHistoryRecord>>>;
-  /**  Update a single TicketClassifierHistoryRecord item by ID.  */
-  updateTicketClassifierHistoryRecord?: Maybe<TicketClassifierHistoryRecord>;
-  /**  Update multiple TicketClassifierHistoryRecord items by ID.  */
-  updateTicketClassifierHistoryRecords?: Maybe<Array<Maybe<TicketClassifierHistoryRecord>>>;
-  /**  Delete a single TicketClassifierHistoryRecord item by ID.  */
-  deleteTicketClassifierHistoryRecord?: Maybe<TicketClassifierHistoryRecord>;
-  /**  Delete multiple TicketClassifierHistoryRecord items by ID.  */
-  deleteTicketClassifierHistoryRecords?: Maybe<Array<Maybe<TicketClassifierHistoryRecord>>>;
-  /**  Create a single TicketClassifier item.  */
-  createTicketClassifier?: Maybe<TicketClassifier>;
-  /**  Create multiple TicketClassifier items.  */
-  createTicketClassifiers?: Maybe<Array<Maybe<TicketClassifier>>>;
-  /**  Update a single TicketClassifier item by ID.  */
-  updateTicketClassifier?: Maybe<TicketClassifier>;
-  /**  Update multiple TicketClassifier items by ID.  */
-  updateTicketClassifiers?: Maybe<Array<Maybe<TicketClassifier>>>;
-  /**  Delete a single TicketClassifier item by ID.  */
-  deleteTicketClassifier?: Maybe<TicketClassifier>;
-  /**  Delete multiple TicketClassifier items by ID.  */
-  deleteTicketClassifiers?: Maybe<Array<Maybe<TicketClassifier>>>;
   /**  Create a single TicketStatusHistoryRecord item.  */
   createTicketStatusHistoryRecord?: Maybe<TicketStatusHistoryRecord>;
   /**  Create multiple TicketStatusHistoryRecord items.  */
@@ -20993,68 +20969,6 @@ export type MutationDeleteTicketSourceArgs = {
 
 
 export type MutationDeleteTicketSourcesArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateTicketClassifierHistoryRecordArgs = {
-  data?: Maybe<TicketClassifierHistoryRecordCreateInput>;
-};
-
-
-export type MutationCreateTicketClassifierHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<TicketClassifierHistoryRecordsCreateInput>>>;
-};
-
-
-export type MutationUpdateTicketClassifierHistoryRecordArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<TicketClassifierHistoryRecordUpdateInput>;
-};
-
-
-export type MutationUpdateTicketClassifierHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<TicketClassifierHistoryRecordsUpdateInput>>>;
-};
-
-
-export type MutationDeleteTicketClassifierHistoryRecordArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteTicketClassifierHistoryRecordsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateTicketClassifierArgs = {
-  data?: Maybe<TicketClassifierCreateInput>;
-};
-
-
-export type MutationCreateTicketClassifiersArgs = {
-  data?: Maybe<Array<Maybe<TicketClassifiersCreateInput>>>;
-};
-
-
-export type MutationUpdateTicketClassifierArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<TicketClassifierUpdateInput>;
-};
-
-
-export type MutationUpdateTicketClassifiersArgs = {
-  data?: Maybe<Array<Maybe<TicketClassifiersUpdateInput>>>;
-};
-
-
-export type MutationDeleteTicketClassifierArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteTicketClassifiersArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -28771,22 +28685,6 @@ export type Query = {
   _allTicketSourcesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the TicketSource list.  */
   _TicketSourcesMeta?: Maybe<_ListMeta>;
-  /**  Search for all TicketClassifierHistoryRecord items which match the where clause.  */
-  allTicketClassifierHistoryRecords?: Maybe<Array<Maybe<TicketClassifierHistoryRecord>>>;
-  /**  Search for the TicketClassifierHistoryRecord item with the matching ID.  */
-  TicketClassifierHistoryRecord?: Maybe<TicketClassifierHistoryRecord>;
-  /**  Perform a meta-query on all TicketClassifierHistoryRecord items which match the where clause.  */
-  _allTicketClassifierHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the TicketClassifierHistoryRecord list.  */
-  _TicketClassifierHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all TicketClassifier items which match the where clause.  */
-  allTicketClassifiers?: Maybe<Array<Maybe<TicketClassifier>>>;
-  /**  Search for the TicketClassifier item with the matching ID.  */
-  TicketClassifier?: Maybe<TicketClassifier>;
-  /**  Perform a meta-query on all TicketClassifier items which match the where clause.  */
-  _allTicketClassifiersMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the TicketClassifier list.  */
-  _TicketClassifiersMeta?: Maybe<_ListMeta>;
   /**  Search for all TicketStatusHistoryRecord items which match the where clause.  */
   allTicketStatusHistoryRecords?: Maybe<Array<Maybe<TicketStatusHistoryRecord>>>;
   /**  Search for the TicketStatusHistoryRecord item with the matching ID.  */
@@ -30646,56 +30544,6 @@ export type Query_AllTicketSourcesMetaArgs = {
   where?: Maybe<TicketSourceWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortTicketSourcesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllTicketClassifierHistoryRecordsArgs = {
-  where?: Maybe<TicketClassifierHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortTicketClassifierHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryTicketClassifierHistoryRecordArgs = {
-  where: TicketClassifierHistoryRecordWhereUniqueInput;
-};
-
-
-export type Query_AllTicketClassifierHistoryRecordsMetaArgs = {
-  where?: Maybe<TicketClassifierHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortTicketClassifierHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllTicketClassifiersArgs = {
-  where?: Maybe<TicketClassifierWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortTicketClassifiersBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryTicketClassifierArgs = {
-  where: TicketClassifierWhereUniqueInput;
-};
-
-
-export type Query_AllTicketClassifiersMetaArgs = {
-  where?: Maybe<TicketClassifierWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortTicketClassifiersBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -33390,8 +33238,7 @@ export type ResidentTicketOutput = {
   source: TicketSource;
   id: Scalars['ID'];
   createdAt: Scalars['String'];
-  updatedAt?: Maybe<Scalars['String']>;
-  classifier?: Maybe<TicketClassifier>;
+  updatedAt: Scalars['String'];
   placeClassifier?: Maybe<TicketPlaceClassifier>;
   problemClassifier?: Maybe<TicketProblemClassifier>;
   classifierRule?: Maybe<TicketClassifierRule>;
@@ -33446,8 +33293,6 @@ export type ResidentTicketWhereInput = {
   status_is_null?: Maybe<Scalars['Boolean']>;
   source?: Maybe<TicketSourceWhereInput>;
   source_is_null?: Maybe<Scalars['Boolean']>;
-  classifier?: Maybe<TicketClassifierWhereInput>;
-  classifier_is_null?: Maybe<Scalars['Boolean']>;
   placeClassifier?: Maybe<TicketPlaceClassifierWhereInput>;
   placeClassifier_is_null?: Maybe<Scalars['Boolean']>;
   problemClassifier?: Maybe<TicketProblemClassifierWhereInput>;
@@ -37956,8 +37801,6 @@ export enum SortResidentTicketsBy {
   StatusDesc = 'status_DESC',
   SourceAsc = 'source_ASC',
   SourceDesc = 'source_DESC',
-  ClassifierAsc = 'classifier_ASC',
-  ClassifierDesc = 'classifier_DESC',
   PlaceClassifierAsc = 'placeClassifier_ASC',
   PlaceClassifierDesc = 'placeClassifier_DESC',
   ProblemClassifierAsc = 'problemClassifier_ASC',
@@ -38386,14 +38229,6 @@ export enum SortTicketChangesBy {
   ExecutorDisplayNameFromDesc = 'executorDisplayNameFrom_DESC',
   ExecutorDisplayNameToAsc = 'executorDisplayNameTo_ASC',
   ExecutorDisplayNameToDesc = 'executorDisplayNameTo_DESC',
-  ClassifierIdFromAsc = 'classifierIdFrom_ASC',
-  ClassifierIdFromDesc = 'classifierIdFrom_DESC',
-  ClassifierIdToAsc = 'classifierIdTo_ASC',
-  ClassifierIdToDesc = 'classifierIdTo_DESC',
-  ClassifierDisplayNameFromAsc = 'classifierDisplayNameFrom_ASC',
-  ClassifierDisplayNameFromDesc = 'classifierDisplayNameFrom_DESC',
-  ClassifierDisplayNameToAsc = 'classifierDisplayNameTo_ASC',
-  ClassifierDisplayNameToDesc = 'classifierDisplayNameTo_DESC',
   PlaceClassifierIdFromAsc = 'placeClassifierIdFrom_ASC',
   PlaceClassifierIdFromDesc = 'placeClassifierIdFrom_DESC',
   PlaceClassifierIdToAsc = 'placeClassifierIdTo_ASC',
@@ -38456,27 +38291,6 @@ export enum SortTicketChangesBy {
   UpdatedByDesc = 'updatedBy_DESC'
 }
 
-export enum SortTicketClassifierHistoryRecordsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  HistoryDateAsc = 'history_date_ASC',
-  HistoryDateDesc = 'history_date_DESC',
-  HistoryActionAsc = 'history_action_ASC',
-  HistoryActionDesc = 'history_action_DESC'
-}
-
 export enum SortTicketClassifierRuleHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
@@ -38507,31 +38321,6 @@ export enum SortTicketClassifierRulesBy {
   CategoryDesc = 'category_DESC',
   ProblemAsc = 'problem_ASC',
   ProblemDesc = 'problem_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  CreatedByAsc = 'createdBy_ASC',
-  CreatedByDesc = 'createdBy_DESC',
-  UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC'
-}
-
-export enum SortTicketClassifiersBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
-  ParentAsc = 'parent_ASC',
-  ParentDesc = 'parent_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -39060,8 +38849,6 @@ export enum SortTicketsBy {
   AssigneeDesc = 'assignee_DESC',
   ExecutorAsc = 'executor_ASC',
   ExecutorDesc = 'executor_DESC',
-  ClassifierAsc = 'classifier_ASC',
-  ClassifierDesc = 'classifier_DESC',
   PlaceClassifierAsc = 'placeClassifier_ASC',
   PlaceClassifierDesc = 'placeClassifier_DESC',
   CategoryClassifierAsc = 'categoryClassifier_ASC',
@@ -39395,8 +39182,6 @@ export type Ticket = {
   assignee?: Maybe<User>;
   /**  Executor employee/user who perform the issue  */
   executor?: Maybe<User>;
-  /**  [DEPRECATED] Old classifier will be removed after migration of existed data  */
-  classifier?: Maybe<TicketClassifier>;
   /**  Describe where incident took place  */
   placeClassifier?: Maybe<TicketPlaceClassifier>;
   /**  Describe type of work needed  */
@@ -39994,14 +39779,6 @@ export type TicketChange = {
   executorDisplayNameFrom?: Maybe<Scalars['String']>;
   /**  New display name of related entity. Executor employee/user who perform the issue  */
   executorDisplayNameTo?: Maybe<Scalars['String']>;
-  /**  Old id of related entity. [DEPRECATED] Old classifier will be removed after migration of existed data  */
-  classifierIdFrom?: Maybe<Scalars['ID']>;
-  /**  New id of related entity. [DEPRECATED] Old classifier will be removed after migration of existed data  */
-  classifierIdTo?: Maybe<Scalars['ID']>;
-  /**  Old display name of related entity. [DEPRECATED] Old classifier will be removed after migration of existed data  */
-  classifierDisplayNameFrom?: Maybe<Scalars['String']>;
-  /**  New display name of related entity. [DEPRECATED] Old classifier will be removed after migration of existed data  */
-  classifierDisplayNameTo?: Maybe<Scalars['String']>;
   /**  Old id of related entity. Describe where incident took place  */
   placeClassifierIdFrom?: Maybe<Scalars['ID']>;
   /**  New id of related entity. Describe where incident took place  */
@@ -40140,10 +39917,6 @@ export type TicketChangeCreateInput = {
   executorIdTo?: Maybe<Scalars['ID']>;
   executorDisplayNameFrom?: Maybe<Scalars['String']>;
   executorDisplayNameTo?: Maybe<Scalars['String']>;
-  classifierIdFrom?: Maybe<Scalars['ID']>;
-  classifierIdTo?: Maybe<Scalars['ID']>;
-  classifierDisplayNameFrom?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo?: Maybe<Scalars['String']>;
   placeClassifierIdFrom?: Maybe<Scalars['ID']>;
   placeClassifierIdTo?: Maybe<Scalars['ID']>;
   placeClassifierDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -40265,10 +40038,6 @@ export type TicketChangeUpdateInput = {
   executorIdTo?: Maybe<Scalars['ID']>;
   executorDisplayNameFrom?: Maybe<Scalars['String']>;
   executorDisplayNameTo?: Maybe<Scalars['String']>;
-  classifierIdFrom?: Maybe<Scalars['ID']>;
-  classifierIdTo?: Maybe<Scalars['ID']>;
-  classifierDisplayNameFrom?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo?: Maybe<Scalars['String']>;
   placeClassifierIdFrom?: Maybe<Scalars['ID']>;
   placeClassifierIdTo?: Maybe<Scalars['ID']>;
   placeClassifierDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -41105,50 +40874,6 @@ export type TicketChangeWhereInput = {
   executorDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   executorDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   executorDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifierIdFrom?: Maybe<Scalars['ID']>;
-  classifierIdFrom_not?: Maybe<Scalars['ID']>;
-  classifierIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  classifierIdFrom_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  classifierIdTo?: Maybe<Scalars['ID']>;
-  classifierIdTo_not?: Maybe<Scalars['ID']>;
-  classifierIdTo_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  classifierIdTo_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  classifierDisplayNameFrom?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_contains?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_contains?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_starts_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_starts_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_ends_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_ends_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_contains_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_contains_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_starts_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_starts_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_ends_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_not_ends_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifierDisplayNameFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifierDisplayNameTo?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_contains?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_contains?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_starts_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_starts_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_ends_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_ends_with?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_contains_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_contains_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_starts_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_starts_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_ends_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
-  classifierDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifierDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   placeClassifierIdFrom?: Maybe<Scalars['ID']>;
   placeClassifierIdFrom_not?: Maybe<Scalars['ID']>;
   placeClassifierIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -41458,261 +41183,6 @@ export type TicketChangesCreateInput = {
 export type TicketChangesUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketChangeUpdateInput>;
-};
-
-/**  [DEPRECATED] Ticket typification/classification. Will be removed after migration  */
-export type TicketClassifier = {
-  __typename?: 'TicketClassifier';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the TicketClassifier List config, or
-   *  2. As an alias to the field set on 'labelField' in the TicketClassifier List config, or
-   *  3. As an alias to a 'name' field on the TicketClassifier List (if one exists), or
-   *  4. As an alias to the 'id' field on the TicketClassifier List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
-  /**  Ref to the organization. If this ref is null the object is common for all organizations  */
-  organization?: Maybe<Organization>;
-  /**  Multi level name  */
-  fullName?: Maybe<Scalars['String']>;
-  /**  This level name  */
-  name?: Maybe<Scalars['String']>;
-  /**  Multi level classification support  */
-  parent?: Maybe<TicketClassifier>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  createdBy?: Maybe<User>;
-  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  updatedBy?: Maybe<User>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-};
-
-export type TicketClassifierCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
-  name?: Maybe<Scalars['String']>;
-  parent?: Maybe<TicketClassifierRelateToOneInput>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-};
-
-/**  A keystone list  */
-export type TicketClassifierHistoryRecord = {
-  __typename?: 'TicketClassifierHistoryRecord';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the TicketClassifierHistoryRecord List config, or
-   *  2. As an alias to the field set on 'labelField' in the TicketClassifierHistoryRecord List config, or
-   *  3. As an alias to a 'name' field on the TicketClassifierHistoryRecord List (if one exists), or
-   *  4. As an alias to the 'id' field on the TicketClassifierHistoryRecord List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
-  fullName?: Maybe<Scalars['JSON']>;
-  name?: Maybe<Scalars['String']>;
-  parent?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<TicketClassifierHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type TicketClassifierHistoryRecordCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
-  fullName?: Maybe<Scalars['JSON']>;
-  name?: Maybe<Scalars['String']>;
-  parent?: Maybe<Scalars['String']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<TicketClassifierHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export enum TicketClassifierHistoryRecordHistoryActionType {
-  C = 'c',
-  U = 'u',
-  D = 'd'
-}
-
-export type TicketClassifierHistoryRecordUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
-  fullName?: Maybe<Scalars['JSON']>;
-  name?: Maybe<Scalars['String']>;
-  parent?: Maybe<Scalars['String']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<TicketClassifierHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type TicketClassifierHistoryRecordWhereInput = {
-  AND?: Maybe<Array<Maybe<TicketClassifierHistoryRecordWhereInput>>>;
-  OR?: Maybe<Array<Maybe<TicketClassifierHistoryRecordWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  fullName?: Maybe<Scalars['JSON']>;
-  fullName_not?: Maybe<Scalars['JSON']>;
-  fullName_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  fullName_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  name?: Maybe<Scalars['String']>;
-  name_not?: Maybe<Scalars['String']>;
-  name_contains?: Maybe<Scalars['String']>;
-  name_not_contains?: Maybe<Scalars['String']>;
-  name_starts_with?: Maybe<Scalars['String']>;
-  name_not_starts_with?: Maybe<Scalars['String']>;
-  name_ends_with?: Maybe<Scalars['String']>;
-  name_not_ends_with?: Maybe<Scalars['String']>;
-  name_i?: Maybe<Scalars['String']>;
-  name_not_i?: Maybe<Scalars['String']>;
-  name_contains_i?: Maybe<Scalars['String']>;
-  name_not_contains_i?: Maybe<Scalars['String']>;
-  name_starts_with_i?: Maybe<Scalars['String']>;
-  name_not_starts_with_i?: Maybe<Scalars['String']>;
-  name_ends_with_i?: Maybe<Scalars['String']>;
-  name_not_ends_with_i?: Maybe<Scalars['String']>;
-  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  parent?: Maybe<Scalars['String']>;
-  parent_not?: Maybe<Scalars['String']>;
-  parent_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  parent_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<Scalars['String']>;
-  createdBy_not?: Maybe<Scalars['String']>;
-  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy?: Maybe<Scalars['String']>;
-  updatedBy_not?: Maybe<Scalars['String']>;
-  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['JSON']>;
-  newId_not?: Maybe<Scalars['JSON']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  history_date?: Maybe<Scalars['String']>;
-  history_date_not?: Maybe<Scalars['String']>;
-  history_date_lt?: Maybe<Scalars['String']>;
-  history_date_lte?: Maybe<Scalars['String']>;
-  history_date_gt?: Maybe<Scalars['String']>;
-  history_date_gte?: Maybe<Scalars['String']>;
-  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_action?: Maybe<TicketClassifierHistoryRecordHistoryActionType>;
-  history_action_not?: Maybe<TicketClassifierHistoryRecordHistoryActionType>;
-  history_action_in?: Maybe<Array<Maybe<TicketClassifierHistoryRecordHistoryActionType>>>;
-  history_action_not_in?: Maybe<Array<Maybe<TicketClassifierHistoryRecordHistoryActionType>>>;
-  history_id?: Maybe<Scalars['String']>;
-  history_id_not?: Maybe<Scalars['String']>;
-  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type TicketClassifierHistoryRecordWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type TicketClassifierHistoryRecordsCreateInput = {
-  data?: Maybe<TicketClassifierHistoryRecordCreateInput>;
-};
-
-export type TicketClassifierHistoryRecordsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<TicketClassifierHistoryRecordUpdateInput>;
-};
-
-export type TicketClassifierRelateToOneInput = {
-  create?: Maybe<TicketClassifierCreateInput>;
-  connect?: Maybe<TicketClassifierWhereUniqueInput>;
-  disconnect?: Maybe<TicketClassifierWhereUniqueInput>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
 /**  Rules for all possible valid combinations of classifiers  */
@@ -42053,117 +41523,6 @@ export type TicketClassifierRulesCreateInput = {
 export type TicketClassifierRulesUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketClassifierRuleUpdateInput>;
-};
-
-export type TicketClassifierUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
-  name?: Maybe<Scalars['String']>;
-  parent?: Maybe<TicketClassifierRelateToOneInput>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-};
-
-export type TicketClassifierWhereInput = {
-  AND?: Maybe<Array<Maybe<TicketClassifierWhereInput>>>;
-  OR?: Maybe<Array<Maybe<TicketClassifierWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
-  name?: Maybe<Scalars['String']>;
-  name_not?: Maybe<Scalars['String']>;
-  name_contains?: Maybe<Scalars['String']>;
-  name_not_contains?: Maybe<Scalars['String']>;
-  name_starts_with?: Maybe<Scalars['String']>;
-  name_not_starts_with?: Maybe<Scalars['String']>;
-  name_ends_with?: Maybe<Scalars['String']>;
-  name_not_ends_with?: Maybe<Scalars['String']>;
-  name_i?: Maybe<Scalars['String']>;
-  name_not_i?: Maybe<Scalars['String']>;
-  name_contains_i?: Maybe<Scalars['String']>;
-  name_not_contains_i?: Maybe<Scalars['String']>;
-  name_starts_with_i?: Maybe<Scalars['String']>;
-  name_not_starts_with_i?: Maybe<Scalars['String']>;
-  name_ends_with_i?: Maybe<Scalars['String']>;
-  name_not_ends_with_i?: Maybe<Scalars['String']>;
-  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  parent?: Maybe<TicketClassifierWhereInput>;
-  parent_is_null?: Maybe<Scalars['Boolean']>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<UserWhereInput>;
-  createdBy_is_null?: Maybe<Scalars['Boolean']>;
-  updatedBy?: Maybe<UserWhereInput>;
-  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['String']>;
-  newId_not?: Maybe<Scalars['String']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type TicketClassifierWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type TicketClassifiersCreateInput = {
-  data?: Maybe<TicketClassifierCreateInput>;
-};
-
-export type TicketClassifiersUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<TicketClassifierUpdateInput>;
 };
 
 /**  Textual comment for tickets  */
@@ -43261,7 +42620,6 @@ export type TicketCreateInput = {
   operator?: Maybe<UserRelateToOneInput>;
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
-  classifier?: Maybe<TicketClassifierRelateToOneInput>;
   placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
   categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
   problemClassifier?: Maybe<TicketProblemClassifierRelateToOneInput>;
@@ -44035,7 +43393,6 @@ export type TicketHistoryRecord = {
   operator?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
-  classifier?: Maybe<Scalars['String']>;
   placeClassifier?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
   problemClassifier?: Maybe<Scalars['String']>;
@@ -44090,7 +43447,6 @@ export type TicketHistoryRecordCreateInput = {
   operator?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
-  classifier?: Maybe<Scalars['String']>;
   placeClassifier?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
   problemClassifier?: Maybe<Scalars['String']>;
@@ -44150,7 +43506,6 @@ export type TicketHistoryRecordUpdateInput = {
   operator?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
-  classifier?: Maybe<Scalars['String']>;
   placeClassifier?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
   problemClassifier?: Maybe<Scalars['String']>;
@@ -44370,10 +43725,6 @@ export type TicketHistoryRecordWhereInput = {
   executor_not?: Maybe<Scalars['String']>;
   executor_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   executor_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifier?: Maybe<Scalars['String']>;
-  classifier_not?: Maybe<Scalars['String']>;
-  classifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  classifier_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   placeClassifier?: Maybe<Scalars['String']>;
   placeClassifier_not?: Maybe<Scalars['String']>;
   placeClassifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -46149,7 +45500,6 @@ export type TicketUpdateInput = {
   operator?: Maybe<UserRelateToOneInput>;
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
-  classifier?: Maybe<TicketClassifierRelateToOneInput>;
   placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
   categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
   problemClassifier?: Maybe<TicketProblemClassifierRelateToOneInput>;
@@ -46342,8 +45692,6 @@ export type TicketWhereInput = {
   assignee_is_null?: Maybe<Scalars['Boolean']>;
   executor?: Maybe<UserWhereInput>;
   executor_is_null?: Maybe<Scalars['Boolean']>;
-  classifier?: Maybe<TicketClassifierWhereInput>;
-  classifier_is_null?: Maybe<Scalars['Boolean']>;
   placeClassifier?: Maybe<TicketPlaceClassifierWhereInput>;
   placeClassifier_is_null?: Maybe<Scalars['Boolean']>;
   categoryClassifier?: Maybe<TicketCategoryClassifierWhereInput>;
