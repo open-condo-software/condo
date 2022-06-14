@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/user/access/SendMessageToSupportService')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MESSAGE_FORWARDED_TO_SUPPORT_TYPE } = require('@condo/domains/notification/constants/constants')
-const { SUPPORT_EMAIL } = require('@condo/domains/common/constants/requisites')
+const { SUPPORT_EMAIL, NO_REPLY } = require('@condo/domains/common/constants/requisites')
 const { get } = require('lodash')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
@@ -15,12 +15,11 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { v4: uuid } = require('uuid')
 const dayjs = require('dayjs')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-
-const SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
-const fileAdapter = new FileAdapter(SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME)
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
+const SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
+const fileAdapter = new FileAdapter(SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME)
 
 const errors = {
     WRONG_EMAIL_FORMAT: {
@@ -112,7 +111,8 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                     to: {
                         email: SUPPORT_EMAIL,
                     },
-                    emailFrom: normalizedEmailFrom ? `${user.name} <${normalizedEmailFrom}>` : null,
+                    emailFrom: NO_REPLY,
+                    replyTo: normalizedEmailFrom ? `${user.name} <${normalizedEmailFrom}>` : null,
                     meta: {
                         dv,
                         text,
