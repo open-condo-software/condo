@@ -1,19 +1,16 @@
 /** @jsx jsx */
 import React, { useEffect, useState } from 'react'
-
-import { load } from '@2gis/mapgl'
-
-import { DEFAULT_CENTER, MARKER_SVG_URL } from '../constants/map'
 import { Card, Tag } from 'antd'
+import { load } from '@2gis/mapgl'
+import { InterpolationWithTheme } from '@emotion/core'
+import { jsx } from '@emotion/react'
 
-const GUEST_API_KEY = 'bfd8bbca-8abf-11ea-b033-5fa57aae2de7'
 import getConfig from 'next/config'
 
-import { InterpolationWithTheme, jsx } from '@emotion/core'
+import { DEFAULT_CENTER, MARKER_SVG_URL } from '../constants/map'
 
-const {
-    publicRuntimeConfig: { mapApiKey },
-} = getConfig()
+const GUEST_API_KEY = 'bfd8bbca-8abf-11ea-b033-5fa57aae2de7'
+const { publicRuntimeConfig: { mapApiKey } } = getConfig()
 
 export interface IPointsOfInterest {
     title?: string,
@@ -27,14 +24,11 @@ export interface IMapProps {
     containerCss?: InterpolationWithTheme<any>
 }
 
-
-const _toArrCoordinates = ({ lng, lat }) => [Number(lng), Number(lat)] 
+const _toArrCoordinates = ({ lng, lat }) => [Number(lng), Number(lat)]
 
 export const MapGL: React.FC<IMapProps> = ({ points, containerCss }) => {
-    
     const [map, setMap] = useState(null)
     const [api, setApi] = useState(null)
-
     const [selected, setSelected] = useState(null)
 
     useEffect(() => {

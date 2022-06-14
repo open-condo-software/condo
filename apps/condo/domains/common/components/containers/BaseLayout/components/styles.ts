@@ -1,6 +1,6 @@
 import { colors, shadows, zIndex } from '@condo/domains/common/constants/style'
 const { red } = require('@ant-design/colors')
-import { css } from '@emotion/core'
+import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Layout, Menu } from 'antd'
 import { gradients } from '@condo/domains/common/constants/style'

@@ -1,5 +1,5 @@
 import React from 'react'
-import { css, Global } from '@emotion/core'
+import { css, Global } from '@emotion/react'
 import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT, gradients } from '@condo/domains/common/constants/style'
 
 export default function GlobalStyle () {

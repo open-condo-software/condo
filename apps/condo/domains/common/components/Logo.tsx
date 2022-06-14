@@ -4,7 +4,7 @@ import { colors } from '@condo/domains/common/constants/style'
 import styled from '@emotion/styled'
 import React from 'react'
 import { Image } from 'antd'
-import { jsx, css, keyframes } from '@emotion/core'
+import { jsx, css, keyframes } from '@emotion/react'
 
 const LogoWrapper = styled.span`
   display: inline-flex;

@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { colors, DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import styled from '@emotion/styled'
 

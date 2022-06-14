@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import Head from 'next/head'
 import { useIntl } from '@core/next/intl'

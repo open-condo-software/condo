@@ -3,7 +3,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import React, { useState } from 'react'
 import { Affix, Alert, AlertProps, Space } from 'antd'
 import { InfoCircleFilled } from '@ant-design/icons'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from './LayoutContext'
 

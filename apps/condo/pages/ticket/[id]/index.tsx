@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { EditFilled, FilePdfFilled } from '@ant-design/icons'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { Affix, Breadcrumb, Col, Row, Space, Typography } from 'antd'
 import { UploadFileStatus } from 'antd/lib/upload/interface'
 import UploadList from 'antd/lib/upload/UploadList/index'

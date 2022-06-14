@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { colors } from '../constants/style'
 import { ArrowIconDown, ArrowIconUp } from './icons/ArrowIcons'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 const growthPanelCss = (isPositive) => css`

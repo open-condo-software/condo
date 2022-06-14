@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React, { CSSProperties, FunctionComponent, useEffect, ElementType } from 'react'
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { SideNav } from './components/SideNav'

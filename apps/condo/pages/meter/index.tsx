@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 import { DiffOutlined, FilterFilled } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { Col, Row, Typography } from 'antd'

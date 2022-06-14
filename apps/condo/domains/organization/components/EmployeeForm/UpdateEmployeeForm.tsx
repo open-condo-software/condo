@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { Card, Col, Form, Row, Space, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useRouter } from 'next/router'

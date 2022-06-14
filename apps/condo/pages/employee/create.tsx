@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { CreateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/CreateEmployeeForm'
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element

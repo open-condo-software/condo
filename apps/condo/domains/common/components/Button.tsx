@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React from 'react'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { green } from '@ant-design/colors'
 import { Button as DefaultButton, ButtonProps } from 'antd'
 import { colors, gradients, transitions } from '../constants/style'

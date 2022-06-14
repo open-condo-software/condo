@@ -10,7 +10,7 @@ import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 import { SortTicketsBy } from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'

@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { Col, Collapse, Modal, notification, Row, Typography } from 'antd'
 import React, { useState } from 'react'

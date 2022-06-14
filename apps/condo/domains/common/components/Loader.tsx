@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import React from 'react'
 import { Spin, SpinProps } from 'antd'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { colors } from '../constants/style'
 import styled from '@emotion/styled'
 

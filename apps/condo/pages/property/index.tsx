@@ -6,7 +6,7 @@ import {
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { Col, Radio, Row, RowProps, Tabs, Typography } from 'antd'
 import Head from 'next/head'
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { useOrganization } from '@core/next/organization'
