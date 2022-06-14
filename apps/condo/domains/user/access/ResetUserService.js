@@ -3,12 +3,12 @@
  */
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-async function canResetUser ({ authentication: { item: user } }) {
+async function canResetUser ({ args: { data: { user: { id } } }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    return false
+    return id === user.id
 }
 
 /*

@@ -15,7 +15,7 @@ const {
     UserAdmin,
 } = require('@condo/domains/user/utils/testSchema')
 
- 
+
 describe('ResetUserService', () => {
     test('support can reset user', async () => {
         const support = await makeClientWithSupportUser()
@@ -122,14 +122,38 @@ describe('ResetUserService', () => {
         })
     })
 
-    test('user cant reset user', async () => {
+    test('user can reset their account', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {
             user: { id: client.user.id },
         }
 
+        await resetUserByTestClient(client, payload)
+
+        // We use admin context here, since support does not have access to email and phone fields
+        const adminClient = await makeLoggedInAdminClient()
+        const [resetUser] = await UserAdmin.getAll(adminClient, { id: client.user.id })
+        expect(resetUser.id).toEqual(client.user.id)
+        expect(resetUser.name).toEqual(DELETED_USER_NAME)
+        expect(resetUser.phone).toBeNull()
+        expect(resetUser.email).toBeNull()
+        expect(resetUser.isAdmin).toBeFalsy()
+        expect(resetUser.isSupport).toBeFalsy()
+        expect(resetUser.importId).toBeNull()
+        expect(resetUser.importRemoteSystem).toBeNull()
+        expect(resetUser.isPhoneVerified).toEqual(false)
+        expect(resetUser.isEmailVerified).toEqual(false)
+    })
+
+    test('user cant reset another user', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+        const payload = {
+            user: { id: client.user.id },
+        }
+
         await catchErrorFrom(async () => {
-            await resetUserByTestClient(client, payload)
+            await resetUserByTestClient(client2, payload)
         }, (e) => {
             expect(e.errors[0].name).toContain('AccessDeniedError')
         })
