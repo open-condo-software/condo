@@ -8930,6 +8930,8 @@ export enum CacheControlScope {
 export type ChangePasswordWithTokenInput = {
   token: Scalars['String'];
   password: Scalars['String'];
+  sender?: Maybe<SenderFieldInput>;
+  dv?: Maybe<Scalars['Int']>;
 };
 
 export type ChangePasswordWithTokenOutput = {
@@ -16797,6 +16799,19 @@ export type Mutation = {
    *   "type": "MULTIPLE_USERS_FOUND",
    *   "message": "Unable to find exact one user to start password recovery",
    *   "messageForUser": "api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND"
+   * }`
+   *
+   * `{
+   *   "mutation": "startPasswordRecovery",
+   *   "variable": [
+   *     "data",
+   *     "phone"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_PHONE_FORMAT",
+   *   "message": "Wrong format of provided phone number",
+   *   "correctExample": "+79991234567",
+   *   "messageForUser": "api.common.WRONG_PHONE_FORMAT"
    * }`
    */
   startPasswordRecovery?: Maybe<StartPasswordRecoveryOutput>;
@@ -31507,6 +31522,7 @@ export type SendMessageInput = {
   sender: SenderFieldInput;
   to: SendMessageToInput;
   emailFrom?: Maybe<Scalars['String']>;
+  replyTo?: Maybe<Scalars['String']>;
   type: SendMessageType;
   lang: SendMessageLang;
   meta: Scalars['JSON'];
