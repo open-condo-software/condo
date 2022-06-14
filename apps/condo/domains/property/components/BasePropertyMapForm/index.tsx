@@ -1,10 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import React, { useState, useCallback } from 'react'
 import { Typography, Form } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useIntl } from '@core/next/intl'
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IPropertyFormState, IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { BuildingMap } from '@app/condo/schema'
@@ -17,6 +15,7 @@ interface IPropertyMapFormProps {
     property: IPropertyUIState
     initialValues?: IPropertyFormState
     action?: (...args) => void
+    children: IFormWithActionChildren
 }
 
 const PROPERTY_MAP_FORM_STYLES = {
