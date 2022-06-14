@@ -1,7 +1,15 @@
 import React from 'react'
+import getConfig from 'next/config'
+
+const {
+    publicRuntimeConfig,
+} = getConfig()
+
+const { JivoSiteWidgetId } = publicRuntimeConfig
 
 const JivoSiteWidget: React.FC = () => {
-    return <head><script src="//code.jivosite.com/widget/qv5Fzmhye4" async></script></head>
+    return JivoSiteWidgetId ? 
+        <script src={`//code.jivosite.com/widget/${JivoSiteWidgetId}`} async></script> : null 
 }
 
 export default JivoSiteWidget
