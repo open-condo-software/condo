@@ -79,6 +79,22 @@ const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     )
 }
 
+function getSumPerPeriod (objs) {
+    let sumAllPayments = 0,
+        sumDonePayments = 0,
+        sumWithdrawnPayments = 0
+
+    for (const key in objs) {
+        sumAllPayments += Number(objs[key].amount)
+        if (objs[key].status === PAYMENT_DONE_STATUS)
+            sumDonePayments += Number(objs[key].amount)
+        else
+            sumWithdrawnPayments += Number(objs[key].amount)
+    }
+
+    return { sumAllPayments, sumDonePayments, sumWithdrawnPayments }
+}
+
 const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contextsLoading }): JSX.Element => {
     const intl = useIntl()
     const searchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -157,6 +173,8 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
     }, {
         fetchPolicy: 'network-only',
     })
+
+    const { sumAllPayments, sumDonePayments, sumWithdrawnPayments } = getSumPerPeriod(objs)
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [dateRange, setDateRange] = useDateRangeSearch('advancedAt', loading)
@@ -238,14 +256,14 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                             <Col>
                                 <PaymentsSumInfo
                                     title={totalsSumTitle}
-                                    message={'69815.00'}
+                                    message={String(sumAllPayments)}
                                     currencyCode={currencyCode}
                                 />
                             </Col>
                             <Col>
                                 <PaymentsSumInfo
                                     title={doneSumTitle}
-                                    message={'69815.00'}
+                                    message={String(sumDonePayments)}
                                     currencyCode={currencyCode}
                                     type={'success'}
                                 />
@@ -253,7 +271,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                             <Col>
                                 <PaymentsSumInfo
                                     title={withdrawnSumTitle}
-                                    message={'0.00'}
+                                    message={String(sumWithdrawnPayments)}
                                     currencyCode={currencyCode}
                                     type={'warning'}
                                 />
