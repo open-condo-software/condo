@@ -41,7 +41,6 @@ import {
 } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
-import JIRAServiceDeskWidget from '@condo/domains/common/components/JIRAServiceDeskWidget'
 import { BarTicketIcon } from '@condo/domains/common/components/icons/BarTicketIcon'
 import { BarEmployeeIcon } from '@condo/domains/common/components/icons/BarEmployeeIcon'
 import { BarPropertyIcon } from '@condo/domains/common/components/icons/BarPropertyIcon'
@@ -52,6 +51,7 @@ import { BarMeterIcon } from '@condo/domains/common/components/icons/BarMeterIco
 import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniAppsIcon'
 import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
+import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     whyDidYouRender(React, {
@@ -204,7 +204,7 @@ const MyApp = ({ Component, pageProps }) => {
                     <YandexMetrika/>
                 </CacheProvider>
             </ConfigProvider>
-            <JIRAServiceDeskWidget/>
+            <JivoSiteWidget/>
         </>
     )
 }
