@@ -30,6 +30,8 @@ const TICKET_STATUS_RETURNED_TYPE = 'TICKET_STATUS_RETURNED'
 const TICKET_STATUS_DECLINED_TYPE = 'TICKET_STATUS_DECLINED'
 const TICKET_COMMENT_ADDED_TYPE = 'TICKET_COMMENT_ADDED'
 const METER_VERIFICATION_DATE_REMINDER_TYPE = 'METER_VERIFICATION_DATE_REMINDER'
+const METER_SUBMIT_READINGS_REMINDER_TYPE = 'METER_SUBMIT_READINGS_REMINDER'
+const METER_VERIFICATION_DATE_EXPIRED_TYPE = 'METER_VERIFICATION_DATE_EXPIRED'
 const BILLING_RECEIPT_AVAILABLE_TYPE = 'BILLING_RECEIPT_AVAILABLE'
 const BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT'
 const RESIDENT_ADD_BILLING_ACCOUNT_TYPE = 'RESIDENT_ADD_BILLING_ACCOUNT'
@@ -53,6 +55,8 @@ const MESSAGE_TYPES = [
     TICKET_STATUS_DECLINED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
     METER_VERIFICATION_DATE_REMINDER_TYPE,
+    METER_SUBMIT_READINGS_REMINDER_TYPE,
+    METER_VERIFICATION_DATE_EXPIRED_TYPE,
     BILLING_RECEIPT_AVAILABLE_TYPE,
     BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
     RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
@@ -244,6 +248,25 @@ const MESSAGE_META = {
             url: { defaultValue: '', required: true },
         },
     },
+    [METER_SUBMIT_READINGS_REMINDER_TYPE]: {
+        dv: { required: true },
+        data: {
+            meterId: { required: true },
+            userId: { required: true },
+            residentId: { required: true },
+            url: { defaultValue: '', required: true },
+        },
+    },
+    [METER_VERIFICATION_DATE_EXPIRED_TYPE]: {
+        dv: { required: true },
+        data: {
+            meterId: { required: true },
+            resource: { required: true },
+            userId: { required: true },
+            residentId: { required: true },
+            url: { defaultValue: '', required: true },
+        },
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -328,6 +351,8 @@ module.exports = {
     MESSAGE_TYPES_TRANSPORTS,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
     METER_VERIFICATION_DATE_REMINDER_TYPE,
+    METER_SUBMIT_READINGS_REMINDER_TYPE,
+    METER_VERIFICATION_DATE_EXPIRED_TYPE,
     BILLING_RECEIPT_AVAILABLE_TYPE,
     BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
     RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
