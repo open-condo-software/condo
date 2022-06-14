@@ -140,7 +140,7 @@ const migrateOrganizationTinField = async () => {
     process.exit(0)
 }
 
-async function main() {
+async function main () {
     const resolved = path.resolve('./index.js')
     const { distDir, keystone, apps } = require(resolved)
     const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
