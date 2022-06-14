@@ -251,7 +251,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         refresh()
     }, [mapEdit, refresh])
 
-
     const onCancel = useCallback(() => {
         push(`/property/${id}`)
     }, [id, push])
@@ -282,6 +281,18 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         mapEdit.viewMode = option.target.value
         refresh()
     }, [mapEdit, refresh])
+
+    const menuContent = useMemo(() => ({
+        addSection: <AddSectionForm builder={mapEdit} refresh={refresh}/>,
+        addUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
+        editSection: <EditSectionForm builder={mapEdit} refresh={refresh}/>,
+        editUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
+        addParking: <AddParkingForm builder={mapEdit} refresh={refresh} />,
+        addParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
+        editParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
+        editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
+        addSectionFloor: <AddSectionFloor builder={mapEdit} refresh={refresh} />,
+    }[mode] || null), [mode, mapEdit, refresh])
 
     const { isSmall } = useLayoutContext()
 
@@ -365,19 +376,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     }
                     onClose={onModalCancel}
                 >
-                    {
-                        useMemo(() => ({
-                            addSection: <AddSectionForm builder={mapEdit} refresh={refresh}/>,
-                            addUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
-                            editSection: <EditSectionForm builder={mapEdit} refresh={refresh}/>,
-                            editUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
-                            addParking: <AddParkingForm builder={mapEdit} refresh={refresh} />,
-                            addParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
-                            editParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
-                            editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
-                            addSectionFloor: <AddSectionFloor builder={mapEdit} refresh={refresh} />,
-                        }[mode] || null), [mode, mapEdit, refresh])
-                    }
+                    {menuContent}
                 </BuildingPanelTopModal>
             </FullscreenHeader>
             <Row align='middle' style={{ height: '100%' }}>
