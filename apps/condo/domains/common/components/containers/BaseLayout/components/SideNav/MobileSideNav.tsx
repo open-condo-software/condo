@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { CloseOutlined } from '@ant-design/icons'
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'

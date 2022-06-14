@@ -2,7 +2,7 @@
 import React from 'react'
 import { colors } from '../constants/style'
 import { Col, ColProps } from 'antd'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 
 const statsContainerCss = css`
   min-width: 175px;

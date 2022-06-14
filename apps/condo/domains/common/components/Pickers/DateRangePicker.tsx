@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React from 'react'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import DatePicker from './DatePicker'
 import dayjs, { Dayjs } from 'dayjs'
 import { DownOutlined, MinusOutlined } from '@ant-design/icons'

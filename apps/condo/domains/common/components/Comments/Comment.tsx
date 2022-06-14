@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 
 import { User } from '@app/condo/schema'

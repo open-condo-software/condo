@@ -1,3 +1,5 @@
+import '../domains/common/components/wdyr'
+
 import React from 'react'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
@@ -6,7 +8,7 @@ import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import getConfig from 'next/config'
 import Head from 'next/head'
-import whyDidYouRender from '@welldone-software/why-did-you-render'
+import dayjs from 'dayjs'
 
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
@@ -28,17 +30,9 @@ import { hasFeature } from '@condo/domains/common/components/containers/FeatureF
 import { FocusContextProvider } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
-import {
-    BILLING_RECEIPT_SERVICE_FIELD_NAME,
-} from '@condo/domains/billing/constants/constants'
-import {
-    SubscriptionProvider,
-    useServiceSubscriptionContext,
-} from '@condo/domains/subscription/components/SubscriptionContext'
-import dayjs from 'dayjs'
-import {
-    useEndTrialSubscriptionReminderPopup,
-} from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
+import { SubscriptionProvider, useServiceSubscriptionContext } from '@condo/domains/subscription/components/SubscriptionContext'
+import { useEndTrialSubscriptionReminderPopup } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import JIRAServiceDeskWidget from '@condo/domains/common/components/JIRAServiceDeskWidget'
@@ -52,12 +46,6 @@ import { BarMeterIcon } from '@condo/domains/common/components/icons/BarMeterIco
 import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniAppsIcon'
 import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
-
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    whyDidYouRender(React, {
-        logOnDifferentValues: true,
-    })
-}
 
 const ANT_LOCALES = {
     ru: ruRU,

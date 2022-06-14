@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Image, Row, RowProps, Typography } from 'antd'
-import { jsx, css, keyframes } from '@emotion/core'
+import { jsx, css, keyframes } from '@emotion/react'
 import { useIntl } from 'react-intl'
 import Router from 'next/router'
 

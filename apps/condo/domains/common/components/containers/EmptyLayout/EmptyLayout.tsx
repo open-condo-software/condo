@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 import React, { CSSProperties } from 'react'
 import { Layout } from 'antd'
 import 'antd/dist/antd.less'

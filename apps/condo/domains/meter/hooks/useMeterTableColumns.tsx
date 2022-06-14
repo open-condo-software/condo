@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { InputNumber } from 'antd'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
 import isEmpty from 'lodash/isEmpty'

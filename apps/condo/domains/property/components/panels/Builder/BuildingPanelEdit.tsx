@@ -8,7 +8,7 @@ import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/p
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { useIntl } from '@core/next/intl'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import {
     Col,

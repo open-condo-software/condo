@@ -1,5 +1,5 @@
 import React, { ComponentProps, useMemo } from 'react'
-import { css } from '@emotion/core'
+import { css } from '@emotion/react'
 import { MapGL } from '@condo/domains/common/components/MapGL'
 import has from 'lodash/has'
 import { Property } from '@condo/domains/property/utils/clientSchema'

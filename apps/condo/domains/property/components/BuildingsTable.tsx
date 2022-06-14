@@ -22,7 +22,7 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { useImporterFunctions } from '../hooks/useImporterFunctions'
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 import isEmpty from 'lodash/isEmpty'
 
 type BuildingTableProps = {

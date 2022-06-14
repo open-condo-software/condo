@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import Router from 'next/router'
 import { Card as AntCard, CardProps, Col, Dropdown, Menu, Row, RowProps, Skeleton, Space } from 'antd'
 import { DownOutlined, RightOutlined } from '@ant-design/icons'

@@ -6,7 +6,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { useOrganization } from '@core/next/organization'
 import { useAuth } from '@core/next/auth'
 import get from 'lodash/get'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { useIntl } from '@core/next/intl'
 import { colors, gradients } from '@condo/domains/common/constants/style'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'

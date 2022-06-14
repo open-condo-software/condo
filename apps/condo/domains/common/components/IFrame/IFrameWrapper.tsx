@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { css, Global } from '@emotion/core'
+import { css, Global } from '@emotion/react'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 import getConfig from 'next/config'

@@ -6,7 +6,7 @@ import { Select, SelectProps, Typography } from 'antd'
 import { Organization, Property } from '@app/condo/schema'
 import { useApolloClient } from '@core/next/apollo'
 import { grey } from '@ant-design/colors'
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { Highlighter } from '@condo/domains/common/components/Highlighter'

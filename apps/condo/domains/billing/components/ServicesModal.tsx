@@ -9,7 +9,7 @@ import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { SubText } from '@condo/domains/common/components/Text'
 import { SizeType } from 'antd/es/config-provider/SizeContext'
 import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons'
-import { css, Global } from '@emotion/core'
+import { css, Global } from '@emotion/react'
 import styled from '@emotion/styled'
 import { colors } from '@condo/domains/common/constants/style'
 

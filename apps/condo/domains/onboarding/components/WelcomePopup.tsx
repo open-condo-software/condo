@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Col, Image, Row, Typography, Modal } from 'antd'
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'

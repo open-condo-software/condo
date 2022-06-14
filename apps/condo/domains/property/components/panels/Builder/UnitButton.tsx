@@ -1,7 +1,7 @@
 /** @jsx jsx */
-import { BuildingUnitSubType, BuildingUnitType } from '@app/condo/schema'
+import { BuildingUnitSubType } from '@app/condo/schema'
 import { colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
-import { css, jsx } from '@emotion/core'
+import { css, jsx } from '@emotion/react'
 import { Button, ButtonProps, Tooltip } from 'antd'
 import React from 'react'
 

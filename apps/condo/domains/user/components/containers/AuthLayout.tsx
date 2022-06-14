@@ -1,6 +1,6 @@
 import React from 'react'
 import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
-import { Global } from '@emotion/core'
+import { Global } from '@emotion/react'
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import { useIntl } from '@core/next/intl'
 import getConfig from 'next/config'
