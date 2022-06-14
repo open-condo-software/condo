@@ -1,4 +1,4 @@
-import '../domains/common/components/wdyr'
+import '@condo/domains/common/components/wdyr'
 
 import React from 'react'
 import { ConfigProvider } from 'antd'
