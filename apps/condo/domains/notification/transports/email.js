@@ -36,7 +36,7 @@ async function prepareMessageToSend (message) {
  * @typedef {[boolean, Object]} StatusAndMetadata
  * @return {StatusAndMetadata} Status and delivery Metadata (debug only)
  */
-async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta } = {}) {
+async function send ({ to, emailFrom = null, replyTo = null, cc, bcc, subject, text, html, meta } = {}) {
     if (!EMAIL_API_CONFIG) throw new Error('no EMAIL_API_CONFIG')
     if (!to || !to.includes('@')) throw new Error('unsupported to argument format')
     if (!subject) throw new Error('no subject argument')
@@ -44,6 +44,9 @@ async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta 
     const { api_url, token, from: defaultFrom } = EMAIL_API_CONFIG
     const form = new FormData()
     form.append('from', emailFrom || defaultFrom)
+    if (replyTo) {
+        form.append('h:Reply-To', replyTo)
+    }
     form.append('to', to)
     form.append('subject', subject)
     if (text) form.append('text', text)
