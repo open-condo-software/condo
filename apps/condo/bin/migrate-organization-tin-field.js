@@ -6,9 +6,10 @@
  */
 
 const path = require('path')
+const { get } = require('lodash')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { getSchemaCtx } = require('@core/keystone/schema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 
 const log = (message, intentChar = null, intentRepeatTimes = 10) => {
@@ -16,6 +17,32 @@ const log = (message, intentChar = null, intentRepeatTimes = 10) => {
         console.log(`${ intentChar.repeat(intentRepeatTimes) } ${ message } ${ intentChar.repeat(intentRepeatTimes) }`)
     } else {
         console.log(message)
+    }
+}
+
+const logInvalidInnOrganization = async ({ context, organization, innValue }) => {
+    // log only not deleted org
+    if (organization.deletedAt == null) {
+        const orgDescription = `Organization(id=${ organization.id }, name=${ organization.name })`
+
+        // next step is get active employees contacts
+        const employees = await OrganizationEmployee.getAll(context, {
+            organization: {
+                id: organization.id,
+            },
+        })
+
+        const contactsDescriptions = employees
+            .filter(employee => employee.deletedAt == null && !employee.isBlocked)
+            .map(employee => {
+                return `${ get(employee, 'role.name') } (${ employee.name }): email=${ employee.email }, phone=${ employee.phone }`
+            })
+            .join('; ')
+
+
+        log(
+            `- ${ orgDescription } has invalid inn: ${ innValue }. Contacts: ${ contactsDescriptions }`,
+        )
     }
 }
 
@@ -48,26 +75,29 @@ const migrateOrganizationTinField = async () => {
             skip: state.offset,
         })
 
-        // go through chunk and do validations && set values
-        organizationsChunk
-            // don't touch empty meta organizations
-            .filter(organization => organization.meta != null)
-            // don't touch empty inn organizations
-            .filter(organization => organization.meta.inn != null)
-            .forEach(organization => {
-                // let's assume all organizations at this point has meta.inn values
-                // now we will validate inn and set it to the organization.tin in case if inn are valid
-                const innValue = organization.meta.inn.toString().trim()
-                const isValid = isValidTin(innValue, organization.country)
+        // go through chunk and do validations && set values && log invalid organizations
+        await Promise.all(
+            organizationsChunk
+                // don't touch empty meta organizations
+                .filter(organization => organization.meta != null)
+                // don't touch empty inn organizations
+                .filter(organization => organization.meta.inn != null)
+                .map(async organization => {
+                    // let's assume all organizations at this point has meta.inn values
+                    // now we will validate inn and set it to the organization.tin in case if inn are valid
+                    const innValue = organization.meta.inn.toString().trim()
+                    const isValid = isValidTin(innValue, organization.country)
 
-                // set valid value
-                if (isValid) {
-                    organization.tin = innValue
-                    state.validInnFieldCount++
-                } else {
-                    state.invalidInnFieldCount++
-                }
-            })
+                    // set valid value
+                    if (isValid) {
+                        organization.tin = innValue
+                        state.validInnFieldCount++
+                    } else {
+                        state.invalidInnFieldCount++
+                        await logInvalidInnOrganization({ context, organization, innValue })
+                    }
+                })
+        )
 
         // the last step - produce all changes to the DB
         //  await Promise.all will do that in parallel way
@@ -110,7 +140,7 @@ const migrateOrganizationTinField = async () => {
     process.exit(0)
 }
 
-async function main () {
+async function main() {
     const resolved = path.resolve('./index.js')
     const { distDir, keystone, apps } = require(resolved)
     const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
