@@ -1,8 +1,8 @@
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
-const { TIN_LENGTH } = require('@condo/domains/organization/constants/common')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/common')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js')
+const { generateTin } = require('@condo/domains/organization/utils/testSchema')
 
 const EXAMPLE_USER_INFO = {
     sub: 'f164e8c81fa7b5cd43d5d03164cf74764b2402d6314c67daa0964d8e691fd543',
@@ -59,28 +59,8 @@ const EXAMPLE_TOKEN_SET = {
 }
 
 class MockSbbolResponses {
-
-    static generateInn () {
-        const rnd = () => faker.datatype.number({
-            min: 1,
-            max: 9,
-        })
-        const innBase = [rnd(), rnd(), rnd(), rnd(), rnd(), rnd(), rnd(), rnd(), rnd()]
-
-        const RU_TIN_DIGITS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
-        const n = RU_TIN_DIGITS.slice(-10)
-        let sum = 0
-
-        for (let i = 0; i < innBase.length; i++) sum += innBase[i] * n[i]
-
-        const baseRest = sum % 11 % 10
-        innBase.push(baseRest)
-
-        return parseInt(innBase.join(''))
-    }
-
     static getUserInfo () {
-        const inn = MockSbbolResponses.generateInn()
+        const inn = generateTin(RUSSIA_COUNTRY)
         return {
             ...EXAMPLE_USER_INFO,
             inn,
