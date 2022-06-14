@@ -51,7 +51,7 @@ const readMetersPage = async ({ context, offset, pageSize, date, searchWindowDay
     }
 }
 
-const joinResidents = async ({ context, meters }) => {
+const joinResidentsToMeters = async ({ context, meters }) => {
     // first step is get service consumers by accountNumbers
     const accountNumbers = uniq(meters.map(meter => meter.accountNumber))
     const servicesConsumers = await loadListByChunks({
@@ -251,7 +251,7 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
 
         if (meters.length > 0) {
             // connect residents to meter through the property field
-            const metersConnectedWithResidents = await joinResidents(
+            const metersConnectedWithResidents = await joinResidentsToMeters(
                 { context, meters }
             )
 
@@ -275,4 +275,6 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
 
 module.exports = {
     sendVerificationDateReminder,
+    rightJoin,
+    joinResidentsToMeters,
 }
