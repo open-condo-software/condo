@@ -166,7 +166,7 @@ const TrackingProvider: React.FC = ({ children }) => {
         },
     })
 
-    const routeChangeStart = (url) => {
+    const routeChangeComplete = (url) => {
         trackingProviderValueRef.current.eventProperties.page.path = url
     }
 
@@ -174,12 +174,12 @@ const TrackingProvider: React.FC = ({ children }) => {
         // Init all instances of trackers only on client side rendering
         if (!isUndefined(window)) {
             // Page path changed -> change value at context object
-            router.events.on('routeChangeStart', routeChangeStart)
+            router.events.on('routeChangeComplete', routeChangeComplete)
             Object.values(trackingProviderValueRef.current.trackerInstances).forEach(trackerInstance => trackerInstance.init())
         }
 
         return () => {
-            router.events.off('routeChangeStart', routeChangeStart)
+            router.events.off('routeChangeComplete', routeChangeComplete)
         }
     }, [])
 
