@@ -9,7 +9,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 
 import { TicketHint as TicketHintGQL } from '@condo/domains/ticket/gql'
 import { TicketHint, TicketHintUpdateInput, QueryAllTicketHintsArgs } from '../../../../schema'
-import { IDivisionUIState } from '../../../division/utils/clientSchema/Division'
+import { IDivisionFormState, IDivisionUIState } from '../../../division/utils/clientSchema/Division'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'properties', 'content']
 const RELATIONS = ['organization', 'properties']
@@ -32,10 +32,18 @@ function convertToUIFormState (state: ITicketHintUIState): ITicketHintFormState 
     if (!state) return
     const result = {}
     for (const attr of Object.keys(state)) {
-        const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        if (RELATIONS.includes(attr)) {
+            if (Array.isArray(state[attr])) {
+                result[attr] = map(state[attr], 'id')
+            } else {
+                const attrId = get(state[attr], 'id')
+                result[attr] = attrId || state[attr]
+            }
+        } else {
+            result[attr] = state[attr]
+        }
     }
-    return result as ITicketHintFormState
+    return result as IDivisionFormState
 }
 
 type RelateToManyInput = {
