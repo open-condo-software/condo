@@ -36,4 +36,6 @@ jobs:
         run: bash ./bin/lint-common-petterns.sh
 
       - name: Lint schema.ts file
-        run: source bin/lint-schema-ts-file.sh
+        run: |
+          cp .env.example .env
+          source bin/lint-schema-ts-file.sh
