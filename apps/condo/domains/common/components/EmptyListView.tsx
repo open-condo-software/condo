@@ -5,11 +5,11 @@ import { EmptyIcon } from './EmptyIcon'
 import React, { CSSProperties } from 'react'
 
 export interface IEmptyListProps {
-    label: string,
-    message: string,
-    button?: React.ReactElement,
-    createRoute: string,
-    createLabel: string,
+    label: string | React.ReactElement
+    message: string | React.ReactElement
+    button?: React.ReactElement
+    createRoute: string
+    createLabel: string
     containerStyle?: CSSProperties
 }
 
