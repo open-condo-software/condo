@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { isFunction } from 'lodash/isFunction'
+import isFunction from 'lodash/isFunction'
 import { ApolloError, QueryHookOptions, OperationVariables } from '@apollo/client'
 
 import { useMutation, useQuery } from '@core/next/apollo'
