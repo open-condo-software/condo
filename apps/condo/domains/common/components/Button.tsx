@@ -145,8 +145,12 @@ const buttonGradientCss = css`
         }
       }
     `
-const buttonDefaultGradientCss = (secondary = false) => {
-    const border = secondary ? `1px solid ${colors.black}` : '1px solid transparent'
+const buttonDefaultGradientCss = (secondary = false, borderLess = false) => {
+    const borderNone = borderLess ? 'none' : '1px solid transparent'
+    let border = borderLess ? 'none' : '1px solid transparent'
+    if (secondary) {
+        border = borderLess ? 'none' : `1px solid ${colors.black}`
+    }
     return  css`
       background: ${secondary ? 'transparent' : colors.black};
       border-radius: 8px;
@@ -168,7 +172,7 @@ const buttonDefaultGradientCss = (secondary = false) => {
         content: '';
         display: block;
         position: absolute;
-        top: -1px;
+        top: 0;
         left: 0;
         right: 0;
         height: inherit;
@@ -181,7 +185,7 @@ const buttonDefaultGradientCss = (secondary = false) => {
 
       &:hover, &:focus {
         color: ${colors.defaultWhite[5]};
-        border: 1px solid transparent;
+        border: ${borderNone};
       }
       &:hover:not(:disabled):before,
       &:focus:not(:disabled):before {
@@ -190,7 +194,7 @@ const buttonDefaultGradientCss = (secondary = false) => {
 
       &:active {
         color: ${colors.defaultWhite[5]};
-        border: 1px solid transparent;
+        border: ${borderNone};
       }
       &:active:before {
         background: ${gradients.sberActionInversed};
@@ -264,6 +268,7 @@ export interface CustomButtonProps extends Omit<ButtonProps, 'type'>, ITrackingC
     type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction'
     | 'sberDangerGhost' | 'sberDefaultGradient' | 'sberBlack' | ButtonProps['type'],
     secondary?: boolean
+    borderLess?: boolean
 }
 
 const SKIP_BUTTON_TYPES_FOR_DEFAULT = [
@@ -280,7 +285,7 @@ const BUTTON_TYPE_STYLES = {
 }
 
 export const Button: React.FC<CustomButtonProps> = (props) => {
-    const { type, secondary, onClick, eventName: propEventName, eventProperties = {}, ...restProps } = props
+    const { type, secondary, onClick, eventName: propEventName, eventProperties = {}, borderLess, ...restProps } = props
     const { getTrackingWrappedCallback, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Click)
@@ -306,7 +311,7 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
     if (BUTTON_TYPE_STYLES[type]) {
         buttonStyles = BUTTON_TYPE_STYLES[type]
     } else if (type === 'sberDefaultGradient') {
-        buttonStyles = buttonDefaultGradientCss(secondary)
+        buttonStyles = buttonDefaultGradientCss(secondary, borderLess)
     } else {
         buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
     }
