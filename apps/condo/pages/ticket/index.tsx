@@ -214,7 +214,6 @@ export const TicketsPageContent = ({
                                                                 type={'sberPrimary'}
                                                                 onClick={() => setIsMultipleFiltersModalVisible(true)}
                                                                 data-cy={'ticket__filters-button'}
-                                                                eventName={'TicketClickOpenFiltersButton'}
                                                             >
                                                                 <FilterFilled/>
                                                                 {FiltersButtonLabel}

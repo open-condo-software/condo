@@ -3,6 +3,8 @@ import React from 'react'
 import { css, jsx } from '@emotion/react'
 import { green } from '@ant-design/colors'
 import { Button as DefaultButton, ButtonProps } from 'antd'
+import isArray from 'lodash/isArray'
+import isString from 'lodash/isString'
 import { colors, gradients, transitions } from '../constants/style'
 import { ITrackingComponent, useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
@@ -283,8 +285,14 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Click)
     const componentProperties = { ...eventProperties }
 
-    if (restProps.children && typeof restProps.children === 'string') {
-        componentProperties['components'] = { value: restProps.children }
+    if (restProps.children) {
+        if (isString(restProps.children)) {
+            componentProperties['components'] = { value: restProps.children }
+        }
+        if (isArray(restProps.children)) {
+            const stringValue = restProps.children.filter(child => isString(child)).join(' ')
+            componentProperties['components'] = { value: stringValue }
+        }
     }
 
     const onClickCallback = eventName ? getTrackingWrappedCallback(eventName, componentProperties, onClick) : onClick
