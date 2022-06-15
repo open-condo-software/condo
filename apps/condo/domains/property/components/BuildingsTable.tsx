@@ -199,6 +199,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                                     rowValidator={propertyValidator}
                                                     domainTranslate={PropertyTitle}
                                                     objectCreator={propertyCreator}
+                                                    exampleTemplateLink="/buildings-import-example.xlsx"
                                                 >
                                                     <Button
                                                         type={'sberPrimary'}
