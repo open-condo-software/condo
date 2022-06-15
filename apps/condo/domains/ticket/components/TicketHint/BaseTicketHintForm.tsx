@@ -8,6 +8,7 @@ import Checkbox from '../../../common/components/antd/Checkbox'
 import Select from '../../../common/components/antd/Select'
 import { FormWithAction } from '../../../common/components/containers/FormList'
 import { GraphQlSearchInput } from '../../../common/components/GraphQlSearchInput'
+import { Loader } from '../../../common/components/Loader'
 import { colors } from '../../../common/constants/style'
 import { useValidations } from '../../../common/hooks/useValidations'
 import { searchOrganizationProperty } from '../../utils/clientSchema/search'
@@ -56,7 +57,7 @@ const TicketHintAlert = () => {
     )
 }
 
-export const BaseTicketHintForm = ({ children, action, organization, initialValues }) => {
+export const BaseTicketHintForm = ({ children, action, organization, initialValues, mode }) => {
     const intl = useIntl()
     const ApartmentComplexNameMessage  = intl.formatMessage({ id: 'ApartmentComplexName' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
@@ -69,12 +70,12 @@ export const BaseTicketHintForm = ({ children, action, organization, initialValu
         properties: [requiredValidator],
         content: [requiredValidator],
     }
-    const { objs: properties } = Property.useObjects({
+    const { objs: properties, loading: propertiesLoading } = Property.useObjects({
         where: {
             organization: { id: organizationId },
         },
     })
-    const { objs: ticketHints } = TicketHint.useObjects({
+    const { objs: ticketHints, loading: hintsLoading } = TicketHint.useObjects({
         where: {
             organization: { id: organizationId },
         },
@@ -108,10 +109,16 @@ export const BaseTicketHintForm = ({ children, action, organization, initialValu
         }
     }, [optionValues])
 
+    if (propertiesLoading || hintsLoading) {
+        return (
+            <Loader fill size={'large'}/>
+        )
+    }
+
     return (
         <Row gutter={[0, 40]}>
             {
-                !isEmpty(propertiesWithTicketHint) && (
+                mode === 'create' && !isEmpty(propertiesWithTicketHint) && (
                     <Col span={24}>
                         <TicketHintAlert />
                     </Col>
@@ -119,6 +126,7 @@ export const BaseTicketHintForm = ({ children, action, organization, initialValu
             }
             <Col span={24}>
                 <FormWithAction
+                    initialValues={initialValues}
                     action={action}
                     {...LAYOUT}
                 >
@@ -136,17 +144,31 @@ export const BaseTicketHintForm = ({ children, action, organization, initialValu
                                             required
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <Select
-                                                // value={selectValue}
-                                                // onChange={handleSelectValueChange}
-                                                options={options}
-                                                mode={'multiple'}
-                                            />
+                                            {
+                                                mode === 'create' ? (
+                                                    <Select
+                                                        options={options}
+                                                        mode={'multiple'}
+                                                    />
+                                                ) : (
+                                                    <GraphQlSearchInput
+                                                        search={searchOrganizationProperty(organizationId)}
+                                                        showArrow={false}
+                                                        mode="multiple"
+                                                        infinityScroll
+                                                        initialValue={get(initialValues, ['initialValues', 'properties'], [])}
+                                                    />
+                                                )
+                                            }
                                         </Form.Item>
                                     </Col>
-                                    <Col offset={6} span={24}>
-                                        <Checkbox onChange={e => handleCheckboxChange(e, form)}>Добавить все дома ({options.length} шт.)</Checkbox>
-                                    </Col>
+                                    {
+                                        mode === 'create' && (
+                                            <Col offset={6} span={24}>
+                                                <Checkbox onChange={e => handleCheckboxChange(e, form)}>Добавить все дома ({options.length} шт.)</Checkbox>
+                                            </Col>
+                                        )
+                                    }
                                 </Row>
                             </Col>
                             <Col span={24}>
@@ -181,6 +203,7 @@ export const BaseTicketHintForm = ({ children, action, organization, initialValu
                                             value={editorValue}
                                             onEditorChange={(newValue) => handleEditorChange(newValue, form)}
                                             apiKey={'c9hkjseuh8rfim0yiqr6q2zrzb8k12vyoc1dclkml7e9ozg5'}
+                                            initialValue={initialValues.content}
                                             init={{
                                                 link_title: false,
                                                 contextmenu: false,

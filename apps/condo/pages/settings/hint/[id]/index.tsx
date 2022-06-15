@@ -102,7 +102,6 @@ const TicketHintIdPage = () => {
                                     <Button
                                         color={'green'}
                                         type={'sberDefaultGradient'}
-                                        // icon={<EditFilled />}
                                     >
                                         {UpdateMessage}
                                     </Button>
