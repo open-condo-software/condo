@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Col, Row, Tabs, Tooltip } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { IContextProps } from './index'
 import { ReceiptsTable } from './ReceiptsTable'
 import get from 'lodash/get'
 import { ReportMessage } from '../ReportMessage'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 
 export const MainContent: React.FC<IContextProps> = ({ context }) => {
     const intl = useIntl()
@@ -12,7 +13,13 @@ export const MainContent: React.FC<IContextProps> = ({ context }) => {
     const MetersTitle = intl.formatMessage({ id: 'Meters' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
 
+    const { logEvent } = useTracking()
+
     const lastReport = get(context, 'lastReport')
+
+    useEffect(() => {
+        logEvent({ eventName: 'BillingPageSuccessStatus', denyDuplicates: true })
+    }, [])
 
     return (
         <Row gutter={[0, 40]}>
