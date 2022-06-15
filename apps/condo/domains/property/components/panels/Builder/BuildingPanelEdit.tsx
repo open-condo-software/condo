@@ -374,6 +374,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             onClick={saveCallback}
                             type='sberDefaultGradient'
                             disabled={!address}
+                            borderLess
                         >
                             {SaveLabel}
                         </Button>

@@ -41,6 +41,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                                     loading={isLoading}
                                     disabled={!property}
                                     data-cy={'ticket__apply-changes-button'}
+                                    borderLess
                                 >
                                     {ApplyChangesMessage}
                                 </Button>

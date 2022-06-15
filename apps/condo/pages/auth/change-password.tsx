@@ -153,6 +153,7 @@ const ChangePasswordPage: AuthPage = () => {
                                 type='sberDefaultGradient'
                                 style={BUTTON_STYLES}
                                 onClick={() => Router.push('/auth/forgot')}
+                                borderLess
                             >
                                 {ChangePasswordTokenErrorConfirmLabel}
                             </Button>
@@ -217,6 +218,7 @@ const ChangePasswordPage: AuthPage = () => {
                                     loading={isSaving}
                                     htmlType="submit"
                                     style={BUTTON_STYLES}
+                                    borderLess
                                 >
                                     {SaveMsg} {AndSignInMsg}
                                 </Button>

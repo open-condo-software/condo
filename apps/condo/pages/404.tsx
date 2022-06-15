@@ -42,6 +42,7 @@ export default function Custom404 (): React.ReactElement {
                             onClick={() => Router.push('/')}
                             data-cy={'register-button'}
                             block
+                            borderLess
                         >
                             {MainPagesMessageButton}
                         </Button>

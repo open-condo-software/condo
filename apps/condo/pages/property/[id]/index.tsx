@@ -143,6 +143,7 @@ export const PropertyPageContent = ({ property, role }) => {
                                     <Button
                                         type={'sberDefaultGradient'}
                                         size={'large'}
+                                        borderLess
                                     >
                                         {EditPropertyTitle}
                                     </Button>

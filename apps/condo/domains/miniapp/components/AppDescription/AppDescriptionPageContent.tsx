@@ -126,6 +126,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                                     type={'sberDefaultGradient'}
                                     onClick={connectAction}
                                     disabled={disabledConnect}
+                                    borderLess
                                 >
                                     {ConnectButtonLabel}
                                 </Button>

@@ -43,6 +43,7 @@ export const CreateMeterReadingsActionBar = ({
                                     type='sberDefaultGradient'
                                     loading={isLoading}
                                     disabled={isSubmitButtonDisabled}
+                                    borderLess
                                 >
                                     {SendMetersReadingMessage}
                                 </Button>

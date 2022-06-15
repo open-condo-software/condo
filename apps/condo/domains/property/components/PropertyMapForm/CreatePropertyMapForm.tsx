@@ -61,6 +61,7 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
                                     onClick={handleSave}
                                     type='sberDefaultGradient'
                                     loading={isLoading}
+                                    borderLess
                                 >
                                     {ApplyChangesLabel}
                                 </Button>

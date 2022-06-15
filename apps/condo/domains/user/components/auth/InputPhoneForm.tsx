@@ -180,6 +180,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                             loading={isLoading}
                                             data-cy={'register-button'}
                                             block
+                                            borderLess
                                         >
                                             {RegisterMsg}
                                         </Button>

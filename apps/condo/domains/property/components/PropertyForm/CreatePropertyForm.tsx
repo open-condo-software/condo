@@ -52,6 +52,7 @@ export const CreatePropertyForm: React.FC = () => {
                                         loading={isLoading}
                                         disabled={!address}
                                         style={FORM_SUBMIT_BUTTON_STYLES}
+                                        borderLess
                                     >{CreatePropertyMessage}</Button>
                                 )
                             }
