@@ -1,15 +1,16 @@
+import React, { useCallback, useMemo, useState } from 'react'
+import isFunction from 'lodash/isFunction'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import styled from '@emotion/styled'
+
+import { useIntl } from '@core/next/intl'
+
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
-import { colors } from '@condo/domains/common/constants/style'
-import {
-    getTicketLabel,
-    sortStatusesByType,
-} from '@condo/domains/ticket/utils/helpers'
-import { useIntl } from '@core/next/intl'
-import styled from '@emotion/styled'
+import { getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/helpers'
 import Select from '@condo/domains/common/components/antd/Select'
-import get from 'lodash/get'
-import React, { useCallback, useMemo } from 'react'
+
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
 
 interface IStyledSelect {
@@ -39,13 +40,15 @@ const StyledSelect = styled(Select)<IStyledSelect>`
   }
 `
 
-export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, ...props }) => {
+export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, loading: parentLoading, ...props }) => {
     const intl = useIntl()
 
     const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
+    const [isUpdating, setUpdating] = useState(false)
     const handleUpdate = useCallback(() => {
-
-    }, onUpdate)
+        if (isFunction(onUpdate)) onUpdate()
+        setUpdating(false)
+    }, [onUpdate, setUpdating])
     const update = Ticket.useUpdate({}, handleUpdate)
 
     const updateTicketStatus = useCallback((variables) => runMutation({
@@ -71,18 +74,25 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     }), [statuses, ticket])
 
     const handleChange = useCallback(({ value }) => {
+        setUpdating(true)
         updateTicketStatus({ status: value, statusUpdatedAt: new Date() })
-    }, [ticket])
+    }, [ticket, setUpdating])
 
     const { primary: backgroundColor, secondary: color } = ticket.status.colors
-    const selectValue = { value: ticket.status.id, label: getTicketLabel(intl, ticket) }
+    const selectValue = useMemo(
+        () => ({ value: ticket.status.id, label: getTicketLabel(intl, ticket) }),
+        [ticket.status.id, getTicketLabel, intl, ticket]
+    )
+
+    const isLoading = parentLoading || loading || isUpdating
+    const isDisabled = isEmpty(statuses) || isLoading
 
     return (
         <StyledSelect
             color={color}
             backgroundColor={backgroundColor}
-            disabled={!statuses.length}
-            loading={loading}
+            disabled={isDisabled}
+            loading={isLoading}
             onChange={handleChange}
             defaultValue={selectValue}
             value={selectValue}
