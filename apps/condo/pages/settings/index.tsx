@@ -19,7 +19,7 @@ import { StarIcon } from '@condo/domains/common/components/icons/Star'
 import { SettingsContent as TicketHintSettings } from '@condo/domains/ticket/components/TicketHint/SettingsContent'
 import { TablePageContent } from '../../domains/common/components/containers/BaseLayout/BaseLayout'
 
-const ALWAYS_AVAILABLE_TABS = []
+const ALWAYS_AVAILABLE_TABS = ['hint']
 
 const SettingsTabs = styled(Tabs)`
   & > .ant-tabs-content-holder {
@@ -29,6 +29,7 @@ const SettingsTabs = styled(Tabs)`
   & > .ant-tabs-nav {
     margin-left: 72px;
     width: 280px;
+    height: 186px;
     padding: 20px;
     border-radius: 8px;
     box-shadow: ${shadows.main};

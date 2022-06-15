@@ -1,11 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import Link from 'next/link'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
 import { ArgsProps } from 'antd/lib/notification'
+import { Alert, Card, Col, Form, FormItemProps, Row, Typography } from 'antd'
+
 import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
-
 import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
 
@@ -16,7 +17,7 @@ import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/compon
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
-import { ITicketFileUIState, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+import { ITicketFileUIState, TicketFile, TicketHint } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { normalizeText } from '@condo/domains/common/utils/text'
@@ -46,7 +47,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     }), [contactId, initialValues])
 
     return (
-        <Col span={24}>
+        <Col lg={16} md={24}>
             <TicketFormItem shouldUpdate noStyle>
                 {({ getFieldsValue }) => {
                     const { unitName, unitType } = getFieldsValue(['unitName', 'unitType'])
@@ -336,6 +337,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         return values
     }, [])
 
+    const { loading: ticketHintLoading, obj: ticketHint } = TicketHint.useObject({
+        where: {
+            properties_some: { id: selectedPropertyId },
+        },
+    })
+
     return (
         <>
             <FormWithAction
@@ -357,13 +364,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 {PromptHelpMessage}
                             </Typography.Paragraph>
                         </Prompt>
-                        <Col lg={17} md={24}>
+                        <Col span={24}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
-                                    <Row gutter={[0, 6]}>
+                                    <Row gutter={[40, 6]}>
                                         {
                                             !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
-                                                <Col span={isSmall ? 24 : 20}>
+                                                <Col span={isSmall ? 24 : 16}>
                                                     <Alert
                                                         showIcon
                                                         type='warning'
@@ -383,7 +390,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 </Col>
                                             ) : null
                                         }
-                                        <Col span={isSmall ? 24 : 20} data-cy={'ticket__property-address-search-input'}>
+                                        <Col span={isSmall ? 24 : 16} data-cy={'ticket__property-address-search-input'}>
                                             <TicketFormItem
                                                 name={'property'}
                                                 label={AddressLabel}
@@ -417,6 +424,25 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 form={form}
                                             />
                                         )}
+                                        <Col span={5}>
+                                            <Row gutter={[0, 20]} style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#F2F3F7', padding: '10px', borderRadius: '12px' }}>
+                                                <Col span={24}>
+                                                    <Typography.Title level={5}>Справка</Typography.Title>
+                                                </Col>
+                                                <Col span={24}>
+                                                    <div dangerouslySetInnerHTML={{
+                                                        __html: get(ticketHint, 'content'),
+                                                    }}/>
+                                                    <Link href={`/property/${selectedPropertyId}/hint`} passHref>
+                                                        <a target={'_blank'}>
+                                                            <Typography.Link underline style={{ color: 'black' }}>
+                                                                Подробнее
+                                                            </Typography.Link>
+                                                        </a>
+                                                    </Link>
+                                                </Col>
+                                            </Row>
+                                        </Col>
                                     </Row>
                                 </Col>
                                 <ContactsInfo
@@ -425,7 +451,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                     initialValues={initialValues}
                                     selectedPropertyId={selectedPropertyId}
                                 />
-                                <Col span={24}>
+                                <Col lg={16} md={24}>
                                     <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
                                         {
                                             ({ getFieldsValue }) => {

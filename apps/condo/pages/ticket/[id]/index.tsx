@@ -1,7 +1,7 @@
 /** @jsx jsx */
-import { EditFilled, FilePdfFilled } from '@ant-design/icons'
+import { EditFilled, FilePdfFilled, InfoCircleOutlined } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
-import { Affix, Breadcrumb, Col, Row, Space, Typography } from 'antd'
+import { Affix, Alert, Breadcrumb, Col, Row, Space, Typography } from 'antd'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import UploadList from 'antd/lib/upload/UploadList/index'
 import { compact, get, isEmpty, map } from 'lodash'
@@ -42,6 +42,7 @@ import {
     TicketCommentFile,
     TicketCommentsTime,
     TicketFile,
+    TicketHint,
     UserTicketCommentReadTime,
 } from '@condo/domains/ticket/utils/clientSchema'
 import {
@@ -162,6 +163,16 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
 
 const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
 const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
+
+const StyledAlert = styled(Alert)`
+  color: black;
+  background-color: #EBFAEF;
+  border: none;
+  
+  & svg, & > .ant-alert-content > .ant-alert-message {
+   color: black; 
+  }
+`
 
 const TicketContent = ({ ticket }) => {
     const intl = useIntl()
@@ -328,6 +339,13 @@ const TicketContent = ({ ticket }) => {
     const ClientMessage = useMemo(() => contactId ? ResidentClientMessage : NotResidentClientMessage,
         [NotResidentClientMessage, ResidentClientMessage, contactId])
 
+    const propertyId = get(ticket, ['property', 'id'], null)
+    const { obj: ticketHint } = TicketHint.useObject({
+        where: {
+            properties_some: { id: propertyId },
+        },
+    })
+
     return (
         <Col span={24}>
             <Row gutter={[0, 40]}>
@@ -364,11 +382,40 @@ const TicketContent = ({ ticket }) => {
                             ) : null
                         }
                         <PageFieldRow title={AddressMessage} highlight>
-                            {
-                                propertyWasDeleted ? (
-                                    <DeletedPropertyAddressMessage />
-                                ) : <PropertyAddressMessage />
-                            }
+                            <Row gutter={[0, 16]}>
+                                <Col span={24}>
+                                    {
+                                        propertyWasDeleted ? (
+                                            <DeletedPropertyAddressMessage />
+                                        ) : <PropertyAddressMessage />
+                                    }
+                                </Col>
+                                <Col span={24}>
+                                    {
+                                        ticketHint && (
+                                            <StyledAlert
+                                                message="Справка по дому"
+                                                description={
+                                                    <>
+                                                        <div dangerouslySetInnerHTML={{
+                                                            __html: ticketHint.content,
+                                                        }}/>
+                                                        <Link href={`/property/${propertyId}/hint`} passHref>
+                                                            <a target={'_blank'}>
+                                                                <Typography.Link underline style={{ color: 'black' }}>
+                                                                    Подробнее
+                                                                </Typography.Link>
+                                                            </a>
+                                                        </Link>
+                                                    </>
+                                                }
+                                                showIcon
+                                                icon={<InfoCircleOutlined/>}
+                                            />
+                                        )
+                                    }
+                                </Col>
+                            </Row>
                         </PageFieldRow>
                         <PageFieldRow title={ClientMessage} highlight>
                             {
