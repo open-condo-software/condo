@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Input as BaseInput, InputProps } from 'antd'
 import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '../TrackingContext'
 
@@ -6,10 +6,12 @@ export interface CustomInputProps extends InputProps {
     eventName?: string
     eventProperties?: TrackingEventPropertiesType
 }
+const DEBOUNCE_TIMEOUT = 1000
 
 const Input = (props: CustomInputProps) => {
-    const { eventName: propEventName, eventProperties, onChange, ...restProps } = props
-    const { getTrackingWrappedCallback, getEventName } = useTracking()
+    const { eventName: propEventName, eventProperties, ...restProps } = props
+    const firstRender = useRef(true)
+    const { logEvent, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Input)
     const componentProperties = { ...eventProperties }
@@ -18,11 +20,20 @@ const Input = (props: CustomInputProps) => {
         componentProperties['component'] = { value: restProps.value }
     }
 
-    const onChangeCallback = eventName ? getTrackingWrappedCallback(eventName, componentProperties, onChange) : onChange
+    useEffect(() => {
+        let timoutId
+        if (!firstRender.current && eventName && restProps.value) {
+            timoutId = setTimeout(() => {
+                logEvent({ eventName, eventProperties: componentProperties })
+            }, DEBOUNCE_TIMEOUT)
+        }
 
-    return (
-        <BaseInput {...restProps} onChange={onChangeCallback} />
-    )
+        firstRender.current = false
+
+        return () => clearTimeout(timoutId)
+    }, [restProps.value])
+
+    return <BaseInput {...restProps} />
 }
 
 Input.Password = BaseInput.Password
