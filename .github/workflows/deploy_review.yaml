@@ -36,6 +36,7 @@ jobs:
           WERF_SET_CI_EPS_URL: "global.ci_eps_url=review-${{ env.REVIEW_URL_PREFIX }}-eps.d.doma.ai"
           WERF_SET_CI_RB_URL: "global.ci_rb_url=review-${{ env.REVIEW_URL_PREFIX }}-rb.d.doma.ai"
           WERF_SET_CI_INSURANCE_URL: "global.ci_insurance_url=review-${{ env.REVIEW_URL_PREFIX }}-insurance.doma.ai"
+          WERF_SET_CI_REGISTRY_MA_URL: "global.ci_registry_ma_url=review-${{ env.REVIEW_URL_PREFIX }}-registry.doma.ai"
           WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE}}
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
