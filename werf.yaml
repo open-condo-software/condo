@@ -291,6 +291,8 @@ shell:
   - "echo 'WORKER_REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+  - >
+    echo '{"serverUrl":"https://test.doma.ai","clientId":"test","clientSecret":"test"}' >> /app/.env
   - "yarn workspace @app/registry next telemetry disable"
   - "yarn workspace @app/registry build"
   - "cd /app/apps/registry"
