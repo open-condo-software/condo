@@ -31523,7 +31523,6 @@ export type SendMessageInput = {
   sender: SenderFieldInput;
   to: SendMessageToInput;
   emailFrom?: Maybe<Scalars['String']>;
-  replyTo?: Maybe<Scalars['String']>;
   type: SendMessageType;
   lang: SendMessageLang;
   meta: Scalars['JSON'];
