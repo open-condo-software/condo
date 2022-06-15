@@ -193,7 +193,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     )
 
     const { push, query: { id } } = useRouter()
-    const builderFormRef = useRef<HTMLDivElement | null>(null)
     const [mapEdit, setMapEdit] = useState(new MapEdit(map, updateFormField))
 
     const mode = mapEdit.editMode
@@ -226,21 +225,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     }, [handleSave, mapValidationError, mapEdit])
 
     useHotkeys('ctrl+s', quickSaveCallback, [map, property])
-
-    const scrollToForm = () => {
-        if (builderFormRef && builderFormRef.current) {
-            const rect = builderFormRef.current.getBoundingClientRect()
-            const isVisible =  (
-                rect.top >= 0 &&
-                rect.left >= 0 &&
-                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-            )
-            if (!isVisible) {
-                builderFormRef.current.scrollIntoView()
-            }
-        }
-    }
 
     const refresh = useCallback(() => {
         setMapEdit(cloneDeep(mapEdit))
@@ -383,7 +367,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 <ChessBoard
                     builder={mapEdit}
                     refresh={refresh}
-                    scrollToForm={scrollToForm}
                     isFullscreen
                 >
                     <Space size={20} align={'center'}>
@@ -420,7 +403,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 interface IChessBoardProps {
     builder: MapEdit
     refresh(): void
-    scrollToForm(): void
     toggleFullscreen?(): void
     isFullscreen?: boolean
 }
@@ -450,7 +432,7 @@ const SCROLL_CONTAINER_EDIT_PADDING = '315px'
 const MENU_COVER_MAP_WIDTH = 800
 
 const ChessBoard: React.FC<IChessBoardProps> = (props) => {
-    const { builder, refresh, scrollToForm, toggleFullscreen, isFullscreen, children } = props
+    const { builder, refresh, toggleFullscreen, isFullscreen, children } = props
     const container = useRef<HTMLElement | null>(null)
 
     useEffect(() => {
@@ -490,7 +472,12 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                 || editUnitAtLastSection
                 || editParkingUnitAtLastSection) {
                 const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
-                container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
+
+                if (lastParkingSelected || lastParkingSelected) {
+                    container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
+                    return
+                }
+                container.current.scrollLeft = scrollWidth - clientWidth
             }
         }
     }, [builder])
@@ -540,13 +527,11 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                                 section={section}
                                                 builder={builder}
                                                 refresh={refresh}
-                                                scrollToForm={scrollToForm}
                                             >
                                                 <PropertyMapFloorContainer
                                                     builder={builder}
                                                     section={section}
                                                     refresh={refresh}
-                                                    scrollToForm={scrollToForm}
                                                 />
                                             </PropertyMapSection>
 
@@ -557,14 +542,12 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                                 section={parkingSection}
                                                 builder={builder}
                                                 refresh={refresh}
-                                                scrollToForm={scrollToForm}
                                                 isParkingSection
                                             >
                                                 <PropertyMapFloorContainer
                                                     builder={builder}
                                                     section={parkingSection}
                                                     refresh={refresh}
-                                                    scrollToForm={scrollToForm}
                                                     isParkingSection
                                                 />
                                             </PropertyMapSection>
@@ -591,14 +574,13 @@ interface IPropertyMapSectionProps {
     section: BuildingSection
     builder: MapEdit
     refresh: () => void
-    scrollToForm: () => void
     isParkingSection?: boolean
 }
 const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
 const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 2 }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
-    const { section, children, builder, refresh, scrollToForm, isParkingSection = false } = props
+    const { section, children, builder, refresh, isParkingSection = false } = props
     const intl = useIntl()
     const SectionTitle = isParkingSection
         ? `${intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })} ${section.name}`
@@ -607,17 +589,11 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
     const chooseSection = useCallback(() => {
         if (isParkingSection) {
             builder.setSelectedParking(section)
-            if (builder.getSelectedParking()) {
-                scrollToForm()
-            }
         } else {
             builder.setSelectedSection(section)
-            if (builder.getSelectedSection()) {
-                scrollToForm()
-            }
         }
         refresh()
-    }, [builder, refresh, scrollToForm, section, isParkingSection])
+    }, [builder, refresh, section, isParkingSection])
 
     const isSectionSelected = isParkingSection
         ? builder.isParkingSelected(section.id)
@@ -643,7 +619,7 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
 }
 
 const PropertyMapFloorContainer: React.FC<IPropertyMapSectionProps> = (props) => {
-    const { isParkingSection, refresh, builder, section, scrollToForm } = props
+    const { isParkingSection, refresh, builder, section } = props
     const sectionFloors = isParkingSection ? builder.possibleChosenParkingFloors : builder.possibleChosenFloors
     return (
         <>
@@ -661,7 +637,6 @@ const PropertyMapFloorContainer: React.FC<IPropertyMapSectionProps> = (props) =>
                                                 unit={unit}
                                                 builder={builder}
                                                 refresh={refresh}
-                                                scrollToForm={scrollToForm}
                                             />
                                         )
                                     })
@@ -683,24 +658,17 @@ interface IPropertyMapUnitProps {
     unit: BuildingUnit
     builder: MapEdit
     refresh: () => void
-    scrollToForm: () => void
 }
 
-const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit, scrollToForm }) => {
+const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit }) => {
     const selectUnit = useCallback(() => {
         if (unit.unitType !== BuildingUnitSubType.Parking) {
             builder.setSelectedUnit(unit)
-            if (builder.getSelectedUnit()) {
-                scrollToForm()
-            }
         } else {
             builder.setSelectedParkingUnit(unit)
-            if (builder.getSelectedParkingUnit()) {
-                scrollToForm()
-            }
         }
         refresh()
-    }, [refresh, unit, builder, scrollToForm])
+    }, [refresh, unit, builder])
 
     const isUnitSelected = unit.unitType === BuildingUnitSubType.Flat
         ? builder.isUnitSelected(unit.id)
