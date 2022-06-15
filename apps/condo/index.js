@@ -32,7 +32,6 @@ const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABL
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const IS_ENABLE_CACHE = conf.ENABLE_CACHE === '1'
-const IS_ENABLE_ADAPTER_CACHE = conf.ENABLE_ADAPTER_CACHE === '1'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_ON_WORKER = conf.PHASE === 'worker'
 
@@ -76,7 +75,9 @@ const keystone = new Keystone({
 })
 
 const cache = {}
-initCache(keystone, cache)
+if (IS_ENABLE_CACHE) {
+    initCache(keystone, cache)
+}
 
 // Because Babel is used only for frontend to transpile and optimise code,
 // backend files will bring unnecessary workload to building stage.
