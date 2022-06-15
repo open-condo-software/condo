@@ -13,34 +13,37 @@ class AdapterCacheMiddleware {
     constructor (config) {
         try {
             const parsedConfig = JSON.parse(config)
-            this.enabled = get(parsedConfig, 'enable', false)
+            this.enabled = !!get(parsedConfig, 'enable', false)
             this.redisUrl = get(parsedConfig, 'redis_url')
             this.excludedTables = get(parsedConfig, 'excluded_tables', [])
             this.logging = get(parsedConfig, 'logging', false)
         }
         catch (e) {
             this.enabled = false
-            console.warn(`UNABLE TO ENABLE CACHE, reason ${e}`)
+            console.warn(`ADAPTER_CACHE: Bad config! reason ${e}`)
         }
     }
 
     // table_name -> queryKey -> { response, lastUpdate}
     cache = {}
 
-    // Should be saved in Redis!
+    // Should be saved in Redis! Here only for demonstration purposes!
     // table_name -> lastUpdate (of this table)
     state = {}
 
     async prepareMiddleware ({ keystone, dev, distDir }) {
         if (this.enabled) {
             await initAdapterCache(keystone, this.cache, this.state, this.logging, this.excludedTables, this.redisUrl)
+            console.info('ADAPTER_CACHE: Adapter level cache ENABLED')
+        } else {
+            console.info('ADAPTER_CACHE: Adapter level cache NOT ENABLED')
         }
     }
 }
 
 const UPDATED_AT = 'updatedAt'
 
-const initAdapterCache = async (keystone, state, cache, logging, excludedTables, redisUrl) => {
+const initAdapterCache = async (keystone, state, cache, logging, excludedTables) => {
     const keystoneAdapter = keystone.adapter
 
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
@@ -59,7 +62,7 @@ const initAdapterCache = async (keystone, state, cache, logging, excludedTables,
 
             totalRequests++
 
-            const key = JSON.stringify(args) + '_' + get(opts, 'from.fromId', null) + '_' + get(opts, 'from.fromField' )
+            const key = JSON.stringify(args) + '_' + get(opts, 'from.fromId') + '_' + get(opts, 'from.fromField') + '_' + get(opts, 'meta')
 
             let response = []
             const cached = cache[listName][key]
