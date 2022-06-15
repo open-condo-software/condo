@@ -19,6 +19,8 @@ import { Loader } from '../../../../domains/common/components/Loader'
 import { PageFieldRow } from '../../../../domains/common/components/PageFieldRow'
 import { OrganizationRequired } from '../../../../domains/organization/components/OrganizationRequired'
 import { TicketHint } from '../../../../domains/ticket/utils/clientSchema'
+import dompurify from 'dompurify'
+
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
@@ -66,6 +68,8 @@ const TicketHintIdPage = () => {
         return <Loader />
     }
 
+    const sanitizer = dompurify.sanitize
+
     return (
         <>
             <Head>
@@ -86,7 +90,9 @@ const TicketHintIdPage = () => {
                                     {ticketHint.name}
                                 </PageFieldRow>
                                 <PageFieldRow title={TicketHintTitleMessage}>
-                                    {ticketHint.content}
+                                    <div dangerouslySetInnerHTML={{
+                                        __html: sanitizer(ticketHint.content),
+                                    }}/>
                                 </PageFieldRow>
                             </Row>
                         </Col>

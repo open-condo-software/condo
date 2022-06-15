@@ -1,7 +1,8 @@
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useIntl } from '../../../../../packages/@core.next/intl'
+import { htmlFor } from '../../common/components/containers/BehaviorRecorder'
 import { getTableCellRenderer } from '../../common/components/Table/Renders'
 import { getFilterIcon } from '../../common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '../../common/utils/filters.utils'
@@ -26,6 +27,14 @@ export function useTicketHintsTableColumns <T> (filterMetas: Array<FiltersMeta<T
     const renderAddress = useCallback(
         (properties) => properties.map((property) => getAddressRender(property, DeletedMessage, search)),
         [DeletedMessage, search])
+
+    const renderHintContent = useCallback((value) => {
+        return (
+            <div dangerouslySetInnerHTML={{
+                __html: value,
+            }}/>
+        )
+    }, [])
 
     return useMemo(() => {
         return [
@@ -53,7 +62,7 @@ export function useTicketHintsTableColumns <T> (filterMetas: Array<FiltersMeta<T
                 ellipsis: true,
                 dataIndex: 'content',
                 key: 'content',
-                render,
+                render: renderHintContent,
             },
         ]
     }, [ApartmentComplexNameMessage, BuildingsMessage, HintMessage, filterMetas, filters, render, renderAddress])
