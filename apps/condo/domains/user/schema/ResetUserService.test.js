@@ -14,6 +14,7 @@ const {
     makeClientWithSupportUser,
     UserAdmin,
 } = require('@condo/domains/user/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/domains/common/utils/testSchema')
 
 
 describe('ResetUserService', () => {
@@ -152,20 +153,17 @@ describe('ResetUserService', () => {
             user: { id: client.user.id },
         }
 
-        await catchErrorFrom(async () => {
+        await expectToThrowAccessDeniedErrorToResult(async () => {
             await resetUserByTestClient(client2, payload)
-        }, (e) => {
-            expect(e.errors[0].name).toContain('AccessDeniedError')
         })
     })
 
     test('anonymous cant reset user', async () => {
         const client = await makeClient()
         const userToResetId = faker.datatype.uuid()
-        await catchErrorFrom(async () => {
+
+        await expectToThrowAuthenticationErrorToResult(async () => {
             await resetUserByTestClient(client, { user: { id: userToResetId } })
-        }, (e) => {
-            expect(e.errors[0].name).toContain('AuthenticationError')
         })
     })
 })

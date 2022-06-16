@@ -62,11 +62,11 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             type: 'type ResetUserOutput { status: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canResetUser,
-            schema: 'resetUser(data: ResetUserInput!): ResetUserOutput!',
+            schema: 'resetUser(data: ResetUserInput!): ResetUserOutput',
             doc: {
                 summary: 'Used by QA for cleaning existing test user record to avoid utilizing every time new phone and email, which is hard to obtain again and again for every manual testing procedure',
                 errors,
@@ -107,7 +107,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             },
         },
     ],
-    
+
 })
 
 module.exports = {
