@@ -1,9 +1,7 @@
-const faker = require('faker')
 const dayjs = require('dayjs')
 const {
     makeLoggedInAdminClient,
     makeClient,
-    waitFor,
 } = require('@core/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -19,7 +17,6 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestB2CApp,
-    updateTestB2CApp,
     createTestB2CAppAccessRight,
     B2CAppProperty,
     createTestB2CAppProperty,
@@ -27,8 +24,6 @@ const {
     getFakeAddress,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
-    NO_APP_ERROR,
-    RESTRICT_PROPERTY_APP_CHANGE_ERROR,
     INCORRECT_HOUSE_TYPE_ERROR,
     INCORRECT_ADDRESS_ERROR,
 } = require('@condo/domains/miniapp/constants')
@@ -232,75 +227,6 @@ describe('B2CAppProperty', () => {
             const [secondApp] = await createTestB2CApp(admin)
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestB2CAppProperty(permittedUser, secondApp)
-            })
-            const [property] = await createTestB2CAppProperty(permittedUser, app)
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestB2CAppProperty(permittedUser, property.id, {
-                    app: { connect: { id: secondApp.id } },
-                })
-            })
-        })
-        test('Must contains app link on creation', async () => {
-            const testAppMock = { id: faker.datatype.uuid() }
-            await expectToThrowValidationFailureError(async () => {
-                await createTestB2CAppProperty(admin, testAppMock, {
-                    app: null,
-                })
-            }, NO_APP_ERROR)
-        })
-        describe('Must auto-delete',  () => {
-            test('On removing from app\'s properties list', async () => {
-                const [newApp] = await createTestB2CApp(admin)
-                const [property] = await createTestB2CAppProperty(admin, newApp)
-                await updateTestB2CApp(admin, newApp.id, {
-                    properties: { disconnect: { id: property.id } },
-                })
-
-                await waitFor(async () => {
-                    const properties = await B2CAppProperty.getAll(admin, {
-                        id: property.id,
-                    })
-                    expect(properties).toHaveLength(0)
-                })
-            })
-            test('On removing link to app from property', async () => {
-                const [property] = await createTestB2CAppProperty(admin, app)
-                const [updatedProperty] = await updateTestB2CAppProperty(admin, property.id, {
-                    app: { disconnectAll: true },
-                })
-                expect(updatedProperty).toBeDefined()
-                expect(updatedProperty).toHaveProperty('deletedAt')
-                expect(updatedProperty.deletedAt).not.toBeNull()
-            })
-        })
-        describe('Cannot change app field, except setting it null for deletion',  () => {
-            test('From property itself', async () => {
-                const [secondApp] = await createTestB2CApp(admin)
-                const [property] = await createTestB2CAppProperty(admin, secondApp)
-                await expectToThrowValidationFailureError(async () => {
-                    await updateTestB2CAppProperty(admin, property.id, {
-                        app: { connect: { id: secondApp.id } },
-                    })
-                }, RESTRICT_PROPERTY_APP_CHANGE_ERROR)
-            })
-            describe('From app "properties" field',  () => {
-                test('On app create', async () => {
-                    const [property] = await createTestB2CAppProperty(admin, app)
-                    await expectToThrowValidationFailureError(async () => {
-                        await createTestB2CApp(admin, {
-                            properties: { connect: { id: property.id } },
-                        })
-                    }, RESTRICT_PROPERTY_APP_CHANGE_ERROR)
-                })
-                test('On app update', async () => {
-                    const [property] = await createTestB2CAppProperty(admin, app)
-                    const [secondApp] = await createTestB2CApp(admin)
-                    await expectToThrowValidationFailureError(async () => {
-                        await updateTestB2CApp(admin, secondApp.id, {
-                            properties: { connect: { id: property.id } },
-                        })
-                    }, RESTRICT_PROPERTY_APP_CHANGE_ERROR)
-                })
             })
         })
         describe('Should validate address and throw error',  () => {
