@@ -5,6 +5,22 @@ const TICKET_REPORT_DAY_GROUP_STEPS = ['day', 'week']
 const TICKET_REPORT_TABLE_MAIN_GROUP = ['categoryClassifier', 'executor', 'assignee']
 const REQUIRED_TICKET_FIELDS = ['property', 'details', 'placeClassifier', 'categoryClassifier', 'deadline']
 
+const TICKET_SOURCE_PREFIX = 'ticket.source.'
+const TICKET_SOURCE_TYPES = {
+    EMAIL: 'email',
+    MOBILE_APP: 'mobile_app',
+    REMOTE_SYSTEM: 'remote_system',
+    CALL: 'call',
+    OTHER: 'other',
+    VISIT: 'visit',
+    WEB_APP: 'web_app',
+    ORGANIZATION_SITE: 'organization_site',
+    MESSENGER: 'messenger',
+    SOCIAL_NETWORK: 'social_network',
+    MOBILE_APP_STAFF: 'mobile_app_staff',
+    MOBILE_APP_RESIDENT: 'mobile_app_resident',
+}
+
 module.exports = {
     MAX_TICKET_REPORT_COUNT,
     PDF_REPORT_WIDTH,
@@ -12,4 +28,6 @@ module.exports = {
     TICKET_REPORT_DAY_GROUP_STEPS,
     TICKET_REPORT_TABLE_MAIN_GROUP,
     REQUIRED_TICKET_FIELDS,
+    TICKET_SOURCE_TYPES,
+    TICKET_SOURCE_PREFIX,
 }
