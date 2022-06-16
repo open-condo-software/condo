@@ -7,6 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationAccessRight')
+const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
 
 
 const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAccessRight', {
@@ -24,15 +25,7 @@ const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAcces
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
-        user: {
-            schemaDoc: 'User',
-            type: Relationship,
-            ref: 'User',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
-
+        user: SERVICE_USER_FIELD,
     },
     plugins: [uuided(), tracked(), historical(), versioned(), softDeleted()],
     access: {

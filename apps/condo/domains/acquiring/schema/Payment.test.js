@@ -3,7 +3,7 @@
  */
 
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 
 const {
@@ -143,7 +143,7 @@ describe('Payment', () => {
                         organization: secondOrganization,
                     } = await makePayer()
                     await createTestPayment(admin, secondOrganization, secondReceipts[0], secondContext)
-                    const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const integrationClient = await makeClientWithServiceUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
 
                     const payments = await Payment.getAll(integrationClient)
@@ -222,7 +222,7 @@ describe('Payment', () => {
                 test('acquiring integration can', async () => {
                     const { admin, billingReceipts, acquiringContext, organization, acquiringIntegration } = await makePayer()
                     const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
-                    const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const integrationClient = await makeClientWithServiceUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
 
                     const payload = {

@@ -11,7 +11,7 @@ const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common
 const { makeLoggedInAdminClient, makeLoggedInClient, makeClient } = require('@core/keystone/test.utils')
 
 const { BillingCategory, createTestBillingCategory, updateTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('BillingCategory', () => {
 
