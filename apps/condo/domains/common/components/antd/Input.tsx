@@ -21,16 +21,16 @@ const Input = (props: CustomInputProps) => {
     }
 
     useEffect(() => {
-        let timoutId
+        let timeoutId
         if (!firstRender.current && eventName && restProps.value && restProps.type !== 'hidden') {
-            timoutId = setTimeout(() => {
+            timeoutId = setTimeout(() => {
                 logEvent({ eventName, eventProperties: componentProperties })
             }, DEBOUNCE_TIMEOUT)
         }
 
         firstRender.current = false
 
-        return () => clearTimeout(timoutId)
+        return () => clearTimeout(timeoutId)
     }, [restProps.value])
 
     return <BaseInput {...restProps} />
