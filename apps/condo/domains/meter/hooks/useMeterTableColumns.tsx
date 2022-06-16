@@ -35,7 +35,7 @@ const METER_READING_INPUT_ADDON_STYLE: CSSProperties = {
     backgroundColor: colors.backgroundLightGrey,
     verticalAlign: 'middle',
     height: '85%',
-    borderRadius: '0 8px 8px 0',
+    borderRadius: '0 4px 4px 0',
     transform: 'translateY(-50%)',
     width: '30%',
     display: 'flex',
