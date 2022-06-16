@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 
 function OptionsCell ({ data, field }) {
     // This is the cell in the list table.
