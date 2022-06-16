@@ -1,4 +1,4 @@
-import { DatabaseFilled, PlusCircleOutlined } from '@ant-design/icons'
+import { PlusCircleOutlined } from '@ant-design/icons'
 import { Col, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -9,18 +9,17 @@ import { useIntl } from '@core/next/intl'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useOrganization } from '@core/next/organization'
-import { SortTicketHintsBy, SortTicketsBy } from '../../../../schema'
-import ActionBar from '../../../common/components/ActionBar'
-import { Button } from '../../../common/components/Button'
-import { useQueryMappers } from '../../../common/hooks/useQueryMappers'
+import { SortTicketHintsBy } from '@app/condo/schema'
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Button } from '@condo/domains/common/components/Button'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 
-import { useTicketHintsTableColumns } from '../../hooks/useTicketHintsTableColumns'
-import { useTicketHintsTableFilters } from '../../hooks/useTicketHintsTableFilters'
+import { useTicketHintsTableColumns } from '@condo/domains/ticket/hooks/useTicketHintsTableColumns'
+import { useTicketHintsTableFilters } from '@condo/domains/ticket/hooks/useTicketHintsTableFilters'
 import { TicketHint } from '../../utils/clientSchema'
 import { IFilters } from '../../utils/helpers'
 
@@ -35,7 +34,7 @@ export const SettingsContent = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    
+
     const [search, handleSearchChange] = useSearch<IFilters>(false)
     const { shouldTableScroll } = useLayoutContext()
 
