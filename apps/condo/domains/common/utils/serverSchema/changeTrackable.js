@@ -135,12 +135,14 @@ class ResolversValidationError extends Error {
  * @param {Object} fields - `fields` object of a Keystone schema
  * @param {Object} singleRelationshipDisplayNameResolvers - map of field names to functions, that resolves display name of "single" relationship for that field
  * @param {Object} manyRelationshipDisplayNameResolvers - map of field names to functions, that resolves display name of "many" relationship for that field
+ * @param {Object} keysOfLocalizedTextFields - map of field keys to localization template string like 'ticket.status.*.name'
  * @return {Object} - Set of fields, that should be substituted into a declaration of schema, that will store changes.
  */
 function generateChangeTrackableFieldsFrom (
     fields,
     singleRelationshipDisplayNameResolvers,
-    manyRelationshipDisplayNameResolvers
+    manyRelationshipDisplayNameResolvers,
+    keysOfLocalizedTextFields,
 ) {
     const scalars = transform(pickBy(fields, isScalar), mapScalars, {})
     const fieldsOfSingleRelations = pickBy(fields, isRelationSingle)
@@ -154,7 +156,11 @@ function generateChangeTrackableFieldsFrom (
         throw new ResolversValidationError(fieldsWithoutResolvers)
     }
 
-    const mappedFieldsOfSingleRelationships = transform(fieldsOfSingleRelations, mapRelationSingle, {})
+    const mappedFieldsOfSingleRelationships = transform(
+        fieldsOfSingleRelations,
+        (acc, value, key) => mapRelationSingle(acc, value, key, keysOfLocalizedTextFields),
+        {}
+    )
     const mappedFieldsOfManyRelationships = transform(fieldsOfManyRelations, mapRelationMany, {})
 
     return {
@@ -401,10 +407,7 @@ const mapScalar = (field) => (
 /**
  * TODO(DOMA-3286): take field localization from it's schema
  */
-const localizedTrackableFields = new Map([
-    ['status', TicketStatus.schema.fields.name.template],
-    ['source', TicketSource.schema.fields.name.template],
-])
+
 
 /**
  * Produces "Change storage set" of fields (see Terms) for a single relationship field
@@ -412,8 +415,9 @@ const localizedTrackableFields = new Map([
  * @param {Object} acc - final set all fields, composed using lodash `transform` function
  * @param {Object} value - Keystone field declaration
  * @param {String} key - key of a field being iterated
+ * @param {Map} keysOfLocalizedTextFields - map of field keys to localization template string like 'ticket.status.*.name
  */
-const mapRelationSingle = (acc, value, key) => {
+const mapRelationSingle = (acc, value, key, keysOfLocalizedTextFields = {}) => {
     acc[`${key}IdFrom`] = {
         schemaDoc: `Old id of related entity. ${value.schemaDoc}`,
         type: Uuid,
@@ -422,16 +426,15 @@ const mapRelationSingle = (acc, value, key) => {
         schemaDoc: `New id of related entity. ${value.schemaDoc}`,
         type: Uuid,
     }
-    
     acc[`${key}DisplayNameFrom`] = {
         schemaDoc: `Old display name of related entity. ${value.schemaDoc}`,
-        type: localizedTrackableFields.has(key) ? LocalizedText : Text,
-        template: localizedTrackableFields.get(key),
+        type: keysOfLocalizedTextFields.has(key) ? LocalizedText : Text,
+        ...(keysOfLocalizedTextFields.has(key) ? { template: keysOfLocalizedTextFields.get(key) } : {}),
     }
     acc[`${key}DisplayNameTo`] = {
         schemaDoc: `New display name of related entity. ${value.schemaDoc}`,
-        type: localizedTrackableFields.has(key) ? LocalizedText : Text,
-        template: localizedTrackableFields.get(key),
+        type: keysOfLocalizedTextFields.has(key) ? LocalizedText : Text,
+        ...(keysOfLocalizedTextFields.has(key) ? { template: keysOfLocalizedTextFields.get(key) } : {}),
     }
 }
 
