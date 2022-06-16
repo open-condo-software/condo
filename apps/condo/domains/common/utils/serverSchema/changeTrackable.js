@@ -3,6 +3,7 @@ const { Text, Uuid } = require('@keystonejs/fields')
 const { Relationship } = require('@keystonejs/fields')
 const { Json, LocalizedText } = require('@core/keystone/fields')
 const { TicketStatus } = require('@condo/domains/ticket/schema/TicketStatus')
+const { TicketSource } = require('@condo/domains/ticket/schema/TicketSource')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.
@@ -235,6 +236,7 @@ const storeChangesIfUpdated = (
             relatedFieldsList,
             displayNameResolvers,
         })
+
         if (keys(fieldsChanges).length > 0) {
             createCallback(fieldsChangesWithRelatedFields, { existingItem, updatedItem, context })
         }
@@ -396,7 +398,13 @@ const mapScalar = (field) => (
     pick(field, ['schemaDoc', 'type', 'options', 'dataType'])
 )
 
-const localizedTrackableFields = new Map([['status', TicketStatus.schema.fields.name.template]])
+/**
+ * TODO(DOMA-3286): take field localization from it's schema
+ */
+const localizedTrackableFields = new Map([
+    ['status', TicketStatus.schema.fields.name.template],
+    ['source', TicketSource.schema.fields.name.template],
+])
 
 /**
  * Produces "Change storage set" of fields (see Terms) for a single relationship field

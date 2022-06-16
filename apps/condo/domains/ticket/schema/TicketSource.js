@@ -1,10 +1,13 @@
-const { Text, Select } = require('@keystonejs/fields')
+const { Select } = require('@keystonejs/fields')
 
+const LocalizedText = require('@core/keystone/fields/LocalizedText')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+
+const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
 
 const READ_ONLY_ACCESS = {
     read: true,
@@ -25,12 +28,16 @@ const TicketSource = new GQLListSchema('TicketSource', {
         type: {
             type: Select,
             isRequired: true,
-            options: 'mobile_app, web_app, organization_site, call, visit, email, social_network, messenger, remote_system, other',
+            options: Object.values(TICKET_SOURCE_TYPES),
         },
+
         name: {
-            type: Text,
+            schemaDoc: 'Localized Ticket source name',
+            type: LocalizedText,
             isRequired: true,
+            template: 'ticket.source.*.name',
         },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     // TODO(Dimitreee):use access check from access.js
