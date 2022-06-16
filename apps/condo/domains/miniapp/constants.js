@@ -33,9 +33,6 @@ const NO_INSTRUCTION_OR_MESSAGE_ERROR = '[integration:noInstructionOrMessage] If
 const NON_SERVICE_USER_ERROR = '[user] No user specified or it has non-service type'
 const NO_CONTEXT_STATUS_ERROR = '[status] Status field cannot be set to null'
 const NON_ZIP_FILE_ERROR = '[data] Expected data to have "application/zip" mimetype'
-const NO_APP_ERROR = '[app] Cannot create B2C app build without linking it to app'
-const RESTRICT_BUILD_APP_CHANGE_ERROR = '[build:app] The "app" field of B2CAppBuild can only be updated to null to trigger a soft-delete operation. If you want to relink build to another app, you must create a separate build for it'
-const RESTRICT_PROPERTY_APP_CHANGE_ERROR = '[property:app] The "app" field of B2CAppProperty can only be updated to null to trigger a soft-delete operation. If you want to relink property to another app, you must create a separate property for it'
 const RESTRICT_BUILD_SELECT_ERROR = '[currentBuild] Cannot set current build to build of other B2C app'
 const INCORRECT_ADDRESS_ERROR = '[address] Incorrect address was provided. Make sure you use normalized address as input'
 const INCORRECT_HOUSE_TYPE_ERROR = '[address] Address with specified house type is not currently supported'
@@ -57,10 +54,7 @@ module.exports = {
     NON_SERVICE_USER_ERROR,
     NO_INSTRUCTION_OR_MESSAGE_ERROR,
     NO_CONTEXT_STATUS_ERROR,
-    NO_APP_ERROR,
     NON_ZIP_FILE_ERROR,
-    RESTRICT_BUILD_APP_CHANGE_ERROR,
-    RESTRICT_PROPERTY_APP_CHANGE_ERROR,
     RESTRICT_BUILD_SELECT_ERROR,
     INCORRECT_ADDRESS_ERROR,
     INCORRECT_HOUSE_TYPE_ERROR,

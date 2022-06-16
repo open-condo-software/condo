@@ -3174,12 +3174,6 @@ export type B2CApp = {
   colorSchema?: Maybe<AppColorSchemaField>;
   /**  Link to current active app build  */
   currentBuild?: Maybe<B2CAppBuild>;
-  /**  List of available app builds. Removing item from this list automatically soft-deletes it  */
-  builds: Array<B2CAppBuild>;
-  _buildsMeta?: Maybe<_QueryMeta>;
-  /**  List of all B2C app properties where B2C app can be launched  */
-  properties: Array<B2CAppProperty>;
-  _propertiesMeta?: Maybe<_QueryMeta>;
   /**  Specifies set of service users, who can modify B2CAppProperties of the app as well as perform actions on behalf of the application  */
   accessRights: Array<B2CAppAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
@@ -3197,50 +3191,6 @@ export type B2CApp = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-};
-
-
-/**  B2C App  */
-export type B2CAppBuildsArgs = {
-  where?: Maybe<B2CAppBuildWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortB2CAppBuildsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  B2C App  */
-export type B2CApp_BuildsMetaArgs = {
-  where?: Maybe<B2CAppBuildWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortB2CAppBuildsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  B2C App  */
-export type B2CAppPropertiesArgs = {
-  where?: Maybe<B2CAppPropertyWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortB2CAppPropertiesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  B2C App  */
-export type B2CApp_PropertiesMetaArgs = {
-  where?: Maybe<B2CAppPropertyWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortB2CAppPropertiesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
 };
 
 
@@ -3590,7 +3540,7 @@ export type B2CAppBuild = {
    *  4. As an alias to the 'id' field on the B2CAppBuild List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Link to B2C application. Exists and required for any non-deleted builds. Setting this to null automatically disconnect build from app, which will cause build deletion  */
+  /**  Link to B2C application  */
   app?: Maybe<B2CApp>;
   /**  Version of build which used to control builds inside B2CApp model  */
   version?: Maybe<Scalars['String']>;
@@ -3818,13 +3768,6 @@ export type B2CAppBuildHistoryRecordsUpdateInput = {
   data?: Maybe<B2CAppBuildHistoryRecordUpdateInput>;
 };
 
-export type B2CAppBuildRelateToManyInput = {
-  create?: Maybe<Array<Maybe<B2CAppBuildCreateInput>>>;
-  connect?: Maybe<Array<Maybe<B2CAppBuildWhereUniqueInput>>>;
-  disconnect?: Maybe<Array<Maybe<B2CAppBuildWhereUniqueInput>>>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
-};
-
 export type B2CAppBuildRelateToOneInput = {
   create?: Maybe<B2CAppBuildCreateInput>;
   connect?: Maybe<B2CAppBuildWhereUniqueInput>;
@@ -3953,8 +3896,6 @@ export type B2CAppCreateInput = {
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<AppColorSchemaFieldInput>;
   currentBuild?: Maybe<B2CAppBuildRelateToOneInput>;
-  builds?: Maybe<B2CAppBuildRelateToManyInput>;
-  properties?: Maybe<B2CAppPropertyRelateToManyInput>;
   accessRights?: Maybe<B2CAppAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -4450,13 +4391,6 @@ export type B2CAppPropertyHistoryRecordsUpdateInput = {
   data?: Maybe<B2CAppPropertyHistoryRecordUpdateInput>;
 };
 
-export type B2CAppPropertyRelateToManyInput = {
-  create?: Maybe<Array<Maybe<B2CAppPropertyCreateInput>>>;
-  connect?: Maybe<Array<Maybe<B2CAppPropertyWhereUniqueInput>>>;
-  disconnect?: Maybe<Array<Maybe<B2CAppPropertyWhereUniqueInput>>>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
-};
-
 export type B2CAppPropertyUpdateInput = {
   app?: Maybe<B2CAppRelateToOneInput>;
   address?: Maybe<Scalars['String']>;
@@ -4571,8 +4505,6 @@ export type B2CAppUpdateInput = {
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<AppColorSchemaFieldInput>;
   currentBuild?: Maybe<B2CAppBuildRelateToOneInput>;
-  builds?: Maybe<B2CAppBuildRelateToManyInput>;
-  properties?: Maybe<B2CAppPropertyRelateToManyInput>;
   accessRights?: Maybe<B2CAppAccessRightRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -4654,18 +4586,6 @@ export type B2CAppWhereInput = {
   colorSchema_not_in?: Maybe<Array<Maybe<AppColorSchemaFieldInput>>>;
   currentBuild?: Maybe<B2CAppBuildWhereInput>;
   currentBuild_is_null?: Maybe<Scalars['Boolean']>;
-  /**  condition must be true for all nodes  */
-  builds_every?: Maybe<B2CAppBuildWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  builds_some?: Maybe<B2CAppBuildWhereInput>;
-  /**  condition must be false for all nodes  */
-  builds_none?: Maybe<B2CAppBuildWhereInput>;
-  /**  condition must be true for all nodes  */
-  properties_every?: Maybe<B2CAppPropertyWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  properties_some?: Maybe<B2CAppPropertyWhereInput>;
-  /**  condition must be false for all nodes  */
-  properties_none?: Maybe<B2CAppPropertyWhereInput>;
   /**  condition must be true for all nodes  */
   accessRights_every?: Maybe<B2CAppAccessRightWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -35888,10 +35808,6 @@ export enum SortB2CAppsBy {
   IsHiddenDesc = 'isHidden_DESC',
   CurrentBuildAsc = 'currentBuild_ASC',
   CurrentBuildDesc = 'currentBuild_DESC',
-  BuildsAsc = 'builds_ASC',
-  BuildsDesc = 'builds_DESC',
-  PropertiesAsc = 'properties_ASC',
-  PropertiesDesc = 'properties_DESC',
   AccessRightsAsc = 'accessRights_ASC',
   AccessRightsDesc = 'accessRights_DESC',
   IdAsc = 'id_ASC',

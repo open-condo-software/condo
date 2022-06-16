@@ -36,10 +36,6 @@ async function canManageB2CAppBuilds ({ authentication: { item: user }, original
     return false
 }
 
-async function canUpdateAppLink ({ authentication: { item: user } }) {
-    return !!(user.isAdmin || user.isSupport)
-}
-
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -47,5 +43,4 @@ async function canUpdateAppLink ({ authentication: { item: user } }) {
 module.exports = {
     canReadB2CAppBuilds,
     canManageB2CAppBuilds,
-    canUpdateAppLink,
 }
