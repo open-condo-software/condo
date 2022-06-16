@@ -1,9 +1,10 @@
+import '@condo/domains/common/components/wdyr'
+
 import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import { DashboardOutlined } from '@ant-design/icons'
-import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
@@ -13,12 +14,6 @@ import { withOrganization } from '@core/next/organization'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import BaseLayout from '@app/condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
-
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    whyDidYouRender(React, {
-        logOnDifferentValues: true,
-    })
-}
 
 const MenuData = () => {
     return (
