@@ -16,11 +16,19 @@ const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const conf = require('@core/config')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { TicketStatus } = require('@condo/domains/ticket/schema/TicketStatus')
+const { TicketSource } = require('@condo/domains/ticket/schema/TicketSource')
 
 const getTranslation = (translations, key) => {
     if (translations[key]) return translations[key]
     return key
 }
+
+// Corresponding TicketChange will have
+const keysOfLocalizedTextFields = new Map([
+    ['status', TicketStatus.schema.fields.name.template],
+    ['source', TicketSource.schema.fields.name.template],
+])
 
 /**
  *
@@ -43,7 +51,8 @@ const TicketChange = new GQLListSchema('TicketChange', {
         ...generateChangeTrackableFieldsFrom(
             buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
             ticketChangeDisplayNameResolversForSingleRelations,
-            relatedManyToManyResolvers
+            relatedManyToManyResolvers,
+            keysOfLocalizedTextFields,
         ),
         changedByRole: {
             schemaDoc: 'Type of employee who changed the ticket, can be employee role from same organization or related, resident or deleted employee',
