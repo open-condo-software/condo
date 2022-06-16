@@ -2,7 +2,7 @@ import { catchErrorFrom } from '../testSchema'
 const { generateChangeTrackableFieldsFrom, ResolversValidationError } = require('./changeTrackable')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { Text, Relationship, Uuid } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
+const { Json, LocalizedText } = require('@core/keystone/fields')
 
 const House = new GQLListSchema('House', {
     schemaDoc: 'Sample house, where a person will live',
@@ -104,7 +104,10 @@ describe('changeTrackable', () => {
                 const fields = generateChangeTrackableFieldsFrom(
                     Person.schema.fields,
                     personDisplayNameSingleRelationshipResolvers,
-                    personDisplayNameManyRelationshipResolvers
+                    personDisplayNameManyRelationshipResolvers,
+                    new Map([
+                        ['currentHome', 'house.name'],
+                    ])
                 )
 
                 expect(fields).toMatchObject({
@@ -126,11 +129,13 @@ describe('changeTrackable', () => {
                     },
                     currentHomeDisplayNameFrom: {
                         schemaDoc: 'Old display name of related entity. Where a person currently located',
-                        type: Text,
+                        type: LocalizedText,
+                        template: 'house.name',
                     },
                     currentHomeDisplayNameTo: {
                         schemaDoc: 'New display name of related entity. Where a person currently located',
-                        type: Text,
+                        type: LocalizedText,
+                        template: 'house.name',
                     },
                     homesIdsFrom: {
                         schemaDoc: 'Old list of ids of related entities. Where a person lives',

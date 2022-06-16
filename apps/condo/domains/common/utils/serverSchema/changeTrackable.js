@@ -2,8 +2,6 @@ const { keys, transform, pick, pickBy, omit, difference, isEqual } = require('lo
 const { Text, Uuid } = require('@keystonejs/fields')
 const { Relationship } = require('@keystonejs/fields')
 const { Json, LocalizedText } = require('@core/keystone/fields')
-const { TicketStatus } = require('@condo/domains/ticket/schema/TicketStatus')
-const { TicketSource } = require('@condo/domains/ticket/schema/TicketSource')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.
@@ -135,12 +133,14 @@ class ResolversValidationError extends Error {
  * @param {Object} fields - `fields` object of a Keystone schema
  * @param {Object} singleRelationshipDisplayNameResolvers - map of field names to functions, that resolves display name of "single" relationship for that field
  * @param {Object} manyRelationshipDisplayNameResolvers - map of field names to functions, that resolves display name of "many" relationship for that field
+ * @param {Map} [keysOfLocalizedRelationSingleTextFields] - map of field keys that should represent display name of related entity to localization template string like 'ticket.status.*.name'. These fields in resulting generated set will have `LocalizedText` type rather than `Text`.
  * @return {Object} - Set of fields, that should be substituted into a declaration of schema, that will store changes.
  */
 function generateChangeTrackableFieldsFrom (
     fields,
     singleRelationshipDisplayNameResolvers,
-    manyRelationshipDisplayNameResolvers
+    manyRelationshipDisplayNameResolvers,
+    keysOfLocalizedRelationSingleDisplayNameTextFields,
 ) {
     const scalars = transform(pickBy(fields, isScalar), mapScalars, {})
     const fieldsOfSingleRelations = pickBy(fields, isRelationSingle)
@@ -154,7 +154,11 @@ function generateChangeTrackableFieldsFrom (
         throw new ResolversValidationError(fieldsWithoutResolvers)
     }
 
-    const mappedFieldsOfSingleRelationships = transform(fieldsOfSingleRelations, mapRelationSingle, {})
+    const mappedFieldsOfSingleRelationships = transform(
+        fieldsOfSingleRelations,
+        (acc, value, key) => mapRelationSingle(acc, value, key, keysOfLocalizedRelationSingleDisplayNameTextFields),
+        {}
+    )
     const mappedFieldsOfManyRelationships = transform(fieldsOfManyRelations, mapRelationMany, {})
 
     return {
@@ -401,10 +405,7 @@ const mapScalar = (field) => (
 /**
  * TODO(DOMA-3286): take field localization from it's schema
  */
-const localizedTrackableFields = new Map([
-    ['status', TicketStatus.schema.fields.name.template],
-    ['source', TicketSource.schema.fields.name.template],
-])
+
 
 /**
  * Produces "Change storage set" of fields (see Terms) for a single relationship field
@@ -412,8 +413,10 @@ const localizedTrackableFields = new Map([
  * @param {Object} acc - final set all fields, composed using lodash `transform` function
  * @param {Object} value - Keystone field declaration
  * @param {String} key - key of a field being iterated
+ * @param {Map} keysOfLocalizedDisplayNameTextFields - map of field keys to localization template string like 'ticket.status.*.name
  */
-const mapRelationSingle = (acc, value, key) => {
+const mapRelationSingle = (acc, value, key, keysOfLocalizedDisplayNameTextFields) => {
+    if (!keysOfLocalizedDisplayNameTextFields) keysOfLocalizedDisplayNameTextFields = new Map()
     acc[`${key}IdFrom`] = {
         schemaDoc: `Old id of related entity. ${value.schemaDoc}`,
         type: Uuid,
@@ -422,16 +425,15 @@ const mapRelationSingle = (acc, value, key) => {
         schemaDoc: `New id of related entity. ${value.schemaDoc}`,
         type: Uuid,
     }
-    
     acc[`${key}DisplayNameFrom`] = {
         schemaDoc: `Old display name of related entity. ${value.schemaDoc}`,
-        type: localizedTrackableFields.has(key) ? LocalizedText : Text,
-        template: localizedTrackableFields.get(key),
+        type: keysOfLocalizedDisplayNameTextFields.has(key) ? LocalizedText : Text,
+        ...(keysOfLocalizedDisplayNameTextFields.has(key) ? { template: keysOfLocalizedDisplayNameTextFields.get(key) } : {}),
     }
     acc[`${key}DisplayNameTo`] = {
         schemaDoc: `New display name of related entity. ${value.schemaDoc}`,
-        type: localizedTrackableFields.has(key) ? LocalizedText : Text,
-        template: localizedTrackableFields.get(key),
+        type: keysOfLocalizedDisplayNameTextFields.has(key) ? LocalizedText : Text,
+        ...(keysOfLocalizedDisplayNameTextFields.has(key) ? { template: keysOfLocalizedDisplayNameTextFields.get(key) } : {}),
     }
 }
 
