@@ -147,7 +147,7 @@ export const OrganizationSelect: React.FC = () => {
                                     type={'inlineLink'}
                                     style={{ marginLeft: '12px', padding: '8px 0', fontSize: '14px' }}
                                     onClick={() => showCreateOrganizationModal(true)}
-                                    eventName={'OrganizationSelectClickAddOrganization'}
+                                    eventName="OrganizationSelectClickAddOrganization"
                                 >{AddOrganizationTitle}</Button>
                             </div>
                         )}
