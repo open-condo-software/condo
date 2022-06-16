@@ -2,7 +2,7 @@ const get = require('lodash/get')
 const fetch = require('node-fetch')
 const conf = require('@core/config')
 
-const FAKE_SUGGESTIONS = conf['FAKE_ADDRESS_SUGGESTIONS'] || false
+const FAKE_SUGGESTIONS = (conf['FAKE_ADDRESS_SUGGESTIONS'] && conf['FAKE_ADDRESS_SUGGESTIONS'] === 'true') || false
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 const API_URL = get(addressSuggestionsConfig, 'apiUrl', null)
 const API_TOKEN = get(addressSuggestionsConfig, 'apiToken', null)
