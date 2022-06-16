@@ -30,9 +30,12 @@ export function useTicketHintsTableColumns <T> (filterMetas: Array<FiltersMeta<T
 
     const renderHintContent = useCallback((value) => {
         return (
-            <div dangerouslySetInnerHTML={{
-                __html: value,
-            }}/>
+            <div
+                dangerouslySetInnerHTML={{
+                    __html: value,
+                }}
+                style={{ maxHeight: '100px', maxWidth: '200px', overflow: 'hidden' }}
+            />
         )
     }, [])
 

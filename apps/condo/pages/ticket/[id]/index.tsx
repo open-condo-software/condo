@@ -397,9 +397,12 @@ const TicketContent = ({ ticket }) => {
                                                 message="Справка по дому"
                                                 description={
                                                     <>
-                                                        <div dangerouslySetInnerHTML={{
-                                                            __html: ticketHint.content,
-                                                        }}/>
+                                                        <div
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: ticketHint.content,
+                                                            }}
+                                                            style={{ maxHeight: '100px', overflow: 'hidden', wordBreak: 'break-word' }}
+                                                        />
                                                         <Link href={`/property/${propertyId}/hint`} passHref>
                                                             <a target={'_blank'}>
                                                                 <Typography.Link underline style={{ color: 'black' }}>
