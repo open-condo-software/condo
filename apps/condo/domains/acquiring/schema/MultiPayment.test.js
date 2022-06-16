@@ -3,7 +3,7 @@
  */
 
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 const {
     Payment,
@@ -141,8 +141,8 @@ describe('MultiPayment', () => {
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, firstIntegration)
                     const [secondIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
 
-                    const firstIntegrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const secondIntegrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const firstIntegrationClient = await makeClientWithServiceUser()
+                    const secondIntegrationClient = await makeClientWithServiceUser()
                     await createTestAcquiringIntegrationAccessRight(admin, firstIntegration, firstIntegrationClient.user)
                     await createTestAcquiringIntegrationAccessRight(admin, secondIntegration, secondIntegrationClient.user)
 
@@ -189,7 +189,7 @@ describe('MultiPayment', () => {
                     const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
 
-                    const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const integrationClient = await makeClientWithServiceUser()
                     await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
                     const [updatedMultiPayment] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
                         status: MULTIPAYMENT_ERROR_STATUS,
@@ -608,7 +608,7 @@ describe('MultiPayment', () => {
                     serviceConsumer,
                     client,
                 } = await makePayer(1)
-                integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                integrationClient = await makeClientWithServiceUser()
                 await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
                 const [obj] = await registerMultiPaymentByTestClient(client, [
                     { consumerId: serviceConsumer.id, receipts: [{ id: billingReceipts[0].id }] },
@@ -737,7 +737,7 @@ describe('MultiPayment', () => {
                     commonData: { admin, acquiringIntegration, client },
                     batches,
                 } = await makePayerWithMultipleConsumers(5, 1)
-                integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                integrationClient = await makeClientWithServiceUser()
                 await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
                 const payload = batches.map(batch => ({ consumerId: batch.serviceConsumer.id, receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })) }))
                 const [obj] = await registerMultiPaymentByTestClient(client, payload, { sender: client.userAttrs.sender })

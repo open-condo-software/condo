@@ -5,7 +5,7 @@
 const faker = require('faker')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const {
@@ -74,7 +74,7 @@ describe('AcquiringIntegrationContext', () => {
                     test('if it\'s integration account, and organization was created by it', async () => {
                         const admin = await makeLoggedInAdminClient()
 
-                        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                        const client = await makeClientWithServiceUser()
                         const [billingIntegration] = await createTestBillingIntegration(admin)
                         const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                         await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
@@ -91,7 +91,7 @@ describe('AcquiringIntegrationContext', () => {
                         test('No active context', async () => {
                             const admin = await makeLoggedInAdminClient()
 
-                            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                            const client = await makeClientWithServiceUser()
                             const [billingIntegration] = await createTestBillingIntegration(admin)
                             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                             await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
@@ -106,7 +106,7 @@ describe('AcquiringIntegrationContext', () => {
                         test('Already have active context', async () => {
                             const admin = await makeLoggedInAdminClient()
 
-                            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                            const client = await makeClientWithServiceUser()
                             const [billingIntegration] = await createTestBillingIntegration(admin)
                             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                             const [secondIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
@@ -212,7 +212,7 @@ describe('AcquiringIntegrationContext', () => {
                     await createTestAcquiringIntegrationContext(admin, firstOrganization, firstIntegration)
                     await createTestAcquiringIntegrationContext(admin, secondOrganization, secondIntegration)
 
-                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const client = await makeClientWithServiceUser()
                     await createTestAcquiringIntegrationAccessRight(admin, firstIntegration, client.user)
 
                     const contexts = await AcquiringIntegrationContext.getAll(client)
@@ -284,7 +284,7 @@ describe('AcquiringIntegrationContext', () => {
                     const [organization] = await registerNewOrganization(admin)
                     const [billingIntegration] = await createTestBillingIntegration(admin)
                     const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
-                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const client = await makeClientWithServiceUser()
                     await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
                     const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
 

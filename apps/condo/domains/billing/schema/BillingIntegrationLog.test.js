@@ -6,7 +6,7 @@ const faker = require('faker')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
@@ -168,7 +168,7 @@ describe('BillingIntegrationLog', () => {
     })
 
     test('user: can see the logs', async () => {
-        const integrationClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const integrationClient = await makeClientWithServiceUser()
         // const hackerClient = await makeClientWithNewRegisteredAndLoggedInUser()
         const adminClient = await makeLoggedInAdminClient()
         const [integration] = await createTestBillingIntegration(adminClient)

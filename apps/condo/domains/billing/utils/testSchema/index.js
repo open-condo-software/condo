@@ -8,10 +8,8 @@ const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClient } = require('@core/keystone/test.utils')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganization } = require("@condo/domains/organization/utils/testSchema");
-const { makeLoggedInClient, registerNewUser } = require('@condo/domains/user/utils/testSchema')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
@@ -30,7 +28,7 @@ const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -489,14 +487,11 @@ async function makeClientWithIntegrationAccess () {
     const admin = await makeLoggedInAdminClient()
     const [integration, integrationAttrs] = await createTestBillingIntegration(admin)
 
-    const [user, userAttrs] = await registerNewUser(await makeClient())
-    const client = await makeLoggedInClient(userAttrs)
+    const client = await makeClientWithServiceUser()
 
     // add access
-    await createTestBillingIntegrationAccessRight(admin, integration, user)
+    await createTestBillingIntegrationAccessRight(admin, integration, client.user)
 
-    client.user = user
-    client.userAttrs = userAttrs
     client.integration = integration
     client.integrationAttrs = integrationAttrs
     return client
