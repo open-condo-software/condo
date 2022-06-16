@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/core'
+import { jsx } from '@emotion/react'
 import { FieldContainer, FieldInput, FieldLabel } from '@arch-ui/fields'
 
 import Stars from './Stars'
