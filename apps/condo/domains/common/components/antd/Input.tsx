@@ -22,7 +22,7 @@ const Input = (props: CustomInputProps) => {
 
     useEffect(() => {
         let timoutId
-        if (!firstRender.current && eventName && restProps.value) {
+        if (!firstRender.current && eventName && restProps.value && restProps.type !== 'hidden') {
             timoutId = setTimeout(() => {
                 logEvent({ eventName, eventProperties: componentProperties })
             }, DEBOUNCE_TIMEOUT)

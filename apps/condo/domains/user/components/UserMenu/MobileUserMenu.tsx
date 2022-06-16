@@ -57,8 +57,8 @@ const ModalView: React.FC<ModalViewProps> = ({ setShowModal }: ModalViewProps) =
 
     return (
         <ModalWrapper>
-            <Button color={colors.white} onClick={onProfileItemClick} eventName={'MenuClickProfile'}>{ProfileMessage}</Button>
-            <Button color={colors.white} onClick={onSignOutItemClick} eventName={'MenuClickSignout'}>{SignOutMessage}</Button>
+            <Button color={colors.white} onClick={onProfileItemClick} eventName="MenuClickProfile">{ProfileMessage}</Button>
+            <Button color={colors.white} onClick={onSignOutItemClick} eventName="MenuClickSignout">{SignOutMessage}</Button>
         </ModalWrapper>
     )
 }
