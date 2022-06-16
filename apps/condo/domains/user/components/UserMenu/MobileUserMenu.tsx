@@ -34,7 +34,7 @@ const modalStyle: ComponentProps<typeof Modal>['style'] = {
 }
 
 type ModalViewProps = {
-    setShowModal: (state: boolean) => void 
+    setShowModal: (state: boolean) => void
 }
 
 const ModalView: React.FC<ModalViewProps> = ({ setShowModal }: ModalViewProps) => {
@@ -57,8 +57,8 @@ const ModalView: React.FC<ModalViewProps> = ({ setShowModal }: ModalViewProps) =
 
     return (
         <ModalWrapper>
-            <Button color={colors.white} onClick={onProfileItemClick}>{ProfileMessage}</Button>
-            <Button color={colors.white} onClick={onSignOutItemClick}>{SignOutMessage}</Button>
+            <Button color={colors.white} onClick={onProfileItemClick} eventName={'MenuClickProfile'}>{ProfileMessage}</Button>
+            <Button color={colors.white} onClick={onSignOutItemClick} eventName={'MenuClickSignout'}>{SignOutMessage}</Button>
         </ModalWrapper>
     )
 }
@@ -79,18 +79,18 @@ export const MobileUserMenu: React.FC = () => {
             ? (
 
                 <>
-                    <Button 
-                        type={'inlineLink'} 
-                        icon={<Avatar size={40} icon={<UserOutlined />} />} 
-                        onClick={() => setShowModal(true)} 
+                    <Button
+                        type={'inlineLink'}
+                        icon={<Avatar size={40} icon={<UserOutlined />} />}
+                        onClick={() => setShowModal(true)}
                     />
-                    <Modal 
+                    <Modal
                         transitionName=""
-                        centered 
-                        visible={showModal} 
-                        modalRender={modalView} 
-                        style={modalStyle} 
-                        onCancel={()=> setShowModal(false)} 
+                        centered
+                        visible={showModal}
+                        modalRender={modalView}
+                        style={modalStyle}
+                        onCancel={()=> setShowModal(false)}
                     />
                 </>
             )

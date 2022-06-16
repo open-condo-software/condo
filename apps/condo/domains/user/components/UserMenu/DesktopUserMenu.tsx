@@ -89,6 +89,7 @@ export const DesktopUserMenu: React.FC = () => {
                                     type='link'
                                     style={{ paddingRight: 0, color: green[6], fontSize: '12px' }}
                                     onClick={goToUserProfile}
+                                    eventName={'MenuClickSignout'}
                                 >
                                     <Space size={16}>
                                         <AvatarContainer>
