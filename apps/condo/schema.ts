@@ -17179,7 +17179,7 @@ export type Mutation = {
    *   "message": "You cannot reset admin user"
    * }`
    */
-  resetUser: ResetUserOutput;
+  resetUser?: Maybe<ResetUserOutput>;
   /**
    * Registers new Organization for current user
    *
