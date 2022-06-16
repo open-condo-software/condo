@@ -295,8 +295,6 @@ shell:
     echo 'OIDC_CONDO_CLIENT_CONFIG={"serverUrl":"https://test.doma.ai","clientId":"test","clientSecret":"test"}' >> /app/.env
   - "yarn workspace @app/registry next telemetry disable"
   - "yarn workspace @app/registry build"
-  - "cd /app/apps/registry"
-  - "node ./../../bin/create-graphql-schema.js StitchSchemaMiddleware"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
   - "rm -rf /app/.yarn"
