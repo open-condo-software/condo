@@ -1,3 +1,5 @@
+import '@condo/domains/common/components/wdyr'
+
 import React from 'react'
 import Head from 'next/head'
 import enUS from 'antd/lib/locale/en_US'
@@ -6,7 +8,6 @@ import { ConfigProvider } from 'antd'
 import { gql } from 'graphql-tag'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
 import { withAuth } from '@core/next/auth'
@@ -17,12 +18,6 @@ import { messagesImporter as condoMessageImporter } from '@condo/domains/common/
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import { BaseLayout, LayoutContextProvider } from '@miniapp/domains/common/components/BaseLayout'
 import dayjs from 'dayjs'
-
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    whyDidYouRender(React, {
-        logOnDifferentValues: true,
-    })
-}
 
 const ANT_LOCALES = {
     ru: ruRU,
