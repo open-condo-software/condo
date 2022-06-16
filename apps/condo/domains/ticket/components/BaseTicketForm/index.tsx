@@ -366,8 +366,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         </Prompt>
                         <Col span={24}>
                             <Row gutter={[0, 60]}>
-                                <Col span={24}>
-                                    <Row gutter={[40, 6]}>
+                                <Col span={19}>
+                                    <Row gutter={[0, 6]}>
                                         {
                                             !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
                                                 <Col span={isSmall ? 24 : 16}>
@@ -424,15 +424,22 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 form={form}
                                             />
                                         )}
-                                        <Col span={5}>
+                                    </Row>
+                                </Col>
+                                {
+                                    ticketHint && (
+                                        <Col span={4}>
                                             <Row gutter={[0, 20]} style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#F2F3F7', padding: '10px', borderRadius: '12px' }}>
                                                 <Col span={24}>
                                                     <Typography.Title level={5}>Справка</Typography.Title>
                                                 </Col>
                                                 <Col span={24}>
-                                                    <div dangerouslySetInnerHTML={{
-                                                        __html: get(ticketHint, 'content'),
-                                                    }}/>
+                                                    <div
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: get(ticketHint, 'content'),
+                                                        }}
+                                                        style={{ maxHeight: '280px', maxWidth: '200px', overflow: 'hidden',  wordBreak: 'break-word' }}
+                                                    />
                                                     <Link href={`/property/${selectedPropertyId}/hint`} passHref>
                                                         <a target={'_blank'}>
                                                             <Typography.Link underline style={{ color: 'black' }}>
@@ -443,8 +450,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 </Col>
                                             </Row>
                                         </Col>
-                                    </Row>
-                                </Col>
+                                    )
+                                }
                                 <ContactsInfo
                                     ContactsEditorComponent={ContactsEditorComponent}
                                     form={form}
