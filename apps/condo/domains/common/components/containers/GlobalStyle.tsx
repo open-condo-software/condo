@@ -62,6 +62,13 @@ export default function GlobalStyle () {
                 span {
                   position: relative;
                   bottom: 4px;
+                  font-family: Open Sans Regular;
+                  font-size: 14px;
+                  font-weight: 400;
+                  line-height: 22px;
+                  letter-spacing: -0.01em;
+                  text-align: left;
+                  color: ${colors.textSecondary}
                 }
               }
               
@@ -180,6 +187,15 @@ export default function GlobalStyle () {
                 }
               }
 
+              .ant-table-tbody > tr > td {
+                font-family: Open Sans regular;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 22px;
+                letter-spacing: -0.01em;
+                text-align: left;
+              }
+
               .ant-table-pagination.ant-pagination {
                 margin: 40px 0 16px;
               }
@@ -188,11 +204,27 @@ export default function GlobalStyle () {
                 visibility: hidden;
               }
 
+              .ant-table-column-title {
+                font-family: Open Sans Semibold;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 20px;
+                letter-spacing: 0em;
+                text-align: left;
+                color: ${colors.textSecondary};
+              }
+
               .ant-table-filter-trigger.active {
                 visibility: visible;
               }
 
               .ant-table-cell {
+                font-family: Open Sans;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 22px;
+                letter-spacing: -0.01em;
+                text-align: left;
                 &:hover {
                   .ant-table-column-sorter, .ant-table-filter-trigger {
                     visibility: visible;
@@ -201,7 +233,12 @@ export default function GlobalStyle () {
               }
 
               .ant-table-thead > tr > th {
-                font-weight: 700;
+                background-color: ${colors.white};
+                font-family: 'Open Sans Semibold';
+                font-weight: 600;
+                font-size: 12px;
+                line-height: 20px;
+                color: ${colors.textSecondary}
               }
 
               .ant-table-row {
@@ -218,6 +255,7 @@ export default function GlobalStyle () {
                 font-weight: 700;
                 line-height: 46px;
                 letter-spacing: -0.01em;
+                font-family: Open Sans Bold;
               }
               
               a.ant-typography[disabled], 
@@ -254,7 +292,14 @@ export default function GlobalStyle () {
                 line-height: 32px; 
                 font-weight: 700;
               }
-              
+              .ant-btn {
+                font-family: Open Sans Semibold;
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 24px;
+                letter-spacing: -0.01em;
+              }
+
               ${uploadControlCss}
               ${radioGroupCss}
               ${inputControlCss}

@@ -33,6 +33,7 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
     font-size: ${props => props.labelFontSize ? props.labelFontSize : '16px'};
     transition: ${transitions.allDefault};
     white-space: nowrap;
+    font-family: Open Sans Regular;
   }
 
   .icon {
@@ -50,6 +51,7 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
   &.active {
     .label {
       font-weight: 700;
+      font-family: Open Sans Semibold;
     }
 
     .icon {

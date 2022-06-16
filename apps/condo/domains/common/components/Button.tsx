@@ -235,7 +235,6 @@ const sberDangerGhost = css`
   font-weight: bold;
   border-color: ${colors.sberDangerRed};
   background-color: transparent;
-  font-family: Open Sans Semibold;
   
   &:hover, &:focus {
     color: ${colors.white};
