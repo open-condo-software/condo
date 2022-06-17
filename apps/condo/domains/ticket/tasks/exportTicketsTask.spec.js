@@ -1,7 +1,6 @@
 /**
  * @jest-environment node
  */
-const isObsConfigured = require('@condo/domains/common/utils/testSchema/isObsConfigured')
 const { makeLoggedInAdminClient, setFakeClientMode } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {

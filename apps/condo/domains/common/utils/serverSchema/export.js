@@ -5,6 +5,11 @@ const { COMPLETED } = require('@condo/domains/common/constants/export')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { WORKER_FINGERPRINT } = require('@condo/domains/common/constants/worker')
+// const { UploadingFile } = require('@core/keystone/test.utils')
+const path = require('path')
+const conf = require('@core/config')
+const Upload = require('graphql-upload/public/Upload')
+const { updateItem } = require('@keystonejs/server-side-graphql-client')
 
 const errors = {
     NOTHING_TO_EXPORT: {
@@ -78,10 +83,20 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
     return rows
 }
 
-// TODO(antonal): figure out how to pass on server side correct storage-agnostic `Upload` GraphQL input to let `File` Keystone field do it's job for saving file and storing value to database `file` column
-// Maybe it should be similar to how `MultipleFileUpload` component works
-const convertContentToGQLUploadInput = ({ content, meta }) => {
-
+const buildUploadInputFrom = ({ stream, filename, mimetype, encoding }) => {
+    const uploadData = {
+        createReadStream: () => {
+            return stream
+        },
+        filename,
+        mimetype,
+        encoding,
+    }
+    const uploadInput = new Upload()
+    uploadInput.promise = new Promise(resolve => {
+        resolve(uploadData)
+    })
+    return uploadInput
 }
 
 const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow, buildExportFile, task, taskServerUtils }) => (
@@ -93,13 +108,16 @@ const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow
         taskServerUtils,
     })
         .then(buildExportFile)
-        .then(async ({ content, filename, meta }) => {
-            return taskServerUtils.update(context, task.id, {
+        .then(async ({ stream, filename, mimetype, encoding }) => {
+            const file = buildUploadInputFrom({ stream, filename, mimetype, encoding })
+            const data = {
                 dv: 1,
                 sender: task.sender,
                 status: COMPLETED,
-                file: convertContentToGQLUploadInput({ content, filename, meta }),
-            })
+                file,
+            }
+            const updatedTask = await taskServerUtils.update(context, task.id, data)
+            return updatedTask
         })
 )
 
