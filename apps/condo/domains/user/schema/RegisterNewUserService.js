@@ -6,7 +6,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { isEmpty } = require('lodash')
+const { isEmpty, get } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
 const { NOT_UNIQUE, WRONG_FORMAT, WRONG_VALUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
@@ -119,6 +119,11 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     sender,
                     dv: 1,
                 }
+
+                if (get(userData, 'password.length', 0) < MIN_PASSWORD_LENGTH) {
+                    throw new GQLError(errors.PASSWORD_IS_TOO_SHORT, context)
+                }
+
                 let action = null
                 if (confirmPhoneActionToken) {
                     action = await ConfirmPhoneAction.getOne(context,

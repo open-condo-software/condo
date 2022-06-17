@@ -237,6 +237,26 @@ describe('ForgotPasswordAction Service', () => {
             }])
         })
         
+        it('cannot change password to weak passord', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [user] = await createTestUser(admin)
+            const client = await makeClient()
+
+            const [{ token }] = await createTestForgotPasswordAction(admin, user)
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '123456789' } })
+            expect(errors).toHaveLength(1)
+            expect(errors).toMatchObject([{
+                message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
+                name: 'GQLError',
+                path: ['result'],
+                extensions: {
+                    mutation: 'changePasswordWithToken',
+                    variable: ['data', 'password'],
+                    code: 'BAD_USER_INPUT',
+                },
+            }])
+        })
+
         it('can change password with ConfirmPhoneAction', async () => {
             const admin = await makeLoggedInAdminClient()
             const [user, userAttrs] = await createTestUser(admin)
