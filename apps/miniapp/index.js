@@ -1,6 +1,6 @@
 const { generators, Issuer } = require('openid-client') // certified openid client will all checks
 const express = require('express')
-const { isObject } = require('lodash')
+const { isObject, get } = require('lodash')
 
 const { Keystone } = require('@keystonejs/keystone')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
@@ -17,6 +17,7 @@ const { registerSchemas } = require('@core/keystone/KSv5v6/v5/registerSchema')
 const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const { formatError } = require('@miniapp/domains/common/utils/apolloErrorFormatter')
+const { CONDO_ACCESS_TOKEN_KEY, CONDO_ORGANIZATION_KEY } = require('./domains/condo/constants/common')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -95,7 +96,7 @@ class OIDCHelper {
         })
     }
 
-    authorizationUrlWithParams (checks) {
+    getAuthorizationUrlWithParams (checks) {
         return this.client.authorizationUrl({
             response_type: 'code',
             ...checks,
@@ -120,7 +121,6 @@ class CondoOIDCMiddleware {
     prepareMiddleware () {
         const app = express()
         const oidcSessionKey = 'oidc'
-        const condoAccessTokenKey = 'condoAccessToken'
         const helper = new OIDCHelper()
 
         app.get('/oidc/auth', async (req, res, next) => {
@@ -128,9 +128,13 @@ class CondoOIDCMiddleware {
             // state: to validate user browser on callback
             const checks = { nonce: generators.nonce(), state: generators.state() }
             req.session[oidcSessionKey] = checks
+            req.session[CONDO_ORGANIZATION_KEY] = get(req, ['query', 'organizationId'], '')
             await req.session.save()
             try {
-                const redirectUrl = helper.authorizationUrlWithParams(checks)
+                const redirectUrl = helper.getAuthorizationUrlWithParams({
+                    ...checks,
+                    condoUserId: get(req, 'query.condoUserId', undefined),
+                })
                 return res.redirect(redirectUrl)
             } catch (error) {
                 return next(error)
@@ -139,6 +143,7 @@ class CondoOIDCMiddleware {
         app.get('/oidc/callback', async (req, res, next) => {
             try {
                 const checks = req.session[oidcSessionKey]
+                const organizationId = req.session[CONDO_ORGANIZATION_KEY]
                 if (!isObject(checks) || !checks) {
                     return res.status(400).send('ERROR: Invalid nonce and state')
                 }
@@ -150,7 +155,8 @@ class CondoOIDCMiddleware {
                     list: keystone.lists['User'],
                 })
 
-                req.session[condoAccessTokenKey] = accessToken
+                req.session[CONDO_ACCESS_TOKEN_KEY] = accessToken
+                req.session[CONDO_ORGANIZATION_KEY] = organizationId
                 delete req.session[oidcSessionKey]
                 await req.session.save()
 

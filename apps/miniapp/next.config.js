@@ -16,6 +16,8 @@ const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 const googleCaptcha = conf['GOOGLE_RECAPTCHA_CONFIG'] && JSON.parse(conf['GOOGLE_RECAPTCHA_CONFIG'])
 
+const condoUrl = process.env.CONDO_URL
+
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
         // Will be available on both server and client
@@ -26,6 +28,7 @@ module.exports = withTM(withLess(withCSS({
         googleCaptcha,
         behaviorRecorder,
         docsConfig,
+        condoUrl,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
