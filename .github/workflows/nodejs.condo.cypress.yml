@@ -44,6 +44,7 @@ jobs:
           echo 'COOKIE_SECRET=undefined' >> .env
           echo 'DATABASE_URL=${{ matrix.database }}' >> .env
           echo 'WORKER_REDIS_URL=undefined' >> .env
+          echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
           echo 'NODE_ENV=development' >> .env
           export NODE_ENV=development
 
