@@ -33,6 +33,7 @@ import { RESIDENT } from '@condo/domains/user/constants/common'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
 
+import { CreateTicketHint } from '../TicketHint/CreateTicketHint'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
@@ -47,7 +48,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
     }), [contactId, initialValues])
 
     return (
-        <Col lg={16} md={24}>
+        <Col span={24}>
             <TicketFormItem shouldUpdate noStyle>
                 {({ getFieldsValue }) => {
                     const { unitName, unitType } = getFieldsValue(['unitName', 'unitType'])
@@ -337,12 +338,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         return values
     }, [])
 
-    const { loading: ticketHintLoading, obj: ticketHint } = TicketHint.useObject({
-        where: {
-            properties_some: { id: selectedPropertyId },
-        },
-    })
-
     return (
         <>
             <FormWithAction
@@ -366,98 +361,83 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         </Prompt>
                         <Col span={24}>
                             <Row gutter={[0, 60]}>
-                                <Col span={19}>
-                                    <Row gutter={[0, 6]}>
-                                        {
-                                            !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
-                                                <Col span={isSmall ? 24 : 16}>
-                                                    <Alert
-                                                        showIcon
-                                                        type='warning'
-                                                        message={
-                                                            <>
-                                                                {NoPropertiesMessage}&nbsp;
-                                                                <Button
-                                                                    type={'inlineLink'}
-                                                                    size={'small'}
-                                                                    onClick={() => router.push('/property/create')}
-                                                                >
-                                                                    {AddMessage}
-                                                                </Button>
-                                                            </>
+                                <Col span={24}>
+                                    <Row gutter={[60, 0]}>
+                                        <Col span={17}>
+                                            <Row gutter={[0, 60]}>
+                                                <Col span={24}>
+                                                    <Row gutter={[0, 6]}>
+                                                        {
+                                                            !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
+                                                                <Col span={isSmall ? 24 : 20}>
+                                                                    <Alert
+                                                                        showIcon
+                                                                        type='warning'
+                                                                        message={
+                                                                            <>
+                                                                                {NoPropertiesMessage}&nbsp;
+                                                                                <Button
+                                                                                    type={'inlineLink'}
+                                                                                    size={'small'}
+                                                                                    onClick={() => router.push('/property/create')}
+                                                                                >
+                                                                                    {AddMessage}
+                                                                                </Button>
+                                                                            </>
+                                                                        }
+                                                                    />
+                                                                </Col>
+                                                            ) : null
                                                         }
-                                                    />
+                                                        <Col span={24} data-cy={'ticket__property-address-search-input'}>
+                                                            <TicketFormItem
+                                                                name={'property'}
+                                                                label={AddressLabel}
+                                                                rules={PROPERTY_VALIDATION_RULES}
+                                                            >
+                                                                <PropertyAddressSearchInput
+                                                                    organization={organization}
+                                                                    autoFocus={true}
+                                                                    onSelect={(_, option) => {
+                                                                        form.setFieldsValue({
+                                                                            unitName: null,
+                                                                            sectionName: null,
+                                                                            floorName: null,
+                                                                        })
+                                                                        setSelectedPropertyId(option.key)
+                                                                    }}
+                                                                    onClear={() => {
+                                                                        setSelectedPropertyId(null)
+                                                                    }}
+                                                                    placeholder={AddressPlaceholder}
+                                                                    notFoundContent={AddressNotFoundContent}
+                                                                />
+                                                            </TicketFormItem>
+                                                        </Col>
+                                                        {selectedPropertyId && (
+                                                            <UnitInfo
+                                                                property={property}
+                                                                loading={organizationPropertiesLoading}
+                                                                setSelectedUnitName={setSelectedUnitName}
+                                                                setSelectedUnitType={setSelectedUnitType}
+                                                                form={form}
+                                                            />
+                                                        )}
+                                                    </Row>
                                                 </Col>
-                                            ) : null
-                                        }
-                                        <Col span={isSmall ? 24 : 16} data-cy={'ticket__property-address-search-input'}>
-                                            <TicketFormItem
-                                                name={'property'}
-                                                label={AddressLabel}
-                                                rules={PROPERTY_VALIDATION_RULES}
-                                            >
-                                                <PropertyAddressSearchInput
-                                                    organization={organization}
-                                                    autoFocus={true}
-                                                    onSelect={(_, option) => {
-                                                        form.setFieldsValue({
-                                                            unitName: null,
-                                                            sectionName: null,
-                                                            floorName: null,
-                                                        })
-                                                        setSelectedPropertyId(option.key)
-                                                    }}
-                                                    onClear={() => {
-                                                        setSelectedPropertyId(null)
-                                                    }}
-                                                    placeholder={AddressPlaceholder}
-                                                    notFoundContent={AddressNotFoundContent}
+                                                <ContactsInfo
+                                                    ContactsEditorComponent={ContactsEditorComponent}
+                                                    form={form}
+                                                    initialValues={initialValues}
+                                                    selectedPropertyId={selectedPropertyId}
                                                 />
-                                            </TicketFormItem>
-                                        </Col>
-                                        {selectedPropertyId && (
-                                            <UnitInfo
-                                                property={property}
-                                                loading={organizationPropertiesLoading}
-                                                setSelectedUnitName={setSelectedUnitName}
-                                                setSelectedUnitType={setSelectedUnitType}
-                                                form={form}
-                                            />
-                                        )}
-                                    </Row>
-                                </Col>
-                                {
-                                    ticketHint && (
-                                        <Col span={4}>
-                                            <Row gutter={[0, 20]} style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#F2F3F7', padding: '10px', borderRadius: '12px' }}>
-                                                <Col span={24}>
-                                                    <Typography.Title level={5}>Справка</Typography.Title>
-                                                </Col>
-                                                <Col span={24}>
-                                                    <div
-                                                        dangerouslySetInnerHTML={{
-                                                            __html: get(ticketHint, 'content'),
-                                                        }}
-                                                        style={{ maxHeight: '280px', maxWidth: '200px', overflow: 'hidden',  wordBreak: 'break-word' }}
-                                                    />
-                                                    <Link href={`/property/${selectedPropertyId}/hint`} passHref>
-                                                        <a target={'_blank'}>
-                                                            <Typography.Link underline style={{ color: 'black' }}>
-                                                                Подробнее
-                                                            </Typography.Link>
-                                                        </a>
-                                                    </Link>
-                                                </Col>
                                             </Row>
                                         </Col>
-                                    )
-                                }
-                                <ContactsInfo
-                                    ContactsEditorComponent={ContactsEditorComponent}
-                                    form={form}
-                                    initialValues={initialValues}
-                                    selectedPropertyId={selectedPropertyId}
-                                />
+                                        <Col span={5}>
+                                            <CreateTicketHint selectedPropertyId={selectedPropertyId} />
+                                        </Col>
+                                    </Row>
+                                </Col>
                                 <Col lg={16} md={24}>
                                     <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
                                         {

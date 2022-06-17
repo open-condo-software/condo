@@ -15,7 +15,7 @@ type PageContentProps = {
     availableTabs: string[]
 }
 
-export const PageContent: React.FC<PageContentProps> = ({ settingsTabs, availableTabs }) => {
+export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, availableTabs }) => {
     const router = useRouter()
     const { tab } = parseQuery(router.query)
 

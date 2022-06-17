@@ -1,24 +1,20 @@
-import { Typography } from 'antd'
+import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
 import ActionBar from '../../../common/components/ActionBar'
 import { Button } from '../../../common/components/Button'
 import { Loader } from '../../../common/components/Loader'
-import { convertToUIFormState } from '../../../division/utils/clientSchema/Division'
-import { Ticket, TicketHint } from '../../utils/clientSchema'
+import { TicketHint } from '../../utils/clientSchema'
 import { BaseTicketHintForm } from './BaseTicketHintForm'
 
 export const UpdateTicketHintForm = ({ id }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const { organization } = useOrganization()
-
     const router = useRouter()
     const { obj: ticketHint, loading, refetch, error } = TicketHint.useObject({ where: { id } })
-    const action = TicketHint.useUpdate({ organization: organization.id }, () => {
+    const action = TicketHint.useUpdate({}, () => {
         router.push('/settings?tab=hint')
     })
     const updateAction = (value) => action(value, ticketHint)
@@ -32,7 +28,7 @@ export const UpdateTicketHintForm = ({ id }) => {
     return (
         <BaseTicketHintForm
             action={updateAction}
-            organization={organization}
+            organizationId={get(ticketHint, ['organization', 'id'])}
             initialValues={TicketHint.convertToUIFormState(ticketHint)}
             mode={'update'}
         >

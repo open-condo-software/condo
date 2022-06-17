@@ -2,11 +2,12 @@ import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getAddressRender } from '../../../division/utils/clientSchema/Renders'
 import { TicketTag } from '../../components/TicketTag'
 import { TICKET_TYPE_TAG_COLORS } from '../../constants/style'
 
@@ -185,5 +186,28 @@ export const getTicketClientNameRender = (search: FilterValue) => {
         const trimmedClientName = clientNameLength > maxClientNameLength ? `${clientName.substring(0, maxClientNameLength)}…` : clientName
 
         return getTableCellRenderer(search, false, null, null, null, clientName)(trimmedClientName)
+    }
+}
+
+const HINT_STYLES: CSSProperties = { maxHeight: '200px', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
+
+export const getTicketHintRender = (search: FilterValue) => {
+    return function render (value) {
+        return (
+            <div
+                dangerouslySetInnerHTML={{
+                    __html: value,
+                }}
+                style={HINT_STYLES}
+            />
+        )
+    }
+}
+
+export const getTicketHintAddressesRender = (search: FilterValue) => {
+    return function render (intl, properties) {
+        const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+
+        return properties.map((property) => getAddressRender(property, DeletedMessage, search))
     }
 }

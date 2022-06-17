@@ -11,7 +11,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 import { SettingsContent as TicketHintSettings } from '@condo/domains/ticket/components/TicketHint/SettingsContent'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { PageContent, SettingsTabType } from '../../domains/common/components/settings/PageContent'
+import { SettingsPageContent, SettingsTabType } from '@condo/domains/common/components/settings/SettingsPageContent'
 
 const ALWAYS_AVAILABLE_TABS = ['hint']
 
@@ -23,7 +23,6 @@ const SettingsPage = () => {
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
-
     const availableTabs = useMemo(() => {
         const result = ALWAYS_AVAILABLE_TABS
         if (hasSubscriptionFeature) result.push('subscription')
@@ -44,7 +43,7 @@ const SettingsPage = () => {
         {
             key: 'hint',
             title: HintTitle,
-            content: <TicketHintSettings />,
+            content: <TicketHintSettings/>,
         },
     ].filter(Boolean),
     [HintTitle, RolesAndAccessesTitle, SubscriptionTitle, hasSubscriptionFeature])
@@ -60,7 +59,7 @@ const SettingsPage = () => {
                 <OrganizationRequired>
                     <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitle}</Typography.Title>}/>
                     <TablePageContent>
-                        <PageContent settingsTabs={SETTINGS_TABS} availableTabs={availableTabs} />
+                        <SettingsPageContent settingsTabs={SETTINGS_TABS} availableTabs={availableTabs} />
                     </TablePageContent>
                 </OrganizationRequired>
             </PageWrapper>
