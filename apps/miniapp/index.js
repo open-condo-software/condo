@@ -181,7 +181,6 @@ module.exports = {
                 playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
             },
         }),
-        new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
