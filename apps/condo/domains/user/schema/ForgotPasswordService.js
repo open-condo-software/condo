@@ -68,6 +68,14 @@ const errors = {
                 min: MIN_PASSWORD_LENGTH,
             },
         },
+        PASSWORD_IS_FREQUENTLY_USED: {
+            mutation: 'changePasswordWithToken',
+            variable: ['data', 'password'],
+            code: BAD_USER_INPUT,
+            type: WRONG_VALUE,
+            message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
+            messageForUser: 'api.user.PASSWORD_IS_FREQUENTLY_USED',
+        },
         TOKEN_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'token'],
@@ -233,7 +241,12 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     throw new GQLError(errors.changePasswordWithToken.USER_NOT_FOUND, context)
                 }
 
-                await User.update(context, user.id, { dv: 1, sender, password })
+                await User.update(context, user.id, { dv: 1, sender, password }, {
+                    errorMapping: {
+                        '[password:minLength:User:password]': errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT,
+                        '[password:rejectCommon:User:password]': errors.changePasswordWithToken.PASSWORD_IS_FREQUENTLY_USED,
+                    },
+                })
 
                 await markTokenAsUsed(context, tokenType, tokenAction, sender)
 
