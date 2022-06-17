@@ -57,13 +57,11 @@ const TicketHintAlert = () => {
     )
 }
 
-export const BaseTicketHintForm = ({ children, action, organization, initialValues, mode }) => {
+export const BaseTicketHintForm = ({ children, action, organizationId, initialValues, mode }) => {
     const intl = useIntl()
     const ApartmentComplexNameMessage  = intl.formatMessage({ id: 'ApartmentComplexName' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
-
-    const organizationId = get(organization, 'id')
 
     const { requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -149,9 +147,11 @@ export const BaseTicketHintForm = ({ children, action, organization, initialValu
                                                     <Select
                                                         options={options}
                                                         mode={'multiple'}
+                                                        disabled={!organizationId}
                                                     />
                                                 ) : (
                                                     <GraphQlSearchInput
+                                                        disabled={!organizationId}
                                                         search={searchOrganizationProperty(organizationId)}
                                                         showArrow={false}
                                                         mode="multiple"
@@ -165,7 +165,11 @@ export const BaseTicketHintForm = ({ children, action, organization, initialValu
                                     {
                                         mode === 'create' && (
                                             <Col offset={6} span={24}>
-                                                <Checkbox onChange={e => handleCheckboxChange(e, form)}>Добавить все дома ({options.length} шт.)</Checkbox>
+                                                <Checkbox
+                                                    disabled={!organizationId}
+                                                    onChange={e => handleCheckboxChange(e, form)}>
+                                                    Добавить все дома ({options.length} шт.)
+                                                </Checkbox>
                                             </Col>
                                         )
                                     }
@@ -183,7 +187,7 @@ export const BaseTicketHintForm = ({ children, action, organization, initialValu
                                         sm: 8,
                                     }}
                                 >
-                                    <Input />
+                                    <Input disabled={!organizationId} />
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
@@ -200,6 +204,7 @@ export const BaseTicketHintForm = ({ children, action, organization, initialValu
                                     </Col>
                                     <Col span={14}>
                                         <Editor
+                                            disabled={!organizationId}
                                             value={editorValue}
                                             onEditorChange={(newValue) => handleEditorChange(newValue, form)}
                                             apiKey={'c9hkjseuh8rfim0yiqr6q2zrzb8k12vyoc1dclkml7e9ozg5'}

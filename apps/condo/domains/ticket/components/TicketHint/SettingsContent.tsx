@@ -18,8 +18,8 @@ import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 
-import { useTicketHintsTableColumns } from '@condo/domains/ticket/hooks/useTicketHintsTableColumns'
-import { useTicketHintsTableFilters } from '@condo/domains/ticket/hooks/useTicketHintsTableFilters'
+import { useTicketHintTableColumns } from '@condo/domains/ticket/hooks/useTicketHintTableColumns'
+import { useTicketHintTableFilters } from '@condo/domains/ticket/hooks/useTicketHintTableFilters'
 import { TicketHint } from '../../utils/clientSchema'
 import { IFilters } from '../../utils/helpers'
 
@@ -40,7 +40,7 @@ export const SettingsContent = () => {
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
-    const filterMetas = useTicketHintsTableFilters()
+    const filterMetas = useTicketHintTableFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
     const searchTicketHintsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -59,7 +59,7 @@ export const SettingsContent = () => {
         fetchPolicy: 'network-only',
     })
 
-    const tableColumns = useTicketHintsTableColumns(filterMetas)
+    const tableColumns = useTicketHintTableColumns(filterMetas)
 
     const handleAddHintButtonClick = useCallback(async () => {
         await router.push('/settings/hint/create')

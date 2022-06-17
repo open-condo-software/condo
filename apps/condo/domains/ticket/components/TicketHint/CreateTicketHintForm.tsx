@@ -1,4 +1,5 @@
 import { Form } from 'antd'
+import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React  from 'react'
 import { useOrganization } from '@core/next/organization'
@@ -22,7 +23,7 @@ export const CreateTicketHintForm = () => {
     return (
         <BaseTicketHintForm
             action={action}
-            organization={organization}
+            organizationId={get(organization, 'id')}
             initialValues={{}}
             mode={'create'}
         >
