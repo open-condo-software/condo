@@ -73,6 +73,10 @@ export const SettingsContent = () => {
         }
     }, [router])
 
+    const handleSearch = useCallback(e => {
+        handleSearchChange(e.target.value)
+    }, [handleSearchChange])
+
     return (
         <Row gutter={[0, 40]}>
             <Col span={24}>
@@ -84,9 +88,7 @@ export const SettingsContent = () => {
                         <Col span={10}>
                             <Input
                                 placeholder={SearchPlaceholder}
-                                onChange={(e) => {
-                                    handleSearchChange(e.target.value)
-                                }}
+                                onChange={handleSearch}
                                 value={search}
                                 allowClear={true}
                             />

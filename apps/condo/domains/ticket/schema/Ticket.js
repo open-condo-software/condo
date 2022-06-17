@@ -59,7 +59,14 @@ const Ticket = new GQLListSchema('Ticket', {
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
+
+        // TODO(pahaz): no needed to check organization access!
         organization: ORGANIZATION_OWNED_FIELD,
+
+        // statusDeadline
+        // statusDeferredDate
+        // statusDeferredBy
+        // TODO(pahaz): server side autogen
         statusReopenedCounter: {
             schemaDoc: 'Counter showing the number of changes `status` to `new_or_reopened`',
             type: Integer,
@@ -80,7 +87,7 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Resident\'s comment on ticket review',
             type: Text,
         },
-
+        // TODO(Dimitreee): server side auto generation
         statusUpdatedAt: {
             schemaDoc: 'Status updated at time',
             type: DateTimeUtc,

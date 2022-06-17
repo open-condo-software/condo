@@ -110,6 +110,7 @@ const colors = {
     attentionText,
     warningBg,
     warningText,
+    successBG,
 }
 
 const fontSizes = {

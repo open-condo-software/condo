@@ -1,21 +1,22 @@
 import { Alert, Col, Form, Input, Row, Typography } from 'antd'
 import { flatten, get, isEmpty } from 'lodash'
-import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useMemo, useState } from 'react'
-import { useIntl } from '@core/next/intl'
-import Checkbox from '../../../common/components/antd/Checkbox'
-import Select from '../../../common/components/antd/Select'
-import { FormWithAction } from '../../../common/components/containers/FormList'
-import { GraphQlSearchInput } from '../../../common/components/GraphQlSearchInput'
-import { Loader } from '../../../common/components/Loader'
-import { colors } from '../../../common/constants/style'
-import { useValidations } from '../../../common/hooks/useValidations'
-import { searchOrganizationProperty } from '../../utils/clientSchema/search'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Editor } from '@tinymce/tinymce-react'
+
+import { useIntl } from '@core/next/intl'
+
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import Select from '@condo/domains/common/components/antd/Select'
+import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { colors } from '@condo/domains/common/constants/style'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+
+import { searchOrganizationProperty } from '../../utils/clientSchema/search'
 import { Property } from '../../../property/utils/clientSchema'
 import { TicketHint } from '../../utils/clientSchema'
-import Link from 'next/link'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -30,6 +31,8 @@ const LAYOUT = {
     layout: 'horizontal',
 }
 
+const HINT_LINK_STYLES: CSSProperties = { color: colors.black, textDecoration: 'underline' }
+
 const TicketHintAlert = () => {
     const intl = useIntl()
     const AlertMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.title' })
@@ -40,7 +43,7 @@ const TicketHintAlert = () => {
         <>
             <Typography.Paragraph style={{ margin: 0 }}>{AlertContent}</Typography.Paragraph>
             <a href={'/settings?tab=hint'} target={'_blank'} rel="noreferrer">
-                <Typography.Link style={{ color: colors.black, textDecoration: 'underline' }}>
+                <Typography.Link style={HINT_LINK_STYLES}>
                     {ShowHintsMessage}
                 </Typography.Link>
             </a>
@@ -62,6 +65,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
     const ApartmentComplexNameMessage  = intl.formatMessage({ id: 'ApartmentComplexName' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
+    const AddALlPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.addAllProperties' })
 
     const { requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -168,7 +172,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                                 <Checkbox
                                                     disabled={!organizationId}
                                                     onChange={e => handleCheckboxChange(e, form)}>
-                                                    Добавить все дома ({options.length} шт.)
+                                                    {AddALlPropertiesMessage}
                                                 </Checkbox>
                                             </Col>
                                         )
@@ -207,7 +211,6 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                             disabled={!organizationId}
                                             value={editorValue}
                                             onEditorChange={(newValue) => handleEditorChange(newValue, form)}
-                                            apiKey={'c9hkjseuh8rfim0yiqr6q2zrzb8k12vyoc1dclkml7e9ozg5'}
                                             initialValue={initialValues.content}
                                             init={{
                                                 link_title: false,

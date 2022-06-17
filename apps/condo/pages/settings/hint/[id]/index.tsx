@@ -1,25 +1,25 @@
 import { green } from '@ant-design/colors'
-import { DeleteFilled } from '@ant-design/icons'
-import { jsx } from '@emotion/core'
 import { Col, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
+import xss from 'xss'
+
 import { useIntl } from '@core/next/intl'
-import ActionBar from '../../../../domains/common/components/ActionBar'
-import { Button } from '../../../../domains/common/components/Button'
-import { PageContent, PageWrapper } from '../../../../domains/common/components/containers/BaseLayout'
+
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Button } from '@condo/domains/common/components/Button'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import {
     DeleteButtonWithConfirmModal,
     IDeleteActionButtonWithConfirmModal,
-} from '../../../../domains/common/components/DeleteButtonWithConfirmModal'
-import { Loader } from '../../../../domains/common/components/Loader'
-import { PageFieldRow } from '../../../../domains/common/components/PageFieldRow'
-import { OrganizationRequired } from '../../../../domains/organization/components/OrganizationRequired'
-import { TicketHint } from '../../../../domains/ticket/utils/clientSchema'
-import dompurify from 'dompurify'
+} from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { TicketHint } from '@condo/domains/ticket/utils/clientSchema'
 
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
@@ -68,8 +68,6 @@ const TicketHintIdPage = () => {
         return <Loader />
     }
 
-    const sanitizer = dompurify.sanitize
-
     return (
         <>
             <Head>
@@ -91,7 +89,7 @@ const TicketHintIdPage = () => {
                                 </PageFieldRow>
                                 <PageFieldRow title={TicketHintTitleMessage}>
                                     <div dangerouslySetInnerHTML={{
-                                        __html: sanitizer(ticketHint.content),
+                                        __html: xss(ticketHint.content),
                                     }}/>
                                 </PageFieldRow>
                             </Row>

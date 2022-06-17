@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import { Tabs } from 'antd'
-import React from 'react'
-import { colors, fontSizes, shadows } from '../../constants/style'
+import React, { CSSProperties } from 'react'
+import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { StarIcon } from '../icons/Star'
 
 export const SettingsTabs = styled(Tabs)`
@@ -36,8 +36,10 @@ export const SettingsTabs = styled(Tabs)`
   }
 `
 
+const SETTINGS_TAB_STYLES: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
+
 export const SettingsTab = ({ title }) => (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={SETTINGS_TAB_STYLES}>
         <StarIcon />
         {title}
     </div>
