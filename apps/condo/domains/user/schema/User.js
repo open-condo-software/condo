@@ -14,7 +14,7 @@ const { get, isEmpty, isUndefined, isNull } = require('lodash')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { STAFF, USER_TYPES } = require('@condo/domains/user/constants/common')
+const { STAFF, USER_TYPES, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR, PHONE_IS_REQUIRED_ERROR } = require('@condo/domains/user/constants/errors')
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
@@ -38,6 +38,8 @@ const User = new GQLListSchema('User', {
         password: {
             schemaDoc: 'Password. Update only',
             type: Password,
+            rejectCommon: true,
+            minLength: MIN_PASSWORD_LENGTH,
             access: access.canAccessToPasswordField,
         },
         type: {
