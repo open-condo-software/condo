@@ -1,21 +1,67 @@
-const { pickBy, get, isEmpty } = require('lodash')
+const { pickBy, get, isEmpty, isObject } = require('lodash')
 
 const conf = require('@core/config')
 const { getById } = require('@core/keystone/schema')
+const { GQLError } = require('@core/keystone/errors')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const isNotUndefined = (x) => typeof x !== 'undefined'
+const ALLOWED_OPTIONS = ['errorMapping']
 
-function _throwIfError (context, errors, data, errorMessage) {
+function _getAllErrorMessages (errors) {
+    const messages = []
+    for (const x of errors) {
+        const m = get(x, 'message', '')
+        if (m) messages.push(m)
+    }
+    return messages
+}
+
+function _throwIfError (context, errors, data, errorMessage, errorMapping) {
     if (errors) {
         if (IS_DEBUG) {
             const errorsToShow = errors.filter(error => get(error, 'originalError.data') || get(error, 'originalError.internalData'))
             if (!isEmpty(errorsToShow)) errorsToShow.forEach((error) => console.warn(get(error, 'originalError.data'), '\n', get(error, 'originalError.internalData')))
             console.error(errors)
         }
-        // NOTE(pahaz): we will see this results in production at the ApolloErrorFormatter
-        const error = new Error(errorMessage)
+
+        let error = new Error(errorMessage)
+
+        /** NOTE(pahaz): you can use it like so:
+         *
+         *    const errors = {
+         *        PASSWORD_IS_TOO_SHORT: {
+         *            mutation: 'registerNewUser',
+         *            variable: ['data', 'password'],
+         *            code: BAD_USER_INPUT,
+         *            type: WRONG_FORMAT,
+         *            message: 'Password length is less then {min} characters',
+         *            messageForUser: 'api.user.registerNewUser.PASSWORD_IS_TOO_SHORT',
+         *            messageInterpolation: {
+         *                min: MIN_PASSWORD_LENGTH,
+         *            },
+         *        },
+         *    }
+         *
+         *    const user = await User.create(context, userData, {
+         *        errorMapping: {
+         *            '[password:minLength:User:password]': errors.PASSWORD_IS_TOO_SHORT,
+         *        },
+         *    })
+         *
+         */
+        if (errorMapping && isObject(errorMapping)) {
+            const message = _getAllErrorMessages(errors).join(' -- ')
+            for (const key in errorMapping) {
+                if (message.includes(key)) {
+                    error = new GQLError(errorMapping[key], context)
+                    break
+                }
+            }
+        }
+
+        // NOTE(pahaz): we will see this nested result at the ApolloErrorFormatter
         error.errors = errors
         error.reqId = get(context, 'req.id')
         throw error
@@ -25,7 +71,16 @@ function _throwIfError (context, errors, data, errorMessage) {
     }
 }
 
-async function execGqlAsUser (context, user, { query, variables, errorMessage = '[error] Internal Exec as user GQL Error', authedListKey = 'User', dataPath = 'obj' }) {
+function _checkOptions (options) {
+    // NOTE(pahaz): you need to know! this options is global for create/update/getOne/getAll/count!
+    //   if you want to add one new option you need to check all of this function!
+    //  - errorMapping -- you con use it to customize or override the error look at _throwIfError notes for examples
+    for (const key in options) {
+        if (!ALLOWED_OPTIONS.includes(key)) throw new Error(`Unknown options key ${key}!`)
+    }
+}
+
+async function execGqlAsUser (context, user, { query, variables, errorMessage = '[error] Internal Exec as user GQL Error', authedListKey = 'User', dataPath = 'obj', errorMapping = null }) {
     if (!context) throw new Error('missing context argument')
     if (!context.executeGraphQL) throw new Error('wrong context argument: no executeGraphQL')
     if (!context.createContext) throw new Error('wrong context argument: no createContext')
@@ -46,12 +101,12 @@ async function execGqlAsUser (context, user, { query, variables, errorMessage = 
         query,
     })
 
-    _throwIfError(context, errors, data, errorMessage)
+    _throwIfError(context, errors, data, errorMessage, errorMapping)
 
     return (dataPath) ? get(data, dataPath) : data
 }
 
-async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj' }) {
+async function execGqlWithoutAccess (context, { query, variables, errorMessage = '[error] Internal Exec GQL Error', dataPath = 'obj', errorMapping = null }) {
     if (!context) throw new Error('missing context argument')
     if (!context.executeGraphQL) throw new Error('wrong context argument: no executeGraphQL')
     if (!context.createContext) throw new Error('wrong context argument: no createContext')
@@ -66,15 +121,16 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
         query,
     })
 
-    _throwIfError(context, errors, data, errorMessage)
+    _throwIfError(context, errors, data, errorMessage, errorMapping)
 
     return (dataPath) ? get(data, dataPath) : data
 }
 
 function generateServerUtils (gql) {
-    async function getAll (context, where, { sortBy, first, skip } = {}) {
+    async function getAll (context, where, { sortBy, first, skip } = {}, options = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
+        _checkOptions(options)
         return await execGqlWithoutAccess(context, {
             query: gql.GET_ALL_OBJS_QUERY,
             variables: {
@@ -82,20 +138,28 @@ function generateServerUtils (gql) {
             },
             errorMessage: `[error] Unable to query ${gql.PLURAL_FORM}`,
             dataPath: 'objs',
+            ...options,
         })
     }
 
-    async function getOne (context, where, params = {}) {
-        const objs = await getAll(context, where, { first: 2, ...params })
+    async function getOne (context, where, params = {}, options = {}) {
+        if (!context) throw new Error('no context')
+        if (!where) throw new Error('no where')
+        _checkOptions(options)
 
+        const objs = await getAll(context, where, { first: 2, ...params }, options)
+
+        // TODO(pahaz): custom error context for > 1
         if (objs.length > 1) throw new Error('getOne() got more than one result, check filters/logic please')
 
+        // TODO(pahaz): custom error for < 1
         return objs[0] // will return undefined by default, if objs is empty :)
     }
 
-    async function count (context, where, { sortBy, first, skip } = {}) {
+    async function count (context, where, { sortBy, first, skip } = {}, options = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
+        _checkOptions(options)
         return await execGqlWithoutAccess(context, {
             query: gql.GET_COUNT_OBJS_QUERY,
             variables: {
@@ -103,40 +167,54 @@ function generateServerUtils (gql) {
             },
             errorMessage: `[error] Unable to query ${gql.PLURAL_FORM}`,
             dataPath: 'meta.count',
+            ...options,
         })
     }
 
-    async function create (context, data) {
+    /**
+     * Tries to create a new domain object.
+     * @param context
+     * @param data -- create data
+     * @param options -- server side tuning options
+     * @returns {Promise<*>}
+     */
+    async function create (context, data, options = {}) {
         if (!context) throw new Error('no context')
         if (!data) throw new Error('no data')
+        _checkOptions(options)
         return await execGqlWithoutAccess(context, {
             query: gql.CREATE_OBJ_MUTATION,
             variables: { data },
             errorMessage: `[error] Create ${gql.SINGULAR_FORM} internal error`,
             dataPath: 'obj',
+            ...options,
         })
     }
 
-    async function update (context, id, data) {
+    async function update (context, id, data, options = {}) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
         if (!data) throw new Error('no data')
+        _checkOptions(options)
         return await execGqlWithoutAccess(context, {
             query: gql.UPDATE_OBJ_MUTATION,
             variables: { id, data },
             errorMessage: `[error] Update ${gql.SINGULAR_FORM} internal error`,
             dataPath: 'obj',
+            ...options,
         })
     }
 
-    async function delete_ (context, id) {
+    async function delete_ (context, id, options = {}) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
+        _checkOptions(options)
         return await execGqlWithoutAccess(context, {
             query: gql.DELETE_OBJ_MUTATION,
             variables: { id },
             errorMessage: `[error] Delete ${gql.SINGULAR_FORM} internal error`,
             dataPath: 'obj',
+            ...options,
         })
     }
 
@@ -144,17 +222,23 @@ function generateServerUtils (gql) {
      * Tries to receive existing item, and updates it on success or creates new one. Updated/created value is returned.
      * Attention! Be careful with where. Because of getOne, this helper will throw exception, if it gets 1+ items.
      * @param context
-     * @param where
-     * @param attrs
+     * @param where -- getOne where check
+     * @param data -- create/update data
+     * @param options -- server side tuning options
      * @returns {Promise<*|null|undefined>}
      */
-    async function updateOrCreate (context, where, attrs) {
-        const existingItem = await getOne(context, where)
+    async function updateOrCreate (context, where, data, options = {}) {
+        if (!context) throw new Error('no context')
+        if (!where) throw new Error('no where')
+        if (!data) throw new Error('no data')
+        _checkOptions(options)
+
+        const existingItem = await getOne(context, where, options)
         const shouldUpdate = Boolean(existingItem && existingItem.id)
 
         return shouldUpdate
-            ? await update(context, existingItem.id, attrs)
-            : await create(context, attrs)
+            ? await update(context, existingItem.id, data, options)
+            : await create(context, data, options)
     }
 
     return {

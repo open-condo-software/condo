@@ -8,8 +8,8 @@ const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSc
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { GQLError, GQLErrorCode: { NOT_FOUND, BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
-const { NOT_UNIQUE, WRONG_FORMAT, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
+const { NOT_UNIQUE, WRONG_FORMAT, WRONG_VALUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('../constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 
@@ -21,7 +21,7 @@ const errors = {
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
         mutation: 'registerNewUser',
         variable: ['data', 'confirmPhoneActionToken'],
-        code: NOT_FOUND,
+        code: BAD_USER_INPUT,
         type: UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
         message: 'Unable to find confirm phone action',
         messageForUser: 'api.user.registerNewUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION',
@@ -41,10 +41,18 @@ const errors = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'Password length is less then {min} characters',
-        messageForUser: 'api.user.registerNewUser.PASSWORD_IS_TOO_SHORT',
+        messageForUser: 'api.user.PASSWORD_IS_TOO_SHORT',
         messageInterpolation: {
             min: MIN_PASSWORD_LENGTH,
         },
+    },
+    PASSWORD_IS_FREQUENTLY_USED: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
+        messageForUser: 'api.user.PASSWORD_IS_FREQUENTLY_USED',
     },
     USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
@@ -134,11 +142,12 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 if (!isEmpty(userData.email)) {
                     await ensureNotExists(context, 'email', userData.email)
                 }
-
-                if (userData.password.length < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(errors.PASSWORD_IS_TOO_SHORT, context)
-                }
-                const user = await User.create(context, userData)
+                const user = await User.create(context, userData, {
+                    errorMapping: {
+                        '[password:minLength:User:password]': errors.PASSWORD_IS_TOO_SHORT,
+                        '[password:rejectCommon:User:password]': errors.PASSWORD_IS_FREQUENTLY_USED,
+                    },
+                })
                 if (action) {
                     const completedAt = new Date().toISOString()
                     await ConfirmPhoneAction.update(context, action.id, { completedAt, sender, dv: 1 })
