@@ -362,7 +362,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         <Col span={24}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
-                                    <Row gutter={[60, 0]}>
+                                    <Row gutter={[60, 0]} justify={'space-between'}>
                                         <Col span={17}>
                                             <Row gutter={[0, 60]}>
                                                 <Col span={24}>
