@@ -1,5 +1,7 @@
+const pino = require('pino')
 const dayjs = require('dayjs')
-const { get, uniq } = require('lodash')
+const { get, uniq, isNull } = require('lodash')
+const falsey = require('falsey')
 
 const conf = require('@core/config')
 const { getSchemaCtx } = require('@core/keystone/schema')
@@ -16,15 +18,20 @@ const {
     METER_VERIFICATION_DATE_EXPIRED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
-
 const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 
+const logger = pino({
+    name: 'submit_meter_readings_notifications',
+    enabled: falsey(process.env.DISABLE_LOGGING),
+})
+
 const log = (message, intentChar = null, intentRepeatTimes = 10) => {
-    if (intentChar != null) {
-        console.log(`${ intentChar.repeat(intentRepeatTimes) } ${ message } ${ intentChar.repeat(intentRepeatTimes) }`)
-    } else {
-        console.log(message)
-    }
+    const logEntry = isNull(intentChar) ? message
+        : `${ intentChar.repeat(intentRepeatTimes) } ${ message } ${ intentChar.repeat(intentRepeatTimes) }`
+
+    logger.info({
+        message: logEntry,
+    })
 }
 
 const readMetersPage = async ({ context, offset, pageSize }) => {
@@ -83,7 +90,11 @@ const getLocalizedMeterResources = async ({ context, lang }) => {
 
     // get list of meter resources for certain locale
     // TODO apply DOMA-3174 mechanic for custom request locale
-    return await MeterResource.getAll(localeDependedContext, {})
+    return await loadListByChunks({
+        context,
+        list: MeterResource,
+        where: {},
+    })
 }
 
 const loadAllLocalizedVersionsOfMeterResources = async ({ context }) => {
