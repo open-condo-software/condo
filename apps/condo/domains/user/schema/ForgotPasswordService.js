@@ -11,7 +11,8 @@ const isEmpty = require('lodash/isEmpty')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('../constants/errors')
-const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { WRONG_PHONE_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { findTokenAndRelatedUser, markTokenAsUsed } = require('../utils/serverSchema')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -62,7 +63,7 @@ const errors = {
             code: BAD_USER_INPUT,
             type: PASSWORD_IS_TOO_SHORT,
             message: 'Password length is less then {min} characters',
-            messageForUser: 'api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT',
+            messageForUser: 'api.user.PASSWORD_IS_TOO_SHORT',
             messageInterpolation: {
                 min: MIN_PASSWORD_LENGTH,
             },
@@ -222,67 +223,21 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             resolver: async (parent, args, context, info, extra) => {
                 // TODO(DOMA-3209): check the dv, sender value
                 const { data: { token, password, sender, dv } } = args
-                const now = extra.extraNow || (new Date(Date.now())).toISOString()
 
-                if (password.length < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT, context)
+                const [tokenType, tokenAction, user] = await findTokenAndRelatedUser(context, token)
+
+                if (!tokenType || !tokenAction) {
+                    throw new GQLError(errors.changePasswordWithToken.TOKEN_NOT_FOUND, context)
+                }
+                if (!user || !user.phone) {
+                    throw new GQLError(errors.changePasswordWithToken.USER_NOT_FOUND, context)
                 }
 
-                // NOTE(pahaz): try to find ForgotPasswordAction
-                let action = await ForgotPasswordAction.getOne(context, {
-                    token,
-                    expiresAt_gte: now,
-                    usedAt: null,
-                })
+                await User.update(context, user.id, { dv: 1, sender, password })
 
-                let phone, userId
+                await markTokenAsUsed(context, tokenType, tokenAction, sender)
 
-                if (action) {
-                    userId = action.user.id
-                    const user = await getById('User', userId)
-                    phone = user.phone
-
-                    // mark token as used
-                    await ForgotPasswordAction.update(context, action.id, {
-                        dv: 1,
-                        sender,
-                        usedAt: now,
-                    })
-                } else {
-                    // NOTE(pahaz): try to find ConfirmPhoneAction
-                    action = await ConfirmPhoneAction.getOne(context, {
-                        token, 
-                        expiresAt_gte: now,
-                        completedAt: null,
-                        isPhoneVerified: true,
-                    })
-                    if (!action) {
-                        throw new GQLError(errors.changePasswordWithToken.TOKEN_NOT_FOUND, context)
-                    }
-                    phone = action.phone
-                    const [user] = await User.getAll(context, {
-                        type: STAFF,
-                        phone,
-                    })
-                    userId = user && user.id
-
-                    if (!userId) {
-                        throw new GQLError(errors.changePasswordWithToken.USER_NOT_FOUND, context)
-                    }
-                    await ConfirmPhoneAction.update(context, action.id, {
-                        dv: 1,
-                        sender,
-                        completedAt: now,
-                    })
-                }
-    
-                await User.update(context, userId, {
-                    dv: 1,
-                    sender,
-                    password,
-                })
-
-                return { status: 'ok', phone }
+                return { status: 'ok', phone: user.phone }
             },
         },
     ],

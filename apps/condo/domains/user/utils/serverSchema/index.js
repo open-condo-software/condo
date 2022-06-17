@@ -3,12 +3,13 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const { getByCondition } = require('@core/keystone/schema')
 
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const has = require('lodash/has')
 const faker = require('faker')
 const {
-    SMS_CODE_LENGTH,
+    SMS_CODE_LENGTH, STAFF,
 } = require('@condo/domains/user/constants/common')
 const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
@@ -108,6 +109,69 @@ const updateEmployeesRelatedToUser = async (context, user) => {
     }
 }
 
+async function findTokenAndRelatedUser (context, token) {
+    if (!context) throw new Error('no context')
+    if (!token) throw new Error('no token')
+
+    const now = (new Date(Date.now())).toISOString()
+
+    let user = null
+    let tokenType = 'ForgotPasswordAction'
+    let tokenAction = await ForgotPasswordAction.getOne(context, {
+        token,
+        expiresAt_gte: now,
+        usedAt: null,
+    })
+
+    if (!tokenAction) {
+        tokenType = 'ConfirmPhoneAction'
+        tokenAction = await ConfirmPhoneAction.getOne(context, {
+            token,
+            expiresAt_gte: now,
+            completedAt: null,
+            isPhoneVerified: true,
+        })
+
+    }
+
+    if (!tokenAction) {
+        return ['', null, user]
+    }
+
+    if (tokenType === 'ForgotPasswordAction') {
+        user = await getByCondition('User', { id: tokenAction.user.id })
+    } else if (tokenType === 'ConfirmPhoneAction') {
+        user = await getByCondition('User', { type: STAFF, phone: tokenAction.phone })
+    } else {
+        return ['', null, user]
+    }
+
+    return [tokenType, tokenAction, user]
+}
+
+async function markTokenAsUsed (context, tokenType, tokenAction, sender) {
+    if (!context) throw new Error('no context')
+    if (!tokenType) throw new Error('no tokenType')
+    if (!tokenAction) throw new Error('no tokenAction')
+
+    const now = (new Date(Date.now())).toISOString()
+
+    if (tokenType === 'ForgotPasswordAction') {
+        return await ForgotPasswordAction.update(context, tokenAction.id, {
+            dv: 1,
+            sender,
+            usedAt: now,
+        })
+    } else if (tokenType === 'ConfirmPhoneAction') {
+        return await ConfirmPhoneAction.update(context, tokenAction.id, {
+            dv: 1,
+            sender,
+            completedAt: now,
+        })
+    } else {
+        throw new Error('unknown tokenType')
+    }
+}
 
 module.exports = {
     User,
@@ -119,5 +183,7 @@ module.exports = {
     registerNewServiceUser,
     sendMessageToSupport,
     resetUser,
+    findTokenAndRelatedUser,
+    markTokenAsUsed,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
