@@ -142,7 +142,7 @@ export type AcquiringIntegrationAccessRight = {
   sender?: Maybe<SenderField>;
   /**  Acquiring integration. Determines way of user's payment  */
   integration?: Maybe<AcquiringIntegration>;
-  /**  User  */
+  /**  Link to user. Note, that user must be of "service" type  */
   user?: Maybe<User>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -6620,7 +6620,7 @@ export type BillingIntegrationAccessRight = {
   sender?: Maybe<SenderField>;
   /**  Integration  */
   integration?: Maybe<BillingIntegration>;
-  /**  User  */
+  /**  Link to user. Note, that user must be of "service" type  */
   user?: Maybe<User>;
   id: Scalars['ID'];
   createdAt?: Maybe<Scalars['String']>;
