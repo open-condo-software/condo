@@ -56,6 +56,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
+import { TicketIdHint } from '../../../domains/ticket/components/TicketHint/TicketIdHint'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -163,16 +164,6 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
 
 const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
 const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
-
-const StyledAlert = styled(Alert)`
-  color: black;
-  background-color: #EBFAEF;
-  border: none;
-  
-  & svg, & > .ant-alert-content > .ant-alert-message {
-   color: black; 
-  }
-`
 
 const TicketContent = ({ ticket }) => {
     const intl = useIntl()
@@ -391,32 +382,7 @@ const TicketContent = ({ ticket }) => {
                                     }
                                 </Col>
                                 <Col span={24}>
-                                    {
-                                        ticketHint && (
-                                            <StyledAlert
-                                                message="Справка по дому"
-                                                description={
-                                                    <>
-                                                        <div
-                                                            dangerouslySetInnerHTML={{
-                                                                __html: ticketHint.content,
-                                                            }}
-                                                            style={{ maxHeight: '100px', overflow: 'hidden', wordBreak: 'break-word' }}
-                                                        />
-                                                        <Link href={`/property/${propertyId}/hint`} passHref>
-                                                            <a target={'_blank'}>
-                                                                <Typography.Link underline style={{ color: 'black' }}>
-                                                                    Подробнее
-                                                                </Typography.Link>
-                                                            </a>
-                                                        </Link>
-                                                    </>
-                                                }
-                                                showIcon
-                                                icon={<InfoCircleOutlined/>}
-                                            />
-                                        )
-                                    }
+                                    <TicketIdHint propertyId={propertyId} />
                                 </Col>
                             </Row>
                         </PageFieldRow>
