@@ -5,8 +5,6 @@
  *      yarn workspace @app/condo node bin/send-submit-meter-readings-push-notifications
  */
 
-const dayjs = require('dayjs')
-
 const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { sendSubmitMeterReadingsPushNotifications } = require('@condo/domains/meter/tasks/sendSubmitMeterReadingsPushNotifications')
