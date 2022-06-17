@@ -10,7 +10,7 @@ import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/do
 import { useIntl } from '@core/next/intl'
 import { get } from 'lodash'
 import { useMemo } from 'react'
-import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '../constants/payment'
+import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 
 const addressFilter = getStringContainsFilter(['receipt', 'property', 'address'])
 const accountFilter = getStringContainsFilter(['accountNumber'])
