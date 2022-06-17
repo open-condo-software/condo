@@ -22,6 +22,7 @@ async function main () {
 
 
     await sendSubmitMeterReadingsPushNotifications()
+    process.exit(0)
 }
 
 main().catch((e) => {

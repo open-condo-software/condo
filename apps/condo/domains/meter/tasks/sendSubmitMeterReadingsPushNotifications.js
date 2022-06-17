@@ -44,7 +44,7 @@ const readMeterReadings = async ({ context, meters }) => {
     // then calculate current period window
     const now = dayjs()
     const startWindowDate = `${ now.format('YYYY-MM') }-01`
-    const endWindowDate = now.format('YYYY-MM-DD')
+    const endWindowDate = now.toISOString()
 
     // load all pages for entity
     return await loadListByChunks({
@@ -168,7 +168,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
                  * (not defined within @condo/domains/common/constants/countries)
                  */
                 const lang = get(COUNTRIES, get(organization, 'country.locale'), DEFAULT_LOCALE)
-                const period = null // TODO calculate this prop - null means no period
+                const period = null // TODO calculate this prop after implementation submit period in organisation
                 return { ...meter, period, lang }
             }
         ).filter(({ period }) => period == null) // pick meters without organisation default period
@@ -213,8 +213,6 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
     log(`Meters total = ${ state.processedMeters }`)
     log(`Processing time = ${ (dayjs().unix() - state.startTime.unix()) } sec`)
     log('Processing completed!', '=')
-
-    process.exit(0)
 }
 
 const sendMessageSafely = async ({ context, message }) => {
