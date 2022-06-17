@@ -1,12 +1,12 @@
 const { isNull, get } = require('lodash')
-const { ExportTicketTask } = require('../utils/serverSchema')
+const { ExportTicketTask, TicketStatus } = require('../utils/serverSchema')
 const { PROCESSING } = require('@condo/domains/common/constants/export')
 const { exportRecords } = require('@condo/domains/common/utils/serverSchema/export')
 const { createTask } = require('@core/keystone/tasks')
 const { getSchemaCtx } = require('@core/keystone/schema')
-const { loadTicketsBatchForExcelExport, loadTicketCommentsForExcelExport, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
+const { loadTicketsBatchForExcelExport, loadTicketCommentsForExcelExport } = require('../utils/serverSchema')
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
-const { createExportFile, buildExportFile: _buildExportFile } = require('@condo/domains/common/utils/createExportFile')
+const { buildExportFile: _buildExportFile, EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const dayjs = require('dayjs')
 const {
     getHeadersTranslations,
@@ -143,7 +143,7 @@ const buildExportFile = async ({ rows, task, idOfFirstTicketForAccessRights }) =
 
     const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
 
-    const { meta, content } = await _buildExportFile({
+    const { stream } = await _buildExportFile({
         templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
         replaces: {
             header: headerMessage,
@@ -159,15 +159,19 @@ const buildExportFile = async ({ rows, task, idOfFirstTicketForAccessRights }) =
                 reviewValues: reviewValuesTranslations,
             },
         },
+    })
+    return {
+        stream,
+        filename: `tickets_${dayjs().format('DD_MM')}.xlsx`,
+        mimetype: EXCEL_FILE_META.mimetype,
+        encoding: EXCEL_FILE_META.encoding,
         meta: {
             listkey: 'Ticket',
             // Id of first record will be used by `OBSFilesMiddleware` to determine permission to access exported file
             // NOTE: Permissions check on access to exported file will be replaced to checking access on `ExportTicketsTask`
             id: idOfFirstTicketForAccessRights,
         },
-    })
-    const filename = `tickets_${dayjs().format('DD_MM')}.xlsx`
-    return { content, filename, meta }
+    }
 }
 
 const exportTickets = async (taskId) => {
