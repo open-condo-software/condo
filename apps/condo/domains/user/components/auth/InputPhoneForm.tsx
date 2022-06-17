@@ -56,6 +56,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const [isLoading, setIsLoading] = useState(false)
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
 
+    // TODO(DOMA-3293): remove this legacy error style and Useless error messages
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
             [TOO_MANY_REQUESTS]: {

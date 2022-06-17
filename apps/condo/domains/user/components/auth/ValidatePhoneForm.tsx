@@ -48,6 +48,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
     const SMSMaxRetriesReachedError = intl.formatMessage({ id: 'pages.auth.register.SMSMaxRetriesReachedError' })
     const SMSBadFormat = intl.formatMessage({ id: 'pages.auth.register.SMSBadFormat' })
     const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    // TODO(DOMA-3293): remove this legacy error style and Useless error messages
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
             [CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED]: {

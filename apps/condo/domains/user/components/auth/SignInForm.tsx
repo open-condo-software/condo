@@ -49,6 +49,7 @@ export const SignInForm = (): React.ReactElement => {
     const { refetch } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [signinByPhoneAndPassword] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
+    // TODO(DOMA-3293): remove this legacy error style and Useless error messages
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
             [WRONG_PHONE_ERROR]: {

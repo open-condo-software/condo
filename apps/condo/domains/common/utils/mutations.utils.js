@@ -50,11 +50,10 @@ const getMessageFrom = (error) => (
  * @param form
  * @param {ErrorToFormFieldMsgMapping} ErrorToFormFieldMsgMapping - mapping of errors either in old or new format
  * @param {null|String|} [OnErrorMsg] - controls passing errors to Ant `notification` util
- * @param {Array.<GQLError>} [NotificationErrorFilters] - maps errors by search criteria to `notification` util
  * @param OnCompletedMsg
  * @return {*}
  */
-function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, NotificationErrorFilters, OnErrorMsg, OnCompletedMsg }) {
+function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
     if (!intl) throw new Error('intl prop required')
     if (!mutation && !action) throw new Error('mutation or action prop required')
     if (action && mutation) throw new Error('impossible to pass mutation and action prop')
@@ -89,38 +88,54 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                 else return data
             },
             (e) => {
-                console.error('mutation error:', e)
-
+                const errors = []
+                const errorString = e.graphQLErrors ? JSON.stringify(e) : String(e)
+                console.error('mutation error:', errorString)
                 let friendlyDescription = null
                 let notificationContext = null
-                if (ErrorToFormFieldMsgMapping) {
-                    const errors = []
-                    const errorString = e.graphQLErrors ? `${JSON.stringify(e)}` : `${e}`
-                    Object.keys(ErrorToFormFieldMsgMapping).forEach((key) => {
-                        const errorMap = ErrorToFormFieldMsgMapping[key]
-                        // Custom errors are presented on the client
-                        if (errorMap.errors) {
+
+                if (e.graphQLErrors) {
+                    // NOTE(pahaz): old style errors (or overridden server errors)
+                    if (ErrorToFormFieldMsgMapping) {
+                        Object.keys(ErrorToFormFieldMsgMapping).forEach((key) => {
+                            const errorMap = ErrorToFormFieldMsgMapping[key]
+                            if (!errorMap.errors || !errorMap.name) {
+                                console.warn('@DEPRECATED ErrorToFormFieldMsgMapping format!', errorMap)
+                                return
+                            }
+                            // Custom errors are presented on the client
                             if (errorString.includes(key)) {
                                 errors.push(errorMap)
                                 if (errorMap && Array.isArray(errorMap.errors)) {
                                     friendlyDescription = errorMap.errors[0]
                                 }
                             }
-                        } else {
-                            // Take errors from server
-                            const graphQLError = find(e.graphQLErrors, { extensions: { type: key } })
-                            if (graphQLError) {
+                        })
+                    }
+
+                    // NOTE(pahaz): new localized errors
+                    const newStyleErrors = e.graphQLErrors.filter((x) => x.name === 'GQLError')
+                    if (newStyleErrors.length) {
+                        newStyleErrors.forEach(error => {
+                            const messageForUser = get(error, 'extensions.messageForUser', '')
+                            if (!messageForUser) return
+
+                            friendlyDescription = messageForUser
+
+                            const fieldPath = get(error, 'extensions.variable', [])
+                            if (fieldPath && fieldPath.length) {
                                 errors.push({
-                                    name: errorMap.name,
-                                    errors: [getMessageFrom(graphQLError)],
+                                    name: fieldPath[fieldPath.length - 1],
+                                    errors: [messageForUser],
                                 })
                             }
-                        }
-                    })
-                    // TODO(pahaz): if there is some error without ErrorToFormFieldMsgMapping. We should add NON FIELD FORM ERROR? Is the ant support it?
-                    if (form && errors.length) {
-                        form.setFields(errors)
+                        })
                     }
+                }
+
+                // TODO(pahaz): if there is some error without ErrorToFormFieldMsgMapping. We should add NON FIELD FORM ERROR? Is the ant support it?
+                if (form && errors.length) {
+                    form.setFields(errors)
                 }
 
                 if (OnErrorMsg === null) {
@@ -131,32 +146,6 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                     notificationContext = {
                         message: ServerErrorMsg,
                         description: OnErrorMsg,
-                    }
-                } else if (NotificationErrorFilters) {
-                    for (let i = 0; i < NotificationErrorFilters.length; i++) {
-                        let errorFilter = NotificationErrorFilters[i]
-                        const errorForNotification = find(e.graphQLErrors, { extensions: errorFilter })
-                        if (errorForNotification) {
-                            notificationContext = {
-                                message: ServerErrorMsg,
-                                description: getMessageFrom(errorForNotification),
-                            }
-                            break
-                        }
-                    }
-                } else if (NotificationErrorFilters === null) {
-                    // skip notificaitons
-                } else if (typeof NotificationErrorFilters === 'undefined') {
-                    // Try to display localized message for user
-                    const messageForUser = get(e.graphQLErrors, [0, 'extensions', 'messageForUser'])
-                    if (messageForUser) {
-                        friendlyDescription = messageForUser
-                    } else if (e.message.toLowerCase() === NETWORK_ERROR) {
-                        friendlyDescription = intl.formatMessage({ id: 'NetworkError' })
-                    }
-                    notificationContext = {
-                        message: ServerErrorMsg,
-                        description: friendlyDescription || e.message,
                     }
                 }
 

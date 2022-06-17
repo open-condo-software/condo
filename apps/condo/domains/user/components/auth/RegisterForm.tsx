@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useState } from 'react'
 import { Col, Form, Row, RowProps, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import get from 'lodash/get'
@@ -8,13 +8,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import {
-    EMAIL_ALREADY_REGISTERED_ERROR,
-    MIN_PASSWORD_LENGTH_ERROR,
-    CONFIRM_PHONE_ACTION_EXPIRED,
-    PHONE_ALREADY_REGISTERED_ERROR,
-    PASSWORD_IS_FREQUENTLY_USED_ERROR,
-} from '@condo/domains/user/constants/errors'
 import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { useRegisterFormValidators } from './hooks'
@@ -54,38 +47,9 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const PasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.Password' })
     const ConfirmPasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.ConfirmPassword' })
     const EmailMsg = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
-    const PhoneIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsAlreadyRegistered' })
-    const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
-    const PasswordIsFrequentlyUsedMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsFrequentlyUsed' })
-    const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
-    const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
     const RegistrationTitle = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
 
     const validators = useRegisterFormValidators()
-    const ErrorToFormFieldMsgMapping = useMemo(() => {
-        return {
-            [CONFIRM_PHONE_ACTION_EXPIRED]: {
-                name: 'phone',
-                errors: [ConfirmActionExpiredError],
-            },
-            [PHONE_ALREADY_REGISTERED_ERROR]: {
-                name: 'phone',
-                errors: [PhoneIsAlreadyRegisteredMsg],
-            },
-            [EMAIL_ALREADY_REGISTERED_ERROR]: {
-                name: 'email',
-                errors: [EmailIsAlreadyRegisteredMsg],
-            },
-            [MIN_PASSWORD_LENGTH_ERROR]: {
-                name: 'password',
-                errors: [PasswordIsTooShortMsg],
-            },
-            [PASSWORD_IS_FREQUENTLY_USED_ERROR]: {
-                name: 'password',
-                errors: [PasswordIsFrequentlyUsedMsg],
-            },
-        }
-    }, [intl])
 
     const [form] = Form.useForm()
     const [isLoading, setIsLoading] = useState(false)
@@ -116,7 +80,6 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             },
             intl,
             form,
-            ErrorToFormFieldMsgMapping,
         }).catch(() => {
             setIsLoading(false)
         })
