@@ -43,6 +43,7 @@ jobs:
           WERF_SET_CI_RB_URL: "global.ci_rb_url=rb.doma.ai"
           WERF_SET_CI_INSURANCE_URL: "global.ci_insurance_url=insurance.doma.ai"
           WERF_SET_CI_REGISTRY_MA_URL: "global.ci_registry_ma_url=registry.doma.ai"
+          WERF_SET_CI_MINIAPP_URL: "global.ci_miniapp_url=miniapp.doma.ai"
           WERF_NAMESPACE: "production"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
