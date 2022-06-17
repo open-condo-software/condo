@@ -4,7 +4,7 @@
 
 const get = require('lodash/get')
 
-const { Text, Select, Integer, Checkbox, Password } = require('@keystonejs/fields')
+const { Text, Select, Integer, Checkbox, Password, Virtual } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
@@ -13,6 +13,7 @@ const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSende
 
 const access = require('@miniapp/domains/condo/access/User')
 const { SERVICE_USER_TYPE, USER_TYPES } = require('@miniapp/domains/condo/constants/user')
+const { CONDO_ORGANIZATION_KEY } = require('@insurance/domains/condo/constants/common')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'condo.User (exported from condo API)',
@@ -83,6 +84,14 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'Password. Update only (for local auth without oidc). Check the `isLocal` field docs',
             type: Password,
             access: access.canAccessToPasswordField,
+        },
+
+        organizationId: {
+            schemaDoc: 'Current organization id',
+            type: Virtual,
+            resolver: (item, _, context) => {
+                return get(context, ['req', 'session', CONDO_ORGANIZATION_KEY], null)
+            },
         },
     },
     plugins: [uuided(), tracked(), softDeleted(), dvAndSender()],

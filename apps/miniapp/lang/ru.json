@@ -2,5 +2,7 @@
   "pages.index.PageTitle": "Демо",
   "menu.Home": "Дашборд",
   "menu.Users": "Пользователи",
-  "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна"
+  "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна",
+  "UserData": "Данные пользователя",
+  "OrganizationData": "Данные организации"
 }
