@@ -92,5 +92,37 @@ describe('RegisterNewUserService', () => {
         }])
     })
 
-    // TODO: test on min password length
+    test('register with empty password', async () => {
+        const client = await makeClient()
+        const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
+        const password = ''
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { name, password }),
+            errors.PASSWORD_IS_TOO_SHORT,
+            'user',
+        )
+    })
+
+    test('register with weak password', async () => {
+        const client = await makeClient()
+        const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
+        const password = '123456789'
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { name, password }),
+            errors.PASSWORD_IS_FREQUENTLY_USED,
+            'user',
+        )
+    })
+
+    test('register user with short password', async () => {
+        const client = await makeClient()
+        const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
+        const password = 'akwfn'
+
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { name, password }),
+            errors.PASSWORD_IS_TOO_SHORT,
+            'user',
+        )
+    })
 })

@@ -6,7 +6,7 @@ const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/co
 const { GQLCustomSchema, getById } = require('@core/keystone/schema')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { ConfirmPhoneAction, ForgotPasswordAction, User } = require('@condo/domains/user/utils/serverSchema')
+const { ForgotPasswordAction, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
@@ -231,6 +231,10 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             resolver: async (parent, args, context, info, extra) => {
                 // TODO(DOMA-3209): check the dv, sender value
                 const { data: { token, password, sender, dv } } = args
+
+                if (password.length < MIN_PASSWORD_LENGTH) {
+                    throw new GQLError(errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT, context)
+                }
 
                 const [tokenType, tokenAction, user] = await findTokenAndRelatedUser(context, token)
 
