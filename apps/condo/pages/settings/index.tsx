@@ -43,7 +43,7 @@ const SettingsPage = () => {
         {
             key: 'hint',
             title: HintTitle,
-            content: <TicketHintSettings/>,
+            content: <TicketHintSettings />,
         },
     ].filter(Boolean),
     [HintTitle, RolesAndAccessesTitle, SubscriptionTitle, hasSubscriptionFeature])

@@ -190,7 +190,7 @@ export const getTicketClientNameRender = (search: FilterValue) => {
     }
 }
 
-const HINT_STYLES: CSSProperties = { maxHeight: '200px', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
+const HINT_STYLES: CSSProperties = { maxHeight: '6em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
 
 export const getTicketHintRender = (search: FilterValue) => {
     return function render (value) {

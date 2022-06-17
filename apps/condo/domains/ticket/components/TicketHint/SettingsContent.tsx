@@ -1,4 +1,5 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
+import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -26,6 +27,12 @@ import { IFilters } from '../../utils/helpers'
 const SORTABLE_PROPERTIES = ['name']
 const TICKET_HINTS_DEFAULT_SORT_BY = ['createdAt_DESC']
 
+const StyledTable = styled(Table)`
+  .ant-table-cell-ellipsis {
+    white-space: inherit;
+  }
+`
+
 export const SettingsContent = () => {
     const intl = useIntl()
     const TicketHintTitle = intl.formatMessage({ id: 'Hint' })
@@ -40,8 +47,9 @@ export const SettingsContent = () => {
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
-    const filterMetas = useTicketHintTableFilters()
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
+    const filtersMeta = useTicketHintTableFilters()
+    const tableColumns = useTicketHintTableColumns(filtersMeta)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
     const searchTicketHintsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const sortBy = sortersToSortBy(sorters, TICKET_HINTS_DEFAULT_SORT_BY) as SortTicketHintsBy[]
@@ -58,8 +66,6 @@ export const SettingsContent = () => {
     }, {
         fetchPolicy: 'network-only',
     })
-
-    const tableColumns = useTicketHintTableColumns(filterMetas)
 
     const handleAddHintButtonClick = useCallback(async () => {
         await router.push('/settings/hint/create')
@@ -97,7 +103,7 @@ export const SettingsContent = () => {
                 </TableFiltersContainer>
             </Col>
             <Col span={24}>
-                <Table
+                <StyledTable
                     scroll={getTableScrollConfig(shouldTableScroll)}
                     totalRows={total}
                     loading={isTicketHintsFetching}
