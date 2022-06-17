@@ -40,6 +40,7 @@ const logoPurple = '#525FAB'
 const backgroundWhiteSecondary = '#E6E8F1'
 const attentionBg = '#FFF5E6'
 const attentionText = '#FF9500'
+const successBG = '#EBFAEF'
 const warningBg = '#FFECEB'
 const warningText = '#FF3B30'
 
