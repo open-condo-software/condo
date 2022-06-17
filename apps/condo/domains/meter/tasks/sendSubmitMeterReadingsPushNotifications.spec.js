@@ -70,8 +70,6 @@ describe('Submit meter readings push notification', () => {
             userId: client.user.id,
             meterId: client.meter.id,
         })
-        console.log(messages)
-        console.log(dayjs().toISOString())
         expect(messages).toHaveLength(0)
     }, taskRunTimeoutMs)
 
@@ -90,8 +88,6 @@ describe('Submit meter readings push notification', () => {
             userId: client.user.id,
             meterId: client.meter.id,
         })
-        console.log(messages)
-        console.log(dayjs().toISOString())
         expect(messages).toHaveLength(0)
     }, taskRunTimeoutMs)
 
