@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { EditFilled, FilePdfFilled, InfoCircleOutlined } from '@ant-design/icons'
+import { EditFilled, FilePdfFilled } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
 import { Affix, Alert, Breadcrumb, Col, Row, Space, Typography } from 'antd'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
@@ -56,7 +56,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
-import { TicketIdHint } from '../../../domains/ticket/components/TicketHint/TicketIdHint'
+import { TicketIdHint } from '@condo/domains/ticket/components/TicketHint/TicketIdHint'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -331,11 +331,6 @@ const TicketContent = ({ ticket }) => {
         [NotResidentClientMessage, ResidentClientMessage, contactId])
 
     const propertyId = get(ticket, ['property', 'id'], null)
-    const { obj: ticketHint } = TicketHint.useObject({
-        where: {
-            properties_some: { id: propertyId },
-        },
-    })
 
     return (
         <Col span={24}>

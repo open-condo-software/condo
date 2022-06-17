@@ -24,26 +24,25 @@ async function canReadTicketHints ({ authentication: { item: user } }) {
 }
 
 async function canManageTicketHints ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    return true
-    // if (!user) return throwAuthenticationError()
-    // if (user.deletedAt) return false
-    // if (user.isAdmin || user.isSupport) return true
-    //
-    // let hintOrganizationId
-    //
-    // if (operation === 'create') {
-    //     hintOrganizationId = get(originalInput, ['organization', 'connect', 'id'])
-    // } else if (operation === 'update') {
-    //     if (!itemId) return false
-    //     hintOrganizationId = get(originalInput, ['organization', 'connect', 'id'])
-    //
-    //     if (!hintOrganizationId) {
-    //         const ticketHint = await getById('TicketHint', itemId)
-    //         hintOrganizationId = get(ticketHint, 'organization', null)
-    //     }
-    // }
-    //
-    // return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, hintOrganizationId, 'canManageTicketHints')
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
+
+    let hintOrganizationId
+
+    if (operation === 'create') {
+        hintOrganizationId = get(originalInput, ['organization', 'connect', 'id'])
+    } else if (operation === 'update') {
+        if (!itemId) return false
+        hintOrganizationId = get(originalInput, ['organization', 'connect', 'id'])
+
+        if (!hintOrganizationId) {
+            const ticketHint = await getById('TicketHint', itemId)
+            hintOrganizationId = get(ticketHint, 'organization', null)
+        }
+    }
+
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, hintOrganizationId, 'canManageTicketHints')
 }
 
 /*

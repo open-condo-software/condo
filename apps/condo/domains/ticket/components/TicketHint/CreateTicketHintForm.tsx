@@ -1,11 +1,13 @@
-import { Form } from 'antd'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React  from 'react'
+
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
-import ActionBar from '../../../common/components/ActionBar'
-import { Button } from '../../../common/components/Button'
+
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Button } from '@condo/domains/common/components/Button'
+
 import { TicketHint } from '../../utils/clientSchema'
 import { BaseTicketHintForm } from './BaseTicketHintForm'
 

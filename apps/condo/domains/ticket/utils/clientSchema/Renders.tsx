@@ -4,13 +4,14 @@ import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
+import xss from 'xss'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
-import { getAddressRender } from '../../../division/utils/clientSchema/Renders'
+import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
+
 import { TicketTag } from '../../components/TicketTag'
 import { TICKET_TYPE_TAG_COLORS } from '../../constants/style'
-
 import {
     getDeadlineType,
     getHumanizeDeadlineDateDifference,
@@ -196,7 +197,7 @@ export const getTicketHintRender = (search: FilterValue) => {
         return (
             <div
                 dangerouslySetInnerHTML={{
-                    __html: value,
+                    __html: xss(value),
                 }}
                 style={HINT_STYLES}
             />

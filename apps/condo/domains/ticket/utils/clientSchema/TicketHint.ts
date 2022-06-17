@@ -3,13 +3,11 @@
  */
 
 import { pick, get, map, difference } from 'lodash'
+import { TicketHint, TicketHintUpdateInput, QueryAllTicketHintsArgs } from '@app/condo/schema'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
-
 import { TicketHint as TicketHintGQL } from '@condo/domains/ticket/gql'
-import { TicketHint, TicketHintUpdateInput, QueryAllTicketHintsArgs } from '../../../../schema'
-import { IDivisionFormState, IDivisionUIState } from '../../../division/utils/clientSchema/Division'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'properties', 'content']
 const RELATIONS = ['organization', 'properties']
@@ -43,7 +41,7 @@ function convertToUIFormState (state: ITicketHintUIState): ITicketHintFormState 
             result[attr] = state[attr]
         }
     }
-    return result as IDivisionFormState
+    return result as ITicketHintFormState
 }
 
 type RelateToManyInput = {

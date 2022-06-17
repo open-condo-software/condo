@@ -1,10 +1,13 @@
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React from 'react'
+
 import { useIntl } from '@core/next/intl'
-import ActionBar from '../../../common/components/ActionBar'
-import { Button } from '../../../common/components/Button'
-import { Loader } from '../../../common/components/Loader'
+
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Button } from '@condo/domains/common/components/Button'
+import { Loader } from '@condo/domains/common/components/Loader'
+
 import { TicketHint } from '../../utils/clientSchema'
 import { BaseTicketHintForm } from './BaseTicketHintForm'
 
@@ -13,7 +16,7 @@ export const UpdateTicketHintForm = ({ id }) => {
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
     const router = useRouter()
-    const { obj: ticketHint, loading, refetch, error } = TicketHint.useObject({ where: { id } })
+    const { obj: ticketHint, loading } = TicketHint.useObject({ where: { id } })
     const action = TicketHint.useUpdate({}, () => {
         router.push('/settings?tab=hint')
     })
