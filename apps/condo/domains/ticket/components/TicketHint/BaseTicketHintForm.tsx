@@ -208,6 +208,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                     </Col>
                                     <Col span={14}>
                                         <Editor
+                                            apiKey={'c9hkjseuh8rfim0yiqr6q2zrzb8k12vyoc1dclkml7e9ozg5'}
                                             disabled={!organizationId}
                                             value={editorValue}
                                             onEditorChange={(newValue) => handleEditorChange(newValue, form)}

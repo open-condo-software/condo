@@ -3,7 +3,7 @@ import styled from '@emotion/styled'
 import { Alert, Typography } from 'antd'
 import Link from 'next/link'
 
-import { colors } from '@condo/domains/common/constants/style'
+import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
 import { CSSProperties } from 'react'
 
@@ -20,6 +20,8 @@ const StyledAlert = styled(Alert)`
 `
 
 const TEXT_STYLES: CSSProperties = { color: colors.black }
+const LINK_STYLES: CSSProperties = { ...TEXT_STYLES, position: 'relative', bottom: '-7px', fontSize: fontSizes.content }
+const TICKET_HINT_CONTENT_STYLES: CSSProperties = { maxHeight: '5em' }
 
 export const TicketIdHint = ({ propertyId }) => {
     const intl = useIntl()
@@ -39,10 +41,10 @@ export const TicketIdHint = ({ propertyId }) => {
             message={AlertMessage}
             description={
                 <>
-                    <TicketHintContent ticketHint={ticketHint} />
+                    <TicketHintContent ticketHint={ticketHint} style={TICKET_HINT_CONTENT_STYLES} />
                     <Link href={`/property/${propertyId}/hint`} passHref>
                         <a target={'_blank'}>
-                            <Typography.Link underline style={TEXT_STYLES}>
+                            <Typography.Link underline style={LINK_STYLES}>
                                 {ExtraTitleMessage}
                             </Typography.Link>
                         </a>

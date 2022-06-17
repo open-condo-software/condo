@@ -10,7 +10,7 @@ import { TicketHint } from '@condo/domains/ticket/utils/clientSchema'
 import { TicketHintContent } from './TicketHintContent'
 
 const ROW_STYLES: CSSProperties = { position: 'absolute', overflow: 'hidden', backgroundColor: colors.backgroundLightGrey, padding: '20px', borderRadius: '12px' }
-const LINK_STYLES: CSSProperties = { color: 'black' }
+const LINK_STYLES: CSSProperties = { color: 'black', position: 'relative', bottom: '-8px' }
 
 export const CreateTicketHint = ({ selectedPropertyId }) => {
     const intl = useIntl()
@@ -24,7 +24,7 @@ export const CreateTicketHint = ({ selectedPropertyId }) => {
     })
 
     return selectedPropertyId && ticketHint && (
-        <Row gutter={[0, 20]} style={ROW_STYLES}>
+        <Row gutter={[0, 10]} style={ROW_STYLES}>
             <Col span={24}>
                 <Typography.Title level={5}>{HintMessage}</Typography.Title>
             </Col>

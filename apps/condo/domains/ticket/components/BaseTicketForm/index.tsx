@@ -2,12 +2,12 @@
 // @ts-nocheck
 import Link from 'next/link'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ArgsProps } from 'antd/lib/notification'
 import { Alert, Card, Col, Form, FormItemProps, Row, Typography } from 'antd'
-
 import { get, isEmpty } from 'lodash'
+import { ArgsProps } from 'antd/lib/notification'
 import { useRouter } from 'next/router'
 import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
+
 import { useIntl } from '@core/next/intl'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -17,7 +17,7 @@ import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/compon
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
-import { ITicketFileUIState, TicketFile, TicketHint } from '@condo/domains/ticket/utils/clientSchema'
+import { ITicketFileUIState, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { normalizeText } from '@condo/domains/common/utils/text'
@@ -79,6 +79,7 @@ const INPUT_WITH_COUNTER_STYLE = { height: '120px', width: '100%' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 const COUNTER_STYLES = { float: 'right' }
 const UPLOAD_COMPONENT_WRAPPER_STYLES = { paddingTop: '24px' }
+const SPAN_STYLES = { 'color': colors.brightRed }
 
 export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
@@ -110,7 +111,10 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
-                            <Typography.Title level={3}>{DescriptionLabel}<span style={{ 'color': colors.brightRed }}>*</span></Typography.Title>
+                            <Typography.Title level={3}>
+                                {DescriptionLabel}
+                                <span style={SPAN_STYLES}>*</span>
+                            </Typography.Title>
                         </Col>
                         <Col span={isSmall ? 24 : 20}>
                             <Row>

@@ -1,7 +1,9 @@
 import styled from '@emotion/styled'
 import { Tabs } from 'antd'
 import React, { CSSProperties } from 'react'
+
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
+
 import { StarIcon } from '../icons/Star'
 
 export const SettingsTabs = styled(Tabs)`
