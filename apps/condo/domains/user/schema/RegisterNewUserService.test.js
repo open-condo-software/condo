@@ -125,4 +125,15 @@ describe('RegisterNewUserService', () => {
             'user',
         )
     })
+
+    test('register with wrong token', async () => {
+        const client = await makeClient()
+        const confirmPhoneActionToken = faker.datatype.uuid()
+
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { confirmPhoneActionToken }),
+            errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
+            'user',
+        )
+    })
 })
