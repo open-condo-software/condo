@@ -126,17 +126,14 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
 
                 let action = null
                 if (confirmPhoneActionToken) {
-                    action = await ConfirmPhoneAction.getOne(context,
-                        {
-                            token: confirmPhoneActionToken,
-                            expiresAt_gte: new Date().toISOString(),
-                            completedAt: null,
-                            isPhoneVerified: true,
-                        }
-                    )
-                    if (!action) {
-                        throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
-                    }
+                    action = await ConfirmPhoneAction.getOne(context, {
+                        token: confirmPhoneActionToken,
+                        expiresAt_gte: new Date().toISOString(),
+                        completedAt: null,
+                        isPhoneVerified: true,
+                    }, {
+                        doesNotExistError: errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
+                    })
                     userData.phone = action.phone
                     userData.isPhoneVerified = action.isPhoneVerified
                 }

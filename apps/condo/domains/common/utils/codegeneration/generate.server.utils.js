@@ -7,7 +7,7 @@ const { GQLError } = require('@core/keystone/errors')
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 const isNotUndefined = (x) => typeof x !== 'undefined'
-const ALLOWED_OPTIONS = ['errorMapping']
+const ALLOWED_OPTIONS = ['errorMapping', 'doesNotExistError', 'multipleObjectsError']
 
 function _getAllErrorMessages (errors) {
     const messages = []
@@ -142,18 +142,28 @@ function generateServerUtils (gql) {
         })
     }
 
-    async function getOne (context, where, params = {}, options = {}) {
+    async function getOne (context, where, options = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
         _checkOptions(options)
 
-        const objs = await getAll(context, where, { first: 2, ...params }, options)
+        const objs = await getAll(context, where, { first: 2 }, options)
 
-        // TODO(pahaz): custom error context for > 1
-        if (objs.length > 1) throw new Error('getOne() got more than one result, check filters/logic please')
-
-        // TODO(pahaz): custom error for < 1
-        return objs[0] // will return undefined by default, if objs is empty :)
+        if (objs.length > 1) {
+            if (options.multipleObjectsError) {
+                throw new GQLError(options.multipleObjectsError, context)
+            } else {
+                throw new Error('getOne() got more than one result, check filters/logic please. The error is raised by a query if only one object is expected, but multiple objects are returned')
+            }
+        } else if (objs.length < 1) {
+            if (options.doesNotExistError) {
+                throw new GQLError(options.doesNotExistError, context)
+            } else {
+                return undefined
+            }
+        } else {
+            return objs[0]
+        }
     }
 
     async function count (context, where, { sortBy, first, skip } = {}, options = {}) {
