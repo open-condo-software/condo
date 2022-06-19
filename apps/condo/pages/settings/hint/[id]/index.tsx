@@ -1,10 +1,10 @@
-import { green } from '@ant-design/colors'
+import { Gutter } from 'antd/es/grid/row'
+import React, { useCallback, useMemo } from 'react'
 import { Col, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
 import xss from 'xss'
 
 import { useIntl } from '@core/next/intl'
@@ -20,11 +20,14 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketHint } from '@condo/domains/ticket/utils/clientSchema'
-
+import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
 }
+
+const GUTTER_0_60: [Gutter, Gutter] = [0, 60]
+const GUTTER_0_24: [Gutter, Gutter] = [0, 24]
 
 const TicketHintIdPage = () => {
     const intl = useIntl()
@@ -39,7 +42,7 @@ const TicketHintIdPage = () => {
     const router = useRouter()
 
     const hintId = get(router, ['query', 'id'], null)
-    const { loading, obj: ticketHint, error } = TicketHint.useObject({
+    const { loading, obj: ticketHint } = TicketHint.useObject({
         where: { id: hintId },
     }, {
         fetchPolicy: 'network-only',
@@ -54,8 +57,8 @@ const TicketHintIdPage = () => {
             key={property.id}
             href={`/property/${get(property, 'id')}`}
         >
-            <Typography.Link style={{ color: green[6], display: 'block' }}>
-                {property.name || property.address}
+            <Typography.Link>
+                {property.name || getAddressRender(property)}
             </Typography.Link>
         </Link>
     )), [ticketHintProperties])
@@ -63,6 +66,12 @@ const TicketHintIdPage = () => {
     const handleDeleteButtonClick = useCallback(async () => {
         await handleDeleteAction({}, ticketHint)
     }, [handleDeleteAction, ticketHint])
+
+    const htmlContent = useMemo(() => ({
+        __html: xss(ticketHint.content),
+    }), [ticketHint.content])
+
+    const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
     if (loading) {
         return <Loader />
@@ -75,23 +84,27 @@ const TicketHintIdPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 60]}>
+                    <Row gutter={GUTTER_0_60}>
                         <Col span={24}>
                             <Typography.Title>{TicketHintTitleMessage}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <Row>
-                                <PageFieldRow title={BuildingsMessage}>
-                                    {renderTicketHintProperties}
-                                </PageFieldRow>
-                                <PageFieldRow title={ApartmentComplexNameMessage}>
-                                    {ticketHint.name}
-                                </PageFieldRow>
-                                <PageFieldRow title={TicketHintTitleMessage}>
-                                    <div dangerouslySetInnerHTML={{
-                                        __html: xss(ticketHint.content),
-                                    }}/>
-                                </PageFieldRow>
+                            <Row gutter={GUTTER_0_24}>
+                                <Col span={24}>
+                                    <PageFieldRow title={BuildingsMessage}>
+                                        {renderTicketHintProperties}
+                                    </PageFieldRow>
+                                </Col>
+                                <Col span={24}>
+                                    <PageFieldRow title={ApartmentComplexNameMessage}>
+                                        {ticketHint.name}
+                                    </PageFieldRow>
+                                </Col>
+                                <Col span={24}>
+                                    <PageFieldRow title={TicketHintTitleMessage}>
+                                        <div dangerouslySetInnerHTML={htmlContent}/>
+                                    </PageFieldRow>
+                                </Col>
                             </Row>
                         </Col>
                         <Col span={24}>
@@ -110,7 +123,7 @@ const TicketHintIdPage = () => {
                                     okButtonLabel={DeleteMessage}
                                     action={handleDeleteButtonClick}
                                     buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
-                                    buttonContent={<span>{DeleteMessage}</span>}
+                                    buttonContent={deleteButtonContent}
                                 />
                             </ActionBar>
                         </Col>

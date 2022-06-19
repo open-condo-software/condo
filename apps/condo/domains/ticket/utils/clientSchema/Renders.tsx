@@ -2,7 +2,7 @@ import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
-import React, { CSSProperties, useCallback } from 'react'
+import React, { CSSProperties } from 'react'
 import get from 'lodash/get'
 import xss from 'xss'
 
@@ -190,7 +190,7 @@ export const getTicketClientNameRender = (search: FilterValue) => {
     }
 }
 
-const HINT_STYLES: CSSProperties = { maxHeight: '6em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
+const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
 
 export const getTicketHintRender = (search: FilterValue) => {
     return function render (value) {

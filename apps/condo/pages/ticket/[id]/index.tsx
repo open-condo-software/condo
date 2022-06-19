@@ -42,7 +42,6 @@ import {
     TicketCommentFile,
     TicketCommentsTime,
     TicketFile,
-    TicketHint,
     UserTicketCommentReadTime,
 } from '@condo/domains/ticket/utils/clientSchema'
 import {

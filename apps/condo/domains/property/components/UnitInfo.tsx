@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
+import { Gutter } from 'antd/es/grid/row'
 import { useIntl } from '@core/next/intl'
 import { Col, FormInstance, Row } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -52,6 +53,8 @@ interface IUnitInfo {
     }): React.ReactElement
 }
 
+const GUTTER_40_0: [Gutter, Gutter] = [40, 0]
+
 export const UnitInfo: IUnitInfo = (props) => {
     const intl = useIntl()
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
@@ -61,7 +64,7 @@ export const UnitInfo: IUnitInfo = (props) => {
 
     const { isSmall } = useLayoutContext()
 
-    const updateSectionAndFloor = (form, unitName: string, unitType = BuildingUnitSubType.Flat) => {
+    const updateSectionAndFloor = useCallback((form, unitName: string, unitType = BuildingUnitSubType.Flat) => {
         if (unitName) {
             const unitDestination = unitType === BuildingUnitSubType.Parking ? 'parking' : 'sections'
             const sections = get(property, ['map', unitDestination], [])
@@ -71,30 +74,34 @@ export const UnitInfo: IUnitInfo = (props) => {
         }
 
         form.setFieldsValue({ sectionName: null, floorName: null, unitType })
-    }
+    }, [property])
+
+    const handleInputChange = useCallback((_, option: UnitNameInputOption) => {
+        if (!option) {
+            setSelectedUnitName(null)
+            setSelectedUnitType && setSelectedUnitType(BuildingUnitSubType.Flat)
+            updateSectionAndFloor(form, null)
+        } else {
+            const unitType = get(option, 'data-unitType', BuildingUnitSubType.Flat)
+            const unitName = get(option, 'data-unitName')
+            setSelectedUnitType && setSelectedUnitType(unitType)
+            setSelectedUnitName(unitName)
+            updateSectionAndFloor(form, unitName, unitType)
+        }
+    }, [form, setSelectedUnitName, setSelectedUnitType, updateSectionAndFloor])
+
+    const colSpan = useMemo(() => isSmall ? 24 : 20, [isSmall])
 
     return (
-        <Col span={isSmall ? 24 : 20}>
-            <Row gutter={[40, 0]}>
+        <Col span={colSpan}>
+            <Row gutter={GUTTER_40_0}>
                 <Col span={5} data-cy={'unit-name-input-item'}>
                     <TicketFormItem name={'unitName'} label={FlatNumberLabel}>
                         <UnitNameInput
                             property={property}
                             loading={loading}
                             allowClear={true}
-                            onChange={(_, option: UnitNameInputOption) => {
-                                if (!option) {
-                                    setSelectedUnitName(null)
-                                    setSelectedUnitType && setSelectedUnitType(BuildingUnitSubType.Flat)
-                                    updateSectionAndFloor(form, null)
-                                } else {
-                                    const unitType = get(option, 'data-unitType', BuildingUnitSubType.Flat)
-                                    const unitName = get(option, 'data-unitName')
-                                    setSelectedUnitType && setSelectedUnitType(unitType)
-                                    setSelectedUnitName(unitName)
-                                    updateSectionAndFloor(form, unitName, unitType)
-                                }
-                            }}
+                            onChange={handleInputChange}
                         />
                     </TicketFormItem>
                 </Col>

@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { Gutter } from 'antd/es/grid/row'
 import Link from 'next/link'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Card, Col, Form, FormItemProps, Row, Typography } from 'antd'
@@ -47,29 +48,33 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
         phone: get(initialValues, 'clientPhone'),
     }), [contactId, initialValues])
 
+    const contactEditorComponentFields = useMemo(() => ({
+        id: 'contact',
+        phone: 'clientPhone',
+        name: 'clientName',
+    }), [])
+
+    const formItemContent = useMemo(() => ({ getFieldsValue }) => {
+        const { unitName, unitType } = getFieldsValue(['unitName', 'unitType'])
+
+        return (
+            <ContactsEditorComponent
+                form={form}
+                fields={contactEditorComponentFields}
+                value={value}
+                // Local `property` cannot be used here, because `PropertyAddressSearchInput`
+                // sets `Property.address` as its value, but we need `Property.id` here
+                property={selectedPropertyId}
+                unitName={unitName}
+                unitType={unitType}
+            />
+        )
+    }, [ContactsEditorComponent, contactEditorComponentFields, form, selectedPropertyId, value])
+
     return (
         <Col span={24}>
             <TicketFormItem shouldUpdate noStyle>
-                {({ getFieldsValue }) => {
-                    const { unitName, unitType } = getFieldsValue(['unitName', 'unitType'])
-
-                    return (
-                        <ContactsEditorComponent
-                            form={form}
-                            fields={{
-                                id: 'contact',
-                                phone: 'clientPhone',
-                                name: 'clientName',
-                            }}
-                            value={value}
-                            // Local `property` cannot be used here, because `PropertyAddressSearchInput`
-                            // sets `Property.address` as its value, but we need `Property.id` here
-                            property={selectedPropertyId}
-                            unitName={unitName}
-                            unitType={unitType}
-                        />
-                    )
-                }}
+                {formItemContent}
             </TicketFormItem>
         </Col>
     )
@@ -80,6 +85,13 @@ const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 const COUNTER_STYLES = { float: 'right' }
 const UPLOAD_COMPONENT_WRAPPER_STYLES = { paddingTop: '24px' }
 const SPAN_STYLES = { 'color': colors.brightRed }
+
+const GUTTER_0_60: [Gutter, Gutter] = [0, 60]
+const GUTTER_0_24: [Gutter, Gutter] = [0, 24]
+const GUTTER_0_10: [Gutter, Gutter] = [0, 10]
+const GUTTER_40_0: [Gutter, Gutter] = [40, 0]
+const GUTTER_60_0: [Gutter, Gutter] = [60, 0]
+const GUTTER_0_6: [Gutter, Gutter] = [0, 6]
 
 export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
@@ -105,18 +117,22 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, 500)
     const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
+    const detailsColSpan = useMemo(() => isSmall ? 24 : 20, [isSmall])
+    const classifierColSpan = useMemo(() => isSmall ? 24 : 18, [isSmall])
+    const deadlineColSpan = useMemo(() => isSmall ? 24 : 18, [isSmall])
+
     return (
         <Col span={24}>
-            <Row gutter={[0, 60]}>
+            <Row gutter={GUTTER_0_60}>
                 <Col span={24}>
-                    <Row gutter={[0, 24]}>
+                    <Row gutter={GUTTER_0_24}>
                         <Col span={24}>
                             <Typography.Title level={3}>
                                 {DescriptionLabel}
                                 <span style={SPAN_STYLES}>*</span>
                             </Typography.Title>
                         </Col>
-                        <Col span={isSmall ? 24 : 20}>
+                        <Col span={detailsColSpan}>
                             <Row>
                                 <Col span={24}>
                                     <TicketFormItem name={'details'} rules={validations.details}>
@@ -141,19 +157,19 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Row gutter={[0, 24]}>
+                    <Row gutter={GUTTER_0_24}>
                         <Col span={24}>
-                            <Row gutter={[0, 10]}>
+                            <Row gutter={GUTTER_0_10}>
                                 <Col span={24}>
                                     <Typography.Title level={3}>{ClassifierLabel}</Typography.Title>
                                 </Col>
-                                <Col span={isSmall ? 24 : 18}>
+                                <Col span={classifierColSpan}>
                                     <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
                                 </Col>
                             </Row>
                         </Col>
                         <Col span={24}>
-                            <Row gutter={[40, 0]}>
+                            <Row gutter={GUTTER_40_0}>
                                 <Col span={24} lg={4}>
                                     <Form.Item name={'isEmergency'} valuePropName='checked'>
                                         <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxEmergency'}>
@@ -179,8 +195,8 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                         </Col>
                     </Row>
                 </Col>
-                <Col span={isSmall ? 24 : 18}>
-                    <Row gutter={[0, 10]}>
+                <Col span={deadlineColSpan}>
+                    <Row gutter={GUTTER_0_10}>
                         <Col span={24}>
                             <Typography.Title level={3}>{TicketDeadlineLabel}</Typography.Title>
                         </Col>
@@ -193,6 +209,8 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
         </Col>
     )
 }
+
+const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 
 export interface ITicketFormProps {
     organization?: IOrganizationUIState
@@ -342,12 +360,47 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         return values
     }, [])
 
+    const handleAddPropertiesClick = useCallback(() => router.push('/property/create'), [router])
+    const NoPropertiesAlert = useMemo(() => !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
+        <Col span={isSmall ? 24 : 20}>
+            <Alert
+                showIcon
+                type='warning'
+                message={
+                    <>
+                        {NoPropertiesMessage}&nbsp;
+                        <Button
+                            type={'inlineLink'}
+                            size={'small'}
+                            onClick={handleAddPropertiesClick}
+                        >
+                            {AddMessage}
+                        </Button>
+                    </>
+                }
+            />
+        </Col>
+    ) : null, [AddMessage, NoPropertiesMessage, handleAddPropertiesClick, isSmall, organizationProperties, organizationPropertiesLoading])
+
+    const handlePropertySelectChange = useCallback((form) => (_, option) => {
+        form.setFieldsValue({
+            unitName: null,
+            sectionName: null,
+            floorName: null,
+        })
+        setSelectedPropertyId(option.key)
+    }, [])
+
+    const handlePropertiesSelectClear = useCallback(() => {
+        setSelectedPropertyId(null)
+    }, [])
+
     return (
         <>
             <FormWithAction
                 action={action}
                 initialValues={initialValues}
-                validateTrigger={['onBlur', 'onSubmit']}
+                validateTrigger={FORM_VALIDATE_TRIGGER}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
                 OnCompletedMsg={OnCompletedMsg}
@@ -364,35 +417,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                             </Typography.Paragraph>
                         </Prompt>
                         <Col span={24}>
-                            <Row gutter={[0, 60]}>
+                            <Row gutter={GUTTER_0_60}>
                                 <Col span={24}>
-                                    <Row gutter={[60, 0]} justify={'space-between'}>
+                                    <Row gutter={GUTTER_60_0} justify={'space-between'}>
                                         <Col span={17}>
-                                            <Row gutter={[0, 60]}>
+                                            <Row gutter={GUTTER_0_60}>
                                                 <Col span={24}>
-                                                    <Row gutter={[0, 6]}>
-                                                        {
-                                                            !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
-                                                                <Col span={isSmall ? 24 : 20}>
-                                                                    <Alert
-                                                                        showIcon
-                                                                        type='warning'
-                                                                        message={
-                                                                            <>
-                                                                                {NoPropertiesMessage}&nbsp;
-                                                                                <Button
-                                                                                    type={'inlineLink'}
-                                                                                    size={'small'}
-                                                                                    onClick={() => router.push('/property/create')}
-                                                                                >
-                                                                                    {AddMessage}
-                                                                                </Button>
-                                                                            </>
-                                                                        }
-                                                                    />
-                                                                </Col>
-                                                            ) : null
-                                                        }
+                                                    <Row gutter={GUTTER_0_6}>
+                                                        {NoPropertiesAlert}
                                                         <Col span={24} data-cy={'ticket__property-address-search-input'}>
                                                             <TicketFormItem
                                                                 name={'property'}
@@ -401,18 +433,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             >
                                                                 <PropertyAddressSearchInput
                                                                     organization={organization}
-                                                                    autoFocus={true}
-                                                                    onSelect={(_, option) => {
-                                                                        form.setFieldsValue({
-                                                                            unitName: null,
-                                                                            sectionName: null,
-                                                                            floorName: null,
-                                                                        })
-                                                                        setSelectedPropertyId(option.key)
-                                                                    }}
-                                                                    onClear={() => {
-                                                                        setSelectedPropertyId(null)
-                                                                    }}
+                                                                    autoFocus
+                                                                    onSelect={handlePropertySelectChange(form)}
+                                                                    onClear={handlePropertiesSelectClear}
                                                                     placeholder={AddressPlaceholder}
                                                                     notFoundContent={AddressNotFoundContent}
                                                                 />
@@ -455,7 +478,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
                                                 return (
                                                     <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
-                                                        <Row gutter={[0, 60]}>
+                                                        <Row gutter={GUTTER_0_60}>
                                                             <TicketInfo
                                                                 form={form}
                                                                 UploadComponent={UploadComponent}
