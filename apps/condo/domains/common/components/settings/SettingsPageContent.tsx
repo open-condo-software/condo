@@ -1,6 +1,7 @@
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { Tabs } from 'antd'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+
 import { parseQuery } from '../../utils/tables.utils'
 import { SettingsTab, SettingsTabs } from './Tabs'
 
@@ -21,7 +22,7 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
     const router = useRouter()
     const { tab } = parseQuery(router.query)
 
-    const defaultTab = availableTabs.includes(tab) ? tab : undefined
+    const defaultTab = useMemo(() => availableTabs.includes(tab) ? tab : undefined, [availableTabs, tab])
 
     const handleTabChange = useCallback((newKey) => {
         const newRoute = `${router.route}?tab=${newKey}`

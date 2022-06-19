@@ -8,6 +8,7 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
+
 import { getTicketHintAddressesRender, getTicketHintRender } from '../utils/clientSchema/Renders'
 
 export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
@@ -52,5 +53,5 @@ export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>
                 render: getTicketHintRender(search),
             },
         ]
-    }, [ApartmentComplexNameMessage, BuildingsMessage, HintMessage, filterMetas, filters, render, search])
+    }, [ApartmentComplexNameMessage, BuildingsMessage, HintMessage, filterMetas, filters, intl, render, renderTicketHintAddresses, search])
 }

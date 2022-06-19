@@ -1,6 +1,6 @@
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@core/next/intl'
 
@@ -21,6 +21,7 @@ export const UpdateTicketHintForm = ({ id }) => {
         router.push('/settings?tab=hint')
     })
     const updateAction = (value) => action(value, ticketHint)
+    const organizationId = useMemo(() => get(ticketHint, ['organization', 'id']), [ticketHint])
 
     if (loading) {
         return (
@@ -31,7 +32,7 @@ export const UpdateTicketHintForm = ({ id }) => {
     return (
         <BaseTicketHintForm
             action={updateAction}
-            organizationId={get(ticketHint, ['organization', 'id'])}
+            organizationId={organizationId}
             initialValues={TicketHint.convertToUIFormState(ticketHint)}
             mode={'update'}
         >

@@ -1,4 +1,5 @@
 import { Typography, Row, Col } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import Head from 'next/head'
 import React, { CSSProperties } from 'react'
 import { useIntl } from '@core/next/intl'
@@ -8,6 +9,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { TicketHintForm } from '@condo/domains/ticket/components/TicketHint/TicketHintForm'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
+const GUTTER_0_60: [Gutter, Gutter] = [0, 60]
 
 const CreateTicketHintPage = () => {
     const intl = useIntl()
@@ -20,7 +22,7 @@ const CreateTicketHintPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 60]}>
+                    <Row gutter={GUTTER_0_60}>
                         <Col span={24}>
                             <Typography.Title level={1} style={TITLE_STYLES}>{PageTitleMsg}</Typography.Title>
                         </Col>

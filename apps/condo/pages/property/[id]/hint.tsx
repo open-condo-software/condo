@@ -1,6 +1,7 @@
 /** @jsx jsx */
+import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { jsx } from '@emotion/core'
@@ -13,6 +14,8 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { TicketHint } from '@condo/domains/ticket/utils/clientSchema'
+
+const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
 
 const PropertyHintPage = () => {
     const intl = useIntl()
@@ -30,6 +33,10 @@ const PropertyHintPage = () => {
         },
     })
 
+    const htmlContent = useMemo(() => ({
+        __html: xss(ticketHint.content),
+    }), [ticketHint.content])
+
     if (error || propertyLoading || ticketHintLoading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={propertyLoading} error={error ? ServerErrorMsg : null}/>
     }
@@ -40,16 +47,18 @@ const PropertyHintPage = () => {
         </Head>
         <PageWrapper>
             <PageContent>
-                <Row gutter={[0, 40]}>
-                    <Col span={24}>
-                        <Typography.Title>
-                            {PropertyHintMessage} {`${property.address}`}
-                        </Typography.Title>
-                    </Col>
-                    <Col span={24}>
-                        <div dangerouslySetInnerHTML={{
-                            __html: xss(ticketHint.content),
-                        }}/>
+                <Row>
+                    <Col span={18}>
+                        <Row gutter={GUTTER_0_40}>
+                            <Col span={24}>
+                                <Typography.Title>
+                                    {PropertyHintMessage} {`${property.address}`}
+                                </Typography.Title>
+                            </Col>
+                            <Col span={24}>
+                                <div dangerouslySetInnerHTML={htmlContent}/>
+                            </Col>
+                        </Row>
                     </Col>
                 </Row>
             </PageContent>

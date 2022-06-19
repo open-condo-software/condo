@@ -1,6 +1,7 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
@@ -32,6 +33,8 @@ const StyledTable = styled(Table)`
     white-space: inherit;
   }
 `
+
+const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
 
 export const SettingsContent = () => {
     const intl = useIntl()
@@ -84,7 +87,7 @@ export const SettingsContent = () => {
     }, [handleSearchChange])
 
     return (
-        <Row gutter={[0, 40]}>
+        <Row gutter={GUTTER_0_40}>
             <Col span={24}>
                 <Typography.Title level={3}>{TicketHintTitle}</Typography.Title>
             </Col>
@@ -96,7 +99,7 @@ export const SettingsContent = () => {
                                 placeholder={SearchPlaceholder}
                                 onChange={handleSearch}
                                 value={search}
-                                allowClear={true}
+                                allowClear
                             />
                         </Col>
                     </Row>

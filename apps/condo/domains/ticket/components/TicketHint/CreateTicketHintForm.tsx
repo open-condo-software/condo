@@ -1,6 +1,6 @@
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
-import React  from 'react'
+import React, { useMemo } from 'react'
 
 import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
@@ -22,10 +22,12 @@ export const CreateTicketHintForm = () => {
         router.push('/settings?tab=hint')
     })
 
+    const organizationId = useMemo(() => get(organization, 'id'), [organization])
+
     return (
         <BaseTicketHintForm
             action={action}
-            organizationId={get(organization, 'id')}
+            organizationId={organizationId}
             initialValues={{}}
             mode={'create'}
         >
