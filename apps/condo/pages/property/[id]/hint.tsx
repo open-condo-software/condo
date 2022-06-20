@@ -34,8 +34,8 @@ const PropertyHintPage = () => {
     })
 
     const htmlContent = useMemo(() => ({
-        __html: xss(ticketHint.content),
-    }), [ticketHint.content])
+        __html: xss(get(ticketHint, 'content')),
+    }), [ticketHint])
 
     if (error || propertyLoading || ticketHintLoading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={propertyLoading} error={error ? ServerErrorMsg : null}/>
