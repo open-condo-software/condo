@@ -124,4 +124,21 @@ describe('Submit meter readings push notification', () => {
         })
         expect(messages).toHaveLength(2)
     }, taskRunTimeoutMs)
+
+    it('should send messages for empty readings and undefined nextVerificationDate', async () => {
+        // arrange
+        const { user, meter } = await prepareUserAndMeter({
+            nextVerificationDate: undefined,
+        })
+
+        // act
+        await sendSubmitMeterReadingsPushNotifications()
+
+        // assert
+        const messages = await getNewMessages({
+            userId: user.id,
+            meterId: meter.id,
+        })
+        expect(messages).toHaveLength(1)
+    }, taskRunTimeoutMs)
 })
