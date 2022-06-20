@@ -1,6 +1,7 @@
 import { Alert, Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { flatten, get, isEmpty } from 'lodash'
+import getConfig from 'next/config'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Editor } from '@tinymce/tinymce-react'
@@ -75,6 +76,12 @@ const APARTMENT_COMPLEX_NAME_FIELD_PROPS = {
 const HINT_CONTENT_FIELD_LAYOUT_PROPS = {
     wrapperCol: { span: 0 },
 }
+
+const {
+    publicRuntimeConfig,
+} = getConfig()
+
+const { TinyMceApiKey } = publicRuntimeConfig
 
 const EDITOR_INIT_VALUES = {
     link_title: false,
@@ -231,6 +238,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                     </Col>
                                     <Col span={14}>
                                         <Editor
+                                            apiKey={TinyMceApiKey}
                                             disabled={!organizationId}
                                             value={editorValue}
                                             onEditorChange={(newValue) => handleEditorChange(newValue, form)}

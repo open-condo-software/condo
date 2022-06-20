@@ -22,6 +22,7 @@ const trackingConfig = conf['TRACKING_CONFIG'] && JSON.parse(conf['TRACKING_CONF
 const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
 const JivoSiteWidgetId = conf['JIVO_SITE_WIDGET_ID']
+const TinyMceApiKey = conf['TINY_MCE_API_KEY']
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -39,6 +40,7 @@ module.exports = withTM(withLess(withCSS({
         defaultLocale,
         insuranceAppUrl,
         JivoSiteWidgetId,
+        TinyMceApiKey,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
