@@ -91,7 +91,7 @@ const getLocalizedMeterResources = async ({ context, lang }) => {
     // get list of meter resources for certain locale
     // TODO apply DOMA-3174 mechanic for custom request locale
     return await loadListByChunks({
-        context,
+        localeDependedContext,
         list: MeterResource,
         where: {},
     })
