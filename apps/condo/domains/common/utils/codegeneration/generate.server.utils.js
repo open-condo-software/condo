@@ -12,7 +12,7 @@ const ALLOWED_OPTIONS = ['errorMapping', 'doesNotExistError', 'multipleObjectsEr
 function _getAllErrorMessages (errors) {
     const messages = []
     for (const x of errors) {
-        const m = get(x, 'message', '')
+        const m = get(x, 'message')
         if (m) messages.push(m)
     }
     return messages
