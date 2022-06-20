@@ -175,7 +175,6 @@ function ResetPageView () {
                                                         htmlType='submit'
                                                         style={{ width: '100%' }}
                                                         data-cy={'forgot-button'}
-                                                        borderLess
                                                     >
                                                         {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
                                                     </Button>

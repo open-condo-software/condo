@@ -150,7 +150,6 @@ export const SignInForm = (): React.ReactElement => {
                                     htmlType='submit'
                                     loading={isLoading}
                                     block
-                                    borderLess
                                     data-cy={'signin-button'}
                                 >
                                     {SignInMsg}

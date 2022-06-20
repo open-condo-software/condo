@@ -7,6 +7,7 @@ import isArray from 'lodash/isArray'
 import isString from 'lodash/isString'
 import { colors, gradients, transitions } from '../constants/style'
 import { ITrackingComponent, useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import styled from '@emotion/styled'
 
 const buttonCss = (color) => {
     // Ant returns an array of hue-separated colors, check them out here
@@ -145,30 +146,25 @@ const buttonGradientCss = css`
         }
       }
     `
-const buttonDefaultGradientCss = (secondary = false, borderLess = false) => {
-    const borderNone = borderLess ? 'none' : '1px solid transparent'
-    let border = borderLess ? 'none' : '1px solid transparent'
-    if (secondary) {
-        border = borderLess ? 'none' : `1px solid ${colors.black}`
-    }
+const buttonDefaultGradientCss = (secondary = false) => {
     return  css`
-      background: ${secondary ? 'transparent' : colors.black};
+      background: ${secondary ? colors.white : colors.black};
       border-radius: 8px;
       color: ${secondary ? colors.black : colors.defaultWhite[5]};
       box-shadow: none;
       font-weight: 600;
       outline: none;
-      border: ${border};
-      transition: ${transitions.allDefault};
+      border: none;
+      transition: background-color 0.150s, width 0s, height 0s;
       
       & span {
         position: relative;
         z-index: 1;
       }
-      
+
       &:before {
         border-radius: inherit;
-        background: ${gradients.sberActionInversed};
+        background: ${secondary ? 'none' : gradients.sberActionInversed};
         content: '';
         display: block;
         position: absolute;
@@ -185,7 +181,16 @@ const buttonDefaultGradientCss = (secondary = false, borderLess = false) => {
 
       &:hover, &:focus {
         color: ${colors.defaultWhite[5]};
-        border: ${borderNone};
+        border: none;
+        transition: background-color 0.150s;
+        & span {
+          background: ${secondary ? '-webkit-linear-gradient(145deg, #4CD174 16%, #6DB8F2 100%)' : 'transparent'};
+          -webkit-background-clip: ${secondary ? 'text' : 'inherit'};
+          -webkit-text-fill-color: ${secondary ? 'transparent' : 'inherit'};
+        }
+        & span svg {
+          color: ${colors.black}
+        }
       }
       &:hover:not(:disabled):before,
       &:focus:not(:disabled):before {
@@ -194,10 +199,9 @@ const buttonDefaultGradientCss = (secondary = false, borderLess = false) => {
 
       &:active {
         color: ${colors.defaultWhite[5]};
-        border: ${borderNone};
+        border: none;
       }
       &:active:before {
-        background: ${gradients.sberActionInversed};
         opacity: 1;
       }
 
@@ -264,11 +268,19 @@ const sberBlackCss = css`
   }
 `
 
+export const ButtonGradientBorderWrapper = styled.div`
+  padding: 1px;
+  background: ${colors.black};
+  border-radius: 8px;
+    :hover {
+      background: ${gradients.sberActionGradient};
+    }
+`
+
 export interface CustomButtonProps extends Omit<ButtonProps, 'type'>, ITrackingComponent {
     type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction'
     | 'sberDangerGhost' | 'sberDefaultGradient' | 'sberBlack' | ButtonProps['type'],
     secondary?: boolean
-    borderLess?: boolean
 }
 
 const SKIP_BUTTON_TYPES_FOR_DEFAULT = [
@@ -285,7 +297,7 @@ const BUTTON_TYPE_STYLES = {
 }
 
 export const Button: React.FC<CustomButtonProps> = (props) => {
-    const { type, secondary, onClick, eventName: propEventName, eventProperties = {}, borderLess, ...restProps } = props
+    const { type, secondary, onClick, eventName: propEventName, eventProperties = {}, ...restProps } = props
     const { getTrackingWrappedCallback, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Click)
@@ -311,7 +323,7 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
     if (BUTTON_TYPE_STYLES[type]) {
         buttonStyles = BUTTON_TYPE_STYLES[type]
     } else if (type === 'sberDefaultGradient') {
-        buttonStyles = buttonDefaultGradientCss(secondary, borderLess)
+        buttonStyles = buttonDefaultGradientCss(secondary)
     } else {
         buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
     }

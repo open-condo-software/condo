@@ -4,7 +4,7 @@ import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { Col, Collapse, Modal, notification, Row, Typography } from 'antd'
 import React, { useState } from 'react'
 import { CloseCircleFilled, RightOutlined, ShareAltOutlined } from '@ant-design/icons'
-import { Button } from '@condo/domains/common/components/Button'
+import { Button, ButtonGradientBorderWrapper } from '@condo/domains/common/components/Button'
 import { green } from '@ant-design/colors'
 import Link from 'next/link'
 import { useIntl } from '@core/next/intl'
@@ -267,15 +267,17 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
 
     return (
         <>
-            <Button
-                type={'sberDefaultGradient'}
-                icon={<ShareAltOutlined />}
-                secondary
-                onClick={handleShow}
-                css={sendButton}
-            >
-                {ShareButtonMessage}
-            </Button>
+            <ButtonGradientBorderWrapper>
+                <Button
+                    type={'sberDefaultGradient'}
+                    icon={<ShareAltOutlined />}
+                    secondary
+                    onClick={handleShow}
+                    css={sendButton}
+                >
+                    {ShareButtonMessage}
+                </Button>
+            </ButtonGradientBorderWrapper>
             <Modal
                 style={{ top: 30 }}
                 visible={okVisible}

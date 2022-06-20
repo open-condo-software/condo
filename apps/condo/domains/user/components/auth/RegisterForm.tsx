@@ -176,7 +176,6 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                             loading={isLoading}
                             style={BUTTON_STYLES}
                             data-cy={'registercomplete-button'}
-                            borderLess
                         >
                             {RegisterMsg}
                         </Button>

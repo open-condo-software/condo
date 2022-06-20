@@ -7,7 +7,7 @@ import BasePropertyMapForm from '../BasePropertyMapForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { Button } from '@condo/domains/common/components/Button'
+import { Button, ButtonGradientBorderWrapper } from '@condo/domains/common/components/Button'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 
 interface ICreatePropertyForm {
@@ -61,17 +61,18 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
                                     onClick={handleSave}
                                     type='sberDefaultGradient'
                                     loading={isLoading}
-                                    borderLess
                                 >
                                     {ApplyChangesLabel}
                                 </Button>
                                 <Link href={`/property/${id}`}>
-                                    <Button
-                                        key='cancel'
-                                        secondary
-                                        type='sberDefaultGradient'>
-                                        {CancelChangesLabel}
-                                    </Button>
+                                    <ButtonGradientBorderWrapper>
+                                        <Button
+                                            key='cancel'
+                                            secondary
+                                            type='sberDefaultGradient'>
+                                            {CancelChangesLabel}
+                                        </Button>
+                                    </ButtonGradientBorderWrapper>
                                 </Link>
                             </Space>
                         </ActionBar>

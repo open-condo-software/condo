@@ -5,7 +5,7 @@ import { isEmpty } from 'lodash'
 import { PlusCircleFilled } from '@ant-design/icons'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
+import { Button, ButtonGradientBorderWrapper } from '@condo/domains/common/components/Button'
 
 import { ErrorsContainer } from './ErrorsContainer'
 
@@ -43,19 +43,20 @@ export const CreateMeterReadingsActionBar = ({
                                     type='sberDefaultGradient'
                                     loading={isLoading}
                                     disabled={isSubmitButtonDisabled}
-                                    borderLess
                                 >
                                     {SendMetersReadingMessage}
                                 </Button>
-                                <Button
-                                    onClick={handleAddMeterButtonClick}
-                                    type='sberDefaultGradient'
-                                    disabled={isCreateMeterButtonDisabled}
-                                    icon={<PlusCircleFilled/>}
-                                    secondary
-                                >
-                                    {AddMeterMessage}
-                                </Button>
+                                <ButtonGradientBorderWrapper>
+                                    <Button
+                                        onClick={handleAddMeterButtonClick}
+                                        type='sberDefaultGradient'
+                                        disabled={isCreateMeterButtonDisabled}
+                                        icon={<PlusCircleFilled/>}
+                                        secondary
+                                    >
+                                        {AddMeterMessage}
+                                    </Button>
+                                </ButtonGradientBorderWrapper>
                                 <ErrorsContainer
                                     property={property}
                                     unitName={unitName}

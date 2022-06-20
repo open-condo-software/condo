@@ -15,7 +15,7 @@ import { colors } from '@condo/domains/common/constants/style'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import Head from 'next/head'
 import Link from 'next/link'
-import { Button } from '@condo/domains/common/components/Button'
+import { Button, ButtonGradientBorderWrapper } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
 import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
@@ -143,7 +143,6 @@ export const PropertyPageContent = ({ property, role }) => {
                                     <Button
                                         type={'sberDefaultGradient'}
                                         size={'large'}
-                                        borderLess
                                     >
                                         {EditPropertyTitle}
                                     </Button>
@@ -152,14 +151,16 @@ export const PropertyPageContent = ({ property, role }) => {
                             {
                                 !isNull(get(property, 'map')) && (
                                     <Link href={`/property/${property.id}/map/update`}>
-                                        <Button
-                                            color={'green'}
-                                            type={'sberDefaultGradient'}
-                                            secondary
-                                            size={'large'}
-                                        >
-                                            {EditPropertyMapTitle}
-                                        </Button>
+                                        <ButtonGradientBorderWrapper>
+                                            <Button
+                                                color={'green'}
+                                                type={'sberDefaultGradient'}
+                                                secondary
+                                                size={'large'}
+                                            >
+                                                {EditPropertyMapTitle}
+                                            </Button>
+                                        </ButtonGradientBorderWrapper>
                                     </Link>
                                 )
                             }

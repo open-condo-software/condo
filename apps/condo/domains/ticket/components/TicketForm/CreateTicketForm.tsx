@@ -47,7 +47,6 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                                         disabled={disabledCondition}
                                         data-cy={'ticket__submit-button'}
                                         style={{ marginRight: '12px' }}
-                                        borderLess
                                     >
                                         {CreateTicketMessage}
                                     </Button>

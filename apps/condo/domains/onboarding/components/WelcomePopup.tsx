@@ -96,7 +96,7 @@ const ModalFooter = ({ step, setStep, handleModalClose }) => {
             </Col>
             {
                 step === 2 && (
-                    <Button type={'sberDefaultGradient'} borderLess onClick={handleModalClose}>
+                    <Button type={'sberDefaultGradient'} onClick={handleModalClose}>
                         {OkMessage}
                     </Button>
                 )

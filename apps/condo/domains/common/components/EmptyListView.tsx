@@ -83,7 +83,6 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
                     <Button
                         type={'sberDefaultGradient'}
                         onClick={() => router.push(createRoute)}
-                        borderLess
                     >
                         {createLabel}
                     </Button>

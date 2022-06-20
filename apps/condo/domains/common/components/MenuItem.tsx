@@ -29,12 +29,13 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
   justify-content: ${({ isCollapsed }) => isCollapsed ? 'center' : 'flex-start'};
   vertical-align: center;
 
-  .label {
-    font-size: ${props => props.labelFontSize ? props.labelFontSize : '16px'};
-    transition: ${transitions.allDefault};
-    white-space: nowrap;
-    font-family: Open Sans Regular;
-  }
+    .label {
+        font-size: ${props => props.labelFontSize ? props.labelFontSize : '16px'};
+        transition: ${transitions.allDefault};
+        white-space: nowrap;
+        font-family: Open Sans Semibold;
+        color: ${colors.textSecondary};
+    }
 
   .icon {
     color: ${colors.textSecondary};
@@ -46,12 +47,15 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
     .icon {
       color: ${colors.black};
     }
+    .label {
+        color: ${colors.black};
+    }
   }
 
   &.active {
     .label {
       font-weight: 700;
-      font-family: Open Sans Semibold;
+      color: ${colors.black};
     }
 
     .icon {

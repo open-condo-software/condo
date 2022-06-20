@@ -21,7 +21,7 @@ import { useOrganization } from '@core/next/organization'
 
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
+import { Button, ButtonGradientBorderWrapper } from '@condo/domains/common/components/Button'
 import { Comments } from '@condo/domains/common/components/Comments'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -770,28 +770,32 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                 <TicketContent ticket={ticket}/>
                                 <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
-                                        <Button
-                                            disabled={disabledEditButton}
-                                            color={'green'}
-                                            type={'sberDefaultGradient'}
-                                            secondary
-                                            icon={<EditFilled />}
-                                            data-cy={'ticket__update-link'}
-                                        >
-                                            {UpdateMessage}
-                                        </Button>
+                                        <ButtonGradientBorderWrapper>
+                                            <Button
+                                                disabled={disabledEditButton}
+                                                color={'green'}
+                                                type={'sberDefaultGradient'}
+                                                secondary
+                                                icon={<EditFilled />}
+                                                data-cy={'ticket__update-link'}
+                                            >
+                                                {UpdateMessage}
+                                            </Button>
+                                        </ButtonGradientBorderWrapper>
                                     </Link>
                                     {
                                         !isSmall && (
-                                            <Button
-                                                type={'sberDefaultGradient'}
-                                                icon={<FilePdfFilled />}
-                                                href={`/ticket/${ticket.id}/pdf`}
-                                                target={'_blank'}
-                                                secondary
-                                            >
-                                                {PrintMessage}
-                                            </Button>
+                                            <ButtonGradientBorderWrapper>
+                                                <Button
+                                                    type={'sberDefaultGradient'}
+                                                    icon={<FilePdfFilled />}
+                                                    href={`/ticket/${ticket.id}/pdf`}
+                                                    target={'_blank'}
+                                                    secondary
+                                                >
+                                                    {PrintMessage}
+                                                </Button>
+                                            </ButtonGradientBorderWrapper>
                                         )
                                     }
                                     {

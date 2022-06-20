@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { CloseOutlined, DeleteFilled, DownOutlined } from '@ant-design/icons'
 import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, Property as PropertyType } from '@app/condo/schema'
-import { Button } from '@condo/domains/common/components/Button'
+import { Button, ButtonGradientBorderWrapper } from '@condo/domains/common/components/Button'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
@@ -374,18 +374,19 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             onClick={saveCallback}
                             type='sberDefaultGradient'
                             disabled={!address}
-                            borderLess
                         >
                             {SaveLabel}
                         </Button>
-                        <Button
-                            key='cancel'
-                            onClick={onCancel}
-                            type='sberDefaultGradient'
-                            secondary
-                        >
-                            {CancelLabel}
-                        </Button>
+                        <ButtonGradientBorderWrapper>
+                            <Button
+                                key='cancel'
+                                onClick={onCancel}
+                                type='sberDefaultGradient'
+                                secondary
+                            >   
+                                {CancelLabel}
+                            </Button>
+                        </ButtonGradientBorderWrapper> 
                         {
                             mapValidationError ? (
                                 <Typography.Paragraph type="danger" style={{ width: '100%', textAlign: 'center' }}>
@@ -850,14 +851,16 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 </Space>
             </Col>
             <Col span={24}>
-                <Button
-                    key='submit'
-                    secondary
-                    onClick={handleFinish}
-                    type='sberDefaultGradient'
-                    style={MODAL_FORM_BUTTON_STYLE}
-                    disabled={isSubmitDisabled}
-                > {AddLabel} </Button>
+                <ButtonGradientBorderWrapper>
+                    <Button
+                        key='submit'
+                        secondary
+                        onClick={handleFinish}
+                        type='sberDefaultGradient'
+                        style={MODAL_FORM_BUTTON_STYLE}
+                        disabled={isSubmitDisabled}
+                    > {AddLabel} </Button>
+                </ButtonGradientBorderWrapper>
             </Col>
         </Row>
     )
@@ -1004,12 +1007,14 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
-                            <Button
-                                secondary
-                                onClick={applyChanges}
-                                type='sberDefaultGradient'
-                                disabled={!(floor && section)}
-                            > {SaveLabel} </Button>
+                            <ButtonGradientBorderWrapper>
+                                <Button
+                                    secondary
+                                    onClick={applyChanges}
+                                    type='sberDefaultGradient'
+                                    disabled={!(floor && section)}
+                                > {SaveLabel} </Button>
+                            </ButtonGradientBorderWrapper>
                         </Col>
                         {
                             mode === 'editUnit' && (
@@ -1082,21 +1087,25 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
                 <Col span={24}>
-                    <Button
-                        secondary
-                        onClick={updateSection}
-                        type='sberDefaultGradient'
-                        disabled={isEmpty(name)}
-                    >{SaveLabel}</Button>
+                    <ButtonGradientBorderWrapper>
+                        <Button
+                            secondary
+                            onClick={updateSection}
+                            type='sberDefaultGradient'
+                            disabled={isEmpty(name)}
+                        >{SaveLabel}</Button>
+                    </ButtonGradientBorderWrapper>
                 </Col>
                 <Col span={24}>
-                    <Button
-                        secondary
-                        onClick={deleteSection}
-                        type='sberDangerGhost'
-                        icon={<DeleteFilled />}
-                        style={FULL_SIZE_UNIT_STYLE}
-                    >{DeleteLabel}</Button>
+                    <ButtonGradientBorderWrapper>
+                        <Button
+                            secondary
+                            onClick={deleteSection}
+                            type='sberDangerGhost'
+                            icon={<DeleteFilled />}
+                            style={FULL_SIZE_UNIT_STYLE}
+                        >{DeleteLabel}</Button>
+                    </ButtonGradientBorderWrapper>
                 </Col>
             </Row>
         </Row>
@@ -1247,14 +1256,16 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 </Space>
             </Col>
             <Col span={24}>
-                <Button
-                    key='submit'
-                    secondary
-                    onClick={handleFinish}
-                    type='sberDefaultGradient'
-                    style={MODAL_FORM_BUTTON_STYLE}
-                    disabled={isSubmitDisabled}
-                > {AddLabel} </Button>
+                <ButtonGradientBorderWrapper>
+                    <Button
+                        key='submit'
+                        secondary
+                        onClick={handleFinish}
+                        type='sberDefaultGradient'
+                        style={MODAL_FORM_BUTTON_STYLE}
+                        disabled={isSubmitDisabled}
+                    > {AddLabel} </Button>
+                </ButtonGradientBorderWrapper>
             </Col>
         </Row>
     )
@@ -1307,24 +1318,28 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
                 <Col span={24}>
-                    <Button
-                        secondary
-                        onClick={updateParkingSection}
-                        type={'sberDefaultGradient'}
-                    >
-                        {SaveLabel}
-                    </Button>
+                    <ButtonGradientBorderWrapper>
+                        <Button
+                            secondary
+                            onClick={updateParkingSection}
+                            type={'sberDefaultGradient'}
+                        >
+                            {SaveLabel}
+                        </Button>
+                    </ButtonGradientBorderWrapper>
                 </Col>
                 <Col span={24}>
-                    <Button
-                        secondary
-                        onClick={deleteParking}
-                        type='sberDangerGhost'
-                        icon={<DeleteFilled />}
-                        style={FULL_SIZE_UNIT_STYLE}
-                    >
-                        {DeleteLabel}
-                    </Button>
+                    <ButtonGradientBorderWrapper>
+                        <Button
+                            secondary
+                            onClick={deleteParking}
+                            type='sberDangerGhost'
+                            icon={<DeleteFilled />}
+                            style={FULL_SIZE_UNIT_STYLE}
+                        >
+                            {DeleteLabel}
+                        </Button>
+                    </ButtonGradientBorderWrapper>
                 </Col>
             </Row>
         </Row>
@@ -1448,12 +1463,14 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
-                            <Button
-                                secondary
-                                onClick={applyChanges}
-                                type='sberDefaultGradient'
-                                disabled={!(floor && section)}
-                            > {SaveLabel} </Button>
+                            <ButtonGradientBorderWrapper>
+                                <Button
+                                    secondary
+                                    onClick={applyChanges}
+                                    type='sberDefaultGradient'
+                                    disabled={!(floor && section)}
+                                > {SaveLabel} </Button>
+                            </ButtonGradientBorderWrapper>
                         </Col>
                         {
                             mode === 'editParkingUnit' && (
@@ -1596,12 +1613,14 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
-                            <Button
-                                secondary
-                                onClick={applyChanges}
-                                type='sberDefaultGradient'
-                                disabled={isSubmitDisabled}
-                            > {SaveLabel} </Button>
+                            <ButtonGradientBorderWrapper>
+                                <Button
+                                    secondary
+                                    onClick={applyChanges}
+                                    type='sberDefaultGradient'
+                                    disabled={isSubmitDisabled}
+                                > {SaveLabel} </Button>
+                            </ButtonGradientBorderWrapper>
                         </Col>
                     </Row>
                 </Space>

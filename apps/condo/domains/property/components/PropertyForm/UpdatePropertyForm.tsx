@@ -63,7 +63,6 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
                                             loading={isLoading}
                                             disabled={!address}
                                             style={FORM_SUBMIT_BUTTON_STYLES}
-                                            borderLess
                                         >
                                             {ApplyChangesLabel}
                                         </Button>
