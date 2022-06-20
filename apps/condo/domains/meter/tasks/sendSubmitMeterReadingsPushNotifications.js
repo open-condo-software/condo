@@ -188,10 +188,10 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
 
         // Filter meters with expired next verification date
         const expiredVerificationMetersWithResident = metersWithResident
-            .filter(({ meter }) => !isNull(meter.nextVerificationDate))
             .filter(({ meter }) => {
-                const nextVerificationDate = dayjs(meter.nextVerificationDate)
-                return dayjs().unix() >= nextVerificationDate.unix()
+                if (isNull(meter.nextVerificationDate)) return false
+
+                return dayjs().unix() >= dayjs(meter.nextVerificationDate).unix()
             })
         state.metersWithExpiredVerificationDate += expiredVerificationMetersWithResident.length
 
