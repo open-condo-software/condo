@@ -27,7 +27,7 @@ const logger = pino({
 
 const log = (message, intentChar = null, intentRepeatTimes = 10) => {
     const logEntry = isNull(intentChar) ? message
-        : `${ intentChar.repeat(intentRepeatTimes) } ${ message } ${ intentChar.repeat(intentRepeatTimes) }`
+        : `${intentChar.repeat(intentRepeatTimes)} ${message} ${intentChar.repeat(intentRepeatTimes)}`
 
     logger.info({
         message: logEntry,
@@ -50,7 +50,7 @@ const readMeterReadings = async ({ context, meters }) => {
 
     // then calculate current period window
     const now = dayjs()
-    const startWindowDate = `${ now.format('YYYY-MM') }-01`
+    const startWindowDate = `${now.format('YYYY-MM')}-01`
     const endWindowDate = now.toISOString()
 
     // load all pages for entity
@@ -140,12 +140,12 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
         metersWithExpiredVerificationDate: 0,
         startTime: dayjs(),
     }
-    log(`Start proceeding meters page by page ${ state.startTime }`, '-')
+    log(`Start proceeding meters page by page ${state.startTime}`, '-')
 
     do {
         // log each 10 pages
         if (state.processedPages % 10 === 0) {
-            log(`Processing page ${ state.processedPages + 1 }`)
+            log(`Processing page ${state.processedPages + 1}`)
         }
 
         // read all required data
@@ -214,15 +214,15 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
     } while (state.hasMore)
 
     // some stat
-    log(`End proceeding meters ${ dayjs() }`, '-')
+    log(`End proceeding meters ${dayjs()}`, '-')
     log('Processing stats', '-')
-    log(`Processed pages = ${ state.processedPages }`)
-    log(`Meters per page = ${ state.pageSize }`)
-    log(`Meters without readings, without default submit period = ${ state.metersWithoutReadings }`)
-    log(`Meters without readings, without default submit period, with residents = ${ state.metersWithoutReadingsAndWithResidents }`)
-    log(`Meters without readings, without default submit period, with residents, with expired verification date = ${ state.metersWithExpiredVerificationDate }`)
-    log(`Meters total = ${ state.processedMeters }`)
-    log(`Processing time = ${ (dayjs().unix() - state.startTime.unix()) } sec`)
+    log(`Processed pages = ${state.processedPages}`)
+    log(`Meters per page = ${state.pageSize}`)
+    log(`Meters without readings, without default submit period = ${state.metersWithoutReadings}`)
+    log(`Meters without readings, without default submit period, with residents = ${state.metersWithoutReadingsAndWithResidents}`)
+    log(`Meters without readings, without default submit period, with residents, with expired verification date = ${state.metersWithExpiredVerificationDate}`)
+    log(`Meters total = ${state.processedMeters}`)
+    log(`Processing time = ${(dayjs().unix() - state.startTime.unix())} sec`)
     log('Processing completed!', '=')
 }
 
@@ -238,7 +238,7 @@ const sendMessagesForSetUpReadings = async ({ context, metersWithResident }) => 
     await Promise.all(metersWithResident.map(async ({ meter, residents }) => {
         await Promise.all(residents.map(async (resident) => {
             const { lang } = meter
-            const uniqKey = `${ meter.id }_${ resident.id }_${ dayjs().format('YYYY-MM') }`
+            const uniqKey = `${meter.id}_${resident.id}_${dayjs().format('YYYY-MM')}`
 
             const message = {
                 sender: { dv: 1, fingerprint: 'meters-readings-submit-reminder-cron-push' },
@@ -252,7 +252,7 @@ const sendMessagesForSetUpReadings = async ({ context, metersWithResident }) => 
                         meterId: meter.id,
                         userId: resident.user.id,
                         residentId: resident.id,
-                        url: `${ conf.SERVER_URL }/meter/`,
+                        url: `${conf.SERVER_URL}/meter/`,
                     },
                 },
             }
@@ -266,7 +266,7 @@ const sendMessagesForExpiredMeterVerificationDate = async ({ context, resourcesL
     await Promise.all(metersWithResident.map(async ({ meter, residents }) => {
         await Promise.all(residents.map(async (resident) => {
             const { lang } = meter
-            const uniqKey = `${ meter.id }_${ resident.id }_${ dayjs().format('YYYY-MM') }`
+            const uniqKey = `${meter.id}_${resident.id}_${dayjs().format('YYYY-MM')}`
             const resourceId = get(meter, 'resource.id', '')
             const localizedResource = resourcesLocalizations[lang].find(resource => resource.id === resourceId)
             const localizedResourceName = get(localizedResource, 'name', '')
@@ -284,7 +284,7 @@ const sendMessagesForExpiredMeterVerificationDate = async ({ context, resourcesL
                         resource: { name: localizedResourceName },
                         userId: resident.user.id,
                         residentId: resident.id,
-                        url: `${ conf.SERVER_URL }/meter/`,
+                        url: `${conf.SERVER_URL}/meter/`,
                     },
                 },
             }
