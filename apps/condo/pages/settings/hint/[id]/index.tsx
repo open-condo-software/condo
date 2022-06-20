@@ -68,8 +68,8 @@ const TicketHintIdPage = () => {
     }, [handleDeleteAction, ticketHint])
 
     const htmlContent = useMemo(() => ({
-        __html: xss(ticketHint.content),
-    }), [ticketHint.content])
+        __html: xss(get(ticketHint, 'content')),
+    }), [ticketHint])
 
     const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
