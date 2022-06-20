@@ -237,7 +237,7 @@ describe('ForgotPasswordAction Service', () => {
             }])
         })
         
-        it('cannot change password to weak passord', async () => {
+        it('cannot change password to weak password', async () => {
             const admin = await makeLoggedInAdminClient()
             const [user] = await createTestUser(admin)
             const client = await makeClient()
