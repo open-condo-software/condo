@@ -6,7 +6,7 @@ const { SUBSCRIPTION_TRIAL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/do
 const { dvSenderFields } = require('../constants')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const { getSchemaCtx } = require('@core/keystone/schema')
-const { Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 
 const conf = require('@core/config')
@@ -33,7 +33,7 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     const { payerInn, active } = advanceAcceptance
     const { keystone: context } = await getSchemaCtx('User')
 
-    const [organization] = await OrganizationApi.getAll(context,
+    const [organization] = await Organization.getAll(context,
         { tin: payerInn },
         { sortBy: 'createdAt_DESC' },
     )
