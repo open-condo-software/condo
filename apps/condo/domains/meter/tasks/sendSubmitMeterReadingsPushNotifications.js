@@ -98,7 +98,7 @@ const getLocalizedMeterResources = async ({ context, lang }) => {
 }
 
 const loadAllLocalizedVersionsOfMeterResources = async ({ context }) => {
-    const supportedLanguages = ['en', 'ru']
+    const supportedLanguages = Object.keys(COUNTRIES)
     const result = {}
 
     for (let supportedLanguage of supportedLanguages) {
