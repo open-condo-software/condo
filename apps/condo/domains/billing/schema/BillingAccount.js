@@ -56,6 +56,12 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             isRequired: true,
         },
 
+        fullName: {
+            schemaDoc: 'Full name of the account holder',
+            type: Text,
+            isRequired: false,
+        },
+
         meta: {
             schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
                 'Examples of data keys: `property unit number`, `floor`, `entrance`, `is parking`',
