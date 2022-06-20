@@ -48,6 +48,8 @@ jobs:
           WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=review-${{ env.REVIEW_URL_PREFIX }}-callcenter.tcs.doma.ai"
           WERF_SET_CI_EPS_URL: "global.ci_eps_url=review-${{ env.REVIEW_URL_PREFIX }}-eps.tcs.doma.ai"
           WERF_SET_CI_RB_URL: "global.ci_rb_url=review-${{ env.REVIEW_URL_PREFIX }}-rb.tcs.doma.ai"
+          WERF_SET_CI_REVIEW_PREFIX: "global.review_prefix=${{ env.REVIEW_URL_PREFIX }}"
+          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE }}
           WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE}}
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
