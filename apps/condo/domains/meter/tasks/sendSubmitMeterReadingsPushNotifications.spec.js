@@ -21,8 +21,6 @@ const { CALL_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants
 const index = require('@app/condo/index')
 const { keystone } = index
 
-const taskRunTimeoutMs = 30000
-
 const prepareUserAndMeter = async ({ nextVerificationDate }) => {
     return await makeClientWithResidentAndMeter({
         verificationDate: dayjs().add(-1, 'year').toISOString(),
@@ -71,7 +69,7 @@ describe('Submit meter readings push notification', () => {
             meterId: client.meter.id,
         })
         expect(messages).toHaveLength(0)
-    }, taskRunTimeoutMs)
+    })
 
     it('should not send messages for exists this month readings and not valid nextVerificationDate', async () => {
         // arrange
@@ -89,7 +87,7 @@ describe('Submit meter readings push notification', () => {
             meterId: client.meter.id,
         })
         expect(messages).toHaveLength(0)
-    }, taskRunTimeoutMs)
+    })
 
     it('should send messages for empty readings and valid nextVerificationDate', async () => {
         // arrange
@@ -106,7 +104,7 @@ describe('Submit meter readings push notification', () => {
             meterId: meter.id,
         })
         expect(messages).toHaveLength(1)
-    }, taskRunTimeoutMs)
+    })
 
     it('should send messages for empty readings and not valid nextVerificationDate', async () => {
         // arrange
@@ -123,7 +121,7 @@ describe('Submit meter readings push notification', () => {
             meterId: meter.id,
         })
         expect(messages).toHaveLength(2)
-    }, taskRunTimeoutMs)
+    })
 
     it('should send messages for empty readings and undefined nextVerificationDate', async () => {
         // arrange
@@ -140,5 +138,5 @@ describe('Submit meter readings push notification', () => {
             meterId: meter.id,
         })
         expect(messages).toHaveLength(1)
-    }, taskRunTimeoutMs)
+    })
 })
