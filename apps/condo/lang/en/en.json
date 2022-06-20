@@ -1115,7 +1115,7 @@
   "api.common.WRONG_PHONE_FORMAT": "Wrong phone number format",
   "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "No payments to export",
   "api.user.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} characters",
-  "api.user.PASSWORD_IS_FREQUENTLY_USED": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
+  "api.user.PASSWORD_IS_FREQUENTLY_USED": "This password is weak or too obvious please choose something more secure",
   "api.user.changePasswordWithToken.TOKEN_NOT_FOUND": "Unable to find non-expired ConfirmPhoneAction by specified token",
   "api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT": "Wrong format of specified email",
   "api.ticket.exportTicketsToExcel.NOTHING_TO_EXPORT": "No tickets to export",
