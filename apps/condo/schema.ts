@@ -4694,6 +4694,8 @@ export type BillingAccount = {
   unitName?: Maybe<Scalars['String']>;
   /**  Type of unit, such as parking lot or flat  */
   unitType?: Maybe<Scalars['String']>;
+  /**  Full name of the account holder  */
+  fullName?: Maybe<Scalars['String']>;
   /**  Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `property unit number`, `floor`, `entrance`, `is parking`  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -4719,6 +4721,7 @@ export type BillingAccountCreateInput = {
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  fullName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -4750,6 +4753,7 @@ export type BillingAccountHistoryRecord = {
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  fullName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -4775,6 +4779,7 @@ export type BillingAccountHistoryRecordCreateInput = {
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  fullName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -4805,6 +4810,7 @@ export type BillingAccountHistoryRecordUpdateInput = {
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  fullName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -4935,6 +4941,24 @@ export type BillingAccountHistoryRecordWhereInput = {
   unitType_not_ends_with_i?: Maybe<Scalars['String']>;
   unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  fullName?: Maybe<Scalars['String']>;
+  fullName_not?: Maybe<Scalars['String']>;
+  fullName_contains?: Maybe<Scalars['String']>;
+  fullName_not_contains?: Maybe<Scalars['String']>;
+  fullName_starts_with?: Maybe<Scalars['String']>;
+  fullName_not_starts_with?: Maybe<Scalars['String']>;
+  fullName_ends_with?: Maybe<Scalars['String']>;
+  fullName_not_ends_with?: Maybe<Scalars['String']>;
+  fullName_i?: Maybe<Scalars['String']>;
+  fullName_not_i?: Maybe<Scalars['String']>;
+  fullName_contains_i?: Maybe<Scalars['String']>;
+  fullName_not_contains_i?: Maybe<Scalars['String']>;
+  fullName_starts_with_i?: Maybe<Scalars['String']>;
+  fullName_not_starts_with_i?: Maybe<Scalars['String']>;
+  fullName_ends_with_i?: Maybe<Scalars['String']>;
+  fullName_not_ends_with_i?: Maybe<Scalars['String']>;
+  fullName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  fullName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -6021,6 +6045,7 @@ export type BillingAccountUpdateInput = {
   number?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  fullName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6130,6 +6155,24 @@ export type BillingAccountWhereInput = {
   unitType_not?: Maybe<Scalars['String']>;
   unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  fullName?: Maybe<Scalars['String']>;
+  fullName_not?: Maybe<Scalars['String']>;
+  fullName_contains?: Maybe<Scalars['String']>;
+  fullName_not_contains?: Maybe<Scalars['String']>;
+  fullName_starts_with?: Maybe<Scalars['String']>;
+  fullName_not_starts_with?: Maybe<Scalars['String']>;
+  fullName_ends_with?: Maybe<Scalars['String']>;
+  fullName_not_ends_with?: Maybe<Scalars['String']>;
+  fullName_i?: Maybe<Scalars['String']>;
+  fullName_not_i?: Maybe<Scalars['String']>;
+  fullName_contains_i?: Maybe<Scalars['String']>;
+  fullName_not_contains_i?: Maybe<Scalars['String']>;
+  fullName_starts_with_i?: Maybe<Scalars['String']>;
+  fullName_not_starts_with_i?: Maybe<Scalars['String']>;
+  fullName_ends_with_i?: Maybe<Scalars['String']>;
+  fullName_not_ends_with_i?: Maybe<Scalars['String']>;
+  fullName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  fullName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -35756,6 +35799,8 @@ export enum SortBillingAccountHistoryRecordsBy {
   UnitNameDesc = 'unitName_DESC',
   UnitTypeAsc = 'unitType_ASC',
   UnitTypeDesc = 'unitType_DESC',
+  FullNameAsc = 'fullName_ASC',
+  FullNameDesc = 'fullName_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -35917,6 +35962,8 @@ export enum SortBillingAccountsBy {
   UnitNameDesc = 'unitName_DESC',
   UnitTypeAsc = 'unitType_ASC',
   UnitTypeDesc = 'unitType_DESC',
+  FullNameAsc = 'fullName_ASC',
+  FullNameDesc = 'fullName_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

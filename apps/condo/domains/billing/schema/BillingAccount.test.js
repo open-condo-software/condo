@@ -62,10 +62,13 @@ describe('BillingAccount', () => {
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestBillingProperty(admin, context)
-            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property, {
+                fullName: 'Yuri Gagarin',
+            })
 
             expect(billingAccount.context.id).toEqual(context.id)
             expect(billingAccount.property.id).toEqual(property.id)
+            expect(billingAccount.fullName).toEqual('Yuri Gagarin')
         })
 
         test('can\'t be created by user', async () => {
