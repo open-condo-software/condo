@@ -131,12 +131,12 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
         metersWithExpiredVerificationDate: 0,
         startTime: dayjs(),
     }
-    logger.info({ message: `Start proceeding meters page by page ${state.startTime}` })
+    logger.info({ message: 'Start proceeding meters page by page', startTime: state.startTime })
 
     do {
         // log each 10 pages
         if (state.processedPages % 10 === 0) {
-            logger.info({ message: `Processing page ${state.processedPages + 1}` })
+            logger.info({ message: 'Processing page', processedPages: state.processedPages + 1 })
         }
 
         // read all required data
@@ -208,16 +208,13 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
     } while (state.hasMore)
 
     // some stat
-    logger.info({ message: `End proceeding meters ${dayjs()}` })
-    logger.info({ message: 'Processing stats' })
-    logger.info({ message: `Processed pages = ${state.processedPages}` })
-    logger.info({ message: `Meters per page = ${state.pageSize}` })
-    logger.info({ message: `Meters without readings, without default submit period = ${state.metersWithoutReadings}` })
-    logger.info({ message: `Meters without readings, without default submit period, with residents = ${state.metersWithoutReadingsAndWithResidents}` })
-    logger.info({ message: `Meters without readings, without default submit period, with residents, with expired verification date = ${state.metersWithExpiredVerificationDate}` })
-    logger.info({ message: `Meters total = ${state.processedMeters}` })
-    logger.info({ message: `Processing time = ${(dayjs().unix() - state.startTime.unix())} sec` })
-    logger.info({ message: 'Processing completed!' })
+    const endTime = dayjs()
+    logger.info({
+        message: 'End proceeding meters',
+        endTime,
+        processingTime: endTime.unix() - state.startTime.unix(),
+        ...state,
+    })
 }
 
 const sendMessageSafely = async ({ context, message }) => {
