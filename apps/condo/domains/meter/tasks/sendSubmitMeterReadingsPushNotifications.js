@@ -25,15 +25,6 @@ const logger = pino({
     enabled: falsey(process.env.DISABLE_LOGGING),
 })
 
-const log = (message, intentChar = null, intentRepeatTimes = 10) => {
-    const logEntry = isNull(intentChar) ? message
-        : `${intentChar.repeat(intentRepeatTimes)} ${message} ${intentChar.repeat(intentRepeatTimes)}`
-
-    logger.info({
-        message: logEntry,
-    })
-}
-
 const readMetersPage = async ({ context, offset, pageSize }) => {
     return await Meter.getAll(
         context, {}, {
@@ -91,7 +82,7 @@ const getLocalizedMeterResources = async ({ context, lang }) => {
     // get list of meter resources for certain locale
     // TODO apply DOMA-3174 mechanic for custom request locale
     return await loadListByChunks({
-        localeDependedContext,
+        context: localeDependedContext,
         list: MeterResource,
         where: {},
     })
@@ -123,7 +114,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
     // * Send message with specific unique key for expired verification (key is: {meterId}_{residentId}_{now().minusMonth().format(YYYY_MM)})
     // * Print some stat
 
-    log('Start sending submit meter notifications', '=')
+    logger.info({ message: 'Start sending submit meter notifications' })
     // initialize context stuff
     const { keystone: context } = await getSchemaCtx('Meter')
     const resourcesLocalizations = await loadAllLocalizedVersionsOfMeterResources({ context })
@@ -140,12 +131,12 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
         metersWithExpiredVerificationDate: 0,
         startTime: dayjs(),
     }
-    log(`Start proceeding meters page by page ${state.startTime}`, '-')
+    logger.info({ message: `Start proceeding meters page by page ${state.startTime}` })
 
     do {
         // log each 10 pages
         if (state.processedPages % 10 === 0) {
-            log(`Processing page ${state.processedPages + 1}`)
+            logger.info({ message: `Processing page ${state.processedPages + 1}` })
         }
 
         // read all required data
@@ -217,16 +208,16 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
     } while (state.hasMore)
 
     // some stat
-    log(`End proceeding meters ${dayjs()}`, '-')
-    log('Processing stats', '-')
-    log(`Processed pages = ${state.processedPages}`)
-    log(`Meters per page = ${state.pageSize}`)
-    log(`Meters without readings, without default submit period = ${state.metersWithoutReadings}`)
-    log(`Meters without readings, without default submit period, with residents = ${state.metersWithoutReadingsAndWithResidents}`)
-    log(`Meters without readings, without default submit period, with residents, with expired verification date = ${state.metersWithExpiredVerificationDate}`)
-    log(`Meters total = ${state.processedMeters}`)
-    log(`Processing time = ${(dayjs().unix() - state.startTime.unix())} sec`)
-    log('Processing completed!', '=')
+    logger.info({ message: `End proceeding meters ${dayjs()}` })
+    logger.info({ message: 'Processing stats' })
+    logger.info({ message: `Processed pages = ${state.processedPages}` })
+    logger.info({ message: `Meters per page = ${state.pageSize}` })
+    logger.info({ message: `Meters without readings, without default submit period = ${state.metersWithoutReadings}` })
+    logger.info({ message: `Meters without readings, without default submit period, with residents = ${state.metersWithoutReadingsAndWithResidents}` })
+    logger.info({ message: `Meters without readings, without default submit period, with residents, with expired verification date = ${state.metersWithExpiredVerificationDate}` })
+    logger.info({ message: `Meters total = ${state.processedMeters}` })
+    logger.info({ message: `Processing time = ${(dayjs().unix() - state.startTime.unix())} sec` })
+    logger.info({ message: 'Processing completed!' })
 }
 
 const sendMessageSafely = async ({ context, message }) => {
