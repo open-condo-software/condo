@@ -182,7 +182,8 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
                 const period = null // TODO calculate this prop after implementation submit period in organisation
                 return { ...meter, period, lang }
             }
-        ).filter(({ period }) => period == null) // pick meters without organisation default period
+        )
+            .filter(({ period }) => period == null) // pick meters without organisation default period
         state.metersWithoutReadings += metersWithoutPeriod.length
 
         // Join residents
