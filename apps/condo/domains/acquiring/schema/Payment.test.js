@@ -93,7 +93,8 @@ describe('Payment', () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
-                const payments = await Payment.getAll(admin)
+                const payments = await Payment.getAll(admin, {}, { sortBy: ['createdAt_DESC'], first: 10 })
+
                 expect(payments).toBeDefined()
                 expect(payments).not.toHaveLength(0)
             })
@@ -102,7 +103,7 @@ describe('Payment', () => {
                 await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
                 const support = await makeClientWithSupportUser()
-                const payments = await Payment.getAll(support)
+                const payments = await Payment.getAll(support, {}, { sortBy: ['createdAt_DESC'], first: 10 })
                 expect(payments).toBeDefined()
                 expect(payments).not.toHaveLength(0)
             })
@@ -122,12 +123,12 @@ describe('Payment', () => {
                         const [firstMultiPayment] = await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
                         const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, secondAcquiringIntegration)
 
-                        let { data: { objs: firstUserPayments } } = await Payment.getAll(firstClient, {}, { raw:true })
+                        let { data: { objs: firstUserPayments } } = await Payment.getAll(firstClient, {}, { sortBy: ['createdAt_DESC'], first: 10, raw: true })
                         expect(firstUserPayments).toBeDefined()
                         expect(firstUserPayments).toHaveLength(1)
                         expect(firstUserPayments).toHaveProperty(['0', 'multiPayment', 'id'], firstMultiPayment.id)
                         expect(firstUserPayments).toHaveProperty(['0', 'organization', 'id'], firstOrganization.id)
-                        let { data: { objs: secondUserPayments } } = await Payment.getAll(secondClient, {}, { raw:true })
+                        let { data: { objs: secondUserPayments } } = await Payment.getAll(secondClient, {}, { sortBy: ['createdAt_DESC'], first: 10, raw: true })
                         expect(secondUserPayments).toBeDefined()
                         expect(secondUserPayments).toHaveLength(1)
                         expect(secondUserPayments).toHaveProperty(['0', 'multiPayment', 'id'], secondMultiPayment.id)
@@ -544,7 +545,7 @@ describe('Payment', () => {
             const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments()
             await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
 
-            let { data: { objs: firstUserPayments } } = await Payment.getAll(firstClient, {}, { raw:true })
+            let { data: { objs: firstUserPayments } } = await Payment.getAll(firstClient, {}, { sortBy: ['createdAt_DESC'], first: 10, raw: true })
             const firstUserPayment = firstUserPayments[0]
             expect(firstUserPayment).toBeDefined()
             expect(firstUserPayment.status).toBeDefined()

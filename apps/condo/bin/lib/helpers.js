@@ -1,7 +1,4 @@
 const { get, isString, isObjectLike, isEmpty } = require('lodash')
-const dayjs = require('dayjs')
-
-const { DATE_FORMAT } = require('./constants')
 
 /**
  * Extracts unique field values from array of objects by given path
@@ -43,18 +40,19 @@ const getUniqueByField = (list, fieldPath, jsonFieldPath) => {
 }
 
 /**
- * Maps array of entities connected to other entities as a dictionary of { [<userIdX>] : [<entityIdY>, <entityIdZ>, ...], ... }
+ * Maps array of entities_1 connected to entities_2 as a dictionary of { [<entity_1_X>] : [<entity_2_Y>, <entity_2_Z>, ...], ... }
  * Different entities mapped to the same key will be stored as an array
  * @param items [{}]
  * @param connection
  */
-const getConnectionsMapping = (items, connection) => items.reduce(
+const getConnectionsMapping = (items, connection, full = false) => items.reduce(
     (acc, item) => {
         const key = get(item, connection)
 
         if (key) {
             if (!acc[key]) acc[key] = []
-            acc[key].push(get(item, 'id'))
+
+            acc[key].push(full ? item : get(item, 'id'))
         }
 
         return acc
@@ -62,34 +60,7 @@ const getConnectionsMapping = (items, connection) => items.reduce(
     {}
 )
 
-/**
- * Returns date adjusted to first day of the month. Can be formatted to DATE_FORMAT
- * @param dateRaw
- * @param shouldFormat
- * @returns {*}
- */
-const getMonthStart = (dateRaw, shouldFormat = false) => {
-    const date = dayjs(dateRaw).date(1)
-
-    return shouldFormat ? date.format(DATE_FORMAT) : date
-}
-
-/**
- * Returns dates for first day of current and next months
- * @returns {{thisMonthStart, nextMonthStart}}
- */
-const getStartDates = (dateRaw) => {
-    const date = getMonthStart(dateRaw)
-
-    return {
-        thisMonthStart: date.format(DATE_FORMAT),
-        nextMonthStart: date.add('1', 'month').format(DATE_FORMAT),
-    }
-}
-
 module.exports = {
     getUniqueByField,
     getConnectionsMapping,
-    getMonthStart,
-    getStartDates,
 }

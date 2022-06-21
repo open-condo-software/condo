@@ -63,11 +63,11 @@ function _renderDeveloperFriendlyErrorMessage (data, errors, context) {
 
 function generateGQLTestUtils (gql) {
 
-    async function getAll (client, where, { raw = false, sortBy } = {}) {
+    async function getAll (client, where, { raw = false, sortBy, first } = {}) {
         _checkClient(client)
-        const { data, errors } = await client.query(gql.GET_ALL_OBJS_QUERY, { where: where, sortBy })
+        const { data, errors } = await client.query(gql.GET_ALL_OBJS_QUERY, { where, sortBy, first })
         if (raw) return { data, errors }
-        throwIfError(data, errors, { query: gql.GET_ALL_OBJS_QUERY, variables: { where: where, sortBy } })
+        throwIfError(data, errors, { query: gql.GET_ALL_OBJS_QUERY, variables: { where, sortBy, first } })
         return data.objs
     }
 

@@ -11,7 +11,7 @@ const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const RESIDENT_FIELDS = `{ user { id name } organization { id } residentOrganization { id name } property { id createdAt deletedAt } residentProperty { id name address } address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { hasBillingData hasMeters } paymentCategories { id categoryName billingName acquiringName } }`
+const RESIDENT_FIELDS = `{ user { id name } organization { id } residentOrganization { id name country } property { id createdAt deletedAt } residentProperty { id name address } address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { hasBillingData hasMeters } paymentCategories { id categoryName billingName acquiringName } }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
 
 const REGISTER_RESIDENT_MUTATION = gql`
@@ -19,7 +19,7 @@ const REGISTER_RESIDENT_MUTATION = gql`
         result: registerResident(data: $data) ${RESIDENT_FIELDS}
     }
 `
-const SERVICE_CONSUMER_FIELDS = `{ residentBillingAccount { id } residentAcquiringIntegrationContext { id integration { id hostUrl } } paymentCategory resident { id } billingAccount { id } accountNumber ${COMMON_FIELDS} organization { id name tin } }`
+const SERVICE_CONSUMER_FIELDS = `{ residentBillingAccount { id } residentAcquiringIntegrationContext { id integration { id hostUrl } } paymentCategory resident { id user { id } } billingAccount { id number } accountNumber ${COMMON_FIELDS} organization { id name tin country } }`
 const ServiceConsumer = generateGqlQueries('ServiceConsumer', SERVICE_CONSUMER_FIELDS)
 
 const REGISTER_SERVICE_CONSUMER_MUTATION = gql`

@@ -1,4 +1,4 @@
-import { getUniqueByField, getConnectionsMapping, getMonthStart, getStartDates } from './helpers'
+import { getUniqueByField, getConnectionsMapping } from './helpers'
 
 const ENTITIES_ARRAY1 = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 1 }, {}]
 const ENTITIES_IDS_UNIQUE1 = [1, 2, 3]
@@ -38,31 +38,6 @@ describe('Script helpers tests', () => {
     describe('getConnectionsMapping', () => {
         it('correctly maps connections', () => {
             expect(getConnectionsMapping(ENTITIES_ARRAY5, 'x.id')).toStrictEqual(ENTITIES_IDS_UNIQUE5)
-        })
-    })
-
-    describe('getMonthStart', () => {
-        it('returns properly formatted correct date value', () => {
-            const thisMonthStart = new Date().toISOString().slice(0, 7) + '-01'
-
-            expect(getMonthStart('2022-04-18', true)).toStrictEqual('2022-04-01')
-            expect(getMonthStart(undefined, true)).toStrictEqual(thisMonthStart)
-        })
-    })
-
-    describe('getStartDates', () => {
-        it('returns properly formatted correct date values for current and next month start', () => {
-            const { thisMonthStart, nextMonthStart } = getStartDates('2022-05-17')
-
-            expect(thisMonthStart).toStrictEqual('2022-05-01')
-            expect(nextMonthStart).toStrictEqual('2022-06-01')
-        })
-
-        it('returns properly formatted correct date values for current and next month start for december', () => {
-            const { thisMonthStart, nextMonthStart } = getStartDates('2022-12-17')
-
-            expect(thisMonthStart).toStrictEqual('2022-12-01')
-            expect(nextMonthStart).toStrictEqual('2023-01-01')
         })
     })
 })

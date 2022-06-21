@@ -4,8 +4,6 @@ const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 
-const { CHUNK_SIZE, MAX_ROWS_COUNT } = require('./constants')
-
 class ScriptCore {
     context = null
 
@@ -19,7 +17,7 @@ class ScriptCore {
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
-    async loadListByChunks (list, where, sortBy, chunkSize = CHUNK_SIZE, limit = MAX_ROWS_COUNT) {
+    async loadListByChunks (list, where, sortBy, chunkSize, limit) {
         return await loadListByChunks({
             context: this.context,
             list,

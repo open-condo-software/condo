@@ -267,7 +267,8 @@ describe('Resident', () => {
                 expect(obj.residentOrganization).toBeDefined()
                 expect(obj.residentOrganization.id).toEqual(userClient.organization.id)
                 expect(obj.residentOrganization.name).toEqual(userClient.organization.name)
-                expect(Object.keys(obj.residentOrganization)).toHaveLength(2)
+                expect(obj.residentOrganization.country).toEqual(userClient.organization.country)
+                expect(Object.keys(obj.residentOrganization)).toHaveLength(3)
             })
 
             it('returns null if no related organization', async () => {

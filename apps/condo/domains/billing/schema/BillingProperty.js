@@ -14,9 +14,6 @@ const { Virtual } = require('@keystonejs/fields')
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
 const { RAW_DATA_FIELD } = require('./fields/common')
 
-const { Property } = require('@condo/domains/property/utils/serverSchema')
-
-
 const BillingProperty = new GQLListSchema('BillingProperty', {
     schemaDoc: 'All `property` objects from `billing data source`',
     fields: {

@@ -1,21 +1,17 @@
-const conf = require('@core/config')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
-dayjs.extend(utc)
 
-const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
-
-const {
-    MAX_SMS_FOR_IP_BY_DAY,
-    MAX_SMS_FOR_PHONE_BY_DAY,
-} = require('@condo/domains/user/constants/common')
-
-const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
-const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
-
+const conf = require('@core/config')
 const { GQLError } = require('@core/keystone/errors')
 const { getRedisClient } = require('@core/keystone/redis')
 
+const { MAX_SMS_FOR_IP_BY_DAY, MAX_SMS_FOR_PHONE_BY_DAY } = require('@condo/domains/user/constants/common')
+const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
+
+dayjs.extend(utc)
+
+const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
+const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
 
 class RedisGuard {
     get redis () {

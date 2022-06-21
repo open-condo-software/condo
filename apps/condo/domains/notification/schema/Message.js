@@ -4,11 +4,13 @@
 
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
-const access = require('@condo/domains/notification/access/Message')
-const { MESSAGE_STATUSES, MESSAGE_SENDING_STATUS } = require('../constants/constants')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+
 const { LOCALES } = require('@condo/domains/common/constants/locale')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+
+const access = require('@condo/domains/notification/access/Message')
+const { MESSAGE_STATUSES, MESSAGE_SENDING_STATUS } = require('@condo/domains/notification/constants/constants')
 
 const Message = new GQLListSchema('Message', {
     schemaDoc: 'Notification message',

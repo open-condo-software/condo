@@ -1,8 +1,5 @@
-const get = require('lodash/get')
-const isEmpty = require('lodash/isEmpty')
-const isNull = require('lodash/isNull')
+const { get, isEmpty, isNull } = require('lodash')
 
-const { NOT_FOUND_ERROR } = require('@condo/domains/common/constants/errors')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 
 /**
