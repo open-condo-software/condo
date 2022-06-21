@@ -180,13 +180,13 @@ const TicketPropertyHint = generateGqlQueries('TicketPropertyHint', TICKET_PROPE
 const TICKET_PROPERTY_HINT_PROPERTY_FIELDS = `{ organization { id } ticketPropertyHint { id } property { ${TICKET_PROPERTY_FIELDS} } ${COMMON_FIELDS} }`
 const TicketPropertyHintProperty = generateGqlQueries('TicketPropertyHintProperty', TICKET_PROPERTY_HINT_PROPERTY_FIELDS)
 
-const EXPORT_TICKET_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone ${COMMON_FIELDS} }`
-const ExportTicketTask = generateGqlQueries('ExportTicketTask', EXPORT_TICKET_TASK_FIELDS)
+const TICKET_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone ${COMMON_FIELDS} }`
+const TicketExportTask = generateGqlQueries('TicketExportTask', TICKET_EXPORT_TASK_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
-        result: exportTicketsToExcel(data: $data) { task ${EXPORT_TICKET_TASK_FIELDS} }
+        result: exportTicketsToExcel(data: $data) { task ${TICKET_EXPORT_TASK_FIELDS} }
     }
 `
 const GET_TICKET_WIDGET_REPORT_DATA = gql`
@@ -220,6 +220,6 @@ module.exports = {
     UserTicketCommentReadTime,
     TicketPropertyHint,
     TicketPropertyHintProperty,
-    ExportTicketTask,
+    TicketExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -31,7 +31,7 @@ const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ti
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ticket/gql')
 const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
-const { ExportTicketTask: ExportTicketTaskGQL } = require('@condo/domains/ticket/gql')
+const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { EXCEL, PROCESSING } = require('@condo/domains/common/constants/export')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -56,7 +56,7 @@ const TicketCommentsTime = generateGQLTestUtils(TicketCommentsTimeGQL)
 const UserTicketCommentReadTime = generateGQLTestUtils(UserTicketCommentReadTimeGQL)
 const TicketPropertyHint = generateGQLTestUtils(TicketPropertyHintGQL)
 const TicketPropertyHintProperty = generateGQLTestUtils(TicketPropertyHintPropertyGQL)
-const ExportTicketTask = generateGQLTestUtils(ExportTicketTaskGQL)
+const TicketExportTask = generateGQLTestUtils(TicketExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -703,7 +703,7 @@ module.exports = {
     getTicketAnalyticsReport, getTicketAnalyticsExport,
     TicketPropertyHint, createTestTicketPropertyHint, updateTestTicketPropertyHint,
     TicketPropertyHintProperty, createTestTicketPropertyHintProperty, updateTestTicketPropertyHintProperty,
-    ExportTicketTask, createTestTicketExportTask, updateTestTicketExportTask,
+    TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask,
     exportTestTicketsToExcel,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
