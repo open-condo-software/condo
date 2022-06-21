@@ -23,3 +23,6 @@
 [submodule "apps/classifiers-api"]
 	path = apps/classifiers-api
 	url = git@github.com:open-condo-software/condo-classifiers-api.git
+[submodule "apps/property_importer"]
+	path = apps/property_importer
+	url = git@github.com:open-condo-software/property_importer.git
