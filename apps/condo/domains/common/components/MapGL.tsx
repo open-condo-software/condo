@@ -10,7 +10,6 @@ import getConfig from 'next/config'
 import { DEFAULT_CENTER, MARKER_SVG_URL } from '../constants/map'
 
 const GUEST_API_KEY = 'bfd8bbca-8abf-11ea-b033-5fa57aae2de7'
-const { publicRuntimeConfig: { mapApiKey } } = getConfig()
 
 export interface IPointsOfInterest {
     title?: string,
@@ -30,6 +29,8 @@ export const MapGL: React.FC<IMapProps> = ({ points, containerCss }) => {
     const [map, setMap] = useState(null)
     const [api, setApi] = useState(null)
     const [selected, setSelected] = useState(null)
+
+    const { publicRuntimeConfig: { mapApiKey } } = getConfig()
 
     useEffect(() => {
         let handleResize
