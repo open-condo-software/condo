@@ -160,6 +160,9 @@ const buttonDefaultGradientCss = (secondary = false) => {
       & span {
         position: relative;
         z-index: 1;
+        svg {
+          fill: ${colors.black}
+        }
       }
 
       &:before {
@@ -184,13 +187,15 @@ const buttonDefaultGradientCss = (secondary = false) => {
         border: none;
         transition: background-color 0.150s;
         & span {
-          background: ${secondary ? '-webkit-linear-gradient(145deg, #4CD174 16%, #6DB8F2 100%)' : 'transparent'};
+          background: ${secondary ? '-webkit-linear-gradient(145deg, #56A9D7 16%, #6AC773 100%)' : 'transparent'};
           -webkit-background-clip: ${secondary ? 'text' : 'inherit'};
           -webkit-text-fill-color: ${secondary ? 'transparent' : 'inherit'};
+          svg {
+              fill: #4CD174;
+          }
+          
         }
-        & span svg {
-          color: ${colors.black}
-        }
+        
       }
       &:hover:not(:disabled):before,
       &:focus:not(:disabled):before {
@@ -271,8 +276,8 @@ const sberBlackCss = css`
 export const ButtonGradientBorderWrapper = styled.div`
   padding: 1px;
   background: ${colors.black};
-  border-radius: 8px;
-    :hover {
+  border-radius: 9px;
+    &:hover, &:active, &:focus {
       background: ${gradients.sberActionGradient};
     }
 `
