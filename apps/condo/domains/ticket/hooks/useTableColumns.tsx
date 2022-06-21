@@ -20,15 +20,15 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '../utils/clientSchema'
+import { TextProps } from 'antd/es/typography/Text'
 import { ITicketUIState } from '../utils/clientSchema/Ticket'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { IFilters } from '../utils/helpers'
 import {
-    getClassifierRender, getStatusRender,
+    getStatusRender,
     getTicketClientNameRender,
     getTicketDetailsRender,
     getTicketNumberRender,
-    getUnitRender,
 } from '../utils/clientSchema/Renders'
 
 const COLUMNS_WIDTH_ON_LARGER_XXL_SCREEN = {
@@ -70,6 +70,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
+    const ShortSectionNameMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
+    const ShortFloorNameMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -78,6 +80,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const { breakpoints } = useLayoutContext()
 
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
+
+    const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
     const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
@@ -92,28 +96,32 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     }, [loading, ticketStatuses])
 
     const renderClassifier = useCallback((text, record) => {
-        const placeClassifier = get(record, ['classifierRule', 'place', 'name'])
-        const postfix = `\n(${placeClassifier})`
-
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
+        
+        return function render (text, record) {
+            const placeClassifier = get(record, ['classifierRule', 'place', 'name'])            
+            const postfix = `\n(${placeClassifier})`
+    
+            return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)}
     }, [search])
 
     const renderUnit = useCallback((text, record) => {
-        const sectionName = get(record, 'sectionName')
-        const floorName = get(record, 'floorName')
-        const unitType = get(record, 'unitType', 'flat')
-        let unitNamePrefix = null
-        let extraTitle = null
-        const postfix = sectionName && floorName &&
-            `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
-        if (text) {
-            extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
-            if (unitType !== 'flat') {
-                unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
+        return function render (text, record) {
+            const sectionName = get(record, 'sectionName')
+            const floorName = get(record, 'floorName')
+            const unitType = get(record, 'unitType', 'flat')
+            let unitNamePrefix = null
+            let extraTitle = null
+            const postfix = sectionName && floorName &&
+                `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
+            if (text) {
+                extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+                if (unitType !== 'flat') {
+                    unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
+                }
             }
+            const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
+            return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS, extraTitle)(unitName)
         }
-        const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS, extraTitle)(unitName)
     }, [ShortFloorNameMessage, ShortSectionNameMessage, search])
 
     const renderAddress = useCallback(
@@ -211,7 +219,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
                 key: 'unitName',
                 sorter: true,
                 width: columnWidths.unitName,
-                render: getUnitRender(intl, search),
+                render: renderUnit(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
                 ellipsis: true,
@@ -229,12 +237,12 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             {
                 title: ClassifierTitle,
                 dataIndex: ['classifierRule', 'category', 'name'],
-                filteredValue: getFilteredValue(filters, 'categoryClassifier'),
-                key: 'categoryClassifier',
+                filteredValue: getFilteredValue(filters, ['classifierRule', 'category', 'name']),
+                key: ['classifierRule', 'category', 'name'],
                 width: columnWidths.categoryClassifier,
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'categoryClassifier'),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'categoryClassifier'), // change categoryClassifier to ['classifierRule', 'category', 'name']
                 filterIcon: getFilterIcon,
-                render: getClassifierRender(intl, search),
+                render: renderClassifier(intl, search),
                 ellipsis: true,
             },
             {
