@@ -18295,6 +18295,7 @@ export type Mutation = {
    *     "data",
    *     "confirmPhoneActionToken"
    *   ],
+   *   "code": "BAD_USER_INPUT",
    *   "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
    *   "message": "Unable to find confirm phone action",
    *   "messageForUser": "api.user.registerNewUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
@@ -18322,10 +18323,22 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_FORMAT",
    *   "message": "Password length is less then {min} characters",
-   *   "messageForUser": "api.user.registerNewUser.PASSWORD_IS_TOO_SHORT",
+   *   "messageForUser": "api.user.PASSWORD_IS_TOO_SHORT",
    *   "messageInterpolation": {
    *     "min": 8
    *   }
+   * }`
+   *
+   * `{
+   *   "mutation": "registerNewUser",
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_VALUE",
+   *   "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
+   *   "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
    * }`
    *
    * `{
@@ -18426,10 +18439,22 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "PASSWORD_IS_TOO_SHORT",
    *   "message": "Password length is less then {min} characters",
-   *   "messageForUser": "api.user.changePasswordWithToken.PASSWORD_IS_TOO_SHORT",
+   *   "messageForUser": "api.user.PASSWORD_IS_TOO_SHORT",
    *   "messageInterpolation": {
    *     "min": 8
    *   }
+   * }`
+   *
+   * `{
+   *   "mutation": "changePasswordWithToken",
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_VALUE",
+   *   "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
+   *   "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
    * }`
    *
    * `{
@@ -19391,6 +19416,49 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"meterId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"METER_SUBMIT_READINGS_REMINDER": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"meterId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"METER_VERIFICATION_DATE_EXPIRED": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"meterId": {
+   * 				"required": true
+   * 			},
+   * 			"resource": {
    * 				"required": true
    * 			},
    * 			"userId": {
@@ -33602,6 +33670,8 @@ export enum SendMessageType {
   TicketStatusDeclined = 'TICKET_STATUS_DECLINED',
   TicketCommentAdded = 'TICKET_COMMENT_ADDED',
   MeterVerificationDateReminder = 'METER_VERIFICATION_DATE_REMINDER',
+  MeterSubmitReadingsReminder = 'METER_SUBMIT_READINGS_REMINDER',
+  MeterVerificationDateExpired = 'METER_VERIFICATION_DATE_EXPIRED',
   BillingReceiptAvailable = 'BILLING_RECEIPT_AVAILABLE',
   BillingReceiptAvailableNoAccount = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT',
   ResidentAddBillingAccount = 'RESIDENT_ADD_BILLING_ACCOUNT'
