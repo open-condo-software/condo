@@ -1,5 +1,6 @@
-const { isNull, get } = require('lodash')
-const { ExportTicketTask, TicketStatus } = require('../utils/serverSchema')
+const get = require('lodash/get')
+const isNull = require('lodash/isNull')
+const { TicketExportTask, TicketStatus } = require('../utils/serverSchema')
 const { PROCESSING } = require('@condo/domains/common/constants/export')
 const { exportRecords } = require('@condo/domains/common/utils/serverSchema/export')
 const { createTask } = require('@core/keystone/tasks')
@@ -176,9 +177,9 @@ const buildExportFile = async ({ rows, task, idOfFirstTicketForAccessRights }) =
 
 const exportTickets = async (taskId) => {
     if (!taskId) throw new Error('taskId is undefined')
-    const { keystone: context } = await getSchemaCtx('ExportTicketTask')
+    const { keystone: context } = await getSchemaCtx('TicketExportTask')
 
-    const task = await ExportTicketTask.getOne(context, { id: taskId })
+    const task = await TicketExportTask.getOne(context, { id: taskId })
 
     const statuses = await TicketStatus.getAll(context, {})
     const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
@@ -197,7 +198,7 @@ const exportTickets = async (taskId) => {
         convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses }),
         buildExportFile: (rows) => buildExportFile({ rows, task, idOfFirstTicketForAccessRights }),
         task,
-        taskServerUtils: ExportTicketTask,
+        taskServerUtils: TicketExportTask,
     })
 }
 
@@ -209,12 +210,12 @@ const exportTicketsTask = createTask('exportTickets', async (taskId) => {
  * Creates an export task, starts delayed export job and returns task
  *
  * @param context - Keystone context
- * @param taskArgs - arguments that will be saved into ExportTicketTask
+ * @param taskArgs - arguments that will be saved into TicketExportTask
  * @return {Promise<*>}
  */
 async function startExportTicketsTask (context, user, taskArgs) {
     const { dv, sender, format, where, sortBy, locale, timeZone } = taskArgs
-    const task = await ExportTicketTask.create(context,  {
+    const task = await TicketExportTask.create(context,  {
         dv,
         sender,
         user: { connect: { id: user.id } },
