@@ -12474,7 +12474,7 @@ export type ExportTicketTask = {
   exportedRecordsCount?: Maybe<Scalars['Int']>;
   /**  Total records to export. Can be unknown due to implementation specifics  */
   totalRecordsCount?: Maybe<Scalars['Int']>;
-  /**  Link to exported file  */
+  /**  Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.  */
   file?: Maybe<File>;
   /**  Stores information about query and ids of exported and failed records  */
   meta?: Maybe<Scalars['JSON']>;
