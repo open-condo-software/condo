@@ -1,20 +1,23 @@
+const { flatten, uniq } = require('lodash')
+
 const conf = require('@core/config')
+
+const { getStartDates } = require('@condo/domains/common/utils/date')
 
 const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
 
 const { Message, Device } = require('@condo/domains/notification/utils/serverSchema')
 const {
-    RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
-    MESSAGE_SENT_STATUS, MESSAGE_DELIVERED_STATUS, MESSAGE_READ_STATUS,
+    RESIDENT_ADD_BILLING_ACCOUNT_TYPE, MESSAGE_SENT_STATUS,
+    MESSAGE_DELIVERED_STATUS, MESSAGE_READ_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
-const { getUniqueByField, getConnectionsMapping, getStartDates } = require('./lib/helpers')
 const { BillingContextScriptCore, prepareAndProceed } = require('./lib/billing-context-script-core')
-const { flatten, uniq } = require('lodash')
+const { getUniqueByField, getConnectionsMapping } = require('../lib/helpers')
 
 /**
  This script sends push notifications to all users who are:

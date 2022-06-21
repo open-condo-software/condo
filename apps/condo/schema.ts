@@ -19460,6 +19460,47 @@ export type Mutation = {
    * 			}
    * 		}
    * 	},
+   * 	"METER_VERIFICATION_DATE_REMINDER": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"reminderDate": {
+   * 				"required": true
+   * 			},
+   * 			"meterId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RESIDENT_ADD_BILLING_ACCOUNT": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"residentIds": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
    * 	"BILLING_RECEIPT_AVAILABLE": {
    * 		"dv": {
    * 			"required": true
@@ -19507,44 +19548,116 @@ export type Mutation = {
    * 			}
    * 		}
    * 	},
-   * 	"RESIDENT_ADD_BILLING_ACCOUNT": {
+   * 	"BILLING_RECEIPT_ADDED": {
    * 		"dv": {
+   * 			"defaultValue": "",
    * 			"required": true
    * 		},
    * 		"data": {
-   * 			"userId": {
-   * 				"required": true
-   * 			},
-   * 			"url": {
-   * 				"required": true
-   * 			},
    * 			"residentId": {
-   * 				"required": true
-   * 			},
-   * 			"residentIds": {
-   * 				"required": true
-   * 			}
-   * 		}
-   * 	},
-   * 	"METER_VERIFICATION_DATE_REMINDER": {
-   * 		"dv": {
-   * 			"required": true
-   * 		},
-   * 		"data": {
-   * 			"reminderDate": {
-   * 				"required": true
-   * 			},
-   * 			"meterId": {
+   * 				"defaultValue": "",
    * 				"required": true
    * 			},
    * 			"userId": {
-   * 				"required": true
-   * 			},
-   * 			"residentId": {
+   * 				"defaultValue": "",
    * 				"required": true
    * 			},
    * 			"url": {
    * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"billingReceiptId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"billingAccountId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"billingPropertyId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"period": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"BILLING_RECEIPT_ADDED_WITH_DEBT": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"residentId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"billingReceiptId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"billingAccountId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"billingPropertyId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"period": {
+   * 				"required": true
+   * 			},
+   * 			"category": {
+   * 				"required": true
+   * 			},
+   * 			"toPay": {
+   * 				"required": true
+   * 			},
+   * 			"currencyCode": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"BILLING_RECEIPT_ADDED_WITH_NO_DEBT": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"residentId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"billingReceiptId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"billingAccountId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"billingPropertyId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"period": {
    * 				"required": true
    * 			}
    * 		}
@@ -34652,9 +34765,12 @@ export enum SendMessageType {
   MeterVerificationDateReminder = 'METER_VERIFICATION_DATE_REMINDER',
   MeterSubmitReadingsReminder = 'METER_SUBMIT_READINGS_REMINDER',
   MeterVerificationDateExpired = 'METER_VERIFICATION_DATE_EXPIRED',
+  ResidentAddBillingAccount = 'RESIDENT_ADD_BILLING_ACCOUNT',
   BillingReceiptAvailable = 'BILLING_RECEIPT_AVAILABLE',
   BillingReceiptAvailableNoAccount = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT',
-  ResidentAddBillingAccount = 'RESIDENT_ADD_BILLING_ACCOUNT'
+  BillingReceiptAdded = 'BILLING_RECEIPT_ADDED',
+  BillingReceiptAddedWithDebt = 'BILLING_RECEIPT_ADDED_WITH_DEBT',
+  BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT'
 }
 
 export type SenderField = {
@@ -49538,6 +49654,7 @@ export type ResidentOrganization = {
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
+  country?: Maybe<Scalars['String']>;
 };
 
 export type UnauthenticateUserOutput = {

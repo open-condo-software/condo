@@ -32,9 +32,12 @@ const TICKET_COMMENT_ADDED_TYPE = 'TICKET_COMMENT_ADDED'
 const METER_VERIFICATION_DATE_REMINDER_TYPE = 'METER_VERIFICATION_DATE_REMINDER'
 const METER_SUBMIT_READINGS_REMINDER_TYPE = 'METER_SUBMIT_READINGS_REMINDER'
 const METER_VERIFICATION_DATE_EXPIRED_TYPE = 'METER_VERIFICATION_DATE_EXPIRED'
+const RESIDENT_ADD_BILLING_ACCOUNT_TYPE = 'RESIDENT_ADD_BILLING_ACCOUNT'
 const BILLING_RECEIPT_AVAILABLE_TYPE = 'BILLING_RECEIPT_AVAILABLE'
 const BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT'
-const RESIDENT_ADD_BILLING_ACCOUNT_TYPE = 'RESIDENT_ADD_BILLING_ACCOUNT'
+const BILLING_RECEIPT_ADDED_TYPE = 'BILLING_RECEIPT_ADDED'
+const BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_DEBT'
+const BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -57,9 +60,12 @@ const MESSAGE_TYPES = [
     METER_VERIFICATION_DATE_REMINDER_TYPE,
     METER_SUBMIT_READINGS_REMINDER_TYPE,
     METER_VERIFICATION_DATE_EXPIRED_TYPE,
+    RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
     BILLING_RECEIPT_AVAILABLE_TYPE,
     BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
-    RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
+    BILLING_RECEIPT_ADDED_TYPE,
+    BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
+    BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
 ]
 
 /**
@@ -74,7 +80,7 @@ const MESSAGE_TYPES_TRANSPORTS = {
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
-//todo: maybe we should to gather all data about messages types in the single object
+//TODO: maybe we should gather all data about messages types in the single object
 //TODO(DOMA-2778) add recursive validation for internal objects like [TICKET_EXECUTOR_CONNECTED_TYPE].data
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
@@ -208,6 +214,25 @@ const MESSAGE_META = {
             residentId: { defaultValue: '', required: true },
         },
     },
+    [METER_VERIFICATION_DATE_REMINDER_TYPE]: {
+        dv: { required: true },
+        data: {
+            reminderDate: { required: true },
+            meterId: { required: true },
+            userId: { required: true },
+            residentId: { required: true },
+            url: { required: true },
+        },
+    },
+    [RESIDENT_ADD_BILLING_ACCOUNT_TYPE]: {
+        dv: { required: true },
+        data: {
+            userId: { required: true },
+            url: { required: true },
+            residentId: { required: true },
+            residentIds: { required: true },
+        },
+    },
     [BILLING_RECEIPT_AVAILABLE_TYPE]: {
         dv: { required: true },
         data: {
@@ -226,26 +251,47 @@ const MESSAGE_META = {
             url: { required: true },
             residentId: { required: true },
             residentIds: { required: true },
+            propertyId: { required: true },
             period: { required: true },
         },
     },
-    [RESIDENT_ADD_BILLING_ACCOUNT_TYPE]: {
-        dv: { required: true },
+    [BILLING_RECEIPT_ADDED_TYPE]: {
+        dv: { defaultValue: '', required: true },
         data: {
-            userId: { required: true },
-            url: { required: true },
-            residentId: { required: true },
-            residentIds: { required: true },
+            residentId: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
+            billingReceiptId: { defaultValue: '', required: true },
+            billingAccountId: { defaultValue: '', required: true },
+            billingPropertyId: { defaultValue: '', required: true },
+            period: { required: true },
         },
     },
-    [METER_VERIFICATION_DATE_REMINDER_TYPE]: {
-        dv: { required: true },
+    [BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE]: {
+        dv: { defaultValue: '', required: true },
         data: {
-            reminderDate: { required: true },
-            meterId: { required: true },
-            userId: { required: true },
-            residentId: { required: true },
+            residentId: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            billingReceiptId: { defaultValue: '', required: true },
+            billingAccountId: { defaultValue: '', required: true },
+            billingPropertyId: { defaultValue: '', required: true },
+            period: { required: true },
+            category: { required: true },
+            toPay: { required: true },
+            currencyCode: { required: true },
+        },
+    },
+    [BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            residentId: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
+            billingReceiptId: { defaultValue: '', required: true },
+            billingAccountId: { defaultValue: '', required: true },
+            billingPropertyId: { defaultValue: '', required: true },
+            period: { required: true },
         },
     },
     [METER_SUBMIT_READINGS_REMINDER_TYPE]: {
@@ -356,4 +402,7 @@ module.exports = {
     BILLING_RECEIPT_AVAILABLE_TYPE,
     BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
     RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
+    BILLING_RECEIPT_ADDED_TYPE,
+    BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
+    BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
 }

@@ -13,12 +13,11 @@ const {
     RESEND_MESSAGE,
     Device: DeviceGQL,
     SYNC_DEVICE_MUTATION,
+    DISCONNECT_USER_FROM_DEVICE_MUTATION,
+    SET_MESSAGE_STATUS_MUTATION,
 } = require('@condo/domains/notification/gql')
-
 const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
 
-const { DISCONNECT_USER_FROM_DEVICE_MUTATION } = require('@condo/domains/notification/gql')
-const { SET_MESSAGE_STATUS_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)

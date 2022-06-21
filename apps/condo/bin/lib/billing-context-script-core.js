@@ -2,6 +2,7 @@ const dayjs = require('dayjs')
 const { get, isEmpty } = require('lodash')
 
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
+const { getMonthStart } = require('@condo/domains/common/utils/date')
 
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 
@@ -12,7 +13,6 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const { EXEC_COMMAND, BASE_NAME, MAX_SEND_COUNT, FORCE_SEND, DATE_FORMAT } = require('./constants')
-const { getMonthStart } = require('./helpers')
 const { ScriptCore, runFnWithArgs } = require('./script-core')
 
 class BillingContextScriptCore extends ScriptCore {

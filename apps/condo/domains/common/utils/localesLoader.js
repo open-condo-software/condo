@@ -4,6 +4,9 @@ const process = require('process')
 const conf = require('@core/config')
 const { get, template, isEmpty } = require('lodash')
 
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+
 const VARIABLE_REGEXP = /{([\s\S]+?)}/g
 
 let translations = {}
@@ -11,6 +14,7 @@ let translations = {}
 const loadTranslations = () => {
     const translationsDir = path.join(process.cwd(), 'lang')
     const localeFolders = fs.readdirSync(translationsDir)
+
     translations = localeFolders
         .map(languageCode => ({
             [languageCode]: require(path.join(translationsDir, `${languageCode}/${languageCode}.json`)),
@@ -19,18 +23,18 @@ const loadTranslations = () => {
 }
 
 const maybeLoadTranslations = () => {
-    if (isEmpty(translations)) {
-        loadTranslations()
-    }
+    if (isEmpty(translations)) loadTranslations()
 }
 
 const getTranslations = (lang = conf.DEFAULT_LOCALE) => {
     maybeLoadTranslations()
+
     return translations[lang] || translations[conf.DEFAULT_LOCALE]
 }
 
 const getAvailableLocales = () => {
     maybeLoadTranslations()
+
     return Object.keys(translations)
 }
 
@@ -59,10 +63,13 @@ const getLocalized = (lang, key) => {
  * // => "Hello, World!"
  */
 const i18n = (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) => {
-    maybeLoadTranslations()
     const { locale, meta } = options
+
+    maybeLoadTranslations()
+
     return template(get(translations, [locale, code], code), { interpolate: VARIABLE_REGEXP })(meta)
 }
+
 
 module.exports = {
     getTranslations,

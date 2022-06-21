@@ -1,4 +1,3 @@
-
 const { getItems } = require('@keystonejs/server-side-graphql-client')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const GLOBAL_QUERY_LIMIT = 1000
@@ -90,6 +89,7 @@ class GqlWithKnexLoadList {
         return Object.values(merged)
     }
 }
+
 // Simple way to load all models
 const loadListByChunks = async ({
     context,
@@ -99,6 +99,8 @@ const loadListByChunks = async ({
     chunkSize = 100,
     limit = 100000,
 }) => {
+    if (chunkSize < 1 || limit < 1) throw new Error('Both chunkSize and limit should be > 0')
+    if (chunkSize > 100) chunkSize = 100
     let skip = 0
     let maxiterationsCount = Math.ceil(limit / chunkSize)
     let newchunk = []
@@ -110,7 +112,6 @@ const loadListByChunks = async ({
     } while (--maxiterationsCount > 0 && newchunk.length)
     return all
 }
-
 
 module.exports = {
     GqlWithKnexLoadList,

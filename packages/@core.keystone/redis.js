@@ -16,11 +16,13 @@ const redisLogger = pino({ name: 'redis', enabled: falsey(conf.DISABLE_LOGGING) 
  * @return {import('ioredis')}
  */
 function getRedisClient (name = 'default', purpose = 'regular', opts = {}) {
+    const clientKey = name + ':' + purpose
+
     redisLogger.info({ message: 'getRedisClient', name, purpose, opts })
+
     if (!name) throw new Error('getRedisClient() without client name')
     if (typeof name !== 'string') throw new Error('getRedisClient() name is not a string')
     if (typeof purpose !== 'string') throw new Error('getRedisClient() purpose is not a string')
-    const clientKey = name + ':' + purpose
     if (!REDIS_CLIENTS[clientKey]) {
         const redisEnvName = `${name.toUpperCase()}_REDIS_URL`
         const redisUrl = conf[redisEnvName] || conf.REDIS_URL
@@ -33,6 +35,7 @@ function getRedisClient (name = 'default', purpose = 'regular', opts = {}) {
         client.on('end', () => redisLogger.error({ eventName: 'end', name, purpose }))
         REDIS_CLIENTS[clientKey] = client
     }
+
     return REDIS_CLIENTS[clientKey]
 }
 
