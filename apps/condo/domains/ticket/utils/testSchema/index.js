@@ -29,7 +29,7 @@ const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
 const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
-const { ExportTicketTask: ExportTicketTaskGQL } = require('@condo/domains/ticket/gql')
+const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { EXCEL, PROCESSING } = require('@condo/domains/common/constants/export')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -52,7 +52,7 @@ const TicketFilterTemplate = generateGQLTestUtils(TicketFilterTemplateGQL)
 const TicketCommentFile = generateGQLTestUtils(TicketCommentFileGQL)
 const TicketCommentsTime = generateGQLTestUtils(TicketCommentsTimeGQL)
 const UserTicketCommentReadTime = generateGQLTestUtils(UserTicketCommentReadTimeGQL)
-const ExportTicketTask = generateGQLTestUtils(ExportTicketTaskGQL)
+const TicketExportTask = generateGQLTestUtils(TicketExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -543,7 +543,7 @@ async function getTicketAnalyticsExport(client, extraAttrs = {}) {
     return [data.result, extraAttrs]
 }
 
-async function createTestExportTicketTask (client, user, extraAttrs = {}) {
+async function createTestTicketExportTask (client, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -559,11 +559,11 @@ async function createTestExportTicketTask (client, user, extraAttrs = {}) {
         user: { connect: { id: user.id } },
         ...extraAttrs,
     }
-    const obj = await ExportTicketTask.create(client, attrs)
+    const obj = await TicketExportTask.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestExportTicketTask (client, id, extraAttrs = {}) {
+async function updateTestTicketExportTask (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -573,7 +573,7 @@ async function updateTestExportTicketTask (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await ExportTicketTask.update(client, id, attrs)
+    const obj = await TicketExportTask.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -633,7 +633,7 @@ module.exports = {
     UserTicketCommentReadTime, createTestUserTicketCommentReadTime, updateTestUserTicketCommentReadTime,
     getTicketReport,
     getTicketAnalyticsReport, getTicketAnalyticsExport,
-    ExportTicketTask, createTestExportTicketTask, updateTestExportTicketTask,
+    TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask,
     exportTestTicketsToExcel,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

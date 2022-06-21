@@ -17,5 +17,5 @@ export * as TicketFilterTemplate from './TicketFilterTemplate'
 export * as TicketCommentFile from './TicketCommentFile'
 export * as TicketCommentsTime from './TicketCommentsTime'
 export * as UserTicketCommentReadTime from './UserTicketCommentReadTime'
-export * as ExportTicketTask from './ExportTicketTask'
+export * as TicketExportTask from './TicketExportTask'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

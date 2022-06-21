@@ -11,7 +11,7 @@ const {
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { exportTickets } = require('./exportTicketsTask')
-const { createTestExportTicketTask, ExportTicketTask } = require('../utils/testSchema')
+const { createTestTicketExportTask, TicketExportTask } = require('../utils/testSchema')
 const { PROCESSING, EXCEL } = require('@condo/domains/common/constants/export')
 
 const index = require('../../../index')
@@ -32,7 +32,7 @@ describe('exportTicketsTask', () => {
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
             await createTestTicket(userClient, organization, property)
-            const [task] = await createTestExportTicketTask(adminClient, userClient.user, {
+            const [task] = await createTestTicketExportTask(adminClient, userClient.user, {
                 format: EXCEL,
                 where: {
                     organization: { id: organization.id },
@@ -45,7 +45,7 @@ describe('exportTicketsTask', () => {
 
             await exportTickets(task.id)
 
-            const updatedTask = await ExportTicketTask.getOne(userClient, { id: task.id })
+            const updatedTask = await TicketExportTask.getOne(userClient, { id: task.id })
             expect(updatedTask.file).toBeDefined()
             expect(updatedTask.file).not.toBeNull()
             expect(updatedTask.exportedRecordsCount).toEqual(1)

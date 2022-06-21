@@ -23,7 +23,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
         },
         {
             access: true,
-            type: 'type ExportTicketsToExcelOutput { task: ExportTicketTask }',
+            type: 'type ExportTicketsToExcelOutput { task: TicketExportTask }',
         },
     ],
     queries: [
