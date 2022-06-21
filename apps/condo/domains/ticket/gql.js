@@ -138,7 +138,7 @@ const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
     }
 `
 
-const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors { primary secondary additional } } classifier { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid isWarranty source { id name type } id dv sender { dv fingerprint } v deletedAt newId createdAt updatedAt }`
+const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors { primary secondary additional } } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid isWarranty source { id name type } id dv sender { dv fingerprint } v deletedAt newId createdAt updatedAt }`
 
 // Actually there is no `ResidentTicket` Keystone schema presented.
 // Here we will get a set of declarations of GraphQL mutation query strings for CRUD operations.
