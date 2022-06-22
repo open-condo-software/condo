@@ -181,7 +181,7 @@ const UserTicketCommentReadTime = generateGqlQueries('UserTicketCommentReadTime'
 const TICKET_HINT_FIELDS = `{ organization { id name } name content ${COMMON_FIELDS} }`
 const TicketHint = generateGqlQueries('TicketHint', TICKET_HINT_FIELDS)
 
-const TICKET_HINT_PROPERTY_FIELDS = `{ organization { id } ticketHint { id } property { id } ${COMMON_FIELDS} }`
+const TICKET_HINT_PROPERTY_FIELDS = `{ organization { id } ticketHint { id } property { ${TICKET_PROPERTY_FIELDS} } ${COMMON_FIELDS} }`
 const TicketHintProperty = generateGqlQueries('TicketHintProperty', TICKET_HINT_PROPERTY_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

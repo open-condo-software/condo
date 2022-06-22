@@ -15,7 +15,7 @@ const RELATIONS = ['organization', 'ticketHint', 'property']
 
 export interface ITicketHintPropertyUIState extends TicketHintProperty {
     id: string
-    // TODO(codegen): write ITicketHintPropertyUIState or extends it from
+    address: string
 }
 
 function convertToUIState (item: TicketHintProperty): ITicketHintPropertyUIState {
@@ -24,8 +24,10 @@ function convertToUIState (item: TicketHintProperty): ITicketHintPropertyUIState
 }
 
 export interface ITicketHintPropertyFormState {
-    id?: undefined
-    // TODO(codegen): write ITicketHintPropertyUIFormState or extends it from
+    id?: string
+    organization?: string
+    ticketHint?: string
+    property?: string
 }
 
 function convertToUIFormState (state: ITicketHintPropertyUIState): ITicketHintPropertyFormState | undefined {
@@ -54,6 +56,7 @@ const {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
 } = generateReactHooks<TicketHintProperty, TicketHintPropertyUpdateInput, ITicketHintPropertyFormState, ITicketHintPropertyUIState, QueryAllTicketHintPropertiesArgs>(TicketHintPropertyGQL, { convertToGQLInput, convertToUIState })
 
 export {
@@ -62,5 +65,6 @@ export {
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
     convertToUIFormState,
 }

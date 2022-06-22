@@ -1,6 +1,6 @@
 import { Alert, Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { flatten, get, isEmpty } from 'lodash'
+import { differenceWith, flatten, get, isEmpty } from 'lodash'
 import getConfig from 'next/config'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
@@ -18,7 +18,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 import { searchOrganizationProperty } from '../../utils/clientSchema/search'
 import { Property } from '../../../property/utils/clientSchema'
-import { TicketHint } from '../../utils/clientSchema'
+import { TicketHint, TicketHintProperty } from '../../utils/clientSchema'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -107,34 +107,58 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
         properties: [requiredValidator],
         content: [requiredValidator],
     }
+
+    const [editorValue, setEditorValue] = useState('')
+    const [editorLoading, setEditorLoading] = useState(true)
+
+    const initialContent = useMemo(() => get(initialValues, 'content'), [initialValues])
+
     const { objs: properties, loading: propertiesLoading } = Property.useObjects({
         where: {
             organization: { id: organizationId },
         },
     })
-    const { objs: ticketHints, loading: hintsLoading } = TicketHint.useObjects({
+    const { objs: organizationTicketHintProperties, loading: organizationTicketHintPropertiesLoading } = TicketHintProperty.useObjects({
         where: {
             organization: { id: organizationId },
         },
     })
+    const createTicketHintPropertyAction = TicketHintProperty.useCreate({ organization: organizationId }, () => Promise.resolve())
+    const softDeleteTicketHintPropertyAction = TicketHintProperty.useSoftDelete({}, () => Promise.resolve())
 
-    const [editorValue, setEditorValue] = useState('')
+    const initialProperties = useMemo(() => {
+        const initialTicketHintId = get(initialValues, 'id')
+
+        return initialTicketHintId ?
+            organizationTicketHintProperties
+                .filter(ticketHintProperty => ticketHintProperty.ticketHint.id === initialTicketHintId)
+                .map(ticketHintProperty => ticketHintProperty.property) : []
+    }, [initialValues, organizationTicketHintProperties])
+
+    const initialPropertyIds = useMemo(() => {
+        return initialProperties.map(property => property.id)
+    }, [initialProperties])
+
+    const propertiesWithTicketHint = useMemo(() => {
+        const propertyIds = organizationTicketHintProperties.map(ticketHintProperty => ticketHintProperty.property.id)
+
+        return properties.filter(property => propertyIds.includes(property.id))
+    }, [organizationTicketHintProperties, properties])
+
+    const propertiesWithoutTicketHint = useMemo(() => properties.filter(property => !propertiesWithTicketHint.includes(property)),
+        [properties, propertiesWithTicketHint])
+
+    const options = useMemo(() =>
+        [...propertiesWithoutTicketHint, ...initialProperties] // тут было propertiesWithoutTicketHint
+            .map(property => ({ label: property.address, value: property.id })),
+    [initialProperties, propertiesWithoutTicketHint])
+    const optionValues = useMemo(() => options.map(option => option.value),
+        [options])
 
     const handleEditorChange = useCallback((newValue, form) => {
         setEditorValue(newValue)
         form.setFieldsValue({ content: newValue })
     }, [])
-
-    const propertiesWithTicketHint = useMemo(() => flatten(ticketHints.map(hint => hint.properties.map(property => property.id))),
-        [ticketHints])
-    const propertiesWithoutTicketHint = useMemo(() =>  properties.filter(property => !propertiesWithTicketHint.includes(property.id)),
-        [properties, propertiesWithTicketHint])
-    const options = useMemo(() =>
-        propertiesWithoutTicketHint
-            .map(property => ({ label: property.address, value: property.id })),
-    [propertiesWithoutTicketHint])
-    const optionValues = useMemo(() => options.map(option => option.value),
-        [options])
 
     const handleCheckboxChange = useCallback((e, form) => {
         const checkboxValue = e.target.checked
@@ -146,27 +170,48 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
         }
     }, [optionValues])
 
-    const PropertiesSelect = useMemo(() => mode === 'create' ? (
-        <Select
-            options={options}
-            mode={'multiple'}
-            disabled={!organizationId}
-        />
-    ) : (
-        <GraphQlSearchInput
-            disabled={!organizationId}
-            search={searchOrganizationProperty(organizationId)}
-            showArrow={false}
-            mode="multiple"
-            infinityScroll
-            initialValue={get(initialValues, ['initialValues', 'properties'], [])}
-        />
-    ), [initialValues, mode, options, organizationId])
-
-    const [editorLoading, setEditorLoading] = useState(true)
     const handleEditorLoad = useCallback(() => setEditorLoading(false), [])
 
-    if (propertiesLoading || hintsLoading) {
+    const handleFormSubmit = useCallback(async (values) => {
+        // Если нет такого ticketHint, то есть нет initialValues.id =>
+        // 1. Создать ticketHintProperty
+        // 2. Для массива properties из формы, для каждого propertyId создать TicketHintProperty
+        //
+        // Если есть ticketHint, то обновить его name и content и
+        // 1. Если преданного в properties propertyId нет в initialPropertyIds, то создать ticketHintProperty
+        // 2. Если в initialPropertyIds есть какой-то propertyId, которого нет в property, то удалить этот ticketHintProperty
+
+        const { properties, ...otherValues } = values
+        const ticketHint = await action(otherValues)
+
+        const initialTicketHintId = get(initialValues, 'id')
+
+        if (!initialTicketHintId) {
+            for (const propertyId of properties) {
+                await createTicketHintPropertyAction({ ticketHint: ticketHint.id, property: propertyId })
+            }
+        } else {
+            for (const propertyId of properties) {
+                if (!initialPropertyIds.includes(propertyId)) {
+                    await createTicketHintPropertyAction({ ticketHint: ticketHint.id, property: propertyId })
+                }
+            }
+
+            for (const initialPropertyId of initialPropertyIds) {
+                if (!properties.includes(initialPropertyId)) {
+                    const ticketHintProperty = organizationTicketHintProperties
+                        .find(
+                            ticketHintProperty => ticketHintProperty.property.id === initialPropertyId &&
+                                ticketHintProperty.ticketHint.id === initialTicketHintId
+                        )
+
+                    await softDeleteTicketHintPropertyAction({}, ticketHintProperty)
+                }
+            }
+        }
+    }, [action, createTicketHintPropertyAction, initialPropertyIds, initialValues, organizationTicketHintProperties, softDeleteTicketHintPropertyAction])
+
+    if (propertiesLoading || organizationTicketHintPropertiesLoading) {
         return (
             <Loader fill size={'large'}/>
         )
@@ -184,7 +229,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
             <Col span={24}>
                 <FormWithAction
                     initialValues={initialValues}
-                    action={action}
+                    action={handleFormSubmit}
                     {...LAYOUT}
                 >
                     {({ handleSave, isLoading, form }) => (
@@ -201,7 +246,13 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                             required
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            {PropertiesSelect}
+                                            <Select
+                                                // @ts-ignore
+                                                defaultValue={initialPropertyIds}
+                                                options={options}
+                                                mode={'multiple'}
+                                                disabled={!organizationId}
+                                            />
                                         </Form.Item>
                                     </Col>
                                     {
@@ -247,7 +298,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                             disabled={!organizationId}
                                             value={editorValue}
                                             onEditorChange={(newValue) => handleEditorChange(newValue, form)}
-                                            initialValue={initialValues.content}
+                                            initialValue={initialContent}
                                             init={EDITOR_INIT_VALUES}
                                         />
                                     </Col>
