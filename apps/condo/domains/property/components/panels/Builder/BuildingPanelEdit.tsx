@@ -5,6 +5,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
+import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { useIntl } from '@core/next/intl'
@@ -863,7 +864,6 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     )
 }
 
-const IS_NUMERIC_REGEXP = /^\d+$/
 const BUTTON_SPACE_SIZE = 28
 
 const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
@@ -917,10 +917,10 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
 
     useEffect(() => {
         if (label && floor && section && unitType && mode === 'addUnit') {
-            builder.addPreviewUnit({ id: '', label, floor, section, unitType })
+            builder.addPreviewUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
             refresh()
         } else {
-            builder.removePreviewUnit()
+            builder.removePreviewUnit(renameNextUnits.current)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [label, floor, section, mode, unitType])
@@ -947,7 +947,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedUnit()
-        builder.removeUnit(mapUnit.id, IS_NUMERIC_REGEXP.test(mapUnit.label) || renameNextUnits.current)
+        builder.removeUnit(mapUnit.id, NUMERIC_REGEXP.test(mapUnit.label) || renameNextUnits.current)
         refresh()
         resetForm()
     }, [resetForm, refresh, builder])
@@ -1381,10 +1381,10 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     useEffect(() => {
         if (label && floor && section && mode === 'addParkingUnit') {
-            builder.addPreviewParkingUnit({ id: '', label, floor, section })
+            builder.addPreviewParkingUnit({ id: '', label, floor, section }, renameNextUnits.current)
             refresh()
         } else {
-            builder.removePreviewParkingUnit()
+            builder.removePreviewParkingUnit(renameNextUnits.current)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [label, floor, section, mode])
@@ -1411,7 +1411,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedParkingUnit()
-        builder.removeParkingUnit(mapUnit.id, IS_NUMERIC_REGEXP.test(mapUnit.label) || renameNextUnits.current)
+        builder.removeParkingUnit(mapUnit.id, NUMERIC_REGEXP.test(mapUnit.label) || renameNextUnits.current)
         refresh()
         resetForm()
     }, [resetForm, refresh, builder])

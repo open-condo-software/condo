@@ -9,6 +9,7 @@ import {
     BuildingFloorType, BuildingSectionType, BuildingMapType,
 } from '@app/condo/schema'
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
+import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
 import Ajv from 'ajv'
 import cloneDeep from 'lodash/cloneDeep'
 import compact from 'lodash/compact'
@@ -665,9 +666,9 @@ class MapEdit extends MapView {
         return this.selectedParkingUnit && this.selectedParkingUnit.id === id
     }
 
-    public removePreviewParkingUnit (): void {
+    public removePreviewParkingUnit (renameNextUnits = true): void {
         if (this.previewParkingUnitId) {
-            this.removeParkingUnit(this.previewParkingUnitId, false)
+            this.removeParkingUnit(this.previewParkingUnitId, renameNextUnits)
             this.previewParkingUnitId = null
         }
     }
@@ -697,9 +698,9 @@ class MapEdit extends MapView {
         }
     }
 
-    public removePreviewUnit (): void {
+    public removePreviewUnit (renameNextUnits = true): void {
         if (this.previewUnitId) {
-            this.removeUnit(this.previewUnitId, false)
+            this.removeUnit(this.previewUnitId, renameNextUnits)
             this.previewUnitId = null
         }
     }
@@ -927,8 +928,8 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public addPreviewUnit (unit: Partial<BuildingUnitArg>): void {
-        this.removePreviewUnit()
+    public addPreviewUnit (unit: Partial<BuildingUnitArg>, renameNextUnits = true): void {
+        this.removePreviewUnit(renameNextUnits)
         const { id, section, floor, label, unitType } = unit
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === section)
         if (sectionIndex === -1) {
@@ -953,8 +954,8 @@ class MapEdit extends MapView {
         this.previewUnitId = newUnit.id
     }
 
-    public addPreviewParkingUnit (unit: Partial<BuildingUnitArg>): void {
-        this.removePreviewParkingUnit()
+    public addPreviewParkingUnit (unit: Partial<BuildingUnitArg>, renameNextUnits = true): void {
+        this.removePreviewParkingUnit(renameNextUnits)
         const { id, section, floor, label } = unit
         const sectionIndex = this.map.parking.findIndex(mapSection => mapSection.id === section)
         if (sectionIndex === -1) {
@@ -1045,9 +1046,10 @@ class MapEdit extends MapView {
             if (floorUnits.length === 0) {
                 this.removeFloor(unitIndex.section, unitIndex.floor)
             }
-            if (nextUnit) {
+
+            if (nextUnit && NUMERIC_REGEXP.test(removedUnit.label) && renameNextUnits && !removedUnit.preview) {
                 nextUnit.label = removedUnit.label
-                if (renameNextUnits) this.updateUnitNumbers(nextUnit)
+                this.updateUnitNumbers(nextUnit)
             }
         }
         this.selectedUnit = null
@@ -1064,9 +1066,9 @@ class MapEdit extends MapView {
             if (floorUnits.length === 0) {
                 this.removeParkingFloor(unitIndex.parking, unitIndex.floor)
             }
-            if (nextUnit) {
+            if (nextUnit && NUMERIC_REGEXP.test(removedUnit.label) && renameNextUnits && !removedUnit.preview) {
                 nextUnit.label = removedUnit.label
-                if (renameNextUnits) this.updateParkingUnitNumbers(nextUnit)
+                this.updateParkingUnitNumbers(nextUnit)
             }
         }
         this.selectedParkingUnit = null
