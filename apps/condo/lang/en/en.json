@@ -859,7 +859,7 @@
   "notification.messages.METER_VERIFICATION_DATE_REMINDER.push.title": "Doma ⏰",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER.email.subject": "Let's submit meter readings?",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER.push.title": "Doma ⏰",
-  "notification.messages.METER_VERIFICATION_DATE_EXPIRED.email.subject": "Warning! Meter for #{data.resource} has expired verification date",
+  "notification.messages.METER_VERIFICATION_DATE_EXPIRED.email.subject": "Time to submit meter readings",
   "notification.messages.METER_VERIFICATION_DATE_EXPIRED.push.title": "Time to submit meter readings ⏰",
   "TicketDeadline": "Ticket deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
