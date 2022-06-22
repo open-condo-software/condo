@@ -44,7 +44,7 @@ const DEFAULT_ROLES = {
         'canReadPayments': true,
         'canReadBillingReceipts': true,
         'canReadEntitiesOnlyInScopeOfDivision': false,
-        'canManageTicketHints': true,
+        'canManageTicketHints': false,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -66,7 +66,7 @@ const DEFAULT_ROLES = {
         'canReadPayments': false,
         'canReadBillingReceipts': false,
         'canReadEntitiesOnlyInScopeOfDivision': false,
-        'canManageTicketHints': true,
+        'canManageTicketHints': false,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -88,7 +88,7 @@ const DEFAULT_ROLES = {
         'canReadPayments': false,
         'canReadBillingReceipts': false,
         'canReadEntitiesOnlyInScopeOfDivision': false,
-        'canManageTicketHints': true,
+        'canManageTicketHints': false,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -110,7 +110,7 @@ const DEFAULT_ROLES = {
         'canReadPayments': false,
         'canReadBillingReceipts': false,
         'canReadEntitiesOnlyInScopeOfDivision': false,
-        'canManageTicketHints': true,
+        'canManageTicketHints': false,
     },
 }
 module.exports = {

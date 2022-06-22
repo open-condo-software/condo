@@ -18,4 +18,5 @@ export * as TicketCommentFile from './TicketCommentFile'
 export * as TicketCommentsTime from './TicketCommentsTime'
 export * as UserTicketCommentReadTime from './UserTicketCommentReadTime'
 export * as TicketHint from './TicketHint'
+export * as TicketHintProperty from './TicketHintProperty'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
