@@ -226,7 +226,6 @@ const TicketContent = ({ ticket }) => {
 
         const deadlineType = getDeadlineType(ticket)
         const { moreThanDayDiff, overdueDiff } = getHumanizeDeadlineDateDifference(ticket)
-        
         switch (deadlineType) {
             case TicketDeadlineType.MORE_THAN_DAY: {
                 return (
