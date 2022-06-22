@@ -13,7 +13,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
-import { TicketHint } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketHint, TicketHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
 
@@ -27,9 +27,16 @@ const PropertyHintPage = () => {
     const propertyId = get(router, ['query', 'id'], null)
 
     const { loading: propertyLoading, obj: property, error } = useObject({ where: { id: propertyId } })
-    const { loading: ticketHintLoading, obj: ticketHint } = TicketHint.useObject({
+    const { obj: ticketHintProperty } = TicketHintProperty.useObject({
         where: {
-            properties_some: { id: propertyId },
+            property: { id: propertyId },
+        },
+    })
+    const ticketHintId = useMemo(() => get(ticketHintProperty, ['ticketHint', 'id']), [ticketHintProperty])
+
+    const { obj: ticketHint, loading: ticketHintLoading } = TicketHint.useObject({
+        where: {
+            id: ticketHintId,
         },
     })
 
