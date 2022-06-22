@@ -109,7 +109,7 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
                 )}
             </Typography.Text>
             {mode === 'view' && (
-                <ButtonGradientBorderWrapper>
+                <ButtonGradientBorderWrapper secondary>
                     <Button
                         type={'sberDefaultGradient'}
                         style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
@@ -182,7 +182,7 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (p
         >
             <Col>
                 {mode === 'view' ? (
-                    <ButtonGradientBorderWrapper>
+                    <ButtonGradientBorderWrapper secondary>
                         <Button
                             style={FULLSCREEN_BUTTON_STYLE}
                             type={'sberDefaultGradient'}

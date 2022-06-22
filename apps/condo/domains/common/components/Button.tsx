@@ -118,7 +118,6 @@ const buttonLinkCss = css`
 `
 
 const buttonGradientCss = css`
-      background: ${gradients.sberActionGradient};
       border-radius: 8px;
       color: ${colors.defaultWhite[5]};
       box-shadow: none;
@@ -126,10 +125,21 @@ const buttonGradientCss = css`
       transition: none;
       outline: none;
       border: none;
+      background: -webkit-linear-gradient(145deg, #56A9D7 16%, #6AC773 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      svg {
+        fill: #4CD174;
+      }
 
       &:hover, &:focus {
         color: ${colors.defaultWhite[5]};
         background: ${gradients.sberActionInversed};
+        -webkit-background-clip: inherit;
+        -webkit-text-fill-color: ${colors.white};
+        svg {
+          fill: ${colors.white};
+        }
       }
 
       &:active {
@@ -273,14 +283,29 @@ const sberBlackCss = css`
   }
 `
 
-export const ButtonGradientBorderWrapper = styled.div`
+const ButtonGradientBorderWrapperCss = (secondary = false) => css`
   padding: 1px;
-  background: ${colors.black};
+  background: ${secondary ? colors.black : gradients.sberActionGradient};
   border-radius: 9px;
-    &:hover, &:active, &:focus {
-      background: ${gradients.sberActionGradient};
-    }
+  &:hover, &:active, &:focus {
+    background: ${gradients.sberActionGradient};
+  }
 `
+export const ButtonGradientBorderWrapper: React.FC<ButtonGradientBorderWrapperProps> = ({ children, secondary = false }) => {
+    const wrapperStyle = ButtonGradientBorderWrapperCss(secondary)
+    return (
+        <div css={wrapperStyle}>
+            <div style={{ 
+                'background':`${colors.white}`, 
+                'borderRadius':'8.5px' }}>
+                {children}
+            </div>
+        </div>
+    )
+}
+interface ButtonGradientBorderWrapperProps {
+    secondary?: boolean
+}
 
 export interface CustomButtonProps extends Omit<ButtonProps, 'type'>, ITrackingComponent {
     type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction'

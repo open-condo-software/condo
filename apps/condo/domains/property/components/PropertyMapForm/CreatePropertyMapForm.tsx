@@ -65,7 +65,7 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
                                     {ApplyChangesLabel}
                                 </Button>
                                 <Link href={`/property/${id}`}>
-                                    <ButtonGradientBorderWrapper>
+                                    <ButtonGradientBorderWrapper secondary>
                                         <Button
                                             key='cancel'
                                             secondary

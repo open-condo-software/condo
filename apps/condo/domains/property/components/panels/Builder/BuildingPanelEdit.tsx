@@ -377,7 +377,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         >
                             {SaveLabel}
                         </Button>
-                        <ButtonGradientBorderWrapper>
+                        <ButtonGradientBorderWrapper secondary>
                             <Button
                                 key='cancel'
                                 onClick={onCancel}
@@ -851,7 +851,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 </Space>
             </Col>
             <Col span={24}>
-                <ButtonGradientBorderWrapper>
+                <ButtonGradientBorderWrapper secondary>
                     <Button
                         key='submit'
                         secondary
@@ -1007,7 +1007,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
-                            <ButtonGradientBorderWrapper>
+                            <ButtonGradientBorderWrapper secondary>
                                 <Button
                                     secondary
                                     onClick={applyChanges}
@@ -1087,7 +1087,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
                 <Col span={24}>
-                    <ButtonGradientBorderWrapper>
+                    <ButtonGradientBorderWrapper secondary>
                         <Button
                             secondary
                             onClick={updateSection}
@@ -1097,7 +1097,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </ButtonGradientBorderWrapper>
                 </Col>
                 <Col span={24}>
-                    <ButtonGradientBorderWrapper>
+                    <ButtonGradientBorderWrapper secondary>
                         <Button
                             secondary
                             onClick={deleteSection}
@@ -1256,7 +1256,7 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 </Space>
             </Col>
             <Col span={24}>
-                <ButtonGradientBorderWrapper>
+                <ButtonGradientBorderWrapper secondary>
                     <Button
                         key='submit'
                         secondary
@@ -1318,7 +1318,7 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
                 <Col span={24}>
-                    <ButtonGradientBorderWrapper>
+                    <ButtonGradientBorderWrapper secondary>
                         <Button
                             secondary
                             onClick={updateParkingSection}
@@ -1329,7 +1329,7 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </ButtonGradientBorderWrapper>
                 </Col>
                 <Col span={24}>
-                    <ButtonGradientBorderWrapper>
+                    <ButtonGradientBorderWrapper secondary>
                         <Button
                             secondary
                             onClick={deleteParking}
@@ -1463,7 +1463,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
-                            <ButtonGradientBorderWrapper>
+                            <ButtonGradientBorderWrapper secondary>
                                 <Button
                                     secondary
                                     onClick={applyChanges}
@@ -1613,7 +1613,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
-                            <ButtonGradientBorderWrapper>
+                            <ButtonGradientBorderWrapper secondary>
                                 <Button
                                     secondary
                                     onClick={applyChanges}

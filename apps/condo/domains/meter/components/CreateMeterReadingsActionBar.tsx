@@ -46,7 +46,7 @@ export const CreateMeterReadingsActionBar = ({
                                 >
                                     {SendMetersReadingMessage}
                                 </Button>
-                                <ButtonGradientBorderWrapper>
+                                <ButtonGradientBorderWrapper secondary>
                                     <Button
                                         onClick={handleAddMeterButtonClick}
                                         type='sberDefaultGradient'

@@ -85,29 +85,29 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
     const menuOverlay = useMemo(() => (
         <Menu css={MenuCss} onClick={menuClick}>
             <Menu.Item key={'addSection'}>
-                <ButtonGradientBorderWrapper>
+                <ButtonGradientBorderWrapper secondary>
                     <Button type={'sberDefaultGradient'} secondary icon={<SectionIcon />}>
                         {AddSection}
                     </Button>
                 </ButtonGradientBorderWrapper>
             </Menu.Item>
             <Menu.Item key={'addSectionFloor'} disabled={addSectionFloorDisabled}>
-                <ButtonGradientBorderWrapper>
+                <ButtonGradientBorderWrapper secondary>
                     <Button type={'sberDefaultGradient'} disabled={addSectionFloorDisabled} secondary icon={<FloorIcon />}>
                         {AddFloor}
                     </Button>
                 </ButtonGradientBorderWrapper>
             </Menu.Item>
             <Menu.Item key={'addUnit'} disabled={mapEdit.isEmptySections}>
-                <ButtonGradientBorderWrapper>
+                <ButtonGradientBorderWrapper secondary>
                     <Button type={'sberDefaultGradient'} secondary disabled={mapEdit.isEmptySections} icon={<FlatIcon />}>
                         {AddUnit}
                     </Button>
                 </ButtonGradientBorderWrapper>
             </Menu.Item>
             <Menu.Item key={'addInterFloorRoom'} disabled>
-                <ButtonGradientBorderWrapper>
-                    <ButtonGradientBorderWrapper>
+                <ButtonGradientBorderWrapper secondary>
+                    <ButtonGradientBorderWrapper secondary>
                         <Button type={'sberDefaultGradient'} secondary disabled icon={<InterFloorIcon />}>
                             {AddInterFloorRoom}
                         </Button>
@@ -115,8 +115,8 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                 </ButtonGradientBorderWrapper>
             </Menu.Item>
             <Menu.Item key={'addParking'}>
-                <ButtonGradientBorderWrapper>
-                    <ButtonGradientBorderWrapper>
+                <ButtonGradientBorderWrapper secondary>
+                    <ButtonGradientBorderWrapper secondary>
                         <Button type={'sberDefaultGradient'} secondary icon={<ParkingIcon />}>
                             {AddParkingLabel}
                         </Button>
@@ -124,14 +124,14 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                 </ButtonGradientBorderWrapper>
             </Menu.Item>
             <Menu.Item key={'addParkingFloor'} disabled>
-                <ButtonGradientBorderWrapper>
+                <ButtonGradientBorderWrapper secondary>
                     <Button type={'sberDefaultGradient'} secondary disabled icon={<ParkingFloorIcon />}>
                         {AddParkingFloor}
                     </Button>
                 </ButtonGradientBorderWrapper>
             </Menu.Item>
             <Menu.Item key={'addParkingUnit'} disabled={mapEdit.isEmptyParking}>
-                <ButtonGradientBorderWrapper>
+                <ButtonGradientBorderWrapper secondary>
                     <Button type={'sberDefaultGradient'} 
                         secondary 
                         disabled={mapEdit.isEmptyParking} 
@@ -150,7 +150,7 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
             css={DropdownCss}
             mouseEnterDelay={0}
         >
-            <ButtonGradientBorderWrapper>
+            <ButtonGradientBorderWrapper secondary>
                 <Button type='sberDefaultGradient' secondary>{AddElementTitle}<span>...</span></Button>
             </ButtonGradientBorderWrapper>
         </Dropdown>

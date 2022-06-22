@@ -151,7 +151,7 @@ export const PropertyPageContent = ({ property, role }) => {
                             {
                                 !isNull(get(property, 'map')) && (
                                     <Link href={`/property/${property.id}/map/update`}>
-                                        <ButtonGradientBorderWrapper>
+                                        <ButtonGradientBorderWrapper secondary>
                                             <Button
                                                 color={'green'}
                                                 type={'sberDefaultGradient'}

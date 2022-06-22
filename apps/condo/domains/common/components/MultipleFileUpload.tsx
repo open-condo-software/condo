@@ -265,7 +265,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
             <Upload { ...options }>
                 {
                     UploadButton || (
-                        <ButtonGradientBorderWrapper>
+                        <ButtonGradientBorderWrapper secondary>
                             <Button
                                 type={'sberDefaultGradient'}
                                 secondary

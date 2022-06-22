@@ -267,7 +267,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
 
     return (
         <>
-            <ButtonGradientBorderWrapper>
+            <ButtonGradientBorderWrapper secondary>
                 <Button
                     type={'sberDefaultGradient'}
                     icon={<ShareAltOutlined />}

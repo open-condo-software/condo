@@ -770,7 +770,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                 <TicketContent ticket={ticket}/>
                                 <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
-                                        <ButtonGradientBorderWrapper>
+                                        <ButtonGradientBorderWrapper secondary>
                                             <Button
                                                 disabled={disabledEditButton}
                                                 color={'green'}
@@ -785,7 +785,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     </Link>
                                     {
                                         !isSmall && (
-                                            <ButtonGradientBorderWrapper>
+                                            <ButtonGradientBorderWrapper secondary>
                                                 <Button
                                                     type={'sberDefaultGradient'}
                                                     icon={<FilePdfFilled />}
