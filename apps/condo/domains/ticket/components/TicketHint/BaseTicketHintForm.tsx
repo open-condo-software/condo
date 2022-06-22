@@ -123,7 +123,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
             organization: { id: organizationId },
         },
     })
-    const createTicketHintPropertyAction = TicketHintProperty.useCreate({ organization: organizationId }, () => Promise.resolve())
+    const createTicketHintPropertyAction = TicketHintProperty.useCreate({}, () => Promise.resolve())
     const softDeleteTicketHintPropertyAction = TicketHintProperty.useSoftDelete({}, () => Promise.resolve())
 
     const initialProperties = useMemo(() => {
@@ -174,18 +174,18 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
 
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, ...otherValues } = values
-        const ticketHint = await action(otherValues)
+        const ticketHint = await action({ ...otherValues, organization: organizationId })
 
         const initialTicketHintId = get(initialValues, 'id')
 
         if (!initialTicketHintId) {
             for (const propertyId of properties) {
-                await createTicketHintPropertyAction({ ticketHint: ticketHint.id, property: propertyId })
+                await createTicketHintPropertyAction({ organization: organizationId, ticketHint: ticketHint.id, property: propertyId })
             }
         } else {
             for (const propertyId of properties) {
                 if (!initialPropertyIds.includes(propertyId)) {
-                    await createTicketHintPropertyAction({ ticketHint: ticketHint.id, property: propertyId })
+                    await createTicketHintPropertyAction({ organization: organizationId, ticketHint: ticketHint.id, property: propertyId })
                 }
             }
 
@@ -201,7 +201,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                 }
             }
         }
-    }, [action, createTicketHintPropertyAction, initialPropertyIds, initialValues, organizationTicketHintProperties, softDeleteTicketHintPropertyAction])
+    }, [action, createTicketHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketHintProperties, softDeleteTicketHintPropertyAction])
 
     if (propertiesLoading || organizationTicketHintPropertiesLoading) {
         return (
