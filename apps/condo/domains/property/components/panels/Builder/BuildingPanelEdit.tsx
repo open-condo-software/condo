@@ -5,7 +5,6 @@ import { Button } from '@condo/domains/common/components/Button'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
-import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { useIntl } from '@core/next/intl'
@@ -947,7 +946,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedUnit()
-        builder.removeUnit(mapUnit.id, NUMERIC_REGEXP.test(mapUnit.label) || renameNextUnits.current)
+        builder.removeUnit(mapUnit.id, renameNextUnits.current)
         refresh()
         resetForm()
     }, [resetForm, refresh, builder])
@@ -1411,7 +1410,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedParkingUnit()
-        builder.removeParkingUnit(mapUnit.id, NUMERIC_REGEXP.test(mapUnit.label) || renameNextUnits.current)
+        builder.removeParkingUnit(mapUnit.id, renameNextUnits.current)
         refresh()
         resetForm()
     }, [resetForm, refresh, builder])
