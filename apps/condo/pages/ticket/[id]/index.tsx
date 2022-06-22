@@ -173,8 +173,7 @@ const TicketContent = ({ ticket }) => {
     const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
     const ReviewWithoutCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.withoutComment' })
     const NoReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.noReview' })
-    const AssigneeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.ResponsibleIsNullOrWasDeleted' })
-    const ExecutorIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.ExecutorIsNullOrWasDeleted' })
+    const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
 
     const propertyWasDeleted = !(ticket.property)
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
@@ -429,7 +428,7 @@ const TicketContent = ({ ticket }) => {
                                         </Typography.Link>
                                     </Link>
                                     : <Typography.Text type='secondary'>
-                                        {ExecutorIsNullOrWasDeletedMessage}
+                                        {EmployeeIsNullOrWasDeletedMessage}
                                     </Typography.Text>
                             }
                         </PageFieldRow>
@@ -448,7 +447,7 @@ const TicketContent = ({ ticket }) => {
                                         </Typography.Link>
                                     </Link>
                                     : <Typography.Text type='secondary'>
-                                        {AssigneeIsNullOrWasDeletedMessage}
+                                        {EmployeeIsNullOrWasDeletedMessage}
                                     </Typography.Text>
                             }
                         </PageFieldRow>
