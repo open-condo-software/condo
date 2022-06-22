@@ -33348,8 +33348,8 @@ export type ResidentTicketOutput = {
   isPaid?: Maybe<Scalars['Boolean']>;
   source: TicketSource;
   id: Scalars['ID'];
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
   placeClassifier?: Maybe<TicketPlaceClassifier>;
   problemClassifier?: Maybe<TicketProblemClassifier>;
   classifierRule?: Maybe<TicketClassifierRule>;
