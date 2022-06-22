@@ -6,201 +6,270 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowInternalError,
 } = require('@condo/domains/common/utils/testSchema')
 
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { TicketHintProperty, createTestTicketHintProperty, updateTestTicketHintProperty } = require('@condo/domains/ticket/utils/testSchema')
+const { TicketHintProperty, createTestTicketHintProperty, updateTestTicketHintProperty, createTestTicketHint, updateTestUserTicketCommentReadTime } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('TicketHintProperty', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
-            test('admin can', async () => {
-                // 1) prepare data
-                const admin = await makeLoggedInAdminClient()
+            describe('admin', () => {
+                it('admin can create TicketHintProperty', async () => {
+                    const admin = await makeLoggedInAdminClient()
 
-                // 2) action
-                const [obj, attrs] = await createTestTicketHintProperty(admin)
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(admin, organization)
 
-                // 3) check
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
-                // TODO(codegen): write others fields here! provide as match fields as you can here!
+                    const [obj] = await createTestTicketHintProperty(admin, organization, ticketHint, property)
+
+                    expect(obj.id).toMatch(UUID_RE)
+                })
             })
 
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
-            test('support can', async () => {
-                const client = await makeClientWithSupportUser()  // TODO(codegen): create SUPPORT client!
+            describe('user', () => {
+                it('can create TicketHintProperty in the organization in which he is an employee with "canManageTicketHints" is true', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageTicketHints: true,
+                    })
+                    await createTestOrganizationEmployee(admin, organization, user.user, role)
 
-                const [obj, attrs] = await createTestTicketHintProperty(client)  // TODO(codegen): write 'support: create TicketHintProperty' test
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(user, organization, {})
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                    const [obj] = await createTestTicketHintProperty(user, organization, ticketHint, property)
+
+                    expect(obj.id).toMatch(UUID_RE)
+                })
+
+                it('cannot create TicketHintProperty in the organization in which he is not an employee', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(admin, organization)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestTicketHintProperty(user, organization, ticketHint, property)
+                    })
+                })
+
+                it('cannot create TicketHintProperty in the organization in which he is an employee with "canManageTicketHints" is false', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                    await createTestOrganizationEmployee(admin, organization, user.user, role)
+
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(admin, organization)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestTicketHintProperty(user, organization, ticketHint, property)
+                    })
+                })
             })
 
-            test('user can', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
+            describe('anonymous', function () {
+                it('anonymous can\'t create TicketHintProperty', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const client = await makeClient()
 
-                const [obj, attrs] = await createTestTicketHintProperty(client)  // TODO(codegen): write 'user: create TicketHintProperty' test
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(admin, organization)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
-
-            test('anonymous can\'t', async () => {
-                const client = await makeClient()
-
-                await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestTicketHintProperty(client)  // TODO(codegen): write 'anonymous: create TicketHintProperty' test
+                    await expectToThrowAuthenticationErrorToObj(async () => {
+                        await createTestTicketHintProperty(client, organization, ticketHint, property)
+                    })
                 })
             })
         })
 
         describe('update', () => {
-            test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestTicketHintProperty(admin)
+            describe('admin', () => {
+                it('admin can update TicketHintProperty', async () => {
+                    const admin = await makeLoggedInAdminClient()
 
-                const [obj, attrs] = await updateTestTicketHintProperty(admin, objCreated.id)
+                    const [organization] = await createTestOrganization(admin)
+                    const [property1] = await createTestProperty(admin, organization)
+                    const [property2] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(admin, organization)
 
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-            })
+                    const [objCreated] = await createTestTicketHintProperty(admin, organization, ticketHint, property1)
 
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
-            test('support can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestTicketHintProperty(admin)
+                    expect(objCreated.property.id).toEqual(property1.id)
 
-                const client = await makeClientWithSupportUser()  // TODO(codegen): update SUPPORT client!
-                const [obj, attrs] = await updateTestTicketHintProperty(client, objCreated.id)  // TODO(codegen): write 'support: update TicketHintProperty' test
+                    const [obj] = await updateTestTicketHintProperty(admin, objCreated.id, {
+                        property: { connect: { id: property2.id } },
+                    })
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
-
-            test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestTicketHintProperty(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-                const [obj, attrs] = await updateTestTicketHintProperty(client, objCreated.id)  // TODO(codegen): write 'user: update TicketHintProperty' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
-
-            test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestTicketHintProperty(admin)
-
-                const client = await makeClient()
-                await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestTicketHintProperty(client, objCreated.id)  // TODO(codegen): write 'anonymous: update TicketHintProperty' test
-                })
-            })
-        })
-
-        describe('hard delete', () => {
-            test('admin can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestTicketHintProperty(admin)
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await TicketHintProperty.delete(admin, objCreated.id)  // TODO(codegen): write 'admin: delete TicketHintProperty' test
+                    expect(obj.property.id).toEqual(property2.id)
                 })
             })
 
-            test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestTicketHintProperty(admin)
+            describe('user', () => {
+                it('can update TicketHintProperty in the organization in which he is an employee with "canManageTicketHints" is true', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageTicketHints: true,
+                    })
+                    await createTestOrganizationEmployee(admin, organization, user.user, role)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await TicketHintProperty.delete(client, objCreated.id)  // TODO(codegen): write 'user: delete TicketHintProperty' test
+                    const [property1] = await createTestProperty(admin, organization)
+                    const [property2] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(user, organization, {})
+
+                    const [objCreated] = await createTestTicketHintProperty(user, organization, ticketHint, property1)
+
+                    expect(objCreated.property.id).toEqual(property1.id)
+
+                    const [obj] = await updateTestTicketHintProperty(user, objCreated.id, {
+                        property: { connect: { id: property2.id } },
+                    })
+
+                    expect(obj.property.id).toEqual(property2.id)
+                })
+
+                it('cannot update TicketHintProperty in the organization in which he is an employee with "canManageTicketHints" is false', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                    await createTestOrganizationEmployee(admin, organization, user.user, role)
+
+                    const [property1] = await createTestProperty(admin, organization)
+                    const [property2] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(admin, organization, {})
+
+                    const [objCreated] = await createTestTicketHintProperty(admin, organization, ticketHint, property1)
+
+                    expect(objCreated.property.id).toEqual(property1.id)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestTicketHintProperty(user, objCreated.id, {
+                            property: { connect: { id: property2.id } },
+                        })
+                    })
                 })
             })
 
-            test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestTicketHintProperty(admin)
+            describe('anonymous', () => {
+                it('anonymous can\'t update TicketHintProperty', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const client = await makeClient()
 
-                const client = await makeClient()
-                await expectToThrowAuthenticationErrorToObj(async () => {
-                    await TicketHintProperty.delete(client, objCreated.id)  // TODO(codegen): write 'anonymous: delete TicketHintProperty' test
+                    const [organization] = await createTestOrganization(admin)
+                    const [property1] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(admin, organization)
+
+                    const [objCreated] = await createTestTicketHintProperty(admin, organization, ticketHint, property1)
+
+                    await expectToThrowAuthenticationErrorToObj(async () => {
+                        await updateTestTicketHintProperty(client, objCreated.id)
+                    })
                 })
             })
         })
 
         describe('read', () => {
-            test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestTicketHintProperty(admin)
+            describe('admin', () => {
+                it('admin can read TicketHintProperty', async () => {
+                    const admin = await makeLoggedInAdminClient()
 
-                const objs = await TicketHintProperty.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(admin, organization)
 
-                expect(objs.length).toBeGreaterThanOrEqual(1)
-                expect(objs).toEqual(expect.arrayContaining([
-                    expect.objectContaining({
-                        id: obj.id,
-                        // TODO(codegen): write fields which important to ADMIN access check
-                    }),
-                ]))
-            })
+                    const [obj] = await createTestTicketHintProperty(admin, organization, ticketHint, property)
 
-            test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestTicketHintProperty(admin)
+                    const objs = await TicketHintProperty.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-                const objs = await TicketHintProperty.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-
-                expect(objs).toHaveLength(1)
-                expect(objs[0]).toMatchObject({
-                    id: obj.id,
-                    // TODO(codegen): write fields which important to USER access check
+                    expect(objs.length).toBeGreaterThanOrEqual(1)
+                    expect(objs).toEqual(expect.arrayContaining([
+                        expect.objectContaining({
+                            id: obj.id,
+                        }),
+                    ]))
                 })
             })
 
-            // TODO(codegen): write test for user1 doesn't have access to user2 data if it's applicable
+            describe('user', async () => {
+                it('can read TicketHintProperty in the organization in which he is an employee', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageTicketHints: true,
+                    })
+                    await createTestOrganizationEmployee(admin, organization, user.user, role)
 
-            test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestTicketHintProperty(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(user, organization, {})
 
-                const client = await makeClient()
-                await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await TicketHintProperty.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read TicketHintProperty' test
+                    const [obj] = await createTestTicketHintProperty(user, organization, ticketHint, property)
+
+                    const objs = await TicketHintProperty.getAll(user, {}, { sortBy: ['updatedAt_DESC'] })
+
+                    expect(objs).toHaveLength(1)
+                    expect(objs[0]).toMatchObject({
+                        id: obj.id,
+                    })
+                })
+
+                it('cannot read TicketHintProperty in the organization in which he is not an employee', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticketHint] = await createTestTicketHint(admin, organization, {})
+
+                    await createTestTicketHintProperty(admin, organization, ticketHint, property)
+
+                    const objs = await TicketHintProperty.getAll(user, {}, { sortBy: ['updatedAt_DESC'] })
+
+                    expect(objs).toHaveLength(0)
+                })
+            })
+
+            describe('anonymous', () => {
+                it('anonymous can\'t read TicketHintProperty', async () => {
+                    const client = await makeClient()
+
+                    await expectToThrowAuthenticationErrorToObjects(async () => {
+                        await TicketHintProperty.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                    })
                 })
             })
         })
     })
 
     describe('Validation tests', () => {
-        test('Should have correct dv field (=== 1)', async () => {
-            // TODO(codegen): check it!
-        })
-    })
+        it('uniq ticketHint and property constraint', async () => {
+            const admin = await makeLoggedInAdminClient()
 
-    describe('notifications', () => {
-        // TODO(codegen): write notifications tests if you have any sendMessage calls or drop this block!
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [ticketHint] = await createTestTicketHint(admin, organization)
+
+            await createTestTicketHintProperty(admin, organization, ticketHint, property)
+
+            await expectToThrowInternalError(async () => {
+                await createTestTicketHintProperty(admin, organization, ticketHint, property)
+            }, `${UNIQUE_CONSTRAINT_ERROR} "unique_ticketHint_and_property"`)
+        })
     })
 })
