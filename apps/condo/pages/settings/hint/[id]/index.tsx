@@ -19,7 +19,7 @@ import {
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { TicketHint } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketHint, TicketHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
@@ -51,8 +51,15 @@ const TicketHintIdPage = () => {
     const handleDeleteAction = TicketHint.useSoftDelete({},
         () => router.push('/settings?tab=hint'))
 
-    const ticketHintProperties = get(ticketHint, 'properties', [])
-    const renderTicketHintProperties = useMemo(() => ticketHintProperties.map(property => (
+    const { objs: ticketHintProperties } = TicketHintProperty.useObjects({
+        where: {
+            ticketHint: { id: hintId },
+        },
+    })
+    const softDeleteTicketHintPropertyAction = TicketHintProperty.useSoftDelete({}, () => Promise.resolve())
+    const properties = useMemo(() => ticketHintProperties.map(ticketHintProperty => ticketHintProperty.property), [ticketHintProperties])
+
+    const renderTicketHintProperties = useMemo(() => properties.map(property => (
         <Link
             key={property.id}
             href={`/property/${get(property, 'id')}`}
@@ -61,11 +68,14 @@ const TicketHintIdPage = () => {
                 {property.name || getAddressRender(property)}
             </Typography.Link>
         </Link>
-    )), [ticketHintProperties])
+    )), [properties])
 
     const handleDeleteButtonClick = useCallback(async () => {
         await handleDeleteAction({}, ticketHint)
-    }, [handleDeleteAction, ticketHint])
+        for (const ticketHintProperty of ticketHintProperties) {
+            await softDeleteTicketHintPropertyAction({}, ticketHintProperty)
+        }
+    }, [handleDeleteAction, softDeleteTicketHintPropertyAction, ticketHint, ticketHintProperties])
 
     const htmlContent = useMemo(() => ({
         __html: xss(get(ticketHint, 'content')),
