@@ -23,6 +23,7 @@ const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/tick
 const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 const { TicketHint: TicketHintGQL } = require('@condo/domains/ticket/gql')
+const { TicketHintProperty: TicketHintPropertyGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -59,6 +60,7 @@ const TicketCommentFile = generateServerUtils(TicketCommentFileGQL)
 const TicketCommentsTime = generateServerUtils(TicketCommentsTimeGQL)
 const UserTicketCommentReadTime = generateServerUtils(UserTicketCommentReadTimeGQL)
 const TicketHint = generateServerUtils(TicketHintGQL)
+const TicketHintProperty = generateServerUtils(TicketHintPropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -166,5 +168,6 @@ module.exports = {
     TicketCommentsTime,
     UserTicketCommentReadTime,
     TicketHint,
+    TicketHintProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

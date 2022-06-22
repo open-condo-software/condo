@@ -21,13 +21,6 @@ const TicketHint = new GQLListSchema('TicketHint', {
             type: Text,
         },
 
-        properties: {
-            schemaDoc: 'Properties to which this help applies',
-            type: Relationship,
-            ref: 'Property',
-            many: true,
-        },
-
         content: {
             schemaDoc: 'Textual content of help in HTML format',
             type: Text,

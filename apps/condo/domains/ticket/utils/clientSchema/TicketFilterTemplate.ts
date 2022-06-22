@@ -15,7 +15,6 @@ const RELATIONS = ['employee']
 
 export interface ITicketFilterTemplateUIState extends TicketFilterTemplate {
     id: string
-    // TODO(codegen): write ITicketFilterTemplateUIState or extends it from
 }
 
 function convertToUIState (item: TicketFilterTemplate): ITicketFilterTemplateUIState {
@@ -25,7 +24,6 @@ function convertToUIState (item: TicketFilterTemplate): ITicketFilterTemplateUIS
 
 export interface ITicketFilterTemplateFormState {
     id?: undefined
-    // TODO(codegen): write ITicketFilterTemplateUIFormState or extends it from
 }
 
 function convertToUIFormState (state: ITicketFilterTemplateUIState): ITicketFilterTemplateFormState | undefined {

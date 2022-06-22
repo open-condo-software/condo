@@ -17703,6 +17703,30 @@ export type Mutation = {
   deleteTicketHint?: Maybe<TicketHint>;
   /**  Delete multiple TicketHint items by ID.  */
   deleteTicketHints?: Maybe<Array<Maybe<TicketHint>>>;
+  /**  Create a single TicketHintPropertyHistoryRecord item.  */
+  createTicketHintPropertyHistoryRecord?: Maybe<TicketHintPropertyHistoryRecord>;
+  /**  Create multiple TicketHintPropertyHistoryRecord items.  */
+  createTicketHintPropertyHistoryRecords?: Maybe<Array<Maybe<TicketHintPropertyHistoryRecord>>>;
+  /**  Update a single TicketHintPropertyHistoryRecord item by ID.  */
+  updateTicketHintPropertyHistoryRecord?: Maybe<TicketHintPropertyHistoryRecord>;
+  /**  Update multiple TicketHintPropertyHistoryRecord items by ID.  */
+  updateTicketHintPropertyHistoryRecords?: Maybe<Array<Maybe<TicketHintPropertyHistoryRecord>>>;
+  /**  Delete a single TicketHintPropertyHistoryRecord item by ID.  */
+  deleteTicketHintPropertyHistoryRecord?: Maybe<TicketHintPropertyHistoryRecord>;
+  /**  Delete multiple TicketHintPropertyHistoryRecord items by ID.  */
+  deleteTicketHintPropertyHistoryRecords?: Maybe<Array<Maybe<TicketHintPropertyHistoryRecord>>>;
+  /**  Create a single TicketHintProperty item.  */
+  createTicketHintProperty?: Maybe<TicketHintProperty>;
+  /**  Create multiple TicketHintProperty items.  */
+  createTicketHintProperties?: Maybe<Array<Maybe<TicketHintProperty>>>;
+  /**  Update a single TicketHintProperty item by ID.  */
+  updateTicketHintProperty?: Maybe<TicketHintProperty>;
+  /**  Update multiple TicketHintProperty items by ID.  */
+  updateTicketHintProperties?: Maybe<Array<Maybe<TicketHintProperty>>>;
+  /**  Delete a single TicketHintProperty item by ID.  */
+  deleteTicketHintProperty?: Maybe<TicketHintProperty>;
+  /**  Delete multiple TicketHintProperty items by ID.  */
+  deleteTicketHintProperties?: Maybe<Array<Maybe<TicketHintProperty>>>;
   /**  Create a single MessageHistoryRecord item.  */
   createMessageHistoryRecord?: Maybe<MessageHistoryRecord>;
   /**  Create multiple MessageHistoryRecord items.  */
@@ -21969,6 +21993,68 @@ export type MutationDeleteTicketHintArgs = {
 
 
 export type MutationDeleteTicketHintsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTicketHintPropertyHistoryRecordArgs = {
+  data?: Maybe<TicketHintPropertyHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateTicketHintPropertyHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TicketHintPropertyHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateTicketHintPropertyHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketHintPropertyHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateTicketHintPropertyHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TicketHintPropertyHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteTicketHintPropertyHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTicketHintPropertyHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTicketHintPropertyArgs = {
+  data?: Maybe<TicketHintPropertyCreateInput>;
+};
+
+
+export type MutationCreateTicketHintPropertiesArgs = {
+  data?: Maybe<Array<Maybe<TicketHintPropertiesCreateInput>>>;
+};
+
+
+export type MutationUpdateTicketHintPropertyArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketHintPropertyUpdateInput>;
+};
+
+
+export type MutationUpdateTicketHintPropertiesArgs = {
+  data?: Maybe<Array<Maybe<TicketHintPropertiesUpdateInput>>>;
+};
+
+
+export type MutationDeleteTicketHintPropertyArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTicketHintPropertiesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -29665,6 +29751,22 @@ export type Query = {
   _allTicketHintsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the TicketHint list.  */
   _TicketHintsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TicketHintPropertyHistoryRecord items which match the where clause.  */
+  allTicketHintPropertyHistoryRecords?: Maybe<Array<Maybe<TicketHintPropertyHistoryRecord>>>;
+  /**  Search for the TicketHintPropertyHistoryRecord item with the matching ID.  */
+  TicketHintPropertyHistoryRecord?: Maybe<TicketHintPropertyHistoryRecord>;
+  /**  Perform a meta-query on all TicketHintPropertyHistoryRecord items which match the where clause.  */
+  _allTicketHintPropertyHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TicketHintPropertyHistoryRecord list.  */
+  _TicketHintPropertyHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TicketHintProperty items which match the where clause.  */
+  allTicketHintProperties?: Maybe<Array<Maybe<TicketHintProperty>>>;
+  /**  Search for the TicketHintProperty item with the matching ID.  */
+  TicketHintProperty?: Maybe<TicketHintProperty>;
+  /**  Perform a meta-query on all TicketHintProperty items which match the where clause.  */
+  _allTicketHintPropertiesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TicketHintProperty list.  */
+  _TicketHintPropertiesMeta?: Maybe<_ListMeta>;
   /**  Search for all MessageHistoryRecord items which match the where clause.  */
   allMessageHistoryRecords?: Maybe<Array<Maybe<MessageHistoryRecord>>>;
   /**  Search for the MessageHistoryRecord item with the matching ID.  */
@@ -32015,6 +32117,56 @@ export type Query_AllTicketHintsMetaArgs = {
   where?: Maybe<TicketHintWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortTicketHintsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTicketHintPropertyHistoryRecordsArgs = {
+  where?: Maybe<TicketHintPropertyHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketHintPropertyHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTicketHintPropertyHistoryRecordArgs = {
+  where: TicketHintPropertyHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllTicketHintPropertyHistoryRecordsMetaArgs = {
+  where?: Maybe<TicketHintPropertyHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketHintPropertyHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTicketHintPropertiesArgs = {
+  where?: Maybe<TicketHintPropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketHintPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTicketHintPropertyArgs = {
+  where: TicketHintPropertyWhereUniqueInput;
+};
+
+
+export type Query_AllTicketHintPropertiesMetaArgs = {
+  where?: Maybe<TicketHintPropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTicketHintPropertiesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -39550,13 +39702,55 @@ export enum SortTicketHintHistoryRecordsBy {
   HistoryActionDesc = 'history_action_DESC'
 }
 
+export enum SortTicketHintPropertiesBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  TicketHintAsc = 'ticketHint_ASC',
+  TicketHintDesc = 'ticketHint_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortTicketHintPropertyHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
 export enum SortTicketHintsBy {
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
-  PropertiesAsc = 'properties_ASC',
-  PropertiesDesc = 'properties_DESC',
   ContentAsc = 'content_ASC',
   ContentDesc = 'content_DESC',
   IdAsc = 'id_ASC',
@@ -44393,9 +44587,6 @@ export type TicketHint = {
   organization?: Maybe<Organization>;
   /**  Hint name  */
   name?: Maybe<Scalars['String']>;
-  /**  Properties to which this help applies  */
-  properties: Array<Property>;
-  _propertiesMeta?: Maybe<_QueryMeta>;
   /**  Textual content of help in HTML format  */
   content?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -44414,32 +44605,9 @@ export type TicketHint = {
   sender?: Maybe<SenderField>;
 };
 
-
-/**  Help information related to a property or group of properties  */
-export type TicketHintPropertiesArgs = {
-  where?: Maybe<PropertyWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortPropertiesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Help information related to a property or group of properties  */
-export type TicketHint_PropertiesMetaArgs = {
-  where?: Maybe<PropertyWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortPropertiesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
 export type TicketHintCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
-  properties?: Maybe<PropertyRelateToManyInput>;
   content?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -44657,10 +44825,336 @@ export type TicketHintHistoryRecordsUpdateInput = {
   data?: Maybe<TicketHintHistoryRecordUpdateInput>;
 };
 
+export type TicketHintPropertiesCreateInput = {
+  data?: Maybe<TicketHintPropertyCreateInput>;
+};
+
+export type TicketHintPropertiesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketHintPropertyUpdateInput>;
+};
+
+/**  Sets to which property the ticketHint belongs  */
+export type TicketHintProperty = {
+  __typename?: 'TicketHintProperty';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TicketHintProperty List config, or
+   *  2. As an alias to the field set on 'labelField' in the TicketHintProperty List config, or
+   *  3. As an alias to a 'name' field on the TicketHintProperty List (if one exists), or
+   *  4. As an alias to the 'id' field on the TicketHintProperty List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  TicketHint which belongs to property  */
+  ticketHint?: Maybe<TicketHint>;
+  /**  Property for which ticketHint exists  */
+  property?: Maybe<Property>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type TicketHintPropertyCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  ticketHint?: Maybe<TicketHintRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type TicketHintPropertyHistoryRecord = {
+  __typename?: 'TicketHintPropertyHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TicketHintPropertyHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the TicketHintPropertyHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the TicketHintPropertyHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the TicketHintPropertyHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  ticketHint?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TicketHintPropertyHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TicketHintPropertyHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  ticketHint?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TicketHintPropertyHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum TicketHintPropertyHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type TicketHintPropertyHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  ticketHint?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TicketHintPropertyHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TicketHintPropertyHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<TicketHintPropertyHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TicketHintPropertyHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticketHint?: Maybe<Scalars['String']>;
+  ticketHint_not?: Maybe<Scalars['String']>;
+  ticketHint_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticketHint_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<TicketHintPropertyHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<TicketHintPropertyHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<TicketHintPropertyHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<TicketHintPropertyHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type TicketHintPropertyHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TicketHintPropertyHistoryRecordsCreateInput = {
+  data?: Maybe<TicketHintPropertyHistoryRecordCreateInput>;
+};
+
+export type TicketHintPropertyHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TicketHintPropertyHistoryRecordUpdateInput>;
+};
+
+export type TicketHintPropertyUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  ticketHint?: Maybe<TicketHintRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type TicketHintPropertyWhereInput = {
+  AND?: Maybe<Array<Maybe<TicketHintPropertyWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TicketHintPropertyWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  ticketHint?: Maybe<TicketHintWhereInput>;
+  ticketHint_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type TicketHintPropertyWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TicketHintRelateToOneInput = {
+  create?: Maybe<TicketHintCreateInput>;
+  connect?: Maybe<TicketHintWhereUniqueInput>;
+  disconnect?: Maybe<TicketHintWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type TicketHintUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
-  properties?: Maybe<PropertyRelateToManyInput>;
   content?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -44696,12 +45190,6 @@ export type TicketHintWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  /**  condition must be true for all nodes  */
-  properties_every?: Maybe<PropertyWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  properties_some?: Maybe<PropertyWhereInput>;
-  /**  condition must be false for all nodes  */
-  properties_none?: Maybe<PropertyWhereInput>;
   content?: Maybe<Scalars['String']>;
   content_not?: Maybe<Scalars['String']>;
   content_contains?: Maybe<Scalars['String']>;
