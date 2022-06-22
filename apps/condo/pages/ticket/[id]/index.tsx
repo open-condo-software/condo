@@ -173,6 +173,8 @@ const TicketContent = ({ ticket }) => {
     const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
     const ReviewWithoutCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.withoutComment' })
     const NoReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.noReview' })
+    const AssigneeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.ResponsibleIsNullOrWasDeleted' })
+    const ExecutorIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.ExecutorIsNullOrWasDeleted' })
 
     const propertyWasDeleted = !(ticket.property)
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
@@ -413,30 +415,42 @@ const TicketContent = ({ ticket }) => {
                             </Breadcrumb>
                         </PageFieldRow>
                         <PageFieldRow title={ExecutorMessage}>
-                            <Link href={`/employee/${get(executor, 'id')}`}>
-                                <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                                    <Typography.Text strong>
-                                        <TicketUserInfoField user={{
-                                            name: get(executor, 'name'),
-                                            phone: get(executor, 'phone'),
-                                            email: get(executor, 'email'),
-                                        }}/>
+                            {
+                                executor
+                                    ? <Link href={`/employee/${get(executor, 'id')}`}>
+                                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
+                                            <Typography.Text strong>
+                                                <TicketUserInfoField user={{
+                                                    name: get(executor, 'name'),
+                                                    phone: get(executor, 'phone'),
+                                                    email: get(executor, 'email'),
+                                                }}/>
+                                            </Typography.Text>
+                                        </Typography.Link>
+                                    </Link>
+                                    : <Typography.Text type='secondary'>
+                                        {ExecutorIsNullOrWasDeletedMessage}
                                     </Typography.Text>
-                                </Typography.Link>
-                            </Link>
+                            }
                         </PageFieldRow>
                         <PageFieldRow title={AssigneeMessage}>
-                            <Link href={`/employee/${get(assignee, 'id')}`}>
-                                <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                                    <Typography.Text strong>
-                                        <TicketUserInfoField user={{
-                                            name: get(assignee, 'name'),
-                                            phone: get(assignee, 'phone'),
-                                            email: get(assignee, 'email'),
-                                        }}/>
+                            {
+                                assignee
+                                    ? <Link href={`/employee/${get(assignee, 'id')}`}>
+                                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
+                                            <Typography.Text strong>
+                                                <TicketUserInfoField user={{
+                                                    name: get(assignee, 'name'),
+                                                    phone: get(assignee, 'phone'),
+                                                    email: get(assignee, 'email'),
+                                                }}/>
+                                            </Typography.Text>
+                                        </Typography.Link>
+                                    </Link>
+                                    : <Typography.Text type='secondary'>
+                                        {AssigneeIsNullOrWasDeletedMessage}
                                     </Typography.Text>
-                                </Typography.Link>
-                            </Link>
+                            }
                         </PageFieldRow>
                     </Row>
                 </Col>
