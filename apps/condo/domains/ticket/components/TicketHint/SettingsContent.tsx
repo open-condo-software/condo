@@ -50,8 +50,9 @@ export const SettingsContent = () => {
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
+
     const filtersMeta = useTicketHintTableFilters()
-    const tableColumns = useTicketHintTableColumns(filtersMeta)
+
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
     const searchTicketHintsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -69,6 +70,8 @@ export const SettingsContent = () => {
     }, {
         fetchPolicy: 'network-only',
     })
+
+    const tableColumns = useTicketHintTableColumns(filtersMeta, ticketHints)
 
     const handleAddHintButtonClick = useCallback(async () => {
         await router.push('/settings/hint/create')

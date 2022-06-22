@@ -1,5 +1,6 @@
+import map from 'lodash/map'
 import { useRouter } from 'next/router'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -10,8 +11,10 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
 
 import { getTicketHintAddressesRender, getTicketHintRender } from '../utils/clientSchema/Renders'
+import { ITicketHintUIState } from '../utils/clientSchema/TicketHint'
+import { TicketHintProperty } from '../utils/clientSchema'
 
-export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
+export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketHints: ITicketHintUIState[]) {
     const intl = useIntl()
     const ApartmentComplexNameMessage  = intl.formatMessage({ id: 'ApartmentComplexName' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
@@ -22,16 +25,31 @@ export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>
     const search = getFilteredValue(filters, 'search')
 
     const render = useMemo(() => getTableCellRenderer(search), [search])
-    const renderTicketHintAddresses = getTicketHintAddressesRender(search)
+
+    const ticketHintIds = useMemo(() => map(ticketHints, 'id'), [ticketHints])
+    const { objs: ticketHintsProperties } = TicketHintProperty.useObjects({
+        where: {
+            ticketHint: {
+                id_in: ticketHintIds,
+            },
+        },
+    })
+
+    const renderTicketHintAddresses = useCallback((intl, ticketHint) => {
+        const properties = ticketHintsProperties
+            .filter(ticketHintProperty => ticketHintProperty.ticketHint.id === ticketHint.id)
+            .map(ticketHintProperty => ticketHintProperty.property)
+
+        return getTicketHintAddressesRender(search)(intl, properties)
+    }, [search, ticketHintsProperties])
 
     return useMemo(() => {
         return [
             {
                 title: BuildingsMessage,
                 ellipsis: true,
-                dataIndex: 'properties',
                 key: 'properties',
-                render: (value) => renderTicketHintAddresses(intl, value),
+                render: (_, ticketHint) => renderTicketHintAddresses(intl, ticketHint),
                 width: '35%',
             },
             {
