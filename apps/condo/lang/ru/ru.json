@@ -467,6 +467,8 @@
   "pages.condo.warning.modal.LeaveLabel": "Не сохранять",
   "pages.condo.residents.PageTitle": "Жители",
   "pages.condo.ticket.alert.NoProperties": "Чтобы создать заявку, добавьте хотя бы один адрес в разделе «Дома и участки».",
+  "pages.condo.ticket.field.ResponsibleIsNullOrWasDeleted": "Ответственный не указан или был удален",
+  "pages.condo.ticket.field.ExecutorIsNullOrWasDeleted": "Исполнитель не указан или был удален",
   "pages.condo.ticket.field.CanReadByResident": "отображать заявку в моб. приложении жителя",
   "pages.condo.ticket.field.ResidentClient": "Заявитель (житель)",
   "pages.condo.ticket.field.NotResidentClient": "Заявитель (не житель)",
