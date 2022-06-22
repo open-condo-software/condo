@@ -173,14 +173,6 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
     const handleEditorLoad = useCallback(() => setEditorLoading(false), [])
 
     const handleFormSubmit = useCallback(async (values) => {
-        // Если нет такого ticketHint, то есть нет initialValues.id =>
-        // 1. Создать ticketHintProperty
-        // 2. Для массива properties из формы, для каждого propertyId создать TicketHintProperty
-        //
-        // Если есть ticketHint, то обновить его name и content и
-        // 1. Если преданного в properties propertyId нет в initialPropertyIds, то создать ticketHintProperty
-        // 2. Если в initialPropertyIds есть какой-то propertyId, которого нет в property, то удалить этот ticketHintProperty
-
         const { properties, ...otherValues } = values
         const ticketHint = await action(otherValues)
 
