@@ -21,7 +21,7 @@ import { useApolloClient, useLazyQuery } from '@core/next/apollo'
 
 import dayjs, { Dayjs } from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
-import { fontSizes } from '@condo/domains/common/constants/style'
+import { colors, fontSizes } from '@condo/domains/common/constants/style'
 
 import { BarChartIcon, LinearChartIcon, PieChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
 import { Button } from '@condo/domains/common/components/Button'
@@ -94,6 +94,9 @@ const tabsCss = css`
   }
   & .ant-tabs-nav::before {
     border-bottom: unset;
+  }
+  & .ant-tabs-tab-btn {
+    color: ${colors.textSecondary}
   }
 `
 
