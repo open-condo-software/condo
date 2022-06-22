@@ -860,7 +860,7 @@
   "notification.messages.METER_SUBMIT_READINGS_REMINDER.email.subject": "Пора передать показания счетчиков!",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER.push.title": "Doma ⏰",
   "notification.messages.METER_VERIFICATION_DATE_EXPIRED.email.subject": "Внимание! У счетчика [#{data.resource}] закончился период поверки",
-  "notification.messages.METER_VERIFICATION_DATE_EXPIRED.push.title": "Пора сдавать показания счетчиков ⏰",
+  "notification.messages.METER_VERIFICATION_DATE_EXPIRED.push.title": "Пора передать показания счетчиков ⏰",
   "TicketDeadline": "Срок выполнения заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
   "ticket.EmptyList.title": "Создайте первую, это просто",
