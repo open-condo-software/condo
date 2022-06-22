@@ -1,13 +1,14 @@
 import { InfoCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Alert, Typography } from 'antd'
+import { get } from 'lodash'
 import Link from 'next/link'
 
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
-import { CSSProperties } from 'react'
+import { CSSProperties, useMemo } from 'react'
 
-import { TicketHint } from '../../utils/clientSchema'
+import { TicketHint, TicketHintProperty } from '../../utils/clientSchema'
 import { TicketHintContent } from './TicketHintContent'
 
 const StyledAlert = styled(Alert)`
@@ -23,20 +24,27 @@ const TEXT_STYLES: CSSProperties = { color: colors.black }
 const LINK_STYLES: CSSProperties = { ...TEXT_STYLES, position: 'relative', bottom: '-7px', fontSize: fontSizes.content }
 const TICKET_HINT_CONTENT_STYLES: CSSProperties = { maxHeight: '5em' }
 
-export const TicketIdHint = ({ propertyId }) => {
+export const TicketIdHintCard = ({ propertyId }) => {
     const intl = useIntl()
     const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.propertyHint' })
     const ExtraTitleMessage = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
 
+    const { obj: ticketHintProperty } = TicketHintProperty.useObject({
+        where: {
+            property: { id: propertyId },
+        },
+    })
+    const ticketHintId = useMemo(() => get(ticketHintProperty, ['ticketHint', 'id']), [ticketHintProperty])
+
     const { obj: ticketHint } = TicketHint.useObject({
         where: {
-            properties_some: { id: propertyId },
+            id: ticketHintId,
         },
     })
 
     const AlertMessage = <Typography.Text style={TEXT_STYLES}>{PropertyHintMessage}</Typography.Text>
     
-    return ticketHint && (
+    return ticketHintProperty && ticketHint && (
         <StyledAlert
             message={AlertMessage}
             description={
