@@ -580,8 +580,6 @@ async function createTestTicketHintProperty (client, organization, ticketHint, p
     if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestTicketHintProperty logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -598,8 +596,6 @@ async function updateTestTicketHintProperty (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestTicketHintProperty logic for generate fields
 
     const attrs = {
         dv: 1,
