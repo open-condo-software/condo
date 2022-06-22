@@ -582,5 +582,29 @@ describe('TicketHint', () => {
             })
         })
     })
+    describe('Validations', function () {
+        test('xss', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [property1] = await createTestProperty(admin, organization)
+            const [property2] = await createTestProperty(admin, organization)
+            const content = '<script> console.log(\'hello, world\') </script>'
+
+            const [createdTicketHint] = await createTestTicketHint(admin, organization, {
+                properties: {
+                    connect: [
+                        { id: property1.id },
+                        { id: property2.id },
+                    ],
+                },
+                content,
+            })
+
+            const ticketHint = await TicketHint.getOne(admin, { id: createdTicketHint.id })
+
+            expect(ticketHint.id).toMatch(UUID_RE)
+            expect(ticketHint.content).toEqual('&lt;script&gt; console.log(\'hello, world\') &lt;/script&gt;')
+        })
+    })
 })
 

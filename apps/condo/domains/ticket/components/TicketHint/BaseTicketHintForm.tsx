@@ -163,6 +163,9 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
         />
     ), [initialValues, mode, options, organizationId])
 
+    const [editorLoading, setEditorLoading] = useState(true)
+    const handleEditorLoad = useCallback(() => setEditorLoading(false), [])
+
     if (propertiesLoading || hintsLoading) {
         return (
             <Loader fill size={'large'}/>
@@ -237,7 +240,9 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                         />
                                     </Col>
                                     <Col span={14}>
+                                        {editorLoading && <Loader />}
                                         <Editor
+                                            onLoadContent={handleEditorLoad}
                                             apiKey={TinyMceApiKey}
                                             disabled={!organizationId}
                                             value={editorValue}
