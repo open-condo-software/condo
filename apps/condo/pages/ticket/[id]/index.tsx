@@ -226,7 +226,7 @@ const TicketContent = ({ ticket }) => {
 
         const deadlineType = getDeadlineType(ticket)
         const { moreThanDayDiff, overdueDiff } = getHumanizeDeadlineDateDifference(ticket)
-
+        
         switch (deadlineType) {
             case TicketDeadlineType.MORE_THAN_DAY: {
                 return (
@@ -331,7 +331,7 @@ const TicketContent = ({ ticket }) => {
                                                 <>
                                                     {reviewValueToText[ticketReviewValue]}&nbsp;
                                                     <Typography.Text type={'secondary'}>
-                                                        ({ticketReviewComment ? ticketReviewComment.replace(';', ',') : ReviewWithoutCommentMessage})
+                                                        ({ticketReviewComment ? ticketReviewComment.replace(';', ', ') : ReviewWithoutCommentMessage})
                                                     </Typography.Text>
                                                 </>
                                             ) : (
