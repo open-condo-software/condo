@@ -48,25 +48,34 @@ async function canManageBillingEntityWithContext ({ authentication, operation, i
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    let contextId
+    let contextIds
 
     if (operation === 'create') {
-        contextId = get(originalInput, ['context', 'connect', 'id'])
+        contextIds = Array.isArray(originalInput) ? originalInput.map(({ data }) => get(data, 'context.connect.id')) : [get(originalInput, 'context.connect.id')]
     } else if (operation === 'update') {
         if (!itemId) return false
         const itemWithContext = await getById(schemaWithContextName, itemId)
-        contextId = get(itemWithContext, ['context'])
-        if (!contextId) return false
+        contextIds = [get(itemWithContext, ['context'])]
+        if (!contextIds.length) return false
     }
-
-    const organizationContext = await getById('BillingIntegrationOrganizationContext', contextId)
-    if (!organizationContext) return false
-
-    const { organization: organizationId, integration: integrationId } = organizationContext
-    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
-    if (canManageIntegrations) return true
-
-    return await checkBillingIntegrationAccessRight(user.id, integrationId)
+    const uniqContextIds = [...new Set(contextIds)]
+    let result = true
+    for (const contextId of uniqContextIds) {
+        const organizationContext = await getById('BillingIntegrationOrganizationContext', contextId)
+        if (!organizationContext) {
+            result = false
+            break
+        }
+        const { organization: organizationId, integration: integrationId } = organizationContext
+        const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+        if (!canManageIntegrations) {
+            result = await checkBillingIntegrationAccessRight(user.id, integrationId)
+        }
+        if (!result) {
+            break
+        }
+    }
+    return result
 }
 
 module.exports = {
