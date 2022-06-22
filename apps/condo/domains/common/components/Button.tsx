@@ -283,16 +283,17 @@ const sberBlackCss = css`
   }
 `
 
-const ButtonGradientBorderWrapperCss = (secondary = false) => css`
+const ButtonGradientBorderWrapperCss = (secondary = false, disabled = false) => css`
   padding: 1px;
-  background: ${secondary ? colors.black : gradients.sberActionGradient};
+  background: ${ disabled ? colors.lightGrey[3] : (secondary ? colors.black : gradients.sberActionGradient)};
   border-radius: 9px;
+  pointer-events: ${disabled ? 'none' : 'inherit'};
   &:hover, &:active, &:focus {
-    background: ${gradients.sberActionGradient};
+    background: ${disabled ? colors.lightGrey[3] : gradients.sberActionGradient};
   }
 `
-export const ButtonGradientBorderWrapper: React.FC<ButtonGradientBorderWrapperProps> = ({ children, secondary = false }) => {
-    const wrapperStyle = ButtonGradientBorderWrapperCss(secondary)
+export const ButtonGradientBorderWrapper: React.FC<ButtonGradientBorderWrapperProps> = ({ children, secondary = false, disabled = false }) => {
+    const wrapperStyle = ButtonGradientBorderWrapperCss(secondary, disabled)
     return (
         <div css={wrapperStyle}>
             <div style={{ 
@@ -305,6 +306,7 @@ export const ButtonGradientBorderWrapper: React.FC<ButtonGradientBorderWrapperPr
 }
 interface ButtonGradientBorderWrapperProps {
     secondary?: boolean
+    disabled?: boolean
 }
 
 export interface CustomButtonProps extends Omit<ButtonProps, 'type'>, ITrackingComponent {

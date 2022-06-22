@@ -24,7 +24,7 @@ import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 
 import { BarChartIcon, LinearChartIcon, PieChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
-import { Button } from '@condo/domains/common/components/Button'
+import { Button, ButtonGradientBorderWrapper } from '@condo/domains/common/components/Button'
 import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import RadioGroupWithIcon, { radioButtonBorderlessCss } from '@condo/domains/common/components/RadioGroupWithIcon'
@@ -347,8 +347,10 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                         </Form.Item>
                     </Col>
                 )}
-                <Col span={24}>
-                    <Button onClick={applyFilters} type={'sberPrimary'}>{ApplyButtonTitle}</Button>
+                <Col span={3.2}>
+                    <ButtonGradientBorderWrapper secondary>
+                        <Button onClick={applyFilters} type={'sberDefaultGradient'} secondary>{ApplyButtonTitle}</Button>
+                    </ButtonGradientBorderWrapper>
                 </Col>
             </Row>
         </Form>
@@ -904,11 +906,6 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     <Col xs={24} sm={18}>
                         <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
                     </Col>
-                    <Col span={6} hidden={isSmall}>
-                        <Tooltip title={NotImplementedYetMessage}>
-                            <Button icon={<PlusCircleFilled />} type='sberPrimary' secondary>{HeaderButtonTitle}</Button>
-                        </Tooltip>
-                    </Col>
                 </Row>
                 <Row gutter={[0, 24]} align={'top'} justify={'space-between'}>
                     <Col span={24}>
@@ -1021,22 +1018,27 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         </Row>
                     </Col>
                     <ActionBar hidden={isSmall}>
-                        <Button 
-                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf} 
-                            icon={<FilePdfFilled />} 
-                            type='sberPrimary' 
-                            secondary>
-                            {PrintTitle}
-                        </Button>
-                        <Button 
-                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} 
-                            onClick={downloadExcel} 
-                            loading={isXSLXLoading} 
-                            icon={<EditFilled />} 
-                            type='sberPrimary' 
-                            secondary>
-                            {ExcelTitle}
-                        </Button>
+                        <ButtonGradientBorderWrapper secondary 
+                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)}>
+                            <Button 
+                                disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf} 
+                                icon={<FilePdfFilled />} 
+                                type='sberDefaultGradient' 
+                                secondary>
+                                {PrintTitle}
+                            </Button>
+                        </ButtonGradientBorderWrapper>
+                        <ButtonGradientBorderWrapper secondary disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)}>
+                            <Button 
+                                disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} 
+                                onClick={downloadExcel} 
+                                loading={isXSLXLoading} 
+                                icon={<EditFilled />} 
+                                type='sberDefaultGradient' 
+                                secondary>
+                                {ExcelTitle}
+                            </Button>
+                        </ButtonGradientBorderWrapper>
                     </ActionBar>
                 </Row>
                 <TicketWarningModal />

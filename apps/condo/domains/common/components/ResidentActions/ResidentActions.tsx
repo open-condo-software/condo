@@ -61,7 +61,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
                 minified
                     ? (
                         <ButtonGradientBorderWrapper>
-                            <Button type={'sberGradient'} icon={<PlusOutlined />} shape={'circle'}/>
+                            <Button type={'sberGradient'} icon={<PlusOutlined />}/>
                         </ButtonGradientBorderWrapper>)
                     : (
                         <ButtonGradientBorderWrapper>
