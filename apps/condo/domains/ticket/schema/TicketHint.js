@@ -8,7 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/ticket/access/TicketHint')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-
+const xss = require('xss')
 
 const TicketHint = new GQLListSchema('TicketHint', {
     schemaDoc: 'Help information related to a property or group of properties',
@@ -32,6 +32,11 @@ const TicketHint = new GQLListSchema('TicketHint', {
             schemaDoc: 'Textual content of help in HTML format',
             type: Text,
             isRequired: true,
+            hooks: {
+                resolveInput: ({ resolvedData, fieldPath }) => {
+                    return xss(resolvedData[fieldPath])
+                },
+            },
         },
 
     },
