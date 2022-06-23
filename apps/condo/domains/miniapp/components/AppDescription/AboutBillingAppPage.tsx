@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
+import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import { AppDescriptionPageContent } from './AppDescriptionPageContent'
@@ -10,6 +11,7 @@ import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { AlreadyConnectedBilling } from '@condo/domains/miniapp/components/AppDescription/Alerts/AlreadyConnectedBilling'
+import { NoAcquiring } from '@condo/domains/miniapp/components/AppDescription/Alerts/NoAcquiring'
 import { useRouter } from 'next/router'
 
 interface AboutBillingAppPageProps {
@@ -31,7 +33,11 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
         where: { id },
     })
 
-    const { objs: contexts, loading: contextsLoading, error: contextsError } = BillingIntegrationOrganizationContext.useObjects({
+    const { objs: billingContexts, loading: billingContextsLoading, error: billingContextsError } = BillingIntegrationOrganizationContext.useObjects({
+        where: { organization: { id: organizationId } },
+    })
+
+    const { objs: acquiringContexts, loading: acquiringContextsLoading, error: acquiringContextsError } = AcquiringIntegrationContext.useObjects({
         where: { organization: { id: organizationId } },
     })
 
@@ -52,16 +58,21 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
     // Billing context not exist
     // If context exist -> redirect to app index page
     useEffect(() => {
-        if (integration && !contextsLoading && !contextsError && contexts) {
-            if (contexts.some((context) => get(context, ['integration', 'id']) === integration.id)) {
+        if (integration && !billingContextsLoading && !billingContextsError && billingContexts) {
+            if (billingContexts.some((context) => get(context, ['integration', 'id']) === integration.id)) {
                 router.push(redirectUrl)
             }
         }
-    }, [router, integration, contextsLoading, contextsError, contexts, id, redirectUrl])
+    }, [router, integration, billingContextsLoading, billingContextsError, billingContexts, id, redirectUrl])
 
-    if (integrationLoading || contextsLoading || integrationError || contextsError) {
+    if (integrationLoading || billingContextsLoading || acquiringContextsLoading ||
+        integrationError || billingContextsError || acquiringContextsError) {
         return (
-            <LoadingOrErrorPage title={LoadingMessage} error={integrationError || contextsError} loading={integrationLoading || contextsLoading}/>
+            <LoadingOrErrorPage
+                title={LoadingMessage}
+                error={integrationError || billingContextsError || acquiringContextsError}
+                loading={integrationLoading || billingContextsLoading || acquiringContextsLoading}
+            />
         )
     }
 
@@ -73,7 +84,8 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
 
     const aboutSections = get(integration, ['about', '0', 'props', 'sections'], [])
 
-    const isAnyBillingConnected = Boolean(contexts.length)
+    const isAnyBillingConnected = Boolean(billingContexts.length)
+    const isAnyAcquiringConnected = Boolean(acquiringContexts.length)
 
     return (
         <>
@@ -93,8 +105,13 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
                         aboutSections={aboutSections}
                         instruction={integration.instruction}
                         appUrl={integration.appUrl}
-                        disabledConnect={isAnyBillingConnected}
+                        disabledConnect={isAnyBillingConnected || !isAnyAcquiringConnected}
                         connectAction={createContextAction}>
+                        {
+                            !isAnyAcquiringConnected && (
+                                <NoAcquiring/>
+                            )
+                        }
                         {
                             isAnyBillingConnected && (
                                 <AlreadyConnectedBilling/>
