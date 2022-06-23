@@ -39,9 +39,9 @@ export const AlreadyConnectedBilling: React.FC = () => {
 
     return (
         <Alert
-            message={<Typography.Text strong>{AlertTitle}</Typography.Text>}
+            message={<Typography.Text strong type={'danger'}>{AlertTitle}</Typography.Text>}
             description={<AlertBody/>}
-            type={'warning'}
+            type={'error'}
             showIcon
             style={ALERT_BOX_STYLE}
         />

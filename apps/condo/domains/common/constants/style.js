@@ -40,6 +40,7 @@ const logoPurple = '#525FAB'
 const backgroundWhiteSecondary = '#E6E8F1'
 const attentionBg = '#FFF5E6'
 const attentionText = '#FF9500'
+const warningBg = '#FFECEB'
 const warningText = '#FF3B30'
 
 
@@ -106,6 +107,7 @@ const colors = {
     backgroundWhiteSecondary,
     attentionBg,
     attentionText,
+    warningBg,
     warningText,
 }
 
@@ -180,8 +182,8 @@ const antGlobalVariables = {
     '@tabs-active-color': '@black',
     '@tabs-ink-bar-color': '@black',
     '@switch-color': sberGreen,
-    '@alert-error-border-color': '@red-2',
-    '@alert-error-bg-color': '@red-2',
+    '@alert-error-border-color': colors.warningBg,
+    '@alert-error-bg-color': colors.warningBg,
     '@alert-info-border-color': '@blue-2',
     '@alert-info-bg-color': '@blue-2',
     '@alert-success-border-color': '@green-2',
@@ -194,7 +196,7 @@ const antGlobalVariables = {
     '@text-color-secondary': textSecondary,
     '@success-color': green[6],
     '@warning-color': colors.attentionText,
-    '@error-color': colors.red[5],
+    '@error-color': colors.warningText,
     '@disabled-color': inputBorderGrey,
     '@link-color': green[6],
     '@link-hover-color': green[8],
