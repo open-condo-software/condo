@@ -2,7 +2,7 @@
 import { EditFilled, FilePdfFilled } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
 import { Affix, Breadcrumb, Col, Row, Space, Typography } from 'antd'
-import { UploadFileStatus } from 'antd/lib/upload/interface'
+import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import UploadList from 'antd/lib/upload/UploadList/index'
 import { compact, get, isEmpty, map } from 'lodash'
 import Head from 'next/head'
@@ -93,9 +93,17 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         }
         return fileInList
     })
+
+    const handlerDownloadFile: (file: UploadFile) => void = async (file: UploadFile) => {
+        const a = document.createElement('a')
+        a.href = file.url
+        a.download = file.name
+        a.click()
+    }
+
     return (
         <div className={'upload-control-wrapper'} css={UploadListWrapperStyles}>
-            <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} />
+            <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} onPreview={handlerDownloadFile} />
         </div>
     )
 }
