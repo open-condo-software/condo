@@ -7,11 +7,12 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
 import { Button } from '@condo/domains/common/components/Button'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { SUPPORT_EMAIL } from '@condo/domains/common/constants/requisites'
 import { useOrganization } from '@core/next/organization'
 import { ServiceSubscription as ServiceSubscriptionUtil } from '../utils/clientSchema'
 import { get } from 'lodash'
 import { isExpired } from '../utils/helpers'
-import { hasFeature } from '../../common/components/containers/FeatureFlag'
 
 dayjs.extend(relativeTime)
 dayjs.extend(duration)
@@ -59,7 +60,6 @@ const ExpiredModal: React.FC = () => {
     const intl = useIntl()
     const ExpiredTitleMessage = intl.formatMessage({ id: 'subscription.modal.expired.title' })
     const ExpiredDescriptionPromptMessage = intl.formatMessage({ id: 'subscription.modal.expired.description.prompt' })
-    const ExpiredDescriptionLinkMessage = intl.formatMessage({ id: 'subscription.modal.expired.description.link' })
     const ExpiredDescriptionPhoneMessage = intl.formatMessage({ id: 'subscription.modal.expired.description.phone' })
     const OKMessage = intl.formatMessage({ id: 'OK' })
 
@@ -77,8 +77,8 @@ const ExpiredModal: React.FC = () => {
         >
             <Typography.Paragraph>
                 {ExpiredDescriptionPromptMessage}<br/>
-                <a href={`mailto:${ExpiredDescriptionLinkMessage}`}>
-                    {ExpiredDescriptionLinkMessage}
+                <a href={`mailto:${SUPPORT_EMAIL}`}>
+                    {SUPPORT_EMAIL}
                 </a>
                 <br/>
                 <a href={`tel:${ExpiredDescriptionPhoneMessage.replace(' ', '')}`}>
