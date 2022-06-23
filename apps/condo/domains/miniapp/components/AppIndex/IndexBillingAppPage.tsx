@@ -23,7 +23,7 @@ export const IndexBillingAppPage: React.FC<IndexBillingAppPageProps> = ({ id }) 
     const BillingMessage = intl.formatMessage({ id: 'menu.Billing' })
     const TagMessage = intl.formatMessage({ id: `miniapps.category.${BILLING_APP_TYPE}` })
 
-    const [title, setTitle] = useState(BillingMessage)
+    const [title, setTitle] = useState(null)
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
@@ -58,11 +58,7 @@ export const IndexBillingAppPage: React.FC<IndexBillingAppPageProps> = ({ id }) 
         return <Error statusCode={404}/>
     }
 
-    const PageTitle = get(integration, 'name', BillingMessage)
-
-    if (PageTitle && title === BillingMessage) {
-        setTitle(PageTitle)
-    }
+    const IntegrationTitle = get(integration, 'name', BillingMessage)
 
     const changePageTitleHandler = (message) => {
         if (message && message.title) {
@@ -75,12 +71,12 @@ export const IndexBillingAppPage: React.FC<IndexBillingAppPageProps> = ({ id }) 
     return (
         <>
             <Head>
-                <title>{title}</title>
+                <title>{title || IntegrationTitle}</title>
             </Head>
             <PageWrapper>
                 {
                     hasFrame && (
-                        <PageHeader title={<Typography.Title>{title}</Typography.Title>} spaced/>
+                        <PageHeader title={<Typography.Title>{title || IntegrationTitle}</Typography.Title>} spaced/>
                     )
                 }
                 <PageContent>
