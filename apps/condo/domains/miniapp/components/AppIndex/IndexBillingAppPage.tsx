@@ -65,7 +65,6 @@ export const IndexBillingAppPage: React.FC<IndexBillingAppPageProps> = ({ id }) 
     }
 
     const changePageTitleHandler = (message) => {
-        console.log(message)
         if (message && message.title) {
             setTitle(message.title)
         }
