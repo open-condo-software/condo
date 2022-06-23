@@ -460,7 +460,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 />
                                             </Row>
                                         </Col>
-                                        <Col span={5}>
+                                        <Col span={6}>
                                             <FormTicketHintCard selectedPropertyId={selectedPropertyId} />
                                         </Col>
                                     </Row>

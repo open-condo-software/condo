@@ -4,7 +4,7 @@ import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@core/next/intl'
 
@@ -44,6 +44,7 @@ export const SettingsContent = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const canManageTicketHints = useMemo(() => get(userOrganization, ['link', 'role', 'canManageTicketHints']), [userOrganization])
 
     const [search, handleSearchChange] = useSearch<IFilters>(false)
     const { shouldTableScroll } = useLayoutContext()
@@ -119,17 +120,21 @@ export const SettingsContent = () => {
                     data-cy={'ticketHint__table'}
                 />
             </Col>
-            <Col span={24}>
-                <ActionBar>
-                    <Button
-                        type={'sberDefaultGradient'}
-                        icon={<PlusCircleOutlined/>}
-                        onClick={handleAddHintButtonClick}
-                    >
-                        {CreateHintMessage}
-                    </Button>
-                </ActionBar>
-            </Col>
+            {
+                canManageTicketHints && (
+                    <Col span={24}>
+                        <ActionBar>
+                            <Button
+                                type={'sberDefaultGradient'}
+                                icon={<PlusCircleOutlined/>}
+                                onClick={handleAddHintButtonClick}
+                            >
+                                {CreateHintMessage}
+                            </Button>
+                        </ActionBar>
+                    </Col>
+                )
+            }
         </Row>
     )
 }
