@@ -2,7 +2,8 @@ import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { Tabs } from 'antd'
 import { useRouter } from 'next/router'
 
-import { parseQuery } from '../../utils/tables.utils'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+
 import { SettingsTab, SettingsTabs } from './Tabs'
 
 export type SettingsTabType = {

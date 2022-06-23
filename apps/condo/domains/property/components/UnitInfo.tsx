@@ -53,7 +53,7 @@ interface IUnitInfo {
     }): React.ReactElement
 }
 
-const GUTTER_40_0: [Gutter, Gutter] = [40, 0]
+const UNIT_FIELDS_GUTTER: [Gutter, Gutter] = [40, 0]
 
 export const UnitInfo: IUnitInfo = (props) => {
     const intl = useIntl()
@@ -94,7 +94,7 @@ export const UnitInfo: IUnitInfo = (props) => {
 
     return (
         <Col span={colSpan}>
-            <Row gutter={GUTTER_40_0}>
+            <Row gutter={UNIT_FIELDS_GUTTER}>
                 <Col span={5} data-cy={'unit-name-input-item'}>
                     <TicketFormItem name={'unitName'} label={FlatNumberLabel}>
                         <UnitNameInput

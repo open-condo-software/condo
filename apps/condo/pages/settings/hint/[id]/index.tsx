@@ -27,8 +27,8 @@ const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCus
     type: 'sberDangerGhost',
 }
 
-const GUTTER_0_60: [Gutter, Gutter] = [0, 60]
-const GUTTER_0_24: [Gutter, Gutter] = [0, 24]
+const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
+const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 
 const TicketHintIdPage = () => {
     const intl = useIntl()
@@ -81,7 +81,7 @@ const TicketHintIdPage = () => {
         }
     }, [handleDeleteAction, softDeleteTicketHintPropertyAction, ticketHint, ticketHintProperties])
 
-    const htmlContent = useMemo(() => ({
+    const ticketHintContent = useMemo(() => ({
         __html: xss(get(ticketHint, 'content')),
     }), [ticketHint])
 
@@ -98,12 +98,12 @@ const TicketHintIdPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={GUTTER_0_60}>
+                    <Row gutter={BIG_VERTICAL_GUTTER}>
                         <Col span={24}>
                             <Typography.Title>{TicketHintTitleMessage}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <Row gutter={GUTTER_0_24}>
+                            <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                                 <Col span={24}>
                                     <PageFieldRow title={BuildingsMessage}>
                                         {renderTicketHintProperties}
@@ -116,7 +116,7 @@ const TicketHintIdPage = () => {
                                 </Col>
                                 <Col span={24}>
                                     <PageFieldRow title={TicketHintTitleMessage}>
-                                        <div dangerouslySetInnerHTML={htmlContent}/>
+                                        <div dangerouslySetInnerHTML={ticketHintContent}/>
                                     </PageFieldRow>
                                 </Col>
                             </Row>

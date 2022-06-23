@@ -7,8 +7,8 @@ import { useIntl } from '@core/next/intl'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { TicketHint } from '@condo/domains/ticket/utils/clientSchema'
 
-import { TicketHint } from '../../utils/clientSchema'
 import { BaseTicketHintForm } from './BaseTicketHintForm'
 
 export const UpdateTicketHintForm = ({ id }) => {

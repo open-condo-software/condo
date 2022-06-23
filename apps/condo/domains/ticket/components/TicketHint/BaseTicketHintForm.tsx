@@ -1,6 +1,6 @@
 import { Alert, Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { differenceWith, flatten, get, isEmpty } from 'lodash'
+import { get, isEmpty } from 'lodash'
 import getConfig from 'next/config'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
@@ -11,14 +11,11 @@ import { useIntl } from '@core/next/intl'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-
-import { searchOrganizationProperty } from '../../utils/clientSchema/search'
-import { Property } from '../../../property/utils/clientSchema'
-import { TicketHint, TicketHintProperty } from '../../utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+import { TicketHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -63,8 +60,8 @@ const TicketHintAlert = () => {
     )
 }
 
-const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
-const GUTTER_0_25: [Gutter, Gutter] = [0, 25]
+const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
+const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 25]
 const APARTMENT_COMPLEX_NAME_FIELD_PROPS = {
     labelCol: {
         sm: 6,
@@ -216,7 +213,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
     }
 
     return (
-        <Row gutter={GUTTER_0_40}>
+        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             {
                 mode === 'create' && !isEmpty(propertiesWithTicketHint) && (
                     <Col span={24}>
@@ -231,9 +228,9 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                     {...LAYOUT}
                 >
                     {({ handleSave, isLoading, form }) => (
-                        <Row gutter={GUTTER_0_40}>
+                        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                             <Col span={24}>
-                                <Row gutter={GUTTER_0_25}>
+                                <Row gutter={SMALL_VERTICAL_GUTTER}>
                                     <Col span={24}>
                                         <Form.Item
                                             name={'properties'}
