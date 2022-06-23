@@ -11,7 +11,7 @@ import { TicketHint, TicketHintProperty } from '@condo/domains/ticket/utils/clie
 import { TicketHintContent } from './TicketHintContent'
 import { get } from 'lodash'
 
-const ROW_STYLES: CSSProperties = { position: 'absolute', overflow: 'hidden', backgroundColor: colors.backgroundLightGrey, padding: '20px', borderRadius: '12px' }
+const ROW_STYLES: CSSProperties = { overflow: 'hidden', backgroundColor: colors.backgroundLightGrey, padding: '20px', borderRadius: '12px' }
 const LINK_STYLES: CSSProperties = { color: 'black', position: 'relative', bottom: '-8px' }
 
 const GUTTER_0_10: [Gutter, Gutter] = [0, 10]
@@ -26,7 +26,7 @@ export const FormTicketHintCard = ({ selectedPropertyId }) => {
             property: { id: selectedPropertyId },
         },
     })
-    const ticketHintId = useMemo(() => get(ticketHintProperty, ['ticketHint', 'id']), [ticketHintProperty])
+    const ticketHintId = useMemo(() => get(ticketHintProperty, ['ticketHint', 'id'], null), [ticketHintProperty])
 
     const { obj: ticketHint } = TicketHint.useObject({
         where: {

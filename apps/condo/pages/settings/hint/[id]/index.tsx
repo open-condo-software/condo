@@ -21,6 +21,7 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketHint, TicketHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
+import { useOrganization } from '@core/next/organization'
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
@@ -40,6 +41,8 @@ const TicketHintIdPage = () => {
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteMessage' })
 
     const router = useRouter()
+    const { link } = useOrganization()
+    const canManageTicketHints = useMemo(() => get(link, ['role', 'canManageTicketHints']), [link])
 
     const hintId = get(router, ['query', 'id'], null)
     const { loading, obj: ticketHint } = TicketHint.useObject({
@@ -117,26 +120,30 @@ const TicketHintIdPage = () => {
                                 </Col>
                             </Row>
                         </Col>
-                        <Col span={24}>
-                            <ActionBar>
-                                <Link href={`/settings/hint/${hintId}/update`}>
-                                    <Button
-                                        color={'green'}
-                                        type={'sberDefaultGradient'}
-                                    >
-                                        {UpdateMessage}
-                                    </Button>
-                                </Link>
-                                <DeleteButtonWithConfirmModal
-                                    title={ConfirmDeleteTitle}
-                                    message={ConfirmDeleteMessage}
-                                    okButtonLabel={DeleteMessage}
-                                    action={handleDeleteButtonClick}
-                                    buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
-                                    buttonContent={deleteButtonContent}
-                                />
-                            </ActionBar>
-                        </Col>
+                        {
+                            canManageTicketHints && (
+                                <Col span={24}>
+                                    <ActionBar>
+                                        <Link href={`/settings/hint/${hintId}/update`}>
+                                            <Button
+                                                color={'green'}
+                                                type={'sberDefaultGradient'}
+                                            >
+                                                {UpdateMessage}
+                                            </Button>
+                                        </Link>
+                                        <DeleteButtonWithConfirmModal
+                                            title={ConfirmDeleteTitle}
+                                            message={ConfirmDeleteMessage}
+                                            okButtonLabel={DeleteMessage}
+                                            action={handleDeleteButtonClick}
+                                            buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
+                                            buttonContent={deleteButtonContent}
+                                        />
+                                    </ActionBar>
+                                </Col>
+                            )
+                        }
                     </Row>
                 </PageContent>
             </PageWrapper>

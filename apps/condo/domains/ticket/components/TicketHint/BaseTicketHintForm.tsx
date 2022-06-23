@@ -149,7 +149,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
         [properties, propertiesWithTicketHint])
 
     const options = useMemo(() =>
-        [...propertiesWithoutTicketHint, ...initialProperties] // тут было propertiesWithoutTicketHint
+        [...propertiesWithoutTicketHint, ...initialProperties]
             .map(property => ({ label: property.address, value: property.id })),
     [initialProperties, propertiesWithoutTicketHint])
     const optionValues = useMemo(() => options.map(option => option.value),
@@ -174,15 +174,17 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
 
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, ...otherValues } = values
-        const ticketHint = await action({ ...otherValues, organization: organizationId })
-
         const initialTicketHintId = get(initialValues, 'id')
 
         if (!initialTicketHintId) {
             for (const propertyId of properties) {
+                const ticketHint = await action({ ...otherValues, organization: organizationId })
+
                 await createTicketHintPropertyAction({ organization: organizationId, ticketHint: ticketHint.id, property: propertyId })
             }
         } else {
+            const ticketHint = await action({ ...otherValues })
+
             for (const propertyId of properties) {
                 if (!initialPropertyIds.includes(propertyId)) {
                     await createTicketHintPropertyAction({ organization: organizationId, ticketHint: ticketHint.id, property: propertyId })
