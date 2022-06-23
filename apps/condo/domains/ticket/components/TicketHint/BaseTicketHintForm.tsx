@@ -178,9 +178,9 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
         const initialTicketHintId = get(initialValues, 'id')
 
         if (!initialTicketHintId) {
-            for (const propertyId of properties) {
-                const ticketHint = await action({ ...otherValues, organization: organizationId })
+            const ticketHint = await action({ ...otherValues, organization: organizationId })
 
+            for (const propertyId of properties) {
                 await createTicketHintPropertyAction({ organization: organizationId, ticketHint: ticketHint.id, property: propertyId })
             }
         } else {
