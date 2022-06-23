@@ -200,6 +200,7 @@ const buttonDefaultGradientCss = (secondary = false) => {
       &:disabled, &:hover:disabled {
         color: ${secondary ? colors.textSecondary : colors.white};
         background: ${secondary ? colors.lightGrey[3] : colors.black };
+        opacity: ${secondary ? 1 : 0.5};
         border: ${secondary ? 'unset' : 'inherit'};
         pointer-events: none;
       }
