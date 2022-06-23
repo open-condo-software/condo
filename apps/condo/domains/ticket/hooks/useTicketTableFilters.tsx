@@ -44,7 +44,7 @@ const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
 const filterFloor = getFilter('floorName', 'array', 'string', 'in')
-const filterUnit = getFilter('unitName', 'array', 'string', 'in')
+const filterUnit = getStringContainsFilter(['unitName'])
 const filterPlaceClassifier = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifier = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifierSearch = getStringContainsFilter(['categoryClassifier', 'name'])
@@ -274,14 +274,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 keyword: 'unitName',
                 filters: [filterUnit],
                 component: {
-                    type: ComponentType.TagsSelect,
+                    type: ComponentType.Input,
                     props: {
-                        tokenSeparators: [' '],
                         placeholder: EnterUnitNameLabel,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: UnitMessage,
-                        size: FilterComponentSize.Medium,
                     },
                 },
             },
