@@ -58,39 +58,6 @@ const SuccessfulBilling = {
     contextDefaultStatus: CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, реестровый обмен',
     dataFormat: Lvl3DataFormat,
-    availableOptions: {
-        title: 'Формат ваших реестров',
-        options: [
-            {
-                name: '1C',
-                displayName: '1C',
-                billingPageTitle: 'Интеграция через загрузку реестров 1С',
-                descriptionDetails: {
-                    urlText: 'о формате',
-                    url: 'https://help.doma.ai',
-                },
-            },
-            {
-                name: 'SBBOL_8_2',
-                displayName: 'СБ Бизнес Онлайн 8_2',
-                billingPageTitle: 'Интеграция через загрузку реестров СББОЛ',
-                descriptionDetails: {
-                    urlText: 'о формате',
-                    url: 'https://help.doma.ai',
-                },
-                dataFormat: Lvl1DataFormat,
-            },
-            {
-                name: 'SBBOL_9_1',
-                displayName: 'СБ Бизнес Онлайн 9_1',
-                billingPageTitle: 'Интеграция через загрузку реестров СББОЛ',
-                descriptionDetails: {
-                    urlText: 'о формате',
-                    url: 'https://help.doma.ai',
-                },
-            },
-        ],
-    },
     developer: DEVELOPER_NAME,
 }
 
