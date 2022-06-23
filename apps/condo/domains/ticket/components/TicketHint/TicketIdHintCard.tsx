@@ -34,7 +34,7 @@ export const TicketIdHintCard = ({ propertyId }) => {
             property: { id: propertyId },
         },
     })
-    const ticketHintId = useMemo(() => get(ticketHintProperty, ['ticketHint', 'id']), [ticketHintProperty])
+    const ticketHintId = useMemo(() => get(ticketHintProperty, ['ticketHint', 'id'], null), [ticketHintProperty])
 
     const { obj: ticketHint } = TicketHint.useObject({
         where: {
