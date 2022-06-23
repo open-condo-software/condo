@@ -34,7 +34,7 @@ const StyledTable = styled(Table)`
   }
 `
 
-const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
+const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 export const SettingsContent = () => {
     const intl = useIntl()
@@ -91,7 +91,7 @@ export const SettingsContent = () => {
     }, [handleSearchChange])
 
     return (
-        <Row gutter={GUTTER_0_40}>
+        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
                 <Typography.Title level={3}>{TicketHintTitle}</Typography.Title>
             </Col>

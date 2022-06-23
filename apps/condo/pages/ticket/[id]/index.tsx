@@ -3,6 +3,7 @@ import { EditFilled, FilePdfFilled } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
 import { Affix, Alert, Breadcrumb, Col, Row, Space, Typography } from 'antd'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
+import { Gutter } from 'antd/es/grid/row'
 import UploadList from 'antd/lib/upload/UploadList/index'
 import { compact, get, isEmpty, map } from 'lodash'
 import Head from 'next/head'
@@ -163,6 +164,7 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
 
 const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
 const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
+const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 16]
 
 const TicketContent = ({ ticket }) => {
     const intl = useIntl()
@@ -367,7 +369,7 @@ const TicketContent = ({ ticket }) => {
                             ) : null
                         }
                         <PageFieldRow title={AddressMessage} highlight>
-                            <Row gutter={[0, 16]}>
+                            <Row gutter={SMALL_VERTICAL_GUTTER}>
                                 <Col span={24}>
                                     {
                                         propertyWasDeleted ? (

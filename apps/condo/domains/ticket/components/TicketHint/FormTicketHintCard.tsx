@@ -14,7 +14,7 @@ import { get } from 'lodash'
 const ROW_STYLES: CSSProperties = { overflow: 'hidden', backgroundColor: colors.backgroundLightGrey, padding: '20px', borderRadius: '12px' }
 const LINK_STYLES: CSSProperties = { color: 'black', position: 'relative', bottom: '-8px' }
 
-const GUTTER_0_10: [Gutter, Gutter] = [0, 10]
+const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
 
 export const FormTicketHintCard = ({ selectedPropertyId }) => {
     const intl = useIntl()
@@ -35,7 +35,7 @@ export const FormTicketHintCard = ({ selectedPropertyId }) => {
     })
 
     return selectedPropertyId && ticketHintProperty && ticketHint && (
-        <Row gutter={GUTTER_0_10} style={ROW_STYLES}>
+        <Row gutter={SMALL_VERTICAL_GUTTER} style={ROW_STYLES}>
             <Col span={24}>
                 <Typography.Title level={5}>{HintMessage}</Typography.Title>
             </Col>

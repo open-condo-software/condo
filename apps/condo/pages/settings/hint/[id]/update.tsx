@@ -11,7 +11,7 @@ import { TicketHintForm } from '@condo/domains/ticket/components/TicketHint/Tick
 
 const ROW_STYLES: CSSProperties = { height: '100%' }
 const TITLE_STYLES: CSSProperties = { margin: 0 }
-const GUTTER_0_60: [Gutter, Gutter] = [0, 60]
+const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 
 const UpdateTicketHintPage = () => {
     const intl = useIntl()
@@ -25,7 +25,7 @@ const UpdateTicketHintPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={GUTTER_0_60} style={ROW_STYLES}>
+                    <Row gutter={BIG_VERTICAL_GUTTER} style={ROW_STYLES}>
                         <Col span={24}>
                             <Typography.Title level={1} style={TITLE_STYLES}>{PageTitleMsg}</Typography.Title>
                         </Col>

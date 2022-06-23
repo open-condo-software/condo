@@ -86,12 +86,11 @@ const COUNTER_STYLES = { float: 'right' }
 const UPLOAD_COMPONENT_WRAPPER_STYLES = { paddingTop: '24px' }
 const SPAN_STYLES = { 'color': colors.brightRed }
 
-const GUTTER_0_60: [Gutter, Gutter] = [0, 60]
-const GUTTER_0_24: [Gutter, Gutter] = [0, 24]
-const GUTTER_0_10: [Gutter, Gutter] = [0, 10]
-const GUTTER_40_0: [Gutter, Gutter] = [40, 0]
-const GUTTER_60_0: [Gutter, Gutter] = [60, 0]
-const GUTTER_0_6: [Gutter, Gutter] = [0, 6]
+const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
+const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
+const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
+const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [60, 0]
+const MEDIUM_HORIZONTAL_GUTTER: [Gutter, Gutter] = [40, 0]
 
 export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
@@ -123,9 +122,9 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
 
     return (
         <Col span={24}>
-            <Row gutter={GUTTER_0_60}>
+            <Row gutter={BIG_VERTICAL_GUTTER}>
                 <Col span={24}>
-                    <Row gutter={GUTTER_0_24}>
+                    <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                         <Col span={24}>
                             <Typography.Title level={3}>
                                 {DescriptionLabel}
@@ -157,9 +156,9 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Row gutter={GUTTER_0_24}>
+                    <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                         <Col span={24}>
-                            <Row gutter={GUTTER_0_10}>
+                            <Row gutter={SMALL_VERTICAL_GUTTER}>
                                 <Col span={24}>
                                     <Typography.Title level={3}>{ClassifierLabel}</Typography.Title>
                                 </Col>
@@ -169,7 +168,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                             </Row>
                         </Col>
                         <Col span={24}>
-                            <Row gutter={GUTTER_40_0}>
+                            <Row gutter={MEDIUM_HORIZONTAL_GUTTER}>
                                 <Col span={24} lg={4}>
                                     <Form.Item name={'isEmergency'} valuePropName='checked'>
                                         <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxEmergency'}>
@@ -196,7 +195,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                     </Row>
                 </Col>
                 <Col span={deadlineColSpan}>
-                    <Row gutter={GUTTER_0_10}>
+                    <Row gutter={SMALL_VERTICAL_GUTTER}>
                         <Col span={24}>
                             <Typography.Title level={3}>{TicketDeadlineLabel}</Typography.Title>
                         </Col>
@@ -417,13 +416,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                             </Typography.Paragraph>
                         </Prompt>
                         <Col span={24}>
-                            <Row gutter={GUTTER_0_60}>
+                            <Row gutter={BIG_VERTICAL_GUTTER}>
                                 <Col span={24}>
-                                    <Row gutter={GUTTER_60_0} justify={'space-between'}>
+                                    <Row gutter={BIG_HORIZONTAL_GUTTER} justify={'space-between'}>
                                         <Col span={17}>
-                                            <Row gutter={GUTTER_0_60}>
+                                            <Row gutter={BIG_VERTICAL_GUTTER}>
                                                 <Col span={24}>
-                                                    <Row gutter={GUTTER_0_6}>
+                                                    <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                         {NoPropertiesAlert}
                                                         <Col span={24} data-cy={'ticket__property-address-search-input'}>
                                                             <TicketFormItem
@@ -478,7 +477,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
                                                 return (
                                                     <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
-                                                        <Row gutter={GUTTER_0_60}>
+                                                        <Row gutter={BIG_VERTICAL_GUTTER}>
                                                             <TicketInfo
                                                                 form={form}
                                                                 UploadComponent={UploadComponent}
