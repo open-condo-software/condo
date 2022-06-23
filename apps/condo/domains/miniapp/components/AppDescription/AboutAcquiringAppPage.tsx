@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect } from 'react'
 import { AcquiringIntegration, AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
-import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
 import { AppDescriptionPageContent } from './AppDescriptionPageContent'
@@ -10,7 +9,6 @@ import Error from 'next/error'
 import Head from 'next/head'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
-import { NoConnectedBillings } from '@condo/domains/miniapp/components/AppDescription/Alerts/NoConnectedBillings'
 import { useRouter } from 'next/router'
 
 interface AboutAcquiringAppPageProps {
@@ -29,10 +27,6 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
 
     const { obj: integration, loading: integrationLoading, error: integrationError } = AcquiringIntegration.useObject({
         where: { id },
-    })
-
-    const { objs: billingContexts, loading: billingsLoading, error: billingsError } = BillingIntegrationOrganizationContext.useObjects({
-        where: { organization: { id: organizationId } },
     })
 
     const { obj: context, loading: contextLoading, error: contextError } = AcquiringIntegrationContext.useObject({
@@ -64,12 +58,12 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
         }
     }, [router, integration, contextLoading, contextError, context, id, redirectUrl])
 
-    if (integrationLoading || billingsLoading || integrationError || billingsError) {
+    if (integrationLoading || integrationError) {
         return (
             <LoadingOrErrorPage
                 title={LoadingMessage}
-                error={integrationError || billingsError}
-                loading={integrationLoading || billingsLoading}
+                error={integrationError}
+                loading={integrationLoading}
             />
         )
     }
@@ -81,8 +75,6 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
     const PageTitle = get(integration, 'name', AcquiringMessage)
 
     const aboutSections = get(integration, ['about', '0', 'props', 'sections'], [])
-
-    const isAnyBillingConnected = Boolean(billingContexts.length)
 
     return (
         <>
@@ -102,15 +94,8 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
                         aboutSections={aboutSections}
                         instruction={integration.instruction}
                         appUrl={integration.appUrl}
-                        disabledConnect={!isAnyBillingConnected}
                         connectAction={createContextAction}
-                    >
-                        {
-                            !isAnyBillingConnected && (
-                                <NoConnectedBillings/>
-                            )
-                        }
-                    </AppDescriptionPageContent>
+                    />
                 </PageContent>
             </PageWrapper>
         </>
