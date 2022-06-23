@@ -61,6 +61,7 @@ const TicketHintIdPage = () => {
     })
     const softDeleteTicketHintPropertyAction = TicketHintProperty.useSoftDelete({}, () => Promise.resolve())
     const properties = useMemo(() => ticketHintProperties.map(ticketHintProperty => ticketHintProperty.property), [ticketHintProperties])
+    const ticketHintName = useMemo(() => get(ticketHint, 'name'), [ticketHint])
 
     const renderTicketHintProperties = useMemo(() => properties.map(property => (
         <Link
@@ -110,7 +111,7 @@ const TicketHintIdPage = () => {
                                 </Col>
                                 <Col span={24}>
                                     <PageFieldRow title={ApartmentComplexNameMessage}>
-                                        {ticketHint.name}
+                                        {ticketHintName}
                                     </PageFieldRow>
                                 </Col>
                                 <Col span={24}>

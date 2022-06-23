@@ -88,11 +88,13 @@ const EDITOR_INIT_VALUES = {
     contextmenu: '',
     menubar: false,
     statusbar: false,
-    plugins: 'link',
+    plugins: 'link autolink lists',
     toolbar: 'undo redo | ' +
         'link | bold italic backcolor | alignleft aligncenter ' +
         'alignright alignjustify | bullist numlist outdent indent | ' +
         'removeformat',
+    link_default_target: '_blank',
+    link_target_list: false,
 }
 
 export const BaseTicketHintForm = ({ children, action, organizationId, initialValues, mode }) => {
