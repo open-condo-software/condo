@@ -32,6 +32,10 @@ const STATUS_STYLES = {
     'DONE': 'success',
 }
 
+const DIM_TEXT_STYLE: React.CSSProperties = {
+    color: 'inherit',
+}
+
 /**
  * Marks text according to marked flag
  * @param part
@@ -208,7 +212,7 @@ export const renderMeterReading = (values: string[], resourceId: string, measure
 }
 
 const dimText = (text: string, index: number) => (
-    <Typography.Text style={{ color: 'inherit' }} key={index}>
+    <Typography.Text style={DIM_TEXT_STYLE} key={index}>
         {text}
     </Typography.Text>
 )

@@ -27,7 +27,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
-import { getMoneyRender } from '../../../common/components/Table/Renders'
+import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
