@@ -139,6 +139,8 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
         return initialProperties.map(property => property.id)
     }, [initialProperties])
 
+    const initialValuesWithProperties = { ...initialValues, properties: initialPropertyIds }
+
     const propertiesWithTicketHint = useMemo(() => {
         const propertyIds = organizationTicketHintProperties.map(ticketHintProperty => ticketHintProperty.property.id)
 
@@ -222,7 +224,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
             }
             <Col span={24}>
                 <FormWithAction
-                    initialValues={initialValues}
+                    initialValues={initialValuesWithProperties}
                     action={handleFormSubmit}
                     {...LAYOUT}
                 >
@@ -241,8 +243,6 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                             {...INPUT_LAYOUT_PROPS}
                                         >
                                             <Select
-                                                // @ts-ignore
-                                                defaultValue={initialPropertyIds}
                                                 options={options}
                                                 mode={'multiple'}
                                                 disabled={!organizationId}

@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
-import React, { useMemo } from 'react'
+import React, { CSSProperties, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { jsx } from '@emotion/core'
@@ -16,6 +16,8 @@ import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { TicketHint, TicketHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
+
+const HINT_CONTENT_STYLES: CSSProperties = { overflow: 'hidden', wordBreak: 'break-all' }
 
 const PropertyHintPage = () => {
     const intl = useIntl()
@@ -63,7 +65,7 @@ const PropertyHintPage = () => {
                                 </Typography.Title>
                             </Col>
                             <Col span={24}>
-                                <div dangerouslySetInnerHTML={htmlContent}/>
+                                <div style={HINT_CONTENT_STYLES} dangerouslySetInnerHTML={htmlContent}/>
                             </Col>
                         </Row>
                     </Col>
