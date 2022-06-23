@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import get from 'lodash/get'
 import { useOrganization } from '@core/next/organization'
@@ -22,6 +22,8 @@ export const IndexBillingAppPage: React.FC<IndexBillingAppPageProps> = ({ id }) 
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const BillingMessage = intl.formatMessage({ id: 'menu.Billing' })
     const TagMessage = intl.formatMessage({ id: `miniapps.category.${BILLING_APP_TYPE}` })
+
+    const [title, setTitle] = useState(BillingMessage)
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
@@ -57,23 +59,40 @@ export const IndexBillingAppPage: React.FC<IndexBillingAppPageProps> = ({ id }) 
     }
 
     const PageTitle = get(integration, 'name', BillingMessage)
+
+    if (PageTitle && title === BillingMessage) {
+        setTitle(PageTitle)
+    }
+
+    const changePageTitleHandler = (message) => {
+        console.log(message)
+        if (message && message.title) {
+            setTitle(message.title)
+        }
+    }
+
     const hasFrame = Boolean(get(integration, ['appUrl']))
 
     return (
         <>
             <Head>
-                <title>{PageTitle}</title>
+                <title>{title}</title>
             </Head>
             <PageWrapper>
                 {
                     hasFrame && (
-                        <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} spaced/>
+                        <PageHeader title={<Typography.Title>{title}</Typography.Title>} spaced/>
                     )
                 }
                 <PageContent>
                     {
                         hasFrame ? (
-                            <IFrame pageUrl={integration.appUrl} />
+                            <IFrame
+                                pageUrl={integration.appUrl}
+                                handlers={[
+                                    changePageTitleHandler,
+                                ]}
+                            />
                         ) : (
                             <AppConnectedPageContent
                                 title={integration.name}
