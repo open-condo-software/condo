@@ -14,15 +14,12 @@ export const useReturnedSearch = <F>(loading: boolean): [boolean, (e: CheckboxCh
     const attributes = get(filtersFromQuery, 'attributes', [])
     const isReturned = attributes.includes('statusReopenedCounter')
 
-    const setIsReturned = useCallback(debounce(async (isReturned) => {
+    const setIsReturned = useCallback(debounce(async (e: CheckboxChangeEvent) => {
+        const isReturned = get(e, ['target', 'checked'])
         const queryAttributes = isReturned ? [...attributes, 'statusReopenedCounter'] : attributes.filter(attr => attr !== 'statusReopenedCounter')
 
         await updateQuery(router, { ...filtersFromQuery, attributes: queryAttributes })
     }, 400), [loading, isReturned, attributes])
 
-    const handleIsPaidChange = (e: CheckboxChangeEvent): void => {
-        setIsReturned(e.target.checked)
-    }
-
-    return [isReturned, handleIsPaidChange]
+    return [isReturned, setIsReturned]
 }
