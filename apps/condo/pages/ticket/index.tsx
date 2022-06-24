@@ -203,8 +203,8 @@ export const TicketsPageContent = ({
                                                                         onChange={handleReturnedChange}
                                                                         checked={returned}
                                                                         style={CHECKBOX_STYLE}
-                                                                        eventName={'TicketFilterCheckboxWarranty'}
-                                                                        data-cy={'ticket__filter-isWarranty'}
+                                                                        eventName={'TicketFilterCheckboxReturned'}
+                                                                        data-cy={'ticket__filter-isReturned'}
                                                                     >
                                                                         {ReturnedLabel}
                                                                     </Checkbox>
