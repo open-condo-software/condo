@@ -39,6 +39,7 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
+import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -69,6 +70,7 @@ export const TicketsPageContent = ({
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
+    const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
 
     const { isSmall, shouldTableScroll } = useLayoutContext()
@@ -103,6 +105,7 @@ export const TicketsPageContent = ({
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
     const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(loading)
+    const [returned, handleReturnedChange] = useReturnedSearch<IFilters>(loading)
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
     const isNoTicketsData = !tickets.length && isEmpty(filters) && !loading
 
@@ -193,6 +196,17 @@ export const TicketsPageContent = ({
                                                                         data-cy={'ticket__filter-isWarranty'}
                                                                     >
                                                                         {WarrantiesLabel}
+                                                                    </Checkbox>
+                                                                </Col>
+                                                                <Col>
+                                                                    <Checkbox
+                                                                        onChange={handleReturnedChange}
+                                                                        checked={returned}
+                                                                        style={CHECKBOX_STYLE}
+                                                                        eventName={'TicketFilterCheckboxWarranty'}
+                                                                        data-cy={'ticket__filter-isWarranty'}
+                                                                    >
+                                                                        {ReturnedLabel}
                                                                     </Checkbox>
                                                                 </Col>
                                                             </Row>
