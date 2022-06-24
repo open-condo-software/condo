@@ -514,6 +514,7 @@
   "pages.condo.ticket.index.EditTicketModalTitle": "Редактировать заявку",
   "pages.condo.ticket.index.EmergenciesLabel": "Аварийные",
   "pages.condo.ticket.index.WarrantiesLabel": "Гарантийные",
+  "pages.condo.ticket.index.ReturnedLabel": "Возвращенные",
   "pages.condo.ticket.index.PageTitle": "Все заявки",
   "pages.condo.ticket.index.PaidLabel": "Платные",
   "pages.condo.ticket.index.ResetFilters": "Сбросить",

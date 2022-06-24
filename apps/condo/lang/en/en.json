@@ -514,6 +514,7 @@
   "pages.condo.ticket.index.EditTicketModalTitle": "Edit ticket",
   "pages.condo.ticket.index.EmergenciesLabel": "Emergency",
   "pages.condo.ticket.index.WarrantiesLabel": "Warranty",
+  "pages.condo.ticket.index.ReturnedLabel": "Returned",
   "pages.condo.ticket.index.PageTitle": "All tickets",
   "pages.condo.ticket.index.PaidLabel": "Paid",
   "pages.condo.ticket.index.ResetFilters": "Reset",
