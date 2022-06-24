@@ -123,11 +123,11 @@ const toGraphQLFormat = (safeFormattedError) => {
 const formatError = error => {
     // error: { locations, path, message, extensions }
     const { originalError } = error
-    const reqId = get(error, 'reqId')
+    const reqId = get(error, 'reqId') || get(originalError, 'reqId')
 
     try {
         // For correlating user error reports with logs
-        if (!error.uid) error.uid = cuid()
+        error.uid = get(error, 'uid') || get(originalError, 'uid') || cuid()
 
         // NOTE1(pahaz): Keystone use apollo-errors for all their errors. There are:
         //   AccessDeniedError, ValidationFailureError, LimitsExceededError and ParameterError
