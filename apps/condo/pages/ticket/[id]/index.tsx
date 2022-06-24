@@ -94,7 +94,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         return fileInList
     })
 
-    const handlerDownloadFile: (file: UploadFile) => void = async (file: UploadFile) => {
+    const handleFileDownload: (file: UploadFile) => void = async (file: UploadFile) => {
         const response = await fetch(file.url)
         const blob = await response.blob()
         const blobUrl = window.URL.createObjectURL(blob)
@@ -106,7 +106,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
 
     return (
         <div className={'upload-control-wrapper'} css={UploadListWrapperStyles}>
-            <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} onPreview={handlerDownloadFile} />
+            <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} onPreview={handleFileDownload} />
         </div>
     )
 }
