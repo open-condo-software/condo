@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/react'
+import { jsx, css } from '@emotion/react'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
@@ -8,7 +8,6 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { Logo } from '@condo/domains/common/components/Logo'
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Button } from '../../../../Button'
 import {
     LayoutTriggerWrapper,
@@ -19,11 +18,19 @@ import {
     SIDE_MENU_WIDTH,
     COLLAPSED_SIDE_MENU_WIDTH,
 } from '../styles'
+import { ArrowIconLeft, ArrowIconRight } from '../../../../icons/ArrowIcons'
 
 interface ISideNavProps {
     onLogoClick: (...args) => void
     menuData?: React.ElementType
 }
+
+const sideNavButtonCss = css`
+    &.ant-btn {
+        border-color: transparent;!IMPORTANT
+        border-radius: 10px;
+    }
+`
 
 export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
     const { onLogoClick, menuData } = props
@@ -56,9 +63,9 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
                 <LayoutTriggerWrapper>
                     <Button
                         onClick={toggleCollapsed}
+                        css={sideNavButtonCss}
                         size={'small'}
-                        shape={'circle'}
-                        icon={isCollapsed ? <RightOutlined style={{ fontSize: '13px' }} /> : <LeftOutlined style={{ fontSize: '13px' }}/>}
+                        icon={isCollapsed ? <ArrowIconLeft/> : <ArrowIconRight/> }
                     />
                 </LayoutTriggerWrapper>
                 <ActionsContainer minified={isCollapsed}>

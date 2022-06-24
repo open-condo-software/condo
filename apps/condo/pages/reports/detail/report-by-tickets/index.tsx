@@ -57,6 +57,7 @@ import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLab
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketWarningModal } from '@condo/domains/ticket/hooks/useTicketWarningModal'
 import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/ticket/constants/restrictions'
+import { BirdieArrowIconSvg } from '@condo/domains/common/components/icons/BirdieArrowIcon'
 
 dayjs.extend(quarterOfYear)
 
@@ -120,6 +121,7 @@ const TicketTypeSelect: React.FC<ITicketTypeSelect> = (props) => {
             value={ticketType}
             onChange={(e) => setTicketType(e)}
             disabled={loading}
+            suffixIcon={<BirdieArrowIconSvg height={'8px'}/>}
         >
             <Select.Option value='all'>{TicketTypeAll}</Select.Option>
             <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
@@ -275,7 +277,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                 </Col>
                 <Col xs={24} sm={12} lg={4} offset={isSmall ? 0 : 1}>
                     <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE}>
-                        <Select value={specification} onChange={onSpecificationChange}>
+                        <Select value={specification} onChange={onSpecificationChange} suffixIcon={BirdieArrowIconSvg}>
                             <Select.Option disabled={dateRange[1].diff(dateRange[0], 'quarter') > 0} value={'day'}>
                                 {SpecificationDays}
                             </Select.Option>

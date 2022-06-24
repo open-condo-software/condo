@@ -6,7 +6,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import { DownOutlined, MinusOutlined } from '@ant-design/icons'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
-
+import { BirdieArrowIconSvg } from '../icons/BirdieArrowIcon'
 
 const RANGE_PICKER_CSS = css`
   &.ant-picker-focused {
@@ -17,6 +17,10 @@ const RANGE_PICKER_CSS = css`
     text-align: center;
     font-size: ${fontSizes.content};
   }
+  & .ant-picker-suffix {
+    height: 5px;
+    width: 13px;
+  }
 `
 
 const DateRangePicker: React.FC<RangePickerSharedProps<Dayjs>> = (props) => {
@@ -24,7 +28,7 @@ const DateRangePicker: React.FC<RangePickerSharedProps<Dayjs>> = (props) => {
         <DatePicker.RangePicker
             css={RANGE_PICKER_CSS}
             allowClear={false}
-            suffixIcon={<DownOutlined />}
+            suffixIcon={<BirdieArrowIconSvg width={'13px'} height={'6px'}/>}
             disabledDate={(date) => date > dayjs()}
             format='DD.MM.YYYY'
             separator={<MinusOutlined />}

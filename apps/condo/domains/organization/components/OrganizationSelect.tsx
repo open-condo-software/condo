@@ -10,6 +10,7 @@ import { css, jsx } from '@emotion/react'
 import { useIntl } from '@core/next/intl'
 import { colors, gradients } from '@condo/domains/common/constants/style'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
+import { BirdieArrowIconSvg } from '../../common/components/icons/BirdieArrowIcon'
 
 const blackSelectCss = css`
   width: 200px;
@@ -140,6 +141,7 @@ export const OrganizationSelect: React.FC = () => {
                         css={blackSelectCss}
                         size={'middle'}
                         showAction={ORGANIZATION_SELECT_SHOW_ACTIONS}
+                        suffixIcon={BirdieArrowIconSvg}
                         dropdownRender={menu => (
                             <div>
                                 {menu}
