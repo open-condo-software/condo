@@ -95,8 +95,11 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     })
 
     const handlerDownloadFile: (file: UploadFile) => void = async (file: UploadFile) => {
+        const response = await fetch(file.url)
+        const blob = await response.blob()
+        const blobUrl = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
-        a.href = file.url
+        a.href = blobUrl
         a.download = file.name
         a.click()
     }
