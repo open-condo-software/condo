@@ -182,8 +182,9 @@ module.exports = {
 
         const requestIdHeaderName = 'X-Request-Id'
         app.use(function reqId (req, res, next) {
-            req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = v4()
-            res.setHeader(requestIdHeaderName, req['id'])
+            const reqId = req.headers[requestIdHeaderName.toLowerCase()] || v4()
+            req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
+            res.setHeader(requestIdHeaderName, reqId)
             next()
         })
 
