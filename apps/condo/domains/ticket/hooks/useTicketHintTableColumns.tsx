@@ -16,7 +16,7 @@ import { TicketHintProperty } from '../utils/clientSchema'
 
 export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketHints: ITicketHintUIState[]) {
     const intl = useIntl()
-    const ApartmentComplexNameMessage  = intl.formatMessage({ id: 'ApartmentComplexName' })
+    const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
 
@@ -53,7 +53,7 @@ export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>
                 width: '35%',
             },
             {
-                title: ApartmentComplexNameMessage,
+                title: NameMessage,
                 filteredValue: getFilteredValue<IFilters>(filters, 'name'),
                 dataIndex: 'name',
                 key: 'name',
@@ -71,5 +71,5 @@ export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>
                 render: getTicketHintRender(search),
             },
         ]
-    }, [ApartmentComplexNameMessage, BuildingsMessage, HintMessage, filterMetas, filters, intl, render, renderTicketHintAddresses, search])
+    }, [NameMessage, BuildingsMessage, HintMessage, filterMetas, filters, intl, render, renderTicketHintAddresses, search])
 }

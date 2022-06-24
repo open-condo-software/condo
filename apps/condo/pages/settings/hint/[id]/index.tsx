@@ -33,7 +33,7 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const TicketHintIdPage = () => {
     const intl = useIntl()
     const TicketHintTitleMessage = intl.formatMessage({ id: 'Hint' })
-    const ApartmentComplexNameMessage  = intl.formatMessage({ id: 'ApartmentComplexName' })
+    const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
@@ -110,7 +110,7 @@ const TicketHintIdPage = () => {
                                     </PageFieldRow>
                                 </Col>
                                 <Col span={24}>
-                                    <PageFieldRow title={ApartmentComplexNameMessage}>
+                                    <PageFieldRow title={NameMessage}>
                                         {ticketHintName}
                                     </PageFieldRow>
                                 </Col>

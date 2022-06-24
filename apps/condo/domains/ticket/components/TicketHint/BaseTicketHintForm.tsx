@@ -96,7 +96,7 @@ const EDITOR_INIT_VALUES = {
 
 export const BaseTicketHintForm = ({ children, action, organizationId, initialValues, mode }) => {
     const intl = useIntl()
-    const ApartmentComplexNameMessage  = intl.formatMessage({ id: 'ApartmentComplexName' })
+    const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
     const AddALlPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.addAllProperties' })
@@ -264,7 +264,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                             <Col span={24}>
                                 <Form.Item
                                     name={'name'}
-                                    label={ApartmentComplexNameMessage}
+                                    label={NameMessage}
                                     labelAlign={'left'}
                                     {...APARTMENT_COMPLEX_NAME_FIELD_PROPS}
                                 >
