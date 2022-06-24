@@ -167,13 +167,13 @@ module.exports = {
 
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
-        app.use('/admin/api', createProxyMiddleware(function (pathname, req) {
-            console.log(`HEADERS=${JSON.stringify(req.headers)}`)
-            if (req.headers['client-platform'] === 'Android') {
-                console.log(`MOBILE APP: ${req.headers['client-platform']}=${req.headers['client-version']}`)
-            }
-            return req.headers['client-platform'] === 'Android' && req.headers['client-version'] === '1.0.31'
-        }, { target: 'https://v1.doma.ai/admin/api', changeOrigin: true }))
+        // app.use('/admin/api', createProxyMiddleware(function (pathname, req) {
+        //     console.log(`HEADERS=${JSON.stringify(req.headers)}`)
+        //     if (req.headers['client-platform'] === 'Android') {
+        //         console.log(`MOBILE APP: ${req.headers['client-platform']}=${req.headers['client-version']}`)
+        //     }
+        //     return req.headers['client-platform'] === 'Android' && req.headers['client-version'] === '1.0.31'
+        // }, { target: 'https://v1.doma.ai/admin/api', changeOrigin: true }))
 
         app.set('trust proxy', true)
         // NOTE(toplenboren): we need a custom body parser for custom file upload limit
