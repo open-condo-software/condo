@@ -16,7 +16,7 @@ import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
+import { Ticket, TicketFilterTemplate, TicketExportTask } from '@condo/domains/ticket/utils/clientSchema'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
@@ -36,10 +36,13 @@ import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySear
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { EXCEL } from '@condo/domains/common/constants/export'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch'
+import { TaskLauncher } from '../../domains/common/components/TaskLauncher'
+import { getClientSideSenderInfo } from '../../domains/common/utils/userid.utils'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -72,6 +75,9 @@ export const TicketsPageContent = ({
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
+
+    const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
+    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const { isSmall, shouldTableScroll } = useLayoutContext()
     const router = useRouter()
@@ -251,11 +257,23 @@ export const TicketsPageContent = ({
                                             data-cy={'ticket__table'}
                                         />
                                     </Col>
-                                    <ExportToExcelActionBar
-                                        hidden={isSmall}
-                                        searchObjectsQuery={searchTicketsQuery}
-                                        sortBy={sortBy}
-                                        exportToExcelQuery={EXPORT_TICKETS_TO_EXCEL}
+                                    <TaskLauncher
+                                        label={ExportAsExcelLabel}
+                                        launchTaskMutation={EXPORT_TICKETS_TO_EXCEL}
+                                        taskClientSchema={TicketExportTask}
+                                        buildMutationVariables={() => ({
+                                            dv: 1,
+                                            sender: getClientSideSenderInfo(),
+                                            where: searchTicketsQuery,
+                                            format: EXCEL,
+                                            sortBy: sortBy,
+                                            timeZone,
+                                        })}
+                                        onComplete={({ file }) => {
+                                            if (window) {
+                                                window.location.href = file.publicUrl
+                                            }
+                                        }}
                                     />
                                 </Row>
                             )

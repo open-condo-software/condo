@@ -46,6 +46,7 @@ import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniA
 import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
 import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
+import { TasksContextProvider } from '../domains/common/components/TasksContextProvider'
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -172,18 +173,20 @@ const MyApp = ({ Component, pageProps }) => {
                         <TrackingProvider>
                             <OnBoardingProvider>
                                 <SubscriptionProvider>
-                                    <LayoutContextProvider>
-                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                            <RequiredAccess>
-                                                <Component {...pageProps} />
-                                                {
-                                                    isEndTrialSubscriptionReminderPopupVisible && (
-                                                        <EndTrialSubscriptionReminderPopup/>
-                                                    )
-                                                }
-                                            </RequiredAccess>
-                                        </LayoutComponent>
-                                    </LayoutContextProvider>
+                                    <TasksContextProvider>
+                                        <LayoutContextProvider>
+                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                <RequiredAccess>
+                                                    <Component {...pageProps} />
+                                                    {
+                                                        isEndTrialSubscriptionReminderPopupVisible && (
+                                                            <EndTrialSubscriptionReminderPopup/>
+                                                        )
+                                                    }
+                                                </RequiredAccess>
+                                            </LayoutComponent>
+                                        </LayoutContextProvider>
+                                    </TasksContextProvider>
                                 </SubscriptionProvider>
                             </OnBoardingProvider>
                         </TrackingProvider>
