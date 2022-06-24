@@ -945,20 +945,20 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                 <RadioGroupWithIcon
                                     value={viewMode}
                                     size='small'
-                                    buttonStyle='outline'
+                                    css={radioButtonBorderlessCss}
                                     onChange={(e) => setViewMode(e.target.value)}
                                 >
                                     {groupTicketsBy === 'status' && (
                                         <Radio.Button value='line'>
-                                            <LinearChartIcon height={32} width={24} />
+                                            <LinearChartIcon height={25} width={24} />
                                         </Radio.Button>
                                     )}
-                                    <Radio.Button value='bar'>
-                                        <BarChartIcon height={32} width={24} />
+                                    <Radio.Button value='bar' >
+                                        <BarChartIcon height={25} width={24} />
                                     </Radio.Button>
                                     {groupTicketsBy !== 'status' && (
                                         <Radio.Button value='pie'>
-                                            <PieChartIcon height={32} width={24} />
+                                            <PieChartIcon height={25} width={24} />
                                         </Radio.Button>
                                     )}
                                 </RadioGroupWithIcon>
