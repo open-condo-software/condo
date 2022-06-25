@@ -1,12 +1,10 @@
 // The RedisAdapter is based on: https://github.com/panva/node-oidc-provider/blob/main/example/adapters/redis.js
 
-const Redis = require('ioredis')
 const { isEmpty } = require('lodash')
 
-const conf = require('@core/config')
+const { getRedisClient } = require('@core/keystone/redis')
 
-const OIDC_REDIS_URL = conf.OIDC_REDIS_URL || conf.REDIS_URL
-const OIDC_REDIS_KEY_PREFIX = 'oidc:'
+const OIDC_REDIS_KEY_PREFIX = 'oidc'
 
 const GRANTABLE = new Set([
     'AccessToken',
@@ -23,32 +21,29 @@ const CONSUMABLE = new Set([
     'BackchannelAuthenticationRequest',
 ])
 
-// OIDC Redis connection! initialized if required to avoid build time redis connections!
-let RedisClient = null
-
 function grantKeyFor (id) {
-    return `grant:${id}`
+    return `${OIDC_REDIS_KEY_PREFIX}:grant:${id}`
 }
 
 function userCodeKeyFor (userCode) {
-    return `userCode:${userCode}`
+    return `${OIDC_REDIS_KEY_PREFIX}:userCode:${userCode}`
 }
 
 function uidKeyFor (uid) {
-    return `uid:${uid}`
+    return `${OIDC_REDIS_KEY_PREFIX}:uid:${uid}`
 }
 
 class RedisAdapter {
+    get client () {
+        return getRedisClient('oidc')
+    }
+
     constructor (name) {
         this.name = name
-
-        if (!OIDC_REDIS_URL) throw new Error('No OIDC_REDIS_URL environment')
-        if (RedisClient === null) RedisClient = new Redis(OIDC_REDIS_URL, { keyPrefix: OIDC_REDIS_KEY_PREFIX })
-        this.client = RedisClient
     }
 
     key (id) {
-        return `${this.name}:${id}`
+        return `${OIDC_REDIS_KEY_PREFIX}:${this.name}:${id}`
     }
 
     async destroy (id) {
