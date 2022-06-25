@@ -1,6 +1,4 @@
 const conf = require('@core/config')
-const IORedis = require('ioredis')
-const REDIS_URL = conf['REDIS_URL']
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 dayjs.extend(utc)
@@ -16,12 +14,15 @@ const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHI
 const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
 
 const { GQLError } = require('@core/keystone/errors')
+const { getRedisClient } = require('@core/keystone/redis')
 
 
 class RedisGuard {
+    get db () {
+        return getRedisClient('guards')
+    }
 
     constructor () {
-        this.db = new IORedis(REDIS_URL)
         this.lockPrefix = 'guard_lock:'
         this.counterPrefix = 'guard_counter:'
     }
