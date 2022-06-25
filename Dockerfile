@@ -40,7 +40,7 @@ WORKDIR /home/app
 RUN echo "# Build time .env config!" >> /home/app/.env && \
 	echo "COOKIE_SECRET=undefined" >> /home/app/.env && \
 	echo "DATABASE_URL=undefined" >> /home/app/.env && \
-	echo "WORKER_REDIS_URL=undefined" >> /home/app/.env && \
+	echo "REDIS_URL=undefined" >> /home/app/.env && \
 	echo "NODE_ENV=production" >> /home/app/.env
 # If you don't have this directory, you can create it by command `bash ./bin/warm-docker-cache` or just create empty ./.docker-cache-warming dir (no cache mode)
 ADD --chown=app:app ./.docker-cache-warming /home/app
