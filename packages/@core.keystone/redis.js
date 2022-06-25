@@ -7,9 +7,9 @@ const REDIS_CLIENTS = {}
 /**
  * If you really need to use Redis then you should use this function!
  *
- * @param {String} name -- name of redis client or the task purpose
+ * @param {string} name -- name of redis client or the task purpose
  * @param {'regular' | 'subscriber'} mode -- regular / subscriber redis client mode (read details: https://github.com/luin/ioredis#pubsub)
- * @return {IORedis}
+ * @return {import('ioredis')}
  */
 function getRedisClient (name = 'default', mode = 'regular') {
     if (!name) throw new Error('getRedisClient() without client name')
