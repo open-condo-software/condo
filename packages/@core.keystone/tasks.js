@@ -15,14 +15,14 @@ const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
 const FAKE_WORKER_MODE = conf.TESTS_FAKE_WORKER_MODE
 const taskQueue = new Queue('tasks', {
     /**
-     * @param {'client' | 'subscriber'} type
+     * @param {'client' | 'subscriber' | 'bclient'} type
      * @return {import('ioredis')}
      */
     createClient: (type) => {
-        if (type === 'client') {
-            return getRedisClient('tasks', 'regular')
-        } else if (type === 'subscriber') {
+        if (type === 'subscriber') {
             return getRedisClient('tasks', 'subscriber')
+        } else if (type === 'bclient' || type === 'client') {
+            return getRedisClient('tasks', 'regular')
         } else {
             throw new Error(`Queue.createClient() unexpected type = ${type}`)
         }
@@ -120,7 +120,7 @@ function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
     async function applyAsync (args, taskOptions) {
         if (!isSerializable(args)) throw new Error('arguments is not serializable')
 
-        const preparedArgs =  createSerializableCopy([...args])
+        const preparedArgs = createSerializableCopy([...args])
         const preparedOpts = {
             ...globalTaskOptions,
             ...defaultTaskOptions,
