@@ -20,7 +20,7 @@ function getRedisClient (name = 'default', mode = 'regular') {
         const redisEnvName = `${name.toUpperCase()}_REDIS_URL`
         const redisUrl = conf[redisEnvName] || conf.REDIS_URL
         if (!redisUrl) throw new Error(`No REDIS_URL env! You need to set ${redisEnvName} / REDIS_URL env`)
-        REDIS_CLIENTS[clientKey] = new IORedis(redisUrl)
+        REDIS_CLIENTS[clientKey] = new IORedis(redisUrl, { connectionName: clientKey })
     }
     return REDIS_CLIENTS[clientKey]
 }
