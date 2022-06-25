@@ -23,7 +23,7 @@ const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { KeystoneCacheMiddleware } = require('@core/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
-const { GraphQLLoggerApp } = require('@condo/domains/common/utils/GraphQLLoggerApp')
+const { GraphQLLoggerPlugin } = require('@condo/domains/common/utils/GraphQLLoggerApp')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 
@@ -144,7 +144,6 @@ module.exports = {
     keystone,
     apps: [
         keystoneCacheApp,
-        new GraphQLLoggerApp(),
         new OIDCMiddleware(),
         new GraphQLApp({
             apollo: {
@@ -152,6 +151,7 @@ module.exports = {
                 debug: IS_ENABLE_APOLLO_DEBUG,
                 introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                 playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                plugins: [new GraphQLLoggerPlugin()],
             },
         }),
         FileAdapter.makeFileAdapterMiddleware(),

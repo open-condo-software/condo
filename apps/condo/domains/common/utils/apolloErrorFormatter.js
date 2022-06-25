@@ -29,17 +29,55 @@ const { ApolloError, AuthenticationError } = require('apollo-server-errors')
 const { GraphQLError, printError } = require('graphql')
 
 const ensureError = require('ensure-error')
-const { serializeError } = require('serialize-error')
-const cuid = require('cuid')
-const { pick, pickBy, identity, toArray, _, toString, get } = require('lodash')
-
-const { graphqlLogger } = require('@keystonejs/keystone/lib/Keystone/logger')
+const { pick, pickBy, identity, toArray, _, toString, get, set, isArray } = require('lodash')
 
 const conf = require('@core/config')
 
 const IS_HIDE_INTERNALS = conf.NODE_ENV === 'production'
+const COMMON_ERROR_CASES = {}
 
-const safeFormatError = (error, hideInternals = false) => {
+function _getAllErrorMessages (error) {
+    const messages = []
+    const m1 = get(error, 'message')
+    if (m1) messages.push(m1)
+    const m2 = get(error, 'originalError.message')
+    if (m2) messages.push(m2)
+
+    if (isArray(get(error, 'errors'))) {
+        for (const x of error.errors) {
+            const m = get(x, 'message')
+            if (m) messages.push(m)
+        }
+    }
+    if (isArray(get(error, 'originalError.errors'))) {
+        for (const x of error.originalError.errors) {
+            const m = get(x, 'message')
+            if (m) messages.push(m)
+        }
+    }
+    return messages
+}
+
+function _patchKnownErrorCases (error, result) {
+    const message = _getAllErrorMessages(error).join(' -- ')
+    for (const key in COMMON_ERROR_CASES) {
+        if (message.includes(key)) {
+            const patch = COMMON_ERROR_CASES[key]
+            for (const patchKey in patch) {
+                set(result, patchKey, patch[patchKey])
+            }
+        }
+    }
+}
+
+/**
+ * Use it if you need to safely prepare error for logging or ApolloServer result
+ * @param {Error} error -- any error
+ * @param {Boolean} hideInternals -- do you need to hide some internal error fields
+ * @param {Boolean} applyPatches -- do you need to apply a common error message patches
+ * @returns {import('graphql').GraphQLFormattedError}
+ */
+const safeFormatError = (error, hideInternals = false, applyPatches = true) => {
     const result = {}
 
     // error keyst: message, name, stack
@@ -73,7 +111,7 @@ const safeFormatError = (error, hideInternals = false) => {
     }
 
     if (!hideInternals && error.originalError) {
-        result.originalError = safeFormatError(error.originalError, hideInternals)
+        result.originalError = safeFormatError(error.originalError, hideInternals, false)
     }
 
     // KeystoneJS hotfixes! Taken from KeystoneJS sources. Probably useless in a future but we already have a tests for that!
@@ -96,56 +134,22 @@ const safeFormatError = (error, hideInternals = false) => {
 
     // nested errors support
     if (error.errors) {
-        const nestedErrors = toArray(error.errors).map((err) => safeFormatError(err, hideInternals))
+        const nestedErrors = toArray(error.errors).map((err) => safeFormatError(err, hideInternals, false))
         if (nestedErrors.length) result.errors = nestedErrors
     }
 
+    if (applyPatches) _patchKnownErrorCases(error, result)
+
     return result
 }
 
-const toGraphQLFormat = (safeFormattedError) => {
-    const result = {
-        message: safeFormattedError.message || 'no message',
-        extensions: {
-            ...safeFormattedError,
-            ...(safeFormattedError.extensions ? safeFormattedError.extensions : {}),
-        },
-        path: safeFormattedError.path || null,
-        locations: safeFormattedError.locations || null,
-    }
-    delete result.extensions.extensions
-    delete result.extensions.path
-    delete result.extensions.locations
-    delete result.extensions.message
-    return result
-}
-
+/**
+ * ApolloServer.formatError function
+ * @param {import('graphql').GraphQLError} error - any apollo server catched error
+ * @returns {import('graphql').GraphQLFormattedError}
+ */
 const formatError = error => {
-    // error: { locations, path, message, extensions }
-    const { originalError } = error
-    const reqId = get(error, 'reqId') || get(originalError, 'reqId')
-
-    try {
-        // For correlating user error reports with logs
-        error.uid = get(error, 'uid') || get(originalError, 'uid') || cuid()
-
-        // NOTE1(pahaz): Keystone use apollo-errors for all their errors. There are:
-        //   AccessDeniedError, ValidationFailureError, LimitsExceededError and ParameterError
-        // NOTE2(pahaz): Apollo use apollo-server-errors for all their errors> There are:
-        //   SyntaxError, ValidationError, UserInputError, AuthenticationError, ForbiddenError, PersistedQueryNotFoundError, PersistedQueryNotSupportedError, ...
-        if (isKeystoneErrorInstance(originalError) || originalError instanceof ApolloError) {
-            // originalError: { message name data internalData time_thrown path locations }
-            graphqlLogger.info({ reqId, apolloFormatError: safeFormatError(error) })
-        } else {
-            graphqlLogger.error({ reqId, apolloFormatError: safeFormatError(error) })
-        }
-    } catch (formatErrorError) {
-        // Something went wrong with formatting above, so we log the errors
-        graphqlLogger.error({ reqId, error: serializeError(ensureError(error)) })
-        graphqlLogger.error({ reqId, error: serializeError(ensureError(formatErrorError)) })
-    }
-
-    return safeFormatError(error, IS_HIDE_INTERNALS)
+    return safeFormatError(error, IS_HIDE_INTERNALS, true)
 }
 
 // NEW GraphQL Error standard
@@ -156,7 +160,6 @@ function throwAuthenticationError () {
 
 module.exports = {
     safeFormatError,
-    toGraphQLFormat,
     formatError,
     throwAuthenticationError,
 }
