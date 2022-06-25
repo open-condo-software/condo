@@ -20,9 +20,9 @@ const taskQueue = new Queue('tasks', {
      */
     createClient: (type) => {
         if (type === 'subscriber') {
-            return getRedisClient('tasks', 'subscriber')
+            return getRedisClient('worker', 'subscriber')
         } else if (type === 'bclient' || type === 'client') {
-            return getRedisClient('tasks', 'regular')
+            return getRedisClient('worker', 'regular')
         } else {
             throw new Error(`Queue.createClient() unexpected type = ${type}`)
         }
