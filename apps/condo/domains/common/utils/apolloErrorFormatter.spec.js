@@ -3,7 +3,7 @@ const { ApolloError } = require('apollo-server-errors')
 const { GraphQLError } = require('graphql')
 const { Source, parse } = require('graphql/language')
 
-const { safeFormatError, toGraphQLFormat } = require('./apolloErrorFormatter')
+const { safeFormatError } = require('./apolloErrorFormatter')
 
 const GQL_SOURCE_EXAMPLE = new Source(`
   {
@@ -25,6 +25,23 @@ class MyApolloError extends ApolloError {
         super(message, 'MY_ERROR_CODE')
         Object.defineProperty(this, 'name', { value: 'MyApolloError' })
     }
+}
+
+function toGraphQLFormat (safeFormattedError) {
+    const result = {
+        message: safeFormattedError.message || 'no message',
+        extensions: {
+            ...safeFormattedError,
+            ...(safeFormattedError.extensions ? safeFormattedError.extensions : {}),
+        },
+        path: safeFormattedError.path || null,
+        locations: safeFormattedError.locations || null,
+    }
+    delete result.extensions.extensions
+    delete result.extensions.path
+    delete result.extensions.locations
+    delete result.extensions.message
+    return result
 }
 
 describe('safeFormatError hide=false', () => {
