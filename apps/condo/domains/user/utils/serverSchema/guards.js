@@ -18,8 +18,9 @@ const { getRedisClient } = require('@core/keystone/redis')
 
 
 class RedisGuard {
-    get db () {
-        return getRedisClient('guards')
+    get redis () {
+        if (!this._redis) this._redis = getRedisClient('guards')
+        return this._redis
     }
 
     constructor () {
@@ -56,10 +57,10 @@ class RedisGuard {
     // Example usage = only 100 attempts to confirm phone from single IP
     async incrementDayCounter (variable) {
         // if variable not exists - it will be set to 1
-        let afterIncrement = await this.db.incr(`${this.counterPrefix}${variable}`)
+        let afterIncrement = await this.redis.incr(`${this.counterPrefix}${variable}`)
         afterIncrement = Number(afterIncrement)
         if (afterIncrement === 1) {
-            await this.db.expireat(`${this.counterPrefix}${variable}`, parseInt(`${dayjs().endOf('day') / 1000}`))
+            await this.redis.expireat(`${this.counterPrefix}${variable}`, parseInt(`${dayjs().endOf('day') / 1000}`))
         }
         return afterIncrement
     }
@@ -71,21 +72,21 @@ class RedisGuard {
     // Example usage after failed attempt to confirm phone - lock phoneNumber for some time
     async lockTimeRemain (variable, action = '') {
         const actionFolder = action ? `${action}:` : ''
-        const time = await this.db.ttl(`${this.lockPrefix}${actionFolder}${variable}`)
+        const time = await this.redis.ttl(`${this.lockPrefix}${actionFolder}${variable}`)
         // -1: no ttl on variable, -2: key not exists
         return Math.max(time, 0)
     }
 
     async isLocked (variable, action = '') {
         const actionFolder = action ? `${action}:` : ''
-        const value = await this.db.exists(`${this.lockPrefix}${actionFolder}${variable}`)
+        const value = await this.redis.exists(`${this.lockPrefix}${actionFolder}${variable}`)
         return !!value
     }
 
     async lock (variable, action = '', ttl = 300) { // ttl - seconds
         const actionFolder = action ? `${action}:` : ''
-        await this.db.set(`${this.lockPrefix}${actionFolder}${variable}`, '1')
-        await this.db.expire(`${this.lockPrefix}${actionFolder}${variable}`, ttl )
+        await this.redis.set(`${this.lockPrefix}${actionFolder}${variable}`, '1')
+        await this.redis.expire(`${this.lockPrefix}${actionFolder}${variable}`, ttl )
     }
 
 }

@@ -31,21 +31,24 @@ class AutoIncrementInteger extends Integer.implementation {
 }
 
 class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
+    get redis () {
+        if (!this._redis) this._redis = getRedisClient()
+        return this._redis
+    }
     
     async nextValue () {
         const tableName = this.listAdapter.tableName
         const fieldName = this.dbPath
         const knex = this.listAdapter.parentAdapter.knex
-        const client = getRedisClient()
         // NOTE(pahaz): it's really hack! please don't copy this staff in a future! I'll find a better solution for that!
         //  I didn't found a way to use knex subquery for that. Probably, we need to create some DB procedure or use another table with
         //  sequence column. At the moment this code just help us to avoid `duplicate key value violates unique constraint`
-        const rlock = new Redlock([client])
+        const rlock = new Redlock([this.redis])
         const redisLockKey = `AutoIncrementInteger:${tableName}:${fieldName}`
         const redisMaxValueKey = `AutoIncrementInteger:${tableName}:${fieldName}:value`
         let lock = await rlock.acquire([redisLockKey], 500) // 0.5 sec
         try {
-            let currentMaxNumber = await client.get(redisMaxValueKey)
+            let currentMaxNumber = await this.redis.get(redisMaxValueKey)
             if (!currentMaxNumber) {
                 let [{ max }] = await knex(tableName).max(fieldName)
                 currentMaxNumber = max
@@ -57,7 +60,7 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
                 }
             }
             currentMaxNumber = parseInt(currentMaxNumber || 0)
-            await client.set(redisMaxValueKey, currentMaxNumber + 1)
+            await this.redis.set(redisMaxValueKey, currentMaxNumber + 1)
             return currentMaxNumber + 1
         } finally {
             await lock.release()
