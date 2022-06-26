@@ -18,14 +18,13 @@ const taskQueue = new Queue('tasks', {
      * @param {'client' | 'subscriber' | 'bclient'} type
      * @return {import('ioredis')}
      */
-    createClient: (type) => {
-        if (type === 'subscriber') {
-            return getRedisClient('worker', 'subscriber')
-        } else if (type === 'bclient' || type === 'client') {
-            return getRedisClient('worker', 'regular')
-        } else {
-            throw new Error(`Queue.createClient() unexpected type = ${type}`)
+    createClient: (type, opts) => {
+        // NOTE(pahaz): https://github.com/OptimalBits/bull/issues/1873
+        //   Bull uses three Redis connection. Probably, we can share regular Redis connection for type 'client' think about it!
+        if (['bclient', 'subscriber'].includes(type)) {
+            opts.maxRetriesPerRequest = null
         }
+        return getRedisClient('worker', type, opts)
     },
 })
 
