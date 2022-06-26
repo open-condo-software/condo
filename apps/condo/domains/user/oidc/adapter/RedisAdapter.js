@@ -34,8 +34,9 @@ function uidKeyFor (uid) {
 }
 
 class RedisAdapter {
-    get client () {
-        return getRedisClient('oidc')
+    get redis () {
+        if (!this._redis) this._redis = getRedisClient('oidc')
+        return this._redis
     }
 
     constructor (name) {
@@ -48,17 +49,17 @@ class RedisAdapter {
 
     async destroy (id) {
         const key = this.key(id)
-        await this.client.del(key)
+        await this.redis.del(key)
     }
 
     async consume (id) {
-        await this.client.hset(this.key(id), 'consumed', Math.floor(Date.now() / 1000))
+        await this.redis.hset(this.key(id), 'consumed', Math.floor(Date.now() / 1000))
     }
 
     async find (id) {
         const data = CONSUMABLE.has(this.name)
-            ? await this.client.hgetall(this.key(id))
-            : await this.client.get(this.key(id))
+            ? await this.redis.hgetall(this.key(id))
+            : await this.redis.get(this.key(id))
 
         if (isEmpty(data)) {
             return undefined
@@ -75,12 +76,12 @@ class RedisAdapter {
     }
 
     async findByUid (uid) {
-        const id = await this.client.get(uidKeyFor(uid))
+        const id = await this.redis.get(uidKeyFor(uid))
         return this.find(id)
     }
 
     async findByUserCode (userCode) {
-        const id = await this.client.get(userCodeKeyFor(userCode))
+        const id = await this.redis.get(userCodeKeyFor(userCode))
         return this.find(id)
     }
 
@@ -89,7 +90,7 @@ class RedisAdapter {
         const store = CONSUMABLE.has(this.name)
             ? { payload: JSON.stringify(payload) } : JSON.stringify(payload)
 
-        const multi = this.client.multi()
+        const multi = this.redis.multi()
         multi[CONSUMABLE.has(this.name) ? 'hmset' : 'set'](key, store)
 
         if (expiresIn) {
@@ -101,7 +102,7 @@ class RedisAdapter {
             multi.rpush(grantKey, key)
             // if you're seeing grant key lists growing out of acceptable proportions consider using LTRIM
             // here to trim the list to an appropriate length
-            const ttl = await this.client.ttl(grantKey)
+            const ttl = await this.redis.ttl(grantKey)
             if (expiresIn > ttl) {
                 multi.expire(grantKey, expiresIn)
             }
@@ -123,8 +124,8 @@ class RedisAdapter {
     }
 
     async revokeByGrantId (grantId) { // eslint-disable-line class-methods-use-this
-        const multi = this.client.multi()
-        const tokens = await this.client.lrange(grantKeyFor(grantId), 0, -1)
+        const multi = this.redis.multi()
+        const tokens = await this.redis.lrange(grantKeyFor(grantId), 0, -1)
         tokens.forEach((token) => multi.del(token))
         multi.del(grantKeyFor(grantId))
         await multi.exec()
