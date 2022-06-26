@@ -1,12 +1,8 @@
 const faker = require('faker')
 const { print } = require('graphql')
 const { get, isEmpty } = require('lodash')
-const falsey = require('falsey')
 
 const { normalizeQuery } = require('../GraphQLLoggerApp')
-
-const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
-
 
 class TestClientResponseError extends Error {
     constructor (data, errors, context = {}) {
@@ -23,11 +19,6 @@ function throwIfError (data, errors, context = {}) {
     const hasUnsupportedKeys = Object.keys(context).filter((key) => !supportedKeys.includes(key))
     if (!isEmpty(hasUnsupportedKeys)) throw new Error(`throwIfError(data, errors, context) has unsupported context keys: ${hasUnsupportedKeys.join(', ')}`)
     if (errors) {
-        if (EXTRA_LOGGING) {
-            const errorsToShow = errors.filter(error => get(error, 'originalError.data') || get(error, 'originalError.internalData'))
-            if (!isEmpty(errorsToShow)) errorsToShow.forEach((error) => console.warn(get(error, 'originalError.data'), '\n', get(error, 'originalError.internalData')))
-            console.warn(errors)
-        }
         throw new TestClientResponseError(data, errors, context)
     }
 }
