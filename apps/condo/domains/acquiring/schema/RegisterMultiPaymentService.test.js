@@ -8,10 +8,9 @@ const dayjs = require('dayjs')
 const {
     makeClient,
     makeLoggedInAdminClient,
-    prepareKeystoneExpressApp,
-    setFakeClientMode,
 } = require('@core/keystone/test.utils')
 const {
+    AcquiringIntegration,
     registerMultiPaymentByTestClient,
     createTestAcquiringIntegration,
     updateTestAcquiringIntegrationContext,
@@ -32,7 +31,6 @@ const {
     updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult,
@@ -700,19 +698,12 @@ describe('RegisterMultiPaymentService', () => {
     })
     // TODO(savelevMatthew): Remove this test after custom GQL refactoring
     describe('ServerSchema get all should provide enough fields', () => {
-        setFakeClientMode(require.resolve('../../../index'))
-        let context
-        beforeAll(async () => {
-            const app = await prepareKeystoneExpressApp(require.resolve('../../../index'))
-            const { keystone } = app
-            context = await keystone.createContext({ skipAccessControl: true })
-        })
         test('AcquiringIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
             const [firstBilling] = await createTestBillingIntegration(admin)
             const [secondBilling] = await createTestBillingIntegration(admin)
             const [acquiring] = await createTestAcquiringIntegration(admin, [firstBilling, secondBilling])
-            const [serverObtainedAcquiring] = await AcquiringIntegration.getAll(context, {
+            const [serverObtainedAcquiring] = await AcquiringIntegration.getAll(admin, {
                 id: acquiring.id,
             })
             expect(serverObtainedAcquiring).toBeDefined()
