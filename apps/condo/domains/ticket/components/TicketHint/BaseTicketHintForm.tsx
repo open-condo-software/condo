@@ -99,7 +99,6 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
     const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
-    const AddALlPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.addAllProperties' })
 
     const { requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -153,23 +152,11 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
         [...propertiesWithoutTicketHint, ...initialProperties]
             .map(property => ({ label: property.address, value: property.id })),
     [initialProperties, propertiesWithoutTicketHint])
-    const optionValues = useMemo(() => options.map(option => option.value),
-        [options])
 
     const handleEditorChange = useCallback((newValue, form) => {
         setEditorValue(newValue)
         form.setFieldsValue({ content: newValue })
     }, [])
-
-    const handleCheckboxChange = useCallback((e, form) => {
-        const checkboxValue = e.target.checked
-
-        if (checkboxValue) {
-            form.setFieldsValue({ properties: optionValues })
-        } else {
-            form.setFieldsValue({ properties: [] })
-        }
-    }, [optionValues])
 
     const handleEditorLoad = useCallback(() => setEditorLoading(false), [])
 
@@ -248,17 +235,6 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                             />
                                         </Form.Item>
                                     </Col>
-                                    {
-                                        mode === 'create' && (
-                                            <Col offset={6} span={24}>
-                                                <Checkbox
-                                                    disabled={!organizationId}
-                                                    onChange={e => handleCheckboxChange(e, form)}>
-                                                    {AddALlPropertiesMessage}
-                                                </Checkbox>
-                                            </Col>
-                                        )
-                                    }
                                 </Row>
                             </Col>
                             <Col span={24}>

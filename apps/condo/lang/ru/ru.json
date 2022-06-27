@@ -623,7 +623,6 @@
   "pages.condo.meter.EnterMeterNumber": "Ввести номер",
   "pages.condo.meter.EnterPlace": "Ввести место установки прибора",
   "pages.condo.settings.hint.propertyHint": "Справка по дому",
-  "pages.condo.settings.hint.addAllProperties": "Добавить все дома",
   "pages.condo.settings.hint.createTicketHint": "Создать справку",
   "pages.condo.settings.hint.newTicketHint": "Новая справка",
   "pages.condo.settings.hint.editTicketHint": "Редактирование справки",
