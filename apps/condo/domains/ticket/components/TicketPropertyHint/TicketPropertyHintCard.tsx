@@ -8,7 +8,7 @@ import React, { CSSProperties, useMemo } from 'react'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
 
-import { TicketPropertyHint, TicketPropertyHintProperty } from '../../utils/clientSchema'
+import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { TicketPropertyHintContent } from './TicketPropertyHintContent'
 
 const StyledAlert = styled(Alert)`
@@ -22,7 +22,6 @@ const StyledAlert = styled(Alert)`
 
 const TEXT_STYLES: CSSProperties = { color: colors.black }
 const LINK_STYLES: CSSProperties = { ...TEXT_STYLES, position: 'relative', bottom: '-7px', fontSize: fontSizes.content }
-const TICKET_HINT_CONTENT_STYLES: CSSProperties = { maxHeight: '5em' }
 
 type TicketPropertyHintCardProps = {
     propertyId: string
