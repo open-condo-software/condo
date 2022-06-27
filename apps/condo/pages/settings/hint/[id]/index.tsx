@@ -22,6 +22,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
 import { useOrganization } from '@core/next/organization'
+import { StyledTicketPropertyHintContent } from '../../../../domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
@@ -116,7 +117,7 @@ const TicketPropertyHintIdPage = () => {
                                 </Col>
                                 <Col span={24}>
                                     <PageFieldRow title={TicketPropertyHintTitleMessage}>
-                                        <div dangerouslySetInnerHTML={ticketPropertyHintContent}/>
+                                        <StyledTicketPropertyHintContent dangerouslySetInnerHTML={ticketPropertyHintContent}/>
                                     </PageFieldRow>
                                 </Col>
                             </Row>

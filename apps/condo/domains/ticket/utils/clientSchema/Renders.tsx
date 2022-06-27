@@ -9,6 +9,7 @@ import xss from 'xss'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
+import { StyledTicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 
 import { TicketTag } from '../../components/TicketTag'
 import { TICKET_TYPE_TAG_COLORS } from '../../constants/style'
@@ -195,7 +196,7 @@ const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', over
 export const getTicketPropertyHintRender = (search: FilterValue) => {
     return function render (value) {
         return (
-            <div
+            <StyledTicketPropertyHintContent
                 dangerouslySetInnerHTML={{
                     __html: xss(value),
                 }}

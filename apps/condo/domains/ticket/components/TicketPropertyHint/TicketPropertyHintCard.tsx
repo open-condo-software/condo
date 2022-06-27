@@ -3,10 +3,10 @@ import styled from '@emotion/styled'
 import { Alert, Typography } from 'antd'
 import { get } from 'lodash'
 import Link from 'next/link'
+import React, { CSSProperties, useMemo } from 'react'
 
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { useIntl } from '@core/next/intl'
-import { CSSProperties, useMemo } from 'react'
 
 import { TicketPropertyHint, TicketPropertyHintProperty } from '../../utils/clientSchema'
 import { TicketPropertyHintContent } from './TicketPropertyHintContent'
@@ -24,7 +24,12 @@ const TEXT_STYLES: CSSProperties = { color: colors.black }
 const LINK_STYLES: CSSProperties = { ...TEXT_STYLES, position: 'relative', bottom: '-7px', fontSize: fontSizes.content }
 const TICKET_HINT_CONTENT_STYLES: CSSProperties = { maxHeight: '5em' }
 
-export const TicketIdPropertyHintCard = ({ propertyId }) => {
+type TicketPropertyHintCardProps = {
+    propertyId: string
+    hintContentStyle?: CSSProperties
+}
+
+export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle }) => {
     const intl = useIntl()
     const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.propertyHint' })
     const ExtraTitleMessage = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
@@ -42,14 +47,17 @@ export const TicketIdPropertyHintCard = ({ propertyId }) => {
         },
     })
 
-    const AlertMessage = <Typography.Text style={TEXT_STYLES}>{PropertyHintMessage}</Typography.Text>
+    const AlertMessage = <Typography.Text strong style={TEXT_STYLES}>{PropertyHintMessage}</Typography.Text>
     
     return ticketPropertyHintProperty && ticketPropertyHint && (
         <StyledAlert
             message={AlertMessage}
             description={
                 <>
-                    <TicketPropertyHintContent ticketPropertyHint={ticketPropertyHint} style={TICKET_HINT_CONTENT_STYLES} />
+                    <TicketPropertyHintContent
+                        ticketPropertyHint={ticketPropertyHint}
+                        style={hintContentStyle}
+                    />
                     <Link href={`/property/${propertyId}/hint`} passHref>
                         <a target={'_blank'}>
                             <Typography.Link underline style={LINK_STYLES}>

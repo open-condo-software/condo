@@ -56,7 +56,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
-import { TicketIdPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketIdPropertyHintCard'
+import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -164,6 +164,7 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
 
 const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
 const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
+const HINT_CARD_STYLE = { maxHeight: '5em ' }
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 16]
 
 const TicketContent = ({ ticket }) => {
@@ -378,7 +379,10 @@ const TicketContent = ({ ticket }) => {
                                     }
                                 </Col>
                                 <Col span={24}>
-                                    <TicketIdPropertyHintCard propertyId={propertyId} />
+                                    <TicketPropertyHintCard
+                                        propertyId={propertyId}
+                                        hintContentStyle={HINT_CARD_STYLE}
+                                    />
                                 </Col>
                             </Row>
                         </PageFieldRow>

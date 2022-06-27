@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { Gutter } from 'antd/es/grid/row'
 import Link from 'next/link'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Card, Col, Form, FormItemProps, Row, Typography } from 'antd'
 import { get, isEmpty } from 'lodash'
 import { ArgsProps } from 'antd/lib/notification'
@@ -34,7 +34,7 @@ import { RESIDENT } from '@condo/domains/user/constants/common'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
 
-import { FormTicketPropertyHintCard } from '../TicketPropertyHint/FormTicketPropertyHintCard'
+import { TicketPropertyHintCard } from '../TicketPropertyHint/TicketPropertyHintCard'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
@@ -210,6 +210,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
 }
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
+const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em' }
 
 export interface ITicketFormProps {
     organization?: IOrganizationUIState
@@ -460,7 +461,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             </Row>
                                         </Col>
                                         <Col span={6}>
-                                            <FormTicketPropertyHintCard selectedPropertyId={selectedPropertyId} />
+                                            <TicketPropertyHintCard
+                                                propertyId={selectedPropertyId}
+                                                hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
+                                            />
                                         </Col>
                                     </Row>
                                 </Col>
