@@ -48,6 +48,7 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
     })
 
     const AlertMessage = <Typography.Text strong style={TEXT_STYLES}>{PropertyHintMessage}</Typography.Text>
+    const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
     
     return ticketPropertyHintProperty && ticketPropertyHint && (
         <StyledAlert
@@ -55,7 +56,7 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
             description={
                 <>
                     <TicketPropertyHintContent
-                        ticketPropertyHint={ticketPropertyHint}
+                        html={htmlContent}
                         style={hintContentStyle}
                     />
                     <Link href={`/property/${propertyId}/hint`} passHref>

@@ -1,6 +1,6 @@
 import map from 'lodash/map'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -9,7 +9,7 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
-import { getTicketPropertyHintAddressesRender, getTicketPropertyHintRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
+import { getTicketPropertyHintAddressesRender, renderTicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { ITicketPropertyHintUIState } from '@condo/domains/ticket//utils/clientSchema/TicketPropertyHint'
 import { TicketPropertyHintProperty } from '@condo/domains/ticket//utils/clientSchema'
 
@@ -67,8 +67,8 @@ export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<Filter
                 ellipsis: true,
                 dataIndex: 'content',
                 key: 'content',
-                render: getTicketPropertyHintRender(search),
+                render: renderTicketPropertyHint,
             },
         ]
-    }, [NameMessage, BuildingsMessage, HintMessage, filterMetas, filters, intl, render, renderTicketPropertyHintAddresses, search])
+    }, [NameMessage, BuildingsMessage, HintMessage, filterMetas, filters, intl, render, renderTicketPropertyHintAddresses])
 }

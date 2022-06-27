@@ -14,7 +14,9 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
-import { StyledTicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
+import {
+    TicketPropertyHintContent,
+} from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
@@ -43,9 +45,7 @@ const PropertyHintPage = () => {
         },
     })
 
-    const htmlContent = useMemo(() => ({
-        __html: xss(get(ticketPropertyHint, 'content')),
-    }), [ticketPropertyHint])
+    const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
 
     if (error || propertyLoading || ticketPropertyHintLoading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={propertyLoading} error={error ? ServerErrorMsg : null}/>
@@ -66,7 +66,10 @@ const PropertyHintPage = () => {
                                 </Typography.Title>
                             </Col>
                             <Col span={24}>
-                                <StyledTicketPropertyHintContent style={HINT_CONTENT_STYLES} dangerouslySetInnerHTML={htmlContent}/>
+                                <TicketPropertyHintContent
+                                    style={HINT_CONTENT_STYLES}
+                                    html={htmlContent}
+                                />
                             </Col>
                         </Row>
                     </Col>

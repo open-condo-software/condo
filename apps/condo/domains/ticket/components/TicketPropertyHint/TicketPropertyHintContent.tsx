@@ -1,13 +1,9 @@
-import { get } from 'lodash'
-import xss from 'xss'
-import React, { CSSProperties } from 'react'
 import styled from '@emotion/styled'
 
-import { TicketPropertyHint } from '@app/condo/schema'
-
 import { colors } from '@condo/domains/common/constants/style'
+import { HtmlContent } from '@condo/domains/common/components/HtmlContent'
 
-export const StyledTicketPropertyHintContent = styled.div`
+export const TicketPropertyHintContent = styled(HtmlContent)`
   overflow: hidden;
   word-break: break-word;
   
@@ -16,17 +12,3 @@ export const StyledTicketPropertyHintContent = styled.div`
     text-decoration: underline;
   }
 `
-
-type TicketPropertyHintContentProps = {
-    ticketPropertyHint: TicketPropertyHint,
-    style?: CSSProperties
-}
-
-export const TicketPropertyHintContent: React.FC<TicketPropertyHintContentProps> = ({ ticketPropertyHint, style = {} }) => (
-    <StyledTicketPropertyHintContent
-        dangerouslySetInnerHTML={{
-            __html: xss(get(ticketPropertyHint, 'content')),
-        }}
-        style={style}
-    />
-)
