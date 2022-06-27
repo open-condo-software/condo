@@ -11,7 +11,7 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
 
 import { getTicketHintAddressesRender, getTicketHintRender } from '../utils/clientSchema/Renders'
-import { ITicketHintUIState } from '../utils/clientSchema/TicketHint'
+import { ITicketHintUIState } from '../utils/clientSchema/TicketPropertyHint'
 import { TicketHintProperty } from '../utils/clientSchema'
 
 export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketHints: ITicketHintUIState[]) {

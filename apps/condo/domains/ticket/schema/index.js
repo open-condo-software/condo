@@ -26,7 +26,7 @@ const { PredictTicketClassificationService } = require('./PredictTicketClassific
 const { TicketCommentFile } = require('./TicketCommentFile')
 const { TicketCommentsTime } = require('./TicketCommentsTime')
 const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
-const { TicketHint } = require('./TicketHint')
+const { TicketPropertyHint } = require('./TicketPropertyHint')
 const { TicketHintProperty } = require('./TicketHintProperty')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -53,7 +53,7 @@ module.exports = {
     TicketCommentFile,
     TicketCommentsTime,
     UserTicketCommentReadTime,
-    TicketHint,
+    TicketPropertyHint,
     TicketHintProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

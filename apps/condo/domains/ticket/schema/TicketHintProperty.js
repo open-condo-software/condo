@@ -20,7 +20,7 @@ const TicketHintProperty = new GQLListSchema('TicketHintProperty', {
         ticketHint: {
             schemaDoc: 'TicketHint which belongs to property',
             type: Relationship,
-            ref: 'TicketHint',
+            ref: 'TicketPropertyHint',
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
