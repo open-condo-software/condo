@@ -102,7 +102,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
             if (isOnClient) {
                 try {
                     const result = await fetch(pageUrl, { method: 'HEAD' })
-                    if (result.status !== 200) {
+                    if (result.status >= 400) {
                         setIsError(true)
                     }
                 } catch {
