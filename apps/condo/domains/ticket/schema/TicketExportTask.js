@@ -8,8 +8,13 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/ticket/access/TicketExportTask')
-const { EXPORT_STATUS_VALUES, EXPORT_FORMAT_VALUES } = require('@condo/domains/common/constants/export')
+const { EXPORT_STATUS_VALUES, EXPORT_FORMAT_VALUES, PROCESSING } = require('@condo/domains/common/constants/export')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const conf = require('@core/config')
+const { exportTicketsTask } = require('../tasks/exportTicketsTask')
 
 const TICKET_EXPORT_TASK_FOLDER_NAME = 'TicketExportTask'
 const Adapter = new FileAdapter(TICKET_EXPORT_TASK_FOLDER_NAME)
@@ -23,6 +28,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             type: Select,
             options: EXPORT_STATUS_VALUES,
             isRequired: true,
+            defaultValue: PROCESSING,
         },
 
         format: {
@@ -75,22 +81,43 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             schemaDoc: 'Requested export locale, in that the resulting file will be rendered',
             type: Text,
             isRequired: true,
+            hooks: {
+                resolveInput: async ({ context }) => {
+                    const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                    return locale
+                },
+            },
         },
 
         timeZone: {
             schemaDoc: 'To requested timeZone all datetime fields will be converted',
             type: Text,
             isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    const { timeZoneFromUser } = resolvedData
+                    const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
+                    return timeZone
+                },
+            },
         },
 
         user: {
             schemaDoc: 'User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user',
             type: 'Relationship',
             ref: 'User',
-            isRequired: false,
+            isRequired: true,
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
+    },
+    hooks: {
+        // `updatedItem` means "The new/currently stored item" in Keystone
+        afterChange: async ({ updatedItem, operation }) => {
+            if (operation === 'create') {
+                await exportTicketsTask.delay(updatedItem.id)
+            }
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

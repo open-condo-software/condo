@@ -1,7 +1,6 @@
 const get = require('lodash/get')
 const isNull = require('lodash/isNull')
 const { TicketExportTask, TicketStatus } = require('../utils/serverSchema')
-const { PROCESSING } = require('@condo/domains/common/constants/export')
 const { exportRecords } = require('@condo/domains/common/utils/serverSchema/export')
 const { createTask } = require('@core/keystone/tasks')
 const { getSchemaCtx } = require('@core/keystone/schema')
@@ -17,7 +16,6 @@ const {
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
-
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 
@@ -206,33 +204,8 @@ const exportTicketsTask = createTask('exportTickets', async (taskId) => {
     await exportTickets(taskId)
 })
 
-/**
- * Creates an export task, starts delayed export job and returns task
- *
- * @param context - Keystone context
- * @param taskArgs - arguments that will be saved into TicketExportTask
- * @return {Promise<*>}
- */
-async function startExportTicketsTask (context, user, taskArgs) {
-    const { dv, sender, format, where, sortBy, locale, timeZone } = taskArgs
-    const task = await TicketExportTask.create(context,  {
-        dv,
-        sender,
-        user: { connect: { id: user.id } },
-        format,
-        where,
-        sortBy,
-        locale,
-        timeZone,
-        status: PROCESSING,
-    })
-
-    await exportTicketsTask.delay(task.id)
-
-    return task
-}
 
 module.exports = {
     exportTickets,
-    startExportTicketsTask,
+    exportTicketsTask,
 }
