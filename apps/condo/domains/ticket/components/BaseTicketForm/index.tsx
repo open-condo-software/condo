@@ -3,12 +3,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@core/next/intl'
 import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
+import { ArgsProps } from 'antd/lib/notification'
 import Input from '@condo/domains/common/components/antd/Input'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
-import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
+import { ITicketFormState, ITicketUIState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
@@ -31,7 +32,6 @@ import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
-
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
@@ -192,6 +192,7 @@ export interface ITicketFormProps {
     action?: (...args) => void,
     files?: ITicketFileUIState[],
     afterActionCompleted?: (ticket: ITicketFormState) => void,
+    getCompletedNotification?: (data: ITicketUIState) => ArgsProps,
     autoAssign?: boolean,
 }
 
@@ -211,18 +212,27 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const router = useRouter()
 
-    const { action: _action, initialValues, organization, role, afterActionCompleted, files, autoAssign } = props
+    const {
+        action: _action,
+        initialValues,
+        organization,
+        role,
+        afterActionCompleted,
+        files,
+        autoAssign,
+        getCompletedNotification,
+    } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
     const selectPropertyIdRef = useRef(selectedPropertyId)
 
-    const propertyWhereQuery: PropertyWhereInput = {
+    const propertyWhereQuery: PropertyWhereInput = useMemo(() => ({
         organization: {
             id: organization ? organization.id : null,
         },
         deletedAt: null,
 
-    }
+    }), [organization])
     if (selectedPropertyId) {
         propertyWhereQuery['id_in'] = [selectedPropertyId]
     }
@@ -233,7 +243,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         skip: 0,
     } )
 
-    const property = organizationProperties.find(property => property.id === selectedPropertyId)
+    const property = useMemo(() => organizationProperties.find(property => property.id === selectedPropertyId), [organizationProperties, selectedPropertyId])
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitType>(get(initialValues, 'unitType', BuildingUnitType.Flat))
@@ -283,7 +293,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             : Promise.reject(AddressNotSelected)
     }, [selectedPropertyId])
 
-    const PROPERTY_VALIDATION_RULES = [...validations.property, { validator: addressValidation }]
+    const PROPERTY_VALIDATION_RULES = useMemo(() => [...validations.property, { validator: addressValidation }], [addressValidation, validations.property])
 
     const action = async (variables, ...args) => {
         const { details, ...otherVariables } = variables
@@ -309,12 +319,19 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const initialCanReadByResidentValue = useMemo(() => get(initialValues, 'canReadByResident', true), [initialValues])
     const isResidentTicket = useMemo(() => get(initialValues, ['createdBy', 'type']) === RESIDENT, [initialValues])
-    const ErrorToFormFieldMsgMapping = {
+    const ErrorToFormFieldMsgMapping = useMemo(() => ({
         [PROPERTY_REQUIRED_ERROR]: {
             name: 'property',
             errors: [AddressNotSelected],
         },
-    }
+    }), [AddressNotSelected])
+
+    const formValuesToMutationDataPreprocessor = useCallback((values) => {
+        values.property = selectPropertyIdRef.current
+        values.unitName = selectedUnitNameRef.current
+        values.unitType = selectedUnitTypeRef.current
+        return values
+    }, [])
 
     return (
         <>
@@ -322,13 +339,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 action={action}
                 initialValues={initialValues}
                 validateTrigger={['onBlur', 'onSubmit']}
-                formValuesToMutationDataPreprocessor={(values) => {
-                    values.property = selectPropertyIdRef.current
-                    values.unitName = selectedUnitNameRef.current
-                    values.unitType = selectedUnitTypeRef.current
-                    return values
-                }}
+                formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
+                getCompletedNotification={getCompletedNotification}
             >
                 {({ handleSave, isLoading, form }) => (
                     <>

@@ -1,3 +1,16 @@
+import { Col, Form, Row, Typography } from 'antd'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo } from 'react'
+import { get } from 'lodash'
+import dayjs from 'dayjs'
+import isToday from 'dayjs/plugin/isToday'
+
+import { useApolloClient } from '@core/next/apollo'
+import { useAuth } from '@core/next/auth'
+import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+
+import { colors } from '@condo/domains/common/constants/style'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
@@ -5,17 +18,6 @@ import { ErrorsContainer } from '@condo/domains/ticket/components/BaseTicketForm
 import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { useAuth } from '@core/next/auth'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
-import { Col, Form, Row, Space } from 'antd'
-import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
-import { useApolloClient } from '@core/next/apollo'
-import { get } from 'lodash'
-import dayjs from 'dayjs'
-import isToday from 'dayjs/plugin/isToday'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 dayjs.extend(isToday)
 
@@ -25,7 +27,6 @@ const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
-    const { isSmall } = useLayoutContext()
 
     return (
         <Form.Item noStyle shouldUpdate>
@@ -67,7 +68,12 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
     )
 }
 
+const LINK_STYLES = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[8] }
+
 export const CreateTicketForm: React.FC = () => {
+    const intl = useIntl()
+    const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.condo.ticket.notification.success.description' })
+
     const { organization, link } = useOrganization()
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
@@ -97,6 +103,19 @@ export const CreateTicketForm: React.FC = () => {
         executor: auth.user.id,
     }), [auth.user.id])
 
+    const getCompletedNotification = useCallback((data) => ({
+        message: (
+            <Typography.Text strong>
+                {intl.formatMessage({ id: 'pages.condo.ticket.notification.success.message' }, { number: data.number })}
+            </Typography.Text>
+        ),
+        description: (
+            <a style={LINK_STYLES} href={`/ticket/${data.id}`} target={'_blank'} rel="noreferrer">
+                {SuccessNotificationDescription}
+            </a>
+        ),
+    }), [SuccessNotificationDescription, intl])
+
     const MemoizedBaseTicketForm = useCallback(() => (
         <BaseTicketForm
             action={createAction}
@@ -104,6 +123,7 @@ export const CreateTicketForm: React.FC = () => {
             organization={organization}
             role={link.role}
             autoAssign
+            getCompletedNotification={getCompletedNotification}
         >
             {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
         </BaseTicketForm>
