@@ -8,14 +8,17 @@ import { Editor } from '@tinymce/tinymce-react'
 
 import { useIntl } from '@core/next/intl'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { TicketHintProperty } from '@condo/domains/ticket/utils/clientSchema'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import {
+    searchOrganizationProperty,
+    searchOrganizationPropertyWithoutPropertyHint,
+} from '@condo/domains/ticket/utils/clientSchema/search'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -111,11 +114,6 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
 
     const initialContent = useMemo(() => get(initialValues, 'content'), [initialValues])
 
-    const { objs: properties, loading: propertiesLoading } = Property.useObjects({
-        where: {
-            organization: { id: organizationId },
-        },
-    })
     const { objs: organizationTicketHintProperties, loading: organizationTicketHintPropertiesLoading } = TicketHintProperty.useObjects({
         where: {
             organization: { id: organizationId },
@@ -139,19 +137,18 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
 
     const initialValuesWithProperties = { ...initialValues, properties: initialPropertyIds }
 
-    const propertiesWithTicketHint = useMemo(() => {
-        const propertyIds = organizationTicketHintProperties.map(ticketHintProperty => ticketHintProperty.property.id)
+    const propertiesWithTicketHint = useMemo(() => organizationTicketHintProperties.map(ticketHintProperty => ticketHintProperty.property),
+        [organizationTicketHintProperties])
 
-        return properties.filter(property => propertyIds.includes(property.id))
-    }, [organizationTicketHintProperties, properties])
+    const propertiesWithTicketHintIds = useMemo(() => propertiesWithTicketHint.map(property => property.id), [propertiesWithTicketHint])
 
-    const propertiesWithoutTicketHint = useMemo(() => properties.filter(property => !propertiesWithTicketHint.includes(property)),
-        [properties, propertiesWithTicketHint])
+    // const propertiesWithoutTicketHint = useMemo(() => properties.filter(property => !propertiesWithTicketHint.includes(property)),
+    //     [properties, propertiesWithTicketHint])
 
-    const options = useMemo(() =>
-        [...propertiesWithoutTicketHint, ...initialProperties]
-            .map(property => ({ label: property.address, value: property.id })),
-    [initialProperties, propertiesWithoutTicketHint])
+    // const options = useMemo(() =>
+    //     [...propertiesWithoutTicketHint, ...initialProperties]
+    //         .map(property => ({ label: property.address, value: property.id })),
+    // [initialProperties, propertiesWithoutTicketHint])
 
     const handleEditorChange = useCallback((newValue, form) => {
         setEditorValue(newValue)
@@ -193,7 +190,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
         }
     }, [action, createTicketHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketHintProperties, softDeleteTicketHintPropertyAction])
 
-    if (propertiesLoading || organizationTicketHintPropertiesLoading) {
+    if (organizationTicketHintPropertiesLoading) {
         return (
             <Loader fill size={'large'}/>
         )
@@ -228,10 +225,14 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                             required
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <Select
-                                                options={options}
-                                                mode={'multiple'}
+                                            <GraphQlSearchInput
                                                 disabled={!organizationId}
+                                                initialValueSearch={searchOrganizationProperty(organizationId)}
+                                                initialValue={initialPropertyIds}
+                                                search={searchOrganizationPropertyWithoutPropertyHint(organizationId, propertiesWithTicketHintIds)}
+                                                showArrow={false}
+                                                mode="multiple"
+                                                infinityScroll
                                             />
                                         </Form.Item>
                                     </Col>

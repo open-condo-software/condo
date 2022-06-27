@@ -101,6 +101,15 @@ const GET_ALL_CONTACTS_QUERY = gql`
     }
 `
 
+const GET_ALL_PROPERTY_HINTS_TO_PROPERTIES_QUERY = gql`
+    query selectPropertyHintToProperty ($where: TicketHintPropertyWhereInput, $orderBy: String, $first: Int, $skip: Int) {
+        objs: allTicketHintProperties(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
+            ticketHint { id }
+            property { id }
+        }
+    }
+`
+
 async function _search (client, query, variables) {
     return await client.query({
         query: query,
@@ -132,6 +141,25 @@ export function searchOrganizationProperty (organizationId) {
             organization: {
                 id: organizationId,
             },
+            ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
+            ...query,
+        }
+        const orderBy = 'address_ASC'
+        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first, skip })
+        if (error) console.warn(error)
+
+        return data.objs.map(({ address, id }) => ({ text: address, value: id }))
+    }
+}
+
+export function searchOrganizationPropertyWithoutPropertyHint (organizationId, organizationPropertiesWithTicketHint = []) {
+    if (!organizationId) return
+    return async function (client, searchText, query = {}, first = 10, skip = 0) {
+        const where = {
+            organization: {
+                id: organizationId,
+            },
+            id_not_in: organizationPropertiesWithTicketHint,
             ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
             ...query,
         }
