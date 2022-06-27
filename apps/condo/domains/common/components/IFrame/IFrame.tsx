@@ -38,6 +38,8 @@ const getIframeStyles: (boolean) => CSSProperties = (isLoading) => ({
     width: '100%',
 })
 
+const EMPTY_VIEW_IMAGE_STYLE: CSSProperties = { marginBottom: 20 }
+
 export const IFrame: React.FC<IFrameProps> = (props) => {
     const intl = useIntl()
     const LoadingErrorTitle = intl.formatMessage({ id: 'miniapp.loadingError.title' })
@@ -179,6 +181,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
                 <BasicEmptyListView
                     image={'/dino/waiting@2x.png'}
                     spaceSize={16}
+                    imageStyle={EMPTY_VIEW_IMAGE_STYLE}
                 >
                     <Typography.Title level={4}>
                         {LoadingErrorTitle}
