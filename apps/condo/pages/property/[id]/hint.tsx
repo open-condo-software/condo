@@ -14,6 +14,7 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
+import { StyledTicketPropertyHintContent } from '../../../domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 
 const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
 
@@ -65,7 +66,7 @@ const PropertyHintPage = () => {
                                 </Typography.Title>
                             </Col>
                             <Col span={24}>
-                                <div style={HINT_CONTENT_STYLES} dangerouslySetInnerHTML={htmlContent}/>
+                                <StyledTicketPropertyHintContent style={HINT_CONTENT_STYLES} dangerouslySetInnerHTML={htmlContent}/>
                             </Col>
                         </Row>
                     </Col>
