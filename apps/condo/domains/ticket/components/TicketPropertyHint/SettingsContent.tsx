@@ -15,15 +15,14 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useOrganization } from '@core/next/organization'
-import { SortTicketHintsBy } from '@app/condo/schema'
+import { SortTicketPropertyHintsBy } from '@app/condo/schema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-
-import { useTicketHintTableColumns } from '@condo/domains/ticket/hooks/useTicketHintTableColumns'
-import { useTicketHintTableFilters } from '@condo/domains/ticket/hooks/useTicketHintTableFilters'
-import { TicketHint } from '../../utils/clientSchema'
-import { IFilters } from '../../utils/helpers'
+import { useTicketPropertyHintTableFilters } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableFilters'
+import { useTicketPropertyHintTableColumns } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableColumns'
+import { TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
+import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 const SORTABLE_PROPERTIES = ['name']
 const TICKET_HINTS_DEFAULT_SORT_BY = ['createdAt_DESC']
@@ -38,9 +37,9 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 export const SettingsContent = () => {
     const intl = useIntl()
-    const TicketHintTitle = intl.formatMessage({ id: 'Hint' })
+    const TicketPropertyHintTitle = intl.formatMessage({ id: 'Hint' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const CreateHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.createTicketHint' })
+    const CreateHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.createTicketPropertyHint' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -52,27 +51,27 @@ export const SettingsContent = () => {
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
 
-    const filtersMeta = useTicketHintTableFilters()
+    const filtersMeta = useTicketPropertyHintTableFilters()
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
-    const searchTicketHintsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
+    const searchTicketPropertyHintsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    const sortBy = sortersToSortBy(sorters, TICKET_HINTS_DEFAULT_SORT_BY) as SortTicketHintsBy[]
+    const sortBy = sortersToSortBy(sorters, TICKET_HINTS_DEFAULT_SORT_BY) as SortTicketPropertyHintsBy[]
 
     const {
-        loading: isTicketHintsFetching,
+        loading: isTicketPropertyHintsFetching,
         count: total,
-        objs: ticketHints,
-    } = TicketHint.useObjects({
+        objs: ticketPropertyHints,
+    } = TicketPropertyHint.useObjects({
         sortBy,
-        where: searchTicketHintsQuery,
+        where: searchTicketPropertyHintsQuery,
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
     })
 
-    const tableColumns = useTicketHintTableColumns(filtersMeta, ticketHints)
+    const tableColumns = useTicketPropertyHintTableColumns(filtersMeta, ticketPropertyHints)
 
     const handleAddHintButtonClick = useCallback(async () => {
         await router.push('/settings/hint/create')
@@ -93,7 +92,7 @@ export const SettingsContent = () => {
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
-                <Typography.Title level={3}>{TicketHintTitle}</Typography.Title>
+                <Typography.Title level={3}>{TicketPropertyHintTitle}</Typography.Title>
             </Col>
             <Col span={24}>
                 <TableFiltersContainer>
@@ -113,11 +112,11 @@ export const SettingsContent = () => {
                 <StyledTable
                     scroll={getTableScrollConfig(shouldTableScroll)}
                     totalRows={total}
-                    loading={isTicketHintsFetching}
+                    loading={isTicketPropertyHintsFetching}
                     onRow={handleRowAction}
-                    dataSource={ticketHints}
+                    dataSource={ticketPropertyHints}
                     columns={tableColumns}
-                    data-cy={'ticketHint__table'}
+                    data-cy={'ticketPropertyHint__table'}
                 />
             </Col>
             {

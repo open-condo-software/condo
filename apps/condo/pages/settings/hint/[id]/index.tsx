@@ -19,7 +19,7 @@ import {
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { TicketHint, TicketHintProperty } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
 import { useOrganization } from '@core/next/organization'
 
@@ -30,9 +30,9 @@ const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCus
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 
-const TicketHintIdPage = () => {
+const TicketPropertyHintIdPage = () => {
     const intl = useIntl()
-    const TicketHintTitleMessage = intl.formatMessage({ id: 'Hint' })
+    const TicketPropertyHintTitleMessage = intl.formatMessage({ id: 'Hint' })
     const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
@@ -45,25 +45,25 @@ const TicketHintIdPage = () => {
     const canManageTicketPropertyHints = useMemo(() => get(link, ['role', 'canManageTicketPropertyHints']), [link])
 
     const hintId = get(router, ['query', 'id'], null)
-    const { loading, obj: ticketHint } = TicketHint.useObject({
+    const { loading, obj: ticketPropertyHint } = TicketPropertyHint.useObject({
         where: { id: hintId },
     }, {
         fetchPolicy: 'network-only',
     })
 
-    const handleDeleteAction = TicketHint.useSoftDelete({},
+    const handleDeleteAction = TicketPropertyHint.useSoftDelete({},
         () => router.push('/settings?tab=hint'))
 
-    const { objs: ticketHintProperties } = TicketHintProperty.useObjects({
+    const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({
         where: {
-            ticketHint: { id: hintId },
+            ticketPropertyHint: { id: hintId },
         },
     })
-    const softDeleteTicketHintPropertyAction = TicketHintProperty.useSoftDelete({}, () => Promise.resolve())
-    const properties = useMemo(() => ticketHintProperties.map(ticketHintProperty => ticketHintProperty.property), [ticketHintProperties])
-    const ticketHintName = useMemo(() => get(ticketHint, 'name'), [ticketHint])
+    const softDeleteTicketPropertyHintPropertyAction = TicketPropertyHintProperty.useSoftDelete({}, () => Promise.resolve())
+    const properties = useMemo(() => ticketPropertyHintProperties.map(ticketPropertyHintProperty => ticketPropertyHintProperty.property), [ticketPropertyHintProperties])
+    const ticketPropertyHintName = useMemo(() => get(ticketPropertyHint, 'name'), [ticketPropertyHint])
 
-    const renderTicketHintProperties = useMemo(() => properties.map(property => (
+    const renderTicketPropertyHintProperties = useMemo(() => properties.map(property => (
         <Link
             key={property.id}
             href={`/property/${get(property, 'id')}`}
@@ -75,15 +75,15 @@ const TicketHintIdPage = () => {
     )), [properties])
 
     const handleDeleteButtonClick = useCallback(async () => {
-        await handleDeleteAction({}, ticketHint)
-        for (const ticketHintProperty of ticketHintProperties) {
-            await softDeleteTicketHintPropertyAction({}, ticketHintProperty)
+        await handleDeleteAction({}, ticketPropertyHint)
+        for (const ticketPropertyHintProperty of ticketPropertyHintProperties) {
+            await softDeleteTicketPropertyHintPropertyAction({}, ticketPropertyHintProperty)
         }
-    }, [handleDeleteAction, softDeleteTicketHintPropertyAction, ticketHint, ticketHintProperties])
+    }, [handleDeleteAction, softDeleteTicketPropertyHintPropertyAction, ticketPropertyHint, ticketPropertyHintProperties])
 
-    const ticketHintContent = useMemo(() => ({
-        __html: xss(get(ticketHint, 'content')),
-    }), [ticketHint])
+    const ticketPropertyHintContent = useMemo(() => ({
+        __html: xss(get(ticketPropertyHint, 'content')),
+    }), [ticketPropertyHint])
 
     const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
@@ -94,29 +94,29 @@ const TicketHintIdPage = () => {
     return (
         <>
             <Head>
-                <title>{TicketHintTitleMessage}</title>
+                <title>{TicketPropertyHintTitleMessage}</title>
             </Head>
             <PageWrapper>
                 <PageContent>
                     <Row gutter={BIG_VERTICAL_GUTTER}>
                         <Col span={24}>
-                            <Typography.Title>{TicketHintTitleMessage}</Typography.Title>
+                            <Typography.Title>{TicketPropertyHintTitleMessage}</Typography.Title>
                         </Col>
                         <Col span={24}>
                             <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                                 <Col span={24}>
                                     <PageFieldRow title={BuildingsMessage}>
-                                        {renderTicketHintProperties}
+                                        {renderTicketPropertyHintProperties}
                                     </PageFieldRow>
                                 </Col>
                                 <Col span={24}>
                                     <PageFieldRow title={NameMessage}>
-                                        {ticketHintName}
+                                        {ticketPropertyHintName}
                                     </PageFieldRow>
                                 </Col>
                                 <Col span={24}>
-                                    <PageFieldRow title={TicketHintTitleMessage}>
-                                        <div dangerouslySetInnerHTML={ticketHintContent}/>
+                                    <PageFieldRow title={TicketPropertyHintTitleMessage}>
+                                        <div dangerouslySetInnerHTML={ticketPropertyHintContent}/>
                                     </PageFieldRow>
                                 </Col>
                             </Row>
@@ -152,6 +152,6 @@ const TicketHintIdPage = () => {
     )
 }
 
-TicketHintIdPage.requiredAccess = OrganizationRequired
+TicketPropertyHintIdPage.requiredAccess = OrganizationRequired
 
-export default TicketHintIdPage
+export default TicketPropertyHintIdPage

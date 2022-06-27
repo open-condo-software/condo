@@ -192,7 +192,7 @@ export const getTicketClientNameRender = (search: FilterValue) => {
 
 const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
 
-export const getTicketHintRender = (search: FilterValue) => {
+export const getTicketPropertyHintRender = (search: FilterValue) => {
     return function render (value) {
         return (
             <div
@@ -205,7 +205,7 @@ export const getTicketHintRender = (search: FilterValue) => {
     }
 }
 
-export const getTicketHintAddressesRender = (search: FilterValue) => {
+export const getTicketPropertyHintAddressesRender = (search: FilterValue) => {
     return function render (intl, properties) {
         const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 

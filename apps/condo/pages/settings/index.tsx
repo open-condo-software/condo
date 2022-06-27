@@ -9,7 +9,7 @@ import { PageHeader, PageWrapper } from '@condo/domains/common/components/contai
 
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
-import { SettingsContent as TicketHintSettings } from '@condo/domains/ticket/components/TicketHint/SettingsContent'
+import { SettingsContent as TicketPropertyHintSettings } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { SettingsPageContent, SettingsTabType } from '@condo/domains/common/components/settings/SettingsPageContent'
 
@@ -39,7 +39,7 @@ const SettingsPage = () => {
         {
             key: 'hint',
             title: HintTitle,
-            content: <TicketHintSettings />,
+            content: <TicketPropertyHintSettings />,
         },
     ].filter(Boolean),
     [HintTitle, SubscriptionTitle, hasSubscriptionFeature])

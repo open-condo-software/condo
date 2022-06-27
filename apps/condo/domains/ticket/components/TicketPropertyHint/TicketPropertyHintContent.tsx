@@ -1,19 +1,19 @@
 import { get } from 'lodash'
 import xss from 'xss'
 import React, { CSSProperties } from 'react'
-import { TicketHint } from '@app/condo/schema'
+import { TicketPropertyHint } from '@app/condo/schema'
 
 const TICKET_HINT_CONTENT_STYLES: CSSProperties = { maxHeight: '11em', overflow: 'hidden', wordBreak: 'break-word' }
 
-type TicketHintContentProps = {
-    ticketHint: TicketHint,
+type TicketPropertyHintContentProps = {
+    ticketPropertyHint: TicketPropertyHint,
     style?: CSSProperties
 }
 
-export const TicketHintContent: React.FC<TicketHintContentProps> = ({ ticketHint, style = {} }) => (
+export const TicketPropertyHintContent: React.FC<TicketPropertyHintContentProps> = ({ ticketPropertyHint, style = {} }) => (
     <div
         dangerouslySetInnerHTML={{
-            __html: xss(get(ticketHint, 'content')),
+            __html: xss(get(ticketPropertyHint, 'content')),
         }}
         style={{ ...TICKET_HINT_CONTENT_STYLES, ...style }}
     />

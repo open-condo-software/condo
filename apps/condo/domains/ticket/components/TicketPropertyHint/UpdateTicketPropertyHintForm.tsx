@@ -2,35 +2,39 @@ import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
-import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
 
-import { TicketHint } from '@condo/domains/ticket/utils/clientSchema'
+import { BaseTicketPropertyHintForm } from './BaseTicketPropertyHintForm'
 
-import { BaseTicketHintForm } from './BaseTicketHintForm'
-
-export const CreateTicketHintForm = () => {
+export const UpdateTicketPropertyHintForm = ({ id }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const { organization } = useOrganization()
-
     const router = useRouter()
-    const action = TicketHint.useCreate({ organization: organization.id }, () => {
+    const { obj: ticketPropertyHint, loading } = TicketPropertyHint.useObject({ where: { id } })
+    const action = TicketPropertyHint.useUpdate({}, () => {
         router.push('/settings?tab=hint')
     })
+    const updateAction = (value) => action(value, ticketPropertyHint)
+    const organizationId = useMemo(() => get(ticketPropertyHint, ['organization', 'id']), [ticketPropertyHint])
 
-    const organizationId = useMemo(() => get(organization, 'id'), [organization])
+    if (loading) {
+        return (
+            <Loader fill size={'large'}/>
+        )
+    }
 
     return (
-        <BaseTicketHintForm
-            action={action}
+        <BaseTicketPropertyHintForm
+            action={updateAction}
             organizationId={organizationId}
-            initialValues={{}}
-            mode={'create'}
+            initialValues={TicketPropertyHint.convertToUIFormState(ticketPropertyHint)}
+            mode={'update'}
         >
             {({ handleSave, isLoading }) => (
                 <ActionBar>
@@ -44,6 +48,6 @@ export const CreateTicketHintForm = () => {
                     </Button>
                 </ActionBar>
             )}
-        </BaseTicketHintForm>
+        </BaseTicketPropertyHintForm>
     )
 }

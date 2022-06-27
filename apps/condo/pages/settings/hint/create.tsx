@@ -6,14 +6,14 @@ import { useIntl } from '@core/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { TicketHintForm } from '@condo/domains/ticket/components/TicketHint/TicketHintForm'
+import { TicketPropertyHintForm } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintForm'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 
-const CreateTicketHintPage = () => {
+const CreateTicketPropertyHintPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.settings.hint.newTicketHint' })
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.settings.hint.newTicketPropertyHint' })
 
     return (
         <>
@@ -27,7 +27,7 @@ const CreateTicketHintPage = () => {
                             <Typography.Title level={1} style={TITLE_STYLES}>{PageTitleMsg}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <TicketHintForm/>
+                            <TicketPropertyHintForm/>
                         </Col>
                     </Row>
                 </PageContent>
@@ -36,6 +36,6 @@ const CreateTicketHintPage = () => {
     )
 }
 
-CreateTicketHintPage.requiredAccess = OrganizationRequired
+CreateTicketPropertyHintPage.requiredAccess = OrganizationRequired
 
-export default CreateTicketHintPage
+export default CreateTicketPropertyHintPage

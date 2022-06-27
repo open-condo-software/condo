@@ -7,15 +7,15 @@ import { useIntl } from '@core/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { TicketHintForm } from '@condo/domains/ticket/components/TicketHint/TicketHintForm'
+import { TicketPropertyHintForm } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintForm'
 
 const ROW_STYLES: CSSProperties = { height: '100%' }
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 
-const UpdateTicketHintPage = () => {
+const UpdateTicketPropertyHintPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.settings.hint.editTicketHint' })
+    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.settings.hint.editTicketPropertyHint' })
     const { query } = useRouter()
 
     return (
@@ -30,7 +30,7 @@ const UpdateTicketHintPage = () => {
                             <Typography.Title level={1} style={TITLE_STYLES}>{PageTitleMsg}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <TicketHintForm id={query.id as string}/>
+                            <TicketPropertyHintForm id={query.id as string}/>
                         </Col>
                     </Row>
                 </PageContent>
@@ -39,6 +39,6 @@ const UpdateTicketHintPage = () => {
     )
 }
 
-UpdateTicketHintPage.requiredAccess = OrganizationRequired
+UpdateTicketPropertyHintPage.requiredAccess = OrganizationRequired
 
-export default UpdateTicketHintPage
+export default UpdateTicketPropertyHintPage
