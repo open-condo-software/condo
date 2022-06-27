@@ -228,7 +228,7 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     mutationExtraData?: Record<string, unknown>
     formValuesToMutationDataPreprocessorContext?: Record<string, unknown>
     OnErrorMsg?: string
-    OnCompletedMsg?: string
+    getCompletedNotification?: (data) => string
     onMutationCompleted?: (result) => void,
     style?: CSSProperties,
     children: IFormWithActionChildren
@@ -249,7 +249,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
         onMutationCompleted,
         ErrorToFormFieldMsgMapping,
         OnErrorMsg,
-        OnCompletedMsg,
+        getCompletedNotification,
         initialValues,
         handleSubmit,
         resetOnComplete,
@@ -324,7 +324,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             form,
             ErrorToFormFieldMsgMapping,
             OnErrorMsg,
-            OnCompletedMsg,
+            getCompletedNotification,
         })
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [action])

@@ -50,10 +50,10 @@ const getMessageFrom = (error) => (
  * @param form
  * @param {ErrorToFormFieldMsgMapping} ErrorToFormFieldMsgMapping - mapping of errors either in old or new format
  * @param {null|String|} [OnErrorMsg] - controls passing errors to Ant `notification` util
- * @param OnCompletedMsg
+ * @param getCompletedNotification
  * @return {*}
  */
-function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
+function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, getCompletedNotification }) {
     if (!intl) throw new Error('intl prop required')
     if (!mutation && !action) throw new Error('mutation or action prop required')
     if (action && mutation) throw new Error('impossible to pass mutation and action prop')
@@ -73,15 +73,15 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
     return action()
         .then(
             (data) => {
-                if (OnCompletedMsg === null) {
+                if (getCompletedNotification === null) {
                     // we want to SKIP any notifications
-                } else if (typeof OnCompletedMsg === 'undefined') {
+                } else if (typeof getCompletedNotification === 'undefined') {
                     // default notification message
                     notification.success({ message: DoneMsg })
                 } else {
                     // custom notification message
                     // TODO(pahaz): think about more complex notifications. OnCompletedMsg many be an object! (if we want to have come actions inside a notification)
-                    notification.success({ message: OnCompletedMsg })
+                    notification.success(getCompletedNotification(data))
                 }
 
                 if (onCompleted) return onCompleted(data)
