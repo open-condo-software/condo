@@ -1,6 +1,7 @@
 import { notification, Progress, Typography } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { useIntl } from '@core/next/intl'
+import find from 'lodash/find'
 import { WORKER_TASK_COMPLETED, WORKER_TASK_PROCESSING, TASK_STATUS_REFRESH_POLL_INTERVAL } from '@condo/domains/common/constants/worker'
 
 /**
@@ -120,7 +121,11 @@ const TasksContextProvider = ({ children }) => {
 
     const tasksContextInterface: ITasksContext = {
         addTask: (newTask) => {
-            setTasks([...tasks, newTask])
+            if (find(tasks, { id: newTask.record.id })) {
+                console.error('Task record already added for tracking', newTask.record)
+            } else {
+                setTasks([...tasks, newTask])
+            }
         },
         tasks,
     }
