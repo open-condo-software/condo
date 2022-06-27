@@ -1,9 +1,10 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { notification } from 'antd'
+import { notification, Typography } from 'antd'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 
 import { useAuth } from '@core/next/auth'
+import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
@@ -18,6 +19,7 @@ import {
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 
 type HandlerType = (message: Record<string, unknown>) => void
 
@@ -37,6 +39,10 @@ const getIframeStyles: (boolean) => CSSProperties = (isLoading) => ({
 })
 
 export const IFrame: React.FC<IFrameProps> = (props) => {
+    const intl = useIntl()
+    const LoadingErrorTitle = intl.formatMessage({ id: 'miniapp.loadingError.title' })
+    const LoadingErrorMessage = intl.formatMessage({ id: 'miniapp.loadingError.message' })
+
     const { pageUrl, options, handlers } = props
     const iFrameRef = useRef()
     const messageHandlers = useMemo(() => {
@@ -47,10 +53,12 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     const { organization } = useOrganization()
 
     const pageOrigin = extractOrigin(pageUrl)
+    const isOnClient = typeof window !== 'undefined'
 
     const [isLoading, setIsLoading] = useState(true)
     const [isAuthRequired, setIsAuthRequired] = useState(false)
     const [isOrganizationRequired, setIsOrganizationRequired] = useState(false)
+    const [isError, setIsError] = useState(false)
 
     const [frameHeight, setFrameHeight] = useState(300)
 
@@ -86,6 +94,23 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     const handleResize = useCallback((message) => {
         setFrameHeight(message.height)
     }, [])
+
+    useEffect(() => {
+        const preFetch = async () => {
+            if (isOnClient) {
+                try {
+                    const result = await fetch(pageUrl, { method: 'HEAD' })
+                    if (result.status !== 200) {
+                        setIsError(true)
+                    }
+                } catch {
+                    setIsError(true)
+                }
+            }
+        }
+
+        preFetch()
+    }, [isOnClient, pageUrl])
 
     const handleCommand = useCallback((message) => {
         const iFrameReceiver = get(iFrameRef, 'current.contentWindow', null)
@@ -150,15 +175,29 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     return (
         <Wrapper>
             {shouldHaveLoader && isLoading && <Loader fill size={'large'}/>}
+            {isError && (
+                <BasicEmptyListView
+                    image={'/dino/waiting@2x.png'}
+                    spaceSize={16}
+                >
+                    <Typography.Title level={4}>
+                        {LoadingErrorTitle}
+                    </Typography.Title>
+                    <Typography.Text type={'secondary'}>
+                        {LoadingErrorMessage}
+                    </Typography.Text>
+                </BasicEmptyListView>
+            )}
             <iframe
                 src={pageUrl}
-                onLoad={handleLoad}
                 style={styles}
+                onLoad={handleLoad}
                 key={iframeKey}
                 frameBorder={0}
                 height={frameHeight}
                 scrolling={'no'}
                 ref={iFrameRef}
+                hidden={isError}
             />
         </Wrapper>
     )
