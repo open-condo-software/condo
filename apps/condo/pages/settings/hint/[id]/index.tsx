@@ -8,6 +8,7 @@ import { useRouter } from 'next/router'
 import xss from 'xss'
 
 import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
@@ -21,8 +22,7 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
-import { useOrganization } from '@core/next/organization'
-import { StyledTicketPropertyHintContent } from '../../../../domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
+import { StyledTicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
@@ -48,8 +48,6 @@ const TicketPropertyHintIdPage = () => {
     const hintId = get(router, ['query', 'id'], null)
     const { loading, obj: ticketPropertyHint } = TicketPropertyHint.useObject({
         where: { id: hintId },
-    }, {
-        fetchPolicy: 'network-only',
     })
 
     const handleDeleteAction = TicketPropertyHint.useSoftDelete({},

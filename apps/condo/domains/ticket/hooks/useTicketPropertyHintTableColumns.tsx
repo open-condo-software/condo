@@ -9,10 +9,9 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
-
-import { getTicketPropertyHintAddressesRender, getTicketPropertyHintRender } from '../utils/clientSchema/Renders'
-import { ITicketPropertyHintUIState } from '../utils/clientSchema/TicketPropertyHint'
-import { TicketPropertyHintProperty } from '../utils/clientSchema'
+import { getTicketPropertyHintAddressesRender, getTicketPropertyHintRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
+import { ITicketPropertyHintUIState } from '@condo/domains/ticket//utils/clientSchema/TicketPropertyHint'
+import { TicketPropertyHintProperty } from '@condo/domains/ticket//utils/clientSchema'
 
 export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketPropertyHints: ITicketPropertyHintUIState[]) {
     const intl = useIntl()

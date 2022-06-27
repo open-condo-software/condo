@@ -3,12 +3,14 @@
  */
 
 const { Text } = require('@keystonejs/fields')
+const xss = require('xss')
+
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/ticket/access/TicketPropertyHint')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const xss = require('xss')
 
 const TicketPropertyHint = new GQLListSchema('TicketPropertyHint', {
     schemaDoc: 'Help information related to a property or group of properties',

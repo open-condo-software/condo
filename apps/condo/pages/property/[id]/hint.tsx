@@ -14,9 +14,9 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
-import { StyledTicketPropertyHintContent } from '../../../domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
+import { StyledTicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 
-const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
+const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 const HINT_CONTENT_STYLES: CSSProperties = { overflow: 'hidden', wordBreak: 'break-all' }
 
@@ -59,7 +59,7 @@ const PropertyHintPage = () => {
             <PageContent>
                 <Row>
                     <Col span={18}>
-                        <Row gutter={GUTTER_0_40}>
+                        <Row gutter={BIG_HORIZONTAL_GUTTER}>
                             <Col span={24}>
                                 <Typography.Title>
                                     {PropertyHintMessage} {`${property.address}`}

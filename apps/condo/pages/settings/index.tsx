@@ -24,13 +24,13 @@ const SettingsPage = () => {
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
-    const availableTabs = useMemo(() => {
+    const tabKeysToDisplay = useMemo(() => {
         const result = ALWAYS_AVAILABLE_TABS
         if (hasSubscriptionFeature) result.push('subscription')
         return result
     }, [hasSubscriptionFeature])
 
-    const SETTINGS_TABS: SettingsTabType[] = useMemo(() => [
+    const settingsTabs: SettingsTabType[] = useMemo(() => [
         hasSubscriptionFeature && ({
             key: 'subscription',
             title: SubscriptionTitle,
@@ -57,7 +57,7 @@ const SettingsPage = () => {
                 <OrganizationRequired>
                     <PageHeader title={titleContent}/>
                     <TablePageContent>
-                        <SettingsPageContent settingsTabs={SETTINGS_TABS} availableTabs={availableTabs} />
+                        <SettingsPageContent settingsTabs={settingsTabs} availableTabs={tabKeysToDisplay} />
                     </TablePageContent>
                 </OrganizationRequired>
             </PageWrapper>
