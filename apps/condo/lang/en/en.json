@@ -626,7 +626,7 @@
   "pages.condo.settings.hint.createTicketPropertyHint": "Create ticket hint",
   "pages.condo.settings.hint.newTicketPropertyHint": "New hint",
   "pages.condo.settings.hint.editTicketPropertyHint": "Edit hint",
-  "pages.condo.settings.hint.alert.title": "For some properties of this organization there are already hints",
+  "pages.condo.settings.hint.alert.title": "Some properties of this organization already have hints",
   "pages.condo.settings.hint.alert.content": "Only one hint can be linked for each property. Therefore, the drop-down list below shows only those property for which no hints have yet been created.",
   "pages.condo.settings.hint.alert.showHints": "Show hints already created (opens in a new tab)",
   "pages.condo.settings.hint.form.ConfirmDeleteTitle": "Delete hint?",

@@ -10,9 +10,9 @@ import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
 import { StyledTicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
+import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
+import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 
-import { TicketTag } from '../../components/TicketTag'
-import { TICKET_TYPE_TAG_COLORS } from '../../constants/style'
 import {
     getDeadlineType,
     getHumanizeDeadlineDateDifference,

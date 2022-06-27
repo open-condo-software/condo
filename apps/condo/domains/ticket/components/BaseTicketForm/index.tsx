@@ -33,8 +33,8 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
+import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 
-import { TicketPropertyHintCard } from '../TicketPropertyHint/TicketPropertyHintCard'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'

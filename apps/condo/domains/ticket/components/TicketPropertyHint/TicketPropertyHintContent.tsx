@@ -8,7 +8,6 @@ import { TicketPropertyHint } from '@app/condo/schema'
 import { colors } from '@condo/domains/common/constants/style'
 
 export const StyledTicketPropertyHintContent = styled.div`
-  //max-height: 11em;
   overflow: hidden;
   word-break: break-word;
   
