@@ -17,7 +17,15 @@ async function canManageTicketExportTasks ({ authentication: { item: user }, ori
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return !!user.isAdmin
+    if (user.isAdmin) return true
+
+    if (operation === 'create') {
+        if (originalInput.user.connect.id === user.id) {
+            return true
+        }
+    }
+
+    return false
 }
 
 /*
