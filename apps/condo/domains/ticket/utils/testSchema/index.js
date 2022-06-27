@@ -29,7 +29,7 @@ const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
 const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
 const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
-const { TicketHint: TicketHintGQL } = require('@condo/domains/ticket/gql')
+const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ticket/gql')
 const { TicketHintProperty: TicketHintPropertyGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -51,7 +51,7 @@ const TicketFilterTemplate = generateGQLTestUtils(TicketFilterTemplateGQL)
 const TicketCommentFile = generateGQLTestUtils(TicketCommentFileGQL)
 const TicketCommentsTime = generateGQLTestUtils(TicketCommentsTimeGQL)
 const UserTicketCommentReadTime = generateGQLTestUtils(UserTicketCommentReadTimeGQL)
-const TicketHint = generateGQLTestUtils(TicketHintGQL)
+const TicketPropertyHint = generateGQLTestUtils(TicketPropertyHintGQL)
 const TicketHintProperty = generateGQLTestUtils(TicketHintPropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -543,7 +543,7 @@ async function getTicketAnalyticsExport(client, extraAttrs = {}) {
     return [data.result, extraAttrs]
 }
 
-async function createTestTicketHint (client, organization, extraAttrs = {}) {
+async function createTestTicketPropertyHint (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -555,11 +555,11 @@ async function createTestTicketHint (client, organization, extraAttrs = {}) {
         content: extraAttrs.content || faker.random.alphaNumeric(5),
         ...extraAttrs,
     }
-    const obj = await TicketHint.create(client, attrs)
+    const obj = await TicketPropertyHint.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestTicketHint (client, id, extraAttrs = {}) {
+async function updateTestTicketPropertyHint (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -569,7 +569,7 @@ async function updateTestTicketHint (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await TicketHint.update(client, id, attrs)
+    const obj = await TicketPropertyHint.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -647,7 +647,7 @@ module.exports = {
     UserTicketCommentReadTime, createTestUserTicketCommentReadTime, updateTestUserTicketCommentReadTime,
     getTicketReport,
     getTicketAnalyticsReport, getTicketAnalyticsExport,
-    TicketHint, createTestTicketHint, updateTestTicketHint,
+    TicketPropertyHint, createTestTicketPropertyHint, updateTestTicketPropertyHint,
     TicketHintProperty, createTestTicketHintProperty, updateTestTicketHintProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
