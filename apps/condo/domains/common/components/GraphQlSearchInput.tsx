@@ -23,6 +23,7 @@ export type RenderOptionFunc = (option: GraphQlSearchInputOption) => JSX.Element
 // TODO: add apollo cache shape typings
 export interface ISearchInputProps extends SelectProps<string> {
     search: (client: ApolloClient<Record<string, unknown>>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
+    initialValueSearch?: (client: ApolloClient<Record<string, unknown>>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
     onSelect?: (...args: Array<unknown>) => void
     onChange?: (...args: Array<unknown>) => void
     mode?: 'multiple' | 'tags'
@@ -45,6 +46,7 @@ const DEBOUNCE_TIMEOUT = 800
 export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const {
         search,
+        initialValueSearch,
         onSelect,
         formatLabel,
         renderOptions,
@@ -85,12 +87,18 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
         if (Array.isArray(initialValue) && initialValue.length) {
             setLoading(true)
-            const initialOptions = await search(client, null, initialValueQuery, initialValue.length)
+
+            let initialOptions
+            if (isFunction(initialValueSearch)) {
+                initialOptions = await initialValueSearch(client, null, initialValueQuery, initialValue.length)
+            } else {
+                initialOptions = await search(client, null, initialValueQuery, initialValue.length)
+            }
 
             setData(data => uniqBy([...initialOptions, ...data], 'value'))
             setLoading(false)
         }
-    }, [initialValue, getInitialValueQuery, client, search])
+    }, [getInitialValueQuery, initialValue, initialValueSearch, client, search])
 
     useEffect(() => {
         loadInitialOptions()
