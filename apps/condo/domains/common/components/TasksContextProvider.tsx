@@ -12,7 +12,6 @@ type TaskRecord = {
     id: string
     status: WORKER_TASK_COMPLETED | WORKER_TASK_PROCESSING
     progress: number
-    __typename: string
 }
 
 // It's impossible to use IHookResult here because it is a Generic Type,
@@ -57,7 +56,7 @@ interface ITaskProgressProps {
     translations: TaskProgressTranslations
 }
 
-const TaskProgress = ({ task: { id, __typename }, clientSchema, onComplete, translations }: ITaskProgressProps) => {
+const TaskProgress = ({ task: { id }, clientSchema, onComplete, translations }: ITaskProgressProps) => {
     const { obj: task } = clientSchema.useObject({
         where: { id },
     }, {
