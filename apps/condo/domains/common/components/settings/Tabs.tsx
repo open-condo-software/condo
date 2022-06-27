@@ -1,10 +1,16 @@
 import styled from '@emotion/styled'
-import { Tabs } from 'antd'
+import { TabPaneProps, Tabs } from 'antd'
 import React, { CSSProperties } from 'react'
 
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 
 import { StarIcon } from '../icons/Star'
+
+export type SettingsTabPaneDescriptor = TabPaneProps & {
+    key: string,
+    title: string,
+    content?: React.ReactElement
+}
 
 export const SettingsTabs = styled(Tabs)`
   & > .ant-tabs-content-holder {

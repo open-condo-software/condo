@@ -4,16 +4,10 @@ import { useRouter } from 'next/router'
 
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
-import { SettingsTab, SettingsTabs } from './Tabs'
-
-export type SettingsTabType = {
-    key: string,
-    title: string,
-    content?: React.ReactElement,
-}
+import { SettingsTab, SettingsTabPaneDescriptor, SettingsTabs } from './Tabs'
 
 type PageContentProps = {
-    settingsTabs: SettingsTabType[]
+    settingsTabs: SettingsTabPaneDescriptor[]
     availableTabs: string[]
 }
 
@@ -34,6 +28,7 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
         <Tabs.TabPane
             key={tab.key}
             tab={<SettingsTab title={tab.title} />}
+            {...tab}
         >
             {tab.content}
         </Tabs.TabPane>

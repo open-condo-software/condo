@@ -13,7 +13,8 @@ const access = require('@condo/domains/ticket/access/TicketPropertyHint')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const TicketPropertyHint = new GQLListSchema('TicketPropertyHint', {
-    schemaDoc: 'Help information related to a property or group of properties',
+    schemaDoc: 'Textual information in free format related to a property or group of properties, ' +
+        'for example list of responsible for property, organization number for clients',
     fields: {
 
         organization: ORGANIZATION_OWNED_FIELD,

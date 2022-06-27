@@ -22,7 +22,7 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
-import { StyledTicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
+import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
@@ -80,9 +80,7 @@ const TicketPropertyHintIdPage = () => {
         }
     }, [handleDeleteAction, softDeleteTicketPropertyHintPropertyAction, ticketPropertyHint, ticketPropertyHintProperties])
 
-    const ticketPropertyHintContent = useMemo(() => ({
-        __html: xss(get(ticketPropertyHint, 'content')),
-    }), [ticketPropertyHint])
+    const ticketPropertyHintContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
 
     const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
@@ -115,7 +113,9 @@ const TicketPropertyHintIdPage = () => {
                                 </Col>
                                 <Col span={24}>
                                     <PageFieldRow title={TicketPropertyHintTitleMessage}>
-                                        <StyledTicketPropertyHintContent dangerouslySetInnerHTML={ticketPropertyHintContent}/>
+                                        <TicketPropertyHintContent
+                                            html={ticketPropertyHintContent}
+                                        />
                                     </PageFieldRow>
                                 </Col>
                             </Row>

@@ -1,3 +1,4 @@
+import { TabsProps } from 'antd/lib/tabs'
 import React, { CSSProperties, useMemo } from 'react'
 import Head from 'next/head'
 import { Typography } from 'antd'
@@ -11,7 +12,8 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 import { SettingsContent as TicketPropertyHintSettings } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { SettingsPageContent, SettingsTabType } from '@condo/domains/common/components/settings/SettingsPageContent'
+import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
+import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
@@ -30,16 +32,16 @@ const SettingsPage = () => {
         return result
     }, [hasSubscriptionFeature])
 
-    const settingsTabs: SettingsTabType[] = useMemo(() => [
+    const settingsTabs: SettingsTabPaneDescriptor[] = useMemo(() => [
         hasSubscriptionFeature && ({
             key: 'subscription',
             title: SubscriptionTitle,
-            content: <SubscriptionPane />,
+            children: <SubscriptionPane />,
         }),
         {
             key: 'hint',
             title: HintTitle,
-            content: <TicketPropertyHintSettings />,
+            children: <TicketPropertyHintSettings />,
         },
     ].filter(Boolean),
     [HintTitle, SubscriptionTitle, hasSubscriptionFeature])
