@@ -10,11 +10,11 @@ import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
 
-import { getTicketHintAddressesRender, getTicketHintRender } from '../utils/clientSchema/Renders'
-import { ITicketHintUIState } from '../utils/clientSchema/TicketPropertyHint'
-import { TicketHintProperty } from '../utils/clientSchema'
+import { getTicketPropertyHintAddressesRender, getTicketPropertyHintRender } from '../utils/clientSchema/Renders'
+import { ITicketPropertyHintUIState } from '../utils/clientSchema/TicketPropertyHint'
+import { TicketPropertyHintProperty } from '../utils/clientSchema'
 
-export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketHints: ITicketHintUIState[]) {
+export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketPropertyHints: ITicketPropertyHintUIState[]) {
     const intl = useIntl()
     const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
@@ -26,22 +26,22 @@ export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>
 
     const render = useMemo(() => getTableCellRenderer(search), [search])
 
-    const ticketHintIds = useMemo(() => map(ticketHints, 'id'), [ticketHints])
-    const { objs: ticketHintsProperties } = TicketHintProperty.useObjects({
+    const ticketPropertyHintIds = useMemo(() => map(ticketPropertyHints, 'id'), [ticketPropertyHints])
+    const { objs: ticketPropertyHintsProperties } = TicketPropertyHintProperty.useObjects({
         where: {
-            ticketHint: {
-                id_in: ticketHintIds,
+            ticketPropertyHint: {
+                id_in: ticketPropertyHintIds,
             },
         },
     })
 
-    const renderTicketHintAddresses = useCallback((intl, ticketHint) => {
-        const properties = ticketHintsProperties
-            .filter(ticketHintProperty => ticketHintProperty.ticketHint.id === ticketHint.id)
-            .map(ticketHintProperty => ticketHintProperty.property)
+    const renderTicketPropertyHintAddresses = useCallback((intl, ticketPropertyHint) => {
+        const properties = ticketPropertyHintsProperties
+            .filter(ticketPropertyHintProperty => ticketPropertyHintProperty.ticketPropertyHint.id === ticketPropertyHint.id)
+            .map(ticketPropertyHintProperty => ticketPropertyHintProperty.property)
 
-        return getTicketHintAddressesRender(search)(intl, properties)
-    }, [search, ticketHintsProperties])
+        return getTicketPropertyHintAddressesRender(search)(intl, properties)
+    }, [search, ticketPropertyHintsProperties])
 
     return useMemo(() => {
         return [
@@ -49,7 +49,7 @@ export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>
                 title: BuildingsMessage,
                 ellipsis: true,
                 key: 'properties',
-                render: (_, ticketHint) => renderTicketHintAddresses(intl, ticketHint),
+                render: (_, ticketPropertyHint) => renderTicketPropertyHintAddresses(intl, ticketPropertyHint),
                 width: '35%',
             },
             {
@@ -68,8 +68,8 @@ export function useTicketHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>
                 ellipsis: true,
                 dataIndex: 'content',
                 key: 'content',
-                render: getTicketHintRender(search),
+                render: getTicketPropertyHintRender(search),
             },
         ]
-    }, [NameMessage, BuildingsMessage, HintMessage, filterMetas, filters, intl, render, renderTicketHintAddresses, search])
+    }, [NameMessage, BuildingsMessage, HintMessage, filterMetas, filters, intl, render, renderTicketPropertyHintAddresses, search])
 }

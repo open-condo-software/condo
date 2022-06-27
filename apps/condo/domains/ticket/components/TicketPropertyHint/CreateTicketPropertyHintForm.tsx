@@ -2,39 +2,35 @@ import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
+import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { TicketHint } from '@condo/domains/ticket/utils/clientSchema'
 
-import { BaseTicketHintForm } from './BaseTicketHintForm'
+import { TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
 
-export const UpdateTicketHintForm = ({ id }) => {
+import { BaseTicketPropertyHintForm } from './BaseTicketPropertyHintForm'
+
+export const CreateTicketPropertyHintForm = () => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
+    const { organization } = useOrganization()
+
     const router = useRouter()
-    const { obj: ticketHint, loading } = TicketHint.useObject({ where: { id } })
-    const action = TicketHint.useUpdate({}, () => {
+    const action = TicketPropertyHint.useCreate({ organization: organization.id }, () => {
         router.push('/settings?tab=hint')
     })
-    const updateAction = (value) => action(value, ticketHint)
-    const organizationId = useMemo(() => get(ticketHint, ['organization', 'id']), [ticketHint])
 
-    if (loading) {
-        return (
-            <Loader fill size={'large'}/>
-        )
-    }
+    const organizationId = useMemo(() => get(organization, 'id'), [organization])
 
     return (
-        <BaseTicketHintForm
-            action={updateAction}
+        <BaseTicketPropertyHintForm
+            action={action}
             organizationId={organizationId}
-            initialValues={TicketHint.convertToUIFormState(ticketHint)}
-            mode={'update'}
+            initialValues={{}}
+            mode={'create'}
         >
             {({ handleSave, isLoading }) => (
                 <ActionBar>
@@ -48,6 +44,6 @@ export const UpdateTicketHintForm = ({ id }) => {
                     </Button>
                 </ActionBar>
             )}
-        </BaseTicketHintForm>
+        </BaseTicketPropertyHintForm>
     )
 }

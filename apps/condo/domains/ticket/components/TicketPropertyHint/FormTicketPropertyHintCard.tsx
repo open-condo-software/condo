@@ -6,9 +6,9 @@ import React, { CSSProperties, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
 import { colors } from '@condo/domains/common/constants/style'
-import { TicketHint, TicketHintProperty } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
-import { TicketHintContent } from './TicketHintContent'
+import { TicketPropertyHintContent } from './TicketPropertyHintContent'
 import { get } from 'lodash'
 
 const ROW_STYLES: CSSProperties = { overflow: 'hidden', backgroundColor: colors.backgroundLightGrey, padding: '20px', borderRadius: '12px' }
@@ -16,31 +16,31 @@ const LINK_STYLES: CSSProperties = { color: 'black', position: 'relative', botto
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
 
-export const FormTicketHintCard = ({ selectedPropertyId }) => {
+export const FormTicketPropertyHintCard = ({ selectedPropertyId }) => {
     const intl = useIntl()
     const HintMessage = intl.formatMessage({ id: 'Hint' })
     const ExtraTitleMessage = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
 
-    const { obj: ticketHintProperty } = TicketHintProperty.useObject({
+    const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useObject({
         where: {
             property: { id: selectedPropertyId },
         },
     })
-    const ticketHintId = useMemo(() => get(ticketHintProperty, ['ticketHint', 'id'], null), [ticketHintProperty])
+    const ticketPropertyHintId = useMemo(() => get(ticketPropertyHintProperty, ['ticketPropertyHint', 'id'], null), [ticketPropertyHintProperty])
 
-    const { obj: ticketHint } = TicketHint.useObject({
+    const { obj: ticketPropertyHint } = TicketPropertyHint.useObject({
         where: {
-            id: ticketHintId,
+            id: ticketPropertyHintId,
         },
     })
 
-    return selectedPropertyId && ticketHintProperty && ticketHint && (
+    return selectedPropertyId && ticketPropertyHintProperty && ticketPropertyHint && (
         <Row gutter={SMALL_VERTICAL_GUTTER} style={ROW_STYLES}>
             <Col span={24}>
                 <Typography.Title level={5}>{HintMessage}</Typography.Title>
             </Col>
             <Col span={24}>
-                <TicketHintContent ticketHint={ticketHint} />
+                <TicketPropertyHintContent ticketPropertyHint={ticketPropertyHint} />
                 <Link href={`/property/${selectedPropertyId}/hint`} passHref>
                     <a target={'_blank'}>
                         <Typography.Link underline style={LINK_STYLES}>

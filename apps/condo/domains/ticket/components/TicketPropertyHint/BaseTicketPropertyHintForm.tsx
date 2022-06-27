@@ -12,8 +12,7 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { Loader } from '@condo/domains/common/components/Loader'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { Property } from '@condo/domains/property/utils/clientSchema'
-import { TicketHintProperty } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     searchOrganizationProperty,
@@ -36,7 +35,7 @@ const LAYOUT = {
 const HINT_LINK_STYLES: CSSProperties = { color: colors.black, textDecoration: 'underline' }
 const TEXT_STYLES: CSSProperties = { margin: 0 }
 
-const TicketHintAlert = () => {
+const TicketPropertyHintAlert = () => {
     const intl = useIntl()
     const AlertMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.title' })
     const AlertContent = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.content' })
@@ -97,7 +96,7 @@ const EDITOR_INIT_VALUES = {
     link_target_list: false,
 }
 
-export const BaseTicketHintForm = ({ children, action, organizationId, initialValues, mode }) => {
+export const BaseTicketPropertyHintForm = ({ children, action, organizationId, initialValues, mode }) => {
     const intl = useIntl()
     const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
@@ -114,22 +113,23 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
 
     const initialContent = useMemo(() => get(initialValues, 'content'), [initialValues])
 
-    const { objs: organizationTicketHintProperties, loading: organizationTicketHintPropertiesLoading } = TicketHintProperty.useObjects({
-        where: {
-            organization: { id: organizationId },
-        },
-    })
-    const createTicketHintPropertyAction = TicketHintProperty.useCreate({}, () => Promise.resolve())
-    const softDeleteTicketHintPropertyAction = TicketHintProperty.useSoftDelete({}, () => Promise.resolve())
+    const { objs: organizationTicketPropertyHintProperties, loading: organizationTicketPropertyHintPropertiesLoading } =
+        TicketPropertyHintProperty.useObjects({
+            where: {
+                organization: { id: organizationId },
+            },
+        })
+    const createTicketPropertyHintPropertyAction = TicketPropertyHintProperty.useCreate({}, () => Promise.resolve())
+    const softDeleteTicketPropertyHintPropertyAction = TicketPropertyHintProperty.useSoftDelete({}, () => Promise.resolve())
 
     const initialProperties = useMemo(() => {
-        const initialTicketHintId = get(initialValues, 'id')
+        const initialTicketPropertyHintId = get(initialValues, 'id')
 
-        return initialTicketHintId ?
-            organizationTicketHintProperties
-                .filter(ticketHintProperty => ticketHintProperty.ticketHint.id === initialTicketHintId)
-                .map(ticketHintProperty => ticketHintProperty.property) : []
-    }, [initialValues, organizationTicketHintProperties])
+        return initialTicketPropertyHintId ?
+            organizationTicketPropertyHintProperties
+                .filter(ticketPropertyHintProperty => ticketPropertyHintProperty.ticketPropertyHint.id === initialTicketPropertyHintId)
+                .map(ticketPropertyHintProperty => ticketPropertyHintProperty.property) : []
+    }, [initialValues, organizationTicketPropertyHintProperties])
 
     const initialPropertyIds = useMemo(() => {
         return initialProperties.map(property => property.id)
@@ -137,18 +137,10 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
 
     const initialValuesWithProperties = { ...initialValues, properties: initialPropertyIds }
 
-    const propertiesWithTicketHint = useMemo(() => organizationTicketHintProperties.map(ticketHintProperty => ticketHintProperty.property),
-        [organizationTicketHintProperties])
+    const propertiesWithTicketPropertyHint = useMemo(() => organizationTicketPropertyHintProperties.map(ticketPropertyHintProperty => ticketPropertyHintProperty.property),
+        [organizationTicketPropertyHintProperties])
 
-    const propertiesWithTicketHintIds = useMemo(() => propertiesWithTicketHint.map(property => property.id), [propertiesWithTicketHint])
-
-    // const propertiesWithoutTicketHint = useMemo(() => properties.filter(property => !propertiesWithTicketHint.includes(property)),
-    //     [properties, propertiesWithTicketHint])
-
-    // const options = useMemo(() =>
-    //     [...propertiesWithoutTicketHint, ...initialProperties]
-    //         .map(property => ({ label: property.address, value: property.id })),
-    // [initialProperties, propertiesWithoutTicketHint])
+    const propertiesWithTicketPropertyHintIds = useMemo(() => propertiesWithTicketPropertyHint.map(property => property.id), [propertiesWithTicketPropertyHint])
 
     const handleEditorChange = useCallback((newValue, form) => {
         setEditorValue(newValue)
@@ -159,38 +151,38 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
 
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, ...otherValues } = values
-        const initialTicketHintId = get(initialValues, 'id')
+        const initialTicketPropertyHintId = get(initialValues, 'id')
 
-        if (!initialTicketHintId) {
-            const ticketHint = await action({ ...otherValues, organization: organizationId })
+        if (!initialTicketPropertyHintId) {
+            const ticketPropertyHint = await action({ ...otherValues, organization: organizationId })
 
             for (const propertyId of properties) {
-                await createTicketHintPropertyAction({ organization: organizationId, ticketHint: ticketHint.id, property: propertyId })
+                await createTicketPropertyHintPropertyAction({ organization: organizationId, ticketPropertyHint: ticketPropertyHint.id, property: propertyId })
             }
         } else {
-            const ticketHint = await action({ ...otherValues })
+            const ticketPropertyHint = await action({ ...otherValues })
 
             for (const propertyId of properties) {
                 if (!initialPropertyIds.includes(propertyId)) {
-                    await createTicketHintPropertyAction({ organization: organizationId, ticketHint: ticketHint.id, property: propertyId })
+                    await createTicketPropertyHintPropertyAction({ organization: organizationId, ticketPropertyHint: ticketPropertyHint.id, property: propertyId })
                 }
             }
 
             for (const initialPropertyId of initialPropertyIds) {
                 if (!properties.includes(initialPropertyId)) {
-                    const ticketHintProperty = organizationTicketHintProperties
+                    const ticketPropertyHintProperty = organizationTicketPropertyHintProperties
                         .find(
-                            ticketHintProperty => ticketHintProperty.property.id === initialPropertyId &&
-                                ticketHintProperty.ticketHint.id === initialTicketHintId
+                            ticketPropertyHintProperty => ticketPropertyHintProperty.property.id === initialPropertyId &&
+                                ticketPropertyHintProperty.ticketPropertyHint.id === initialTicketPropertyHintId
                         )
 
-                    await softDeleteTicketHintPropertyAction({}, ticketHintProperty)
+                    await softDeleteTicketPropertyHintPropertyAction({}, ticketPropertyHintProperty)
                 }
             }
         }
-    }, [action, createTicketHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketHintProperties, softDeleteTicketHintPropertyAction])
+    }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, softDeleteTicketPropertyHintPropertyAction])
 
-    if (organizationTicketHintPropertiesLoading) {
+    if (organizationTicketPropertyHintPropertiesLoading) {
         return (
             <Loader fill size={'large'}/>
         )
@@ -199,9 +191,9 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             {
-                mode === 'create' && !isEmpty(propertiesWithTicketHint) && (
+                mode === 'create' && !isEmpty(propertiesWithTicketPropertyHint) && (
                     <Col span={24}>
-                        <TicketHintAlert />
+                        <TicketPropertyHintAlert />
                     </Col>
                 )
             }
@@ -229,7 +221,7 @@ export const BaseTicketHintForm = ({ children, action, organizationId, initialVa
                                                 disabled={!organizationId}
                                                 initialValueSearch={searchOrganizationProperty(organizationId)}
                                                 initialValue={initialPropertyIds}
-                                                search={searchOrganizationPropertyWithoutPropertyHint(organizationId, propertiesWithTicketHintIds)}
+                                                search={searchOrganizationPropertyWithoutPropertyHint(organizationId, propertiesWithTicketPropertyHintIds)}
                                                 showArrow={false}
                                                 mode="multiple"
                                                 infinityScroll

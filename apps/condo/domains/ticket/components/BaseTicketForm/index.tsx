@@ -34,7 +34,7 @@ import { RESIDENT } from '@condo/domains/user/constants/common'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
 
-import { FormTicketHintCard } from '../TicketHint/FormTicketHintCard'
+import { FormTicketPropertyHintCard } from '../TicketPropertyHint/FormTicketPropertyHintCard'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
@@ -460,7 +460,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             </Row>
                                         </Col>
                                         <Col span={6}>
-                                            <FormTicketHintCard selectedPropertyId={selectedPropertyId} />
+                                            <FormTicketPropertyHintCard selectedPropertyId={selectedPropertyId} />
                                         </Col>
                                     </Row>
                                 </Col>

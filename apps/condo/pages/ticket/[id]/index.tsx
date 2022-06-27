@@ -56,7 +56,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
-import { TicketIdHintCard } from '@condo/domains/ticket/components/TicketHint/TicketIdHintCard'
+import { TicketIdPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketIdPropertyHintCard'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -378,7 +378,7 @@ const TicketContent = ({ ticket }) => {
                                     }
                                 </Col>
                                 <Col span={24}>
-                                    <TicketIdHintCard propertyId={propertyId} />
+                                    <TicketIdPropertyHintCard propertyId={propertyId} />
                                 </Col>
                             </Row>
                         </PageFieldRow>

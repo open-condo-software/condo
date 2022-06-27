@@ -13,7 +13,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
-import { TicketHint, TicketHintProperty } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
 
@@ -29,24 +29,24 @@ const PropertyHintPage = () => {
     const propertyId = get(router, ['query', 'id'], null)
 
     const { loading: propertyLoading, obj: property, error } = useObject({ where: { id: propertyId } })
-    const { obj: ticketHintProperty } = TicketHintProperty.useObject({
+    const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useObject({
         where: {
             property: { id: propertyId },
         },
     })
-    const ticketHintId = useMemo(() => get(ticketHintProperty, ['ticketHint', 'id']), [ticketHintProperty])
+    const ticketPropertyHintId = useMemo(() => get(ticketPropertyHintProperty, ['ticketPropertyHint', 'id']), [ticketPropertyHintProperty])
 
-    const { obj: ticketHint, loading: ticketHintLoading } = TicketHint.useObject({
+    const { obj: ticketPropertyHint, loading: ticketPropertyHintLoading } = TicketPropertyHint.useObject({
         where: {
-            id: ticketHintId,
+            id: ticketPropertyHintId,
         },
     })
 
     const htmlContent = useMemo(() => ({
-        __html: xss(get(ticketHint, 'content')),
-    }), [ticketHint])
+        __html: xss(get(ticketPropertyHint, 'content')),
+    }), [ticketPropertyHint])
 
-    if (error || propertyLoading || ticketHintLoading) {
+    if (error || propertyLoading || ticketPropertyHintLoading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={propertyLoading} error={error ? ServerErrorMsg : null}/>
     }
 
