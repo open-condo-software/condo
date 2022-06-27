@@ -27,9 +27,6 @@ import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table
 import { FiltersTooltip, useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
-import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
-
-import { EXPORT_TICKETS_TO_EXCEL } from '@condo/domains/ticket/gql'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
@@ -43,6 +40,8 @@ import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersToo
 import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch'
 import { TaskLauncher } from '../../domains/common/components/TaskLauncher'
 import { getClientSideSenderInfo } from '../../domains/common/utils/userid.utils'
+import { useAuth } from '@core/next/auth'
+import { WORKER_TASK_COMPLETED, WORKER_TASK_PROCESSING } from '@condo/domains/common/constants/worker'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -75,9 +74,14 @@ export const TicketsPageContent = ({
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
+    const TicketExportTaskProgressTitle = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.title' })
+    const TicketExportTaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.processing' })
+    const TicketExportTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.completed' })
 
     const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
+
+    const auth = useAuth() as { user: { id: string } }
 
     const { isSmall, shouldTableScroll } = useLayoutContext()
     const router = useRouter()
@@ -257,18 +261,30 @@ export const TicketsPageContent = ({
                                     </Col>
                                     <TaskLauncher
                                         label={ExportAsExcelLabel}
-                                        launchTaskMutation={EXPORT_TICKETS_TO_EXCEL}
                                         taskClientSchema={TicketExportTask}
-                                        buildMutationVariables={() => ({
+                                        attrs={{
                                             dv: 1,
                                             sender: getClientSideSenderInfo(),
                                             where: searchTicketsQuery,
                                             format: EXCEL,
                                             sortBy: sortBy,
                                             timeZone,
-                                        })}
+                                            user: { connect: { id: auth.user.id } },
+                                        }}
+                                        translations={{
+                                            title: TicketExportTaskProgressTitle,
+                                            description: (taskRecord) => {
+                                                // Extra field `exportedTicketsCount` over `TaskRecord` type
+                                                // @ts-ignore
+                                                const { status, exportedTicketsCount } = taskRecord
+                                                return status === WORKER_TASK_COMPLETED
+                                                    ? TicketExportTaskProgressDescriptionCompleted
+                                                    : TicketExportTaskProgressDescriptionProcessing.replace('{n}', exportedTicketsCount)
+                                            },
+                                        }}
                                         onComplete={({ file }) => {
                                             if (window) {
+                                                console.log('Downloading exported file')
                                                 window.location.href = file.publicUrl
                                             }
                                         }}
