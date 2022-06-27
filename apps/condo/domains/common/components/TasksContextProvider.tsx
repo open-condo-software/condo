@@ -1,31 +1,62 @@
-import React, { useEffect, useState } from 'react'
-import { useApolloClient } from '@core/next/apollo'
-import { useIntl } from '@core/next/intl'
 import { notification, Progress, Typography } from 'antd'
-import { WORKER_TASK_COMPLETED, TASK_STATUS_REFRESH_POLL_INTERVAL } from '@condo/domains/common/constants/worker'
+import React, { useEffect, useState } from 'react'
+import { useIntl } from '@core/next/intl'
+import { WORKER_TASK_COMPLETED, WORKER_TASK_PROCESSING, TASK_STATUS_REFRESH_POLL_INTERVAL } from '@condo/domains/common/constants/worker'
 
-const TasksContext = React.createContext({})
-
-
+/**
+ * Basic set of fields, describing a task, obtained from condo API
+ * Expected from all task records.
+ */
 type TaskRecord = {
     id: string
+    status: WORKER_TASK_COMPLETED | WORKER_TASK_PROCESSING
     progress: number
     __typename: string
 }
 
-export type OnCompleteFunc = (taskRecord: any) => void
+// It's impossible to use IHookResult here because it is a Generic Type,
+// requires to set specific type params, but we have an array of tasks,
+// where each item has clientSchema utils from specific domain
+type IClientSchema = any
 
-type Task = {
+/**
+ * I18n keys for title and description for TaskProgress,
+ */
+export type TaskProgressTranslations = {
+    title: string
+    description: (task: TaskRecord) => string
+}
+
+/**
+ * Used to fetch actual state, display information in UI
+ */
+interface Task {
     record: TaskRecord
     onComplete: OnCompleteFunc
-    clientSchema: any
+    translations: TaskProgressTranslations
+    clientSchema: IClientSchema
 }
 
+/**
+ * Should be used to launch and track specific delayed task
+ */
 interface ITasksContext {
     addTask: (newTask: Task) => void
+    tasks: Task[]
 }
 
-const TaskProgress = ({ id, title, description, clientSchema, onComplete }) => {
+const TasksContext = React.createContext({})
+
+export type OnCompleteFunc = (taskRecord: any) => void
+
+interface ITaskProgressProps {
+    task: TaskRecord
+    clientSchema: IClientSchema
+    onComplete: OnCompleteFunc
+    translations: TaskProgressTranslations
+}
+
+const TaskProgress = ({ task: { id, __typename }, clientSchema, onComplete, translations }: ITaskProgressProps) => {
     const { obj: task } = clientSchema.useObject({
         where: { id },
     }, {
@@ -41,10 +72,10 @@ const TaskProgress = ({ id, title, description, clientSchema, onComplete }) => {
     return (
         <>
             <Typography.Paragraph>
-                {title}
+                {translations.title}
             </Typography.Paragraph>
             <Typography.Paragraph>
-                {description.replace('{n}', task.exportedRecordsCount)}
+                {translations.description(task)}
             </Typography.Paragraph>
             <Progress percent={33}/>
         </>
@@ -56,7 +87,7 @@ const TaskProgress = ({ id, title, description, clientSchema, onComplete }) => {
  * In one panel it displays progress for all tasks
  * @param title
  * @param description
- * @param tasksProgressList component that displays progress of all launched tasks
+ * @param {Array<Task>} tasks to track and display
  */
 const displayTasksProgress = ({ title, description, tasks }) => {
     notification.open({
@@ -65,13 +96,12 @@ const displayTasksProgress = ({ title, description, tasks }) => {
         description: () => (
             <>
                 <Typography.Paragraph>{description}</Typography.Paragraph>
-                {tasks.map(({ record, clientSchema, onComplete }) => (
+                {tasks.map(({ record, clientSchema, translations, onComplete }) => (
                     <TaskProgress
                         key={record.id}
-                        id={record.id}
-                        title={'Excel-файл'}
-                        description={'Экспортировано записей {n}'}
+                        task={record}
                         clientSchema={clientSchema}
+                        translations={translations}
                         onComplete={onComplete}
                     />
                 ))}
@@ -83,8 +113,6 @@ const displayTasksProgress = ({ title, description, tasks }) => {
 /**
  * Abstract implementation of displaying new worker tasks and tracking its progress
  * TODO: Progress should be tracked after closing progress panel
- * @param {String} query GraphQL query string
- * @param {SubscriptionRecords} map iterator over obtained records
  */
 const TasksContextProvider = ({ children }) => {
     const intl = useIntl()
@@ -94,14 +122,13 @@ const TasksContextProvider = ({ children }) => {
         addTask: (newTask) => {
             setTasks([...tasks, newTask])
         },
+        tasks,
     }
 
     useEffect(() => {
         if (tasks.length === 0) return
-        const lastTask = tasks[tasks.length - 1]
-        const lastTaskRecord = lastTask.record
-        const TitleMsg = intl.formatMessage({ id: `task.${lastTaskRecord.__typename}.title` })
-        const DescriptionMsg = intl.formatMessage({ id: `task.${lastTaskRecord.__typename}.description` })
+        const TitleMsg = intl.formatMessage({ id: 'tasks.progressNotification.title' })
+        const DescriptionMsg = intl.formatMessage({ id: 'tasks.progressNotification.description' })
         displayTasksProgress({
             title: TitleMsg,
             description: DescriptionMsg,
