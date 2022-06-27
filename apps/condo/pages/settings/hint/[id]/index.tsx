@@ -42,7 +42,7 @@ const TicketHintIdPage = () => {
 
     const router = useRouter()
     const { link } = useOrganization()
-    const canManageTicketHints = useMemo(() => get(link, ['role', 'canManageTicketHints']), [link])
+    const canManageTicketPropertyHints = useMemo(() => get(link, ['role', 'canManageTicketPropertyHints']), [link])
 
     const hintId = get(router, ['query', 'id'], null)
     const { loading, obj: ticketHint } = TicketHint.useObject({
@@ -122,7 +122,7 @@ const TicketHintIdPage = () => {
                             </Row>
                         </Col>
                         {
-                            canManageTicketHints && (
+                            canManageTicketPropertyHints && (
                                 <Col span={24}>
                                     <ActionBar>
                                         <Link href={`/settings/hint/${hintId}/update`}>
