@@ -181,6 +181,8 @@
   "miniapps.billing.NoAcquiring.title": "Connect acquiring first",
   "miniapps.billing.NoAcquiring.message": "Conclude a payment agreement so that residents can pay receipts in mobile application {app}",
   "miniapps.billing.NoAcquiring.button": "More",
+  "miniapp.loadingError.title": "Improving service",
+  "miniapp.loadingError.message": "We do technical work. Please come back a little later",
   "MinutesShort": "${minutes} min.",
   "No": "No",
   "RolesAndAccess": "Roles and accesses",

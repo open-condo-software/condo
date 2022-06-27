@@ -181,6 +181,8 @@
   "miniapps.billing.NoAcquiring.title": "Сначала подключите оплаты",
   "miniapps.billing.NoAcquiring.message": "Заключите договор на оплату, чтобы жители смогли оплачивать квитанции в моб. приложении {app}",
   "miniapps.billing.NoAcquiring.button": "Подробнее",
+  "miniapp.loadingError.title": "Улучшаем сервис",
+  "miniapp.loadingError.message": "Проводим технические работы. Зайдите, пожалуйста, немного позже",
   "MinutesShort": "${minutes} мин.",
   "No": "Нет",
   "RolesAndAccess": "Роли и доступы",
