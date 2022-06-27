@@ -30,7 +30,7 @@ const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/tick
 const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ticket/gql')
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ticket/gql')
-const { TicketHintProperty: TicketHintPropertyGQL } = require('@condo/domains/ticket/gql')
+const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -52,7 +52,7 @@ const TicketCommentFile = generateGQLTestUtils(TicketCommentFileGQL)
 const TicketCommentsTime = generateGQLTestUtils(TicketCommentsTimeGQL)
 const UserTicketCommentReadTime = generateGQLTestUtils(UserTicketCommentReadTimeGQL)
 const TicketPropertyHint = generateGQLTestUtils(TicketPropertyHintGQL)
-const TicketHintProperty = generateGQLTestUtils(TicketHintPropertyGQL)
+const TicketPropertyHintProperty = generateGQLTestUtils(TicketPropertyHintPropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -573,7 +573,7 @@ async function updateTestTicketPropertyHint (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestTicketHintProperty (client, organization, ticketHint, property, extraAttrs = {}) {
+async function createTestTicketPropertyHintProperty (client, organization, ticketHint, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!ticketHint || !ticketHint.id) throw new Error('no ticketHint.id')
@@ -584,15 +584,15 @@ async function createTestTicketHintProperty (client, organization, ticketHint, p
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
-        ticketHint: { connect: { id: ticketHint.id } },
+        ticketPropertyHint: { connect: { id: ticketHint.id } },
         property: { connect: { id: property.id } },
         ...extraAttrs,
     }
-    const obj = await TicketHintProperty.create(client, attrs)
+    const obj = await TicketPropertyHintProperty.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestTicketHintProperty (client, id, extraAttrs = {}) {
+async function updateTestTicketPropertyHintProperty (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -602,7 +602,7 @@ async function updateTestTicketHintProperty (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await TicketHintProperty.update(client, id, attrs)
+    const obj = await TicketPropertyHintProperty.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -648,6 +648,6 @@ module.exports = {
     getTicketReport,
     getTicketAnalyticsReport, getTicketAnalyticsExport,
     TicketPropertyHint, createTestTicketPropertyHint, updateTestTicketPropertyHint,
-    TicketHintProperty, createTestTicketHintProperty, updateTestTicketHintProperty,
+    TicketPropertyHintProperty, createTestTicketPropertyHintProperty, updateTestTicketPropertyHintProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

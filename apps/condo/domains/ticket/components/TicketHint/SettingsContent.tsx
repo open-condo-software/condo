@@ -44,7 +44,7 @@ export const SettingsContent = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const canManageTicketHints = useMemo(() => get(userOrganization, ['link', 'role', 'canManageTicketHints']), [userOrganization])
+    const canManageTicketPropertyHints = useMemo(() => get(userOrganization, ['link', 'role', 'canManageTicketPropertyHints']), [userOrganization])
 
     const [search, handleSearchChange] = useSearch<IFilters>(false)
     const { shouldTableScroll } = useLayoutContext()
@@ -121,7 +121,7 @@ export const SettingsContent = () => {
                 />
             </Col>
             {
-                canManageTicketHints && (
+                canManageTicketPropertyHints && (
                     <Col span={24}>
                         <ActionBar>
                             <Button
