@@ -12,7 +12,7 @@ import { useIntl } from '@core/next/intl'
 import Input from '@condo/domains/common/components/antd/Input'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { ITicketFormState, ITicketUIState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
@@ -195,7 +195,7 @@ export interface ITicketFormProps {
     action?: (...args) => void,
     files?: ITicketFileUIState[],
     afterActionCompleted?: (ticket: ITicketFormState) => void,
-    getCompletedNotification?: (data: ITicketUIState) => ArgsProps,
+    OnCompletedMsg?: OnCompletedMsgType<ITicketUIState>,
     autoAssign?: boolean,
 }
 
@@ -223,7 +223,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         afterActionCompleted,
         files,
         autoAssign,
-        getCompletedNotification,
+        OnCompletedMsg,
     } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
@@ -344,7 +344,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 validateTrigger={['onBlur', 'onSubmit']}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
-                getCompletedNotification={getCompletedNotification}
+                OnCompletedMsg={OnCompletedMsg}
             >
                 {({ handleSave, isLoading, form }) => (
                     <>

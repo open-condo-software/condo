@@ -123,7 +123,7 @@ export const CreateTicketForm: React.FC = () => {
             organization={organization}
             role={link.role}
             autoAssign
-            getCompletedNotification={getCompletedNotification}
+            OnCompletedMsg={getCompletedNotification}
         >
             {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
         </BaseTicketForm>

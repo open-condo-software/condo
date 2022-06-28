@@ -2,6 +2,7 @@ import { notification } from 'antd'
 import { NETWORK_ERROR } from '@condo/domains/common/constants/errors'
 import find from 'lodash/find'
 import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
 
 const getMessageFrom = (error) => (
     get(error, ['extensions', 'messageForUser']) ||
@@ -50,10 +51,10 @@ const getMessageFrom = (error) => (
  * @param form
  * @param {ErrorToFormFieldMsgMapping} ErrorToFormFieldMsgMapping - mapping of errors either in old or new format
  * @param {null|String|} [OnErrorMsg] - controls passing errors to Ant `notification` util
- * @param getCompletedNotification
+ * @param OnCompletedMsg
  * @return {*}
  */
-function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, getCompletedNotification }) {
+function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
     if (!intl) throw new Error('intl prop required')
     if (!mutation && !action) throw new Error('mutation or action prop required')
     if (action && mutation) throw new Error('impossible to pass mutation and action prop')
@@ -73,15 +74,16 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
     return action()
         .then(
             (data) => {
-                if (getCompletedNotification === null) {
+                if (OnCompletedMsg === null) {
                     // we want to SKIP any notifications
-                } else if (typeof getCompletedNotification === 'undefined') {
+                } else if (typeof OnCompletedMsg === 'undefined') {
                     // default notification message
                     notification.success({ message: DoneMsg })
-                } else {
+                } else if (isFunction(OnCompletedMsg)) {
                     // custom notification message
-                    // TODO(pahaz): think about more complex notifications. OnCompletedMsg many be an object! (if we want to have come actions inside a notification)
-                    notification.success(getCompletedNotification(data))
+                    notification.success(OnCompletedMsg(data))
+                } else {
+                    notification.success({ message: OnCompletedMsg })
                 }
 
                 if (onCompleted) return onCompleted(data)
