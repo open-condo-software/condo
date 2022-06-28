@@ -270,7 +270,7 @@ const sendTicketCommentNotifications = async (requestData) => {
                     ticketNumber: ticket.number,
                     userId: clientId,
                     commentId: updatedItem.id,
-                    url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
+                    url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
                     residentId: get(resident, 'id', null),
                 },
             },
