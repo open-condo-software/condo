@@ -16,6 +16,7 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
+import { ArgsProps } from 'antd/lib/notification'
 import React, { useCallback, useState, useRef, CSSProperties, ComponentProps } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useMutation } from '@core/next/apollo'
@@ -208,6 +209,9 @@ type IFormWithActionChildrenArgs = {
 
 export type IFormWithActionChildren = (args: IFormWithActionChildrenArgs) => JSX.Element
 
+type OnCompletedMsgFunctionType <T> = (data: T) => ArgsProps
+export type OnCompletedMsgType<T> = string | OnCompletedMsgFunctionType<T>
+
 // TODO(Dimitreee): add children type/interface
 interface IFormWithAction<TRecordFormState, TRecordUIState> {
     action?: (formValues) => Promise<TRecordUIState>
@@ -228,7 +232,7 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     mutationExtraData?: Record<string, unknown>
     formValuesToMutationDataPreprocessorContext?: Record<string, unknown>
     OnErrorMsg?: string
-    getCompletedNotification?: (data) => string
+    OnCompletedMsg?: OnCompletedMsgType<TRecordUIState>,
     onMutationCompleted?: (result) => void,
     style?: CSSProperties,
     children: IFormWithActionChildren
@@ -249,7 +253,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
         onMutationCompleted,
         ErrorToFormFieldMsgMapping,
         OnErrorMsg,
-        getCompletedNotification,
+        OnCompletedMsg,
         initialValues,
         handleSubmit,
         resetOnComplete,
@@ -324,7 +328,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             form,
             ErrorToFormFieldMsgMapping,
             OnErrorMsg,
-            getCompletedNotification,
+            OnCompletedMsg,
         })
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [action])
