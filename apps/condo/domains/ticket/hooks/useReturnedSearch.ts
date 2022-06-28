@@ -7,7 +7,9 @@ import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 
-export const useReturnedSearch = <F>(loading: boolean): [boolean, (e: CheckboxChangeEvent) => void] => {
+type UseReturnedSearchOutputType = [boolean, (e: CheckboxChangeEvent) => void]
+
+export const useReturnedSearch = <F>(loading: boolean): UseReturnedSearchOutputType => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
 
