@@ -12,7 +12,8 @@ const {
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 const { OidcClient, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
-
+const faker = require('faker')
+const { expectToThrowValidationFailureError } = require('../../common/utils/testSchema')
 
 describe('OidcClient', () => {
     describe('CRUD tests', () => {
@@ -179,5 +180,23 @@ describe('OidcClient', () => {
                 })
             })
         })
+    })
+
+    test('Can\'t create without clientSecret', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const clientId = faker.random.alphaNumeric(12)
+
+        await expectToThrowValidationFailureError(async () => {
+            await createTestOidcClient(admin, {
+                payload: {
+                    client_id: clientId,
+                    grant_types: ['implicit', 'authorization_code'],
+                    // client_secret: faker.random.alphaNumeric(12), // Trying without this field
+                    redirect_uris: ['https://jwt.io/'],
+                    response_types: ['code id_token', 'code', 'id_token'],
+                    token_endpoint_auth_method: 'client_secret_basic',
+                },
+            })
+        }, 'Invalid json structure of payload field')
     })
 })
