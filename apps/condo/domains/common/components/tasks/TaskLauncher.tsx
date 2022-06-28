@@ -1,10 +1,10 @@
+import React, { useCallback, useContext, useState } from 'react'
+import { Form } from 'antd'
 import { DatabaseFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
-import { Form } from 'antd'
-import React, { useCallback, useContext, useState } from 'react'
-import { TasksContext, TaskProgressTranslations } from './TasksContextProvider'
-import { OnCompleteFunc } from './TasksContextProvider'
+import { OnCompleteFunc, TaskProgressTranslations } from './index'
+import { TasksContext } from './TasksContextProvider'
 
 interface ITaskLauncherProps {
     label: string
@@ -19,8 +19,6 @@ interface ITaskLauncherProps {
 /**
  * Launches specified task by creating it's record with `useCreate`
  * and adds it's progress representation using ITasksContext interface
- * @param props
- * @constructor
  */
 export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
     const {
@@ -37,7 +35,7 @@ export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
 
     // TODO(antonal): load in-progress tasks and set loading state
     // @ts-ignore
-    const { addTask } = useContext(TasksContext.Consumer)
+    const { addTask } = useContext(TasksContext)
 
     const launchTask = taskClientSchema.useCreate(attrs, record => {
         setLoading(true)

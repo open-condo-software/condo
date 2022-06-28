@@ -46,7 +46,7 @@ import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniA
 import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
 import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
-import { TasksContextProvider } from '../domains/common/components/TasksContextProvider'
+import { TasksContextProvider } from '../domains/common/components/tasks/TasksContextProvider'
 
 const ANT_LOCALES = {
     ru: ruRU,

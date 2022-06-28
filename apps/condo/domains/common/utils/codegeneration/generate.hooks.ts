@@ -25,7 +25,7 @@ interface FetchMore<Q> {
     (variables?: Q): Promise<any>
 }
 
-interface IHookResult<UI, UIForm, Q, TData = any, TVariables = OperationVariables> {
+export interface IHookResult<UI, UIForm, Q, TData = any, TVariables = OperationVariables> {
     gql: any
     useObject: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q> }
     useObjects: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q> }
