@@ -8,6 +8,34 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/user/access/OidcClient')
+const Ajv = require('ajv')
+
+const ajv = new Ajv()
+
+const payloadJsonSchema = {
+    type: 'object',
+    properties: {
+        client_id: {
+            type: 'string',
+        },
+        client_secret: {
+            type: 'string',
+        },
+        redirect_uris: {
+            type: 'array',
+            items: { type: 'string' },
+            minItems: 1,
+        },
+    },
+    additionalProperties: true,
+    required: [
+        'client_id',
+        'client_secret',
+        'redirect_uris',
+    ],
+}
+
+const jsonPayloadValidator = ajv.compile(payloadJsonSchema)
 
 const OidcClient = new GQLListSchema('OidcClient', {
     schemaDoc: 'The OIDC clients list',
@@ -24,6 +52,14 @@ const OidcClient = new GQLListSchema('OidcClient', {
             schemaDoc: 'The payload of the client (clientId, clientSecret, callbackUrl, ...)',
             type: Json,
             isRequired: true,
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    const value = resolvedData[fieldPath]
+                    if (!jsonPayloadValidator(value)) {
+                        addFieldValidationError(`Invalid json structure of ${fieldPath} field`)
+                    }
+                },
+            },
         },
 
         name: {
