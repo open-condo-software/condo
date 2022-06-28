@@ -130,6 +130,9 @@ const SEND_MESSAGE_TO_SUPPORT_MUTATION = gql`
     }
 `
 
+const OIDC_CLIENT_FIELDS = `{ clientId payload name meta expiresAt ${COMMON_FIELDS} }`
+const OidcClient = generateGqlQueries('OidcClient', OIDC_CLIENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -154,5 +157,6 @@ module.exports = {
     REGISTER_NEW_SERVICE_USER_MUTATION,
     RESET_USER_MUTATION,
     SEND_MESSAGE_TO_SUPPORT_MUTATION,
+    OidcClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
