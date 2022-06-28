@@ -121,7 +121,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         number: ticket.number,
                         source: ticket.source || EMPTY_VALUE,
                         organization: ticket.organization,
-                        property: isNull(ticket.property) ? ticket.propertyAddress : ticket.propertyAddress + ` - ${i18n('pages.condo.ticket.field.PropertyWasDeleted', { locale })}`,
+                        property: isNull(ticket.property) ? ticket.propertyAddress : `${ticket.propertyAddress} - ${i18n('pages.condo.ticket.field.PropertyWasDeleted', { locale })}`,
                         unitName: ticket.unitName,
                         unitType: ticket.unitType ? i18n(`pages.condo.ticket.field.unitType.${ticket.unitType}`, { locale }) : '',
                         entranceName: ticket.sectionName,
