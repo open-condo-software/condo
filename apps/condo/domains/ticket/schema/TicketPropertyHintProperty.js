@@ -12,7 +12,7 @@ const access = require('@condo/domains/ticket/access/TicketPropertyHintProperty'
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const TicketPropertyHintProperty = new GQLListSchema('TicketPropertyHintProperty', {
-    schemaDoc: 'Sets to which property the ticketPropertyHint belongs',
+    schemaDoc: 'Join entity for many-to-many relations, that determines a Property to which the TicketPropertyHint belongs',
     fields: {
 
         organization: ORGANIZATION_OWNED_FIELD,
