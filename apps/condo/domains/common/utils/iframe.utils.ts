@@ -10,6 +10,7 @@ export const LOADED_STATUS_MESSAGE_TYPE = 'loading'
 export const RESIZE_MESSAGE_TYPE = 'resize'
 export const ERROR_MESSAGE_TYPE = 'error'
 export const COMMAND_MESSAGE_TYPE = 'command'
+export const REDIRECT_MESSAGE_TYPE = 'redirect'
 
 export type NotificationType = 'info' | 'warning' | 'error' | 'success'
 export type RequirementType = 'auth' | 'organization'
@@ -50,6 +51,11 @@ type CommandMessageType = {
     data?: Record<string, unknown>,
 }
 
+type RedirectMessageType = {
+    type: 'redirect',
+    url: string,
+}
+
 type SystemMessageType =
     RequirementMessageType
     | NotificationMessageType
@@ -57,6 +63,7 @@ type SystemMessageType =
     | ErrorMessageType
     | ResizeMessageType
     | CommandMessageType
+    | RedirectMessageType
 
 type SystemMessageReturnType = {
     type: 'system'
@@ -80,6 +87,7 @@ const AvailableMessageTypes = [
     ERROR_MESSAGE_TYPE,
     RESIZE_MESSAGE_TYPE,
     COMMAND_MESSAGE_TYPE,
+    REDIRECT_MESSAGE_TYPE,
 ]
 
 const MessagesRequiredProperties = {
@@ -89,6 +97,7 @@ const MessagesRequiredProperties = {
     [ERROR_MESSAGE_TYPE]: ['message'],
     [RESIZE_MESSAGE_TYPE]: ['height'],
     [COMMAND_MESSAGE_TYPE]: ['id', 'command', 'data'],
+    [REDIRECT_MESSAGE_TYPE]: ['url'],
 }
 
 const SystemMessageDetectorSchema = {
@@ -113,6 +122,7 @@ const SystemMessageSchema = {
         id: { type: 'string' },
         command: { type: 'string' },
         data: { type: 'object' },
+        url: { type: 'string' },
     },
     additionalProperties: false,
     required: ['type'],
@@ -185,6 +195,15 @@ export const parseMessage: parseMessageType = (data) => {
                         data: get(data, 'data', null),
                     },
                 }
+            case REDIRECT_MESSAGE_TYPE: {
+                return {
+                    type: 'system',
+                    message: {
+                        type: REDIRECT_MESSAGE_TYPE,
+                        url: data.url,
+                    },
+                }
+            }
         }
     } else {
         return { type: 'custom', message: data }
@@ -232,5 +251,12 @@ export const sendSize = (height: number, receiver: Window, receiverOrigin: strin
     sendMessage({
         type: RESIZE_MESSAGE_TYPE,
         height,
+    }, receiver, receiverOrigin)
+}
+
+export const sendRedirect = (url: string, receiver: Window, receiverOrigin: string): void => {
+    sendMessage({
+        type: REDIRECT_MESSAGE_TYPE,
+        url,
     }, receiver, receiverOrigin)
 }
