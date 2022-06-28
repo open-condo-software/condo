@@ -16907,6 +16907,30 @@ export type Mutation = {
   deleteConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
   /**  Delete multiple ConfirmPhoneAction items by ID.  */
   deleteConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
+  /**  Create a single OidcClientHistoryRecord item.  */
+  createOidcClientHistoryRecord?: Maybe<OidcClientHistoryRecord>;
+  /**  Create multiple OidcClientHistoryRecord items.  */
+  createOidcClientHistoryRecords?: Maybe<Array<Maybe<OidcClientHistoryRecord>>>;
+  /**  Update a single OidcClientHistoryRecord item by ID.  */
+  updateOidcClientHistoryRecord?: Maybe<OidcClientHistoryRecord>;
+  /**  Update multiple OidcClientHistoryRecord items by ID.  */
+  updateOidcClientHistoryRecords?: Maybe<Array<Maybe<OidcClientHistoryRecord>>>;
+  /**  Delete a single OidcClientHistoryRecord item by ID.  */
+  deleteOidcClientHistoryRecord?: Maybe<OidcClientHistoryRecord>;
+  /**  Delete multiple OidcClientHistoryRecord items by ID.  */
+  deleteOidcClientHistoryRecords?: Maybe<Array<Maybe<OidcClientHistoryRecord>>>;
+  /**  Create a single OidcClient item.  */
+  createOidcClient?: Maybe<OidcClient>;
+  /**  Create multiple OidcClient items.  */
+  createOidcClients?: Maybe<Array<Maybe<OidcClient>>>;
+  /**  Update a single OidcClient item by ID.  */
+  updateOidcClient?: Maybe<OidcClient>;
+  /**  Update multiple OidcClient items by ID.  */
+  updateOidcClients?: Maybe<Array<Maybe<OidcClient>>>;
+  /**  Delete a single OidcClient item by ID.  */
+  deleteOidcClient?: Maybe<OidcClient>;
+  /**  Delete multiple OidcClient items by ID.  */
+  deleteOidcClients?: Maybe<Array<Maybe<OidcClient>>>;
   /**  Create a single OrganizationHistoryRecord item.  */
   createOrganizationHistoryRecord?: Maybe<OrganizationHistoryRecord>;
   /**  Create multiple OrganizationHistoryRecord items.  */
@@ -19871,6 +19895,68 @@ export type MutationDeleteConfirmPhoneActionArgs = {
 
 
 export type MutationDeleteConfirmPhoneActionsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateOidcClientHistoryRecordArgs = {
+  data?: Maybe<OidcClientHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateOidcClientHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<OidcClientHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateOidcClientHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<OidcClientHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateOidcClientHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<OidcClientHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteOidcClientHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteOidcClientHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateOidcClientArgs = {
+  data?: Maybe<OidcClientCreateInput>;
+};
+
+
+export type MutationCreateOidcClientsArgs = {
+  data?: Maybe<Array<Maybe<OidcClientsCreateInput>>>;
+};
+
+
+export type MutationUpdateOidcClientArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<OidcClientUpdateInput>;
+};
+
+
+export type MutationUpdateOidcClientsArgs = {
+  data?: Maybe<Array<Maybe<OidcClientsUpdateInput>>>;
+};
+
+
+export type MutationDeleteOidcClientArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteOidcClientsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -23694,6 +23780,426 @@ export type MutationAuthenticateUserWithPasswordArgs = {
 
 export type MutationUpdateAuthenticatedUserArgs = {
   data?: Maybe<UserUpdateInput>;
+};
+
+/**  The OIDC clients list  */
+export type OidcClient = {
+  __typename?: 'OidcClient';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the OidcClient List config, or
+   *  2. As an alias to the field set on 'labelField' in the OidcClient List config, or
+   *  3. As an alias to a 'name' field on the OidcClient List (if one exists), or
+   *  4. As an alias to the 'id' field on the OidcClient List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  The clientId  */
+  clientId?: Maybe<Scalars['String']>;
+  /**  The payload of the client (clientId, clientSecret, callbackUrl, ...)  */
+  payload?: Maybe<Scalars['JSON']>;
+  /**  The human readable name for client  */
+  name?: Maybe<Scalars['String']>;
+  /**  The additional client data  */
+  meta?: Maybe<Scalars['JSON']>;
+  /**  The timestamp of the token expiration  */
+  expiresAt?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type OidcClientCreateInput = {
+  clientId?: Maybe<Scalars['String']>;
+  payload?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type OidcClientHistoryRecord = {
+  __typename?: 'OidcClientHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the OidcClientHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the OidcClientHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the OidcClientHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the OidcClientHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  clientId?: Maybe<Scalars['String']>;
+  payload?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<OidcClientHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type OidcClientHistoryRecordCreateInput = {
+  clientId?: Maybe<Scalars['String']>;
+  payload?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<OidcClientHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum OidcClientHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type OidcClientHistoryRecordUpdateInput = {
+  clientId?: Maybe<Scalars['String']>;
+  payload?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<OidcClientHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type OidcClientHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<OidcClientHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<OidcClientHistoryRecordWhereInput>>>;
+  clientId?: Maybe<Scalars['String']>;
+  clientId_not?: Maybe<Scalars['String']>;
+  clientId_contains?: Maybe<Scalars['String']>;
+  clientId_not_contains?: Maybe<Scalars['String']>;
+  clientId_starts_with?: Maybe<Scalars['String']>;
+  clientId_not_starts_with?: Maybe<Scalars['String']>;
+  clientId_ends_with?: Maybe<Scalars['String']>;
+  clientId_not_ends_with?: Maybe<Scalars['String']>;
+  clientId_i?: Maybe<Scalars['String']>;
+  clientId_not_i?: Maybe<Scalars['String']>;
+  clientId_contains_i?: Maybe<Scalars['String']>;
+  clientId_not_contains_i?: Maybe<Scalars['String']>;
+  clientId_starts_with_i?: Maybe<Scalars['String']>;
+  clientId_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientId_ends_with_i?: Maybe<Scalars['String']>;
+  clientId_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  payload?: Maybe<Scalars['JSON']>;
+  payload_not?: Maybe<Scalars['JSON']>;
+  payload_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  payload_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  expiresAt?: Maybe<Scalars['String']>;
+  expiresAt_not?: Maybe<Scalars['String']>;
+  expiresAt_lt?: Maybe<Scalars['String']>;
+  expiresAt_lte?: Maybe<Scalars['String']>;
+  expiresAt_gt?: Maybe<Scalars['String']>;
+  expiresAt_gte?: Maybe<Scalars['String']>;
+  expiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  expiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<OidcClientHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<OidcClientHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<OidcClientHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<OidcClientHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type OidcClientHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type OidcClientHistoryRecordsCreateInput = {
+  data?: Maybe<OidcClientHistoryRecordCreateInput>;
+};
+
+export type OidcClientHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<OidcClientHistoryRecordUpdateInput>;
+};
+
+export type OidcClientUpdateInput = {
+  clientId?: Maybe<Scalars['String']>;
+  payload?: Maybe<Scalars['JSON']>;
+  name?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  expiresAt?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type OidcClientWhereInput = {
+  AND?: Maybe<Array<Maybe<OidcClientWhereInput>>>;
+  OR?: Maybe<Array<Maybe<OidcClientWhereInput>>>;
+  clientId?: Maybe<Scalars['String']>;
+  clientId_not?: Maybe<Scalars['String']>;
+  clientId_contains?: Maybe<Scalars['String']>;
+  clientId_not_contains?: Maybe<Scalars['String']>;
+  clientId_starts_with?: Maybe<Scalars['String']>;
+  clientId_not_starts_with?: Maybe<Scalars['String']>;
+  clientId_ends_with?: Maybe<Scalars['String']>;
+  clientId_not_ends_with?: Maybe<Scalars['String']>;
+  clientId_i?: Maybe<Scalars['String']>;
+  clientId_not_i?: Maybe<Scalars['String']>;
+  clientId_contains_i?: Maybe<Scalars['String']>;
+  clientId_not_contains_i?: Maybe<Scalars['String']>;
+  clientId_starts_with_i?: Maybe<Scalars['String']>;
+  clientId_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientId_ends_with_i?: Maybe<Scalars['String']>;
+  clientId_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  payload?: Maybe<Scalars['JSON']>;
+  payload_not?: Maybe<Scalars['JSON']>;
+  payload_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  payload_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  expiresAt?: Maybe<Scalars['String']>;
+  expiresAt_not?: Maybe<Scalars['String']>;
+  expiresAt_lt?: Maybe<Scalars['String']>;
+  expiresAt_lte?: Maybe<Scalars['String']>;
+  expiresAt_gt?: Maybe<Scalars['String']>;
+  expiresAt_gte?: Maybe<Scalars['String']>;
+  expiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  expiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type OidcClientWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type OidcClientsCreateInput = {
+  data?: Maybe<OidcClientCreateInput>;
+};
+
+export type OidcClientsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<OidcClientUpdateInput>;
 };
 
 /**  User action guide. It should be used to build complex hierarchical systems of user actions.  */
@@ -28484,6 +28990,22 @@ export type Query = {
   _allConfirmPhoneActionsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the ConfirmPhoneAction list.  */
   _ConfirmPhoneActionsMeta?: Maybe<_ListMeta>;
+  /**  Search for all OidcClientHistoryRecord items which match the where clause.  */
+  allOidcClientHistoryRecords?: Maybe<Array<Maybe<OidcClientHistoryRecord>>>;
+  /**  Search for the OidcClientHistoryRecord item with the matching ID.  */
+  OidcClientHistoryRecord?: Maybe<OidcClientHistoryRecord>;
+  /**  Perform a meta-query on all OidcClientHistoryRecord items which match the where clause.  */
+  _allOidcClientHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the OidcClientHistoryRecord list.  */
+  _OidcClientHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all OidcClient items which match the where clause.  */
+  allOidcClients?: Maybe<Array<Maybe<OidcClient>>>;
+  /**  Search for the OidcClient item with the matching ID.  */
+  OidcClient?: Maybe<OidcClient>;
+  /**  Perform a meta-query on all OidcClient items which match the where clause.  */
+  _allOidcClientsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the OidcClient list.  */
+  _OidcClientsMeta?: Maybe<_ListMeta>;
   /**  Search for all OrganizationHistoryRecord items which match the where clause.  */
   allOrganizationHistoryRecords?: Maybe<Array<Maybe<OrganizationHistoryRecord>>>;
   /**  Search for the OrganizationHistoryRecord item with the matching ID.  */
@@ -29680,6 +30202,56 @@ export type Query_AllConfirmPhoneActionsMetaArgs = {
   where?: Maybe<ConfirmPhoneActionWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortConfirmPhoneActionsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllOidcClientHistoryRecordsArgs = {
+  where?: Maybe<OidcClientHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOidcClientHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryOidcClientHistoryRecordArgs = {
+  where: OidcClientHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllOidcClientHistoryRecordsMetaArgs = {
+  where?: Maybe<OidcClientHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOidcClientHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllOidcClientsArgs = {
+  where?: Maybe<OidcClientWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOidcClientsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryOidcClientArgs = {
+  where: OidcClientWhereUniqueInput;
+};
+
+
+export type Query_AllOidcClientsMetaArgs = {
+  where?: Maybe<OidcClientWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOidcClientsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -37231,6 +37803,56 @@ export enum SortMultiPaymentsBy {
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC'
+}
+
+export enum SortOidcClientHistoryRecordsBy {
+  ClientIdAsc = 'clientId_ASC',
+  ClientIdDesc = 'clientId_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  ExpiresAtAsc = 'expiresAt_ASC',
+  ExpiresAtDesc = 'expiresAt_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortOidcClientsBy {
+  ClientIdAsc = 'clientId_ASC',
+  ClientIdDesc = 'clientId_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  ExpiresAtAsc = 'expiresAt_ASC',
+  ExpiresAtDesc = 'expiresAt_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortOnBoardingHistoryRecordsBy {
