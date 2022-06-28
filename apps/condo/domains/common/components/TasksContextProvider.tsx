@@ -92,8 +92,13 @@ const TaskProgress = ({ task: { id }, clientSchema, onComplete, translations }: 
 const displayTasksProgress = ({ title, description, tasks }) => {
     notification.open({
         key: 'task-notification',
-        message: title,
-        description: () => (
+        message: (
+            <Typography.Paragraph>
+                {title}
+            </Typography.Paragraph>
+        ),
+        duration: 0,
+        description: (
             <>
                 <Typography.Paragraph>{description}</Typography.Paragraph>
                 {tasks.map(({ record, clientSchema, translations, onComplete }) => (
