@@ -2,6 +2,7 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 import { notification, Typography } from 'antd'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
+import Router from 'next/router'
 
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
@@ -15,11 +16,14 @@ import {
     LOADED_STATUS_MESSAGE_TYPE,
     RESIZE_MESSAGE_TYPE,
     COMMAND_MESSAGE_TYPE,
+    REDIRECT_MESSAGE_TYPE,
 } from '@condo/domains/common/utils/iframe.utils'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import getConfig from 'next/config'
+import { JAVASCRIPT_URL_XSS } from '@condo/domains/common/constants/regexps'
 
 type HandlerType = (message: Record<string, unknown>) => void
 
@@ -39,6 +43,7 @@ const getIframeStyles: (boolean) => CSSProperties = (isLoading) => ({
 })
 
 const EMPTY_VIEW_IMAGE_STYLE: CSSProperties = { marginBottom: 20 }
+const { publicRuntimeConfig: { serverUrl: serverOrigin } } = getConfig()
 
 export const IFrame: React.FC<IFrameProps> = (props) => {
     const intl = useIntl()
@@ -97,6 +102,13 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
         setFrameHeight(message.height)
     }, [])
 
+    const handleRedirect = useCallback((message) => {
+        if (!message.url) return null
+        if (!message.url.startsWith(serverOrigin) && !message.url.startsWith('/')) return null
+        if (message.url.match(JAVASCRIPT_URL_XSS)) return null
+        return Router.push(message.url)
+    }, [])
+
     useEffect(() => {
         const preFetch = async () => {
             if (isOnClient) {
@@ -128,7 +140,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
                 }
                 break
         }
-    }, [])
+    }, [organization, user, pageOrigin])
 
     const handleMessage = useCallback((event) => {
         if (event.origin !== pageOrigin) return
@@ -148,13 +160,24 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
                     return handleResize(message)
                 case COMMAND_MESSAGE_TYPE:
                     return handleCommand(message)
+                case REDIRECT_MESSAGE_TYPE:
+                    return handleRedirect(message)
             }
         } else {
             for (const handler of messageHandlers) {
                 handler(message)
             }
         }
-    }, [handleLoad, handleNotification, handleRequirement, pageOrigin, handleResize, messageHandlers])
+    }, [
+        handleRedirect,
+        handleCommand,
+        handleLoad,
+        handleNotification,
+        handleRequirement,
+        pageOrigin,
+        handleResize,
+        messageHandlers,
+    ])
 
     let Wrapper: React.FC = React.Fragment
     if (!isAuthenticated && isAuthRequired) Wrapper = AuthRequired

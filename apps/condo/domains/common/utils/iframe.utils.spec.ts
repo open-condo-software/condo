@@ -5,6 +5,7 @@ import {
     LOADED_STATUS_MESSAGE_TYPE,
     ERROR_MESSAGE_TYPE,
     RESIZE_MESSAGE_TYPE,
+    REDIRECT_MESSAGE_TYPE,
 } from './iframe.utils'
 
 describe('parseMessage', () => {
@@ -20,6 +21,7 @@ describe('parseMessage', () => {
             ['Error message', { type: ERROR_MESSAGE_TYPE, message: 'Validation failure error' }],
             ['Error message', { type: ERROR_MESSAGE_TYPE, message: 'Validation failure error', requestMessage: { type: 'IMPORTANT', requirement: 'auth' } }],
             ['Size message', { type: RESIZE_MESSAGE_TYPE, height: 500 }],
+            ['Redirect message', { type: REDIRECT_MESSAGE_TYPE, url: '/path' }],
         ]
         test.each(validCases)('%p', (message, payload) => {
             const result = parseMessage(payload)
@@ -37,7 +39,7 @@ describe('parseMessage', () => {
             ['Invalid loading status', { type: LOADED_STATUS_MESSAGE_TYPE, status: 'undone' }],
             ['No loading status', { type: LOADED_STATUS_MESSAGE_TYPE }],
             ['Height is not number', { type: RESIZE_MESSAGE_TYPE, height: '1230123' }],
-            ['No height', { type: RESIZE_MESSAGE_TYPE, height: '1230123' }],
+            ['No height', { type: RESIZE_MESSAGE_TYPE }],
         ]
         test.each(invalidCases)('%p', (message, payload) => {
             const result = parseMessage(payload)
