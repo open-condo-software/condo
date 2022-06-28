@@ -1,14 +1,16 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useIntl } from '@core/next/intl'
 import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
 import { ArgsProps } from 'antd/lib/notification'
-import Input from '@condo/domains/common/components/antd/Input'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
+
 import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
+import { useIntl } from '@core/next/intl'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { ITicketFormState, ITicketUIState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
@@ -28,10 +30,11 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
+import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
+
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketAssignments } from './TicketAssignments'
-import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
