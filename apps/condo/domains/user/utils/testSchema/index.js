@@ -348,12 +348,20 @@ async function changePhoneNumberResidentUserByTestClient (client, extraAttrs = {
 async function createTestOidcClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestOidcClient logic for generate fields
+    const clientId = faker.random.alphaNumeric(12)
 
     const attrs = {
         dv: 1,
         sender,
+        clientId,
+        payload: {
+            client_id: clientId,
+            grant_types: ['implicit', 'authorization_code'],
+            client_secret: faker.random.alphaNumeric(12),
+            redirect_uris: ['https://jwt.io/'],
+            response_types: ['code id_token', 'code', 'id_token'],
+            token_endpoint_auth_method: 'client_secret_basic',
+        },
         ...extraAttrs,
     }
     const obj = await OidcClient.create(client, attrs)
@@ -364,8 +372,6 @@ async function updateTestOidcClient (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestOidcClient logic for generate fields
 
     const attrs = {
         dv: 1,
