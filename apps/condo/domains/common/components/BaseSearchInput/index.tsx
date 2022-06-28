@@ -1,4 +1,5 @@
 import { OptionProps } from 'antd/lib/mentions'
+import { isEmpty } from 'lodash'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import debounce from 'lodash/debounce'
@@ -144,13 +145,13 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     }, [onChange])
 
     // Checking for compliance of the selected property and the value in the search bar
-    useEffect(()=>{
-        if (selected !== null && selected !== searchValue) {
+    useEffect(()=> {
+        if (!isEmpty(selected) && selected !== searchValue) {
             setSelected(null)
             setSearchValue(undefined)
             typeof props.onClear === 'function' && props.onClear()
         }
-    }, [searchValue, props])
+    }, [searchValue, props, selected])
 
     const handleScroll = useCallback(async (scrollEvent) => {
         if (isNeedToLoadNewElements(scrollEvent, fetching)) {
@@ -160,6 +161,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
 
     useEffect(
         () => {
+            setSelected(initialValue)
             setSearchValue(initialValue)
         },
         [initialValue],
