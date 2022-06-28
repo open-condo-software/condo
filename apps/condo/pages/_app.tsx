@@ -1,6 +1,6 @@
 import '@condo/domains/common/components/wdyr'
 
-import React, { useMemo } from 'react'
+import React from 'react'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
@@ -29,16 +29,10 @@ import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoard
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { FocusContextProvider } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
-import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
-import {
-    SubscriptionProvider,
-    useServiceSubscriptionContext,
-} from '@condo/domains/subscription/components/SubscriptionContext'
-import {
-    useEndTrialSubscriptionReminderPopup,
-} from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import { SubscriptionProvider, useServiceSubscriptionContext } from '@condo/domains/subscription/components/SubscriptionContext'
+import { useEndTrialSubscriptionReminderPopup } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { BarTicketIcon } from '@condo/domains/common/components/icons/BarTicketIcon'
@@ -52,9 +46,7 @@ import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniA
 import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
 import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
-import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
-import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
-import { TASK_STATUS } from '@condo/domains/common/components/tasks'
+import { TasksContextProvider } from '../domains/common/components/tasks/TasksContextProvider'
 
 const ANT_LOCALES = {
     ru: ruRU,

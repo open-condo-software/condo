@@ -38,8 +38,8 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch'
-import { TaskLauncher } from '../../domains/common/components/TaskLauncher'
-import { getClientSideSenderInfo } from '../../domains/common/utils/userid.utils'
+import { TaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useAuth } from '@core/next/auth'
 import { WORKER_TASK_COMPLETED, WORKER_TASK_PROCESSING } from '@condo/domains/common/constants/worker'
 
