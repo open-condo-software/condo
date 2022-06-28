@@ -35,7 +35,7 @@ type TicketPropertyHintCardProps = {
 
 export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle }) => {
     const intl = useIntl()
-    const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.propertyHint' })
+    const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.ticketPropertyHint' })
     const ExtraTitleMessage = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
 
     const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useObject({

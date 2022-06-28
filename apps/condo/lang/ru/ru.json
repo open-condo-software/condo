@@ -622,7 +622,7 @@
   "pages.condo.meter.EndDate": "Конечная дата",
   "pages.condo.meter.EnterMeterNumber": "Ввести номер",
   "pages.condo.meter.EnterPlace": "Ввести место установки прибора",
-  "pages.condo.settings.hint.propertyHint": "Справка по дому",
+  "pages.condo.settings.hint.ticketPropertyHint": "Справка по дому",
   "pages.condo.settings.hint.createTicketPropertyHint": "Создать справку",
   "pages.condo.settings.hint.newTicketPropertyHint": "Новая справка",
   "pages.condo.settings.hint.editTicketPropertyHint": "Редактирование справки",
