@@ -8,7 +8,7 @@ async function canReadOidcClients ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
 
     return false
 }
@@ -16,7 +16,7 @@ async function canReadOidcClients ({ authentication: { item: user } }) {
 async function canManageOidcClients ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     if (operation === 'create') {
         return false
