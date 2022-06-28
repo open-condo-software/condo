@@ -622,7 +622,7 @@
   "pages.condo.meter.EndDate": "End date",
   "pages.condo.meter.EnterMeterNumber": "Enter number",
   "pages.condo.meter.EnterPlace": "Enter place",
-  "pages.condo.settings.hint.propertyHint": "Property hint",
+  "pages.condo.settings.hint.ticketPropertyHint": "Property hint",
   "pages.condo.settings.hint.createTicketPropertyHint": "Create ticket hint",
   "pages.condo.settings.hint.newTicketPropertyHint": "New hint",
   "pages.condo.settings.hint.editTicketPropertyHint": "Edit hint",
