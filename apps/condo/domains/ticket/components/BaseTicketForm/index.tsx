@@ -210,7 +210,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
 }
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
-const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em' }
+const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
 
 export interface ITicketFormProps {
     organization?: IOrganizationUIState
@@ -452,6 +452,16 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                         )}
                                                     </Row>
                                                 </Col>
+                                                {
+                                                    isSmall && (
+                                                        <Col span={12}>
+                                                            <TicketPropertyHintCard
+                                                                propertyId={selectedPropertyId}
+                                                                hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
+                                                            />
+                                                        </Col>
+                                                    )
+                                                }
                                                 <ContactsInfo
                                                     ContactsEditorComponent={ContactsEditorComponent}
                                                     form={form}
@@ -460,12 +470,16 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 />
                                             </Row>
                                         </Col>
-                                        <Col span={6}>
-                                            <TicketPropertyHintCard
-                                                propertyId={selectedPropertyId}
-                                                hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
-                                            />
-                                        </Col>
+                                        {
+                                            !isSmall && (
+                                                <Col span={6}>
+                                                    <TicketPropertyHintCard
+                                                        propertyId={selectedPropertyId}
+                                                        hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
+                                                    />
+                                                </Col>
+                                            )
+                                        }
                                     </Row>
                                 </Col>
                                 <Col lg={16} md={24}>

@@ -1,4 +1,3 @@
-import { TabsProps } from 'antd/lib/tabs'
 import React, { CSSProperties, useMemo } from 'react'
 import Head from 'next/head'
 import { Typography } from 'antd'
@@ -36,12 +35,12 @@ const SettingsPage = () => {
         hasSubscriptionFeature && ({
             key: 'subscription',
             title: SubscriptionTitle,
-            children: <SubscriptionPane />,
+            content: <SubscriptionPane />,
         }),
         {
             key: 'hint',
             title: HintTitle,
-            children: <TicketPropertyHintSettings />,
+            content: <TicketPropertyHintSettings />,
         },
     ].filter(Boolean),
     [HintTitle, SubscriptionTitle, hasSubscriptionFeature])

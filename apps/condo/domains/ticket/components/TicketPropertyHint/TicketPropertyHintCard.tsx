@@ -16,6 +16,10 @@ const StyledAlert = styled(Alert)`
   background-color: ${colors.successBG};
   border: none;
   
+  .ant-alert-description > div {
+    overflow: hidden;
+  }
+  
   & svg, & > .ant-alert-content > .ant-alert-message {
    color: ${colors.black}; 
   }
