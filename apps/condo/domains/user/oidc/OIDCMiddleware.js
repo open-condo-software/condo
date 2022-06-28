@@ -4,7 +4,7 @@ const Provider = require('oidc-provider')
 const conf = require('@core/config')
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-const configuration = require('./configuration')
+const createConfiguration = require('./configuration')
 const { OIDCBearerTokenKeystonePatch } = require('./OIDCBearerTokenKeystonePatch')
 const { logger } = require('./logger')
 
@@ -17,10 +17,10 @@ class OIDCMiddleware {
         //
         // There is no way to fix it at the moment ...
         //
-        const provider = new Provider(conf.SERVER_URL, configuration)
+        const provider = new Provider(conf.SERVER_URL, createConfiguration(keystone))
         const app = express()
 
-        OIDCBearerTokenKeystonePatch(app)
+        OIDCBearerTokenKeystonePatch(app, keystone)
 
         // We have a proxy in front that terminates ssl, you should trust the proxy.
         app.enable('trust proxy')

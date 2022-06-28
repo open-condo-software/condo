@@ -1,5 +1,5 @@
-const { AdapterFactory } = require('./AdapterFactory')
+const { createAdapterClass } = require('./AdapterFactory')
 
 module.exports = {
-    AdapterFactory,
+    createAdapterClass,
 }

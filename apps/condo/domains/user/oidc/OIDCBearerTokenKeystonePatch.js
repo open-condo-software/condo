@@ -3,7 +3,7 @@ const { get } = require('lodash')
 const { getSchemaCtx } = require('@core/keystone/schema')
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-const { AdapterFactory } = require('./adapter')
+const { createAdapterClass } = require('./adapter')
 const { logger } = require('./logger')
 
 function getOidcToken (req) {
@@ -40,8 +40,9 @@ function getOidcToken (req) {
  * @param app Express
  * @void
  */
-function OIDCBearerTokenKeystonePatch (app) {
-    const tokens = new AdapterFactory('AccessToken')
+function OIDCBearerTokenKeystonePatch (app, context) {
+    const AdapterClass = createAdapterClass(context)
+    const tokens = new AdapterClass('AccessToken')
     // const grants = new AdapterFactory('Grant')
 
     app.use(async function oidcBearerTokenPatchMiddleware (req, res, next) {
