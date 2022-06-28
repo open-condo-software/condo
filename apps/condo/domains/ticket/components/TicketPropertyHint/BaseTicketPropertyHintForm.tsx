@@ -82,25 +82,26 @@ const {
 
 const { TinyMceApiKey } = publicRuntimeConfig
 
-const EDITOR_INIT_VALUES = {
-    link_title: false,
-    contextmenu: '',
-    menubar: false,
-    statusbar: false,
-    plugins: 'link autolink lists',
-    toolbar: 'undo redo | ' +
-        'link | bold italic backcolor | alignleft aligncenter ' +
-        'alignright alignjustify | bullist numlist outdent indent | ' +
-        'removeformat',
-    link_default_target: '_blank',
-    link_target_list: false,
-}
-
 export const BaseTicketPropertyHintForm = ({ children, action, organizationId, initialValues, mode }) => {
     const intl = useIntl()
     const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
+
+    const editor_init_values = useMemo(() => ({
+        link_title: false,
+        contextmenu: '',
+        menubar: false,
+        elementpath: false,
+        plugins: 'link autolink lists',
+        toolbar: 'undo redo | ' +
+            'link | bold italic backcolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat',
+        link_default_target: '_blank',
+        link_target_list: false,
+        language: intl.locale,
+    }), [intl.locale])
 
     const { requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -261,7 +262,7 @@ export const BaseTicketPropertyHintForm = ({ children, action, organizationId, i
                                             value={editorValue}
                                             onEditorChange={(newValue) => handleEditorChange(newValue, form)}
                                             initialValue={initialContent}
-                                            init={EDITOR_INIT_VALUES}
+                                            init={editor_init_values}
                                         />
                                     </Col>
                                 </Row>
