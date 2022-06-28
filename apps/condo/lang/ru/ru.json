@@ -1165,6 +1165,7 @@
   "excelExport.headers.payments.unitName": "Помещение",
   "excelExport.headers.payments.type": "Тип",
   "excelExport.headers.payments.transaction": "Транзакция",
+  "excelExport.headers.payments.status": "Статус",
   "excelExport.headers.payments.amount": "Сумма",
   "excelExport.headers.contacts.name": "Имя",
   "excelExport.headers.contacts.address": "Адрес",

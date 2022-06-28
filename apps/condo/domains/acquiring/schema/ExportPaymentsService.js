@@ -67,6 +67,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                         unitName: get(obj, ['receipt', 'account', 'unitName'], ''),
                         type: get(obj, ['context', 'integration', 'name'], ''),
                         transaction: get(obj, ['multiPayment', 'transactionId'], ''),
+                        status: i18n('payment.status.' + get(obj, 'status'), { locale }),
                         amount: Number(get(obj, 'amount', '')).toFixed(2),
                     }
                 })
