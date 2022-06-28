@@ -8,7 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { OidcClient as OidcClientGQL } from '@condo/domains/user/gql'
-import { OidcClient, OidcClientUpdateInput, QueryAllOidcClientsArgs } from '../../../../schema'
+import { OidcClient, OidcClientUpdateInput, QueryAllOidcClientsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'clientId', 'payload', 'name', 'meta', 'expiresAt']
 const RELATIONS = []
