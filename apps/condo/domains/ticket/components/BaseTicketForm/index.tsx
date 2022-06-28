@@ -116,9 +116,9 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, 500)
     const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
-    const detailsColSpan = useMemo(() => isSmall ? 24 : 20, [isSmall])
-    const classifierColSpan = useMemo(() => isSmall ? 24 : 18, [isSmall])
-    const deadlineColSpan = useMemo(() => isSmall ? 24 : 18, [isSmall])
+    const detailsColSpan = isSmall ? 24 : 20
+    const classifierColSpan = isSmall ? 24 : 18
+    const deadlineColSpan = isSmall ? 24 : 18
 
     return (
         <Col span={24}>

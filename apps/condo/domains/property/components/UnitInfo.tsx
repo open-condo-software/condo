@@ -79,7 +79,7 @@ export const UnitInfo: IUnitInfo = (props) => {
     const handleInputChange = useCallback((_, option: UnitNameInputOption) => {
         if (!option) {
             setSelectedUnitName(null)
-            setSelectedUnitType && setSelectedUnitType(BuildingUnitSubType.Flat)
+            if (setSelectedUnitType) setSelectedUnitType(BuildingUnitSubType.Flat)
             updateSectionAndFloor(form, null)
         } else {
             const unitType = get(option, 'data-unitType', BuildingUnitSubType.Flat)
@@ -90,7 +90,7 @@ export const UnitInfo: IUnitInfo = (props) => {
         }
     }, [form, setSelectedUnitName, setSelectedUnitType, updateSectionAndFloor])
 
-    const colSpan = useMemo(() => isSmall ? 24 : 20, [isSmall])
+    const colSpan = isSmall ? 24 : 20
 
     return (
         <Col span={colSpan}>

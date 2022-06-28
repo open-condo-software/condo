@@ -88,12 +88,8 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         if (Array.isArray(initialValue) && initialValue.length) {
             setLoading(true)
 
-            let initialOptions
-            if (isFunction(initialValueSearch)) {
-                initialOptions = await initialValueSearch(client, null, initialValueQuery, initialValue.length)
-            } else {
-                initialOptions = await search(client, null, initialValueQuery, initialValue.length)
-            }
+            const searchFn = isFunction(initialValueSearch) ? initialValueSearch : search
+            const initialOptions = await searchFn(client, null, initialValueQuery, initialValue.length)
 
             setData(data => uniqBy([...initialOptions, ...data], 'value'))
             setLoading(false)
