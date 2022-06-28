@@ -35,11 +35,12 @@ export type TaskRecord = {
     sender?: string
 }
 
+
 /**
  * I18n keys for title and description for TaskProgress,
  */
 export type TaskProgressTranslations = {
-    title: (task: TaskRecord) => string
+    title: string
     description: (task: TaskRecord) => string
 }
 
@@ -73,50 +74,17 @@ type TasksWhereCondition = {
     status: TASK_STATUS,
 }
 
-/**
- * Storage-agnostic task query and management operations
- */
-export interface ITasksStorage {
-    useTasks: (where: TasksWhereCondition) => { records: TaskRecord[] }
-    useTask: (id: string) => { record: TaskRecord, stopPolling: StopPollingFunction }
-    useCreateTask: UseCreateTaskFunction,
-    useUpdateTask: UseUpdateTaskFunction,
-    useDeleteTask: UseDeleteTaskFunction,
-}
+export type OnCompleteFunc = (taskRecord: any) => void
+
+// We have to deal with different client schemas for tasks tracking, therefore we don't know specifics at compile time
+export type IClientSchema = IHookResult<any, any, any>
 
 /**
- * Data loading utils and abstract logic for a trackable task
- * In case of loading task records on page load helps to use appropriate implementation for a loaded record
+ * Used to fetch actual state, display information in UI
  */
-export interface ITask {
-    storage: ITasksStorage
-    translations: TaskProgressTranslations
-    calculateProgress: CalculateProgressFunc
-    onComplete: OnCompleteFunc,
-}
-
-/**
- * Task record from GraphQL API along with corresponding interface
- * Used in all UI components for fetching its actual state and display it on notification-like panel
- */
-export interface ITaskTrackableItem extends ITask {
+export interface Task {
     record: TaskRecord
+    onComplete: OnCompleteFunc
+    translations: TaskProgressTranslations
+    clientSchema: IClientSchema
 }
-
-/**
- * Should be used to launch and track specific delayed task
- */
-export interface ITasksContext {
-    addTask?: (newTask: ITaskTrackableItem) => void
-    updateTask?: (record: TaskRecord) => void
-    deleteTask?: (record: TaskRecord) => void
-    tasks?: ITaskTrackableItem[]
-}
-
-export const TasksContext = React.createContext<ITasksContext>({})
-
-// TODO(antonal): think about tracking getting the result of task by user
-//  There is a case when user started export task, closed browser tab, task was completed, user opens a page again
-//  and task will not be displayed because it is completed.
-//  In this case we need to initially load not only tasks with `processing` status, but also tasks with
-//  `completed` status which result is not yet obtained by user.
