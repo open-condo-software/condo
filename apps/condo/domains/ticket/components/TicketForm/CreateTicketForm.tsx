@@ -110,9 +110,9 @@ export const CreateTicketForm: React.FC = () => {
             </Typography.Text>
         ),
         description: (
-            <a style={LINK_STYLES} href={`/ticket/${data.id}`} target={'_blank'} rel="noreferrer">
+            <Typography.Link style={LINK_STYLES} href={`/ticket/${data.id}`} target={'_blank'} rel="noreferrer">
                 {SuccessNotificationDescription}
-            </a>
+            </Typography.Link>
         ),
     }), [SuccessNotificationDescription, intl])
 
