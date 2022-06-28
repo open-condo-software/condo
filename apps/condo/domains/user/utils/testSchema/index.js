@@ -26,6 +26,7 @@ const { max, repeat, get } = require('lodash')
 
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
+const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -182,6 +183,7 @@ async function addServiceAccess (user, extraAttrs = {}) {
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 const ForgotPasswordAction = generateGQLTestUtils(ForgotPasswordActionGQL)
 
+const OidcClient = generateGQLTestUtils(OidcClientGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -343,6 +345,37 @@ async function changePhoneNumberResidentUserByTestClient (client, extraAttrs = {
     return [data.result, attrs]
 }
 
+async function createTestOidcClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestOidcClient logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await OidcClient.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestOidcClient (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestOidcClient logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await OidcClient.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -377,5 +410,6 @@ module.exports = {
     supportSendMessageToSupportByTestClient,
     completeConfirmPhoneActionByTestClient,
     changePhoneNumberResidentUserByTestClient,
+    OidcClient, createTestOidcClient, updateTestOidcClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
