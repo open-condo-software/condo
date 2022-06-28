@@ -12,3 +12,4 @@ apps/sberhack
 # Ignore other files
 package.json
 README.md
+**/public/tinymce
