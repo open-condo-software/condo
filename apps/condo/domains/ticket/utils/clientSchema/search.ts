@@ -101,15 +101,6 @@ const GET_ALL_CONTACTS_QUERY = gql`
     }
 `
 
-const GET_ALL_PROPERTY_HINTS_TO_PROPERTIES_QUERY = gql`
-    query selectPropertyHintToProperty ($where: TicketHintPropertyWhereInput, $orderBy: String, $first: Int, $skip: Int) {
-        objs: allTicketHintProperties(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
-            ticketHint { id }
-            property { id }
-        }
-    }
-`
-
 async function _search (client, query, variables) {
     return await client.query({
         query: query,

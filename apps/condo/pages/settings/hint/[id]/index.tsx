@@ -5,7 +5,6 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import xss from 'xss'
 
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'

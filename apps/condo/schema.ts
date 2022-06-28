@@ -45865,7 +45865,7 @@ export type TicketProblemClassifiersUpdateInput = {
   data?: Maybe<TicketProblemClassifierUpdateInput>;
 };
 
-/**  Help information related to a property or group of properties  */
+/**  Textual information in free format related to a property or group of properties, for example list of responsible for property, organization number for clients  */
 export type TicketPropertyHint = {
   __typename?: 'TicketPropertyHint';
   /**
@@ -46127,7 +46127,7 @@ export type TicketPropertyHintPropertiesUpdateInput = {
   data?: Maybe<TicketPropertyHintPropertyUpdateInput>;
 };
 
-/**  Sets to which property the ticketPropertyHint belongs  */
+/**  Join entity for many-to-many relations, that determines a Property to which the TicketPropertyHint belongs  */
 export type TicketPropertyHintProperty = {
   __typename?: 'TicketPropertyHintProperty';
   /**
