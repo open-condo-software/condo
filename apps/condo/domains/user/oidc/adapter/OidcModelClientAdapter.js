@@ -1,10 +1,10 @@
 /**
- * The GQLAdapter based on official example
+ * The OidcModelClientAdapter based on official example
  * @link https://github.com/panva/node-oidc-provider/blob/f5c9a3f9d4bd83df24959e7bfc5d354a5015164a/example/my_adapter.js
  */
 const { OidcClient } = require('@condo/domains/user/utils/serverSchema')
 
-class GQLAdapter {
+class OidcModelClientAdapter {
 
     /**
      *
@@ -257,4 +257,4 @@ class GQLAdapter {
     }
 }
 
-module.exports = { GQLAdapter }
+module.exports = { OidcModelClientAdapter }
