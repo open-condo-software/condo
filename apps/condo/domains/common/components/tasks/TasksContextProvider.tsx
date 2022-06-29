@@ -27,7 +27,7 @@ const TasksContextProvider = ({ children }) => {
             if (find(tasks, { id: newTask.record.id })) {
                 console.error('Task record already added for tracking', newTask.record)
             } else {
-                setTasks([...tasks, newTask])
+                setTasks(prevTasks => [...prevTasks, newTask])
             }
         },
         tasks,
