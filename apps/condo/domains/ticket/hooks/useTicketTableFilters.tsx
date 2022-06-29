@@ -9,7 +9,7 @@ import {
     FilterComponentSize,
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
-import { MeterReadingWhereInput } from '@app/condo/schema'
+import { BuildingUnitSubType, MeterReadingWhereInput } from '@app/condo/schema'
 import {
     getDayRangeFilter,
     getFilter,
@@ -45,6 +45,7 @@ const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
 const filterFloor = getFilter('floorName', 'array', 'string', 'in')
 const filterUnit = getFilter('unitName', 'array', 'string', 'in')
+const filterUnitType = getFilter('unitType', 'array', 'string', 'in')
 const filterPlaceClassifier = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifier = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifierSearch = getStringContainsFilter(['categoryClassifier', 'name'])
@@ -71,6 +72,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const SourceMessage = intl.formatMessage({ id: 'field.Source' })
     const SectionMessage = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorMessage = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const UnitTypeMessage = intl.formatMessage({ id: 'field.UnitType' })
     const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
     const EnterPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterPhone' })
     const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.ClientPhone' })
@@ -94,16 +96,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const { objs: sources } = TicketSource.useObjects({})
     const sourceOptions = convertToOptions<ITicketSourceUIState>(sources, 'name', 'id')
 
-    const attributeOptions = [
+    const attributeOptions = useMemo(() => [
         { label: PaidMessage, value: 'isPaid' },
         { label: EmergencyMessage, value: 'isEmergency' },
         { label: WarrantyMessage, value: 'isWarranty' },
         { label: ReturnedMessage.toLowerCase(), value: 'statusReopenedCounter' },
-    ]
-    const reviewValueOptions = [
+    ], [EmergencyMessage, PaidMessage, ReturnedMessage, WarrantyMessage])
+    const reviewValueOptions = useMemo(() => [
         { label: GoodReviewMessage, value: REVIEW_VALUES.GOOD },
         { label: BadReviewMessage, value: REVIEW_VALUES.BAD },
-    ]
+    ], [BadReviewMessage, GoodReviewMessage])
+    const unitTypeOptions = useMemo(() => [
+        { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Flat}` }), value: BuildingUnitSubType.Flat },
+        { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Parking}` }), value: BuildingUnitSubType.Parking },
+        { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Apartment}` }), value: BuildingUnitSubType.Apartment },
+        { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Commercial}` }), value: BuildingUnitSubType.Commercial },
+        { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Warehouse}` }), value: BuildingUnitSubType.Warehouse },
+    ], [intl])
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')
 
@@ -266,6 +275,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                     modalFilterComponentWrapper: {
                         label: FloorMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'unitType',
+                filters: [filterUnitType],
+                component: {
+                    type: ComponentType.Select,
+                    options: unitTypeOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: UnitTypeMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
