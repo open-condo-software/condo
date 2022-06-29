@@ -355,3 +355,14 @@ from: postgres:13.2
 ---
 image: redisreview
 from: redis:6.2
+---
+image: preparepostgresreview
+from: postgres:13.2
+shell:
+  install:
+  - "apt update -qq"
+  - "apt install -qq -y wget"
+  - "wget https://obs-community-intl.obs.ap-southeast-1.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz"
+  - "mkdir obsutil_linux_amd64 && tar -xf obsutil_linux_amd64.tar.gz -C obsutil_linux_amd64 --strip-components 1"
+  - "cd obsutil_linux_amd64"
+  - "chmod 755 obsutil"
