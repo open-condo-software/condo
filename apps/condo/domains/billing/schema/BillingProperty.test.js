@@ -82,11 +82,12 @@ describe('BillingProperty', () => {
             })
         })
 
-        test('can be created by organization integration manager', async () => {
+        test('cannot be created by organization integration manager', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property, attrs] = await createTestBillingProperty(managerUserClient, context)
-            expect(property.context.id).toEqual(attrs.context.connect.id)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestBillingProperty(managerUserClient, context)
+            })
         })
     })
 
@@ -122,18 +123,20 @@ describe('BillingProperty', () => {
         })
 
         test('can be read by organization integration manager', async () => {
+            const admin = await makeLoggedInAdminClient()
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
+            const [property] = await createTestBillingProperty(admin, context)
 
             const props = await BillingProperty.getAll(managerUserClient, { id: property.id })
             expect(props).toHaveLength(1)
         })
 
         test('can be read by employee with `canReadBillingReceipts`', async () => {
+            const admin = await makeLoggedInAdminClient()
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            await createTestBillingProperty(managerUserClient, context)
+            await createTestBillingProperty(admin, context)
             const client = await createReceiptsReader(organization)
 
             const properties = await BillingProperty.getAll(client)
@@ -174,19 +177,19 @@ describe('BillingProperty', () => {
         })
 
         test('can be updated by organization integration manager', async () => {
+            const admin = await makeLoggedInAdminClient()
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
+            const [property] = await createTestBillingProperty(admin, context)
             const raw = faker.lorem.words()
             const address = faker.lorem.words()
             const payload = {
                 raw,
                 address,
             }
-            const [updated] = await updateTestBillingProperty(managerUserClient, property.id, payload)
-
-            expect(updated.raw).toEqual(raw)
-            expect(updated.address).toEqual(address)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestBillingProperty(managerUserClient, property.id, payload)
+            })
         })
 
         test('cannot be updated by anonymous', async () => {
@@ -240,9 +243,10 @@ describe('BillingProperty', () => {
         })
 
         test('cannot be deleted by organization integration manager', async () => {
+            const admin = await makeLoggedInAdminClient()
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
+            const [property] = await createTestBillingProperty(admin, context)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await BillingProperty.delete(managerUserClient, property.id)

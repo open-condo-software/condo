@@ -3,7 +3,7 @@
  */
 const faker = require('faker')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithIntegrationAccess } = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithIntegrationAccess, makeServiceUserForIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { OrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
@@ -105,43 +105,11 @@ describe('BillingAccount', () => {
             expect(billingAccount.property.id).toEqual(property.id)
         })
 
-        test('can be created by integration organization manager', async () => {
+        test('cannot be created by integration organization manager', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-
-            expect(billingAccount.context.id).toEqual(context.id)
-            expect(billingAccount.property.id).toEqual(property.id)
-        })
-
-        test('cannot be created by soft-deleted integration organization manager', async () => {
-            const admin = await makeLoggedInAdminClient()
-
-            const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
-            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-
-            const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
-            expect(employees).toHaveLength(1)
-            await updateTestOrganizationEmployee(admin, employees[0].id, { deletedAt: 'true' })
-
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestBillingAccount(managerUserClient, context, property)
-            })
-        })
-
-        test('cannot be created by blocked integration organization manager', async () => {
-            const admin = await makeLoggedInAdminClient()
-
-            const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
-            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-
-            const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
-            expect(employees).toHaveLength(1)
-            await updateTestOrganizationEmployee(admin, employees[0].id, { isBlocked: true })
-
+            const [property] = await createTestBillingProperty(serviceUser, context)
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestBillingAccount(managerUserClient, context, property)
             })
@@ -172,18 +140,20 @@ describe('BillingAccount', () => {
 
         test('can be read by organization integration manager', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const billingAccounts = await BillingAccount.getAll(managerUserClient, { id: billingAccount.id })
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            const billingAccounts = await BillingAccount.getAll(serviceUser, { id: billingAccount.id })
             expect(billingAccounts).toHaveLength(1)
         })
 
         test('can be read by organization employee with `canReadBillingReceipts`', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
             const client = await createReceiptsReader(organization)
 
             const billingAccounts = await BillingAccount.getAll(client, { id: billingAccount.id })
@@ -196,8 +166,8 @@ describe('BillingAccount', () => {
             const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
             expect(employees).toHaveLength(1)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
             await updateTestOrganizationEmployee(admin, employees[0].id, { deletedAt: 'true' })
             const billingAccounts = await BillingAccount.getAll(managerUserClient, { id: billingAccount.id })
             expect(billingAccounts).toHaveLength(0)
@@ -209,8 +179,8 @@ describe('BillingAccount', () => {
             const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
             expect(employees).toHaveLength(1)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
             await updateTestOrganizationEmployee(admin, employees[0].id, { isBlocked: true })
             const billingAccounts = await BillingAccount.getAll(managerUserClient, { id: billingAccount.id })
             expect(billingAccounts).toHaveLength(0)
@@ -256,54 +226,16 @@ describe('BillingAccount', () => {
             expect(updatedBillingAccount.unitName).toEqual(randomUnitName)
         })
 
-        test('can be updated by organization integration manager', async () => {
+        test('cannot be updated by organization integration manager', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
             const randomUnitName = faker.lorem.word()
             const payload = {
                 unitName: randomUnitName,
             }
-            const [updatedBillingAccount] = await updateTestBillingAccount(managerUserClient, billingAccount.id, payload)
-
-            expect(billingAccount.id).toEqual(updatedBillingAccount.id)
-            expect(updatedBillingAccount.unitName).toEqual(randomUnitName)
-        })
-
-        test('cannot be updated by soft-deleted organization integration manager', async () => {
-            const admin = await makeLoggedInAdminClient()
-
-            const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
-            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-
-            const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
-            expect(employees).toHaveLength(1)
-            await updateTestOrganizationEmployee(admin, employees[0].id, { deletedAt: 'true' })
-
-            const payload = {}
-
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestBillingAccount(managerUserClient, billingAccount.id, payload)
-            })
-        })
-
-        test('cannot be updated by blocked organization integration manager', async () => {
-            const admin = await makeLoggedInAdminClient()
-
-            const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
-            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-
-            const employees = await OrganizationEmployee.getAll(admin, { user: { id: managerUserClient.user.id } })
-            expect(employees).toHaveLength(1)
-            await updateTestOrganizationEmployee(admin, employees[0].id, { isBlocked: true })
-
-            const payload = {}
-
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestBillingAccount(managerUserClient, billingAccount.id, payload)
             })
@@ -369,9 +301,10 @@ describe('BillingAccount', () => {
 
         test('cannot be deleted by organization integration manager', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await BillingAccount.delete(managerUserClient, billingAccount.id)
