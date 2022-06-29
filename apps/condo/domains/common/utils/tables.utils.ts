@@ -159,34 +159,6 @@ export const getFilter: (
     }
 }
 
-type MultipleDataIndexType = DataIndexType[]
-type TicketAttributesFilterGetterType = (dataIndices: MultipleDataIndexType) => FilterType
-
-
-
-
-export const getTicketAttributesFilter: TicketAttributesFilterGetterType = (dataIndices) => {
-    return function getWhereQuery (search) {
-        if (!search || search.length === 0 || dataIndices.length === 1) return
-
-        const args = !Array.isArray(search) ? [search] : search
-
-        return {
-            OR: dataIndices.map(wrappedDataIndex => {
-                if (!args.find(arg => arg === wrappedDataIndex) || !isString(wrappedDataIndex)) return
-
-                if (wrappedDataIndex === 'statusReopenedCounter') {
-                    return { [`${wrappedDataIndex}_gt`]: 0 }
-                }
-
-                return {
-                    [wrappedDataIndex]: true,
-                }
-            }).filter(Boolean),
-        }
-    }
-}
-
 export const getDecimalFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     return getFilter(dataIndex, 'single', 'string', 'in')
 }

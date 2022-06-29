@@ -15,13 +15,13 @@ import {
     getFilter,
     getNumberFilter,
     getStringContainsFilter,
-    getTicketAttributesFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
+import { getIsResidentContactFilter, getTicketAttributesFilter } from '../utils/tables.utils'
 import { useModalFilterClassifiers } from './useModalFilterClassifiers'
 import { ITicketSourceUIState } from '../utils/clientSchema/TicketSource'
 import { ITicketStatusUIState } from '../utils/clientSchema/TicketStatus'
@@ -40,6 +40,7 @@ const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
 const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty', 'statusReopenedCounter'])
+const filterIsResidentContact = getIsResidentContactFilter()
 const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
@@ -89,6 +90,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
     const BadReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.bad' })
     const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
+    const IsResidentContactLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact' })
+    const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
+    const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
 
     const { objs: statuses } = TicketStatus.useObjects({})
     const statusOptions = convertToOptions<ITicketStatusUIState>(statuses, 'name', 'id')
@@ -113,6 +117,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
         { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Commercial}` }), value: BuildingUnitSubType.Commercial },
         { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Warehouse}` }), value: BuildingUnitSubType.Warehouse },
     ], [intl])
+    const isResidentContactOptions = useMemo(() => [
+        { label: IsResidentContactMessage, value: 'false' },
+        { label: IsNotResidentContactMessage, value: 'true' },
+    ], [IsNotResidentContactMessage, IsResidentContactMessage])
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')
 
@@ -471,6 +479,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                     modalFilterComponentWrapper: {
                         label: AuthorMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'contactIsNull',
+                filters: [filterIsResidentContact],
+                component: {
+                    type: ComponentType.Select,
+                    options: isResidentContactOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: IsResidentContactLabel,
                         size: FilterComponentSize.Medium,
                     },
                 },
