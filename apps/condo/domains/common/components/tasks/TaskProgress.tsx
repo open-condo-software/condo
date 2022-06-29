@@ -1,21 +1,49 @@
 import React, { useEffect } from 'react'
-import { notification, Progress, Typography } from 'antd'
+import { notification, Progress, Typography, List } from 'antd'
 import { TASK_STATUS_REFRESH_POLL_INTERVAL, WORKER_TASK_COMPLETED } from '../../constants/worker'
+import { colors, fontSizes } from '../../constants/style'
 import { IClientSchema, OnCompleteFunc, TaskRecord, Task, TaskProgressTranslations } from './index'
+import styled from '@emotion/styled'
 
 interface ITaskProgressProps {
+    task: TaskRecord
+    translations: TaskProgressTranslations
+}
+
+export const TaskProgress = ({ task, translations }: ITaskProgressProps) => (
+    <List.Item>
+        <List.Item.Meta
+            title={translations.title}
+            description={translations.description(task)}
+        />
+        <Progress
+            type="circle"
+            percent={33}
+            width={22}
+            strokeWidth={14}
+            strokeColor={{
+                '0%': '#4CD174',
+                '100%': '#6DB8F2',
+            }}
+            strokeLinecap="square"
+            showInfo={false}
+        />
+    </List.Item>
+)
+
+interface ITaskProgressTrackerProps {
     task: TaskRecord
     clientSchema: IClientSchema
     onComplete: OnCompleteFunc
     translations: TaskProgressTranslations
 }
 
-export const TaskProgress = ({ task: { id }, clientSchema, onComplete, translations }: ITaskProgressProps) => {
-    const { obj: task } = clientSchema.useObject({
-        where: { id },
-    }, {
-        pollInterval: TASK_STATUS_REFRESH_POLL_INTERVAL,
-    })
+export const TaskProgressTracker = ({ task/*: { id }*/, clientSchema, onComplete, translations }: ITaskProgressTrackerProps) => {
+    // const { obj: task } = clientSchema.useObject({
+    //     where: { id },
+    // }, {
+    //     pollInterval: TASK_STATUS_REFRESH_POLL_INTERVAL,
+    // })
 
     useEffect(() => {
         if (task.status === WORKER_TASK_COMPLETED) {
@@ -24,19 +52,7 @@ export const TaskProgress = ({ task: { id }, clientSchema, onComplete, translati
     }, [task.status, task.progress])
 
     return (
-        <>
-            <Typography.Paragraph>
-                {translations.title}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-                {translations.description(task)}
-            </Typography.Paragraph>
-            <Progress
-                type="circle"
-                percent={33}
-                width={20}
-            />
-        </>
+        <TaskProgress task={task} translations={translations}/>
     )
 }
 
@@ -51,23 +67,28 @@ export const displayTasksProgress = ({ title, description, tasks }: IDisplayTask
     notification.open({
         key: 'task-notification',
         message: (
-            <Typography.Paragraph>
+            <Typography.Paragraph strong>
                 {title}
             </Typography.Paragraph>
         ),
         duration: 0,
         description: (
             <>
-                <Typography.Paragraph>{description}</Typography.Paragraph>
-                {tasks.map(({ record, clientSchema, translations, onComplete }) => (
-                    <TaskProgress
-                        key={record.id}
-                        task={record}
-                        clientSchema={clientSchema}
-                        translations={translations}
-                        onComplete={onComplete}
-                    />
-                ))}
+                <Typography.Paragraph style={{ color: colors.textSecondary }}>
+                    {description}
+                </Typography.Paragraph>
+                <List
+                    dataSource={tasks}
+                    renderItem={({ record, clientSchema, translations, onComplete }) => (
+                        <TaskProgressTracker
+                            key={record.id}
+                            task={record}
+                            clientSchema={clientSchema}
+                            translations={translations}
+                            onComplete={onComplete}
+                        />
+                    )}
+                />
             </>
         ),
     })
