@@ -525,6 +525,14 @@ async function makeContextWithOrganizationAndIntegrationAsAdmin() {
     return { context, integration, organization, admin }
 }
 
+async function makeServiceUserForIntegration(integration) {
+    const admin = await makeLoggedInAdminClient()
+    const client = await makeClientWithServiceUser()
+    await createTestBillingIntegrationAccessRight(admin, integration, client.user)
+
+    return client
+}
+
 async function makeOrganizationIntegrationManager() {
     const admin = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(admin)
@@ -661,6 +669,7 @@ module.exports = {
     createTestRecipient,
     BillingCategory, createTestBillingCategory, updateTestBillingCategory,
     makeResidentClientWithOwnReceipt,
+    makeServiceUserForIntegration,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

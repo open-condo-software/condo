@@ -10,7 +10,7 @@ const { getById } = require('@core/keystone/schema')
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
-const { canReadBillingEntity, checkBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/accessSchema')
+const { canReadBillingEntity, checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
 
 
 async function canReadBillingRecipients ({ authentication }) {
@@ -39,7 +39,7 @@ async function canManageBillingRecipients ({ authentication: { item: user }, ope
 
     const { integration: integrationId } = organizationContext
 
-    return await checkBillingIntegrationAccessRight(user.id, integrationId)
+    return await checkBillingIntegrationsAccessRights(user.id, [integrationId])
 }
 
 /*
