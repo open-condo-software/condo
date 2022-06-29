@@ -19,9 +19,12 @@ import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useTicketPropertyHintTableFilters } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableFilters'
+import {
+    useTicketPropertyHintPropertyFilters,
+    useTicketPropertyHintTableFilters,
+} from '@condo/domains/ticket/hooks/useTicketPropertyHintTableFilters'
 import { useTicketPropertyHintTableColumns } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableColumns'
-import { TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 const SORTABLE_PROPERTIES = ['name']
@@ -51,13 +54,34 @@ export const SettingsContent = () => {
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
 
-    const filtersMeta = useTicketPropertyHintTableFilters()
-
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
-    const searchTicketPropertyHintsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+
+    const ticketPropertyHintPropertyFiltersMeta = useTicketPropertyHintPropertyFilters()
+    const {
+        filtersToWhere: filtersTicketPropertyHintPropertyToWhere,
+    } = useQueryMappers(ticketPropertyHintPropertyFiltersMeta, SORTABLE_PROPERTIES)
+    const searchTicketPropertyHintPropertiesQuery = { ...filtersTicketPropertyHintPropertyToWhere(filters), organization: { id: userOrganizationId } }
+
+    const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({
+        where: searchTicketPropertyHintPropertiesQuery,
+    })
+
+    const hintIds = useMemo(() => ticketPropertyHintProperties.map(obj => obj.ticketPropertyHint.id),
+        [ticketPropertyHintProperties])
+
+    const filtersMeta = useTicketPropertyHintTableFilters()
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
     const sortBy = sortersToSortBy(sorters, TICKET_HINTS_DEFAULT_SORT_BY) as SortTicketPropertyHintsBy[]
 
+    const searchTicketPropertyHintsQuery = {
+        OR: [
+            {
+                id_in: hintIds,
+                ...filtersToWhere(filters),
+            },
+        ],
+        organization: { id: userOrganizationId },
+    }
     const {
         loading: isTicketPropertyHintsFetching,
         count: total,
@@ -67,8 +91,6 @@ export const SettingsContent = () => {
         where: searchTicketPropertyHintsQuery,
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
     })
 
     const tableColumns = useTicketPropertyHintTableColumns(filtersMeta, ticketPropertyHints)
