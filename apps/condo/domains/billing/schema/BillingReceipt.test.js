@@ -19,6 +19,7 @@ const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
     createTestBillingIntegrationOrganizationContext,
     makeOrganizationIntegrationManager,
+    makeServiceUserForIntegration,
     createTestBillingRecipient,
     BillingReceipt,
     createTestBillingReceipt,
@@ -29,12 +30,13 @@ const {
 describe('BillingReceipt', () => {
 
     describe('Validators', () => {
-        test('organization integration manager: update BillingReceipt toPayDetail', async () => {
+        test('Integration account: Update BillingReceipt toPayDetail', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount)
             const payload = {
                 toPayDetails: {
                     formula: 'charge+penalty',
@@ -43,18 +45,19 @@ describe('BillingReceipt', () => {
                     privilege: null,
                 },
             }
-            const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
+            const [objUpdated] = await updateTestBillingReceipt(serviceUser, obj.id, payload)
 
             expect(obj.id).toEqual(objUpdated.id)
             expect(objUpdated.toPayDetails.formula).toEqual('charge+penalty')
         })
 
-        test('organization integration manager: update BillingReceipt services', async () => {
+        test('Integration account: Update BillingReceipt services', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount)
             const payload = {
                 services: [
                     {
@@ -89,18 +92,19 @@ describe('BillingReceipt', () => {
                     },
                 ],
             }
-            const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
+            const [objUpdated] = await updateTestBillingReceipt(serviceUser, obj.id, payload)
 
             expect(obj.id).toEqual(objUpdated.id)
             expect(objUpdated.services[0].id).toEqual('COLD-WATER')
         })
 
-        test('organization integration manager: update BillingReceipt with wrong data in toPayDetails', async () => {
+        test('Integration account: Update BillingReceipt with wrong data in toPayDetails', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount)
 
             // No formula in payload
             const payload = {
@@ -111,17 +115,18 @@ describe('BillingReceipt', () => {
             }
 
             await expectToThrowGraphQLRequestError(
-                async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
+                async () => await updateTestBillingReceipt(serviceUser, obj.id, payload),
                 '"data.toPayDetails"; Field "formula" of required type "String!" was not provided.',
             )
         })
 
-        test('organization integration manager: update BillingReceipt with wrong data in period', async () => {
+        test('Integration account: Update BillingReceipt with wrong data in period', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount)
 
             // Bad period - month should always equal 1
             const payload = {
@@ -129,17 +134,18 @@ describe('BillingReceipt', () => {
             }
 
             await expectToThrowValidationFailureError(
-                async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
+                async () => await updateTestBillingReceipt(serviceUser, obj.id, payload),
                 'period field validation error. Period day should always equal 1',
             )
         })
 
-        test('organization integration manager: update BillingReceipt with wrong data in services', async () => {
+        test('Integration account: Update BillingReceipt with wrong data in services', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount)
 
             // Wrong services toPay details
             const payload = {
@@ -158,17 +164,18 @@ describe('BillingReceipt', () => {
             }
 
             await expectToThrowGraphQLRequestError(
-                async () => { await updateTestBillingReceipt(managerUserClient, obj.id, payload) },
+                async () => { await updateTestBillingReceipt(serviceUser, obj.id, payload) },
                 '"data.services[0].toPayDetails"; Field "formula" of required type "String!" was not provided.',
             )
         })
 
-        test('organization integration manager: update BillingReceipt with wrong data in services 2', async () => {
+        test('Integration account: Update BillingReceipt with wrong data in services 2', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount)
 
             // No NAME in services
             const payload = {
@@ -185,23 +192,24 @@ describe('BillingReceipt', () => {
             }
 
             await expectToThrowGraphQLRequestError(
-                async () => await updateTestBillingReceipt(managerUserClient, obj.id, payload),
+                async () => await updateTestBillingReceipt(serviceUser, obj.id, payload),
                 '"data.services[0]"; Field "name" of required type "String!" was not provided.',
             )
         })
 
-        test('organization integration manager: update BillingReceipt period', async () => {
+        test('Integration account: Update BillingReceipt period', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount)
 
             const payload = {
                 period: '2011-12-01',
             }
 
-            const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
+            const [objUpdated] = await updateTestBillingReceipt(serviceUser, obj.id, payload)
 
             expect(obj.id).toEqual(objUpdated.id)
             expect(objUpdated.period).toEqual('2011-12-01')
@@ -209,16 +217,17 @@ describe('BillingReceipt', () => {
 
         test('toPay is Decimal', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount)
 
             const payload = {
                 toPay: '22.92',
             }
 
-            const [objUpdated] = await updateTestBillingReceipt(managerUserClient, obj.id, payload)
+            const [objUpdated] = await updateTestBillingReceipt(serviceUser, obj.id, payload)
 
             expect(obj.id).toEqual(objUpdated.id)
             expect(objUpdated.toPay).toEqual('22.92000000')
@@ -379,11 +388,12 @@ describe('BillingReceipt', () => {
     describe('Hooks', () => {
         test('when creating billingReceipt, billingReceipt.receiver is automatically set', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
 
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount)
 
             expect(obj.account.id).toEqual(billingAccount.id)
             expect(obj.context.id).toEqual(context.id)
@@ -395,9 +405,10 @@ describe('BillingReceipt', () => {
         test('pre-populated receiver passes', async () => {
             const support = await makeClientWithSupportUser()
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
 
             const tin = faker.random.alphaNumeric(8)
             const bic = faker.random.alphaNumeric(8)
@@ -411,7 +422,7 @@ describe('BillingReceipt', () => {
                 bankAccount: bankAccount,
             })
 
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount, {
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount, {
                 receiver: { connect: { id: billingRecipient.id } },
                 recipient: {
                     tin: tin,
@@ -430,10 +441,12 @@ describe('BillingReceipt', () => {
 
         test('billing recipient is not duplicated', async () => {
             const support = await makeClientWithSupportUser()
+
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
 
             const tin = faker.random.alphaNumeric(8)
             const bic = faker.random.alphaNumeric(8)
@@ -447,7 +460,7 @@ describe('BillingReceipt', () => {
                 bankAccount: bankAccount,
             })
 
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount, {
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount, {
                 recipient: {
                     tin: tin,
                     bic: bic,
@@ -478,16 +491,16 @@ describe('BillingReceipt', () => {
             expect(obj.property.id).toEqual(property.id)
         })
 
-        test('organization integration manager can create BillingReceipt', async () => {
+        test('organization integration manager cannot create BillingReceipt', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
 
-            expect(obj.account.id).toEqual(billingAccount.id)
-            expect(obj.context.id).toEqual(context.id)
-            expect(obj.property.id).toEqual(property.id)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            })
         })
 
         test('user cannot create BillingReceipt', async () => {
@@ -529,10 +542,11 @@ describe('BillingReceipt', () => {
 
         test('employee with `canReadBillingReceipts` can read', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            const [obj] = await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            const [obj] = await createTestBillingReceipt(serviceUser, context, property, billingAccount)
 
             const admin = await makeLoggedInAdminClient()
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -547,10 +561,11 @@ describe('BillingReceipt', () => {
 
         test('deleted employee with `canReadBillingReceipts` cannot read', async () => {
             const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
+            const serviceUser = await makeServiceUserForIntegration(integration)
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-            const [property] = await createTestBillingProperty(managerUserClient, context)
-            const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
-            await createTestBillingReceipt(managerUserClient, context, property, billingAccount)
+            const [property] = await createTestBillingProperty(serviceUser, context)
+            const [billingAccount] = await createTestBillingAccount(serviceUser, context, property)
+            await createTestBillingReceipt(serviceUser, context, property, billingAccount)
 
             const admin = await makeLoggedInAdminClient()
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
