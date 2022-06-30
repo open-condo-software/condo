@@ -186,6 +186,12 @@ const Payment = new GQLListSchema('Payment', {
             defaultValue: PAYMENT_INIT_STATUS,
         },
 
+        order: {
+            schemaDoc: 'Payment order number',
+            type: Text,
+            isRequired: false,
+        },
+
         recipientBic: {
             schemaDoc: 'Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
             type: Text,
