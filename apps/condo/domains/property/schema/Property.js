@@ -6,11 +6,12 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const Ajv = require('ajv')
 const dayjs = require('dayjs')
-const { Text, Select, Virtual, Integer, CalendarDay, Decimal } = require('@keystonejs/fields')
 
+const { Text, Select, Virtual, Integer, CalendarDay, Decimal } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { Checkbox } = require('@keystonejs/fields')
 
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
 const { SENDER_FIELD, DV_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
@@ -22,21 +23,17 @@ const {
     JSON_EXPECT_OBJECT_ERROR,
     UNIQUE_ALREADY_EXISTS_ERROR,
 } = require('@condo/domains/common/constants/errors')
-
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-
+const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const access = require('@condo/domains/property/access/Property')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
-const { Checkbox } = require('@keystonejs/fields')
-
 const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
 const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
-
 
 const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 const { Property: PropertyAPI } = require('../utils/serverSchema')
 const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
-const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
+const { softDeleteTicketHintPropertiesByProperty } = require('../../ticket/utils/serverSchema/resolveHelpers')
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
@@ -327,7 +324,7 @@ const Property = new GQLListSchema('Property', {
             }
             return resolvedData
         },
-        afterChange: async ({ operation, existingItem, updatedItem }) => {
+        afterChange: async ({ context, operation, existingItem, updatedItem }) => {
             const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
             const isCreatedProperty = operation === 'create' && Boolean(updatedItem.address)
             const isRestoredProperty = operation === 'update' && Boolean(existingItem.deletedAt) && !updatedItem.deletedAt
@@ -347,6 +344,10 @@ const Property = new GQLListSchema('Property', {
 
                 // Reconnect residents (if any) to oldest non-deleted property with address = affectedAddress
                 await manageResidentToPropertyAndOrganizationConnections.delay(affectedAddress)
+
+                if (isSoftDeleteOperation) {
+                    await softDeleteTicketHintPropertiesByProperty(context, updatedItem)
+                }
             }
         },
     },

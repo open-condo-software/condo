@@ -1,11 +1,14 @@
 const get = require('lodash/get')
+const { find } = require('@core/keystone/schema')
+const { getById, getByCondition } = require('@core/keystone/schema')
+
+const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
-const { getById, getByCondition } = require('@core/keystone/schema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 function calculateTicketOrder (resolvedData, statusId) {
@@ -138,6 +141,23 @@ async function setClientIfContactPhoneAndTicketAddressMatchesResidentFields (ope
         resolvedData.client = null
 }
 
+async function softDeleteTicketHintPropertiesByProperty (context, updatedItem) {
+    const now = new Date().toISOString()
+    const { dv, sender } = updatedItem
+    // soft delete all TicketPropertyHintProperty objects
+    const ticketPropertyHintProperties = await find('TicketPropertyHintProperty', {
+        property: { id: updatedItem.id },
+        deletedAt: null,
+    })
+
+    for (const ticketPropertyHintProperty of ticketPropertyHintProperties) {
+        await TicketPropertyHintProperty.update(context, ticketPropertyHintProperty.id, {
+            deletedAt: now,
+            dv, sender,
+        })
+    }
+}
+
 module.exports = {
     calculateReopenedCounter,
     calculateTicketOrder,
@@ -146,4 +166,5 @@ module.exports = {
     setClientNamePhoneEmailFieldsByDataFromUser,
     overrideTicketFieldsForResidentUserType,
     setClientIfContactPhoneAndTicketAddressMatchesResidentFields,
+    softDeleteTicketHintPropertiesByProperty,
 }

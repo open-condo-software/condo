@@ -11,9 +11,9 @@ const {
 
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { TicketPropertyHintProperty, createTestTicketPropertyHintProperty, updateTestTicketPropertyHintProperty, createTestTicketPropertyHint } = require('@condo/domains/ticket/utils/testSchema')
+const { TicketPropertyHintProperty, createTestTicketPropertyHintProperty, updateTestTicketPropertyHintProperty, createTestTicketPropertyHint, updateTestTicketPropertyHint } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('TicketPropertyHintProperty', () => {
@@ -270,6 +270,40 @@ describe('TicketPropertyHintProperty', () => {
             await expectToThrowInternalError(async () => {
                 await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property)
             }, `${UNIQUE_CONSTRAINT_ERROR} "unique_ticketPropertyHint_and_property"`)
+        })
+    })
+
+    describe('Server-side soft delete tests', async () => {
+        it('soft deleted when soft deleting linked property', async () => {
+            const admin = await makeLoggedInAdminClient()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
+
+            const [ticketPropertyHintProperty] = await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property)
+
+            await updateTestProperty(admin, property.id, {
+                deletedAt: new Date().toISOString(),
+            })
+
+            expect(ticketPropertyHintProperty.deletedAt).toBeDefined()
+        })
+
+        it('soft deleted when soft deleting linked ticketPropertyHint', async () => {
+            const admin = await makeLoggedInAdminClient()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
+
+            const [ticketPropertyHintProperty] = await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property)
+
+            await updateTestTicketPropertyHint(admin, ticketPropertyHint.id, {
+                deletedAt: new Date().toISOString(),
+            })
+
+            expect(ticketPropertyHintProperty.deletedAt).toBeDefined()
         })
     })
 })

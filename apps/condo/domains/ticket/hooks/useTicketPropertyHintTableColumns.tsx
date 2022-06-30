@@ -1,6 +1,6 @@
 import map from 'lodash/map'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -9,9 +9,12 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
-import { getTicketPropertyHintAddressesRender, renderTicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema/Renders'
+import { getTicketPropertyHintAddressesRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { ITicketPropertyHintUIState } from '@condo/domains/ticket//utils/clientSchema/TicketPropertyHint'
 import { TicketPropertyHintProperty } from '@condo/domains/ticket//utils/clientSchema'
+import { useTicketPropertyHintContent } from './useTicketPropertyHintContent'
+
+const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
 
 export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketPropertyHints: ITicketPropertyHintUIState[]) {
     const intl = useIntl()
@@ -41,6 +44,16 @@ export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<Filter
 
         return getTicketPropertyHintAddressesRender(search)(intl, properties)
     }, [search, ticketPropertyHintsProperties])
+
+    const { TicketPropertyHintContent } = useTicketPropertyHintContent()
+    const renderTicketPropertyHint = useCallback((value) => {
+        return (
+            <TicketPropertyHintContent
+                html={value}
+                style={HINT_STYLES}
+            />
+        )
+    }, [TicketPropertyHintContent])
 
     return useMemo(() => {
         return [

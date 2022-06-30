@@ -2,15 +2,13 @@ import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
+import { isEmpty } from 'lodash'
 import React, { CSSProperties } from 'react'
 import get from 'lodash/get'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
-import {
-    TicketPropertyHintContent,
-} from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 
@@ -192,20 +190,13 @@ export const getTicketClientNameRender = (search: FilterValue) => {
     }
 }
 
-const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
-
-export const renderTicketPropertyHint = (value) => {
-    return (
-        <TicketPropertyHintContent
-            html={value}
-            style={HINT_STYLES}
-        />
-    )
-}
-
 export const getTicketPropertyHintAddressesRender = (search: FilterValue) => {
     return function render (intl, properties) {
         const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+
+        if (isEmpty(properties)) {
+            return '—'
+        }
 
         return properties.map((property) => getAddressRender(property, DeletedMessage, search))
     }

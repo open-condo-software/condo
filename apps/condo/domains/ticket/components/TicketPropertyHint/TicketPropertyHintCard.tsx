@@ -10,7 +10,7 @@ import { useIntl } from '@core/next/intl'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
-import { TicketPropertyHintContent } from './TicketPropertyHintContent'
+import { useTicketPropertyHintContent } from '@condo/domains/ticket/hooks/useTicketPropertyHintContent'
 
 const StyledAlert = styled(Alert)`
   background-color: ${colors.successBG};
@@ -53,6 +53,8 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
 
     const AlertMessage = <Typography.Text strong style={TEXT_STYLES}>{PropertyHintMessage}</Typography.Text>
     const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
+
+    const { TicketPropertyHintContent, isContentOverflow } = useTicketPropertyHintContent()
     
     return ticketPropertyHintProperty && ticketPropertyHint && (
         <StyledAlert
@@ -63,13 +65,17 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
                         html={htmlContent}
                         style={hintContentStyle}
                     />
-                    <Link href={`/property/${propertyId}/hint`} passHref>
-                        <a target={'_blank'}>
-                            <Typography.Link underline style={LINK_STYLES}>
-                                {ExtraTitleMessage}
-                            </Typography.Link>
-                        </a>
-                    </Link>
+                    {
+                        isContentOverflow && (
+                            <Link href={`/property/${propertyId}/hint`} passHref>
+                                <a target={'_blank'}>
+                                    <Typography.Link underline style={LINK_STYLES}>
+                                        {ExtraTitleMessage}
+                                    </Typography.Link>
+                                </a>
+                            </Link>
+                        )
+                    }
                 </>
             }
             showIcon
