@@ -45,6 +45,7 @@ class TicketCreate {
     }
 
     clickAndInputUnitName (unitName) {
+        cy.wait('@getAllProperties')
         cy.get('[data-cy=unit-name-input-item] .ant-select-selection-search')
             .click({ force: true })
             .type(unitName)
@@ -199,6 +200,9 @@ class TicketEdit {
         cy.visit(TICKET_VIEW_URL)
         cy.wait('@getAllTickets')
         cy.wait('@getAllTicketClassifierRules')
+        cy.wait('@getAllUserTicketCommentReadTimes')
+        cy.wait('@getAllTicketCommentsTimes')
+        cy.wait('@getAllTicketFilterTemplates')
 
         cy.get('[data-cy=ticket__table] tbody tr', {
             timeout: 5000,
