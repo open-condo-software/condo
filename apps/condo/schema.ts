@@ -43730,12 +43730,14 @@ export type TicketFilter = {
   source?: Maybe<Array<Maybe<Scalars['String']>>>;
   sectionName?: Maybe<Array<Maybe<Scalars['String']>>>;
   floorName?: Maybe<Array<Maybe<Scalars['String']>>>;
+  unitType?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitName?: Maybe<Array<Maybe<Scalars['String']>>>;
   placeClassifier?: Maybe<Array<Maybe<Scalars['String']>>>;
   categoryClassifier?: Maybe<Array<Maybe<Scalars['String']>>>;
   clientPhone?: Maybe<Array<Maybe<Scalars['String']>>>;
   author?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewValue?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contactIsNull?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 /**  Employee specific ticket filter template  */

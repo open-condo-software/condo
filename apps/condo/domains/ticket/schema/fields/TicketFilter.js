@@ -24,12 +24,14 @@ const TicketFilterFields = {
     source: '[String]',
     sectionName: '[String]',
     floorName: '[String]',
+    unitType: '[String]',
     unitName: '[String]',
     placeClassifier: '[String]',
     categoryClassifier: '[String]',
     clientPhone: '[String]',
     author: '[String]',
     reviewValue: '[String]',
+    contactIsNull: '[String]',
 }
 
 const TICKET_FILTER_TYPE = `
