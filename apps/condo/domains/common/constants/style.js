@@ -42,6 +42,7 @@ const attentionBg = '#FFF5E6'
 const attentionText = '#FF9500'
 const warningBg = '#FFECEB'
 const warningText = '#FF3B30'
+const infoIconColor = '#39CE66'
 
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
@@ -109,11 +110,13 @@ const colors = {
     attentionText,
     warningBg,
     warningText,
+    infoIconColor,
 }
 
 const fontSizes = {
     content: '16px',
     label: '14px',
+    small: '12px',
 }
 
 const shadows = {
