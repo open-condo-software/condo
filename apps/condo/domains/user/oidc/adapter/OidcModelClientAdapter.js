@@ -4,6 +4,8 @@
  */
 const { OidcClient } = require('@condo/domains/user/utils/serverSchema')
 
+const OIDC_FINGERPRINT = 'create-oidc-client'
+
 class OidcModelClientAdapter {
 
     /**
@@ -159,7 +161,7 @@ class OidcModelClientAdapter {
             dv: 1,
             sender: {
                 dv: 1,
-                fingerprint: 'create-oidc-client',
+                fingerprint: OIDC_FINGERPRINT,
             },
         }
         await OidcClient.create(this.context, { ...dvAndSender, clientId: id, payload, expiresAt })
