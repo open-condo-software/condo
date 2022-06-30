@@ -48,15 +48,8 @@ async function canReadSensitiveBillingReceiptData ({ authentication: { item: use
     return user.type !== RESIDENT
 }
 
-async function canManageBillingReceipts ({ authentication, operation, originalInput, listKey, itemId, context, itemIds }) {
-    return await canManageBillingEntityWithContext({
-        authentication,
-        operation,
-        itemId,
-        originalInput,
-        schemaWithContextName: listKey,
-        context,
-    })
+async function canManageBillingReceipts (args) {
+    return await canManageBillingEntityWithContext(args)
 }
 
 /*

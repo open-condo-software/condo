@@ -204,6 +204,32 @@ async function createTestBillingProperty (client, context, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBillingProperties (client, contexts, extraAttrsArray = []) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrsArray = []
+
+    for (let i = 0; i < contexts.length; i++) {
+        attrsArray.push({
+            data: {
+                dv: 1,
+                sender,
+                context: { connect: { id: contexts[i].id } },
+                raw: { foo: faker.lorem.words() },
+                globalId: faker.random.alphaNumeric(10),
+                address: faker.address.streetAddress(true),
+                meta: {
+                    test: 123,
+                },
+                ...get(extraAttrsArray, `${i}`, {})
+            }
+        })
+    }
+    const objs = await BillingProperty.createMany(client, attrsArray)
+    return [objs, attrsArray]
+}
+
 async function updateTestBillingProperty (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -216,6 +242,25 @@ async function updateTestBillingProperty (client, id, extraAttrs = {}) {
     }
     const obj = await BillingProperty.update(client, id, attrs)
     return [obj, attrs]
+}
+
+async function updateTestBillingProperties (client, attrsArray) {
+    if (!client) throw new Error('no client')
+    if (!attrsArray.every(element => element.id)) throw new Error('no id for all elements')
+    if (!attrsArray.every(element => element.data)) throw new Error('no data for all elements')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const extendedAttrsArray = attrsArray.map(element => ({
+        id: element.id,
+        data: {
+            dv: 1,
+            sender,
+            ...element.data,
+        }
+    }))
+
+    const obj = await BillingProperty.updateMany(client, extendedAttrsArray)
+    return [obj, extendedAttrsArray]
 }
 
 async function createTestBillingAccount (client, context, property, extraAttrs = {}) {
@@ -662,7 +707,7 @@ module.exports = {
     makeClientWithIntegrationAccess,
     BillingIntegrationOrganizationContext, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext,
     BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog,
-    BillingProperty, createTestBillingProperty, updateTestBillingProperty,
+    BillingProperty, createTestBillingProperty, createTestBillingProperties, updateTestBillingProperty, updateTestBillingProperties,
     BillingAccount, createTestBillingAccount, updateTestBillingAccount,
     BillingMeterResource, createTestBillingMeterResource, updateTestBillingMeterResource,
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
