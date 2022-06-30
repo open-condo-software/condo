@@ -400,6 +400,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                 },
             },
             {
+                keyword: 'contactIsNull',
+                filters: [filterIsResidentContact],
+                component: {
+                    type: ComponentType.Select,
+                    options: isResidentContactOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: IsResidentContactLabel,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
                 keyword: 'clientPhone',
                 filters: [filterClientPhone],
                 component: {
@@ -479,23 +496,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<MeterReadingWhereInp
                     },
                     modalFilterComponentWrapper: {
                         label: AuthorMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            {
-                keyword: 'contactIsNull',
-                filters: [filterIsResidentContact],
-                component: {
-                    type: ComponentType.Select,
-                    options: isResidentContactOptions,
-                    props: {
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: SelectMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: IsResidentContactLabel,
                         size: FilterComponentSize.Medium,
                     },
                 },
