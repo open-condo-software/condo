@@ -74,7 +74,7 @@ const OidcClient = new GQLListSchema('OidcClient', {
         },
 
         expiresAt: {
-            schemaDoc: 'The timestamp of the token expiration',
+            schemaDoc: 'The timestamp of the client expiration',
             type: DateTimeUtc,
         },
 
