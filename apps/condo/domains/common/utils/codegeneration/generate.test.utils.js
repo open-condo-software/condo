@@ -105,6 +105,16 @@ function generateGQLTestUtils (gql) {
         return data.obj
     }
 
+    async function createMany (client, attrsArray = [], { raw = false } = {}) {
+        _checkClient(client)
+        const { data, errors } = await  client.mutate(gql.CREATE_OBJS_MUTATION, {
+            data: [...attrsArray],
+        })
+        if (raw) return { data, errors }
+        throwIfError(data, errors, { query: gql.CREATE_OBJS_MUTATION, variables: { data: [...attrsArray] } })
+        return data.objs
+    }
+
     async function update (client, id, attrs = {}, { raw = false } = {}) {
         _checkClient(client)
         const { data, errors } = await client.mutate(gql.UPDATE_OBJ_MUTATION, {
@@ -113,6 +123,16 @@ function generateGQLTestUtils (gql) {
         if (raw) return { data, errors }
         throwIfError(data, errors, { query: gql.UPDATE_OBJ_MUTATION, variables: { id, data: { ...attrs } } })
         return data.obj
+    }
+
+    async function updateMany (client, attrsArray = [], { raw = false } = {}) {
+        _checkClient(client)
+        const { data, errors } = await client.mutate(gql.UPDATE_OBJS_MUTATION, {
+            data: [ ...attrsArray ],
+        })
+        if (raw) return { data, errors }
+        throwIfError(data, errors, { query: gql.UPDATE_OBJ_MUTATION, variables: { data: [...attrsArray] } })
+        return data.objs
     }
 
     async function delete_ (client, id, { raw = false } = {}) {
@@ -162,7 +182,9 @@ function generateGQLTestUtils (gql) {
         count,
         getAllWithMeta,
         create,
+        createMany,
         update,
+        updateMany,
         delete: delete_,
         softDelete,
         updateOrCreate,
