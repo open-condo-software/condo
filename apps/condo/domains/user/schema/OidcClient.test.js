@@ -6,6 +6,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -13,7 +14,6 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 const { OidcClient, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
 const faker = require('faker')
-const { expectToThrowValidationFailureError } = require('../../common/utils/testSchema')
 
 describe('OidcClient', () => {
     describe('CRUD tests', () => {
