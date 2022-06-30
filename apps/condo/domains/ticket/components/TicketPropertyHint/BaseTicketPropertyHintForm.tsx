@@ -2,6 +2,8 @@ import { Alert, Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get, isEmpty } from 'lodash'
 import getConfig from 'next/config'
+import { useRouter } from 'next/router'
+import qs from 'qs'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Editor } from '@tinymce/tinymce-react'
@@ -35,22 +37,36 @@ const LAYOUT = {
 const HINT_LINK_STYLES: CSSProperties = { color: colors.black, textDecoration: 'underline' }
 const TEXT_STYLES: CSSProperties = { margin: 0 }
 
-const TicketPropertyHintAlert = () => {
+type TicketPropertyHintAlertProps = {
+    hintFilters?: string
+}
+
+const TicketPropertyHintAlert: React.FC<TicketPropertyHintAlertProps> = ({ hintFilters }) => {
     const intl = useIntl()
     const AlertMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.title' })
     const AlertContent = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.content' })
     const ShowHintsMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.showHints' })
 
+    const router = useRouter()
+    const queryFilters = useMemo(() => hintFilters ? { filters: hintFilters } : {}, [hintFilters])
+    const query = useMemo(() => qs.stringify(
+        {
+            tab: 'hint',
+            ...queryFilters,
+        },
+        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+    ), [queryFilters])
+    const linkHref = useMemo(() => '/settings' + query, [query])
+    const showHintsMessageHandler = useCallback(() => router.push(linkHref), [linkHref, router])
+
     const AlertDescription = useMemo(() => (
         <>
             <Typography.Paragraph style={TEXT_STYLES}>{AlertContent}</Typography.Paragraph>
-            <a href={'/settings?tab=hint'} target={'_blank'} rel="noreferrer">
-                <Typography.Link style={HINT_LINK_STYLES}>
-                    {ShowHintsMessage}
-                </Typography.Link>
-            </a>
+            <Typography.Link style={HINT_LINK_STYLES} onClick={showHintsMessageHandler}>
+                {ShowHintsMessage}
+            </Typography.Link>
         </>
-    ), [AlertContent, ShowHintsMessage])
+    ), [AlertContent, ShowHintsMessage, showHintsMessageHandler])
 
     return (
         <Alert
@@ -82,17 +98,29 @@ const {
 
 const { TinyMceApiKey } = publicRuntimeConfig
 
-export const BaseTicketPropertyHintForm = ({ children, action, organizationId, initialValues, mode }) => {
+type BaseTicketPropertyHintFormProps = {
+    children
+    action
+    organizationId: string
+    initialValues
+    mode: string
+    hintFilters?: string
+}
+
+export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProps> = ({ hintFilters, children, action, organizationId, initialValues, mode }) => {
     const intl = useIntl()
     const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
 
-    const editor_init_values = useMemo(() => ({
+    const router = useRouter()
+
+    const editorInitValues = useMemo(() => ({
         link_title: false,
         contextmenu: '',
         menubar: false,
         elementpath: false,
+        content_style: 'p {margin: 0}',
         plugins: 'link autolink lists',
         toolbar: 'undo redo | ' +
             'link | bold italic backcolor | alignleft aligncenter ' +
@@ -181,6 +209,8 @@ export const BaseTicketPropertyHintForm = ({ children, action, organizationId, i
                 }
             }
         }
+
+        await router.push('/settings?tab=hint')
     }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, softDeleteTicketPropertyHintPropertyAction])
 
     if (organizationTicketPropertyHintPropertiesLoading) {
@@ -194,7 +224,7 @@ export const BaseTicketPropertyHintForm = ({ children, action, organizationId, i
             {
                 mode === 'create' && !isEmpty(propertiesWithTicketPropertyHint) && (
                     <Col span={24}>
-                        <TicketPropertyHintAlert />
+                        <TicketPropertyHintAlert hintFilters={hintFilters} />
                     </Col>
                 )
             }
@@ -262,7 +292,7 @@ export const BaseTicketPropertyHintForm = ({ children, action, organizationId, i
                                             value={editorValue}
                                             onEditorChange={(newValue) => handleEditorChange(newValue, form)}
                                             initialValue={initialContent}
-                                            init={editor_init_values}
+                                            init={editorInitValues}
                                         />
                                     </Col>
                                 </Row>

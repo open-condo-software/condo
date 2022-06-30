@@ -1,12 +1,11 @@
 /** @jsx jsx */
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
-import React, { CSSProperties, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { jsx } from '@emotion/core'
 import Head from 'next/head'
-import xss from 'xss'
 import { Col, Row, Typography } from 'antd'
 
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -14,13 +13,9 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
-import {
-    TicketPropertyHintContent,
-} from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
+import { useTicketPropertyHintContent } from '@condo/domains/ticket/hooks/useTicketPropertyHintContent'
 
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [0, 40]
-
-const HINT_CONTENT_STYLES: CSSProperties = { overflow: 'hidden', wordBreak: 'break-all' }
 
 const PropertyHintPage = () => {
     const intl = useIntl()
@@ -35,9 +30,10 @@ const PropertyHintPage = () => {
     const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useObject({
         where: {
             property: { id: propertyId },
+            deletedAt: null,
         },
     })
-    const ticketPropertyHintId = useMemo(() => get(ticketPropertyHintProperty, ['ticketPropertyHint', 'id']), [ticketPropertyHintProperty])
+    const ticketPropertyHintId = useMemo(() => get(ticketPropertyHintProperty, ['ticketPropertyHint', 'id'], null), [ticketPropertyHintProperty])
 
     const { obj: ticketPropertyHint, loading: ticketPropertyHintLoading } = TicketPropertyHint.useObject({
         where: {
@@ -46,6 +42,7 @@ const PropertyHintPage = () => {
     })
 
     const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
+    const { TicketPropertyHintContent } = useTicketPropertyHintContent()
 
     if (error || propertyLoading || ticketPropertyHintLoading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={propertyLoading} error={error ? ServerErrorMsg : null}/>
@@ -67,7 +64,6 @@ const PropertyHintPage = () => {
                             </Col>
                             <Col span={24}>
                                 <TicketPropertyHintContent
-                                    style={HINT_CONTENT_STYLES}
                                     html={htmlContent}
                                 />
                             </Col>

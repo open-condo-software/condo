@@ -1,22 +1,40 @@
+import styled from '@emotion/styled'
 import React, { CSSProperties, useMemo } from 'react'
-import xss from 'xss'
+import { sanitizeXss } from '@condo/domains/common/utils/xss'
+import { colors } from '@condo/domains/common/constants/style'
 
-type HtmlContentProps = {
+export type HtmlContentProps = {
     html: string
     style?: CSSProperties
     className?: string
+    css?
 }
 
-export const HtmlContent: React.FC<HtmlContentProps> = ({ html, style, className }) => {
+const StyledDiv = styled.div`
+  overflow: hidden;
+  word-break: break-word;
+  
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: ${colors.black};
+    text-decoration: underline;
+  }
+`
+
+export const HtmlContent = React.forwardRef<HTMLDivElement, HtmlContentProps>(({ html, style, className }, ref) => {
     const htmlContent = useMemo(() => ({
-        __html: xss(html),
+        __html: sanitizeXss(html),
     }), [html])
 
     return (
-        <div
+        <StyledDiv
+            ref={ref}
             className={className}
             dangerouslySetInnerHTML={htmlContent}
             style={style}
         />
     )
-}
+})

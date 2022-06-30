@@ -1,5 +1,4 @@
 import { get } from 'lodash'
-import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useOrganization } from '@core/next/organization'
@@ -17,11 +16,7 @@ export const CreateTicketPropertyHintForm = () => {
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
     const { organization } = useOrganization()
-
-    const router = useRouter()
-    const action = TicketPropertyHint.useCreate({ organization: organization.id }, () => {
-        router.push('/settings?tab=hint')
-    })
+    const action = TicketPropertyHint.useCreate({ organization: organization.id }, () => Promise.resolve())
 
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
 

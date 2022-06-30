@@ -91,11 +91,12 @@ export const UnitInfo: IUnitInfo = (props) => {
     }, [form, setSelectedUnitName, setSelectedUnitType, updateSectionAndFloor])
 
     const colSpan = isSmall ? 24 : 20
+    const inputColSpan = isSmall ? 8 : 5
 
     return (
         <Col span={colSpan}>
             <Row gutter={UNIT_FIELDS_GUTTER}>
-                <Col span={5} data-cy={'unit-name-input-item'}>
+                <Col span={inputColSpan} data-cy={'unit-name-input-item'}>
                     <TicketFormItem name={'unitName'} label={FlatNumberLabel}>
                         <UnitNameInput
                             property={property}
@@ -105,12 +106,12 @@ export const UnitInfo: IUnitInfo = (props) => {
                         />
                     </TicketFormItem>
                 </Col>
-                <Col span={5}>
+                <Col span={inputColSpan}>
                     <TicketFormItem name={'sectionName'} label={SectionNameLabel}>
                         <Input disabled/>
                     </TicketFormItem>
                 </Col>
-                <Col span={5}>
+                <Col span={inputColSpan}>
                     <TicketFormItem name={'floorName'} label={FloorNameLabel}>
                         <Input disabled/>
                     </TicketFormItem>

@@ -235,7 +235,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
 
-    const { isSmall } = useLayoutContext()
+    const { isSmall, breakpoints } = useLayoutContext()
 
     const router = useRouter()
 
@@ -395,6 +395,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         setSelectedPropertyId(null)
     }, [])
 
+    const propertyInfoColSpan = isSmall ? 24 : 17
+
     return (
         <>
             <FormWithAction
@@ -420,7 +422,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                 <Col span={24}>
                                     <Row gutter={BIG_HORIZONTAL_GUTTER} justify={'space-between'}>
-                                        <Col span={17}>
+                                        <Col span={propertyInfoColSpan}>
                                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                                 <Col span={24}>
                                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
@@ -453,8 +455,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                     </Row>
                                                 </Col>
                                                 {
-                                                    isSmall && (
-                                                        <Col span={12}>
+                                                    selectedPropertyId && !breakpoints.xl && (
+                                                        <Col span={24}>
                                                             <TicketPropertyHintCard
                                                                 propertyId={selectedPropertyId}
                                                                 hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
@@ -471,7 +473,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             </Row>
                                         </Col>
                                         {
-                                            !isSmall && (
+                                            selectedPropertyId && breakpoints.xl && (
                                                 <Col span={6}>
                                                     <TicketPropertyHintCard
                                                         propertyId={selectedPropertyId}

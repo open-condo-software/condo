@@ -2,6 +2,7 @@ import { PlusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -60,28 +61,40 @@ export const SettingsContent = () => {
     const {
         filtersToWhere: filtersTicketPropertyHintPropertyToWhere,
     } = useQueryMappers(ticketPropertyHintPropertyFiltersMeta, SORTABLE_PROPERTIES)
-    const searchTicketPropertyHintPropertiesQuery = { ...filtersTicketPropertyHintPropertyToWhere(filters), organization: { id: userOrganizationId } }
+    const searchTicketPropertyHintPropertiesQuery = useMemo(() => ({
+        ...filtersTicketPropertyHintPropertyToWhere(filters),
+        organization: { id: userOrganizationId },
+        deletedAt: null,
+    }), [filters, filtersTicketPropertyHintPropertyToWhere, userOrganizationId])
 
     const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({
         where: searchTicketPropertyHintPropertiesQuery,
     })
 
-    const hintIds = useMemo(() => ticketPropertyHintProperties.map(obj => obj.ticketPropertyHint.id),
-        [ticketPropertyHintProperties])
+    const hintIds = useMemo(() => ticketPropertyHintProperties
+        .map(obj => get(obj, ['ticketPropertyHint', 'id']))
+        .filter(Boolean)
+    ,
+    [ticketPropertyHintProperties])
 
     const filtersMeta = useTicketPropertyHintTableFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
     const sortBy = sortersToSortBy(sorters, TICKET_HINTS_DEFAULT_SORT_BY) as SortTicketPropertyHintsBy[]
 
-    const searchTicketPropertyHintsQuery = {
+    const searchQuery = useMemo(() => isEmpty(search) ? filtersToWhere(filters) : {
         OR: [
             {
                 id_in: hintIds,
                 ...filtersToWhere(filters),
             },
         ],
+    }, [filters, filtersToWhere, hintIds, search])
+
+    const searchTicketPropertyHintsQuery = useMemo(() => ({
+        ...searchQuery,
         organization: { id: userOrganizationId },
-    }
+    }), [searchQuery, userOrganizationId])
+
     const {
         loading: isTicketPropertyHintsFetching,
         count: total,

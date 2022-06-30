@@ -1,5 +1,4 @@
 import { get } from 'lodash'
-import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@core/next/intl'
@@ -15,11 +14,8 @@ export const UpdateTicketPropertyHintForm = ({ id }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const router = useRouter()
     const { obj: ticketPropertyHint, loading } = TicketPropertyHint.useObject({ where: { id } })
-    const action = TicketPropertyHint.useUpdate({}, () => {
-        router.push('/settings?tab=hint')
-    })
+    const action = TicketPropertyHint.useUpdate({}, () => Promise.resolve())
     const updateAction = (value) => action(value, ticketPropertyHint)
     const organizationId = useMemo(() => get(ticketPropertyHint, ['organization', 'id']), [ticketPropertyHint])
 

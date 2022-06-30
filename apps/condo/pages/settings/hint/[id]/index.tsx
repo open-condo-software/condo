@@ -1,5 +1,5 @@
 import { Gutter } from 'antd/es/grid/row'
-import React, { useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { Col, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
@@ -21,7 +21,7 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
-import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
+import { useTicketPropertyHintContent } from '@condo/domains/ticket/hooks/useTicketPropertyHintContent'
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
@@ -29,6 +29,7 @@ const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCus
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
+const PARAGRAPH_STYLES: CSSProperties = { margin: 0 }
 
 const TicketPropertyHintIdPage = () => {
     const intl = useIntl()
@@ -57,29 +58,28 @@ const TicketPropertyHintIdPage = () => {
             ticketPropertyHint: { id: hintId },
         },
     })
-    const softDeleteTicketPropertyHintPropertyAction = TicketPropertyHintProperty.useSoftDelete({}, () => Promise.resolve())
     const properties = useMemo(() => ticketPropertyHintProperties.map(ticketPropertyHintProperty => ticketPropertyHintProperty.property), [ticketPropertyHintProperties])
     const ticketPropertyHintName = useMemo(() => get(ticketPropertyHint, 'name'), [ticketPropertyHint])
 
     const renderTicketPropertyHintProperties = useMemo(() => properties.map(property => (
-        <Link
+        <Typography.Paragraph
             key={property.id}
-            href={`/property/${get(property, 'id')}`}
+            style={PARAGRAPH_STYLES}
         >
-            <Typography.Link>
-                {property.name || getAddressRender(property)}
+            <Typography.Link
+                href={`/property/${get(property, 'id')}`}
+            >
+                {property.name ? `\n${property.name}\n` : getAddressRender(property)}
             </Typography.Link>
-        </Link>
+        </Typography.Paragraph>
     )), [properties])
 
     const handleDeleteButtonClick = useCallback(async () => {
         await handleDeleteAction({}, ticketPropertyHint)
-        for (const ticketPropertyHintProperty of ticketPropertyHintProperties) {
-            await softDeleteTicketPropertyHintPropertyAction({}, ticketPropertyHintProperty)
-        }
-    }, [handleDeleteAction, softDeleteTicketPropertyHintPropertyAction, ticketPropertyHint, ticketPropertyHintProperties])
+    }, [handleDeleteAction, ticketPropertyHint])
 
     const ticketPropertyHintContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
+    const { TicketPropertyHintContent } = useTicketPropertyHintContent()
 
     const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
