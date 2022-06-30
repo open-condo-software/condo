@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const get = require('lodash/get')
 const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
@@ -533,10 +534,18 @@ async function makeServiceUserForIntegration(integration) {
     return client
 }
 
-async function makeOrganizationIntegrationManager() {
+async function makeOrganizationIntegrationManager(context = null) {
     const admin = await makeLoggedInAdminClient()
-    const [organization] = await createTestOrganization(admin)
-    const [integration] = await createTestBillingIntegration(admin)
+    let organization
+    let integration
+    if (context) {
+        organization = get(context, ['organization'])
+        integration = get(context, ['integration'])
+    } else {
+        [organization] = await createTestOrganization(admin)
+        const [billingIntegration] = await createTestBillingIntegration(admin)
+        integration = billingIntegration
+    }
     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
         canManageIntegrations: true,
     })
