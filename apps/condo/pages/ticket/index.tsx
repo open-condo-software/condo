@@ -279,7 +279,7 @@ export const TicketsPageContent = ({
                                                 const { status, exportedTicketsCount } = taskRecord
                                                 return status === WORKER_TASK_COMPLETED
                                                     ? TicketExportTaskProgressDescriptionCompleted
-                                                    : TicketExportTaskProgressDescriptionProcessing.replace('{n}', exportedTicketsCount)
+                                                    : TicketExportTaskProgressDescriptionProcessing.replace('{n}', exportedTicketsCount || 0)
                                             },
                                         }}
                                         onComplete={({ file }) => {
