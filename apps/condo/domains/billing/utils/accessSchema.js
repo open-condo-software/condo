@@ -45,7 +45,7 @@ async function canReadBillingEntity (authentication) {
  * 1. By admin or support
  * 2. By integration account (with service type)
  */
-async function canManageBillingEntityWithContext ({ authentication, operation, itemId, itemIds, originalInput, schemaWithContextName }) {
+async function canManageBillingEntityWithContext ({ authentication, operation, itemId, itemIds, originalInput, listKey }) {
     const { item: user } = authentication
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -58,7 +58,7 @@ async function canManageBillingEntityWithContext ({ authentication, operation, i
     let contextIds
     if (operation === 'create') {
         if (isBulkRequest) {
-            contextIds = originalInput.map(element => get(element, ['context', 'connect', 'id']))
+            contextIds = originalInput.map(element => get(element, ['data', 'context', 'connect', 'id']))
             if (contextIds.filter(Boolean).length !== originalInput.length) return false
             contextIds = uniq(contextIds)
         } else {
@@ -70,15 +70,15 @@ async function canManageBillingEntityWithContext ({ authentication, operation, i
         if (isBulkRequest) {
             if (!itemIds || !Array.isArray(itemIds)) return false
             if (itemIds.length !== uniq(itemIds).length) return false
-            const items = await find(schemaWithContextName, {
+            const items = await find(listKey, {
                 id_in: itemIds,
                 deletedAt: null,
             })
             if (items.length !== itemIds.length) return false
-            contextIds = items.map(item => item.context)
+            contextIds = uniq(items.map(item => item.context))
         } else {
             if (!itemId) return false
-            const item = await getById(schemaWithContextName, itemId)
+            const item = await getById(listKey, itemId)
             contextIds = [item.context]
         }
     }

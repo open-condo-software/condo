@@ -10,7 +10,9 @@ const {
     createReceiptsReader,
     BillingProperty,
     createTestBillingProperty,
+    createTestBillingProperties,
     updateTestBillingProperty,
+    updateTestBillingProperties,
 } = require('@condo/domains/billing/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -18,7 +20,9 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 const {
     expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowInternalError,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
@@ -75,7 +79,7 @@ describe('BillingProperty', () => {
                     })
                     test('Integration manager cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObj(async () => {
-                            await createTestBillingProperty(integrationManager, anotherContext)
+                            await createTestBillingProperty(integrationManager, context)
                         })
                     })
                     test('Other users cannot', async () => {
@@ -90,21 +94,70 @@ describe('BillingProperty', () => {
                     })
                 })
             })
+            describe('Multiple objects', () => {
+                test('Admin can for any context', async () => {
+                    const [properties] = await createTestBillingProperties(admin, [context, anotherContext])
+                    expect(properties).toBeDefined()
+                    expect(properties).toHaveLength(2)
+                    expect(properties).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ context: expect.objectContaining({ id: context.id }) }),
+                        expect.objectContaining({ context: expect.objectContaining({ id: anotherContext.id }) }),
+                    ]))
+                })
+                test('Support cannot', async () => {
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await createTestBillingProperties(support, [context])
+                    })
+                })
+                describe('User', () => {
+                    describe('Integration account can if linked to permitted integration via context', () => {
+                        test('All permitted contexts should pass', async () => {
+                            const [properties] = await createTestBillingProperties(integrationUser, [context, context])
+                            expect(properties).toBeDefined()
+                            expect(properties).toHaveLength(2)
+                            expect(properties).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ context: expect.objectContaining({ id: context.id }) }),
+                                expect.objectContaining({ context: expect.objectContaining({ id: context.id }) }),
+                            ]))
+                        })
+                        test('Partly permitted must fail', async () => {
+                            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                                await createTestBillingProperties(support, [context, anotherContext])
+                            })
+                        })
+                    })
+                    test('Integration manager cannot', async () => {
+                        await expectToThrowAccessDeniedErrorToObjects(async () => {
+                            await createTestBillingProperties(integrationManager, [context])
+                        })
+                    })
+                    test('Other users cannot', async () => {
+                        await expectToThrowAccessDeniedErrorToObjects(async () => {
+                            await createTestBillingProperties(user, [context])
+                        })
+                    })
+                })
+                test('Anonymous cannot', async () => {
+                    await expectToThrowAuthenticationErrorToObjects(async () => {
+                        await createTestBillingProperties(anonymous, [anotherContext])
+                    })
+                })
+            })
         })
         describe('Update', () => {
             let property
-            let payload
             beforeAll(async () => {
                 [property] = await createTestBillingProperty(admin, context)
             })
-            beforeEach(async () => {
-                payload = {
-                    raw: faker.lorem.words(),
-                    // TODO (DOMA-2224): generate address correctly
-                    address: faker.lorem.words(),
-                }
-            })
             describe('Single object', () => {
+                let payload
+                beforeEach(() => {
+                    payload = {
+                        raw: faker.lorem.words(),
+                        // TODO (DOMA-2224): generate address correctly
+                        address: faker.lorem.words(),
+                    }
+                })
                 test('Admin can', async () => {
                     const [updatedProperty] = await updateTestBillingProperty(admin, property.id, payload)
                     expect(updatedProperty).toBeDefined()
@@ -143,6 +196,81 @@ describe('BillingProperty', () => {
                 test('Anonymous cannot', async () => {
                     await expectToThrowAuthenticationErrorToObj(async () => {
                         await updateTestBillingProperty(anonymous, property.id, payload)
+                    })
+                })
+            })
+            describe('Multiple objects', () => {
+                let anotherProperty
+                let payload
+                let anotherPayload
+                beforeAll(async () => {
+                    [anotherProperty] = await createTestBillingProperty(admin, anotherContext)
+                })
+                beforeEach(() => {
+                    payload = {
+                        id: property.id,
+                        data: {
+                            raw: faker.lorem.words(),
+                            // TODO (DOMA-2224): generate address correctly
+                            address: faker.lorem.words(),
+                        },
+                    }
+                    anotherPayload = {
+                        id: anotherProperty.id,
+                        data: {
+                            raw: faker.lorem.words(),
+                            // TODO (DOMA-2224): generate address correctly
+                            address: faker.lorem.words(),
+                        },
+                    }
+                })
+                test('Admin can for any context', async () => {
+                    const [updatedProperties] = await updateTestBillingProperties(admin, [payload, anotherPayload])
+                    expect(updatedProperties).toBeDefined()
+                    expect(updatedProperties).toHaveLength(2)
+                    expect(updatedProperties).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: payload.id, ...payload.data }),
+                        expect.objectContaining({ id: anotherPayload.id, ...anotherPayload.data }),
+                    ]))
+                })
+                test('Support cannot', async () => {
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await updateTestBillingProperties(support, [payload])
+                    })
+                })
+                describe('User', () => {
+                    describe('Integration account can if linked to permitted integration via context', () => {
+                        test('All permitted must pass', async () => {
+                            const [secondProperty] = await createTestBillingProperty(admin, context)
+                            const secondPayload = { ...anotherPayload, id: secondProperty.id }
+                            const [updatedProperties] = await updateTestBillingProperties(integrationUser, [payload, secondPayload])
+                            expect(updatedProperties).toBeDefined()
+                            expect(updatedProperties).toHaveLength(2)
+                            expect(updatedProperties).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: payload.id, ...payload.data }),
+                                expect.objectContaining({ id: secondProperty.id, ...secondPayload.data }),
+                            ]))
+                        })
+                        test('Partly permitted must fail', async () => {
+                            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                                await updateTestBillingProperties(integrationUser, [payload, anotherPayload])
+                            })
+                        })
+                    })
+                    test('Integration manager cannot', async () => {
+                        await expectToThrowAccessDeniedErrorToObjects(async () => {
+                            await updateTestBillingProperties(integrationManager, [payload])
+                        })
+                    })
+                    test('Other users cannot', async () => {
+                        await expectToThrowAccessDeniedErrorToObjects(async () => {
+                            await updateTestBillingProperties(user, [payload])
+                        })
+                    })
+                })
+                test('Anonymous cannot', async () => {
+                    await expectToThrowAuthenticationErrorToObjects(async () => {
+                        await updateTestBillingProperties(anonymous, [payload])
                     })
                 })
             })
