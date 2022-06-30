@@ -46,11 +46,29 @@ function genCreateGQL (key, fields) {
     `
 }
 
+function genCreateManyGQL (key, fields) {
+    const [, MODELS] = getModelForms(key)
+    return gql`
+        mutation create${MODELS}($data: [${MODELS}CreateInput]) {
+            objs: create${MODELS}(data: $data) ${fields}
+        }
+    `
+}
+
 function genUpdateGQL (key, fields) {
     const [MODEL] = getModelForms(key)
     return gql`
         mutation update${MODEL}($id: ID!, $data: ${MODEL}UpdateInput) {
             obj: update${MODEL}(id: $id, data: $data) ${fields}
+        }
+    `
+}
+
+function genUpdateManyGQL (key, fields) {
+    const [, MODELS] = getModelForms(key)
+    return gql`
+        mutation update${MODELS}($data: [${MODELS}UpdateInput]) {
+            objs: update${MODELS}(data: $data) ${fields}
         }
     `
 }
@@ -74,7 +92,9 @@ function generateGqlQueries (key, fields) {
     const GET_COUNT_OBJS_QUERY = genGetCountGQL(singularName)
     const GET_ALL_OBJS_WITH_COUNT_QUERY = genGetAllWithCountGQL(singularName, fields)
     const CREATE_OBJ_MUTATION = genCreateGQL(singularName, fields)
+    const CREATE_OBJS_MUTATION = genCreateManyGQL(singularName, fields)
     const UPDATE_OBJ_MUTATION = genUpdateGQL(singularName, fields)
+    const UPDATE_OBJS_MUTATION = genUpdateManyGQL(singularName, fields)
     const DELETE_OBJ_MUTATION = genDeleteGQL(singularName, fields)
 
     return {
@@ -85,7 +105,9 @@ function generateGqlQueries (key, fields) {
         GET_COUNT_OBJS_QUERY,
         GET_ALL_OBJS_WITH_COUNT_QUERY,
         CREATE_OBJ_MUTATION,
+        CREATE_OBJS_MUTATION,
         UPDATE_OBJ_MUTATION,
+        UPDATE_OBJS_MUTATION,
         DELETE_OBJ_MUTATION,
     }
 }
