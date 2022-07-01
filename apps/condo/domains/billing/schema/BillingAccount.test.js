@@ -132,16 +132,14 @@ describe('BillingAccount', () => {
                                 [property, property])
                             expect(accounts).toBeDefined()
                             expect(accounts).toHaveLength(2)
-                            expect(accounts).toEqual(expect.arrayContaining([
-                                expect.objectContaining({
-                                    context: expect.objectContaining({ id: context.id }),
-                                    property: expect.objectContaining({ id: property.id }),
-                                }),
-                                expect.objectContaining({
-                                    context: expect.objectContaining({ id: context.id }),
-                                    property: expect.objectContaining({ id: property.id }),
-                                }),
-                            ]))
+                            expect(accounts[0]).toEqual(expect.objectContaining({
+                                context: expect.objectContaining({ id: context.id }),
+                                property: expect.objectContaining({ id: property.id }),
+                            }))
+                            expect(accounts[1]).toEqual(expect.objectContaining({
+                                context: expect.objectContaining({ id: context.id }),
+                                property: expect.objectContaining({ id: property.id }),
+                            }))
                         })
                         test('Partly permitted must fail', async () => {
                             await expectToThrowAccessDeniedErrorToObjects(async () => {
