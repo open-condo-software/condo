@@ -286,6 +286,38 @@ async function createTestBillingAccount (client, context, property, extraAttrs =
     return [obj, attrs]
 }
 
+async function createTestBillingAccounts (client, contexts, properties, extraAttrsArray = []) {
+    if (!client) throw new Error('no client')
+    if (!Array.isArray(contexts) || !contexts.length) throw new Error('no contexts')
+    if (!Array.isArray(properties) || !properties.length) throw new Error('no properties')
+    if (contexts.length !== properties.length) throw new Error('Contexts and properties not equal length')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrsArray = []
+
+    for (let i = 0; i < contexts.length; i++) {
+        attrsArray.push({
+            data: {
+                dv: 1,
+                sender,
+                context: { connect: { id: contexts[i].id } },
+                property: { connect: { id: properties[i].id } },
+                raw: { foo: faker.lorem.words() },
+                number: faker.random.alphaNumeric(8),
+                unitName: faker.random.alphaNumeric(8),
+                unitType: FLAT_UNIT_TYPE,
+                meta: {
+                    dv: 1,
+                    test: 123,
+                },
+                ...get(extraAttrsArray, `${i}`, {})
+            }
+        })
+    }
+    const objs = await BillingAccount.createMany(client, attrsArray)
+    return [objs, attrsArray]
+}
+
 async function updateTestBillingAccount (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -298,6 +330,26 @@ async function updateTestBillingAccount (client, id, extraAttrs = {}) {
     }
     const obj = await BillingAccount.update(client, id, attrs)
     return [obj, attrs]
+}
+
+async function updateTestBillingAccounts (client, attrsArray) {
+    if (!client) throw new Error('no client')
+    if (!attrsArray.every(element => element.id)) throw new Error('no id for all elements')
+    if (!attrsArray.every(element => element.data)) throw new Error('no data for all elements')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const extendedAttrsArray = attrsArray.map(element => ({
+        id: element.id,
+        data: {
+            dv: 1,
+            sender,
+            ...element.data,
+        }
+    }))
+
+    const obj = await BillingAccount.updateMany(client, extendedAttrsArray)
+    return [obj, extendedAttrsArray]
 }
 
 async function createTestBillingMeterResource (client, extraAttrs = {}) {
@@ -708,7 +760,7 @@ module.exports = {
     BillingIntegrationOrganizationContext, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext,
     BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog,
     BillingProperty, createTestBillingProperty, createTestBillingProperties, updateTestBillingProperty, updateTestBillingProperties,
-    BillingAccount, createTestBillingAccount, updateTestBillingAccount,
+    BillingAccount, createTestBillingAccount, createTestBillingAccounts, updateTestBillingAccount, updateTestBillingAccounts,
     BillingMeterResource, createTestBillingMeterResource, updateTestBillingMeterResource,
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,

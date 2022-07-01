@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { BillingAccount as BillingAccountGQL } from '@condo/domains/billing/gql'
 import { BillingAccount, BillingAccountUpdateInput, QueryAllBillingAccountsArgs } from '@app/condo/schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'context', 'importId', 'property', 'number', 'unitName', 'raw', 'meta']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'context', 'importId', 'property', 'number', 'unitName', 'raw', 'meta', 'globalId']
 const RELATIONS = ['context', 'property']
 
 export interface IBillingAccountUIState extends BillingAccount {
