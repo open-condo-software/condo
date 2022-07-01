@@ -143,7 +143,7 @@ describe('BillingAccount', () => {
                         })
                         test('Partly permitted must fail', async () => {
                             await expectToThrowAccessDeniedErrorToObjects(async () => {
-                                await createTestBillingAccounts(support, [context, anotherContext], [property, property])
+                                await createTestBillingAccounts(integrationUser, [context, anotherContext], [property, property])
                             })
                         })
                     })
