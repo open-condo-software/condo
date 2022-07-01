@@ -115,10 +115,8 @@ describe('BillingProperty', () => {
                             const [properties] = await createTestBillingProperties(integrationUser, [context, context])
                             expect(properties).toBeDefined()
                             expect(properties).toHaveLength(2)
-                            expect(properties).toEqual(expect.arrayContaining([
-                                expect.objectContaining({ context: expect.objectContaining({ id: context.id }) }),
-                                expect.objectContaining({ context: expect.objectContaining({ id: context.id }) }),
-                            ]))
+                            expect(properties[0]).toEqual(expect.objectContaining({ context: expect.objectContaining({ id: context.id }) }))
+                            expect(properties[1]).toEqual(expect.objectContaining({ context: expect.objectContaining({ id: context.id }) }))
                         })
                         test('Partly permitted must fail', async () => {
                             await expectToThrowAccessDeniedErrorToObjects(async () => {
