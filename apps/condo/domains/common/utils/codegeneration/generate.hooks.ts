@@ -16,6 +16,10 @@ interface FetchMore<Q> {
     (variables?: Q): Promise<any>
 }
 
+interface StopPolling {
+    (): void
+}
+
 interface IHookConverters<GQL, GQLInput, UI, UIForm> {
     convertToGQLInput: (state: UIForm, item?: UI) => GQLInput
     convertToUIState: (item: GQL) => UI
@@ -27,8 +31,8 @@ interface FetchMore<Q> {
 
 export interface IHookResult<UI, UIForm, Q, TData = any, TVariables = OperationVariables> {
     gql: any
-    useObject: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q> }
-    useObjects: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q> }
+    useObject: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { obj: UI, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q>, stopPolling: StopPolling }
+    useObjects: (variables: Q, options?: QueryHookOptions<TData, TVariables>) => { objs: UI[], count: number | null, loading: boolean, error?: ApolloError | string, refetch?: Refetch<Q>, fetchMore: FetchMore<Q>, stopPolling: StopPolling }
     useCreate: (attrs: UIForm, onComplete: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
     useUpdate: (attrs: UIForm, onComplete?: (obj: UI) => void) => (attrs: UIForm, obj: UI) => Promise<UI>
     useDelete: (attrs: UIForm, onComplete?: (obj: UI) => void) => (attrs: UIForm) => Promise<UI>
@@ -37,13 +41,13 @@ export interface IHookResult<UI, UIForm, Q, TData = any, TVariables = OperationV
 
 export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convertToGQLInput, convertToUIState }: IHookConverters<GQL, GQLInput, UI, UIForm>): IHookResult<UI, UIForm, Q> {
     function useObject (variables: Q, options?: QueryHookOptions<{ objs?: GQL[], meta?: { count?: number } }, Q>) {
-        const { loading, refetch, fetchMore, objs, count, error } = useObjects(variables, options)
+        const { loading, refetch, fetchMore, objs, count, error, stopPolling } = useObjects(variables, options)
 
         if (count && count > 1) throw new Error('Wrong query condition! return more then one result')
 
         const obj = (objs.length) ? objs[0] : null
 
-        return { loading, refetch, fetchMore, obj, error }
+        return { loading, refetch, fetchMore, obj, error, stopPolling }
     }
 
     function useObjects (variables: Q, options?: QueryHookOptions<{ objs?: GQL[], meta?: { count?: number } }, Q>) {
@@ -68,6 +72,7 @@ export function generateReactHooks<GQL, GQLInput, UIForm, UI, Q> (gql, { convert
             loading: result.loading,
             refetch: result.refetch,
             fetchMore: result.fetchMore,
+            stopPolling: result.stopPolling,
             objs,
             count,
             error,
