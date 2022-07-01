@@ -241,7 +241,7 @@ class OidcModelClientAdapter {
      */
     async destroy (id) {
         const item = await this.find(id)
-        return OidcClient.delete(this.context, item.id)
+        return OidcClient.softDelete(this.context, item.id)
     }
 
     /**
