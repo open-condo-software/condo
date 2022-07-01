@@ -23,7 +23,7 @@ const BillingIntegrationLog = generateGqlQueries('BillingIntegrationLog', BILLIN
 const BILLING_PROPERTY_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} property { id } importId address raw globalId meta ${COMMON_FIELDS} }`
 const BillingProperty = generateGqlQueries('BillingProperty', BILLING_PROPERTY_FIELDS)
 
-const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } number unitName unitType raw meta fullName ${COMMON_FIELDS} }`
+const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } number unitName unitType raw globalId meta fullName ${COMMON_FIELDS} }`
 const BillingAccount = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
 
 const BILLING_METER_RESOURCE_FIELDS = `{ name ${COMMON_FIELDS} }`
