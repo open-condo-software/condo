@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import find from 'lodash/find'
 import { useIntl } from '@core/next/intl'
 import { Task } from './index'
-import { displayTasksProgress } from './TaskProgress'
+import { displayTasksProgress, TasksProgress } from './TaskProgress'
 
 /**
  * Should be used to launch and track specific delayed task
@@ -19,8 +19,8 @@ const TasksContext = React.createContext({})
  * TODO: Progress should be tracked after closing progress panel
  */
 const TasksContextProvider = ({ children }) => {
-    const intl = useIntl()
     const [tasks, setTasks] = useState<Task[]>([])
+    const [tasksProgressVisible, setTasksProgressVisible] = useState(false)
 
     const tasksContextInterface: ITasksContext = {
         addTask: (newTask) => {
@@ -29,23 +29,16 @@ const TasksContextProvider = ({ children }) => {
             } else {
                 setTasks(prevTasks => [...prevTasks, newTask])
             }
+            setTasksProgressVisible(true)
         },
         tasks,
     }
 
-    useEffect(() => {
-        if (tasks.length === 0) return
-        const TitleMsg = intl.formatMessage({ id: 'tasks.progressNotification.title' })
-        const DescriptionMsg = intl.formatMessage({ id: 'tasks.progressNotification.description' })
-        displayTasksProgress({
-            title: TitleMsg,
-            description: DescriptionMsg,
-            tasks,
-        })
-    }, [tasks])
-
     return (
         <TasksContext.Provider value={tasksContextInterface}>
+            {tasksProgressVisible && (
+                <TasksProgress tasks={tasks}/>
+            )}
             {children}
         </TasksContext.Provider>
     )
