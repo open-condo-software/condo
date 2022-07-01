@@ -228,6 +228,14 @@ function generateServerUtils (gql) {
         })
     }
 
+    async function softDelete (context, id, extraAttrs = {}) {
+        const attrs = {
+            deletedAt: 'true',
+            ...extraAttrs,
+        }
+        return await update(context, id, attrs)
+    }
+
     /**
      * Tries to receive existing item, and updates it on success or creates new one. Updated/created value is returned.
      * Attention! Be careful with where. Because of getOne, this helper will throw exception, if it gets 1+ items.
@@ -260,6 +268,7 @@ function generateServerUtils (gql) {
         update,
         updateOrCreate,
         delete: delete_,
+        softDelete,
     }
 }
 
