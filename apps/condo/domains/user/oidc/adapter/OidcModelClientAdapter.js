@@ -164,7 +164,7 @@ class OidcModelClientAdapter {
                 fingerprint: OIDC_FINGERPRINT,
             },
         }
-        await OidcClient.create(this.context, { ...dvAndSender, clientId: id, payload, expiresAt })
+        return await OidcClient.create(this.context, { ...dvAndSender, clientId: id, payload, expiresAt })
     }
 
     /**
@@ -241,7 +241,7 @@ class OidcModelClientAdapter {
      */
     async destroy (id) {
         const item = await this.find(id)
-        return OidcClient.softDelete(this.context, item.id)
+        return await OidcClient.softDelete(this.context, item.id)
     }
 
     /**
