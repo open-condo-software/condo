@@ -3,7 +3,7 @@ const { createAdapterClass } = require('./adapter')
 async function createOidcClient (oidcClient, context) {
     const AdapterFactoryClass = createAdapterClass(context)
     const clients = new AdapterFactoryClass('Client')
-    await clients.upsert(oidcClient.client_id, oidcClient)
+    return await clients.upsert(oidcClient.client_id, oidcClient)
 }
 
 module.exports = {
