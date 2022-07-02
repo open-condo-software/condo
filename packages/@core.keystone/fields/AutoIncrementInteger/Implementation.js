@@ -2,7 +2,7 @@ const { default: Redlock } = require('redlock')
 
 const { Integer } = require('@keystonejs/fields')
 
-const { getRedisClient } = require('../../redis')
+const { getRedisClient } = require('@core/keystone/redis')
 
 class AutoIncrementInteger extends Integer.implementation {
     
