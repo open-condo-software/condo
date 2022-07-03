@@ -161,7 +161,7 @@ async function doGqlRequest (callable, { mutation, query, variables }, logReques
  * @param {boolean} logRequestResponse
  * @returns {{client: ApolloClient, getCookie: () => string, setHeaders: ({object}) => void}}
  */
-const makeApolloClient = (serverUrl, logRequestResponse = true) => {
+const makeApolloClient = (serverUrl, logRequestResponse = false) => {
     let cookiesObj = {}
     let customHeaders = {}
 
