@@ -35,6 +35,8 @@ describe('OrganizationEmployeeRole', () => {
             expect(obj.canBeAssignedAsExecutor).toBeTruthy()
             expect(obj.canReadPayments).toBeFalsy()
             expect(obj.canReadBillingReceipts).toBeFalsy()
+            expect(obj.nameNonLocalized).toEqual(obj.name)
+            expect(obj.descriptionNonLocalized).toEqual(obj.description)
         })
     })
     describe('user: create OrganizationEmployeeRole', () => {

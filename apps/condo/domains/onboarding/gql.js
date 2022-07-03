@@ -13,7 +13,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const ON_BOARDING_FIELDS = `{ completed stepsTransitions ${COMMON_FIELDS} type user { id } }`
 const OnBoarding = generateGqlQueries('OnBoarding', ON_BOARDING_FIELDS)
 
-const ON_BOARDING_STEP_FIELDS = `{ icon title description action entity onBoarding { id } ${COMMON_FIELDS} required order }`
+const ON_BOARDING_STEP_FIELDS = `{ icon title titleNonLocalized description descriptionNonLocalized action entity onBoarding { id } ${COMMON_FIELDS} required order }`
 const OnBoardingStep = generateGqlQueries('OnBoardingStep', ON_BOARDING_STEP_FIELDS)
 
 const CREATE_ONBOARDING_MUTATION = gql`

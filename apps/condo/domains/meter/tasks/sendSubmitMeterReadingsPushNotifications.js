@@ -9,7 +9,7 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 
-const { Meter, MeterReading, MeterResource } = require('@condo/domains/meter/utils/serverSchema')
+const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -19,6 +19,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 
 const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
+const { getLocalized } = require('@condo/domains/common/utils/localesLoader')
 
 const logger = pino({
     name: 'submit_meter_readings_notifications',
@@ -72,33 +73,6 @@ const readOrganizations = async ({ context, meters }) => {
     })
 }
 
-const getLocalizedMeterResources = async ({ context, lang }) => {
-    // get context for specific locale
-    const localeDependedContext = {
-        ...context.createContext({ skipAccessControl: true }),
-        req: { locale: lang },
-    }
-
-    // get list of meter resources for certain locale
-    // TODO apply DOMA-3174 mechanic for custom request locale
-    return await loadListByChunks({
-        context: localeDependedContext,
-        list: MeterResource,
-        where: {},
-    })
-}
-
-const loadAllLocalizedVersionsOfMeterResources = async ({ context }) => {
-    const supportedLanguages = Object.keys(COUNTRIES)
-    const result = {}
-
-    for (let supportedLanguage of supportedLanguages) {
-        result[supportedLanguage] = await getLocalizedMeterResources({ context, lang: supportedLanguage })
-    }
-
-    return result
-}
-
 const sendSubmitMeterReadingsPushNotifications = async () => {
     // task implementation algorithm
     // * Read all meter resources for all supported languages
@@ -117,7 +91,6 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
     logger.info({ message: 'Start sending submit meter notifications' })
     // initialize context stuff
     const { keystone: context } = await getSchemaCtx('Meter')
-    const resourcesLocalizations = await loadAllLocalizedVersionsOfMeterResources({ context })
 
     // let's load meters page by page
     const state = {
@@ -197,7 +170,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
 
         // Send message with specific unique key for expired verification
         await sendMessagesForExpiredMeterVerificationDate({
-            context, resourcesLocalizations, metersWithResident: expiredVerificationMetersWithResident,
+            context, metersWithResident: expiredVerificationMetersWithResident,
         })
 
         // check if we have more pages
@@ -253,14 +226,13 @@ const sendMessagesForSetUpReadings = async ({ context, metersWithResident }) => 
     }))
 }
 
-const sendMessagesForExpiredMeterVerificationDate = async ({ context, resourcesLocalizations, metersWithResident }) => {
+const sendMessagesForExpiredMeterVerificationDate = async ({ context, metersWithResident }) => {
     await Promise.all(metersWithResident.map(async ({ meter, residents }) => {
         await Promise.all(residents.map(async (resident) => {
             const { lang } = meter
             const uniqKey = `${meter.id}_${resident.id}_${dayjs().format('YYYY-MM')}`
-            const resourceId = get(meter, 'resource.id', '')
-            const localizedResource = resourcesLocalizations[lang].find(resource => resource.id === resourceId)
-            const localizedResourceName = get(localizedResource, 'name', '')
+            const resourceNonLocalizedName = get(meter, 'resource.nameNonLocalized', '')
+            const localizedResourceName = getLocalized(lang, resourceNonLocalizedName) || resourceNonLocalizedName
 
             const message = {
                 sender: { dv: 1, fingerprint: 'meters-readings-submit-reminder-cron-push' },

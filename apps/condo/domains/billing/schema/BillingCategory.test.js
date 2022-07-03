@@ -8,7 +8,7 @@ const { expectToThrowAuthenticationErrorToObjects } = require(
 
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { makeLoggedInAdminClient, makeLoggedInClient, makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeLoggedInClient, makeClient, getRandomString } = require('@core/keystone/test.utils')
 
 const { BillingCategory, createTestBillingCategory, updateTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
@@ -17,11 +17,13 @@ describe('BillingCategory', () => {
 
     describe('Create', () => {
         test('can be created by Admin', async () => {
+            const name = getRandomString()
             const admin = await makeLoggedInAdminClient()
-            const [category] = await createTestBillingCategory(admin)
+            const [category] = await createTestBillingCategory(admin, { name })
             expect(category).toBeDefined()
-            expect(category.name).not.toBeNull()
             expect(category.id).not.toBeNull()
+            expect(category.name).toEqual(name)
+            expect(category.nameNonLocalized).toEqual(name)
         })
 
         test('can be created by support', async () => {
