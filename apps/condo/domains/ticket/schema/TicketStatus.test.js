@@ -36,6 +36,7 @@ describe('TicketStatus', () => {
         expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
         expect(obj.createdAt).toMatch(DATETIME_RE)
         expect(obj.updatedAt).toMatch(DATETIME_RE)
+        expect(obj.nameNonLocalized).toMatch(obj.name)
     })
 
     test('admin: create TicketStatus with valid PROCESSING_STATUS_TYPE color', async () => {

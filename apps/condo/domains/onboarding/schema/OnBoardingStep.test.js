@@ -31,6 +31,8 @@ describe('OnBoardingStep', () => {
             required: true,
             title: 'title',
             description: 'description',
+            titleNonLocalized: 'title',
+            descriptionNonLocalized: 'description',
             action: 'create',
             entity: 'Organization',
             order: 1,

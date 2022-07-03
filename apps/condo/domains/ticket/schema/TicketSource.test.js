@@ -1,3 +1,5 @@
+const isEmpty = require('lodash/isEmpty')
+
 const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
 
 const { getAvailableLocales, getTranslations } = require('@condo/domains/common/utils/localesLoader')
@@ -20,6 +22,7 @@ const TICKET_SOURCE_IDS_BY_TYPE = {
     MOBILE_APP_RESIDENT: '830d1d89-2d17-4c5b-96d1-21b5cd01a6d3',
 }
 const SOURCE_IDS = Object.values(TICKET_SOURCE_IDS_BY_TYPE)
+const TICKET_SOURCE_NAME_NON_LOCALIZED_TEMPLATE_REGEXP = /^ticket\.source\.([a-zA-Z_]+)\.name$/
 
 describe('TicketSource', () => {
     test.each(getAvailableLocales())('localization [%s]: static sources have translations', async (locale) => {
@@ -31,6 +34,16 @@ describe('TicketSource', () => {
         const isTranslationCompleted = Object.values(sources).every(source => translations.includes(source.name))
 
         expect(isTranslationCompleted).toBeTruthy()
+
+        Object.values(sources).forEach(source => {
+            expect(source.nameNonLocalized).toBeTruthy()
+
+            const match = source.nameNonLocalized.match(TICKET_SOURCE_NAME_NON_LOCALIZED_TEMPLATE_REGEXP)
+
+            expect(isEmpty(match)).toBeFalsy()
+            expect(match[1].length).toBeGreaterThan(0)
+            expect(TICKET_SOURCE_IDS_BY_TYPE[match[1]]).toBeTruthy()
+        })
     })
 
     test.each(getAvailableLocales())('Passes request in complex raw backend query', async (locale) => {

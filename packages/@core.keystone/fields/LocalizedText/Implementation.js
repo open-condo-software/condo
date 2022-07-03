@@ -13,6 +13,10 @@ class LocalizedText extends Text.implementation {
         }
     }
 
+    gqlOutputFields () {
+        return [`${this.path}: String`, `${this.path}NonLocalized: String`]
+    }
+
     gqlOutputFieldResolvers () {
         return {
             [this.path]: (item, args, context, info) => {
@@ -24,6 +28,9 @@ class LocalizedText extends Text.implementation {
                     return translations[fieldValue]
                 }
                 return fieldValue
+            },
+            [`${this.path}NonLocalized`]: (item, args, context, info) => {
+                return item[this.path]
             },
         }
     }

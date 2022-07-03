@@ -8,6 +8,9 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { createTestMeterResource, updateTestMeterResource } = require('@condo/domains/meter/utils/testSchema')
 
+const METER_RESOURCE_NAME_NON_LOCALIZED_TEMPLATE_REGEXP = /^meterResource\.([a-zA-Z])+\.name$/
+const METER_RESOURCE_MEASURE_NON_LOCALIZED_TEMPLATE_REGEXP = /^meterResource\.([a-zA-Z])+\.measure$/
+
 describe('MeterResource', () => {
     describe('Create', () => {
         test('user: cannot create MeterReadingSource', async () => {
@@ -96,6 +99,10 @@ describe('MeterResource', () => {
             const sources = await MeterResource.getAll(client, {})
 
             expect(sources.length).toBeGreaterThan(0)
+            sources.forEach(source => {
+                expect(source.nameNonLocalized).toMatch(METER_RESOURCE_NAME_NON_LOCALIZED_TEMPLATE_REGEXP)
+                expect(source.measureNonLocalized).toMatch(METER_RESOURCE_MEASURE_NON_LOCALIZED_TEMPLATE_REGEXP)
+            })
         })
 
         test('anonymous: cannot read MeterReadingSources', async () => {

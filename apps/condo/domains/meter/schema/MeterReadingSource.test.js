@@ -26,6 +26,7 @@ describe('MeterReadingSource', () => {
             const [source] = await createTestMeterReadingSource(admin, createPayload)
             expect(source).toBeDefined()
             expect(source).toEqual(expect.objectContaining(createPayload))
+            expect(source.nameNonLocalized).toEqual(createPayload.name)
         })
         test('support: can create MeterReadingSource', async () => {
             const support = await makeClientWithSupportUser()

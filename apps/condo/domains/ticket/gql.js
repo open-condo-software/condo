@@ -14,9 +14,9 @@ const THREE_LVL_CLASSIFIER_FIELDS = 'placeClassifier { id name } categoryClassif
 const TICKET_FIELDS = `{ canReadByResident reviewValue reviewComment deadline organization { id name } property { id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone } operator { id name } assignee { id name } executor { id name } ${THREE_LVL_CLASSIFIER_FIELDS} details related { id details } isEmergency isPaid isWarranty meta source { id name type } sourceMeta ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
-const TICKET_STATUS_FIELDS = `{ organization { id } type name colors { primary secondary additional } ${COMMON_FIELDS} }`
+const TICKET_STATUS_FIELDS = `{ organization { id } type name nameNonLocalized colors { primary secondary additional } ${COMMON_FIELDS} }`
 const TicketStatus = generateGqlQueries('TicketStatus', TICKET_STATUS_FIELDS)
-const TICKET_SOURCE_FIELDS = `{ organization { id } type name ${COMMON_FIELDS} }`
+const TICKET_SOURCE_FIELDS = `{ organization { id } type name nameNonLocalized ${COMMON_FIELDS} }`
 const TicketSource = generateGqlQueries('TicketSource', TICKET_SOURCE_FIELDS)
 const SHARE_TICKET_MUTATION = gql`
     mutation shareTicket($data: ShareTicketInput!) {

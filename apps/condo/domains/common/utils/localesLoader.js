@@ -34,6 +34,13 @@ const getAvailableLocales = () => {
     return Object.keys(translations)
 }
 
+const getLocalized = (lang, key) => {
+    const translations = getTranslations(lang)
+
+    return translations[key]
+}
+
+
 /**
  * @param {string} code - the translation code written in en.json, ru.json, ...
  * @param {{locale: string?, meta: Object?}?} options
@@ -60,5 +67,6 @@ const i18n = (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) => {
 module.exports = {
     getTranslations,
     getAvailableLocales,
+    getLocalized,
     i18n,
 }

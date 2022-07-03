@@ -7,7 +7,7 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 
-const { Meter, MeterResource } = require('@condo/domains/meter/utils/serverSchema')
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 
 const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -15,6 +15,7 @@ const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notifi
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+const { getLocalized } = require('@condo/domains/common/utils/localesLoader')
 
 const rightJoin = (heads, edges, joinFn, selectFn) => {
     return heads.map(head => {
@@ -179,28 +180,18 @@ const getOrganizationLang = async (context, id) => {
     return get(COUNTRIES, get(organization, 'country.locale'), DEFAULT_LOCALE)
 }
 
+// TODO(ekabardinsky): not tested. :(
 const generateReminderMessages = async ({ context, reminders }) => {
     const messages = []
     await Promise.all(reminders.map(async (reminder) => {
         const { meter, residents } = reminder
         const lang = await getOrganizationLang(context, meter.organization.id)
 
-        // get context for specific locale
-        const localeDependedContext = {
-            ...context.createContext({ skipAccessControl: true }),
-            req: { locale: lang },
-        }
-
-        // get list of meter resources for certain locale
-        // TODO apply DOMA-3174 mechanic for custom request locale
-        const localizedResources = await MeterResource.getAll(localeDependedContext, {})
-
         // prepare a message for each resident
         messages.push(
             ...residents.map(resident => {
-                const resourceId = get(meter, 'resource.id', '')
-                const localizedResource = localizedResources.find(resource => resource.id === resourceId)
-                const localizedResourceName = get(localizedResource, 'name', '')
+                const resourceNonLocalizedName = get(meter, 'resource.nameNonLocalized', '')
+                const localizedResourceName = getLocalized(lang, resourceNonLocalizedName) || resourceNonLocalizedName
 
                 return {
                     sender: { dv: 1, fingerprint: 'meters-validation-date-cron-push' },
