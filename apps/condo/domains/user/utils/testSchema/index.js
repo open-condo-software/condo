@@ -348,7 +348,7 @@ async function changePhoneNumberResidentUserByTestClient (client, extraAttrs = {
 async function createTestOidcClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const clientId = faker.random.alphaNumeric(12)
+    const clientId = get(extraAttrs, 'payload.client_id', faker.random.alphaNumeric(12))
 
     const attrs = {
         dv: 1,
