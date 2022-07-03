@@ -5,10 +5,8 @@
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
@@ -28,9 +26,6 @@ const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/a
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
     schemaDoc: 'Information about `acquiring component` which will generate `billing receipts` and `payments`',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         name: {
             schemaDoc: 'Name of `acquiring component`, which is set up by developer',
             type: Text,
@@ -95,7 +90,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             schemaDoc: 'Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient',
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadAcquiringIntegrations,
         create: access.canManageAcquiringIntegrations,
@@ -105,15 +100,9 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
     },
     hooks: {
         validateInput: ({ resolvedData, context, addValidationError, existingItem }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                const newItem = { ...existingItem, ...resolvedData }
-                if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
-                    return addValidationError(NO_INSTRUCTION_OR_MESSAGE_ERROR)
-                }
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            const newItem = { ...existingItem, ...resolvedData }
+            if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
+                return addValidationError(NO_INSTRUCTION_OR_MESSAGE_ERROR)
             }
         },
     },
