@@ -24,3 +24,5 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn lint
       - run: yarn workspace @app/condo lint-i18n-translations
+      - run: bash ./bin/lint-common-petterns.sh
+
