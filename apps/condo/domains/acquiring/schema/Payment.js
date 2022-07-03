@@ -6,9 +6,8 @@ const { Text, Relationship, DateTimeUtc, Select } = require('@keystonejs/fields'
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const {
-    SENDER_FIELD,
-    DV_FIELD,
     CURRENCY_CODE_FIELD,
     POSITIVE_MONEY_AMOUNT_FIELD,
     NON_NEGATIVE_MONEY_FIELD,
@@ -16,8 +15,6 @@ const {
 } = require('@condo/domains/common/schema/fields')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const access = require('@condo/domains/acquiring/access/Payment')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const {
     PAYMENT_NO_PAIRED_RECEIPT,
@@ -48,9 +45,6 @@ const Big = require('big.js')
 const Payment = new GQLListSchema('Payment', {
     schemaDoc: 'Information about completed transaction from user to a specific organization',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         amount: {
             ...POSITIVE_MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money from MultiPayment.amountWithOutExplicitFee to pay for billing receipt',
@@ -206,7 +200,7 @@ const Payment = new GQLListSchema('Payment', {
 
         importId: IMPORT_ID_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadPayments,
         create: access.canManagePayments,
@@ -225,13 +219,6 @@ const Payment = new GQLListSchema('Payment', {
             return resolvedData
         },
         validateInput: async ({ resolvedData, context, addValidationError, operation, existingItem, originalInput }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError )) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
-            }
             if (operation === 'create') {
                 if (resolvedData['receipt']) {
                     if (!resolvedData['context']) {
