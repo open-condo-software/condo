@@ -187,7 +187,7 @@ const Payment = new GQLListSchema('Payment', {
         },
 
         order: {
-            schemaDoc: 'Payment order number',
+            schemaDoc: 'Payment order. A directive to a bank from a bank account holder instructing the bank to make a payment or series of payments to a third party',
             type: Text,
             isRequired: false,
         },
