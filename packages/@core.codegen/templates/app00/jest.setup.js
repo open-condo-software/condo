@@ -1,19 +1,23 @@
-// setup TESTS_FAKE_CLIENT_MODE
+const falsey = require('falsey')
+
 const { setFakeClientMode } = require('@core/keystone/test.utils')
-const { createWorker, taskQueue } = require('@core/keystone/tasks')
 const conf = require('@core/config')
+const index = require('@app/condo/index')
 
-if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(require.resolve('./index'))
-if (conf.TESTS_FAKE_WORKER_MODE) createWorker(require.resolve('./index')).catch((error) => {
-    console.error(error)
-    process.exit(2)
-})
+const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
 
-beforeAll(async () => {
-    jest.setTimeout(10 * 60 * 1000) // 10 min
-    return await taskQueue.isReady()
-})
+jest.setTimeout(60000)
 
-afterAll(async () => {
-    return await taskQueue.close()
-})
+if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(index, { excludeApps: ['NextApp'] })
+if (conf.TESTS_FAKE_WORKER_MODE) console.warn('The Tasks will be executed inside this node process with setTimeout instead of being sent to the queue!')
+
+if (EXTRA_LOGGING) {
+    // Patch tests to include their own name
+    jasmine.getEnv().addReporter({ // eslint-disable-line
+        specStarted: result => jasmine.currentTest = result, // eslint-disable-line
+        specDone: result => jasmine.currentTest = result, // eslint-disable-line
+    })
+
+    beforeEach(() => console.log('[BEGIN] TEST:', jasmine['currentTest'])) // eslint-disable-line
+    afterEach(() => console.log('[END] TEST:', jasmine['currentTest'])) // eslint-disable-line
+}
