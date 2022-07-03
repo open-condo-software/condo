@@ -7,14 +7,14 @@ For easy local development you can add `.env` config:
 FILE_FIELD_ADAPTER=local
 TESTS_FAKE_CLIENT_MODE=true
 TESTS_FAKE_WORKER_MODE=true
-TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS=true
+TESTS_LOG_REQUEST_RESPONSE=true
 NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
 FAKE_ADDRESS_SUGGESTIONS=true
 ```
 
 - `TESTS_FAKE_CLIENT_MODE` -- switch to mode where the tests are executed in the same process as the web server
 - `TESTS_FAKE_WORKER_MODE` -- switch to mode where a task worker is executed in the same process as the tests
-- `TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS` -- console.log GraphQL request errors
+- `TESTS_LOG_REQUEST_RESPONSE` -- console.log GraphQL requests and responses
 - `NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE` -- switch to mode where SendMessageService just display the messages to console
 - `FILE_FIELD_ADAPTER` -- store uploading files locally
 - `FAKE_ADDRESS_SUGGESTIONS` -- switch to mode where fake address suggestion service used in tests / server-side validations
