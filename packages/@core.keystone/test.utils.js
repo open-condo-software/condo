@@ -58,6 +58,7 @@ let __isAwaiting = false
 function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     if (__expressApp !== null) return
     if (__isAwaiting) return
+    console.warn('setFakeClientMode(): you changed the test execution mode to FAKE client! Your test will not really make a request to remote server! Use it only for local debugging or .spec.js tests cases')
     const module = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
     let mode = null
     if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
