@@ -25,7 +25,6 @@ const { KeystoneCacheMiddleware } = require('@core/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { GraphQLLoggerPlugin } = require('@condo/domains/common/utils/GraphQLLoggerApp')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
-const { createProxyMiddleware } = require('http-proxy-middleware')
 
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
@@ -167,14 +166,6 @@ module.exports = {
 
     /** @type {(app: import('express').Application) => void} */
     configureExpress: (app) => {
-        app.use('/admin/api', createProxyMiddleware(function (pathname, req) {
-            console.log(`HEADERS=${JSON.stringify(req.headers)}`)
-            if (req.headers['client-platform'] === 'Android') {
-                console.log(`MOBILE APP: ${req.headers['client-platform']}=${req.headers['client-version']}`)
-            }
-            return req.headers['client-platform'] === 'Android' && req.headers['client-version'] === '1.0.31'
-        }, { target: 'https://v1.doma.ai/admin/api', changeOrigin: true }))
-
         app.set('trust proxy', true)
         // NOTE(toplenboren): we need a custom body parser for custom file upload limit
         app.use(bodyParser.json({ limit: '100mb', extended: true }))
