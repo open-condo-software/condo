@@ -27,6 +27,8 @@ const DEFAULT_TEST_USER_IDENTITY = conf.DEFAULT_TEST_USER_IDENTITY || 'user@exam
 const DEFAULT_TEST_USER_SECRET = conf.DEFAULT_TEST_USER_SECRET || '1a92b3a07c78'
 const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY || 'admin@example.com'
 const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET || '3a74b3f07978'
+const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE
+// TODO(pahaz): remove this old consts! we have TESTS_LOG_REQUEST_RESPONSE
 const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
 const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
 const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
@@ -101,16 +103,22 @@ const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
  * @param {Object} params
  * @returns {Promise<Object>}
  */
-async function doGqlRequest (callable, { mutation, query, variables }, logResponseErrors) {
+async function doGqlRequest (callable, { mutation, query, variables }, logRequestResponse) {
     try {
+        if (logRequestResponse) {
+            const text = get(query, 'loc.source.body', get(mutation, 'loc.source.body', 'no query data')).replace(/[\s,]+/g, ' ').trim()
+            console.debug(`[GraphQL >>>]: ${text}; variables=${JSON.stringify(variables)}`)
+        }
         const { errors, data } = await callable({
             mutation, query, variables,
             // About error policies see https://www.apollographql.com/docs/react/v2/data/error-handling/#error-policies
             errorPolicy: 'all',
             fetchPolicy: 'no-cache',
         })
-        if (logResponseErrors && errors) {
-            console.warn(`[GraphQL error]: errors=${JSON.stringify(errors)}; data=${JSON.stringify(data)};`)
+        if (logRequestResponse && errors) {
+            console.warn(`[GraphQL <<<]: errors=${JSON.stringify(errors)}; data=${JSON.stringify(data)};`)
+        } else if (logRequestResponse) {
+            console.debug(`[GraphQL <<<]: data=${JSON.stringify(data)};`)
         }
         return { errors, data }
     } catch (e) {
@@ -121,9 +129,9 @@ async function doGqlRequest (callable, { mutation, query, variables }, logRespon
         const errors = []
 
         if (e.graphQLErrors && e.graphQLErrors.length > 0) {
-            if (logResponseErrors) {
+            if (logRequestResponse) {
                 e.graphQLErrors.forEach((gqlError) => {
-                    console.warn(`[GraphQL error]: ${(e.operation) ? e.operation.operationName : '??'} ${JSON.stringify(gqlError)}}`)
+                    console.warn(`[GraphQL <<<!!]: ${(e.operation) ? e.operation.operationName : '??'} ${JSON.stringify(gqlError)}}`)
                 })
             }
 
@@ -133,8 +141,8 @@ async function doGqlRequest (callable, { mutation, query, variables }, logRespon
         }
 
         if (e.networkError) {
-            if (logResponseErrors) {
-                console.warn(`[Network error]: ${JSON.stringify(e.networkError)}`)
+            if (logRequestResponse) {
+                console.warn(`[GraphQL <<<!!]: Network error: ${JSON.stringify(e.networkError)}`)
             }
 
             // NOTE(pahaz): apollo client group by their custom logic %) we need to split errors related to Network errors (fetch errors)
@@ -150,10 +158,10 @@ async function doGqlRequest (callable, { mutation, query, variables }, logRespon
 
 /**
  * @param {string} serverUrl
- * @param {boolean} logResponseErrors
+ * @param {boolean} logRequestResponse
  * @returns {{client: ApolloClient, getCookie: () => string, setHeaders: ({object}) => void}}
  */
-const makeApolloClient = (serverUrl, logResponseErrors = true) => {
+const makeApolloClient = (serverUrl, logRequestResponse = true) => {
     let cookiesObj = {}
     let customHeaders = {}
 
@@ -233,10 +241,10 @@ const makeApolloClient = (serverUrl, logResponseErrors = true) => {
             customHeaders = { ...customHeaders, ...headers }
         },
         mutate: async (mutation, variables = {}) => {
-            return doGqlRequest(client.mutate, { mutation, variables }, logResponseErrors)
+            return doGqlRequest(client.mutate, { mutation, variables }, logRequestResponse)
         },
         query: async (query, variables = {}) => {
-            return doGqlRequest(client.query, { query, variables }, logResponseErrors)
+            return doGqlRequest(client.query, { query, variables }, logRequestResponse)
         },
     }
 }
@@ -255,7 +263,7 @@ const makeClient = async () => {
         logErrors = TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
     }
 
-    return makeApolloClient(serverUrl, logErrors)
+    return makeApolloClient(serverUrl, TESTS_LOG_REQUEST_RESPONSE || logErrors)
 }
 
 const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
