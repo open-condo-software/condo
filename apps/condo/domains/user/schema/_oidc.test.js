@@ -4,13 +4,12 @@ const { default: axios } = require('axios')
 const jwtDecode = require('jwt-decode')
 
 const {
-    createAxiosClientWithCookie, getRandomString, prepareKeystoneExpressApp, setFakeClientMode,
+    createAxiosClientWithCookie, getRandomString, makeLoggedInAdminClient,
 } = require('@core/keystone/test.utils')
 
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, createTestOidcClient } = require('@condo/domains/user/utils/testSchema')
 
 const { createAdapterClass } = require('../oidc/adapter')
-const { createOidcClient } = require('../oidc/')
 
 async function getAccessToken (accessToken, context = null) {
     const AdapterClass = createAdapterClass(context)
@@ -98,38 +97,24 @@ test('getCookie test util', async () => {
     )
 })
 
-
-let keystone
-
 describe('OIDC', () => {
-
-    setFakeClientMode(require.resolve('../../../index'))
-
-    beforeAll(async () => {
-        const result = await prepareKeystoneExpressApp(require.resolve('../../../index'))
-        keystone = result.keystone
-    })
-
-    afterAll(async () => {
-        if (keystone) {
-            await keystone.disconnect()
-        }
-    })
-
-    test('oidc', async () => {
+    test('oidc new client case', async () => {
         const uri = 'https://jwt.io/'
         const clientId = getRandomString()
         const clientSecret = getRandomString()
+        const admin = await makeLoggedInAdminClient()
 
-        await createOidcClient({
-            // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
-            client_id: clientId,
-            client_secret: clientSecret,
-            redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
-            response_types: ['code id_token', 'code', 'id_token'],
-            grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
-            token_endpoint_auth_method: 'client_secret_basic',
-        }, keystone)
+        await createTestOidcClient(admin, {
+            payload: {
+                // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
+                response_types: ['code id_token', 'code', 'id_token'],
+                grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
+                token_endpoint_auth_method: 'client_secret_basic',
+            },
+        })
 
         const c = await makeClientWithNewRegisteredAndLoggedInUser()
         expectCookieKeys(c.getCookie(), ['keystone.sid'])
@@ -206,20 +191,23 @@ describe('OIDC', () => {
 
     test('oidc auth by mini app', async () => {
         const c = await makeClientWithNewRegisteredAndLoggedInUser()
+        const admin = await makeLoggedInAdminClient()
 
         const uri = 'https://jwt.io/'
         const clientId = getRandomString()
         const clientSecret = getRandomString()
 
-        await createOidcClient({
-            // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
-            client_id: clientId,
-            client_secret: clientSecret,
-            redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
-            response_types: ['code id_token', 'code', 'id_token'],
-            grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
-            token_endpoint_auth_method: 'client_secret_basic',
-        }, keystone)
+        await createTestOidcClient(admin, {
+            payload: {
+                // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
+                response_types: ['code id_token', 'code', 'id_token'],
+                grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
+                token_endpoint_auth_method: 'client_secret_basic',
+            },
+        })
 
         const serverUrl = c.serverUrl
         const issuer = new Issuer({
