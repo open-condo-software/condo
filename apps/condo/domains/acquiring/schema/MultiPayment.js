@@ -7,9 +7,8 @@ const { getById, find } = require('@core/keystone/schema')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const {
-    SENDER_FIELD,
-    DV_FIELD,
     CURRENCY_CODE_FIELD,
     NON_NEGATIVE_MONEY_FIELD,
     POSITIVE_MONEY_AMOUNT_FIELD,
@@ -52,8 +51,6 @@ const {
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
 } = require('@condo/domains/acquiring/constants/errors')
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const access = require('@condo/domains/acquiring/access/MultiPayment')
 const get = require('lodash/get')
 const Big = require('big.js')
@@ -62,9 +59,6 @@ const Big = require('big.js')
 const MultiPayment = new GQLListSchema('MultiPayment', {
     schemaDoc: 'Information about resident\'s payment for single or multiple services/receipts',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         amount: {
             schemaDoc: 'Total amount of withdraw. amount = amountWithoutExplicitFee + explicitFee + explicitServiceCharge',
             type: Virtual,
@@ -226,14 +220,6 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
     },
     hooks: {
         validateInput: async ({ resolvedData, context, addValidationError, operation, existingItem }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
-            }
-
             if (operation === 'create') {
                 const paymentsIds = get(resolvedData, 'payments', [])
                 const payments = await find('Payment', {
@@ -363,7 +349,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadMultiPayments,
         create: access.canManageMultiPayments,
