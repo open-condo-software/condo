@@ -4,10 +4,8 @@
 
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationAccessRight')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
 
@@ -15,9 +13,6 @@ const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/acc
 const AcquiringIntegrationAccessRight = new GQLListSchema('AcquiringIntegrationAccessRight', {
     schemaDoc: 'Link between Acquiring integration and user, the existence of this connection means that this user has the rights to perform actions on behalf of the integration',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         integration: {
             ...ACQUIRING_INTEGRATION_FIELD,
             ref: 'AcquiringIntegration.accessRights',
@@ -25,24 +20,13 @@ const AcquiringIntegrationAccessRight = new GQLListSchema('AcquiringIntegrationA
 
         user: SERVICE_USER_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadAcquiringIntegrationAccessRights,
         create: access.canManageAcquiringIntegrationAccessRights,
         update: access.canManageAcquiringIntegrationAccessRights,
         delete: false,
         auth: true,
-    },
-    hooks: {
-        validateInput: ({ resolvedData, context, addValidationError }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
-            }
-        },
     },
 })
 
