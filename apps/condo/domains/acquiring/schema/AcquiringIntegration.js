@@ -14,6 +14,7 @@ const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/cons
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const {
     LOGO_FIELD,
+    APPS_FILE_ADAPTER,
     DEVELOPER_FIELD,
     PARTNER_URL_FIELD,
     SHORT_DESCRIPTION_FIELD,
@@ -23,6 +24,9 @@ const {
     IS_HIDDEN_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
+
+const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
@@ -116,6 +120,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
         },
+        afterChange: logoMetaAfterChange,
     },
 })
 
