@@ -32,6 +32,7 @@ const TicketFilterFields = {
     author: '[String]',
     reviewValue: '[String]',
     contactIsNull: '[String]',
+    completedAt: '[String]',
 }
 
 const TICKET_FILTER_TYPE = `

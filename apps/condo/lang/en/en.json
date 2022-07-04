@@ -501,6 +501,7 @@
   "pages.condo.ticket.filters.Attribute": "Attribute",
   "pages.condo.ticket.filters.Author": "Author",
   "pages.condo.ticket.filters.ClientPhone": "Client phone",
+  "pages.condo.ticket.filters.CompletedAt": "Completed at",
   "pages.condo.ticket.filters.Division": "Division",
   "pages.condo.ticket.filters.EnterUnitName": "Enter unit name",
   "pages.condo.ticket.filters.EnterPhone": "Enter phone",
