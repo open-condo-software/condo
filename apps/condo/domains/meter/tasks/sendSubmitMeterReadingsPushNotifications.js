@@ -232,7 +232,7 @@ const sendMessagesForExpiredMeterVerificationDate = async ({ context, metersWith
             const { lang } = meter
             const uniqKey = `${meter.id}_${resident.id}_${dayjs().format('YYYY-MM')}`
             const resourceNonLocalizedName = get(meter, 'resource.nameNonLocalized', '')
-            const localizedResourceName = getLocalized(lang, resourceNonLocalizedName) || resourceNonLocalizedName
+            const localizedResourceName = getLocalized(lang, resourceNonLocalizedName)
 
             const message = {
                 sender: { dv: 1, fingerprint: 'meters-readings-submit-reminder-cron-push' },

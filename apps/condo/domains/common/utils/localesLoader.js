@@ -37,7 +37,7 @@ const getAvailableLocales = () => {
 const getLocalized = (lang, key) => {
     const translations = getTranslations(lang)
 
-    return translations[key]
+    return get(translations, key, key)
 }
 
 
