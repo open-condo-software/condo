@@ -30,7 +30,6 @@ class NoFileAdapter {
 }
 
 class FileAdapter {
-
     constructor (folder, isPublic = false) {
         const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
         this.folder = folder
@@ -114,5 +113,30 @@ class FileAdapter {
     }
 }
 
+/**
+ * Set meta using fileAdapter acl, which used later to check access to file.
+ * @param fileAdapter - file's adapter
+ * @param fieldPath - name of file field inside model
+ * @returns {(function({updatedItem: *, listKey: *}): Promise<void>)|*}
+ */
+function getFileMetaAfterChange (fileAdapter, fieldPath = 'file') {
+    return async function afterChange ({ updatedItem, listKey }) {
+        if (updatedItem && fileAdapter.acl && fileAdapter.acl.setMeta) {
+            const file = get(updatedItem, fieldPath)
+            if (file) {
+                const { filename } = file
+                const folder = get(fileAdapter, 'folder', '')
+                const key = `${folder}/${filename}`
+                // OBS will lowercase all keys from meta
+                await fileAdapter.acl.setMeta(key, {
+                    listkey: listKey,
+                    id: updatedItem.id,
+                })
+            }
+        }
+    }
+}
 
 module.exports = FileAdapter
+exports = module.exports
+exports.getFileMetaAfterChange = getFileMetaAfterChange

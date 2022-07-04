@@ -9,6 +9,7 @@ const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSende
 const access = require('@condo/domains/miniapp/access/B2BApp')
 const {
     LOGO_FIELD,
+    APPS_FILE_ADAPTER,
     SHORT_DESCRIPTION_FIELD,
     DEVELOPER_FIELD,
     PARTNER_URL_FIELD,
@@ -23,7 +24,9 @@ const {
     OTHER_CATEGORY,
 } = require('@condo/domains/miniapp/constants')
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
+const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
 const B2BApp = new GQLListSchema('B2BApp', {
     schemaDoc: 'B2B app',
@@ -65,6 +68,9 @@ const B2BApp = new GQLListSchema('B2BApp', {
             ref: 'B2BAppAccessRight.app',
             many: true,
         },
+    },
+    hooks: {
+        afterChange: logoMetaAfterChange,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {

@@ -10,9 +10,11 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/miniapp/access/B2CAppBuild')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 
 const B2C_APP_BUILD_FILE_ADAPTER = new FileAdapter('B2CAppBuilds')
+const dataMetaAfterChange = getFileMetaAfterChange(B2C_APP_BUILD_FILE_ADAPTER, 'data')
 
 
 const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
@@ -57,7 +59,8 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
     },
     hooks: {
         // TODO(DOMA-3223): Move data to long-term HDD on cloud services on soft-delete
-        afterChange: async ({ updatedItem, operation, existingItem, context }) => {
+        afterChange: async ({ updatedItem, operation, existingItem, context, listKey }) => {
+            await dataMetaAfterChange({ updatedItem, listKey })
             if (operation === 'update' && updatedItem.deletedAt) {
                 const appToReset = await getByCondition('B2CApp', {
                     currentBuild: { id: existingItem.id },

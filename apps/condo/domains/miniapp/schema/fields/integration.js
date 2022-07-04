@@ -3,7 +3,7 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Markdown } = require('@keystonejs/fields-markdown')
 const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
 
-const APPS_FILE_ADAPTER = new FileAdapter('apps', true)
+const APPS_FILE_ADAPTER = new FileAdapter('apps')
 
 const DEVELOPER_FIELD = {
     schemaDoc: 'Developer company name',

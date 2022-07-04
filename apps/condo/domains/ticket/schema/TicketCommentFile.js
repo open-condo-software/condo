@@ -8,10 +8,12 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketCommentFile')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const TICKET_COMMENT_FILE_FOLDER_NAME = 'ticketComment'
 const Adapter = new FileAdapter(TICKET_COMMENT_FILE_FOLDER_NAME)
+const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
 
 const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
     schemaDoc: 'File attached to the ticket comment',
@@ -42,22 +44,7 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
 
     },
     hooks: {
-        afterChange: async ({ updatedItem, listKey }) => {
-            if (updatedItem && Adapter.acl) {
-                const { id, file } = updatedItem
-
-                if (file) {
-                    const { filename } = file
-                    const key = `${TICKET_COMMENT_FILE_FOLDER_NAME}/${filename}`
-
-                    const metaToSet = {
-                        listkey: listKey,
-                        id,
-                    }
-                    await Adapter.acl.setMeta(key, metaToSet)
-                }
-            }
-        },
+        afterChange: fileMetaAfterChange,
         afterDelete: async ({ existingItem }) => {
             if (existingItem.file) {
                 await Adapter.delete(existingItem.file)

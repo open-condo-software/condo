@@ -11,6 +11,7 @@ const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
 const {
     LOGO_FIELD,
+    APPS_FILE_ADAPTER,
     DEVELOPER_FIELD,
     PARTNER_URL_FIELD,
     SHORT_DESCRIPTION_FIELD,
@@ -24,7 +25,9 @@ const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/a
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
+const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
 const BillingIntegration = new GQLListSchema('BillingIntegration', {
     schemaDoc: 'Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ... ',
@@ -95,6 +98,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
         },
+        afterChange: logoMetaAfterChange,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {

@@ -9,13 +9,16 @@ const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSende
 const access = require('@condo/domains/miniapp/access/B2CApp')
 const {
     LOGO_FIELD,
+    APPS_FILE_ADAPTER,
     SHORT_DESCRIPTION_FIELD,
     DEVELOPER_FIELD,
     IS_HIDDEN_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { COLOR_SCHEMA_FIELD } = require('@condo/domains/miniapp/schema/fields/b2cApp')
 const { RESTRICT_BUILD_SELECT_ERROR } = require('@condo/domains/miniapp/constants')
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
+const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
 const B2CApp = new GQLListSchema('B2CApp', {
     schemaDoc: 'B2C App',
@@ -61,6 +64,9 @@ const B2CApp = new GQLListSchema('B2CApp', {
             ref: 'B2CAppAccessRight.app',
             many: true,
         },
+    },
+    hooks: {
+        afterChange: logoMetaAfterChange,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
