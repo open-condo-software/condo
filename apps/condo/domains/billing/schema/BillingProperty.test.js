@@ -496,4 +496,44 @@ describe('BillingProperty', () => {
             })
         })
     })
+    describe('Validations', () => {
+        // NOTE: This is common KeystoneJS behaviour, so it does not depend on any particular access function
+        // These tests are used to check this behavior for different keystone versions and there's no need
+        // to spread them across all models
+        describe('Database must not be changed if have partial access', () => {
+            test('On create', async () => {
+                const { integration, context: newContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                const newIntegrationUser = await makeServiceUserForIntegration(integration)
+                const propertiesBefore = await BillingProperty.getAll(admin, {
+                    context: { id: newContext.id },
+                })
+                expect(propertiesBefore).toHaveLength(0)
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await createTestBillingProperties(newIntegrationUser, [newContext, anotherContext])
+                })
+                const propertiesAfter = await BillingProperty.getAll(admin, {
+                    context: { id: newContext.id },
+                })
+                expect(propertiesAfter).toHaveLength(0)
+            })
+        })
+        test('On update', async () => {
+            const [[property, anotherProperty]] = await createTestBillingProperties(admin, [context, anotherContext])
+            const payload = [
+                { id: property.id, data: { deletedAt: dayjs().toISOString() } },
+                { id: anotherProperty.id, data: { deletedAt: dayjs().toISOString() } },
+            ]
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await updateTestBillingProperties(integrationUser, payload)
+            })
+            const properties = await BillingProperty.getAll(admin, {
+                id_in: [property.id, anotherProperty.id],
+            })
+            expect(properties).toHaveLength(2)
+            expect(properties[0]).toHaveProperty('deletedAt')
+            expect(properties[0].deletedAt).toBeNull()
+            expect(properties[1]).toHaveProperty('deletedAt')
+            expect(properties[1].deletedAt).toBeNull()
+        })
+    })
 })
