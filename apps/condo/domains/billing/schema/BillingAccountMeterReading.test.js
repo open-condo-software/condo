@@ -33,17 +33,15 @@ describe('BillingAccountMeterReading', () => {
     test('organization integration manager: create BillingAccountMeterReading', async () => {
         const admin = await makeLoggedInAdminClient()
         const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
-        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-        const [property] = await createTestBillingProperty(managerUserClient, context)
-        const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+        const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+        const [property] = await createTestBillingProperty(admin, context)
+        const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
-        const [meter] = await createTestBillingAccountMeter(managerUserClient, context, property, billingAccount, resource)
-        const [obj] = await createTestBillingAccountMeterReading(managerUserClient, context, property, billingAccount, meter)
+        const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
 
-        expect(obj.context.id).toEqual(context.id)
-        expect(obj.property.id).toEqual(property.id)
-        expect(obj.account.id).toEqual(billingAccount.id)
-        expect(obj.meter.id).toEqual(meter.id)
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestBillingAccountMeterReading(managerUserClient, context, property, billingAccount, meter)
+        })
     })
 
     test('user: create BillingAccountMeterReading', async () => {
@@ -90,12 +88,12 @@ describe('BillingAccountMeterReading', () => {
     test('organization integration manager: read BillingAccountMeterReading', async () => {
         const admin = await makeLoggedInAdminClient()
         const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
-        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-        const [property] = await createTestBillingProperty(managerUserClient, context)
-        const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+        const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+        const [property] = await createTestBillingProperty(admin, context)
+        const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
-        const [meter] = await createTestBillingAccountMeter(managerUserClient, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(managerUserClient, context, property, billingAccount, meter)
+        const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
         const objs = await BillingAccountMeterReading.getAll(managerUserClient, { id: billingAccountMeterReading.id })
 
         expect(objs).toHaveLength(1)
@@ -158,12 +156,12 @@ describe('BillingAccountMeterReading', () => {
     test('organization integration manager: update BillingAccountMeterReading', async () => {
         const admin = await makeLoggedInAdminClient()
         const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
-        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-        const [property] = await createTestBillingProperty(managerUserClient, context)
-        const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+        const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+        const [property] = await createTestBillingProperty(admin, context)
+        const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
-        const [meter] = await createTestBillingAccountMeter(managerUserClient, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(managerUserClient, context, property, billingAccount, meter)
+        const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
 
         const dv1 = faker.datatype.number()
         const dv2 = faker.datatype.number()
@@ -173,12 +171,10 @@ describe('BillingAccountMeterReading', () => {
             value2: billingAccountMeterReading.value2 + dv2,
             value3: billingAccountMeterReading.value3 + dv3,
         }
-        const [updatedBillingAccountMeterReading] = await updateTestBillingAccountMeterReading(managerUserClient, billingAccountMeterReading.id, payload)
 
-        expect(updatedBillingAccountMeterReading.id).toEqual(billingAccountMeterReading.id)
-        expect(updatedBillingAccountMeterReading.value1).toEqual(billingAccountMeterReading.value1 + dv1)
-        expect(updatedBillingAccountMeterReading.value2).toEqual(billingAccountMeterReading.value2 + dv2)
-        expect(updatedBillingAccountMeterReading.value3).toEqual(billingAccountMeterReading.value3 + dv3)
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestBillingAccountMeterReading(managerUserClient, billingAccountMeterReading.id, payload)
+        })
     })
 
     test('user: update BillingAccountMeterReading', async () => {
@@ -230,12 +226,12 @@ describe('BillingAccountMeterReading', () => {
     test('organization integration manager: delete BillingAccountMeterReading', async () => {
         const admin = await makeLoggedInAdminClient()
         const { organization, integration, managerUserClient } = await makeOrganizationIntegrationManager()
-        const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
-        const [property] = await createTestBillingProperty(managerUserClient, context)
-        const [billingAccount] = await createTestBillingAccount(managerUserClient, context, property)
+        const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+        const [property] = await createTestBillingProperty(admin, context)
+        const [billingAccount] = await createTestBillingAccount(admin, context, property)
         const [resource] = await createTestBillingMeterResource(admin)
-        const [meter] = await createTestBillingAccountMeter(managerUserClient, context, property, billingAccount, resource)
-        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(managerUserClient, context, property, billingAccount, meter)
+        const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
+        const [billingAccountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await BillingAccountMeterReading.delete(managerUserClient, billingAccountMeterReading.id)
