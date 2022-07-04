@@ -33,6 +33,7 @@ import { useModalFilterClassifiers } from './useModalFilterClassifiers'
 const filterNumber = getNumberFilter('number')
 const filterCreatedAtRange = getDayRangeFilter('createdAt')
 const filterDeadlineRange = getDayRangeFilter('deadline')
+const filterCompletedAtRange = getDayRangeFilter('completedAt')
 const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
@@ -64,6 +65,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'CreatedDate' })
+    const CompletedAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.CompletedAt' })
     const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
     const StatusMessage =  intl.formatMessage({ id: 'Status' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
@@ -219,6 +221,21 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: DateMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'completedAt',
+                filters: [filterCompletedAtRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                        disabledDate: () => false,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: CompletedAtMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },

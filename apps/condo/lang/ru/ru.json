@@ -501,6 +501,7 @@
   "pages.condo.ticket.filters.Attribute": "Признак",
   "pages.condo.ticket.filters.Author": "Автор",
   "pages.condo.ticket.filters.ClientPhone": "Телефон жителя",
+  "pages.condo.ticket.filters.CompletedAt": "Дата выполнения",
   "pages.condo.ticket.filters.Division": "Участок",
   "pages.condo.ticket.filters.EnterUnitName": "Введите номер квартиры",
   "pages.condo.ticket.filters.EnterPhone": "Введите телефон",
