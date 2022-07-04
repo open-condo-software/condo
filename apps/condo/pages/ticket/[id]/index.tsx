@@ -226,12 +226,13 @@ const TicketContent = ({ ticket }) => {
         if (!ticketDeadline) return
 
         const deadlineType = getDeadlineType(ticket)
-        const { moreThanDayDiff, overdueDiff } = getHumanizeDeadlineDateDifference(ticket)
+        const { dayDiff, overdueDiff } = getHumanizeDeadlineDateDifference(ticket)
+
         switch (deadlineType) {
             case TicketDeadlineType.MORE_THAN_DAY: {
                 return (
                     <Typography.Text type={'warning'} strong>
-                        ({ToCompleteMessage.replace('{days}', moreThanDayDiff)})
+                        ({ToCompleteMessage.replace('{days}', dayDiff)})
                     </Typography.Text>
                 )
             }
