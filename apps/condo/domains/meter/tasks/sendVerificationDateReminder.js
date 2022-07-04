@@ -191,7 +191,7 @@ const generateReminderMessages = async ({ context, reminders }) => {
         messages.push(
             ...residents.map(resident => {
                 const resourceNonLocalizedName = get(meter, 'resource.nameNonLocalized', '')
-                const localizedResourceName = getLocalized(lang, resourceNonLocalizedName) || resourceNonLocalizedName
+                const localizedResourceName = getLocalized(lang, resourceNonLocalizedName)
 
                 return {
                     sender: { dv: 1, fingerprint: 'meters-validation-date-cron-push' },
