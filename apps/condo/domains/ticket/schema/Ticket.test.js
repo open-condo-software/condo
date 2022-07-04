@@ -101,6 +101,7 @@ describe('Ticket', () => {
             expect(obj.assignee).toEqual(null)
             expect(obj.executor).toEqual(null)
             expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
+            expect(obj.completedAt).toEqual(null)
         })
 
         test('user: create Ticket without status', async () => {
@@ -999,6 +1000,7 @@ describe('Ticket', () => {
             })
         })
     })
+
     describe('Permissions', () => {
         test('user: create Ticket', async () => {
             const client = await makeClientWithProperty()
@@ -1203,6 +1205,7 @@ describe('Ticket', () => {
             })
         })
     })
+
     describe('Validations', () => {
         describe('propertyAddress and propertyAddressMeta', () => {
             test('Should be filled resolved automatically on ticket creation', async () => {
@@ -1602,6 +1605,41 @@ describe('Ticket', () => {
                 })
             })
 
+        })
+
+        describe('completedAt', () => {
+            test('should be filled and updated automatically when ticket status changes to completed type', async () => {
+                const admin = await makeLoggedInAdminClient()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [ticket] = await createTestTicket(admin, organization, property)
+
+                expect(ticket.completedAt).toBeNull()
+
+                const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+
+                const completedAtAfterFirstTicketComplete = updatedTicket.completedAt
+
+                expect(completedAtAfterFirstTicketComplete).toBeDefined()
+                expect(completedAtAfterFirstTicketComplete).toMatch(DATETIME_RE)
+
+                const [updatedTicket1] = await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+                })
+
+                expect(updatedTicket1.completedAt).toEqual(completedAtAfterFirstTicketComplete)
+
+                const [updatedTicket2] = await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+
+                expect(updatedTicket2.completedAt).toBeDefined()
+                expect(updatedTicket2.completedAt).toMatch(DATETIME_RE)
+                expect(dayjs(updatedTicket2.completedAt).isAfter(completedAtAfterFirstTicketComplete)).toBeTruthy()
+            })
         })
     })
 

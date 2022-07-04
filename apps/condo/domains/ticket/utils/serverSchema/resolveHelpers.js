@@ -8,7 +8,6 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
-const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { isUndefined } = require('lodash')
 
@@ -20,19 +19,23 @@ function calculateTicketOrder (resolvedData, statusId) {
     }
 }
 
-async function calculateReopenedCounter (context, existingItem, resolvedData) {
-    const existedStatusId = get(existingItem, 'status')
-    const resolvedStatusId = get(resolvedData, 'status')
+function calculateReopenedCounter (existingItem, resolvedData, existedStatus, resolvedStatus) {
+    const existedStatusType = get(existedStatus, 'type')
+    const resolvedStatusType = get(resolvedStatus, 'type')
 
-    if (existedStatusId) {
-        const existedStatus = await TicketStatus.getOne(context, { id: existedStatusId })
-        const resolvedStatus = await TicketStatus.getOne(context, { id: resolvedStatusId })
+    if (existedStatusType === COMPLETED_STATUS_TYPE && resolvedStatusType === NEW_OR_REOPENED_STATUS_TYPE) {
+        const existedStatusReopenedCounter = existingItem['statusReopenedCounter']
+        resolvedData['statusReopenedCounter'] = existedStatusReopenedCounter + 1
+        resolvedData['executor'] = null
+    }
+}
 
-        if (get(existedStatus, 'type') === COMPLETED_STATUS_TYPE && get(resolvedStatus, 'type') === NEW_OR_REOPENED_STATUS_TYPE) {
-            const existedStatusReopenedCounter = existingItem['statusReopenedCounter']
-            resolvedData['statusReopenedCounter'] = existedStatusReopenedCounter + 1
-            resolvedData['executor'] = null
-        }
+function calculateCompletedAt (resolvedData, existedStatus, resolvedStatus) {
+    const now = new Date().toISOString()
+    const resolvedStatusType = get(resolvedStatus, 'type')
+
+    if (resolvedStatusType === COMPLETED_STATUS_TYPE) {
+        resolvedData['completedAt'] = now
     }
 }
 
@@ -187,6 +190,7 @@ module.exports = {
     setClientNamePhoneEmailFieldsByDataFromUser,
     overrideTicketFieldsForResidentUserType,
     setClientIfContactPhoneAndTicketAddressMatchesResidentFields,
+    calculateCompletedAt,
     softDeleteTicketHintPropertiesByProperty,
     connectContactToTicket,
 }

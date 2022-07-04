@@ -39,9 +39,11 @@ const {
     calculateTicketOrder, calculateReopenedCounter,
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
     overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields, connectContactToTicket,
+    calculateCompletedAt,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
+const { UNIT_TYPES, FLAT_UNIT_TYPE, SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
+const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { sendTicketNotifications } = require('../utils/handlers')
@@ -355,12 +357,20 @@ const Ticket = new GQLListSchema('Ticket', {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
-            const resolvedStatusId = get(resolvedData, 'status')
+            const resolvedStatusId = get(resolvedData, 'status', null)
             const resolvedClient = get(resolvedData, 'client', null)
 
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
-                await calculateReopenedCounter(context, existingItem, resolvedData)
+
+                const existedStatusId = get(existingItem, 'status', null)
+                if (existedStatusId) {
+                    const existedStatus = await TicketStatus.getOne(context, { id: existedStatusId })
+                    const resolvedStatus = await TicketStatus.getOne(context, { id: resolvedStatusId })
+
+                    calculateReopenedCounter(existingItem, resolvedData, existedStatus, resolvedStatus)
+                    calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
+                }
             }
 
             // When creating ticket or updating ticket address,
