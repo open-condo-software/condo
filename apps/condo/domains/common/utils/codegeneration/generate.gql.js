@@ -82,6 +82,15 @@ function genDeleteGQL (key, fields) {
     `
 }
 
+function genDeleteMany (key, fields) {
+    const [, MODELS] = getModelForms(key)
+    return gql`
+        mutation delete${MODELS}($ids: [ID!]) {
+            objs: delete${MODELS}(ids: $ids) ${fields}
+        }
+    `
+}
+
 function generateGqlQueries (key, fields) {
     const [singularName, pluralName] = getModelForms(key)
 
@@ -96,6 +105,7 @@ function generateGqlQueries (key, fields) {
     const UPDATE_OBJ_MUTATION = genUpdateGQL(singularName, fields)
     const UPDATE_OBJS_MUTATION = genUpdateManyGQL(singularName, fields)
     const DELETE_OBJ_MUTATION = genDeleteGQL(singularName, fields)
+    const DELETE_OBJS_MUTATION = genDeleteMany(singularName, fields)
 
     return {
         SINGULAR_FORM: singularName,
@@ -109,6 +119,7 @@ function generateGqlQueries (key, fields) {
         UPDATE_OBJ_MUTATION,
         UPDATE_OBJS_MUTATION,
         DELETE_OBJ_MUTATION,
+        DELETE_OBJS_MUTATION,
     }
 }
 
@@ -181,7 +192,7 @@ function generateQueryWhereInput (schemaName, fieldsObj) {
 }
 
 function generateQuerySortBy (schemaName, fields) {
-    const [_, MODELS] = getModelForms(schemaName)
+    const [, MODELS] = getModelForms(schemaName)
 
     const resFields = fields.map(field => (
         `

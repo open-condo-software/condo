@@ -152,6 +152,14 @@ function generateGQLTestUtils (gql) {
         return data.obj
     }
 
+    async function deleteMany_ (client, ids, { raw = false } = {}) {
+        _checkClient(client)
+        const { data, errors } = await client.mutate(gql.DELETE_OBJS_MUTATION, { ids })
+        if (raw) return { data, errors }
+        throwIfError(data, errors, { query: gql.DELETE_OBJS_MUTATION, variables: { ids } })
+        return data.obj
+    }
+
     async function softDelete (client, id, extraAttrs = {}, { raw = false } = {}) {
         const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
         const attrs = {
@@ -195,6 +203,7 @@ function generateGQLTestUtils (gql) {
         update,
         updateMany,
         delete: delete_,
+        deleteMany: deleteMany_,
         softDelete,
         updateOrCreate,
     }
