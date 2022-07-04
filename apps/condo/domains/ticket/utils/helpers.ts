@@ -622,15 +622,15 @@ export function getHumanizeDeadlineDateDifference (ticket: ITicketUIState) {
 
     const diff = deadline.diff(deadlineStopPoint, 'day')
     const overdueDiff = dayjs.duration(diff, 'days').subtract(1, 'day').humanize()
-    const moreThanDayDiff = dayjs.duration(diff, 'days').humanize()
+    const dayDiff = dayjs.duration(diff, 'days').humanize()
 
     if (diff === 1) {
-        const dividedHumanizedDiff = moreThanDayDiff.split(' ')
-        const customOneDayDiff = `${diff} ${dividedHumanizedDiff[dividedHumanizedDiff.length - 1]}`
-        return { customOneDayDiff, overdueDiff }
+        const dividedHumanizedDiff = dayDiff.split(' ')
+        const oneDayDiff = `${diff} ${dividedHumanizedDiff[dividedHumanizedDiff.length - 1]}`
+        return { dayDiff: oneDayDiff, overdueDiff }
     }
 
-    return { moreThanDayDiff, overdueDiff }
+    return { dayDiff, overdueDiff }
 }
 
 /**
