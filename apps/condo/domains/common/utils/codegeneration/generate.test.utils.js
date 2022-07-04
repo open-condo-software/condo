@@ -131,7 +131,7 @@ function generateGQLTestUtils (gql) {
             data: [ ...attrsArray ],
         })
         if (raw) return { data, errors }
-        throwIfError(data, errors, { query: gql.UPDATE_OBJ_MUTATION, variables: { data: [...attrsArray] } })
+        throwIfError(data, errors, { query: gql.UPDATE_OBJS_MUTATION, variables: { data: [...attrsArray] } })
         return data.objs
     }
 
