@@ -490,6 +490,55 @@ async function createTestBillingReceipt (client, context, property, account, ext
     return [obj, attrs]
 }
 
+async function createTestBillingReceipts (client, contexts, properties, accounts, extraAttrsArray = []) {
+    if (!client) throw new Error('no client')
+    if (!Array.isArray(contexts) || !contexts.length) throw new Error('no contexts')
+    if (!Array.isArray(properties) || !properties.length) throw new Error('no properties')
+    if (!Array.isArray(accounts) || !accounts.length) throw new Error('no properties')
+    if (contexts.length !== properties.length) throw new Error('Contexts and properties not equal length')
+    if (contexts.length !== accounts.length) throw new Error('Contexts and accounts not equal length')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrsArray = []
+
+    for (let i = 0; i < contexts.length; i++) {
+        attrsArray.push({
+            data: {
+                dv: 1,
+                sender,
+                context: { connect: { id: contexts[i].id } },
+                property: { connect: { id: properties[i].id } },
+                account: { connect: { id: accounts[i].id } },
+                raw: { foo: faker.lorem.words() },
+                period: '2021-12-01',
+                importId: faker.random.alphaNumeric(8),
+                toPay: (faker.datatype.number() + 50).toString(),
+                recipient: createTestRecipient(),
+                services: [
+                    {
+                        id: faker.datatype.number().toString(),
+                        name: faker.random.alphaNumeric(),
+                        toPay: faker.datatype.number().toString(),
+                        toPayDetails: {
+                            formula: "charge + penalty",
+                            charge: faker.datatype.number().toString(),
+                            penalty: faker.datatype.number().toString(),
+                        }
+                    },
+                ],
+                toPayDetails: {
+                    formula: "charge + penalty",
+                    charge: faker.datatype.number().toString(),
+                    penalty: faker.datatype.number().toString(),
+                },
+                ...get(extraAttrsArray, `${i}`, {})
+            }
+        })
+    }
+    const objs = await BillingReceipt.createMany(client, attrsArray)
+    return [objs, attrsArray]
+}
+
 async function updateTestBillingReceipt (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -502,6 +551,26 @@ async function updateTestBillingReceipt (client, id, extraAttrs = {}) {
     }
     const obj = await BillingReceipt.update(client, id, attrs)
     return [obj, attrs]
+}
+
+async function updateTestBillingReceipts (client, attrsArray) {
+    if (!client) throw new Error('no client')
+    if (!attrsArray.every(element => element.id)) throw new Error('no id for all elements')
+    if (!attrsArray.every(element => element.data)) throw new Error('no data for all elements')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const extendedAttrsArray = attrsArray.map(element => ({
+        id: element.id,
+        data: {
+            dv: 1,
+            sender,
+            ...element.data,
+        }
+    }))
+
+    const obj = await BillingReceipt.updateMany(client, extendedAttrsArray)
+    return [obj, extendedAttrsArray]
 }
 
 async function createTestBillingCategory (client, extraAttrs = {}) {
@@ -645,6 +714,8 @@ async function makeOrganizationIntegrationManager(context = null) {
     }
     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
         canManageIntegrations: true,
+        canReadBillingReceipts: true,
+        canReadPayments: true,
     })
     const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
     await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
@@ -764,7 +835,7 @@ module.exports = {
     BillingMeterResource, createTestBillingMeterResource, updateTestBillingMeterResource,
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
-    BillingReceipt, createTestBillingReceipt, updateTestBillingReceipt,
+    BillingReceipt, createTestBillingReceipt, createTestBillingReceipts, updateTestBillingReceipt, updateTestBillingReceipts,
     makeContextWithOrganizationAndIntegrationAsAdmin,
     makeOrganizationIntegrationManager, addBillingIntegrationAndContext,
     BillingOrganization, updateTestBillingOrganization,

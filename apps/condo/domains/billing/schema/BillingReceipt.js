@@ -54,11 +54,11 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             isRequired: true,
             kmigratorOptions: { unique: true, null: false },
             hooks: {
-                validateInput: async ({ resolvedData, addValidationError }) => {
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
                     const resolvedImportId = get(resolvedData, ['importId'])
 
                     if (!resolvedImportId || typeof resolvedImportId !== 'string' || resolvedImportId.length === 0) {
-                        addValidationError(
+                        addFieldValidationError(
                             `${WRONG_TEXT_FORMAT}importId] Cannot mutate billing receipt with empty or null importId, found ${resolvedImportId}`)
                     }
                 },
