@@ -10,6 +10,7 @@ import { IClientSchema, OnCompleteFunc, TaskRecord, Task, TaskProgressTranslatio
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { CrossIcon } from '../icons/CrossIcon'
 import { CheckIcon } from '../icons/Check'
+import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
 
 interface ITaskProgressProps {
     task: TaskRecord
@@ -31,7 +32,6 @@ export const TaskProgress = ({ task, translations }: ITaskProgressProps) => (
         ) : (
             <Progress
                 type="circle"
-                percent={33}
                 width={22}
                 strokeWidth={14}
                 strokeColor={{
@@ -52,6 +52,11 @@ interface ITaskProgressTrackerProps {
     translations: TaskProgressTranslations
 }
 
+// Prevents calling handle function multiple times when tracking component will be remounted.
+// Component will be remounted because recommended technique of updating existing notification by Ant is used,
+// that replaces the current instance to new one.
+const handledCompletedStatesOfTasksIds = []
+
 export const TaskProgressTracker = ({ task: { id }, clientSchema, onComplete, translations }: ITaskProgressTrackerProps) => {
     const { obj: task, stopPolling } = clientSchema.useObject({
         where: { id },
@@ -66,7 +71,8 @@ export const TaskProgressTracker = ({ task: { id }, clientSchema, onComplete, tr
         }
         if (task.status === WORKER_TASK_COMPLETED) {
             stopPolling()
-            if (onComplete) {
+            if (onComplete && !handledCompletedStatesOfTasksIds.includes(task.id)) {
+                handledCompletedStatesOfTasksIds.push(task.id)
                 onComplete(task)
             }
         }
@@ -142,10 +148,37 @@ export const TasksProgress = ({ tasks }) => {
 }
 
 interface IDisplayTasksProgressArgs {
+    notificationApi: any
     title: string
     description: string
     tasks: Task[]
 }
+
+const MinimizeButtonStyle = {
+    position: 'absolute',
+    top: '20px',
+    right: '20px',
+}
+
+const TrackingComponent = ({ visible, description, tasks }) => (
+    <div style={{ display: visible ? 'block' : 'none' }}>
+        <Typography.Text style={{ color: colors.textSecondary }}>
+            {description}
+        </Typography.Text>
+        <List
+            dataSource={tasks}
+            renderItem={({ record, clientSchema, translations, onComplete }) => (
+                <TaskProgressTracker
+                    key={record.id}
+                    task={record}
+                    clientSchema={clientSchema}
+                    translations={translations}
+                    onComplete={onComplete}
+                />
+            )}
+        />
+    </div>
+)
 
 /**
  * Displays progress for all tasks in one panel
@@ -154,36 +187,51 @@ interface IDisplayTasksProgressArgs {
  * > Error: [React Intl] Could not find required `intl` object. <IntlProvider> needs to exist in the component ancestry.
  * Maybe it will be deprecated if it will not be possible to achieve desired UX with `notification` from Ant
  */
-export const displayTasksProgress = ({ title, description, tasks }: IDisplayTasksProgressArgs) => {
-    notification.open({
-        key: 'task-notification',
-        message: (
-            <Typography.Text strong>
-                {title}
-            </Typography.Text>
-        ),
-        icon: (
-            <InfoCircleOutlined style={{ color: colors.infoIconColor }}/>
-        ),
-        duration: 0,
-        description: (
-            <>
-                <Typography.Text style={{ color: colors.textSecondary }}>
-                    {description}
+export const displayTasksProgress = ({ notificationApi, title, description, tasks }: IDisplayTasksProgressArgs) => {
+    function displayNotification (extraArgs) {
+        notificationApi.open({
+            key: 'tasks',
+            className: 'tasks',
+            message: (
+                <Typography.Text strong>
+                    {title}
                 </Typography.Text>
-                <List
-                    dataSource={tasks}
-                    renderItem={({ record, clientSchema, translations, onComplete }) => (
-                        <TaskProgressTracker
-                            key={record.id}
-                            task={record}
-                            clientSchema={clientSchema}
-                            translations={translations}
-                            onComplete={onComplete}
-                        />
-                    )}
-                />
-            </>
-        ),
-    })
+            ),
+            icon: (
+                <InfoCircleOutlined style={{ color: colors.infoIconColor }}/>
+            ),
+            duration: 0,
+            ...extraArgs,
+        })
+    }
+
+    function displayCollapsedNotification () {
+        displayNotification({
+            description: (
+                <>
+                    <PlusOutlined
+                        onClick={displayExpandedNotification}
+                        style={MinimizeButtonStyle}
+                    />
+                    <TrackingComponent visible={false} description={description} tasks={tasks}/>
+                </>
+            ),
+        })
+    }
+
+    function displayExpandedNotification () {
+        displayNotification({
+            description: (
+                <>
+                    <MinusOutlined
+                        onClick={displayCollapsedNotification}
+                        style={MinimizeButtonStyle}
+                    />
+                    <TrackingComponent visible={true} description={description} tasks={tasks}/>
+                </>
+            ),
+        })
+    }
+
+    displayExpandedNotification()
 }
