@@ -11,7 +11,7 @@ function validatePeriod ({ resolvedData, fieldPath, addFieldValidationError }) {
     }
     const day = date.getDate()
     if (day !== 1) {
-        addFieldValidationError(`${fieldPath} field validation error. Period day should always equal 1`)
+        addFieldValidationError(`${fieldPath} field validation error. Period day should always be equal to 01`)
     }
 }
 
