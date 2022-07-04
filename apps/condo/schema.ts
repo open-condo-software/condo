@@ -6262,6 +6262,7 @@ export type BillingCategory = {
   sender?: Maybe<SenderField>;
   /**  Localized name of billing category: Hot water, Cold water, Housing Services  */
   name?: Maybe<Scalars['String']>;
+  nameNonLocalized?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -14840,6 +14841,7 @@ export type MeterReadingSource = {
   sender?: Maybe<SenderField>;
   type?: Maybe<MeterReadingSourceTypeType>;
   name?: Maybe<Scalars['String']>;
+  nameNonLocalized?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -15413,7 +15415,9 @@ export type MeterResource = {
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   name?: Maybe<Scalars['String']>;
+  nameNonLocalized?: Maybe<Scalars['String']>;
   measure?: Maybe<Scalars['String']>;
+  measureNonLocalized?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -24483,8 +24487,10 @@ export type OnBoardingStep = {
   order?: Maybe<Scalars['Int']>;
   /**  Shows the main point of a step.  */
   title?: Maybe<Scalars['String']>;
+  titleNonLocalized?: Maybe<Scalars['String']>;
   /**  Shows additional point of a step  */
   description?: Maybe<Scalars['String']>;
+  descriptionNonLocalized?: Maybe<Scalars['String']>;
   /**  Used for step transition logic calculation, if the value of this flag is true movement towards graph will be blocked.  */
   required?: Maybe<Scalars['Boolean']>;
   /**  Detect completness of the current step. If all steps in onBoarding will be completed, onBoarding completed state should be set to true.  */
@@ -25647,7 +25653,9 @@ export type OrganizationEmployeeRole = {
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   name?: Maybe<Scalars['String']>;
+  nameNonLocalized?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  descriptionNonLocalized?: Maybe<Scalars['String']>;
   /**  Employee status transitions map  */
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
@@ -40523,8 +40531,10 @@ export type TicketChange = {
   statusIdTo?: Maybe<Scalars['ID']>;
   /**  Old display name of related entity. Status is the step of the ticket processing workflow. Companies may have different ticket processing workflows  */
   statusDisplayNameFrom?: Maybe<Scalars['String']>;
+  statusDisplayNameFromNonLocalized?: Maybe<Scalars['String']>;
   /**  New display name of related entity. Status is the step of the ticket processing workflow. Companies may have different ticket processing workflows  */
   statusDisplayNameTo?: Maybe<Scalars['String']>;
+  statusDisplayNameToNonLocalized?: Maybe<Scalars['String']>;
   /**  Old id of related entity. Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client. This field indicates, that the Ticket is visible to a Resident and it has access to it. This field will be set to User of corresponding Resident in following cases: 1) the Ticket was created by Resident from mobile app;2) the Ticket was created by OrganizationEmployee with phone number, that matches some Resident;3) a Resident was registered after this Ticket was created and the Resident have the same phone number as in this Ticket, so this Ticket will be automatically connected to it.  */
   clientIdFrom?: Maybe<Scalars['ID']>;
   /**  New id of related entity. Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client. This field indicates, that the Ticket is visible to a Resident and it has access to it. This field will be set to User of corresponding Resident in following cases: 1) the Ticket was created by Resident from mobile app;2) the Ticket was created by OrganizationEmployee with phone number, that matches some Resident;3) a Resident was registered after this Ticket was created and the Resident have the same phone number as in this Ticket, so this Ticket will be automatically connected to it.  */
@@ -40611,8 +40621,10 @@ export type TicketChange = {
   sourceIdTo?: Maybe<Scalars['ID']>;
   /**  Old display name of related entity. Ticket source channel/system. Examples: call, email, visit, ...  */
   sourceDisplayNameFrom?: Maybe<Scalars['String']>;
+  sourceDisplayNameFromNonLocalized?: Maybe<Scalars['String']>;
   /**  New display name of related entity. Ticket source channel/system. Examples: call, email, visit, ...  */
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
+  sourceDisplayNameToNonLocalized?: Maybe<Scalars['String']>;
   /**  Type of employee who changed the ticket, can be employee role from same organization or related, resident or deleted employee  */
   changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -45502,6 +45514,7 @@ export type TicketSource = {
   type?: Maybe<TicketSourceTypeType>;
   /**  Localized Ticket source name  */
   name?: Maybe<Scalars['String']>;
+  nameNonLocalized?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -45890,6 +45903,7 @@ export type TicketStatus = {
   type?: Maybe<TicketStatusTypeType>;
   /**  Status name  */
   name?: Maybe<Scalars['String']>;
+  nameNonLocalized?: Maybe<Scalars['String']>;
   /**  Status colors, includes primary (font color), secondary (background color), additional (border color), all colors presented in HEX  */
   colors?: Maybe<TicketStatusColorsField>;
   id: Scalars['ID'];
