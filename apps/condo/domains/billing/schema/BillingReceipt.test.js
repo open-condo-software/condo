@@ -478,24 +478,46 @@ describe('BillingReceipt', () => {
                 [receipt] = await createTestBillingReceipt(admin, context, property, account)
                 payload = { deletedAt: dayjs().toISOString() }
             })
-            test('Hard delete is restricted for everyone', async () => {
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingReceipt.delete(admin, receipt.id)
+            describe('Hard delete is restricted for everyone', () => {
+                test('Single object mutation', async () => {
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingReceipt.delete(admin, receipt.id)
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingReceipt.delete(support, receipt.id)
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingReceipt.delete(integrationUser, receipt.id)
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingReceipt.delete(integrationManager, receipt.id)
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingReceipt.delete(user, receipt.id)
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingReceipt.delete(anonymous, receipt.id)
+                    })
                 })
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingReceipt.delete(support, receipt.id)
-                })
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingReceipt.delete(integrationUser, receipt.id)
-                })
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingReceipt.delete(integrationManager, receipt.id)
-                })
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingReceipt.delete(user, receipt.id)
-                })
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingReceipt.delete(anonymous, receipt.id)
+                test('Multiple objects mutation', async () => {
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingReceipt.deleteMany(admin, [receipt.id])
+                    })
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingReceipt.deleteMany(support, [receipt.id])
+                    })
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingReceipt.deleteMany(integrationUser, [receipt.id])
+                    })
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingReceipt.deleteMany(integrationManager, [receipt.id])
+                    })
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingReceipt.deleteMany(user, [receipt.id])
+                    })
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingReceipt.deleteMany(anonymous, [receipt.id])
+                    })
                 })
             })
             describe('Soft delete', () => {

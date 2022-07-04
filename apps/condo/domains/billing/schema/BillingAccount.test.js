@@ -367,24 +367,46 @@ describe('BillingAccount', () => {
                 [account] = await createTestBillingAccount(admin, context, property)
                 payload = { deletedAt: dayjs().toISOString() }
             })
-            test('Hard delete is restricted for everyone', async () => {
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingAccount.delete(admin, account.id)
+            describe('Hard delete is restricted for everyone', () => {
+                test('Single object mutation', async () => {
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingAccount.delete(admin, account.id)
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingAccount.delete(support, account.id)
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingAccount.delete(integrationUser, account.id)
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingAccount.delete(integrationManager, account.id)
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingAccount.delete(user, account.id)
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await BillingAccount.delete(anonymous, account.id)
+                    })
                 })
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingAccount.delete(support, account.id)
-                })
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingAccount.delete(integrationUser, account.id)
-                })
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingAccount.delete(integrationManager, account.id)
-                })
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingAccount.delete(user, account.id)
-                })
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BillingAccount.delete(anonymous, account.id)
+                test('Multiple objects mutation', async () => {
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingAccount.deleteMany(admin, [account.id])
+                    })
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingAccount.deleteMany(support, [account.id])
+                    })
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingAccount.deleteMany(integrationUser, [account.id])
+                    })
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingAccount.deleteMany(integrationManager, [account.id])
+                    })
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingAccount.deleteMany(user, [account.id])
+                    })
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await BillingAccount.deleteMany(anonymous, [account.id])
+                    })
                 })
             })
             describe('Soft delete', () => {
