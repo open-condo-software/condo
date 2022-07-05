@@ -4,7 +4,7 @@ import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Progress, Typography, List, Row, Col } from 'antd'
 import { useIntl } from '@core/next/intl'
-import { TASK_STATUS_REFRESH_POLL_INTERVAL, WORKER_TASK_COMPLETED } from '../../constants/worker'
+import { TASK_POLL_INTERVAL, TASK_COMPLETED_STATUS } from '../../constants/tasks'
 import { colors } from '../../constants/style'
 import {
     IClientSchema,
@@ -76,7 +76,7 @@ export const TaskProgress = ({ task, translations, progress }: ITaskProgressProp
             }
             description={translations.description(task)}
         />
-        {task.status === WORKER_TASK_COMPLETED ? (
+        {task.status === TASK_COMPLETED_STATUS ? (
             <CheckIcon/>
         ) : (
             <CircularProgress progress={progress}/>
@@ -104,7 +104,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task:
     const { obj: task, stopPolling } = clientSchema.useObject({
         where: { id },
     }, {
-        pollInterval: TASK_STATUS_REFRESH_POLL_INTERVAL,
+        pollInterval: TASK_POLL_INTERVAL,
     })
 
     useEffect(() => {
@@ -112,7 +112,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task:
             console.error('Could not fetch task status')
             return
         }
-        if (task.status === WORKER_TASK_COMPLETED) {
+        if (task.status === TASK_COMPLETED_STATUS) {
             stopPolling()
             if (onComplete && !handledCompletedStatesOfTasksIds.includes(task.id)) {
                 handledCompletedStatesOfTasksIds.push(task.id)
