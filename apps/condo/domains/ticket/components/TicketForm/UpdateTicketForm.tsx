@@ -1,18 +1,20 @@
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
-import { useOrganization } from '@core/next/organization'
+import { get, isEmpty } from 'lodash'
+import React, { useEffect, useMemo } from 'react'
 import { Form, Typography, Space } from 'antd'
+
+import { useOrganization } from '@core/next/organization'
 import { useIntl } from '@core/next/intl'
-import { BaseTicketForm } from '../BaseTicketForm'
+
 import { Button } from '@condo/domains/common/components/Button'
-import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
-import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
+import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
+import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
+
+import { BaseTicketForm } from '../BaseTicketForm'
+import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
@@ -81,6 +83,11 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    const ticketSourceType = useMemo(() => get(obj, ['source', 'type']), [obj])
+    const ticketAssignee = useMemo(() => get(obj, 'assignee'), [obj])
+
+    const autoAssign = isEmpty(ticketAssignee) && ticketSourceType === TICKET_SOURCE_TYPES.MOBILE_APP
+
     if (error || loading) {
         return (
             <>
@@ -92,6 +99,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
 
     return (
         <BaseTicketForm
+            autoAssign={autoAssign}
             action={updateAction}
             initialValues={Ticket.convertToUIFormState(obj)}
             organization={organization}
