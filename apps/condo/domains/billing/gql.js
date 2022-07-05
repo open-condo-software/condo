@@ -51,6 +51,14 @@ const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIEL
 const RESIDENT_BILLING_RECEIPTS_FIELDS =  `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
 
+// TODO(codegen): write return type result!
+
+const REGISTER_BILLING_RECEIPTS_MUTATION = gql`
+    mutation registerBillingReceipts ($data: RegisterBillingReceiptsInput!) {
+        result: registerBillingReceipts(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -68,5 +76,8 @@ module.exports = {
     RESIDENT_BILLING_RECEIPTS_FIELDS,
     BillingRecipient,
     BillingCategory,
+
+    REGISTER_BILLING_RECEIPTS_MUTATION,
+
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
