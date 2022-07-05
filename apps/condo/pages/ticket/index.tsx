@@ -16,7 +16,7 @@ import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { Ticket, TicketFilterTemplate, TicketExportTask } from '@condo/domains/ticket/utils/clientSchema'
+import { Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
@@ -38,12 +38,8 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch'
-import { TaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useAuth } from '@core/next/auth'
-import { WORKER_TASK_COMPLETED, WORKER_TASK_PROCESSING } from '@condo/domains/common/constants/worker'
-import { TASK_PROGRESS_UNKNOWN } from '@condo/domains/common/components/tasks'
-import { CircularProgress } from '../../domains/common/components/tasks/TaskProgress'
+import { useTicketExportTask } from '../../domains/ticket/hooks/useTicketExportTask'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -76,11 +72,7 @@ export const TicketsPageContent = ({
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
-    const TicketExportTaskProgressTitle = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.title' })
-    const TicketExportTaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.processing' })
-    const TicketExportTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.completed' })
 
-    const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const auth = useAuth() as { user: { id: string } }
@@ -119,6 +111,14 @@ export const TicketsPageContent = ({
     const [returned, handleReturnedChange] = useReturnedSearch<IFilters>(loading)
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
     const isNoTicketsData = !tickets.length && isEmpty(filters) && !loading
+
+    const { TaskLauncher } = useTicketExportTask({
+        where: searchTicketsQuery,
+        sortBy,
+        format: EXCEL,
+        timeZone,
+        user: auth.user,
+    })
 
     const tooltipData = useFiltersTooltipData()
 
@@ -261,42 +261,7 @@ export const TicketsPageContent = ({
                                             data-cy={'ticket__table'}
                                         />
                                     </Col>
-                                    <TaskLauncher
-                                        label={ExportAsExcelLabel}
-                                        taskClientSchema={TicketExportTask}
-                                        attrs={{
-                                            dv: 1,
-                                            sender: getClientSideSenderInfo(),
-                                            where: searchTicketsQuery,
-                                            format: EXCEL,
-                                            sortBy: sortBy,
-                                            timeZone,
-                                            user: { connect: { id: auth.user.id } },
-                                        }}
-                                        translations={{
-                                            title: TicketExportTaskProgressTitle,
-                                            description: (taskRecord) => {
-                                                // Extra field `exportedTicketsCount` over `TaskRecord` type
-                                                // @ts-ignore
-                                                const { status, exportedTicketsCount } = taskRecord
-                                                return status === WORKER_TASK_COMPLETED
-                                                    ? TicketExportTaskProgressDescriptionCompleted
-                                                    : TicketExportTaskProgressDescriptionProcessing.replace('{n}', exportedTicketsCount || 0)
-                                            },
-                                        }}
-                                        calculateProgress={() => {
-                                            // There is no technical way to tell exact progress of the exporting tickets task
-                                            // because `GqlWithKnexLoadList` that is used on server-side of in `exportTicketsTask` module
-                                            // can't execute `count` SQL-requests
-                                            return TASK_PROGRESS_UNKNOWN
-                                        }}
-                                        onComplete={({ file }) => {
-                                            if (window) {
-                                                console.log('Downloading exported file')
-                                                window.location.href = file.publicUrl
-                                            }
-                                        }}
-                                    />
+                                    <TaskLauncher/>
                                 </Row>
                             )
                     }
