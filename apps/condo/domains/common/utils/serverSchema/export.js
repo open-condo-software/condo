@@ -1,15 +1,9 @@
-const fs = require('fs')
-const fetch = require('node-fetch')
 const { EXPORT_PROCESSING_BATCH_SIZE } = require('../../constants/export')
 const { COMPLETED } = require('@condo/domains/common/constants/export')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
-// const { UploadingFile } = require('@core/keystone/test.utils')
-const path = require('path')
-const conf = require('@core/config')
 const Upload = require('graphql-upload/public/Upload')
-const { updateItem } = require('@keystonejs/server-side-graphql-client')
 
 const errors = {
     NOTHING_TO_EXPORT: {
