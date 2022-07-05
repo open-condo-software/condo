@@ -28,7 +28,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             access: true,
             type: 'input RegisterBillingReceiptInput ' +
                 '{ ' +
-                    'integrationContext: BillingIntegrationOrganizationContextWhereUniqueInput! ' +
                     'importId: string!' +
 
                     'address: string!, ' +
@@ -60,21 +59,27 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
     mutations: [
         {
             access: access.canRegisterBillingReceipts,
-            schema: 'registerBillingReceipts(data: [RegisterBillingReceiptInput]!): RegisterBillingReceiptsOutput',
+            schema: 'registerBillingReceipts(data: { context: BillingIntegrationOrganizationContextWhereUniqueInput!, receipts: [RegisterBillingReceiptInput]! }): RegisterBillingReceiptsOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data } = args
+                const { context: billingContext, receipts } = args
+
+                // Step 0:
+                // Validate context
+
 
                 // Step 1:
                 // Validate data
-                for (const item of data) {
-                    const { integrationContext, importId, address, accountNumber, unitName, unitType, toPay, period, category, tin, iec, bic, bankAccount } = item
+                for (const receipt of receipts) {
+                    const { importId, address, accountNumber, unitName, unitType, toPay, period, category, tin, iec, bic, bankAccount } = receipt
 
 
                 }
 
+                // Step 2:
+                // Get data from condo:
 
-
-
+                // Step 3:
+                //
 
                 // TODO: throw errors in a following way
                 // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
