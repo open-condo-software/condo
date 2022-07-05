@@ -6,18 +6,67 @@ import { Progress, Typography, List, Row, Col } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { TASK_STATUS_REFRESH_POLL_INTERVAL, WORKER_TASK_COMPLETED } from '../../constants/worker'
 import { colors } from '../../constants/style'
-import { IClientSchema, OnCompleteFunc, TaskRecord, Task, TaskProgressTranslations } from './index'
+import {
+    IClientSchema,
+    OnCompleteFunc,
+    TaskRecord,
+    Task,
+    TaskProgressTranslations,
+    CalculateProgressFunc,
+    TaskDisplayProgressValue, TASK_PROGRESS_UNKNOWN,
+} from './index'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { CheckIcon } from '../icons/Check'
 import { MinusOutlined } from '@ant-design/icons'
 import { ExpandIcon } from '../icons/ExpandIcon'
 
+const InfiniteSpinningStyle = css`
+  @keyframes rotate {
+    100% {
+        transform: rotate(1turn);
+    }
+  }
+  .ant-progress-circle {
+    animation: rotate 1.6s linear infinite;
+  }
+`
+
+type ICircularProgressProps = {
+    progress: TaskDisplayProgressValue,
+}
+
+/**
+ * Gradient-colored circle that can be displayed in two states depending on value of a `progress` prop:
+ * 1. Known progress displaying as partially filled circle
+ * 2. Unknown progress displaying as "fully" filled spinning circle
+ * "Fully" filling is implemented as 99 percents to prevent displaying Ant `Progress` component in completed state
+ */
+export const CircularProgress = ({ progress }: ICircularProgressProps) => (
+    <Progress
+        type="circle"
+        width={22}
+        strokeWidth={14}
+        strokeColor={{
+            '0%': '#4CD174',
+            '100%': '#6DB8F2',
+        }}
+        strokeLinecap="square"
+        showInfo={false}
+        percent={progress === TASK_PROGRESS_UNKNOWN ? 99 : progress}
+        css={progress === TASK_PROGRESS_UNKNOWN ? InfiniteSpinningStyle : {}}
+    />
+)
+
 interface ITaskProgressProps {
     task: TaskRecord
     translations: TaskProgressTranslations
+    progress: TaskDisplayProgressValue
 }
 
-export const TaskProgress = ({ task, translations }: ITaskProgressProps) => (
+/**
+ * Displays task as an item in tasks list on panel
+ */
+export const TaskProgress = ({ task, translations, progress }: ITaskProgressProps) => (
     <List.Item>
         <List.Item.Meta
             title={
@@ -30,17 +79,7 @@ export const TaskProgress = ({ task, translations }: ITaskProgressProps) => (
         {task.status === WORKER_TASK_COMPLETED ? (
             <CheckIcon/>
         ) : (
-            <Progress
-                type="circle"
-                width={22}
-                strokeWidth={14}
-                strokeColor={{
-                    '0%': '#4CD174',
-                    '100%': '#6DB8F2',
-                }}
-                strokeLinecap="square"
-                showInfo={false}
-            />
+            <CircularProgress progress={progress}/>
         )}
     </List.Item>
 )
@@ -48,6 +87,7 @@ export const TaskProgress = ({ task, translations }: ITaskProgressProps) => (
 interface ITaskProgressTrackerProps {
     task: TaskRecord
     clientSchema: IClientSchema
+    calculateProgress: CalculateProgressFunc
     onComplete?: OnCompleteFunc
     translations: TaskProgressTranslations
 }
@@ -57,7 +97,10 @@ interface ITaskProgressTrackerProps {
 // that replaces the current instance to new one.
 const handledCompletedStatesOfTasksIds = []
 
-export const TaskProgressTracker = ({ task: { id }, clientSchema, onComplete, translations }: ITaskProgressTrackerProps) => {
+/**
+ * Polls tasks record for updates and handles its transition to completed status.
+ */
+export const TaskProgressTracker = ({ task: { id }, clientSchema, calculateProgress, onComplete, translations }: ITaskProgressTrackerProps) => {
     const { obj: task, stopPolling } = clientSchema.useObject({
         where: { id },
     }, {
@@ -78,8 +121,10 @@ export const TaskProgressTracker = ({ task: { id }, clientSchema, onComplete, tr
         }
     }, [task])
 
+    const progress: TaskDisplayProgressValue = calculateProgress(task)
+
     return task && (
-        <TaskProgress task={task} translations={translations}/>
+        <TaskProgress task={task} progress={progress} translations={translations}/>
     )
 }
 
@@ -96,7 +141,15 @@ const infoIconStyles = css`
   font-size: 20px;
 `
 
-export const TasksProgress = ({ tasks }) => {
+interface ITasksProgressProps {
+    tasks: Task[]
+}
+
+/**
+ * Summary for all current tasks that has the same layout as `notification` from Ant (with icon, title and description).
+ * Can be collapsed or expanded
+ */
+export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
     const intl = useIntl()
     const TitleMsg = intl.formatMessage({ id: 'tasks.progressNotification.title' })
     const DescriptionMsg = intl.formatMessage({ id: 'tasks.progressNotification.description' })
@@ -132,12 +185,13 @@ export const TasksProgress = ({ tasks }) => {
                     <List
                         style={{ display: collapsed ? 'none' : 'block' }}
                         dataSource={tasks}
-                        renderItem={({ record, clientSchema, translations, onComplete }) => (
+                        renderItem={({ record, clientSchema, translations, calculateProgress, onComplete }) => (
                             <TaskProgressTracker
                                 key={record.id}
                                 task={record}
                                 clientSchema={clientSchema}
                                 translations={translations}
+                                calculateProgress={calculateProgress}
                                 onComplete={onComplete}
                             />
                         )}
@@ -150,8 +204,6 @@ export const TasksProgress = ({ tasks }) => {
 
 interface IDisplayTasksProgressArgs {
     notificationApi: any
-    title: string
-    description: string
     tasks: Task[]
 }
 
