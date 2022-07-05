@@ -183,9 +183,10 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
         return (access) ? { [deletedAtField]: null } : false
     } else if (type === 'Object') {
         const currentWhereFilters = getWhereVariables(args)
+        const queryDeleted = get(args, ['context', 'req', 'query', 'deleted'])
 
         // If we explicitly pass the deletedAt filter - we wont hide deleted items
-        if (_queryHasSoftDeletedFieldDeep(currentWhereFilters, deletedAtField)) {
+        if (queryDeleted || _queryHasSoftDeletedFieldDeep(currentWhereFilters, deletedAtField)) {
             return access
         }
 
