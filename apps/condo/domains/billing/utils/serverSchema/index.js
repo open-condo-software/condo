@@ -22,6 +22,7 @@ const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billin
 const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 const { Payment } = require('@condo/domains/acquiring/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
+const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
@@ -55,6 +56,20 @@ async function exportPayments (context, data) {
 }
 
 const BillingCategory = generateServerUtils(BillingCategoryGQL)
+async function registerBillingReceipts (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write registerBillingReceipts serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_BILLING_RECEIPTS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerBillingReceipts',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -74,5 +89,6 @@ module.exports = {
     BillingRecipient,
     exportPayments,
     BillingCategory,
+    registerBillingReceipts,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
