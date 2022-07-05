@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react'
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { notification, Progress, Typography, List, Row, Col } from 'antd'
+import { Progress, Typography, List, Row, Col } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { TASK_STATUS_REFRESH_POLL_INTERVAL, WORKER_TASK_COMPLETED } from '../../constants/worker'
 import { colors } from '../../constants/style'
 import { IClientSchema, OnCompleteFunc, TaskRecord, Task, TaskProgressTranslations } from './index'
 import { InfoCircleOutlined } from '@ant-design/icons'
-import { CrossIcon } from '../icons/CrossIcon'
 import { CheckIcon } from '../icons/Check'
-import { MinusOutlined, PlusOutlined } from '@ant-design/icons'
+import { MinusOutlined } from '@ant-design/icons'
+import { ExpandIcon } from '../icons/ExpandIcon'
 
 interface ITaskProgressProps {
     task: TaskRecord
@@ -83,22 +83,12 @@ export const TaskProgressTracker = ({ task: { id }, clientSchema, onComplete, tr
     )
 }
 
-const TasksPanel = styled.div`
-  position: fixed;
-  right: 20px;
-  top: 20px;
-  border-radius: 12px;
-  background: white;
-  padding: 17px;
-  width: 376px;
-  box-shadow: 0px 4px 10px rgba(230, 232, 241, 0.8);
-  z-index: 99;
-`
-
-const closeIconStyles = css`
+const VisibilityControlButton = styled.div`
   position: absolute;
   right: 20px;
   top: 20px;
+  z-index: 1;
+  cursor: pointer;
 `
 
 const infoIconStyles = css`
@@ -110,14 +100,22 @@ export const TasksProgress = ({ tasks }) => {
     const intl = useIntl()
     const TitleMsg = intl.formatMessage({ id: 'tasks.progressNotification.title' })
     const DescriptionMsg = intl.formatMessage({ id: 'tasks.progressNotification.description' })
-    const [visible, setVisible] = useState(true)
+    const [collapsed, setCollapsed] = useState(false)
 
-    const handleCloseClick = () => {
-        setVisible(false)
+    const toggleCollapsed = () => {
+        setCollapsed(!collapsed)
     }
     return (
-        <TasksPanel style={{ display: visible ? 'block' : 'none' }}>
-            <CrossIcon className="close-icon" css={closeIconStyles} onClick={handleCloseClick}/>
+        <div>
+            <VisibilityControlButton
+                onClick={toggleCollapsed}
+            >
+                {collapsed ? (
+                    <ExpandIcon/>
+                ) : (
+                    <MinusOutlined/>
+                )}
+            </VisibilityControlButton>
             <Row>
                 <Col span={2}>
                     <InfoCircleOutlined css={infoIconStyles}/>
@@ -126,10 +124,13 @@ export const TasksProgress = ({ tasks }) => {
                     <Typography.Paragraph strong>
                         {TitleMsg}
                     </Typography.Paragraph>
-                    <Typography.Paragraph style={{ color: colors.textSecondary }}>
-                        {DescriptionMsg}
-                    </Typography.Paragraph>
+                    {!collapsed && (
+                        <Typography.Paragraph style={{ color: colors.textSecondary }}>
+                            {DescriptionMsg}
+                        </Typography.Paragraph>
+                    )}
                     <List
+                        style={{ display: collapsed ? 'none' : 'block' }}
                         dataSource={tasks}
                         renderItem={({ record, clientSchema, translations, onComplete }) => (
                             <TaskProgressTracker
@@ -143,7 +144,7 @@ export const TasksProgress = ({ tasks }) => {
                     />
                 </Col>
             </Row>
-        </TasksPanel>
+        </div>
     )
 }
 
@@ -154,84 +155,16 @@ interface IDisplayTasksProgressArgs {
     tasks: Task[]
 }
 
-const MinimizeButtonStyle = {
-    position: 'absolute',
-    top: '20px',
-    right: '20px',
-}
-
-const TrackingComponent = ({ visible, description, tasks }) => (
-    <div style={{ display: visible ? 'block' : 'none' }}>
-        <Typography.Text style={{ color: colors.textSecondary }}>
-            {description}
-        </Typography.Text>
-        <List
-            dataSource={tasks}
-            renderItem={({ record, clientSchema, translations, onComplete }) => (
-                <TaskProgressTracker
-                    key={record.id}
-                    task={record}
-                    clientSchema={clientSchema}
-                    translations={translations}
-                    onComplete={onComplete}
-                />
-            )}
-        />
-    </div>
-)
-
 /**
- * Displays progress for all tasks in one panel
- * NOTE: This component seems to be mounted outside of main App component scope and by trying to use utils from clientSchema,
- * following error occurs:
- * > Error: [React Intl] Could not find required `intl` object. <IntlProvider> needs to exist in the component ancestry.
- * Maybe it will be deprecated if it will not be possible to achieve desired UX with `notification` from Ant
+ * Displays progress for all tasks using one panel
  */
-export const displayTasksProgress = ({ notificationApi, title, description, tasks }: IDisplayTasksProgressArgs) => {
-    function displayNotification (extraArgs) {
-        notificationApi.open({
-            key: 'tasks',
-            className: 'tasks',
-            message: (
-                <Typography.Text strong>
-                    {title}
-                </Typography.Text>
-            ),
-            icon: (
-                <InfoCircleOutlined style={{ color: colors.infoIconColor }}/>
-            ),
-            duration: 0,
-            ...extraArgs,
-        })
-    }
-
-    function displayCollapsedNotification () {
-        displayNotification({
-            description: (
-                <>
-                    <PlusOutlined
-                        onClick={displayExpandedNotification}
-                        style={MinimizeButtonStyle}
-                    />
-                    <TrackingComponent visible={false} description={description} tasks={tasks}/>
-                </>
-            ),
-        })
-    }
-
-    function displayExpandedNotification () {
-        displayNotification({
-            description: (
-                <>
-                    <MinusOutlined
-                        onClick={displayCollapsedNotification}
-                        style={MinimizeButtonStyle}
-                    />
-                    <TrackingComponent visible={true} description={description} tasks={tasks}/>
-                </>
-            ),
-        })
-    }
-
-    displayExpandedNotification()
+export const displayTasksProgress = ({ notificationApi, tasks }: IDisplayTasksProgressArgs) => {
+    notificationApi.open({
+        key: 'tasks',
+        className: 'tasks',
+        duration: 0,
+        description: (
+            <TasksProgress tasks={tasks}/>
+        ),
+    })
 }
