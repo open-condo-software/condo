@@ -9,18 +9,6 @@ export type TaskProgressTranslations = {
     description: (task: TaskRecord) => string
 }
 
-/**
- * Basic set of fields, describing a task, obtained from condo API
- * Expected from all task records.
- */
-export type TaskRecord = {
-    id: string
-    status: typeof WORKER_TASK_COMPLETED | typeof WORKER_TASK_PROCESSING
-    progress: number
-    // Used to find appropriate `ITask` interface implementation for this record
-    __typename: string
-}
-
 // Should be used in case when there is no technical way to tell exactly the progress of the task
 export const TASK_PROGRESS_UNKNOWN = 'TASK_PROGRESS_UNKNOWN'
 
@@ -51,7 +39,20 @@ export interface ITask {
 }
 
 /**
- * Used to fetch actual state, display information in UI
+ * Basic set of fields, describing a task, obtained from GraphQL API
+ * Expected from all task records.
+ */
+export type TaskRecord = {
+    id: string
+    status: typeof WORKER_TASK_COMPLETED | typeof WORKER_TASK_PROCESSING
+    progress: number
+    // Used to find appropriate `ITask` interface implementation for this record
+    __typename: string
+}
+
+/**
+ * Task record from GraphQL API along with corresponding interface
+ * Used in all UI components for fetching its actual state and display it on notification-like panel
  */
 export interface ITaskTrackableItem extends ITask {
     record: TaskRecord
