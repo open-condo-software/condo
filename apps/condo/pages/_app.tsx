@@ -46,7 +46,10 @@ import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniA
 import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
 import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
-import { TasksContextProvider } from '../domains/common/components/tasks/TasksContextProvider'
+import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
+import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
+import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -158,12 +161,19 @@ const MyApp = ({ Component, pageProps }) => {
         isEndTrialSubscriptionReminderPopupVisible,
     } = useEndTrialSubscriptionReminderPopup()
 
+    // Use UI interfaces for all tasks, that are supposed to be tracked
+    const { TicketExportTask } = useTicketExportTaskUIInterface()
     const { MiniAppTask: MiniAppTaskUIInterface } = useMiniappTaskUIInterface()
+    // ... another interfaces of tasks should be used here
 
+    // Load all tasks with 'processing' status
+    const { records: ticketExportTasks } = TicketExportTask.clientSchema.useTasks({ status: TASK_STATUS.PROCESSING })
     const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING })
+    // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(() => [...miniAppTasks], [miniAppTasks])
     const uiInterfaces = useMemo(() => ({ MiniAppTask: MiniAppTaskUIInterface }), [MiniAppTaskUIInterface])
+    
 
     return (
         <>
