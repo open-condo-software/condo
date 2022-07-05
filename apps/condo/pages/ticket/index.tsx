@@ -42,6 +42,8 @@ import { TaskLauncher } from '@condo/domains/common/components/tasks/TaskLaunche
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useAuth } from '@core/next/auth'
 import { WORKER_TASK_COMPLETED, WORKER_TASK_PROCESSING } from '@condo/domains/common/constants/worker'
+import { TASK_PROGRESS_UNKNOWN } from '@condo/domains/common/components/tasks'
+import { CircularProgress } from '../../domains/common/components/tasks/TaskProgress'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -283,6 +285,12 @@ export const TicketsPageContent = ({
                                                     ? TicketExportTaskProgressDescriptionCompleted
                                                     : TicketExportTaskProgressDescriptionProcessing.replace('{n}', exportedTicketsCount || 0)
                                             },
+                                        }}
+                                        calculateProgress={() => {
+                                            // There is no technical way to tell exact progress of the exporting tickets task
+                                            // because `GqlWithKnexLoadList` that is used on server-side of in `exportTicketsTask` module
+                                            // can't execute `count` SQL-requests
+                                            return TASK_PROGRESS_UNKNOWN
                                         }}
                                         onComplete={({ file }) => {
                                             if (window) {

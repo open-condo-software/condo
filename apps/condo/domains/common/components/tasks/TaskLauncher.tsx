@@ -3,7 +3,7 @@ import { Form } from 'antd'
 import { DatabaseFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
-import { OnCompleteFunc, TaskProgressTranslations } from './index'
+import { OnCompleteFunc, CalculateProgressFunc, TaskProgressTranslations } from './index'
 import { TasksContext } from './TasksContextProvider'
 
 interface ITaskLauncherProps {
@@ -11,6 +11,7 @@ interface ITaskLauncherProps {
     taskClientSchema: any
     attrs: any
     translations: TaskProgressTranslations
+    calculateProgress: CalculateProgressFunc
     onComplete: OnCompleteFunc
     disabled?: boolean
     hidden?: boolean
@@ -26,6 +27,7 @@ export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
         taskClientSchema,
         attrs,
         translations,
+        calculateProgress,
         onComplete,
         hidden = false,
         disabled = false,
@@ -43,13 +45,14 @@ export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
             record,
             clientSchema: taskClientSchema,
             translations,
+            calculateProgress,
             onComplete: (result) => {
                 setLoading(false)
                 onComplete(result)
             },
         })
     })
-    
+
     const handleClick = useCallback(() => {
         launchTask()
     }, [launchTask])
