@@ -40519,7 +40519,7 @@ export type Ticket = {
   reviewComment?: Maybe<Scalars['String']>;
   /**  Status updated at time  */
   statusUpdatedAt?: Maybe<Scalars['String']>;
-  /**  The time when the ticket status changed to completed  */
+  /**  When status of the ticket was changed to completed  */
   completedAt?: Maybe<Scalars['String']>;
   /**  Text reason for status changes. Sometimes you should describe the reason why you change the `status`  */
   statusReason?: Maybe<Scalars['String']>;
@@ -41012,9 +41012,9 @@ export type TicketChange = {
   reviewCommentFrom?: Maybe<Scalars['String']>;
   /**  Resident's comment on ticket review  */
   reviewCommentTo?: Maybe<Scalars['String']>;
-  /**  The time when the ticket status changed to completed  */
+  /**  When status of the ticket was changed to completed  */
   completedAtFrom?: Maybe<Scalars['String']>;
-  /**  The time when the ticket status changed to completed  */
+  /**  When status of the ticket was changed to completed  */
   completedAtTo?: Maybe<Scalars['String']>;
   /**  Text reason for status changes. Sometimes you should describe the reason why you change the `status`  */
   statusReasonFrom?: Maybe<Scalars['String']>;

@@ -1608,7 +1608,7 @@ describe('Ticket', () => {
         })
 
         describe('completedAt', () => {
-            test('should be filled and updated automatically when ticket status changes to completed type', async () => {
+            test('should be filled and updated automatically when ticket status changes to "completed" value', async () => {
                 const admin = await makeLoggedInAdminClient()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1621,16 +1621,14 @@ describe('Ticket', () => {
                     status: { connect: { id: STATUS_IDS.COMPLETED } },
                 })
 
-                const completedAtAfterFirstTicketComplete = updatedTicket.completedAt
-
-                expect(completedAtAfterFirstTicketComplete).toBeDefined()
-                expect(completedAtAfterFirstTicketComplete).toMatch(DATETIME_RE)
+                expect(updatedTicket.completedAt).toBeDefined()
+                expect(updatedTicket.completedAt).toMatch(DATETIME_RE)
 
                 const [updatedTicket1] = await updateTestTicket(admin, ticket.id, {
                     status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
                 })
 
-                expect(updatedTicket1.completedAt).toEqual(completedAtAfterFirstTicketComplete)
+                expect(updatedTicket1.completedAt).toEqual(updatedTicket.completedAt)
 
                 const [updatedTicket2] = await updateTestTicket(admin, ticket.id, {
                     status: { connect: { id: STATUS_IDS.COMPLETED } },
@@ -1638,7 +1636,7 @@ describe('Ticket', () => {
 
                 expect(updatedTicket2.completedAt).toBeDefined()
                 expect(updatedTicket2.completedAt).toMatch(DATETIME_RE)
-                expect(dayjs(updatedTicket2.completedAt).isAfter(completedAtAfterFirstTicketComplete)).toBeTruthy()
+                expect(dayjs(updatedTicket2.completedAt).isAfter(updatedTicket.completedAt)).toBeTruthy()
             })
         })
     })

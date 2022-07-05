@@ -92,7 +92,7 @@ const Ticket = new GQLListSchema('Ticket', {
             type: DateTimeUtc,
         },
         completedAt: {
-            schemaDoc: 'The time when the ticket status changed to completed',
+            schemaDoc: 'When status of the ticket was changed to completed',
             type: DateTimeUtc,
         },
         statusReason: {
