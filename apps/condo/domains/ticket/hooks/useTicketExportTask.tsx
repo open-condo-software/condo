@@ -1,6 +1,6 @@
 import { useIntl } from '@core/next/intl'
 import { ITask, TASK_PROGRESS_UNKNOWN } from '@condo/domains/common/components/tasks'
-import { WORKER_TASK_COMPLETED } from '@condo/domains/common/constants/worker'
+import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { TaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { TicketExportTask } from '@condo/domains/ticket/utils/clientSchema'
@@ -20,7 +20,7 @@ export const useTicketExportTaskUIInterface = () => {
                 // Extra field `exportedTicketsCount` over `TaskRecord` type
                 // @ts-ignore
                 const { status, exportedTicketsCount } = taskRecord
-                return status === WORKER_TASK_COMPLETED
+                return status === TASK_COMPLETED_STATUS
                     ? TicketExportTaskProgressDescriptionCompleted
                     : TicketExportTaskProgressDescriptionProcessing.replace('{n}', exportedTicketsCount || 0)
             },

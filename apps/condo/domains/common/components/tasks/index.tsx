@@ -1,4 +1,4 @@
-import { WORKER_TASK_COMPLETED, WORKER_TASK_PROCESSING } from '../../constants/worker'
+import { TASK_COMPLETED_STATUS, TASK_PROCESSING_STATUS } from '../../constants/tasks'
 import { IHookResult } from '../../utils/codegeneration/generate.hooks'
 
 /**
@@ -44,7 +44,7 @@ export interface ITask {
  */
 export type TaskRecord = {
     id: string
-    status: typeof WORKER_TASK_COMPLETED | typeof WORKER_TASK_PROCESSING
+    status: typeof TASK_COMPLETED_STATUS | typeof TASK_PROCESSING_STATUS
     progress: number
     // Used to find appropriate `ITask` interface implementation for this record
     __typename: string

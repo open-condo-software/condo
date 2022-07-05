@@ -48,7 +48,7 @@ import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChart
 import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
 import { TasksContextProvider } from '../domains/common/components/tasks/TasksContextProvider'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
-import { WORKER_TASK_PROCESSING } from '../domains/common/constants/worker'
+import { TASK_PROCESSING_STATUS } from '../domains/common/constants/tasks'
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -165,7 +165,7 @@ const MyApp = ({ Component, pageProps }) => {
     // ... another interfaces of tasks should be used here
 
     // Load all tasks with 'processing' status
-    const tasksInProgressCondition = { status: WORKER_TASK_PROCESSING }
+    const tasksInProgressCondition = { status: TASK_PROCESSING_STATUS }
     const { objs: ticketExportTasks } = TicketExportTask.clientSchema.useObjects({ where: tasksInProgressCondition })
     // ... another task records should be loaded here
 
