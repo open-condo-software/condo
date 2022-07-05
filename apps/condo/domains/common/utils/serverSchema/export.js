@@ -4,7 +4,7 @@ const { EXPORT_PROCESSING_BATCH_SIZE } = require('../../constants/export')
 const { COMPLETED } = require('@condo/domains/common/constants/export')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
-const { WORKER_FINGERPRINT } = require('@condo/domains/common/constants/worker')
+const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 // const { UploadingFile } = require('@core/keystone/test.utils')
 const path = require('path')
 const conf = require('@core/config')
@@ -70,7 +70,7 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
                 dv: 1,
                 sender: {
                     dv: 1,
-                    fingerprint: WORKER_FINGERPRINT,
+                    fingerprint: TASK_WORKER_FINGERPRINT,
                 },
                 exportedRecordsCount: task.exportedRecordsCount + batch.length,
             })
