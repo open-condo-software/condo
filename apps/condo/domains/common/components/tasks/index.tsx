@@ -93,12 +93,12 @@ export type OnCompleteFunc = (taskRecord: any) => void
 export type IClientSchema = IHookResult<any, any, any>
 
 /**
- * Used to fetch actual state, display information in UI
+ * Data loading utils and abstract logic for a trackable task
+ * In case of loading task records on page load helps to use appropriate implementation for a loaded record
  */
-export type Task = {
-    record: TaskRecord
+export interface ITask {
+    clientSchema: IClientSchema
+    translations: TaskProgressTranslations
     calculateProgress: CalculateProgressFunc
     onComplete: OnCompleteFunc
-    translations: TaskProgressTranslations
-    clientSchema: IClientSchema
 }
