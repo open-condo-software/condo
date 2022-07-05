@@ -17,7 +17,7 @@ type PickerType =
 
 type PropsWithRef<P, R = any> = P & { ref?: React.ForwardedRef<R> }
 
-type MergedDatePickerType = React.FC<PropsWithRef<PickerProps<Dayjs>>> & {
+type DatePickerType = React.FC<PropsWithRef<PickerProps<Dayjs>>> & {
     WeekPicker: React.FC<PropsWithRef<Omit<PickerDateProps<Dayjs>, 'picker'>>>,
     MonthPicker: React.FC<PropsWithRef<Omit<PickerDateProps<Dayjs>, 'picker'>>>,
     YearPicker: React.FC<PropsWithRef<Omit<PickerDateProps<Dayjs>, 'picker'>>>,
@@ -26,20 +26,20 @@ type MergedDatePickerType = React.FC<PropsWithRef<PickerProps<Dayjs>>> & {
     QuarterPicker: React.FC<PropsWithRef<Omit<PickerTimeProps<Dayjs>, 'picker'>>>,
 }
 
-const DatePicker = generatePicker<Dayjs>(dayjsGenerateConfig)
+const _DatePicker = generatePicker<Dayjs>(dayjsGenerateConfig)
 
-const generateDatepickerWithLocale = (Picker: PickerType) => (props) => {
+const generateDatePickerWithLocale = (Picker: PickerType) => (props) => {
     const { locale } = useContext(ConfigProvider.ConfigContext)
 
     return <Picker locale={locale.DatePicker} {...props} />
 }
 
-const MergedDatePicker = generateDatepickerWithLocale(DatePicker) as MergedDatePickerType
-MergedDatePicker.WeekPicker = generateDatepickerWithLocale(DatePicker.WeekPicker)
-MergedDatePicker.MonthPicker = generateDatepickerWithLocale(DatePicker.MonthPicker)
-MergedDatePicker.YearPicker = generateDatepickerWithLocale(DatePicker.YearPicker)
-MergedDatePicker.RangePicker = generateDatepickerWithLocale(DatePicker.RangePicker)
-MergedDatePicker.TimePicker = generateDatepickerWithLocale(DatePicker.TimePicker)
-MergedDatePicker.QuarterPicker = generateDatepickerWithLocale(DatePicker.QuarterPicker)
+const DatePicker = generateDatePickerWithLocale(_DatePicker) as DatePickerType
+DatePicker.WeekPicker = generateDatePickerWithLocale(_DatePicker.WeekPicker)
+DatePicker.MonthPicker = generateDatePickerWithLocale(_DatePicker.MonthPicker)
+DatePicker.YearPicker = generateDatePickerWithLocale(_DatePicker.YearPicker)
+DatePicker.RangePicker = generateDatePickerWithLocale(_DatePicker.RangePicker)
+DatePicker.TimePicker = generateDatePickerWithLocale(_DatePicker.TimePicker)
+DatePicker.QuarterPicker = generateDatePickerWithLocale(_DatePicker.QuarterPicker)
 
-export default MergedDatePicker
+export default DatePicker
