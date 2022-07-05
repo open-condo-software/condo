@@ -26,7 +26,7 @@ type DatePickerType = React.FC<PropsWithRef<PickerProps<Dayjs>>> & {
     QuarterPicker: React.FC<PropsWithRef<Omit<PickerTimeProps<Dayjs>, 'picker'>>>,
 }
 
-const _DatePicker = generatePicker<Dayjs>(dayjsGenerateConfig)
+const DefaultDatePicker = generatePicker<Dayjs>(dayjsGenerateConfig)
 
 const generateDatePickerWithLocale = (Picker: PickerType) => (props) => {
     const { locale } = useContext(ConfigProvider.ConfigContext)
@@ -34,12 +34,12 @@ const generateDatePickerWithLocale = (Picker: PickerType) => (props) => {
     return <Picker locale={locale.DatePicker} {...props} />
 }
 
-const DatePicker = generateDatePickerWithLocale(_DatePicker) as DatePickerType
-DatePicker.WeekPicker = generateDatePickerWithLocale(_DatePicker.WeekPicker)
-DatePicker.MonthPicker = generateDatePickerWithLocale(_DatePicker.MonthPicker)
-DatePicker.YearPicker = generateDatePickerWithLocale(_DatePicker.YearPicker)
-DatePicker.RangePicker = generateDatePickerWithLocale(_DatePicker.RangePicker)
-DatePicker.TimePicker = generateDatePickerWithLocale(_DatePicker.TimePicker)
-DatePicker.QuarterPicker = generateDatePickerWithLocale(_DatePicker.QuarterPicker)
+const DatePicker = generateDatePickerWithLocale(DefaultDatePicker) as DatePickerType
+DatePicker.WeekPicker = generateDatePickerWithLocale(DefaultDatePicker.WeekPicker)
+DatePicker.MonthPicker = generateDatePickerWithLocale(DefaultDatePicker.MonthPicker)
+DatePicker.YearPicker = generateDatePickerWithLocale(DefaultDatePicker.YearPicker)
+DatePicker.RangePicker = generateDatePickerWithLocale(DefaultDatePicker.RangePicker)
+DatePicker.TimePicker = generateDatePickerWithLocale(DefaultDatePicker.TimePicker)
+DatePicker.QuarterPicker = generateDatePickerWithLocale(DefaultDatePicker.QuarterPicker)
 
 export default DatePicker
