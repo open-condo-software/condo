@@ -30,6 +30,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -847,6 +848,7 @@ module.exports = {
     BillingCategory, createTestBillingCategory, updateTestBillingCategory,
     makeResidentClientWithOwnReceipt,
     makeServiceUserForIntegration,
+registerBillingReceiptsByTestClient
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
