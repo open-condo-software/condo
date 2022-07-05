@@ -624,7 +624,7 @@ export function getHumanizeDeadlineDateDifference (ticket: ITicketUIState) {
     const overdueDiff = dayjs.duration(diff, 'days').subtract(1, 'day').humanize()
     const dayDiff = dayjs.duration(diff, 'days').humanize()
 
-    if (diff === 1) {
+    if (diff === 1) {  // case when diff equals 1 to make a string for ticket deadline of format 1 day (en) or 1 день (ru)
         const dividedHumanizedDiff = dayDiff.split(' ')
         const oneDayDiff = `${diff} ${dividedHumanizedDiff[dividedHumanizedDiff.length - 1]}`
         return { dayDiff: oneDayDiff, overdueDiff }
