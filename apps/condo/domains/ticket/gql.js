@@ -180,7 +180,7 @@ const TicketPropertyHint = generateGqlQueries('TicketPropertyHint', TICKET_PROPE
 const TICKET_PROPERTY_HINT_PROPERTY_FIELDS = `{ organization { id } ticketPropertyHint { id } property { ${TICKET_PROPERTY_FIELDS} } ${COMMON_FIELDS} }`
 const TicketPropertyHintProperty = generateGqlQueries('TicketPropertyHintProperty', TICKET_PROPERTY_HINT_PROPERTY_FIELDS)
 
-const TICKET_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone ${COMMON_FIELDS} }`
+const TICKET_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone __typename ${COMMON_FIELDS} }`
 const TicketExportTask = generateGqlQueries('TicketExportTask', TICKET_EXPORT_TASK_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
