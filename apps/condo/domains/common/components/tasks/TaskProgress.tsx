@@ -10,7 +10,7 @@ import {
     IClientSchema,
     OnCompleteFunc,
     TaskRecord,
-    Task,
+    ITaskTrackableItem,
     TaskProgressTranslations,
     CalculateProgressFunc,
     TaskDisplayProgressValue, TASK_PROGRESS_UNKNOWN,
@@ -100,7 +100,7 @@ const handledCompletedStatesOfTasksIds = []
 /**
  * Polls tasks record for updates and handles its transition to completed status.
  */
-export const TaskProgressTracker = ({ task: { id }, clientSchema, calculateProgress, onComplete, translations }: ITaskProgressTrackerProps) => {
+export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task: { id }, clientSchema, calculateProgress, onComplete, translations }) => {
     const { obj: task, stopPolling } = clientSchema.useObject({
         where: { id },
     }, {
@@ -142,7 +142,7 @@ const infoIconStyles = css`
 `
 
 interface ITasksProgressProps {
-    tasks: Task[]
+    tasks: ITaskTrackableItem[]
 }
 
 /**
@@ -204,7 +204,7 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
 
 interface IDisplayTasksProgressArgs {
     notificationApi: any
-    tasks: Task[]
+    tasks: ITaskTrackableItem[]
 }
 
 /**

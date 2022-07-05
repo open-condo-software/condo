@@ -10,7 +10,7 @@ import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/g
 import { TicketExportTask as TicketExportTaskGQL } from '@condo/domains/ticket/gql'
 import { TicketExportTask, TicketExportTaskUpdateInput, QueryAllTicketExportTasksArgs } from '../../../../schema'
 
-const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'status', 'format', 'exportedRecordsCount', 'totalRecordsCount', 'file', 'meta']
+const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'status', 'format', 'exportedRecordsCount', 'totalRecordsCount', 'file', 'meta', '__typename']
 const RELATIONS = []
 
 export interface ITicketExportTaskUIState extends TicketExportTask {
@@ -49,18 +49,22 @@ function convertToGQLInput (state: ITicketExportTaskFormState): TicketExportTask
 }
 
 const {
+    gql,
     useObject,
     useObjects,
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
 } = generateReactHooks<TicketExportTask, TicketExportTaskUpdateInput, ITicketExportTaskFormState, ITicketExportTaskUIState, QueryAllTicketExportTasksArgs>(TicketExportTaskGQL, { convertToGQLInput, convertToUIState })
 
 export {
+    gql,
     useObject,
     useObjects,
     useCreate,
     useUpdate,
     useDelete,
+    useSoftDelete,
     convertToUIFormState,
 }

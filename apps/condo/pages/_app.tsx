@@ -47,6 +47,8 @@ import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettin
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
 import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
 import { TasksContextProvider } from '../domains/common/components/tasks/TasksContextProvider'
+import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
+import { WORKER_TASK_PROCESSING } from '../domains/common/constants/worker'
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -158,6 +160,15 @@ const MyApp = ({ Component, pageProps }) => {
         isEndTrialSubscriptionReminderPopupVisible,
     } = useEndTrialSubscriptionReminderPopup()
 
+    // Use UI interfaces for all tasks, that are supposed to be tracked
+    const { TicketExportTask } = useTicketExportTaskUIInterface()
+    // ... another interfaces of tasks should be used here
+
+    // Load all tasks with 'processing' status
+    const tasksInProgressCondition = { status: WORKER_TASK_PROCESSING }
+    const { objs: ticketExportTasks } = TicketExportTask.clientSchema.useObjects({ where: tasksInProgressCondition })
+    // ... another task records should be loaded here
+
     return (
         <>
             <Head>
@@ -173,7 +184,12 @@ const MyApp = ({ Component, pageProps }) => {
                         <TrackingProvider>
                             <OnBoardingProvider>
                                 <SubscriptionProvider>
-                                    <TasksContextProvider>
+                                    <TasksContextProvider
+                                        initialTaskRecords={[
+                                            ...ticketExportTasks,
+                                        ]}
+                                        uiInterfaces={{ TicketExportTask }}
+                                    >
                                         <LayoutContextProvider>
                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                 <RequiredAccess>

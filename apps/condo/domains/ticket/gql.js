@@ -177,7 +177,7 @@ const TicketCommentsTime = generateGqlQueries('TicketCommentsTime', TICKET_COMME
 const USER_TICKET_COMMENT_READ_TIME_FIELDS = `{ user { id } ticket { id } readResidentCommentAt readCommentAt ${COMMON_FIELDS} }`
 const UserTicketCommentReadTime = generateGqlQueries('UserTicketCommentReadTime', USER_TICKET_COMMENT_READ_TIME_FIELDS)
 
-const TICKET_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone ${COMMON_FIELDS} }`
+const TICKET_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone __typename ${COMMON_FIELDS} }`
 const TicketExportTask = generateGqlQueries('TicketExportTask', TICKET_EXPORT_TASK_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

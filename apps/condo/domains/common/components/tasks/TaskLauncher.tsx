@@ -3,18 +3,15 @@ import { Form } from 'antd'
 import { DatabaseFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
-import { OnCompleteFunc, CalculateProgressFunc, TaskProgressTranslations } from './index'
 import { TasksContext } from './TasksContextProvider'
+import { ITask } from './index'
 
 interface ITaskLauncherProps {
     label: string
-    taskClientSchema: any
+    taskUIInterface: ITask
     attrs: any
-    translations: TaskProgressTranslations
-    calculateProgress: CalculateProgressFunc
-    onComplete: OnCompleteFunc
-    disabled?: boolean
     hidden?: boolean
+    disabled?: boolean
 }
 
 /**
@@ -24,11 +21,8 @@ interface ITaskLauncherProps {
 export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
     const {
         label,
-        taskClientSchema,
+        taskUIInterface,
         attrs,
-        translations,
-        calculateProgress,
-        onComplete,
         hidden = false,
         disabled = false,
     } = props
@@ -39,22 +33,20 @@ export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
     // @ts-ignore
     const { addTask } = useContext(TasksContext)
 
-    const launchTask = taskClientSchema.useCreate(attrs, record => {
+    const launchTask = taskUIInterface.clientSchema.useCreate({}, record => {
         setLoading(true)
         addTask({
             record,
-            clientSchema: taskClientSchema,
-            translations,
-            calculateProgress,
+            ...taskUIInterface,
             onComplete: (result) => {
                 setLoading(false)
-                onComplete(result)
+                taskUIInterface.onComplete(result)
             },
         })
     })
 
     const handleClick = useCallback(() => {
-        launchTask()
+        launchTask(attrs)
     }, [launchTask])
 
     return (

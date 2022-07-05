@@ -17,6 +17,8 @@ export type TaskRecord = {
     id: string
     status: typeof WORKER_TASK_COMPLETED | typeof WORKER_TASK_PROCESSING
     progress: number
+    // Used to find appropriate `ITask` interface implementation for this record
+    __typename: string
 }
 
 // Should be used in case when there is no technical way to tell exactly the progress of the task
@@ -38,12 +40,19 @@ export type OnCompleteFunc = (taskRecord: any) => void
 export type IClientSchema = IHookResult<any, any, any>
 
 /**
- * Used to fetch actual state, display information in UI
+ * Data loading utils and abstract logic for a trackable task
+ * In case of loading task records on page load helps to use appropriate implementation for a loaded record
  */
-export type Task = {
-    record: TaskRecord
+export interface ITask {
+    clientSchema: IClientSchema
+    translations: TaskProgressTranslations
     calculateProgress: CalculateProgressFunc
     onComplete: OnCompleteFunc
-    translations: TaskProgressTranslations
-    clientSchema: IClientSchema
+}
+
+/**
+ * Used to fetch actual state, display information in UI
+ */
+export interface ITaskTrackableItem extends ITask {
+    record: TaskRecord
 }
