@@ -47,7 +47,7 @@ export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
 
     const handleClick = useCallback(() => {
         launchTask(attrs)
-    }, [launchTask])
+    }, [launchTask, attrs])
 
     return (
         <Form.Item noStyle>
