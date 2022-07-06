@@ -65,7 +65,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
 
     const deleteCallback = useCallback(() => {
         return new Promise((resolve) => {
-            resolve(softDeleteAction({}, contact))
+            resolve(softDeleteAction(contact))
         })
     }, [softDeleteAction, contact])
 
@@ -177,9 +177,7 @@ const ContactInfoPage = () => {
         },
     })
 
-    const handleDeleteAction = Contact.useSoftDelete({
-        organization, phone: get(contact, 'phone'), name: get(contact, 'name'),
-    }, () => push('/contact/'))
+    const handleDeleteAction = Contact.useNewSoftDelete(() => push('/contact/'))
 
     if (error || loading) {
         return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>

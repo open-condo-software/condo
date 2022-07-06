@@ -241,7 +241,7 @@ export const EmployeePageContent = ({
                                                             title={ConfirmDeleteTitle}
                                                             message={ConfirmDeleteMessage}
                                                             okButtonLabel={ConfirmDeleteButtonLabel}
-                                                            action={() => softDeleteAction({}, employee)}
+                                                            action={() => softDeleteAction(employee)}
                                                         />
                                                         : null}
                                                 </Space>
@@ -275,7 +275,7 @@ export const EmployeeInfoPage = () => {
     )
 
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
-    const softDeleteAction = OrganizationEmployee.useSoftDelete({}, () => Router.push('/employee/'))
+    const softDeleteAction = OrganizationEmployee.useNewSoftDelete(() => Router.push('/employee/'))
 
     const isEmployeeEditable = canManageEmployee(link, employee)
     const isEmployeeReinvitable = canReinviteEmployee(link, employee)
