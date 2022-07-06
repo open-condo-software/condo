@@ -112,11 +112,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const meterCreateAction = Meter.useCreate({},
-        () => Promise.resolve())
+    const meterCreateAction = Meter.useNewCreate({})
 
-    const meterReadingCreateAction = MeterReading.useCreate({},
-        () => Promise.resolve())
+    const meterReadingCreateAction = MeterReading.useNewCreate({})
 
     const columns: Columns = useMemo(() => ([
         { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },
@@ -306,8 +304,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             meterId = addons.meterId
         } else {
             const newMeter = await meterCreateAction({
-                organization: String(userOrganizationId),
-                property: String(addons.propertyId),
+                organization: { connect: { id: String(userOrganizationId) } },
+                property: { connect: { id: String(addons.propertyId) } },
                 resource: addons.meterResourceId,
                 unitName: String(unitName),
                 unitType: String(addons.unitType),
@@ -325,9 +323,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
 
         return meterReadingCreateAction({
-            organization: String(userOrganizationId),
-            meter: meterId,
-            source: IMPORT_CONDO_METER_READING_SOURCE_ID,
+            organization: { connect: { id: String(userOrganizationId) } },
+            meter: { connect: { id: meterId } },
+            source: { connect: { id: IMPORT_CONDO_METER_READING_SOURCE_ID } },
             // GraphQL input requirements for decimal and date field type should be passed as strings.
             // It conflicts with typing system, so they are marked to be ignored by TypeScript
             // @ts-ignore

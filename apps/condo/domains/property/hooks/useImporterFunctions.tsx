@@ -5,7 +5,7 @@ import get from 'lodash/get'
 import { Property } from '../utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { MapEdit } from '../components/panels/Builder/MapConstructor'
-import { BuildingMapEntityType, BuildingMapType } from '@app/condo/schema'
+import { BuildingMapType, PropertyTypeType } from '@app/condo/schema'
 import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
 import { useIntl } from '@core/next/intl'
 
@@ -53,9 +53,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const createPropertyAction = Property.useCreate({
-        organization: userOrganizationId,
-    }, () => Promise.resolve())
+    const createPropertyAction = Property.useNewCreate({
+        organization: { connect: { id: userOrganizationId } },
+    })
 
     const columns: Columns = [
         { name: 'address', type: 'string', required: true, label: AddressLabel },
@@ -101,9 +101,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const value = get(property, 'value')
         const map = createPropertyUnitsMap(units.value, sections.value, floors.value)
         return createPropertyAction({
-            // @ts-ignore
             dv: 1,
-            type: 'building',
+            type: PropertyTypeType.Building,
             name: String(value),
             address: String(value),
             addressMeta: { ...property, dv: 1 },

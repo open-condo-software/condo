@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { Meter as MeterGQL } from '@condo/domains/meter/gql'
-import { Meter, MeterUpdateInput, QueryAllMetersArgs } from '@app/condo/schema'
+import { Meter, MeterCreateInput, MeterUpdateInput, QueryAllMetersArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'number', 'numberOfTariffs', 'installationDate', 'commissioningDate', 'verificationDate', 'nextVerificationDate', 'sealingDate', 'controlReadingsDate', 'accountNumber', 'organization', 'property', 'unitName', 'unitType', 'place', 'resource']
 const RELATIONS = ['organization', 'property', 'resource']
@@ -71,6 +72,13 @@ const {
     useDelete,
 } = generateReactHooks<Meter, MeterUpdateInput, IMeterFormState, IMeterUIState, QueryAllMetersArgs>(MeterGQL, { convertToGQLInput, convertToUIState })
 
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<Meter, MeterCreateInput, MeterUpdateInput, QueryAllMetersArgs>(MeterGQL)
 export {
     useObject,
     useObjects,
@@ -78,4 +86,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

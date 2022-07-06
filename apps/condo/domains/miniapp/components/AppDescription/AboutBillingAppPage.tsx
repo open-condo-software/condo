@@ -43,7 +43,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
 
     const redirectUrl = `/miniapps/${id}?type=${BILLING_APP_TYPE}`
 
-    const initialAction = BillingIntegrationOrganizationContext.useCreate({
+    const initialAction = BillingIntegrationOrganizationContext.useNewCreate({
         settings: { dv: 1 },
         state: { dv: 1 },
     }, () => {
@@ -51,7 +51,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
     })
 
     const createContextAction = useCallback(() => {
-        initialAction({ organization: organizationId, integration: id } )
+        initialAction({ organization: { connect: { id:organizationId } }, integration: { connect:{ id } } } )
     }, [initialAction, id, organizationId])
 
     // NOTE: Page visiting is valid if:

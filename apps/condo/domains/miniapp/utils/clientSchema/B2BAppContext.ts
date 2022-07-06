@@ -6,9 +6,11 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+
 
 import { B2BAppContext as B2BAppContextGQL } from '@condo/domains/miniapp/gql'
-import { B2BAppContext, B2BAppContextUpdateInput, QueryAllB2BAppContextsArgs } from '../../../../schema'
+import { B2BAppContext, B2BAppContextCreateInput, B2BAppContextUpdateInput, QueryAllB2BAppContextsArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'app', 'organization', 'status']
 const RELATIONS = ['app', 'organization']
@@ -55,6 +57,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<B2BAppContext, B2BAppContextUpdateInput, IB2BAppContextFormState, IB2BAppContextUIState, QueryAllB2BAppContextsArgs>(B2BAppContextGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<B2BAppContext, B2BAppContextCreateInput, B2BAppContextUpdateInput, QueryAllB2BAppContextsArgs>(B2BAppContextGQL)
 
 export {
     useObject,
@@ -63,4 +72,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

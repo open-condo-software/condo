@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Contact } from '../../utils/clientSchema'
 import { ContactFields, ContactsEditor, IContactEditorProps } from './index'
-import { IContactUIState } from '../../utils/clientSchema/Contact'
 import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
-import { BuildingUnitSubType } from '@app/condo/schema'
+import { BuildingUnitSubType, Contact as ContactType } from '@app/condo/schema'
 
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
@@ -13,7 +12,7 @@ interface IContactsEditorHookArgs {
     allowLandLine?: boolean,
 }
 
-type CreateContactType = (organization: string, property: string, unitName: string, unitType?: BuildingUnitSubType) => Promise<IContactUIState>
+type CreateContactType = (organization: string, property: string, unitName: string, unitType?: string) => Promise<ContactType>
 
 interface IContactsEditorHookResult {
     createContact: CreateContactType,
@@ -42,8 +41,7 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
         shouldCreateContactRef.current = shouldCreateContact
     }, [shouldCreateContact])
 
-    // @ts-ignore
-    const createContactAction = Contact.useCreate({}, () => Promise.resolve())
+    const createContactAction = Contact.useNewCreate({})
 
     const handleChangeContact = (values, isNew) => {
         setContactFields(values)
@@ -60,8 +58,8 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
                 return await createContactAction({
                     phone: contactFieldsRef.current.phone,
                     name: contactFieldsRef.current.name,
-                    organization,
-                    property,
+                    organization: { connect: { id: organization } },
+                    property: { connect: { id: property } },
                     unitName,
                     unitType,
                 })

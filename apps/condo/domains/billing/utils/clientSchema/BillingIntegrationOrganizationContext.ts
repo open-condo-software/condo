@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { BillingIntegrationOrganizationContext as BillingIntegrationOrganizationContextGQL } from '@condo/domains/billing/gql'
-import { BillingIntegrationOrganizationContext, BillingIntegrationOrganizationContextUpdateInput, QueryAllBillingIntegrationOrganizationContextsArgs } from '@app/condo/schema'
+import { BillingIntegrationOrganizationContext, BillingIntegrationOrganizationContextCreateInput, BillingIntegrationOrganizationContextUpdateInput, QueryAllBillingIntegrationOrganizationContextsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'integration', 'organization', 'settings', 'state', 'status', 'lastReport']
 const RELATIONS = ['integration', 'organization']
@@ -61,6 +62,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<BillingIntegrationOrganizationContext, BillingIntegrationOrganizationContextUpdateInput, IBillingIntegrationOrganizationContextFormState, IBillingIntegrationOrganizationContextUIState, QueryAllBillingIntegrationOrganizationContextsArgs>(BillingIntegrationOrganizationContextGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<BillingIntegrationOrganizationContext, BillingIntegrationOrganizationContextCreateInput, BillingIntegrationOrganizationContextUpdateInput, QueryAllBillingIntegrationOrganizationContextsArgs>(BillingIntegrationOrganizationContextGQL)
 
 export {
     useObject,
@@ -69,4 +77,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

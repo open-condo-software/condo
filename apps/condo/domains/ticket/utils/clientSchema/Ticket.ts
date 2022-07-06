@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
-import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '@app/condo/schema'
+import { Ticket, TicketCreateInput, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
@@ -108,6 +109,14 @@ const {
     useDelete,
 } = generateReactHooks<Ticket, TicketUpdateInput, ITicketFormState, ITicketUIState, QueryAllTicketsArgs>(TicketGQL, { convertToGQLInput, convertToUIState })
 
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<Ticket, TicketCreateInput, TicketUpdateInput, QueryAllTicketsArgs>(TicketGQL)
+
 export {
     useObject,
     useObjects,
@@ -117,4 +126,9 @@ export {
     convertToUIFormState,
     extractAttributes,
     getReviewMessageByValue,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }
