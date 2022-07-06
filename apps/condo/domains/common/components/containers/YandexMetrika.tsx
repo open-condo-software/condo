@@ -1,40 +1,36 @@
-import React from 'react'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
 import getConfig from 'next/config'
+
+import { YMInitializer } from 'react-yandex-metrika'
+import ym from 'react-yandex-metrika'
 
 const YandexMetrika = () => {
     const { publicRuntimeConfig } = getConfig()
     const { yandexMetrikaID } = publicRuntimeConfig
 
+    const router = useRouter()
+
+    useEffect(() => {
+        if (yandexMetrikaID) {
+            router.events.on('routeChangeComplete', () => {
+                ym('hit', window.location.pathname)
+            })
+        }
+    }, [])
+
     return yandexMetrikaID ? (
-        <div dangerouslySetInnerHTML={{
-            __html: (
-                `<script type="text/javascript">
-                    (function(m,e,t,r,i,k,a) {
-                        m[i] = m[i] || function() {
-                            (m[i].a=m[i].a||[]).push(arguments)
-                        }
-                        m[i].l=1*new Date()
-                        k=e.createElement(t),
-                        a=e.getElementsByTagName(t)[0],
-                        k.async=1,
-                        k.src=r,
-                        a.parentNode.insertBefore(k,a)
-                    })
-                    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-                    
-                    ym(${yandexMetrikaID}, "init", {
-                        defer: true,
-                        clickmap:true,
-                        trackLinks:true,
-                        accurateTrackBounce:true,
-                        webvisor:true
-                    });
-                    
-                    ym(${yandexMetrikaID}, 'hit', '/');
-                </script>`
-            ),
-        }}>
-        </div>
+        <YMInitializer
+            accounts={[yandexMetrikaID]}
+            options={{
+                defer: true,
+                clickmap:true,
+                trackLinks:true,
+                accurateTrackBounce:true,
+                webvisor:true,
+            }}
+        />
+
     ) : null
 }
 

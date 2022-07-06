@@ -100,6 +100,7 @@
     "react-phone-input-2": "^2.14.0",
     "react-progressive-image": "^0.6.0",
     "react-test-renderer": "^16.13.1",
+    "react-yandex-metrika": "^2.6.0",
     "redlock": "^5.0.0-beta.2",
     "rehype-raw": "5.1.0",
     "remark-gfm": "^1.0.0",
