@@ -49,7 +49,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
         if (isFunction(onUpdate)) onUpdate()
         setUpdating(false)
     }, [onUpdate, setUpdating])
-    const update = Ticket.useUpdate({}, handleUpdate)
+    const update = Ticket.useNewUpdate({}, handleUpdate)
 
     const updateTicketStatus = useCallback((variables) => runMutation({
         action:() => update(variables, ticket),
@@ -75,7 +75,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
 
     const handleChange = useCallback(({ value }) => {
         setUpdating(true)
-        updateTicketStatus({ status: value, statusUpdatedAt: new Date() })
+        updateTicketStatus({ status: { connect: { id: value } }, statusUpdatedAt: new Date() })
     }, [ticket, setUpdating])
 
     const { primary: backgroundColor, secondary: color } = ticket.status.colors

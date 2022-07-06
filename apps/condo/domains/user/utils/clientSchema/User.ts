@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { User as UserGQL } from '@condo/domains/user/gql'
-import { User, UserUpdateInput, QueryAllUsersArgs } from '@app/condo/schema'
+import { User, UserCreateInput, UserUpdateInput, QueryAllUsersArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'password', 'isAdmin', 'email', 'isEmailVerified', 'phone', 'isPhoneVerified', 'avatar', 'meta', 'importId']
 const RELATIONS = []
@@ -55,6 +56,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<User, UserUpdateInput, IUserFormState, IUserUIState, QueryAllUsersArgs>(UserGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<User, UserCreateInput, UserUpdateInput, QueryAllUsersArgs>(UserGQL)
 
 export {
     useObject,
@@ -63,4 +71,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }
