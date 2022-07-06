@@ -3,7 +3,7 @@ const { getSchemaCtx } = require('@core/keystone/schema')
 const GLOBAL_QUERY_LIMIT = 1000
 
 // When we load models with Apollo graphql - every relation on a field for every object makes sql request
-// For example, loading 50 tickets will cause a result of ~1000 sql gueries which is near server limit
+// For example, loading 50 tickets will cause a result of ~1000 sql queries which is near server limit
 // But we want to keep sortBy and where functionality from gql
 // What we do:
 // 1. We use gql to load fields from main table with sort and where
@@ -17,7 +17,7 @@ const GLOBAL_QUERY_LIMIT = 1000
 
 class GqlWithKnexLoadList {
 
-    constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [], offset, limit }) {
+    constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [] }) {
         if (!Reflect.has(where, 'deletedAt')) {
             where.deletedAt = null
         }
@@ -78,11 +78,11 @@ class GqlWithKnexLoadList {
             knexQuery.leftJoin(...join(idx))
         })
         knexQuery.whereIn('mainModel.id', ids)
-        if (this.offset) {
-            knexQuery.offset(this.offset)
+        if (offset) {
+            knexQuery.offset(offset)
         }
-        if (this.limit) {
-            knexQuery.limit(this.limit)
+        if (limit) {
+            knexQuery.limit(limit)
         }
         const joinTablesObjects = await knexQuery
         const main = Object.fromEntries(mainTableObjects.map(object => ([object.id, object])))
