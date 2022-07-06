@@ -923,8 +923,6 @@ describe('Ticket', () => {
             const [objUpdated] = await updateTestTicket(client, objCreated.id, payload)
 
             expect(objUpdated.assignee).toEqual(expect.objectContaining({ id: client.user.id }))
-            const IN_PROGRESS = 'aa5ed9c2-90ca-4042-8194-d3ed23cb7919'
-            expect(objUpdated.status).toEqual(expect.objectContaining({ id: IN_PROGRESS }))
         })
 
         test('admin: set ticket executor', async () => {
