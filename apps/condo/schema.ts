@@ -16037,10 +16037,6 @@ export type MultiPayment = {
    *  4. As an alias to the 'id' field on the MultiPayment List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
   /**  Total amount of withdraw. amount = amountWithoutExplicitFee + explicitFee + explicitServiceCharge  */
   amount?: Maybe<Scalars['String']>;
   /**  Amount of money which payer pays on top of initial "amount", which counts as fee for total "amount"  */
@@ -16090,6 +16086,10 @@ export type MultiPayment = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
 };
 
 
@@ -16115,8 +16115,6 @@ export type MultiPayment_PaymentsMetaArgs = {
 };
 
 export type MultiPaymentCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
   serviceFee?: Maybe<Scalars['String']>;
@@ -16142,6 +16140,8 @@ export type MultiPaymentCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 /**  A keystone list  */
@@ -16155,8 +16155,6 @@ export type MultiPaymentHistoryRecord = {
    *  4. As an alias to the 'id' field on the MultiPaymentHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['JSON']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
@@ -16183,14 +16181,14 @@ export type MultiPaymentHistoryRecord = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<MultiPaymentHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
 };
 
 export type MultiPaymentHistoryRecordCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['JSON']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
@@ -16216,6 +16214,8 @@ export type MultiPaymentHistoryRecordCreateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<MultiPaymentHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -16228,8 +16228,6 @@ export enum MultiPaymentHistoryRecordHistoryActionType {
 }
 
 export type MultiPaymentHistoryRecordUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['JSON']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
@@ -16255,6 +16253,8 @@ export type MultiPaymentHistoryRecordUpdateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<MultiPaymentHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -16263,18 +16263,6 @@ export type MultiPaymentHistoryRecordUpdateInput = {
 export type MultiPaymentHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<MultiPaymentHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<MultiPaymentHistoryRecordWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   amount?: Maybe<Scalars['JSON']>;
   amount_not?: Maybe<Scalars['JSON']>;
   amount_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -16531,6 +16519,18 @@ export type MultiPaymentHistoryRecordWhereInput = {
   newId_not?: Maybe<Scalars['JSON']>;
   newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -16570,8 +16570,6 @@ export type MultiPaymentRelateToOneInput = {
 };
 
 export type MultiPaymentUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
   serviceFee?: Maybe<Scalars['String']>;
@@ -16597,23 +16595,13 @@ export type MultiPaymentUpdateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 export type MultiPaymentWhereInput = {
   AND?: Maybe<Array<Maybe<MultiPaymentWhereInput>>>;
   OR?: Maybe<Array<Maybe<MultiPaymentWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitFee_not?: Maybe<Scalars['String']>;
   explicitFee_lt?: Maybe<Scalars['String']>;
@@ -16822,6 +16810,18 @@ export type MultiPaymentWhereInput = {
   newId_not?: Maybe<Scalars['String']>;
   newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
 };
 
 export type MultiPaymentWhereUniqueInput = {
@@ -37757,8 +37757,6 @@ export enum SortMetersBy {
 }
 
 export enum SortMultiPaymentHistoryRecordsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   ExplicitFeeAsc = 'explicitFee_ASC',
   ExplicitFeeDesc = 'explicitFee_DESC',
   ExplicitServiceChargeAsc = 'explicitServiceCharge_ASC',
@@ -37797,6 +37795,8 @@ export enum SortMultiPaymentHistoryRecordsBy {
   UpdatedAtDesc = 'updatedAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -37804,8 +37804,6 @@ export enum SortMultiPaymentHistoryRecordsBy {
 }
 
 export enum SortMultiPaymentsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   ExplicitFeeAsc = 'explicitFee_ASC',
   ExplicitFeeDesc = 'explicitFee_DESC',
   ExplicitServiceChargeAsc = 'explicitServiceCharge_ASC',
@@ -37853,7 +37851,9 @@ export enum SortMultiPaymentsBy {
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC'
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortOidcClientHistoryRecordsBy {
