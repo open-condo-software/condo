@@ -202,6 +202,8 @@ const exportTickets = async (taskId) => {
 
 const exportTicketsTask = createTask('exportTickets', async (taskId) => {
     await exportTickets(taskId)
+}, {
+    priority: 2,
 })
 
 
