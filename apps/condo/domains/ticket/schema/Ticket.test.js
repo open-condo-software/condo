@@ -915,6 +915,32 @@ describe('Ticket', () => {
             // TODO(pahaz): check others fields ...
         })
 
+        test('user: can change unitType to null', async () => {
+            const client = await makeClientWithProperty()
+            const payload = { details: 'new data', unitType: null }
+            const [objCreated] = await createTestTicket(client, client.organization, client.property)
+
+            expect(objCreated.unitType).toEqual(FLAT_UNIT_TYPE)
+
+            const [objUpdated, attrs] = await updateTestTicket(client, objCreated.id, payload)
+
+            expect(objUpdated.id).toEqual(objCreated.id)
+            expect(objUpdated.dv).toEqual(1)
+            expect(objUpdated.sender).toEqual(attrs.sender)
+            expect(objUpdated.v).toEqual(2)
+            expect(objUpdated.newId).toEqual(null)
+            expect(objUpdated.deletedAt).toEqual(null)
+            expect(objUpdated.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+            expect(objUpdated.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+            expect(objUpdated.createdAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+            expect(objUpdated.details).toEqual(payload.details)
+            expect(objUpdated.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
+            expect(objUpdated.number).toEqual(objCreated.number)
+            expect(objUpdated.unitType).toBeNull()
+        })
+
         test('user: set ticket assignee', async () => {
             const client = await makeClientWithProperty()
             const [objCreated] = await createTestTicket(client, client.organization, client.property)

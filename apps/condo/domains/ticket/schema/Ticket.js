@@ -313,7 +313,12 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Flat number / door number of an apartment building (property). You need to take from Property.map',
             type: Text,
         },
-        unitType: UNIT_TYPE_FIELD,
+        unitType: {
+            ...UNIT_TYPE_FIELD,
+            // Allow to set unitType to null
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true },
+        },
         source: {
             schemaDoc: 'Ticket source channel/system. Examples: call, email, visit, ...',
             type: Relationship,
