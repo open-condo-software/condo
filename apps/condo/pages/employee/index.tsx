@@ -29,7 +29,7 @@ import { debounce, get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
-import { TableFiltersContainer } from '../../domains/common/components/TableFiltersContainer'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 

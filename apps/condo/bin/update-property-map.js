@@ -2,8 +2,8 @@ const path = require('path')
 const { Client } = require('pg')
 const {
     Property,
-} = require('../domains/property/utils/serverSchema')
-const { normalizePropertyMap } = require('../domains/property/utils/serverSchema/helpers')
+} = require('@condo/domains/property/utils/serverSchema')
+const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { has } = require('lodash')
 

@@ -14,7 +14,7 @@ import some from 'lodash/some'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
-import { WelcomePopup } from '../domains/onboarding/components/WelcomePopup'
+import { WelcomePopup } from '@condo/domains/onboarding/components/WelcomePopup'
 import { useOrganization } from '@core/next/organization'
 import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/common'
 
