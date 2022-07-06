@@ -30,7 +30,7 @@ FROM (
          SELECT t.id as "ticketId", MAX(tc."createdAt") as "completedAt"
          FROM "Ticket" t
                   JOIN "TicketChange" tc
-                       ON t.id = tc.ticket AND tc."statusDisplayNameTo" = 'ticket.status.COMPLETED.name'
+                  ON t.id = tc.ticket AND tc."statusIdTo" = '5b9decd7-792c-42bb-b16d-822142fd2d69'
          GROUP BY t.id
      ) "TicketCompletedTime"
 WHERE "Ticket".id = "TicketCompletedTime"."ticketId";
