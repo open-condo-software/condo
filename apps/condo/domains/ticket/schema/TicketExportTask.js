@@ -108,6 +108,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             ref: 'User',
             isRequired: true,
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            knexOptions: { isNotNullable: true },
         },
 
     },
