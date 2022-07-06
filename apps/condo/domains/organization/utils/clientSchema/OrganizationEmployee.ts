@@ -5,10 +5,12 @@
 import { pick, get, map, difference } from 'lodash'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { OrganizationEmployee as OrganizationEmployeeGQL } from '@condo/domains/organization/gql'
 import {
     OrganizationEmployee,
+    OrganizationEmployeeCreateInput,
     OrganizationEmployeeUpdateInput,
     QueryAllOrganizationEmployeesArgs,
 } from '@app/condo/schema'
@@ -124,6 +126,14 @@ const {
     useSoftDelete,
 } = generateReactHooks<OrganizationEmployee, OrganizationEmployeeUpdateInput, IOrganizationEmployeeFormState, IOrganizationEmployeeUIState, QueryAllOrganizationEmployeesArgs>(OrganizationEmployeeGQL, { convertToGQLInput, convertToUIState })
 
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<OrganizationEmployee, OrganizationEmployeeCreateInput, OrganizationEmployeeUpdateInput, QueryAllOrganizationEmployeesArgs>(OrganizationEmployeeGQL)
+
 export {
     useObject,
     useObjects,
@@ -134,4 +144,9 @@ export {
     convertGQLItemToFormSelectState,
     convertToGQLInput,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

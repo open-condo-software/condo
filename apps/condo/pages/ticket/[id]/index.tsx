@@ -573,9 +573,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         refetchComments()
         refetchCommentFiles()
     })
-    const deleteComment = TicketComment.useSoftDelete({}, () => {
-        refetchComments()
-    })
+    const deleteComment = TicketComment.useNewSoftDelete(() => refetchComments())
 
     const createCommentAction = TicketComment.useNewCreate({
         ticket: { connect: { id: id } },

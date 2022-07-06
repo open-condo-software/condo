@@ -9,7 +9,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 
-import { User } from '@app/condo/schema'
+import { User, TicketComment } from '@app/condo/schema'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 
@@ -23,7 +23,7 @@ import { TComment } from './index'
 interface ICommentProps {
     comment: TComment,
     setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
-    deleteAction?: (formValues, obj) => Promise<any>,
+    deleteAction?: (obj: TComment) => Promise<TicketComment>,
 }
 
 const DeleteButtonStyle = css`
@@ -236,7 +236,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const [dateShowMode, setDateShowMode] = useState<'created' | 'updated'>('created')
 
     const handleDeleteComment = useCallback(() => {
-        deleteAction({}, comment)
+        deleteAction(comment)
     }, [comment, deleteAction])
     const handleUpdateComment = useCallback(() => setEditableComment(comment), [comment, setEditableComment])
     const datetimeText = useMemo(() => dayjs(dateShowMode === 'created' ? comment.createdAt : comment.updatedAt).format(COMMENT_DATE_FORMAT),

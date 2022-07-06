@@ -4,7 +4,7 @@ import { Empty, Tabs, Typography } from 'antd'
 import styled from '@emotion/styled'
 
 import { useIntl } from '@core/next/intl'
-import { File, Organization, UserTypeType } from '@app/condo/schema'
+import { File, Organization, UserTypeType, TicketComment } from '@app/condo/schema'
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
@@ -95,7 +95,7 @@ const EmptyContainer = styled.div`
 
 type ActionsForComment = {
     updateAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
-    deleteAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
+    deleteAction?: (obj: ITicketCommentUIState) => Promise<TicketComment>,
 }
 
 const { TabPane } = Tabs
