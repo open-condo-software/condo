@@ -160,5 +160,7 @@ async function deliverMessage (messageId) {
 }
 
 module.exports = {
-    deliverMessage: createTask('deliverMessage', deliverMessage),
+    deliverMessage: createTask('deliverMessage', deliverMessage, {
+        priority: 1,
+    }),
 }
