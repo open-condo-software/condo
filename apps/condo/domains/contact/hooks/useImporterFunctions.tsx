@@ -53,9 +53,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    // @ts-ignore
-    const contactCreateAction = Contact.useCreate({},
-        () => Promise.resolve())
+    const contactCreateAction = Contact.useNewCreate({})
 
     const columns: Columns = [
         { name: 'Address', type: 'string', required: true, label: AddressTitle },
@@ -161,8 +159,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             }
             contactPool.push(
                 contactCreateAction({
-                    organization: String(userOrganizationId),
-                    property: String(row.addons.property),
+                    organization: { connect: { id: String(userOrganizationId) } },
+                    property: { connect: { id: String(row.addons.property) } },
                     unitName,
                     unitType: row.addons.unitType,
                     phone: phone,

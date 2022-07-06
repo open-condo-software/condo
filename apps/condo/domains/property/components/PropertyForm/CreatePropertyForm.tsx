@@ -6,8 +6,9 @@ import BasePropertyForm from '../BasePropertyForm'
 import { Button } from '@condo/domains/common/components/Button'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@core/next/organization'
+import { PropertyTypeType } from '@app/condo/schema'
 
-const DEFAULT_PROPERTY_TYPE = 'building'
+const DEFAULT_PROPERTY_TYPE = PropertyTypeType.Building
 
 const FORM_SUBMIT_BUTTON_STYLES = {
     marginTop: '60px',
@@ -19,8 +20,8 @@ export const CreatePropertyForm: React.FC = () => {
     const CreatePropertyMessage = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const router = useRouter()
     const { organization } = useOrganization()
-    const action = Property.useCreate({
-        organization: organization.id,
+    const action = Property.useNewCreate({
+        organization: { connect: { id: organization.id } },
         type: DEFAULT_PROPERTY_TYPE,
     }, (property) => { router.push(`/property/${property.id}`) })
 

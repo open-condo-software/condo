@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { TicketComment as TicketCommentGQL } from '@condo/domains/ticket/gql'
-import { TicketComment, TicketCommentUpdateInput, QueryAllTicketCommentsArgs, UserTypeType } from '@app/condo/schema'
+import { TicketComment, TicketCommentCreateInput, TicketCommentUpdateInput, QueryAllTicketCommentsArgs, UserTypeType } from '@app/condo/schema'
 import { ITicketCommentFileUIState } from './TicketCommentFile'
 
 const FIELDS = ['id', 'deletedAt', 'type', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'ticket', 'user', 'content']
@@ -69,6 +70,14 @@ const {
     useDelete,
     useSoftDelete,
 } = generateReactHooks<TicketComment, TicketCommentUpdateInput, ITicketCommentFormState, ITicketCommentUIState, QueryAllTicketCommentsArgs>(TicketCommentGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<TicketComment, TicketCommentCreateInput, TicketCommentUpdateInput, QueryAllTicketCommentsArgs>(TicketCommentGQL)
+
 
 export {
     useObject,
@@ -78,4 +87,9 @@ export {
     useDelete,
     useSoftDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

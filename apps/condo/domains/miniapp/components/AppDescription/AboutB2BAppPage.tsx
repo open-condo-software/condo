@@ -38,12 +38,12 @@ export const AboutB2BAppPage: React.FC<AboutB2BAppPageProps> = ({ id }) => {
 
     const redirectUrl = `/miniapps/${id}?type=${B2B_APP_TYPE}`
 
-    const initialAction = B2BAppContext.useCreate({}, () => {
+    const initialAction = B2BAppContext.useNewCreate({}, () => {
         router.push(redirectUrl)
     })
 
     const createContextAction = useCallback(() => {
-        initialAction({ organization: organizationId, app: id } )
+        initialAction({ organization: { connect: { id:organizationId } }, app: { connect: { id } } } )
     }, [initialAction, id, organizationId])
 
     // NOTE: Page visiting is valid if:

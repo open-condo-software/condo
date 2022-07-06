@@ -88,8 +88,8 @@ export const CreateContactForm: React.FC = () => {
     }, [selectedUnitType])
 
     // @ts-ignore
-    const action = Contact.useCreate({
-        organization: organization.id,
+    const action = Contact.useNewCreate({
+        organization: { connect: { id: organization.id } },
     }, () => {
         router.push('/contact/')
     })
@@ -100,7 +100,7 @@ export const CreateContactForm: React.FC = () => {
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
             formValuesToMutationDataPreprocessor={(values) => {
-                values.property = selectedPropertyIdRef.current
+                values.property = { connect: { id: selectedPropertyIdRef.current } }
                 values.unitName = selectedUnitNameRef.current
                 values.unitType = selectedUnitTypeRef.current
                 return values

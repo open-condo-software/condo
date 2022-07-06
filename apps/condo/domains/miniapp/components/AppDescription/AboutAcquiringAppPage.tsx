@@ -38,7 +38,7 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
 
     const redirectUrl = `/miniapps/${id}?type=${ACQUIRING_APP_TYPE}`
 
-    const initialAction = AcquiringIntegrationContext.useCreate({
+    const initialAction = AcquiringIntegrationContext.useNewCreate({
         settings: { dv: 1 },
         state: { dv: 1 },
     }, () => {
@@ -46,7 +46,7 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
     })
 
     const createContextAction = useCallback(() => {
-        initialAction({ organization: organizationId, integration: id } )
+        initialAction({ organization: { connect: { id: organizationId } }, integration: { connect: { id } } } )
     }, [initialAction, id, organizationId])
 
     // NOTE: Page visiting is valid if:

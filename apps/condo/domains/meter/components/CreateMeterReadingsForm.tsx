@@ -6,7 +6,7 @@ import { Gutter } from 'antd/es/grid/row'
 import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
-import { BuildingUnitSubType, BuildingUnitType, SortMeterReadingsBy, SortMetersBy } from '@app/condo/schema'
+import { BuildingUnitSubType, SortMeterReadingsBy, SortMetersBy } from '@app/condo/schema'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
@@ -225,8 +225,8 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
 
     const router = useRouter()
 
-    const createMeterReadingAction = MeterReading.useCreate({
-        source: CALL_METER_READING_SOURCE_ID,
+    const createMeterReadingAction = MeterReading.useNewCreate({
+        source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
     }, async () => {
         await router.push('/meter')
     })
@@ -242,14 +242,13 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
             const value2 = get(newMeterReading, '2')
             const value3 = get(newMeterReading, '3')
             const value4 = get(newMeterReading, '4')
-
             const { property, unitName, unitType, sectionName, floorName, ...clientInfo } = values
 
             createMeterReadingAction({
                 ...clientInfo,
-                organization: organization.id,
-                contact: get(createdContact, 'id') || values.contact,
-                meter: meterId,
+                organization: { connect: { id: organization.id } },
+                contact: { connect: { id: get(createdContact, 'id') || values.contact } },
+                meter: { connect: { id: meterId } },
                 date: new Date(),
                 value1,
                 value2,

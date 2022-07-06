@@ -4,10 +4,11 @@
 
 import { pick, get } from 'lodash'
 
-import { UserTicketCommentReadTime, UserTicketCommentReadTimeUpdateInput, QueryAllUserTicketCommentReadTimesArgs } from '@app/condo/schema'
+import { UserTicketCommentReadTime, UserTicketCommentReadTimeCreateInput, UserTicketCommentReadTimeUpdateInput, QueryAllUserTicketCommentReadTimesArgs } from '@app/condo/schema'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 import { UserTicketCommentReadTime as UserTicketCommentReadTimeGQL } from '@condo/domains/ticket/gql'
 import { IUserUIState } from '@condo/domains/user/utils/clientSchema/User'
 
@@ -64,6 +65,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<UserTicketCommentReadTime, UserTicketCommentReadTimeUpdateInput, IUserTicketCommentReadTimeFormState, IUserTicketCommentReadTimeUIState, QueryAllUserTicketCommentReadTimesArgs>(UserTicketCommentReadTimeGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<UserTicketCommentReadTime, UserTicketCommentReadTimeCreateInput, UserTicketCommentReadTimeUpdateInput, QueryAllUserTicketCommentReadTimesArgs>(UserTicketCommentReadTimeGQL)
 
 export {
     useObject,
@@ -72,4 +80,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

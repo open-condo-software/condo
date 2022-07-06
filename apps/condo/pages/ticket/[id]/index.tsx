@@ -577,10 +577,10 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         refetchComments()
     })
 
-    const createCommentAction = TicketComment.useCreate({
-        ticket: id,
-        user: auth.user && auth.user.id,
-    }, () => Promise.resolve())
+    const createCommentAction = TicketComment.useNewCreate({
+        ticket: { connect: { id: id } },
+        user: { connect: { id: auth.user && auth.user.id } },
+    })
 
     const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketCommentsTime.useObject({
         where: {
@@ -595,13 +595,13 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
             ticket: { id: id },
         },
     })
-    const createUserTicketCommentReadTime = UserTicketCommentReadTime.useCreate({
-        user: user.id,
-        ticket: id,
+    const createUserTicketCommentReadTime = UserTicketCommentReadTime.useNewCreate({
+        user: { connect: {  id: user.id } },
+        ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
-    const updateUserTicketCommentReadTime = UserTicketCommentReadTime.useUpdate({
-        user: user.id,
-        ticket: id,
+    const updateUserTicketCommentReadTime = UserTicketCommentReadTime.useNewUpdate({
+        user: { connect: {  id: user.id } },
+        ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
 
     const canShareTickets = get(employee, 'role.canShareTickets')

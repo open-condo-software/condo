@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 import dayjs from 'dayjs'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { Property as PropertyGQL } from '@condo/domains/property/gql'
-import { Property, PropertyUpdateInput, QueryAllPropertiesArgs } from '@condo/domains/property/schema'
+import { Property, PropertyCreateInput, PropertyUpdateInput, QueryAllPropertiesArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'address', 'addressMeta', 'type', 'map', 'ticketsInWork', 'ticketsClosed', 'unitsCount', 'uninhabitedUnitsCount', 'yearOfConstruction', 'area']
 const RELATIONS = ['organization']
@@ -92,6 +93,13 @@ const {
     useDelete,
     useSoftDelete,
 } = generateReactHooks<Property, PropertyUpdateInput, IPropertyFormState, IPropertyUIState, QueryAllPropertiesArgs>(PropertyGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<Property, PropertyCreateInput, PropertyUpdateInput, QueryAllPropertiesArgs>(PropertyGQL)
 
 export {
     useObject,
@@ -102,4 +110,9 @@ export {
     useSoftDelete,
     convertToUIFormState,
     extractAttributes,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }
