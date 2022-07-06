@@ -32,7 +32,7 @@ export const useUpdateMeterModal = (refetch) => {
     const [selectedMeter, setSelectedMeter] = useState<IMeterUIState>()
     const meterNumber = get(selectedMeter, 'number')
 
-    const updateMeterAction = Meter.useUpdate({}, () => {
+    const updateMeterAction = Meter.useNewUpdate({}, () => {
         setSelectedMeter(null)
         refetch()
     })
@@ -43,7 +43,12 @@ export const useUpdateMeterModal = (refetch) => {
         }
     }, [selectedMeter])
 
-    const handleSubmit = useCallback(values => updateMeterAction(values, selectedMeter), [selectedMeter, updateMeterAction])
+    const handleSubmit = useCallback(values => {
+        if (values.resource) {
+            values.resource = { connect: { id: values.resource } }
+        }
+        updateMeterAction(values, selectedMeter)
+    }, [selectedMeter, updateMeterAction])
     const handleCancelModal = useCallback(() => setSelectedMeter(null), [setSelectedMeter])
 
     const handleDeleteButtonClick = useCallback(() => updateMeterAction({ deletedAt: new Date().toDateString() }, selectedMeter),

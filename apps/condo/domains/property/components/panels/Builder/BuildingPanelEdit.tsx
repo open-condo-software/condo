@@ -183,7 +183,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
     const { mapValidationError, map, updateMap: updateFormField, handleSave, property } = props
 
-    const quickSave = Property.useUpdate({}, () => notification.success({
+    const quickSave = Property.useNewUpdate({}, () => notification.success({
         message: ChangesSaved,
         placement: 'bottomRight',
     }))

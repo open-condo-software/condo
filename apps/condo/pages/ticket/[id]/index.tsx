@@ -569,7 +569,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         return comment
     }), [comments, ticketCommentFiles])
 
-    const updateComment = TicketComment.useUpdate({}, () => {
+    const updateComment = TicketComment.useNewUpdate({}, () => {
         refetchComments()
         refetchCommentFiles()
     })
@@ -829,7 +829,6 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     FileModel={TicketCommentFile}
                                     fileModelRelationField={'ticketComment'}
                                     ticket={ticket}
-                                    // @ts-ignore
                                     createAction={createCommentAction}
                                     updateAction={updateComment}
                                     refetchComments={refetchCommentsWithFiles}

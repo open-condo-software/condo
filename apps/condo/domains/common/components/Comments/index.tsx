@@ -4,10 +4,10 @@ import { Empty, Tabs, Typography } from 'antd'
 import styled from '@emotion/styled'
 
 import { useIntl } from '@core/next/intl'
-import { File, Organization, UserTypeType, TicketComment } from '@app/condo/schema'
+import { File, Organization, UserTypeType, TicketComment, TicketUpdateInput } from '@app/condo/schema'
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
-import { ITicketCommentFormState, ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
+import { ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { ITicketUIState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
@@ -94,7 +94,7 @@ const EmptyContainer = styled.div`
 `
 
 type ActionsForComment = {
-    updateAction?: (formValues: ITicketCommentFormState, obj: ITicketCommentUIState) => Promise<ITicketCommentUIState>,
+    updateAction?: (values: Partial<TicketUpdateInput>, obj: ITicketCommentUIState) => Promise<TicketComment>,
     deleteAction?: (obj: ITicketCommentUIState) => Promise<TicketComment>,
 }
 
@@ -248,8 +248,8 @@ const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) =>
 interface ICommentsListProps {
     ticket: ITicketUIState,
     comments: TComment[],
-    createAction?: (formValues) => Promise<TComment>,
-    updateAction?: (attrs, obj: TComment) => Promise<TComment>
+    createAction?: (formValues) => Promise<TicketComment>,
+    updateAction?: (attrs, obj: TComment) => Promise<TicketComment>
     // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
     actionsFor: (comment: TComment) => ActionsForComment,
     canCreateComments: boolean,
