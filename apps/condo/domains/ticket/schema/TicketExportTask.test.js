@@ -28,10 +28,11 @@ describe('TicketExportTask', () => {
         })
 
         it('cannot be created by user for another user', async () => {
-            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const firstUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const secondUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestTicketExportTask(userClient, userClient.user)
+                await createTestTicketExportTask(firstUserClient, secondUserClient.user)
             })
         })
 
