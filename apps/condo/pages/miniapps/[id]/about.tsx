@@ -9,7 +9,7 @@ import { useIntl } from '@core/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { AboutBillingAppPage, AboutAcquiringAppPage, AboutB2BAppPage } from '@condo/domains/miniapp/components/AppDescription'
 import { AppPageWrapper } from '@condo/domains/miniapp/components/AppPageWrapper'
-import { JAVASCRIPT_URL_XSS } from '../../../domains/common/constants/regexps'
+import { JAVASCRIPT_URL_XSS } from '@condo/domains/common/constants/regexps'
 
 const AboutMiniAppPage = () => {
     const intl = useIntl()

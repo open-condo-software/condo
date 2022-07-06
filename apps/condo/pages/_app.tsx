@@ -46,9 +46,9 @@ import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniA
 import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
 import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
-import { TasksContextProvider } from '../domains/common/components/tasks/TasksContextProvider'
+import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
-import { TASK_PROCESSING_STATUS } from '../domains/common/constants/tasks'
+import { TASK_PROCESSING_STATUS } from '@condo/domains/common/constants/tasks'
 
 const ANT_LOCALES = {
     ru: ruRU,

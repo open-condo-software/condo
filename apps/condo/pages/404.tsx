@@ -5,7 +5,7 @@ import { useIntl } from '@core/next/intl'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
-import { Button } from '../domains/common/components/Button'
+import { Button } from '@condo/domains/common/components/Button'
 import Router from 'next/router'
 
 export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`

@@ -39,7 +39,7 @@ import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch'
 import { useAuth } from '@core/next/auth'
-import { useTicketExportTask } from '../../domains/ticket/hooks/useTicketExportTask'
+import { useTicketExportTask } from '@condo/domains/ticket/hooks/useTicketExportTask'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
