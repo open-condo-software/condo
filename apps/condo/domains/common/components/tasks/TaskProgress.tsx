@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
+import React, { useEffect, useState } from 'react'
 import { Progress, Typography, List, Row, Col } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { TASK_POLL_INTERVAL, TASK_COMPLETED_STATUS } from '../../constants/tasks'
