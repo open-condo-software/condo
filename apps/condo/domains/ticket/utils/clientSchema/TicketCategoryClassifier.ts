@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { TicketCategoryClassifier as TicketCategoryClassifierGQL } from '@condo/domains/ticket/gql'
-import { TicketCategoryClassifier, TicketCategoryClassifierUpdateInput, QueryAllTicketCategoryClassifiersArgs } from '@app/condo/schema'
+import { TicketCategoryClassifier, TicketCategoryClassifierCreateInput, TicketCategoryClassifierUpdateInput, QueryAllTicketCategoryClassifiersArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name']
 const RELATIONS = ['organization']
@@ -55,6 +56,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<TicketCategoryClassifier, TicketCategoryClassifierUpdateInput, ITicketCategoryClassifierFormState, ITicketCategoryClassifierUIState, QueryAllTicketCategoryClassifiersArgs>(TicketCategoryClassifierGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<TicketCategoryClassifier, TicketCategoryClassifierCreateInput, TicketCategoryClassifierUpdateInput, QueryAllTicketCategoryClassifiersArgs>(TicketCategoryClassifierGQL)
 
 export {
     useObject,
@@ -63,4 +71,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

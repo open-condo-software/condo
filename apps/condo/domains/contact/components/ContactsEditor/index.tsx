@@ -18,12 +18,11 @@ import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { IContactUIState } from '@condo/domains/contact/utils/clientSchema/Contact'
 
 import { Labels } from './Labels'
 import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
 import { ContactOption } from './ContactOption'
-import { BuildingUnitSubType } from '@app/condo/schema'
+import { BuildingUnitSubType, Contact as ContactType } from '@app/condo/schema'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -117,7 +116,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [manuallyTypedContact, setManuallyTypedContact] = useState({ id: undefined, name: '', phone: '' })
     const [displayEditableContactFields, setDisplayEditableContactFields] = useState(false)
     const [isInitialContactsLoaded, setIsInitialContactsLoaded] = useState<boolean>()
-    const [initialContacts, setInitialContacts] = useState<IContactUIState[]>([])
+    const [initialContacts, setInitialContacts] = useState<ContactType[]>([])
 
     const initialContactsQuery = useMemo(() => ({
         organization: { id: organization },
@@ -135,7 +134,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         loading: contactsLoading,
         error,
         refetch: refetchContacts,
-    } = Contact.useObjects({
+    } = Contact.useNewObjects({
         where: initialContactsQuery,
         first: 100,
     })
@@ -143,7 +142,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const {
         objs: fetchedEmployees,
         refetch: refetchEmployees,
-    } = OrganizationEmployee.useObjects({
+    } = OrganizationEmployee.useNewObjects({
         where: initialEmployeesQuery,
         first: 100,
     })
