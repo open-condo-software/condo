@@ -15,10 +15,12 @@ async function canReadTicketExportTasks ({ authentication: { item: user } }) {
 async function canManageTicketExportTasks ({ authentication: { item: user }, originalInput, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-
     if (user.isAdmin) return true
 
     if (operation === 'create') {
+        // Ideally this check should be in `validateInput`, but Keystone calls access check functions first
+        // So, handle this case as not allowed, rather than invalid input (which would logically be more correct)
+        if (!originalInput.user) return false
         if (originalInput.user.connect.id === user.id) {
             return true
         }
