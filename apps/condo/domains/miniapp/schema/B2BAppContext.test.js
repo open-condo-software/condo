@@ -240,7 +240,7 @@ describe('B2BAppContext', () => {
                 expect(context).toHaveProperty('status', status)
             })
         })
-        test('Organization and integration fields cannot be changed', async () => {
+        test('Organization and app fields cannot be changed', async () => {
             const admin = await makeLoggedInAdminClient()
             const [app] = await createTestB2BApp(admin)
             const [organization] = await registerNewOrganization(admin)
