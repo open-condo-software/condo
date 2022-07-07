@@ -57,16 +57,15 @@ const TicketPropertyHintAlert: React.FC<TicketPropertyHintAlertProps> = ({ hintF
         { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
     ), [queryFilters])
     const linkHref = useMemo(() => '/settings' + query, [query])
-    const showHintsMessageHandler = useCallback(() => router.push(linkHref), [linkHref, router])
 
     const AlertDescription = useMemo(() => (
         <>
             <Typography.Paragraph style={TEXT_STYLES}>{AlertContent}</Typography.Paragraph>
-            <Typography.Link style={HINT_LINK_STYLES} onClick={showHintsMessageHandler}>
+            <Typography.Link href={linkHref} target={'_blank'} style={HINT_LINK_STYLES}>
                 {ShowHintsMessage}
             </Typography.Link>
         </>
-    ), [AlertContent, ShowHintsMessage, showHintsMessageHandler])
+    ), [AlertContent, ShowHintsMessage, linkHref])
 
     return (
         <Alert
