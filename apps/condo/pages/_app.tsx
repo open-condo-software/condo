@@ -1,6 +1,6 @@
 import '@condo/domains/common/components/wdyr'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
@@ -50,6 +50,7 @@ import { TasksContextProvider } from '@condo/domains/common/components/tasks/Tas
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
+import { GlobalAppsContainer } from '../domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -167,7 +168,7 @@ const MyApp = ({ Component, pageProps }) => {
     // ... another interfaces of tasks should be used here
 
     // Load all tasks with 'processing' status
-    const { records: ticketExportTasks } = TicketExportTask.clientSchema.useTasks({ status: TASK_STATUS.PROCESSING })
+    const { records: ticketExportTasks } = TicketExportTask.storage.useTasks({ status: TASK_STATUS.PROCESSING })
     const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING })
     // ... another task records should be loaded here
 

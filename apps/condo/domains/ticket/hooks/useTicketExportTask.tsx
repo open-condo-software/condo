@@ -1,9 +1,10 @@
 import { useIntl } from '@core/next/intl'
-import { ITask, TASK_PROGRESS_UNKNOWN } from '@condo/domains/common/components/tasks'
+import { ITask, TASK_PROGRESS_UNKNOWN, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { TaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { TicketExportTask } from '@condo/domains/ticket/utils/clientSchema'
+import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
 
 export const useTicketExportTaskUIInterface = () => {
     const intl = useIntl()
@@ -11,11 +12,17 @@ export const useTicketExportTaskUIInterface = () => {
     const TicketExportTaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.processing' })
     const TicketExportTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.completed' })
 
-
+    /**
+     * We need this separation of behavior from data to determine which behaviour
+     * to use for initial loaded tasks by `__typename` field value
+     */
     const TaskUIInterface: ITask = {
-        clientSchema: TicketExportTask,
+        storage: new TasksCondoStorage({ clientSchema: TicketExportTask }),
+        removeStrategy: [TASK_REMOVE_STRATEGY.PANEL],
         translations: {
-            title: TicketExportTaskProgressTitle,
+            title: () => {
+                return TicketExportTaskProgressTitle
+            },
             description: (taskRecord) => {
                 // Extra field `exportedTicketsCount` over `TaskRecord` type
                 // @ts-ignore
@@ -40,6 +47,9 @@ export const useTicketExportTaskUIInterface = () => {
     }
 
     return {
+        // Key of object should match `__typename` value of `TicketExportTask` record (name of Keystone schema)
+        // This will be used to match this interface implementation with
+        // initial loaded record on first page load
         TicketExportTask: TaskUIInterface,
     }
 }

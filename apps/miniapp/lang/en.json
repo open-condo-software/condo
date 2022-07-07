@@ -1,5 +1,8 @@
 {
   "pages.index.PageTitle": "demo",
+  "pages.index.tasks.title": "Notifications about progress of tasks",
+  "pages.index.tasks.Add": "Add task to progress panel",
+  "pages.index.tasks.Update": "Update latest task on progress panel",
   "menu.Home": "Dashboard",
   "menu.Users": "Users",
   "WeAreStillDevelopingThisPage": "We are still **developing** this page, it is not **yet** available",

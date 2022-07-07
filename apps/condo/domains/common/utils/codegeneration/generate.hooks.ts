@@ -20,11 +20,13 @@ type IRefetchType<GQLObject, QueryVariables> = (variables?: Partial<QueryVariabl
 type IFetchMoreType<GQLObject, QueryVariables> = (<K extends keyof QueryVariables>(fetchMoreOptions: FetchMoreQueryOptions<QueryVariables, K, IUseObjectsQueryReturnType<GQLObject>> & FetchMoreOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>) & (<TData2, TVariables2, K extends keyof TVariables2>(fetchMoreOptions: {
     query?: DocumentNode | TypedDocumentNode<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>;
 } & FetchMoreQueryOptions<TVariables2, K, QueryVariables> & FetchMoreOptions<TData2, TVariables2>) => Promise<ApolloQueryResult<TData2>>)
+type IStopPollingType = () => void
 type IBasicUseQueryResult<GQLObject, QueryVariables> = {
     loading: boolean
     error?: string
     refetch: IRefetchType<GQLObject, QueryVariables>
     fetchMore: IFetchMoreType<GQLObject, QueryVariables>
+    stopPolling: IStopPollingType
 }
 type IUseObjectsReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables> & {
     objs: GQLObject[]
@@ -38,7 +40,7 @@ type IUseUpdateActionType<GQLObject, GQLUpdateInput> = (values: Partial<GQLUpdat
 type IUseSoftDeleteActionType<GQLObject> = (obj: IUUIDObject) => Promise<GQLObject>
 
 
-interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput, QueryVariables> {
+export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput, QueryVariables> {
     useCreate: (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<GQLObject>)
     => IUseCreateActionType<GQLObject, GQLCreateInput>
     useUpdate: (initialValues: Partial<GQLUpdateInput>, onComplete?: IOnCompleteType<GQLObject>)
@@ -168,7 +170,7 @@ export function generateReactHooks<
         const AccessDeniedError = intl.formatMessage({ id: 'AccessError' })
         const ServerError = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
 
-        const { data, error, loading, refetch, fetchMore } = useQuery<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
+        const { data, error, loading, refetch, fetchMore, stopPolling } = useQuery<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
             notifyOnNetworkStatusChange: true,
             ...options,
@@ -178,6 +180,7 @@ export function generateReactHooks<
         const count = (data && data.meta) ? data.meta.count : null
         const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
         const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
+        const typedStopPolling: IStopPollingType = stopPolling
 
         let readableError
 
@@ -193,11 +196,12 @@ export function generateReactHooks<
             error: readableError,
             refetch: typedRefetch,
             fetchMore: typedFetchMore,
+            stopPolling: typedStopPolling,
         }
     }
 
     function useObject (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
-        const { objs, count, error, loading, refetch, fetchMore } = useObjects(variables, options)
+        const { objs, count, error, loading, refetch, fetchMore, stopPolling } = useObjects(variables, options)
         if (count && count > 1) throw new Error('Wrong query condition! useObject hook must return single value!')
         const obj = (objs && objs.length) ? objs[0] : null
 
@@ -207,6 +211,7 @@ export function generateReactHooks<
             error,
             refetch,
             fetchMore,
+            stopPolling,
         }
     }
 
