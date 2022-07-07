@@ -3,7 +3,7 @@
  */
 
 const faker = require('faker')
-const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployee, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
@@ -21,6 +21,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
+    expectToThrowGraphQLRequestError,
 } = require('@condo/domains/common/utils/testSchema')
 
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
@@ -407,6 +408,26 @@ describe('AcquiringIntegrationContext', () => {
                     dv: 2,
                 })
             }, DV_UNKNOWN_VERSION_ERROR)
+        })
+        test('Organization and integration fields cannot be changed', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+            const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            const [secondOrganization] = await createTestOrganization(admin)
+            const [secondBillingIntegration] = await createTestBillingIntegration(admin)
+            const [secondIntegration] = await createTestAcquiringIntegration(admin, [secondBillingIntegration])
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestAcquiringIntegrationContext(admin,  context.id, {
+                    organization: { connect: { id: secondOrganization.id } },
+                })
+            }, 'Field "organization" is not defined')
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestAcquiringIntegrationContext(admin, context.id, {
+                    integration: { connect: { id: secondIntegration.id } },
+                })
+            }, 'Field "integration" is not defined')
         })
     })
     describe('Acquiring integration', () => {
