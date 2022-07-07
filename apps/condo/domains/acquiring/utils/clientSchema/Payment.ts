@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { Payment as PaymentGQL } from '@condo/domains/acquiring/gql'
-import { Payment, PaymentUpdateInput, QueryAllPaymentsArgs } from '../../../../schema'
+import { Payment, PaymentCreateInput, PaymentUpdateInput, QueryAllPaymentsArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'amount', 'currencyCode', 'explicitFee', 'explicitServiceCharge', 'implicitFee', 'advancedAt', 'accountNumber', 'purpose', 'frozenReceipt', 'status', 'period', 'recipientBic', 'recipientBankAccount', 'context', 'multiPayment', 'receipt']
 const RELATIONS = ['receipt', 'multiPayment', 'context', 'organization']
@@ -53,6 +54,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<Payment, PaymentUpdateInput, IPaymentFormState, IPaymentUIState, QueryAllPaymentsArgs>(PaymentGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<Payment, PaymentCreateInput, PaymentUpdateInput, QueryAllPaymentsArgs>(PaymentGQL)
 
 export {
     useObject,
@@ -61,4 +69,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

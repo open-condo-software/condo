@@ -6,10 +6,12 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { TicketCommentFile as TicketCommentFileGQL } from '@condo/domains/ticket/gql'
 import {
     TicketCommentFile,
+    TicketCommentFileCreateInput,
     TicketCommentFileUpdateInput,
     QueryAllTicketCommentFilesArgs,
     File,
@@ -67,6 +69,13 @@ const {
     useDelete,
     useSoftDelete,
 } = generateReactHooks<TicketCommentFile, TicketCommentFileUpdateInput, ITicketCommentFileFormState, ITicketCommentFileUIState, QueryAllTicketCommentFilesArgs>(TicketCommentFileGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<TicketCommentFile, TicketCommentFileCreateInput, TicketCommentFileUpdateInput, QueryAllTicketCommentFilesArgs>(TicketCommentFileGQL)
 
 export {
     useObject,
@@ -76,4 +85,9 @@ export {
     useDelete,
     useSoftDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

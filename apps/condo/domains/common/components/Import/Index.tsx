@@ -22,6 +22,7 @@ import { Button } from '../Button'
 import { DownloadOutlined } from '@ant-design/icons'
 import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import isFunction from 'lodash/isFunction'
 
 interface IColumnsInfoBoxProps {
     columns: Columns
@@ -32,7 +33,7 @@ interface IColumnsInfoBoxProps {
 interface IImportWrapperProps {
     objectsName: string
     accessCheck: boolean
-    onFinish(): void
+    onFinish: (variables: any) => void
     columns: Columns
     maxTableLength?: number
     rowNormalizer: RowNormalizer
@@ -162,7 +163,9 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             }
             const eventName = getEventName(TrackingEventType.ImportComplete)
             logEvent({ eventName })
-            handleFinish()
+            if (isFunction(handleFinish)) {
+                handleFinish()
+            }
         },
         onError: () => {
             destroyActiveModal()
@@ -177,7 +180,9 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         const config = getUploadProgressModalConfig(ImportTitle, ImportProcessingMessage, ImportBreakButtonMessage,
             () => {
                 breakImport()
-                handleFinish()
+                if (isFunction(handleFinish)) {
+                    handleFinish()
+                }
             })
         // @ts-ignore
         activeModal.current = modal.info(config)

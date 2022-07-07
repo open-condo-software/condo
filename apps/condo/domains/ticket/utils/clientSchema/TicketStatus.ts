@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { TicketStatus as TicketStatusGQL } from '@condo/domains/ticket/gql'
-import { TicketStatus, TicketStatusUpdateInput, QueryAllTicketStatusesArgs } from '@app/condo/schema'
+import { TicketStatus, TicketStatusCreateInput, TicketStatusUpdateInput, QueryAllTicketStatusesArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'type', 'name', 'colors']
 const RELATIONS = []
@@ -69,6 +70,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<TicketStatus, TicketStatusUpdateInput, ITicketStatusFormState, ITicketStatusUIState, QueryAllTicketStatusesArgs>(TicketStatusGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<TicketStatus, TicketStatusCreateInput, TicketStatusUpdateInput, QueryAllTicketStatusesArgs>(TicketStatusGQL)
 
 export {
     useObject,
@@ -78,4 +86,9 @@ export {
     useDelete,
     convertGQLItemToFormSelectState,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

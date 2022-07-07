@@ -4,7 +4,7 @@ import { Empty, Tabs, Typography } from 'antd'
 import styled from '@emotion/styled'
 
 import { useIntl } from '@core/next/intl'
-import { File, Organization, UserTypeType, TicketComment, TicketUpdateInput } from '@app/condo/schema'
+import { TicketComment, TicketUpdateInput, TicketCommentFile } from '@app/condo/schema'
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
@@ -17,28 +17,6 @@ import { Module } from '../MultipleFileUpload'
 import { useLayoutContext } from '../LayoutContext'
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
-
-export type TCommentFile = {
-    id: string
-    file: File
-    organization?: Organization
-    comment?: TComment
-}
-
-export type TComment = {
-    id: string,
-    type: ORGANIZATION_COMMENT_TYPE | RESIDENT_COMMENT_TYPE,
-    content: string,
-    user: {
-        id: string,
-        name: string,
-        type: UserTypeType,
-    },
-    files: TCommentFile[],
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string,
-}
 
 interface IContainerProps {
     isSmall: boolean
@@ -172,12 +150,12 @@ const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }
 )
 
 type CommentsTabContentProps = {
-    comments: TComment[],
+    comments: CommentWithFiles[],
     PromptTitleMessage: string,
     PromptDescriptionMessage: string,
-    actionsFor: (comment: TComment) => ActionsForComment,
-    editableComment: TComment
-    setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
+    actionsFor: (comment: CommentWithFiles) => ActionsForComment,
+    editableComment: CommentWithFiles
+    setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
     handleBodyScroll: UIEventHandler<HTMLDivElement>
     bodyRef: React.RefObject<HTMLDivElement>
     sending: boolean
@@ -245,13 +223,17 @@ const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) =>
     </>
 )
 
+export type CommentWithFiles = TicketComment & {
+    files: Array<TicketCommentFile> | null
+}
+
 interface ICommentsListProps {
     ticket: ITicketUIState,
-    comments: TComment[],
+    comments: CommentWithFiles[],
     createAction?: (formValues) => Promise<TicketComment>,
-    updateAction?: (attrs, obj: TComment) => Promise<TicketComment>
+    updateAction?: (attrs, obj: CommentWithFiles) => Promise<TicketComment>
     // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
-    actionsFor: (comment: TComment) => ActionsForComment,
+    actionsFor: (comment: CommentWithFiles) => ActionsForComment,
     canCreateComments: boolean,
     refetchComments,
     FileModel: Module,
@@ -291,7 +273,7 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     const { isSmall } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
-    const [editableComment, setEditableComment] = useState<TComment>()
+    const [editableComment, setEditableComment] = useState<CommentWithFiles>()
     const [sending, setSending] = useState(false)
     const [isTitleHidden, setTitleHidden] = useState<boolean>(false)
     const [isInitialUserTicketCommentReadTimeSet, setIsInitialUserTicketCommentReadTimeSet] = useState<boolean>(false)

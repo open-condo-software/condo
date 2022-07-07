@@ -71,7 +71,7 @@ export const MetersPageContent = ({
         count: total,
         objs: meterReadings,
         refetch,
-    } = MeterReading.useObjects({
+    } = MeterReading.useNewObjects({
         sortBy,
         where: searchMeterReadingsQuery,
         first: DEFAULT_PAGE_SIZE,

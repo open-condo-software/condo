@@ -6,7 +6,7 @@ import { identity } from 'lodash/util'
 
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
-
+import { Ticket } from '@app/condo/schema'
 import {
     getAddressRender,
     getDateRender,
@@ -20,7 +20,6 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '../utils/clientSchema'
-import { ITicketUIState } from '../utils/clientSchema/Ticket'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { IFilters } from '../utils/helpers'
 import {
@@ -57,7 +56,7 @@ const COLUMNS_WIDTH_SMALLER_XXL_SCREEN = {
     assignee: '10%',
 }
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets: ITicketUIState[]) {
+export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets: Ticket[]) {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -77,7 +76,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const search = getFilteredValue(filters, 'search')
     const { breakpoints } = useLayoutContext()
 
-    const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
+    const { loading, objs: ticketStatuses } = TicketStatus.useNewObjects({})
 
     const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
