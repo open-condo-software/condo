@@ -11,7 +11,9 @@ const { createTestBillingIntegration, createReceiptsReader } = require('../utils
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj,
+    expectToThrowGraphQLRequestError,
+} = require('@condo/domains/common/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
@@ -30,7 +32,7 @@ describe('BillingIntegrationOrganizationContext', () => {
         test('admin: can\'t create two BillingIntegrationOrganizationContext for same organization!', async () => {
             const { context, integration, organization, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
 
-            updateTestBillingIntegration(admin, integration.id, { isHidden: false })
+            await updateTestBillingIntegration(admin, integration.id, { isHidden: false })
 
             await catchErrorFrom(async () => {
                 await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
@@ -293,6 +295,26 @@ describe('BillingIntegrationOrganizationContext', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await BillingIntegrationOrganizationContext.delete(managerUserClient, context.id)
             })
+        })
+    })
+    describe('Validation tests', () => {
+        test('Organization and integration fields cannot be changed', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+            const [secondOrganization] = await createTestOrganization(admin)
+            const [secondIntegration] = await createTestBillingIntegration(admin)
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestBillingIntegrationOrganizationContext(admin, context.id, {
+                    organization: { connect: { id: secondOrganization.id } },
+                })
+            }, 'Field "organization" is not defined')
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestBillingIntegrationOrganizationContext(admin, context.id, {
+                    integration: { connect: { id: secondIntegration.id } },
+                })
+            }, 'Field "integration" is not defined')
         })
     })
     describe('Must resolve default status on create if not specified',  () => {
