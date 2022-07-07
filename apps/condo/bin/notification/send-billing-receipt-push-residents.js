@@ -1,5 +1,5 @@
 /**
- * DEPRECATED! Please use send-receipt-added-notifications.js instead
+ * DEPRECATED! Please use send-residents-no-account-notifications.js instead
  */
 
 const conf = require('@core/config')
