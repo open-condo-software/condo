@@ -4,12 +4,13 @@
 
 const { Relationship, Text } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingAccountMeter')
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
+const { UNEQUAL_CONTEXT_ERROR } = require('../../common/constants/errors')
 
 
 const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
@@ -57,6 +58,23 @@ const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
         update: access.canManageBillingAccountMeters,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
+            const newItem = { ...existingItem, ...resolvedData }
+            const { context: contextId, property: propertyId, account: accountId } = newItem
+
+            const account = await getById('BillingAccount', accountId)
+            const { context: accountContextId } = account
+            const property = await getById('BillingProperty', propertyId)
+            const { context: propertyContextId } = property
+            if (contextId !== accountContextId) {
+                return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:account:context] Context is not equal to account.context`)
+            }
+            if (contextId !== propertyContextId) {
+                return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
+            }
+        },
     },
 })
 

@@ -12,7 +12,14 @@ const { createTestBillingAccount } = require('@condo/domains/billing/utils/testS
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowGraphQLRequestError,
+    expectToThrowValidationFailureError,
+} = require('@condo/domains/common/utils/testSchema')
+const { UNEQUAL_CONTEXT_ERROR } = require('../../common/constants/errors')
 
 describe('BillingAccountMeterReading', () => {
     test('admin: create BillingAccountMeterReading', async () => {
@@ -265,6 +272,51 @@ describe('BillingAccountMeterReading', () => {
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await BillingAccountMeterReading.delete(client, billingAccountMeterReading.id)
+        })
+    })
+    describe('Validation tests', () => {
+        test('Context field cannot be changed', async () => {
+            const { context, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const { context: secondContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+            const [resource] = await createTestBillingMeterResource(admin)
+            const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
+            const [accountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
+
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestBillingAccountMeterReading(admin, accountMeterReading.id, {
+                    context: { connect: { id: secondContext } },
+                })
+            }, 'Field "context" is not defined')
+        })
+        test('Context and contexts from "account", "property" and "meter" fields must be equal', async () => {
+            const { context, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const { context: secondContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [secondProperty] = await createTestBillingProperty(admin, secondContext)
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+            const [secondBillingAccount] = await createTestBillingAccount(admin, secondContext, secondProperty)
+            const [resource] = await createTestBillingMeterResource(admin)
+            const [meter] = await createTestBillingAccountMeter(admin, context, property, billingAccount, resource)
+            const [secondMeter] = await createTestBillingAccountMeter(admin, secondContext, secondProperty, secondBillingAccount, resource)
+            const [accountMeterReading] = await createTestBillingAccountMeterReading(admin, context, property, billingAccount, meter)
+
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingAccountMeterReading(admin, accountMeterReading.id, {
+                    account: { connect: { id: secondBillingAccount.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:account:context] Context is not equal to account.context`)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingAccountMeterReading(admin, accountMeterReading.id, {
+                    property: { connect: { id: secondProperty.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingAccountMeterReading(admin, accountMeterReading.id, {
+                    meter: { connect: { id: secondMeter.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:meter:context] Context is not equal to meter.context`)
         })
     })
 })

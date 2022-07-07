@@ -7,12 +7,12 @@ const access = require('@condo/domains/billing/access/BillingReceipt')
 const { get } = require('lodash')
 const { Text, Relationship } = require('@keystonejs/fields')
 
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const { SENDER_FIELD, DV_FIELD, MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
+const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
@@ -33,7 +33,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         context: {
             ...INTEGRATION_CONTEXT_FIELD,
-            access: { read: access.canReadSensitiveBillingReceiptData },
+            access: { ...INTEGRATION_CONTEXT_FIELD.access, read: access.canReadSensitiveBillingReceiptData },
         },
         property: {
             ...BILLING_PROPERTY_FIELD,
@@ -119,14 +119,27 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError }) => {
+        validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
             if (!hasDvAndSenderFields( resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
+            const newItem = { ...existingItem, ...resolvedData }
+            const { dv, context: contextId, property: propertyId, account: accountId } = newItem
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
+
+            const account = await getById('BillingAccount', accountId)
+            const { context: accountContextId } = account
+            const property = await getById('BillingProperty', propertyId)
+            const { context: propertyContextId } = property
+            if (contextId !== accountContextId) {
+                return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:account:context] Context is not equal to account.context`)
+            }
+            if (contextId !== propertyContextId) {
+                return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
+            }
+
         },
         beforeChange: async ({
             existingItem,

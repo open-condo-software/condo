@@ -25,8 +25,11 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowInternalError,
+    expectToThrowGraphQLRequestError,
+    expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
+const { UNEQUAL_CONTEXT_ERROR } = require('../../common/constants/errors')
 
 describe('BillingAccount', () => {
     let admin
@@ -49,7 +52,7 @@ describe('BillingAccount', () => {
         support = await makeClientWithSupportUser()
         const { context: secondContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         anotherContext = secondContext
-        const [secondProperty] = await createTestBillingProperty(admin, context)
+        const [secondProperty] = await createTestBillingProperty(admin, anotherContext)
         anotherProperty = secondProperty
         anonymous = await makeClient()
         user = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -485,6 +488,24 @@ describe('BillingAccount', () => {
                     })
                 }, 'billingAccount_unique_context_globalId')
             })
+        })
+    })
+    describe('Validation tests', () => {
+        test('Context field cannot be changed', async () => {
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestBillingAccount(admin, billingAccount.id, {
+                    context: { connect: { id: anotherContext.id } },
+                })
+            }, 'Field "context" is not defined')
+        })
+        test('Context and context from "property" field must be equal', async () => {
+            const [billingAccount] = await createTestBillingAccount(admin, context, property)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingAccount(admin, billingAccount.id, {
+                    property: { connect: { id: anotherProperty.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
         })
     })
 })

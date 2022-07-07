@@ -40,6 +40,7 @@ const {
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 const { WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
+const { UNEQUAL_CONTEXT_ERROR } = require('../../common/constants/errors')
 
 describe('BillingReceipt', () => {
     let admin
@@ -66,8 +67,8 @@ describe('BillingReceipt', () => {
         support = await makeClientWithSupportUser()
         const { context: secondContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         anotherContext = secondContext
-        const [secondProperty] = await createTestBillingProperty(admin, context)
-        const [secondAccount] = await createTestBillingAccount(admin, context, secondProperty)
+        const [secondProperty] = await createTestBillingProperty(admin, anotherContext)
+        const [secondAccount] = await createTestBillingAccount(admin, anotherContext, secondProperty)
         anotherProperty = secondProperty
         anotherAccount = secondAccount
         anonymous = await makeClient()
@@ -692,6 +693,29 @@ describe('BillingReceipt', () => {
                 const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
                 expect(updatedReceipt).toHaveProperty('toPay', '22.92000000')
             })
+        })
+        describe('context', () => {
+            test('Context field cannot be changed', async () => {
+                const [billingReceipt] = await createTestBillingReceipt(admin, context, property, account)
+                await expectToThrowGraphQLRequestError(async () => {
+                    await updateTestBillingReceipt(admin, billingReceipt.id, {
+                        context: { connect: { id: anotherContext.id } },
+                    })
+                }, 'Field "context" is not defined')
+            })
+        })
+        test('Context and contexts from "account" and "property" fields must be equal', async () => {
+            const [billingReceipt] = await createTestBillingReceipt(admin, context, property, account)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingReceipt(admin, billingReceipt.id, {
+                    account: { connect: { id: anotherAccount.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:account:context] Context is not equal to account.context`)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingReceipt(admin, billingReceipt.id, {
+                    property: { connect: { id: anotherProperty.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
         })
     })
     describe('Integration user can perform all needed actions', () => {
