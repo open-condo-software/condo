@@ -1,9 +1,11 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import styled from '@emotion/styled'
 import React, { useEffect, useState } from 'react'
-import { Progress, Typography, List, Row, Col } from 'antd'
+import styled from '@emotion/styled'
+import { MinusOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
+import { Progress, Typography, List, Row, Col } from 'antd'
 import { TASK_POLL_INTERVAL, TASK_COMPLETED_STATUS } from '../../constants/tasks'
 import { colors } from '../../constants/style'
 import {
@@ -15,9 +17,7 @@ import {
     CalculateProgressFunc,
     TaskDisplayProgressValue, TASK_PROGRESS_UNKNOWN,
 } from './index'
-import { InfoCircleOutlined } from '@ant-design/icons'
 import { CheckIcon } from '../icons/Check'
-import { MinusOutlined } from '@ant-design/icons'
 import { ExpandIcon } from '../icons/ExpandIcon'
 
 const InfiniteSpinningStyle = css`
