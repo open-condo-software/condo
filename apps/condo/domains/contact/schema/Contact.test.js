@@ -12,7 +12,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const { Contact, createTestContact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 describe('Contact', () => {
     test('required fields', async () => {
@@ -21,7 +21,7 @@ describe('Contact', () => {
         const emptyFields = {
             email: null,
             unitName: null,
-            unitType: COMMERCIAL_UNIT_TYPE,
+            unitType: null,
         }
         const [obj, attrs] = await createTestContact(adminClient, userClient.organization, userClient.property, emptyFields)
         expect(obj.id).toMatch(UUID_RE)

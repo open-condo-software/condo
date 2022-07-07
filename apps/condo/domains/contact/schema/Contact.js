@@ -39,7 +39,12 @@ const Contact = new GQLListSchema('Contact', {
             isRequired: false,
         },
 
-        unitType: UNIT_TYPE_FIELD,
+        unitType: {
+            ...UNIT_TYPE_FIELD,
+            // Allow to set unitType to null
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true },
+        },
 
         email: {
             schemaDoc: 'Normalized contact email of this person',
