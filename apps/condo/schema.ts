@@ -34,10 +34,6 @@ export type AcquiringIntegration = {
    *  4. As an alias to the 'id' field on the AcquiringIntegration List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
   /**  Name of `acquiring component`, which is set up by developer  */
   name?: Maybe<Scalars['String']>;
   /**  Logo of app's company or app itself  */
@@ -79,6 +75,10 @@ export type AcquiringIntegration = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
 };
 
 
@@ -450,10 +450,6 @@ export type AcquiringIntegrationContext = {
    *  4. As an alias to the 'id' field on the AcquiringIntegrationContext List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
   /**  Acquiring integration. Determines way of user's payment  */
   integration?: Maybe<AcquiringIntegration>;
   /**  Service provider (organization)  */
@@ -480,11 +476,13 @@ export type AcquiringIntegrationContext = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
 };
 
 export type AcquiringIntegrationContextCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
@@ -500,6 +498,8 @@ export type AcquiringIntegrationContextCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 /**  A keystone list  */
@@ -513,8 +513,6 @@ export type AcquiringIntegrationContextHistoryRecord = {
    *  4. As an alias to the 'id' field on the AcquiringIntegrationContextHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
@@ -531,14 +529,14 @@ export type AcquiringIntegrationContextHistoryRecord = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<AcquiringIntegrationContextHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
 };
 
 export type AcquiringIntegrationContextHistoryRecordCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
@@ -554,6 +552,8 @@ export type AcquiringIntegrationContextHistoryRecordCreateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<AcquiringIntegrationContextHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -566,8 +566,6 @@ export enum AcquiringIntegrationContextHistoryRecordHistoryActionType {
 }
 
 export type AcquiringIntegrationContextHistoryRecordUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   settings?: Maybe<Scalars['JSON']>;
@@ -583,6 +581,8 @@ export type AcquiringIntegrationContextHistoryRecordUpdateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<AcquiringIntegrationContextHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -591,18 +591,6 @@ export type AcquiringIntegrationContextHistoryRecordUpdateInput = {
 export type AcquiringIntegrationContextHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<AcquiringIntegrationContextHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<AcquiringIntegrationContextHistoryRecordWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   integration?: Maybe<Scalars['String']>;
   integration_not?: Maybe<Scalars['String']>;
   integration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -711,6 +699,18 @@ export type AcquiringIntegrationContextHistoryRecordWhereInput = {
   newId_not?: Maybe<Scalars['JSON']>;
   newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -750,8 +750,6 @@ export type AcquiringIntegrationContextRelateToOneInput = {
 };
 
 export type AcquiringIntegrationContextUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   settings?: Maybe<Scalars['JSON']>;
@@ -767,23 +765,13 @@ export type AcquiringIntegrationContextUpdateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 export type AcquiringIntegrationContextWhereInput = {
   AND?: Maybe<Array<Maybe<AcquiringIntegrationContextWhereInput>>>;
   OR?: Maybe<Array<Maybe<AcquiringIntegrationContextWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   integration?: Maybe<AcquiringIntegrationWhereInput>;
   integration_is_null?: Maybe<Scalars['Boolean']>;
   organization?: Maybe<OrganizationWhereInput>;
@@ -884,6 +872,18 @@ export type AcquiringIntegrationContextWhereInput = {
   newId_not?: Maybe<Scalars['String']>;
   newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
 };
 
 export type AcquiringIntegrationContextWhereUniqueInput = {
@@ -900,8 +900,6 @@ export type AcquiringIntegrationContextsUpdateInput = {
 };
 
 export type AcquiringIntegrationCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
@@ -924,6 +922,8 @@ export type AcquiringIntegrationCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 /**  A keystone list  */
@@ -937,8 +937,6 @@ export type AcquiringIntegrationHistoryRecord = {
    *  4. As an alias to the 'id' field on the AcquiringIntegrationHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
@@ -960,14 +958,14 @@ export type AcquiringIntegrationHistoryRecord = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
 };
 
 export type AcquiringIntegrationHistoryRecordCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
@@ -988,6 +986,8 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -1000,8 +1000,6 @@ export enum AcquiringIntegrationHistoryRecordHistoryActionType {
 }
 
 export type AcquiringIntegrationHistoryRecordUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
@@ -1022,6 +1020,8 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<AcquiringIntegrationHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -1030,18 +1030,6 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
 export type AcquiringIntegrationHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecordWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
@@ -1222,6 +1210,18 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   newId_not?: Maybe<Scalars['JSON']>;
   newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -1261,8 +1261,6 @@ export type AcquiringIntegrationRelateToOneInput = {
 };
 
 export type AcquiringIntegrationUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
@@ -1285,23 +1283,13 @@ export type AcquiringIntegrationUpdateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 export type AcquiringIntegrationWhereInput = {
   AND?: Maybe<Array<Maybe<AcquiringIntegrationWhereInput>>>;
   OR?: Maybe<Array<Maybe<AcquiringIntegrationWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
@@ -1518,6 +1506,18 @@ export type AcquiringIntegrationWhereInput = {
   newId_not?: Maybe<Scalars['String']>;
   newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
 };
 
 export type AcquiringIntegrationWhereUniqueInput = {
@@ -27386,10 +27386,6 @@ export type Payment = {
    *  4. As an alias to the 'id' field on the Payment List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
   /**  Amount of money from MultiPayment.amountWithOutExplicitFee to pay for billing receipt  */
   amount?: Maybe<Scalars['String']>;
   /**  Amount of money which payer pays on top of initial "amount", which counts as fee for every service which is not housing and communal services  */
@@ -27440,6 +27436,10 @@ export type Payment = {
   updatedBy?: Maybe<User>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
 };
 
 export type PaymentCategory = {
@@ -27451,8 +27451,6 @@ export type PaymentCategory = {
 };
 
 export type PaymentCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   amount?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
@@ -27480,6 +27478,8 @@ export type PaymentCreateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 /**  A keystone list  */
@@ -27493,8 +27493,6 @@ export type PaymentHistoryRecord = {
    *  4. As an alias to the 'id' field on the PaymentHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
@@ -27523,14 +27521,14 @@ export type PaymentHistoryRecord = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<PaymentHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
 };
 
 export type PaymentHistoryRecordCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
@@ -27558,6 +27556,8 @@ export type PaymentHistoryRecordCreateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<PaymentHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -27570,8 +27570,6 @@ export enum PaymentHistoryRecordHistoryActionType {
 }
 
 export type PaymentHistoryRecordUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
   amount?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
@@ -27599,6 +27597,8 @@ export type PaymentHistoryRecordUpdateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<PaymentHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -27607,18 +27607,6 @@ export type PaymentHistoryRecordUpdateInput = {
 export type PaymentHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<PaymentHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<PaymentHistoryRecordWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   amount?: Maybe<Scalars['String']>;
   amount_not?: Maybe<Scalars['String']>;
   amount_lt?: Maybe<Scalars['String']>;
@@ -27887,6 +27875,18 @@ export type PaymentHistoryRecordWhereInput = {
   newId_not?: Maybe<Scalars['JSON']>;
   newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -27926,8 +27926,6 @@ export type PaymentRelateToManyInput = {
 };
 
 export type PaymentUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
   amount?: Maybe<Scalars['String']>;
   explicitFee?: Maybe<Scalars['String']>;
   explicitServiceCharge?: Maybe<Scalars['String']>;
@@ -27955,23 +27953,13 @@ export type PaymentUpdateInput = {
   updatedBy?: Maybe<UserRelateToOneInput>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 export type PaymentWhereInput = {
   AND?: Maybe<Array<Maybe<PaymentWhereInput>>>;
   OR?: Maybe<Array<Maybe<PaymentWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   amount?: Maybe<Scalars['String']>;
   amount_not?: Maybe<Scalars['String']>;
   amount_lt?: Maybe<Scalars['String']>;
@@ -28200,6 +28188,18 @@ export type PaymentWhereInput = {
   newId_not?: Maybe<Scalars['String']>;
   newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
 };
 
 export type PaymentWhereUniqueInput = {
@@ -36246,8 +36246,6 @@ export enum SortAcquiringIntegrationAccessRightsBy {
 }
 
 export enum SortAcquiringIntegrationContextHistoryRecordsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   ReasonAsc = 'reason_ASC',
   ReasonDesc = 'reason_DESC',
   EmailAsc = 'email_ASC',
@@ -36262,6 +36260,8 @@ export enum SortAcquiringIntegrationContextHistoryRecordsBy {
   UpdatedAtDesc = 'updatedAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -36269,8 +36269,6 @@ export enum SortAcquiringIntegrationContextHistoryRecordsBy {
 }
 
 export enum SortAcquiringIntegrationContextsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   IntegrationAsc = 'integration_ASC',
   IntegrationDesc = 'integration_DESC',
   OrganizationAsc = 'organization_ASC',
@@ -36292,12 +36290,12 @@ export enum SortAcquiringIntegrationContextsBy {
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC'
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortAcquiringIntegrationHistoryRecordsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
@@ -36324,6 +36322,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   UpdatedAtDesc = 'updatedAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -36331,8 +36331,6 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
 }
 
 export enum SortAcquiringIntegrationsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
@@ -36370,7 +36368,9 @@ export enum SortAcquiringIntegrationsBy {
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC'
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortB2BAppAccessRightHistoryRecordsBy {
@@ -38641,8 +38641,6 @@ export enum SortOrganizationsBy {
 }
 
 export enum SortPaymentHistoryRecordsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   AmountAsc = 'amount_ASC',
   AmountDesc = 'amount_DESC',
   ExplicitFeeAsc = 'explicitFee_ASC',
@@ -38683,6 +38681,8 @@ export enum SortPaymentHistoryRecordsBy {
   UpdatedAtDesc = 'updatedAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -38690,8 +38690,6 @@ export enum SortPaymentHistoryRecordsBy {
 }
 
 export enum SortPaymentsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
   AmountAsc = 'amount_ASC',
   AmountDesc = 'amount_DESC',
   ExplicitFeeAsc = 'explicitFee_ASC',
@@ -38743,7 +38741,9 @@ export enum SortPaymentsBy {
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC'
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortPaymentsFilterTemplateHistoryRecordsBy {
