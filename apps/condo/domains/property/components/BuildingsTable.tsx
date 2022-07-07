@@ -1,6 +1,6 @@
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import { useLazyQuery } from '@apollo/client'
-import { OrganizationEmployeeRole, PropertyWhereInput } from '@app/condo/schema'
+import { OrganizationEmployeeRole, PropertyWhereInput, Property as PropertyType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
@@ -29,8 +29,8 @@ type BuildingTableProps = {
     role: OrganizationEmployeeRole
     searchPropertiesQuery: PropertyWhereInput
     tableColumns: ColumnsType
-    sortBy: string[]
-    onSearch?: (properties: Property.IPropertyUIState[]) => void
+    sortBy: any[]
+    onSearch?: (properties: PropertyType[]) => void
 }
 
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -59,7 +59,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { loading, error, refetch, objs: properties, count: total } = Property.useObjects({
+    const { loading, error, refetch, objs: properties, count: total } = Property.useNewObjects({
         sortBy,
         where: { ...searchPropertiesQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,

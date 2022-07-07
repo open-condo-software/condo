@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { TicketCommentsTime as TicketCommentsTimeGQL } from '@condo/domains/ticket/gql'
-import { TicketCommentsTime, TicketCommentsTimeUpdateInput, QueryAllTicketCommentsTimesArgs } from '../../../../schema'
+import { TicketCommentsTime, TicketCommentsTimeCreateInput, TicketCommentsTimeUpdateInput, QueryAllTicketCommentsTimesArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'ticket', 'lastCommentAt', 'lastResidentCommentAt']
 const RELATIONS = ['organization', 'ticket']
@@ -55,6 +56,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<TicketCommentsTime, TicketCommentsTimeUpdateInput, ITicketCommentsTimeFormState, ITicketCommentsTimeUIState, QueryAllTicketCommentsTimesArgs>(TicketCommentsTimeGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<TicketCommentsTime, TicketCommentsTimeCreateInput, TicketCommentsTimeUpdateInput, QueryAllTicketCommentsTimesArgs>(TicketCommentsTimeGQL)
 
 export {
     useObject,
@@ -63,4 +71,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

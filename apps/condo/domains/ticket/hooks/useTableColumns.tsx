@@ -105,7 +105,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const { user } = useAuth()
 
     const ticketIds = useMemo(() => map(tickets, 'id'), [tickets])
-    const { objs: userTicketsCommentReadTime } = UserTicketCommentReadTime.useObjects({
+    const { objs: userTicketsCommentReadTime } = UserTicketCommentReadTime.useNewObjects({
         where: {
             user: { id: user.id },
             ticket: {
@@ -113,7 +113,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             },
         },
     })
-    const { objs: ticketsCommentsTime } = TicketCommentsTime.useObjects({
+    const { objs: ticketsCommentsTime } = TicketCommentsTime.useNewObjects({
         where: {
             ticket: {
                 id_in: ticketIds,

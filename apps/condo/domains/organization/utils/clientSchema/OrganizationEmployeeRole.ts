@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { OrganizationEmployeeRole as OrganizationEmployeeRoleGQL } from '@condo/domains/organization/gql'
-import { OrganizationEmployeeRole, OrganizationEmployeeRoleUpdateInput, QueryAllOrganizationEmployeeRolesArgs } from '@app/condo/schema'
+import { OrganizationEmployeeRole, OrganizationEmployeeRoleCreateInput, OrganizationEmployeeRoleUpdateInput, QueryAllOrganizationEmployeeRolesArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'name', 'description', 'statusTransitions', 'canManageOrganization', 'canManageEmployees', 'canManageRoles', 'canManageIntegrations', 'canReadBillingReceipts', 'canReadPayments', 'canManageProperties', 'canManageTickets', 'canManageTicketComments', 'canShareTickets', 'canBeAssignedAsResponsible', 'canBeAssignedAsExecutor']
 const RELATIONS = ['organization']
@@ -69,6 +70,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<OrganizationEmployeeRole, OrganizationEmployeeRoleUpdateInput, IOrganizationEmployeeRoleFormState, IOrganizationEmployeeRoleUIState, QueryAllOrganizationEmployeeRolesArgs>(OrganizationEmployeeRoleGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<OrganizationEmployeeRole, OrganizationEmployeeRoleCreateInput, OrganizationEmployeeRoleUpdateInput, QueryAllOrganizationEmployeeRolesArgs>(OrganizationEmployeeRoleGQL)
 
 export {
     useObject,
@@ -78,4 +86,9 @@ export {
     useDelete,
     convertToUIFormState,
     convertGQLItemToFormSelectState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

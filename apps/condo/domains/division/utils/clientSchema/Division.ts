@@ -6,10 +6,12 @@ import { pick, get, map, difference } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { Division as DivisionGQL } from '@condo/domains/division/gql'
 import {
     Division,
+    DivisionCreateInput,
     DivisionUpdateInput,
     OrganizationEmployee,
     Property,
@@ -139,6 +141,13 @@ const {
     useDelete,
     useSoftDelete,
 } = generateReactHooks<Division, DivisionUpdateInput, IDivisionFormState, IDivisionUIState, QueryAllDivisionsArgs>(DivisionGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<Division, DivisionCreateInput, DivisionUpdateInput, QueryAllDivisionsArgs>(DivisionGQL)
 
 export {
     useObject,
@@ -149,4 +158,9 @@ export {
     useSoftDelete,
     convertToUIFormState,
     extractAttributes,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

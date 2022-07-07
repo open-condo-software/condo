@@ -16,7 +16,6 @@ import {
     useInviteNewOrganizationEmployee,
 } from '@condo/domains/organization/utils/clientSchema'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { ErrorsContainer } from '@condo/domains/organization/components/ErrorsContainer'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
@@ -69,12 +68,12 @@ export const CreateEmployeeForm: React.FC = () => {
     const router = useRouter()
     const { isSmall } = useLayoutContext()
 
-    const { objs: employee } = OrganizationEmployee.useObjects(
+    const { objs: employee } = OrganizationEmployee.useNewObjects(
         { where: { organization: { id: organization.id } } },
         { fetchPolicy: 'network-only' },
     )
 
-    const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useObjects(
+    const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useNewObjects(
         { where: { organization: { id: get(organization, 'id') } } }
     )
 

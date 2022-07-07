@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { OnBoarding as OnBoardingGQL } from '@condo/domains/onboarding/gql'
-import { OnBoarding, OnBoardingUpdateInput, QueryAllOnBoardingsArgs } from '@app/condo/schema'
+import { OnBoarding, OnBoardingCreateInput, OnBoardingUpdateInput, QueryAllOnBoardingsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'completed', 'stepsTransitions']
 const RELATIONS = []
@@ -56,6 +57,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<OnBoarding, OnBoardingUpdateInput, IOnBoardingFormState, IOnBoardingUIState, QueryAllOnBoardingsArgs>(OnBoardingGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<OnBoarding, OnBoardingCreateInput, OnBoardingUpdateInput, QueryAllOnBoardingsArgs>(OnBoardingGQL)
 
 export {
     useObject,
@@ -64,4 +72,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }
