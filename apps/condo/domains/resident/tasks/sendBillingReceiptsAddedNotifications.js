@@ -29,6 +29,8 @@ const logger = pino({
     enabled: falsey(process.env.DISABLE_LOGGING),
 })
 
+const makeMessageKey = (period, accountId, categoryId, residentId) => `${period}.${accountId}.${categoryId}.${residentId}`
+
 /**
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
  * @param keystone
@@ -40,7 +42,7 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country')
     const locale = get(COUNTRIES, country || DEFAULT_LOCALE).locale
-    const notificationKey = `${receipt.period}.${receipt.account.id}.${receipt.category.id}.${resident.id}`
+    const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
     const toPay = parseFloat(receipt.toPay)
     const category = getLocalized(locale, receipt.category.nameNonLocalized)
     const currencyCode = get(receipt, 'context.integration.currencyCode') || DEFAULT_CURRENCY_CODE
@@ -170,4 +172,5 @@ const sendBillingReceiptsAddedNotifications = async (resendFromDt = null) => {
 module.exports = {
     sendBillingReceiptsAddedNotifications,
     sendBillingReceiptsAddedNotificationsForPeriod,
+    makeMessageKey,
 }

@@ -1,3 +1,7 @@
+/**
+ * DEPRECATED! Please use send-receipt-added-notifications.js instead
+ */
+
 const conf = require('@core/config')
 const { flatten, uniq, get } = require('lodash')
 

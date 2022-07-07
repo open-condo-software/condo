@@ -10,7 +10,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 
 const { makeBillingReceiptWithResident } = require('./spec.helpers')
-const { sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
+const { makeMessageKey, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
 
 const index = require('@app/condo/index')
 
@@ -25,7 +25,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
         await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
 
-        const notificationKey = `${receipt.period}.${receipt.account.id}.${receipt.category.id}.${resident.id}`
+        const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
         const messageWhere = {
             type: BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
             uniqKey: notificationKey,
@@ -42,7 +42,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
         await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
 
-        const notificationKey = `${receipt.period}.${receipt.account.id}.${receipt.category.id}.${resident.id}`
+        const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
         const messageWhere = {
             type: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
             uniqKey: notificationKey,
@@ -58,7 +58,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
         await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
 
-        const notificationKey = `${receipt.period}.${receipt.account.id}.${receipt.category.id}.${resident.id}`
+        const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
         const messageWhere = {
             type: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
             uniqKey: notificationKey,
@@ -75,7 +75,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
         await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
 
-        const notificationKey = `${receipt.period}.${receipt.account.id}.${receipt.category.id}.${resident.id}`
+        const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
         const messageWhere = {
             type: BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
             uniqKey: notificationKey,
@@ -91,7 +91,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
         await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
 
-        const notificationKey = `${receipt.period}.${receipt.account.id}.${receipt.category.id}.${resident.id}`
+        const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
         const messageWhere = {
             type: BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
             uniqKey: notificationKey,

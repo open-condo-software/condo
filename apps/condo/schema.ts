@@ -19543,6 +19543,9 @@ export type Mutation = {
    * 			"residentIds": {
    * 				"required": true
    * 			},
+   * 			"propertyId": {
+   * 				"required": true
+   * 			},
    * 			"period": {
    * 				"required": true
    * 			}
