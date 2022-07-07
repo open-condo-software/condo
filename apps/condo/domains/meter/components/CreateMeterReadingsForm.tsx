@@ -95,7 +95,7 @@ export const PropertyMetersForm = ({
 
     const { isSmall } = useLayoutContext()
 
-    const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useObjects({
+    const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useNewObjects({
         where: {
             property: { id: selectedPropertyId },
             unitName: selectedUnitName,

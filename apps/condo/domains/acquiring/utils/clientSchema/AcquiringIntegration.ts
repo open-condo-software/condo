@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { AcquiringIntegration as AcquiringIntegrationGQL } from '@condo/domains/acquiring/gql'
-import { AcquiringIntegration, AcquiringIntegrationUpdateInput, QueryAllAcquiringIntegrationsArgs } from '../../../../schema'
+import { AcquiringIntegration, AcquiringIntegrationCreateInput, AcquiringIntegrationUpdateInput, QueryAllAcquiringIntegrationsArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'shortDescription', 'about', 'logo', 'developer', 'partnerUrl', 'instruction', 'connectedMessage', 'appUrl', 'canGroupReceipts', 'hostUrl']
 const RELATIONS = ['supportedBillingIntegrations']
@@ -53,6 +54,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<AcquiringIntegration, AcquiringIntegrationUpdateInput, IAcquiringIntegrationFormState, IAcquiringIntegrationUIState, QueryAllAcquiringIntegrationsArgs>(AcquiringIntegrationGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<AcquiringIntegration, AcquiringIntegrationCreateInput, AcquiringIntegrationUpdateInput, QueryAllAcquiringIntegrationsArgs>(AcquiringIntegrationGQL)
 
 export {
     useObject,
@@ -61,4 +69,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

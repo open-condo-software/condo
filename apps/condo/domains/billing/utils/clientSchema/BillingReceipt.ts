@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { BillingReceipt as BillingReceiptGQL } from '@condo/domains/billing/gql'
-import { BillingReceipt, BillingReceiptUpdateInput, QueryAllBillingReceiptsArgs } from '@app/condo/schema'
+import { BillingReceipt, BillingReceiptCreateInput, BillingReceiptUpdateInput, QueryAllBillingReceiptsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'context', 'importId', 'property', 'account', 'period', 'raw', 'toPay', 'services', 'meta', 'toPayDetails']
 const RELATIONS = ['context', 'property', 'account']
@@ -55,6 +56,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<BillingReceipt, BillingReceiptUpdateInput, IBillingReceiptFormState, IBillingReceiptUIState, QueryAllBillingReceiptsArgs>(BillingReceiptGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<BillingReceipt, BillingReceiptCreateInput, BillingReceiptUpdateInput, QueryAllBillingReceiptsArgs>(BillingReceiptGQL)
 
 export {
     useObject,
@@ -63,4 +71,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

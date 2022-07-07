@@ -61,7 +61,7 @@ export const EmployeesPageContent = ({
         loading,
         count: total,
         objs: employees,
-    } = OrganizationEmployee.useObjects({
+    } = OrganizationEmployee.useNewObjects({
         sortBy,
         where: searchEmployeeQuery,
         skip: (offsetFromQuery * EMPLOYEE_PAGE_SIZE) - EMPLOYEE_PAGE_SIZE,

@@ -33,11 +33,11 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
         where: { id },
     })
 
-    const { objs: billingContexts, loading: billingContextsLoading, error: billingContextsError } = BillingIntegrationOrganizationContext.useObjects({
+    const { objs: billingContexts, loading: billingContextsLoading, error: billingContextsError } = BillingIntegrationOrganizationContext.useNewObjects({
         where: { organization: { id: organizationId } },
     })
 
-    const { objs: acquiringContexts, loading: acquiringContextsLoading, error: acquiringContextsError } = AcquiringIntegrationContext.useObjects({
+    const { objs: acquiringContexts, loading: acquiringContextsLoading, error: acquiringContextsError } = AcquiringIntegrationContext.useNewObjects({
         where: { organization: { id: organizationId } },
     })
 

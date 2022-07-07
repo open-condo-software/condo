@@ -18,12 +18,12 @@ const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
 import { Button } from '../Button'
-import { TComment } from './index'
+import { CommentWithFiles } from './index'
 
 interface ICommentProps {
-    comment: TComment,
-    setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
-    deleteAction?: (obj: TComment) => Promise<TicketComment>,
+    comment: CommentWithFiles,
+    setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
+    deleteAction?: (obj: CommentWithFiles) => Promise<TicketComment>,
 }
 
 const DeleteButtonStyle = css`
@@ -168,7 +168,7 @@ const FILENAME_TEXT_STYLES: CSSProperties = { margin: 0 }
 const AUTHOR_TEXT_STYLES: CSSProperties = { paddingRight: '2px' }
 
 type CommentFileListProps = {
-    comment: TComment
+    comment: CommentWithFiles
 }
 
 const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {

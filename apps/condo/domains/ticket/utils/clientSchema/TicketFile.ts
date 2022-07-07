@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { TicketFile as TicketFileGQL } from '@condo/domains/ticket/gql'
-import { Ticket, TicketFile, TicketFileUpdateInput, QueryAllTicketFilesArgs, Organization, File } from '@app/condo/schema'
+import { Ticket, TicketFile, TicketFileCreateInput, TicketFileUpdateInput, QueryAllTicketFilesArgs, Organization, File } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'file', 'ticket', 'organization']
 const RELATIONS = ['ticket', 'organization']
@@ -61,6 +62,13 @@ const {
     useDelete,
     useSoftDelete,
 } = generateReactHooks<TicketFile, TicketFileUpdateInput, ITicketFileFormState, ITicketFileUIState, QueryAllTicketFilesArgs>(TicketFileGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<TicketFile, TicketFileCreateInput, TicketFileUpdateInput, QueryAllTicketFilesArgs>(TicketFileGQL)
 
 export {
     useObject,
@@ -70,4 +78,9 @@ export {
     useDelete,
     useSoftDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

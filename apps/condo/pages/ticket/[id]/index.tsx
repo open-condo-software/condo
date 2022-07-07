@@ -14,7 +14,7 @@ import dayjs from 'dayjs'
 import { BaseType } from 'antd/lib/typography/Base'
 import { FormattedMessage } from 'react-intl'
 
-import { User } from '@app/condo/schema'
+import { User, SortTicketChangesBy, SortTicketCommentsBy, SortTicketCommentFilesBy } from '@app/condo/schema'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
@@ -222,7 +222,7 @@ const TicketContent = ({ ticket }) => {
         [REVIEW_VALUES.GOOD]: `${getReviewMessageByValue(REVIEW_VALUES.GOOD, intl)} 😊`,
     }), [intl])
 
-    const { objs: files } = TicketFile.useObjects({
+    const { objs: files } = TicketFile.useNewObjects({
         where: { ticket: { id: ticket ? ticket.id : null } },
     }, {
         fetchPolicy: 'network-only',
@@ -232,7 +232,7 @@ const TicketContent = ({ ticket }) => {
     const ticketExecutorUserId = get(ticket, ['executor', 'id'], null)
     const ticketAssigneeUserId = get(ticket, ['assignee', 'id'], null)
 
-    const { obj: executor } = OrganizationEmployee.useObject({
+    const { obj: executor } = OrganizationEmployee.useNewObject({
         where: {
             organization: {
                 id: ticketOrganizationId,
@@ -243,7 +243,7 @@ const TicketContent = ({ ticket }) => {
         },
     })
 
-    const { obj: assignee } = OrganizationEmployee.useObject({
+    const { obj: assignee } = OrganizationEmployee.useNewObject({
         where: {
             organization: {
                 id: ticketOrganizationId,
@@ -539,34 +539,30 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         fetchPolicy: 'network-only',
     })
     // TODO(antonal): get rid of separate GraphQL query for TicketChanges
-    const ticketChangesResult = TicketChange.useObjects({
+    const ticketChangesResult = TicketChange.useNewObjects({
         where: { ticket: { id } },
-        // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
-        // sortBy: [SortTicketChangesBy.CreatedAtDesc],
-        // @ts-ignore
-        sortBy: ['createdAt_DESC'],
+        sortBy: [SortTicketChangesBy.CreatedAtDesc],
     }, {
         fetchPolicy: 'network-only',
     })
 
-    const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
+    const { objs: comments, refetch: refetchComments } = TicketComment.useNewObjects({
         where: { ticket: { id } },
-        // @ts-ignore
-        sortBy: ['createdAt_DESC'],
+        sortBy: [SortTicketCommentsBy.CreatedAtDesc],
     })
 
     const commentsIds = useMemo(() => map(comments, 'id'), [comments])
 
-    const { objs: ticketCommentFiles, refetch: refetchCommentFiles } = TicketCommentFile.useObjects({
+    const { objs: ticketCommentFiles, refetch: refetchCommentFiles } = TicketCommentFile.useNewObjects({
         where: { ticketComment: { id_in: commentsIds } },
-        // @ts-ignore
-        sortBy: ['createdAt_DESC'],
+        sortBy: [SortTicketCommentFilesBy.CreatedAtDesc],
     })
 
     const commentsWithFiles = useMemo(() => comments.map(comment => {
-        comment.files = ticketCommentFiles.filter(file => file.ticketComment.id === comment.id)
-
-        return comment
+        return {
+            ...comment,
+            files: ticketCommentFiles.filter(file => file.ticketComment.id === comment.id),
+        }
     }), [comments, ticketCommentFiles])
 
     const updateComment = TicketComment.useNewUpdate({}, () => {
@@ -587,10 +583,10 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     })
     const {
         obj: userTicketCommentReadTime, refetch: refetchUserTicketCommentReadTime, loading: loadingUserTicketCommentReadTime,
-    } = UserTicketCommentReadTime.useObject({
+    } = UserTicketCommentReadTime.useNewObject({
         where: {
             user: { id: user.id },
-            ticket: { id: id },
+            ticket: { id },
         },
     })
     const createUserTicketCommentReadTime = UserTicketCommentReadTime.useNewCreate({

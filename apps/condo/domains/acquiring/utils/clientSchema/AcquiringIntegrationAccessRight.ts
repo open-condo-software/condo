@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { AcquiringIntegrationAccessRight as AcquiringIntegrationAccessRightGQL } from '@condo/domains/acquiring/gql'
-import { AcquiringIntegrationAccessRight, AcquiringIntegrationAccessRightUpdateInput, QueryAllAcquiringIntegrationAccessRightsArgs } from '../../../../schema'
+import { AcquiringIntegrationAccessRight, AcquiringIntegrationAccessRightCreateInput, AcquiringIntegrationAccessRightUpdateInput, QueryAllAcquiringIntegrationAccessRightsArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'user']
 const RELATIONS = ['user', 'integration']
@@ -53,6 +54,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<AcquiringIntegrationAccessRight, AcquiringIntegrationAccessRightUpdateInput, IAcquiringIntegrationAccessRightFormState, IAcquiringIntegrationAccessRightUIState, QueryAllAcquiringIntegrationAccessRightsArgs>(AcquiringIntegrationAccessRightGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<AcquiringIntegrationAccessRight, AcquiringIntegrationAccessRightCreateInput, AcquiringIntegrationAccessRightUpdateInput, QueryAllAcquiringIntegrationAccessRightsArgs>(AcquiringIntegrationAccessRightGQL)
 
 export {
     useObject,
@@ -61,4 +69,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }
