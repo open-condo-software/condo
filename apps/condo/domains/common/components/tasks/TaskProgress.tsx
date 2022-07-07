@@ -1,24 +1,25 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import styled from '@emotion/styled'
-import { MinusOutlined } from '@ant-design/icons'
-import { InfoCircleOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined, MinusOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
-import { Progress, Typography, List, Row, Col } from 'antd'
-import { TASK_POLL_INTERVAL, TASK_COMPLETED_STATUS } from '../../constants/tasks'
+import { Col, List, Progress, Row, Typography } from 'antd'
+import isFunction from 'lodash/isFunction'
+import { TASK_COMPLETED_STATUS } from '../../constants/tasks'
 import { colors } from '../../constants/style'
 import {
-    IClientSchema,
-    OnCompleteFunc,
-    TaskRecord,
     ITaskTrackableItem,
+    TASK_PROGRESS_UNKNOWN,
+    TASK_REMOVE_STRATEGY,
     TaskProgressTranslations,
-    CalculateProgressFunc,
-    TaskDisplayProgressValue, TASK_PROGRESS_UNKNOWN,
+    TaskRecord,
+    TaskRecordProgress,
+    TasksContext,
 } from './index'
 import { CheckIcon } from '../icons/Check'
 import { ExpandIcon } from '../icons/ExpandIcon'
+import { CrossIcon } from '../icons/CrossIcon'
 
 const InfiniteSpinningStyle = css`
   @keyframes rotate {
@@ -32,7 +33,7 @@ const InfiniteSpinningStyle = css`
 `
 
 type ICircularProgressProps = {
-    progress: TaskDisplayProgressValue,
+    progress: TaskRecordProgress,
 }
 
 /**
@@ -57,39 +58,64 @@ export const CircularProgress = ({ progress }: ICircularProgressProps) => (
     />
 )
 
+const TaskProgressDoneHolder = styled.div`
+     cursor: pointer;
+   
+     .anticon:first-child {
+       display: block;
+     }
+     .anticon:last-child {
+       display: none;
+     }
+   
+     &:hover {
+       .anticon:first-child {
+         display: none;
+       }
+       .anticon:last-child {
+         display: block;
+       }
+     }
+`
+
+const TaskProgressDoneIcon = ({ onClick }) => (
+    <TaskProgressDoneHolder onClick={onClick}>
+        <CheckIcon />
+        <CrossIcon />
+    </TaskProgressDoneHolder>
+)
+
 interface ITaskProgressProps {
     task: TaskRecord
     translations: TaskProgressTranslations
-    progress: TaskDisplayProgressValue
+    progress: TaskRecordProgress
+    removeTask: () => void
 }
 
 /**
  * Displays task as an item in tasks list on panel
  */
-export const TaskProgress = ({ task, translations, progress }: ITaskProgressProps) => (
+export const TaskProgress = ({ task, translations, progress, removeTask }: ITaskProgressProps) => (
     <List.Item>
         <List.Item.Meta
             title={
                 <Typography.Text strong>
-                    {translations.title}
+                    {translations.title(task)}
                 </Typography.Text>
             }
             description={translations.description(task)}
         />
         {task.status === TASK_COMPLETED_STATUS ? (
-            <CheckIcon/>
+            <TaskProgressDoneIcon onClick={removeTask}/>
         ) : (
             <CircularProgress progress={progress}/>
         )}
     </List.Item>
 )
 
+
 interface ITaskProgressTrackerProps {
-    task: TaskRecord
-    clientSchema: IClientSchema
-    calculateProgress: CalculateProgressFunc
-    onComplete?: OnCompleteFunc
-    translations: TaskProgressTranslations
+    task: ITaskTrackableItem
 }
 
 // Prevents calling handle function multiple times when tracking component will be remounted.
@@ -100,31 +126,52 @@ const handledCompletedStatesOfTasksIds = []
 /**
  * Polls tasks record for updates and handles its transition to completed status.
  */
-export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task: { id }, clientSchema, calculateProgress, onComplete, translations }) => {
-    const { obj: task, stopPolling } = clientSchema.useObject({
-        where: { id },
-    }, {
-        pollInterval: TASK_POLL_INTERVAL,
+export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task }) => {
+    const { storage, removeStrategy, calculateProgress, onComplete, translations } = task
+    const { record, stopPolling } = storage.useTask(task.record.id)
+
+    // @ts-ignore
+    const { deleteTask: deleteTaskFromContext } = useContext(TasksContext)
+
+    const removeTaskFromStorage = storage.useDeleteTask({}, () => {
+        if (removeStrategy.includes(TASK_REMOVE_STRATEGY.PANEL)) {
+            deleteTaskFromContext(record)
+        }
     })
 
+    const handleRemoveTask = useCallback(() => {
+        if (removeStrategy.includes(TASK_REMOVE_STRATEGY.STORAGE)) {
+            removeTaskFromStorage(record)
+        } else if (removeStrategy.includes(TASK_REMOVE_STRATEGY.PANEL)) {
+            deleteTaskFromContext(record)
+        }
+    }, [record, storage, deleteTaskFromContext, removeTaskFromStorage])
+
     useEffect(() => {
-        if (!task) {
-            console.error('Could not fetch task status')
+        if (!record) {
+            console.error('Could not fetch status of task', task)
             return
         }
-        if (task.status === TASK_COMPLETED_STATUS) {
+        if (record.status === TASK_COMPLETED_STATUS) {
             stopPolling()
-            if (onComplete && !handledCompletedStatesOfTasksIds.includes(task.id)) {
-                handledCompletedStatesOfTasksIds.push(task.id)
-                onComplete(task)
+            if (isFunction(onComplete) && !handledCompletedStatesOfTasksIds.includes(record.id)) {
+                handledCompletedStatesOfTasksIds.push(record.id)
+                onComplete(record)
             }
         }
-    }, [task])
+    }, [record])
 
-    const progress: TaskDisplayProgressValue = calculateProgress(task)
+    if (!record) {
+        return null
+    }
 
-    return task && (
-        <TaskProgress task={task} progress={progress} translations={translations}/>
+    return (
+        <TaskProgress
+            task={record}
+            progress={calculateProgress(record)}
+            translations={translations}
+            removeTask={handleRemoveTask}
+        />
     )
 }
 
@@ -185,14 +232,10 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
                     <List
                         style={{ display: collapsed ? 'none' : 'block' }}
                         dataSource={tasks}
-                        renderItem={({ record, clientSchema, translations, calculateProgress, onComplete }) => (
+                        renderItem={(task) => (
                             <TaskProgressTracker
-                                key={record.id}
-                                task={record}
-                                clientSchema={clientSchema}
-                                translations={translations}
-                                calculateProgress={calculateProgress}
-                                onComplete={onComplete}
+                                key={task.record.id}
+                                task={task}
                             />
                         )}
                     />

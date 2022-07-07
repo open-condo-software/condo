@@ -15,8 +15,8 @@ interface ITaskLauncherProps {
 }
 
 /**
- * Launches specified task by creating it's record with `useCreate`
- * and adds it's progress representation using ITasksContext interface
+ * Launches specified task by creating its record with `useCreate`
+ * and adds its progress representation using ITasksContext interface
  */
 export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
     const {
@@ -33,7 +33,7 @@ export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
     // @ts-ignore
     const { addTask } = useContext(TasksContext)
 
-    const launchTask = taskUIInterface.clientSchema.useCreate({}, record => {
+    const launchTask = taskUIInterface.storage.useCreateTask({}, record => {
         setLoading(true)
         addTask({
             record,

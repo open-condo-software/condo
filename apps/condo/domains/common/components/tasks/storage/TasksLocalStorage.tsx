@@ -57,17 +57,14 @@ export class TasksLocalStorage implements ITasksStorage {
             }
             const updatedRecords = [ ...existingRecords, newRecord ]
             this.store(updatedRecords)
-
-            if (isFunction(onComplete)) {
-                onComplete(newRecord)
-            }
+            onComplete(newRecord)
         }
     }
 
     useUpdateTask (attrs: any, onComplete: OnCompleteFunc) {
-        return (extraAttrs: any) => {
+        return (extraAttrs: any, obj: any) => {
             const existingRecords = this.getAllItemsFromStorage()
-            const id = attrs.id || extraAttrs.id
+            const id = attrs.id || obj.id
             const recordToUpdate = find(existingRecords, { id })
             const recordIndexToUpdate = findIndex(existingRecords, { id })
             if (!recordToUpdate) {
@@ -85,10 +82,8 @@ export class TasksLocalStorage implements ITasksStorage {
                 ...existingRecords.slice(recordIndexToUpdate + 1),
             ]
             this.store(updatedRecords)
-
-            if (isFunction(onComplete)) {
-                onComplete(updatedRecord)
-            }
+            onComplete(updatedRecord)
+            return Promise.resolve(updatedRecord)
         }
     }
 
@@ -110,7 +105,7 @@ export class TasksLocalStorage implements ITasksStorage {
             }
         }
     }
-
+    
     private getAllItemsFromStorage () {
         // There is not `localStorage` on server-side
         if (!localStorage) {
@@ -134,3 +129,4 @@ export class TasksLocalStorage implements ITasksStorage {
         localStorage.setItem(LOCAL_STORAGE_TASKS_KEY, JSON.stringify(records))
     }
 }
+

@@ -1,19 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import find from 'lodash/find'
-import { ITask, ITaskTrackableItem, TaskRecord } from './index'
-import { displayTasksProgress } from './TaskProgress'
+import React, { useEffect, useState, useRef } from 'react'
 import { notification } from 'antd'
-import { filter, identity } from 'lodash'
+import filter from 'lodash/filter'
+import identity from 'lodash/identity'
+import findIndex from 'lodash/findIndex'
+import isEmpty from 'lodash/isEmpty'
+import get from 'lodash/get'
+import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext } from './index'
+import { displayTasksProgress } from './TaskProgress'
 
-/**
- * Should be used to launch and track specific delayed task
- */
-interface ITasksContext {
-    addTask: (newTask: ITaskTrackableItem) => void
-    tasks: ITaskTrackableItem[]
-}
-
-const TasksContext = React.createContext({})
 
 // Map of task schema name to its UI interface implementation
 type TaskUIInterfacesMap = Record<string, ITask>
@@ -29,21 +23,21 @@ type ITasksContextProviderProps = {
  */
 const buildTrackableTasksFrom = (records: TaskRecord[], uiInterfaces: TaskUIInterfacesMap): ITaskTrackableItem[] => {
     const trackableTasks = records.map(record => {
-        if (!record.__typename) {
+        const typeName = get(record, '__typename')
+        if (!typeName) {
             console.error('Error: Result of GraphQL query for task should contain "__typename" property', record)
+            return null
         }
-        const uiInterface = uiInterfaces[record.__typename]
+        const uiInterface = uiInterfaces[typeName]
         if (!uiInterface) {
             // Exception is not thrown here to not disturb user in favour of monitoring errors ourselves
             console.error('Error: No UI implementation for task record', record)
             return null
         }
-        const trackableTask = {
+        return {
             record,
             ...uiInterface,
         }
-        console.debug('Built trackable task item', trackableTask)
-        return trackableTask
     })
     return filter(trackableTasks, identity)
 }
@@ -53,25 +47,33 @@ const buildTrackableTasksFrom = (records: TaskRecord[], uiInterfaces: TaskUIInte
  * TODO: Progress should be tracked after closing progress panel
  */
 const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTaskRecords = [], uiInterfaces, children }) => {
-    // Initial state cannot be initialized with `initialTasks` prop, because a hook in parent component that loads tasks
-    // in 'processing' status will rerender this component as data comes, so, the state
-    // will not be reinitialized
+    // NOTE: Initial state of `tasks` cannot be initialized with `initialTasks` prop, because a hook in parent component that loads tasks
+    // will rerender this component as data comes, so, the state will not be reinitialized.
     const [tasks, setTasks] = useState<ITaskTrackableItem[]>([])
+    // Because it is impossible to initial assign it to `tasks` state, handle it separately
     const initialTasks = buildTrackableTasksFrom(initialTaskRecords, uiInterfaces)
+    const [latestUpdatedTask, setLatestUpdatedTask] = useState()
 
     const allTasks = [
         ...tasks,
         ...initialTasks,
     ]
 
+    // Keep reference to the variable, because functions in `tasksContextInterface` will lose it after assignment to `TasksContext.Provider`
+    const allTasksRef = useRef(allTasks)
+
     useEffect(() => {
-        if (allTasks.length > 0) {
+        allTasksRef.current = allTasks
+    }, [allTasks])
+
+    useEffect(() => {
+        if (!isEmpty(allTasks)) {
             displayTasksProgress({
                 notificationApi,
                 tasks: allTasks,
             })
         }
-    }, [tasks.length, initialTasks.length])
+    }, [tasks.length, initialTasks.length, latestUpdatedTask])
 
     /**
      * To make notifications work with all context providers of our MyApp component,
@@ -82,13 +84,53 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTas
      */
     const [notificationApi, contextHolder] = notification.useNotification()
 
+    function findExistingTaskById (id) {
+        const index = findIndex(allTasksRef.current, { record: { id } })
+        if (index === -1) {
+            return [null, -1]
+        }
+        return [allTasksRef.current[index], index]
+    }
+
     const tasksContextInterface: ITasksContext = {
         addTask: (newTask) => {
-            if (find(tasks, { id: newTask.record.id })) {
+            // TODO(antonal): validate newTask object shape
+            const [existingTask] = findExistingTaskById(newTask.record.id)
+            if (existingTask) {
                 console.error('Task record has already been added for tracking', newTask.record)
             } else {
-                setTasks(prevTasks => [...prevTasks, newTask])
+                setTasks(prevTasks => ([...prevTasks, newTask]))
             }
+        },
+        updateTask: (record) => {
+            const [existingTask, index] = findExistingTaskById(record.id)
+            if (!existingTask) {
+                console.error('Task record not found to update', record)
+                return
+            }
+            setTasks(prevTasks => {
+                const updatedTask = {
+                    // @ts-ignore
+                    ...prevTasks[index],
+                    record,
+                }
+                setLatestUpdatedTask(updatedTask.record.progress)
+                return [
+                    // @ts-ignore
+                    ...prevTasks.slice(0, index),
+                    updatedTask,
+                    // @ts-ignore
+                    ...prevTasks.slice(index + 1),
+                ]
+            })
+        },
+        deleteTask: (record) => {
+            const [existingTask] = findExistingTaskById(record.id)
+            if (!existingTask) {
+                console.error('Task record not found', record)
+                return
+            }
+            setTasks(prevState => prevState.filter((task) => task.record.id !== record.id))
         },
         tasks: allTasks,
     }
