@@ -29,6 +29,11 @@ const REGISTER_MULTI_PAYMENT_MUTATION = gql`
         result: registerMultiPayment(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl getCardTokensUrl }
     }
 `
+const REGISTER_MULTI_PAYMENT_FROM_RECEIPT_MUTATION = gql`
+    mutation registerMultiPaymentFromReceipt ($data: RegisterMultiPaymentFromReceiptInput!) {
+        result: registerMultiPaymentFromReceipt(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl getCardTokensUrl }
+    }
+`
 const PAYMENTS_FILTER_FIELDS = '{ advancedAt accountNumber address type }'
 const PAYMENTS_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${PAYMENTS_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const PaymentsFilterTemplate = generateGqlQueries('PaymentsFilterTemplate', PAYMENTS_FILTER_TEMPLATE_FIELDS)
@@ -48,6 +53,7 @@ module.exports = {
     MultiPayment,
     Payment,
     REGISTER_MULTI_PAYMENT_MUTATION,
+    REGISTER_MULTI_PAYMENT_FROM_RECEIPT_MUTATION,
     EXPORT_PAYMENTS_TO_EXCEL,
     PaymentsFilterTemplate,
     /* AUTOGENERATE MARKER <EXPORTS> */

@@ -40,7 +40,10 @@ const {
     MULTIPAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 
-const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
+const {
+    REGISTER_MULTI_PAYMENT_MUTATION,
+    REGISTER_MULTI_PAYMENT_FROM_RECEIPT_MUTATION,
+} = require('@condo/domains/acquiring/gql')
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -346,6 +349,22 @@ async function registerMultiPaymentByTestClient(client, groupedReceipts, extraAt
     return [data.result, attrs]
 }
 
+async function registerMultiPaymentFromReceiptByTestClient(client, receipt, acquiringIntegrationContextId, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        receipt,
+        acquiringIntegrationContextId,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_FROM_RECEIPT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 async function createTestPaymentsFilterTemplate (client, employee, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!employee || !employee.id) throw new Error('no employee.id')
@@ -586,6 +605,7 @@ module.exports = {
     makePayerAndPayments,
     getRandomHiddenCard,
     registerMultiPaymentByTestClient,
+    registerMultiPaymentFromReceiptByTestClient,
     makePayerWithMultipleConsumers,
     completeTestPayment,
     PaymentsFilterTemplate,
