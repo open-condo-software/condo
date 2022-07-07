@@ -21,7 +21,7 @@ export function useFiltersTooltipData (): FiltersTooltipDataObject<Ticket>[] {
     const organizationId = get(organization, 'id')
     const router = useRouter()
     const { filters } = parseQuery(router.query)
-    const { objs: divisions } = Division.useObjects({
+    const { objs: divisions } = Division.useNewObjects({
         where: {
             organization: { id: organizationId },
         },

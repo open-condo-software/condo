@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { ServiceSubscription as ServiceSubscriptionGQL } from '@condo/domains/subscription/gql'
-import { ServiceSubscription, ServiceSubscriptionUpdateInput, QueryAllServiceSubscriptionsArgs } from '@app/condo/schema'
+import { ServiceSubscription, ServiceSubscriptionCreateInput, ServiceSubscriptionUpdateInput, QueryAllServiceSubscriptionsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'type', 'isTrial', 'organization', 'startAt', 'finishAt', 'unitsCount', 'unitPrice', 'totalPrice', 'currency']
 const RELATIONS = ['organization']
@@ -55,6 +56,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<ServiceSubscription, ServiceSubscriptionUpdateInput, IServiceSubscriptionFormState, IServiceSubscriptionUIState, QueryAllServiceSubscriptionsArgs>(ServiceSubscriptionGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<ServiceSubscription, ServiceSubscriptionCreateInput, ServiceSubscriptionUpdateInput, QueryAllServiceSubscriptionsArgs>(ServiceSubscriptionGQL)
 
 export {
     useObject,
@@ -63,4 +71,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

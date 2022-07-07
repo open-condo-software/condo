@@ -47,7 +47,7 @@ export interface ITicketFormState {
     deadline?: string
 }
 
-function convertToUIFormState (state: ITicketUIState): ITicketFormState | undefined {
+function convertToUIFormState (state: ITicketUIState | Ticket): ITicketFormState | undefined {
     if (!state) return
     const result = {}
     const deadline = state['deadline']

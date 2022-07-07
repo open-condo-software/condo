@@ -36,7 +36,7 @@ export interface IOnBoardingContext {
     isLoading?: boolean
     onBoarding?: IOnBoarding
     onBoardingSteps?: Array<IDecoratedOnBoardingStepType>
-    refetchOnBoarding?: () => Promise<IOnBoarding>
+    refetchOnBoarding?: () => void
 }
 
 const onBoardingIcons = {
@@ -62,13 +62,13 @@ export const OnBoardingProvider: React.FC = (props) => {
     const { setIsVisible: showOnBoardingCompleteModal, OnBoardingCompleteModal, isVisible: isOnBoardingCompleteVisible } = useOnBoardingCompleteModal()
 
     const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoardingHooks
-        .useObject(
+        .useNewObject(
             { where: { user: { id: get(user, 'id') } } },
             { fetchPolicy: 'network-only' },
         )
 
     const { objs: onBoardingSteps = [], refetch: refetchSteps, loading: stepsLoading } = OnBoardingStepHooks
-        .useObjects(
+        .useNewObjects(
             { where: { onBoarding: { id: get(onBoarding, 'id') } } },
             { fetchPolicy: 'network-only' }
         )

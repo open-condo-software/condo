@@ -107,7 +107,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
 export const UserOrganizationsList = ({ userOrganization }) => {
     const { user } = useAuth()
 
-    const { objs: userOrganizations, loading } = OrganizationEmployee.useObjects(
+    const { objs: userOrganizations, loading } = OrganizationEmployee.useNewObjects(
         { where: user ? { user: { id: user.id }, isAccepted: true } : {} },
         { fetchPolicy: 'network-only' }
     )

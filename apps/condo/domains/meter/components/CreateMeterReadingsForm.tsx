@@ -105,7 +105,7 @@ export const PropertyMetersForm = ({
     })
 
     const meterIds = meters.map(meter => meter.id)
-    const { objs: meterReadings, refetch: refetchMeterReadings, loading: meterReadingsLoading } = MeterReading.useObjects({
+    const { objs: meterReadings, refetch: refetchMeterReadings, loading: meterReadingsLoading } = MeterReading.useNewObjects({
         where: {
             meter: { id_in: meterIds },
         },

@@ -1,5 +1,5 @@
 import { DatabaseFilled } from '@ant-design/icons'
-import { DivisionWhereInput, OrganizationEmployeeRole, SortDivisionsBy } from '@app/condo/schema'
+import { DivisionWhereInput, OrganizationEmployeeRole, SortDivisionsBy, Division as DivisionType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -27,7 +27,7 @@ type BuildingTableProps = {
     searchDivisionsQuery: DivisionWhereInput
     tableColumns: ColumnsType
     sortBy: string[]
-    onSearch?: (properties: Division.IDivisionUIState[]) => void
+    onSearch?: (properties: DivisionType[]) => void
 }
 
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -52,7 +52,7 @@ export default function DivisionTable (props: BuildingTableProps) {
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { loading, error, objs: divisions, count: total } = Division.useObjects({
+    const { loading, error, objs: divisions, count: total } = Division.useNewObjects({
         sortBy: sortBy as SortDivisionsBy[],
         where: { ...searchDivisionsQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
