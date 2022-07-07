@@ -572,6 +572,7 @@
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description": "Oops! It seems, like a user, who's made this changes, was removed from the system",
   "pages.condo.ticket.TicketChanges.autoCloseTicket": "Ticket is automatically changed to \"Closed\" status, as there was no review from the resident for 7 days.",
   "pages.condo.ticket.TicketChanges.fetchMore": "Show more {count}",
+  "pages.condo.ticket.TicketFileList.downloadFileError": "Failed to download file",
   "pages.condo.meter.warning.modal.HelpMessage": "New counters and readings will not be saved if you leave the page.",
   "pages.condo.meter.form.ConfirmDeleteTitle": "Remove meter?",
   "pages.condo.meter.form.ConfirmDeleteMessage": "All data, related to this property, will be lost",

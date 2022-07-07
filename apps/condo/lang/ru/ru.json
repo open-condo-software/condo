@@ -572,6 +572,7 @@
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description": "Упс, кажется пользователь, который внёс эти изменения, был удалён из системы",
   "pages.condo.ticket.TicketChanges.autoCloseTicket": "Заявка автоматически переведена в статус «Закрыта», так как от жителя не было обратной связи в течение 7 дней.",
   "pages.condo.ticket.TicketChanges.fetchMore": "Показать ещё {count}",
+  "pages.condo.ticket.TicketFileList.downloadFileError": "Не удалось скачать файл",
   "pages.condo.meter.warning.modal.HelpMessage": "Новые счетчики и показания не сохранятся, если вы уйдете со страницы.",
   "pages.condo.meter.form.ConfirmDeleteTitle": "Удалить счётчик?",
   "pages.condo.meter.form.ConfirmDeleteMessage": "Восстановить счетчик будет невозможно",

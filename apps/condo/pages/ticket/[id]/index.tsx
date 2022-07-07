@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { EditFilled, FilePdfFilled } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
-import { Affix, Alert, Breadcrumb, Col, Row, Space, Typography } from 'antd'
+import { Affix,  Breadcrumb, Col, Row, Space, Typography, notification } from 'antd'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import { Gutter } from 'antd/es/grid/row'
 import UploadList from 'antd/lib/upload/UploadList/index'
@@ -86,6 +86,9 @@ const UploadListWrapperStyles = css`
 `
 
 export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
+    const intl = useIntl()
+    const DownloadFileErrorMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketFileList.downloadFileError' })
+
     const uploadFiles = files.map(({ file }) => {
         const fileInList = {
             uid: file.id,
@@ -96,7 +99,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         return fileInList
     })
 
-    const handleFileDownload: (file: UploadFile) => void = async (file: UploadFile) => {
+    const downloadFile = async (file: UploadFile) => {
         const response = await fetch(file.url)
         const blob = await response.blob()
         const blobUrl = window.URL.createObjectURL(blob)
@@ -104,6 +107,20 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         a.href = blobUrl
         a.download = file.name
         a.click()
+    }
+
+    const handleFileDownload: (file: UploadFile) => void = async (file: UploadFile) => {
+        const forbiddenFileTypes = ['html', 'svg', 'txt']
+        const fileType = file.name.split('.').reverse()[0]
+        if (forbiddenFileTypes.includes(fileType)) {
+            try {
+                await downloadFile(file)
+            } catch (e) {
+                notification.error({ message: DownloadFileErrorMessage })
+            }
+        } else {
+            window.open(file.url, '_blank')
+        }
     }
 
     return (
