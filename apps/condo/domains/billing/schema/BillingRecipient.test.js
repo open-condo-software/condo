@@ -3,6 +3,7 @@
  */
 import {
     catchErrorFrom,
+    expectToThrowGraphQLRequestError,
 } from '@condo/domains/common/utils/testSchema'
 
 const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
@@ -345,6 +346,19 @@ describe('BillingRecipient', () => {
             expect(updatedObj.deletedAt).not.toBeNull()
             expect(objNew.id).toBeDefined()
             expect(obj.id).not.toEqual(objNew.id)
+        })
+    })
+
+    describe('Validation tests', () => {
+        test('Context field cannot be changed', async () => {
+            const { context, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const { context: anotherContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [recipient] = await createTestBillingRecipient(admin, context)
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestBillingRecipient(admin, recipient.id, {
+                    context: { connect: { id: anotherContext.id } },
+                })
+            }, 'Field "context" is not defined')
         })
     })
 })

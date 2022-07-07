@@ -12,6 +12,8 @@ const { createTestBillingProperty } = require('@condo/domains/billing/utils/test
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowGraphQLRequestError, expectToThrowValidationFailureError } = require('../../common/utils/testSchema')
+const { UNEQUAL_CONTEXT_ERROR } = require('../../common/constants/errors')
 
 describe('BillingAccountMeter', () => {
     test('admin: create BillingAccountMeter', async () => {
@@ -233,6 +235,42 @@ describe('BillingAccountMeter', () => {
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await BillingAccountMeter.delete(client, billingAccountMeter.id)
+        })
+    })
+
+    describe('Validation tests', async () => {
+        test('Context field cannot be changed', async () => {
+            const { context, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const { context: anotherContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [account] = await createTestBillingAccount(admin, context, property)
+            const [resource] = await createTestBillingMeterResource(admin)
+            const [accountMeter] = await createTestBillingAccountMeter(admin, context, property, account, resource)
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestBillingAccountMeter(admin, accountMeter.id, {
+                    context: { connect: { id: anotherContext.id } },
+                })
+            }, 'Field "context" is not defined')
+        })
+        test('Context and contexts from "account" and "property" fields must be equal', async () => {
+            const { context, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const { context: anotherContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [property] = await createTestBillingProperty(admin, context)
+            const [anotherProperty] = await createTestBillingProperty(admin, anotherContext)
+            const [account] = await createTestBillingAccount(admin, context, property)
+            const [anotherAccount] = await createTestBillingAccount(admin, anotherContext, anotherProperty)
+            const [resource] = await createTestBillingMeterResource(admin)
+            const [accountMeter] = await createTestBillingAccountMeter(admin, context, property, account, resource)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingAccountMeter(admin, accountMeter.id, {
+                    account: { connect: { id: anotherAccount.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:account:context] Context is not equal to account.context`)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingAccountMeter(admin, accountMeter.id, {
+                    property: { connect: { id: anotherProperty.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
         })
     })
 })

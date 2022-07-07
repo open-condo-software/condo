@@ -14,6 +14,7 @@ const REQUIRED = 'REQUIRED'
 const DV_VERSION_MISMATCH = 'DV_VERSION_MISMATCH'
 const DV_UNKNOWN_VERSION_ERROR = '[dv:unknownDataVersion:'
 const STATUS_UPDATED_AT_ERROR = '[dv:incorrectStatusUpdatedAt:'
+const UNEQUAL_CONTEXT_ERROR = '[context:unequal:'
 
 const PROPERTY_REQUIRED_ERROR = '[property:is:empty'
 const ALREADY_EXISTS_ERROR = '[constrain:alreadyExists:'
@@ -69,4 +70,5 @@ module.exports = {
     PROPERTY_REQUIRED_ERROR,
     UNIQUE_CONSTRAINT_ERROR,
     DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+    UNEQUAL_CONTEXT_ERROR,
 }

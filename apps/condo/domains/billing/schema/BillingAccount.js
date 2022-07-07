@@ -4,11 +4,16 @@
 
 const { Text } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingAccount')
-const { DV_UNKNOWN_VERSION_ERROR, JSON_EXPECT_OBJECT_ERROR, JSON_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const {
+    DV_UNKNOWN_VERSION_ERROR,
+    JSON_EXPECT_OBJECT_ERROR,
+    JSON_UNKNOWN_VERSION_ERROR,
+    UNEQUAL_CONTEXT_ERROR,
+} = require('@condo/domains/common/constants/errors')
 const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
@@ -92,13 +97,20 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError }) => {
+        validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
+            const newItem = { ...existingItem, ...resolvedData }
+            const { dv, context: accountContextId, property: propertyId } = newItem
             if (dv === 1) {
                 // NOTE: version 1 specific translations. Don't optimize this logic
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            }
+
+            const property = await getById('BillingProperty', propertyId)
+            const { context: propertyContextId } = property
+            if (accountContextId !== propertyContextId) {
+                return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
             }
         },
     },

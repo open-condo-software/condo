@@ -10,6 +10,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } 
 const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowGraphQLRequestError } = require('../../common/utils/testSchema')
 
 describe('BillingIntegrationLog', () => {
     test('admin: create BillingIntegrationLog', async () => {
@@ -197,6 +198,18 @@ describe('BillingIntegrationLog', () => {
         // TODO(pahaz): wait https://github.com/keystonejs/keystone/issues/4829
         // const hackerResult = await BillingIntegrationLog.getAll(hackerClient, { context: { id: context.id } })
         // expect(hackerResult).toEqual([])
+    })
+    describe('Validation tests', () => {
+        test('Context field cannot be changed', async () => {
+            const { context, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const { context: anotherContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [integrationLog] = await createTestBillingIntegrationLog(admin, context)
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestBillingIntegrationLog(admin, integrationLog.id, {
+                    context: { connect: { id: anotherContext.id } },
+                })
+            }, 'Field "context" is not defined')
+        })
     })
 })
 

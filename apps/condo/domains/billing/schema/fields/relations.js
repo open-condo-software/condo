@@ -7,6 +7,7 @@ const INTEGRATION_CONTEXT_FIELD = {
     isRequired: true,
     knexOptions: { isNotNullable: true }, // Required relationship only!
     kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+    access: { update: false },
 }
 
 const BILLING_ORGANIZATION_FIELD = {

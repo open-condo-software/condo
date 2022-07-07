@@ -24,6 +24,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowInternalError,
+    expectToThrowGraphQLRequestError,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -534,6 +535,14 @@ describe('BillingProperty', () => {
             expect(properties[0].deletedAt).toBeNull()
             expect(properties[1]).toHaveProperty('deletedAt')
             expect(properties[1].deletedAt).toBeNull()
+        })
+        test('Context fields cannot be changed', async () => {
+            const [property] = await createTestBillingProperty(admin, context)
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestBillingProperty(admin, property.id, {
+                    context: { connect: { id: anotherContext.id } },
+                })
+            }, 'Field "context" is not defined')
         })
     })
 })
