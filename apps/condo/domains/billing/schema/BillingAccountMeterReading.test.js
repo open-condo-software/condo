@@ -19,7 +19,7 @@ const {
     expectToThrowGraphQLRequestError,
     expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
-const { UNEQUAL_CONTEXT_ERROR } = require('../../common/constants/errors')
+const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('BillingAccountMeterReading', () => {
     test('admin: create BillingAccountMeterReading', async () => {

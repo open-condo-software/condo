@@ -39,8 +39,7 @@ const {
     expectToThrowGraphQLRequestError,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@core/keystone/test.utils')
-const { WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
-const { UNEQUAL_CONTEXT_ERROR } = require('../../common/constants/errors')
+const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('BillingReceipt', () => {
     let admin

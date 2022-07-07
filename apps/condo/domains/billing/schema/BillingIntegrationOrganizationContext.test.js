@@ -11,14 +11,18 @@ const { createTestBillingIntegration, createReceiptsReader } = require('../utils
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj,
+const {
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
     expectToThrowGraphQLRequestError,
+    expectToThrowAccessDeniedErrorToObj,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
-    createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+    createTestBillingIntegrationOrganizationContext,
+    updateTestBillingIntegrationOrganizationContext,
+} = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
 
 describe('BillingIntegrationOrganizationContext', () => {

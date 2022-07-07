@@ -10,7 +10,7 @@ const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/comm
 const access = require('@condo/domains/billing/access/BillingAccountMeter')
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
-const { UNEQUAL_CONTEXT_ERROR } = require('../../common/constants/errors')
+const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 
 const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
