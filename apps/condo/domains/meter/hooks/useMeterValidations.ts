@@ -19,7 +19,7 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id')
 
-    const { objs: metersWithSameNumber, refetch } = Meter.useObjects({
+    const { objs: metersWithSameNumber, refetch } = Meter.useNewObjects({
         where: {
             organization: { id: organizationId },
         },

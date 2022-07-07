@@ -9,7 +9,13 @@ import {
     FilterComponentSize,
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
-import { BuildingUnitSubType, TicketWhereInput } from '@app/condo/schema'
+import {
+    BuildingUnitSubType,
+    TicketWhereInput,
+    TicketSource as TicketSourceType,
+    TicketStatus as TicketStatusType,
+    TicketCategoryClassifier as TicketCategoryClassifierType,
+} from '@app/condo/schema'
 import {
     getDayRangeFilter,
     getFilter,
@@ -23,9 +29,6 @@ import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/c
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
 import { getIsResidentContactFilter, getTicketAttributesFilter } from '../utils/tables.utils'
 import { useModalFilterClassifiers } from './useModalFilterClassifiers'
-import { ITicketSourceUIState } from '../utils/clientSchema/TicketSource'
-import { ITicketStatusUIState } from '../utils/clientSchema/TicketStatus'
-import { ITicketCategoryClassifierUIState } from '../utils/clientSchema/TicketCategoryClassifier'
 
 const filterNumber = getNumberFilter('number')
 const filterCreatedAtRange = getDayRangeFilter('createdAt')
@@ -94,11 +97,11 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
     const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
 
-    const { objs: statuses } = TicketStatus.useObjects({})
-    const statusOptions = convertToOptions<ITicketStatusUIState>(statuses, 'name', 'id')
+    const { objs: statuses } = TicketStatus.useNewObjects({})
+    const statusOptions = convertToOptions<TicketStatusType>(statuses, 'name', 'id')
 
-    const { objs: sources } = TicketSource.useObjects({})
-    const sourceOptions = convertToOptions<ITicketSourceUIState>(sources, 'name', 'id')
+    const { objs: sources } = TicketSource.useNewObjects({})
+    const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
 
     const attributeOptions = useMemo(() => [
         { label: PaidMessage, value: 'isPaid' },
@@ -121,8 +124,8 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
         { label: IsResidentContactMessage, value: 'false' },
         { label: IsNotResidentContactMessage, value: 'true' },
     ], [IsNotResidentContactMessage, IsResidentContactMessage])
-    const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
-    const categoryClassifiersOptions = convertToOptions<ITicketCategoryClassifierUIState>(categoryClassifiers, 'name', 'id')
+    const { objs: categoryClassifiers } = TicketCategoryClassifier.useNewObjects({})
+    const categoryClassifiersOptions = convertToOptions<TicketCategoryClassifierType>(categoryClassifiers, 'name', 'id')
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])

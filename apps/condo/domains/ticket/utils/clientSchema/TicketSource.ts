@@ -1,8 +1,9 @@
 import { pick, get } from 'lodash'
 
-import { TicketSource, TicketSourceUpdateInput, QueryAllTicketSourcesArgs } from '@app/condo/schema'
+import { TicketSource, TicketSourceCreateInput, TicketSourceUpdateInput, QueryAllTicketSourcesArgs } from '@app/condo/schema'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 import { TicketSource as TicketSourceGQL } from '@condo/domains/ticket/gql'
 
 const FIELDS = ['id', 'organization', 'type', 'name']
@@ -68,6 +69,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<TicketSource, TicketSourceUpdateInput, ITicketSourceFormState, ITicketSourceUIState, QueryAllTicketSourcesArgs>(TicketSourceGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<TicketSource, TicketSourceCreateInput, TicketSourceUpdateInput, QueryAllTicketSourcesArgs>(TicketSourceGQL)
 
 export {
     useObject,
@@ -77,4 +85,9 @@ export {
     useDelete,
     convertGQLItemToFormSelectState,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }
