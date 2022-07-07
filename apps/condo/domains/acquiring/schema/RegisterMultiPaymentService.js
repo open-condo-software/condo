@@ -16,10 +16,10 @@ const {
 const { JSON_STRUCTURE_FIELDS_CONSTRAINTS } = require('@condo/domains/common/utils/validation.utils')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { find } = require('@core/keystone/schema')
-const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
+const { Payment, MultiPayment, AcquiringIntegration, AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
-const get = require('lodash/get')
+const { get, isNil } = require('lodash')
 const Big = require('big.js')
 const validate = require('validate.js')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
@@ -183,8 +183,22 @@ const errors = {
         type: RECEIPTS_HAS_MULTIPLE_CURRENCIES,
         message: 'BillingReceipts has multiple currencies',
     },
+    MISSING_REQUIRED_RECEIPT: {
+        mutation: 'registerMultiPaymentFromReceipt',
+        variable: ['data', 'receipt'],
+        code: BAD_USER_INPUT,
+        type: REQUIRED,
+        message: 'Missing required value for "receipt" field',
+    },
 }
 
+const throwMutationSpecificErrorIf = (errorCondition, baseError, mutation, context, extraArgsSupplier) => {
+    if (errorCondition) {
+        const extraArgs = isNil(extraArgsSupplier) ? {} : extraArgsSupplier()
+        const error = { ...baseError, mutation, ...extraArgs }
+        throw new GQLError(error, context)
+    }
+}
 
 const SENDER_FIELD_CONSTRAINTS = {
     ...JSON_STRUCTURE_FIELDS_CONSTRAINTS,
@@ -210,6 +224,10 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         {
             access: true,
             type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderFieldInput!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!]! }',
+        },
+        {
+            access: true,
+            type: 'input RegisterMultiPaymentFromReceiptInput { dv: Int!, sender: SenderFieldInput!, receipt: RegisterMultiPaymentReceiptInfoInput!, acquiringIntegrationContextId: String! }',
         },
         {
             access: true,
@@ -466,6 +484,185 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     user: { connect: { id: context.authedItem.id } },
                     integration: { connect: { id: acquiringIntegration.id } },
                     payments: { connect: paymentIds },
+                    // TODO(DOMA-1574): add correct category
+                    serviceCategory: DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
+                })
+                return {
+                    dv: 1,
+                    multiPaymentId: multiPayment.id,
+                    webViewUrl: `${acquiringIntegration.hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPayment.id)}`,
+                    feeCalculationUrl: `${acquiringIntegration.hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPayment.id)}`,
+                    directPaymentUrl: `${acquiringIntegration.hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', multiPayment.id)}`,
+                    getCardTokensUrl: `${acquiringIntegration.hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', context.authedItem.id)}`,
+                }
+            },
+        },
+        {
+            access: access.canRegisterMultiPayment,
+            schema: 'registerMultiPaymentFromReceipt(data: RegisterMultiPaymentFromReceiptInput!): RegisterMultiPaymentOutput',
+            resolver: async (parent, args, context) => {
+                // wrap validator function to the current call context
+                const throwIf = ({ when, error, extraArgsSupplier }) => throwMutationSpecificErrorIf(
+                    when,
+                    error,
+                    'registerMultiPaymentFromReceipt',
+                    context,
+                    extraArgsSupplier,
+                )
+                const { data } = args
+                const {
+                    dv,
+                    sender,
+                    receipt,
+                    acquiringIntegrationContextId,
+                } = data
+
+                // Stage 0. Check if input is valid
+                throwIf({
+                    when: dv !== 1, error: errors.DV_VERSION_MISMATCH,
+                })
+
+                const senderErrors = validate(sender, SENDER_FIELD_CONSTRAINTS)
+                throwIf({
+                    when: senderErrors && Object.keys(senderErrors).length,
+                    error: errors.WRONG_SENDER_FORMAT,
+                    extraArgsSupplier: () => {
+                        const details = Object.keys(senderErrors).map(field => {
+                            return `${field}: [${senderErrors[field].map(error => `'${error}'`).join(', ')}]`
+                        }).join(', ')
+                        return { messageInterpolation: { details } }
+                    },
+                })
+
+                // Stage 1: get acquiring context & integration
+                const [acquiringContext] = await find('AcquiringIntegrationContext', {
+                    id: acquiringIntegrationContextId,
+                })
+
+                throwIf({
+                    when: acquiringContext.deletedAt,
+                    error: errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED
+                })
+
+                const [acquiringIntegration] = await AcquiringIntegration.getAll(context, {
+                    id: acquiringContext.integration,
+                })
+
+                throwIf({
+                    when: acquiringIntegration.deletedAt,
+                    error: errors.ACQUIRING_INTEGRATION_IS_DELETED,
+                    extraArgsSupplier: () => ({ messageInterpolation: { id: acquiringIntegration.id } }),
+                })
+
+                // Stage 2. Check BillingReceipts
+                const [billingReceipt] = await find('BillingReceipt', {
+                    id: receipt.id,
+                })
+
+                throwIf({
+                    when: isNil(billingReceipt),
+                    error: errors.CANNOT_FIND_ALL_BILLING_RECEIPTS,
+                    extraArgsSupplier: () => ({ messageInterpolation: { missingReceiptIds: receipt.id } }),
+                })
+                throwIf({
+                    when: billingReceipt.deletedAt,
+                    error: errors.RECEIPTS_ARE_DELETED,
+                    extraArgsSupplier: () => ({ messageInterpolation: { ids: billingReceipt.id } }),
+                })
+
+                // negative to pay value
+                throwIf({
+                    when: Big(billingReceipt.toPay).lte(0),
+                    error: errors.RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
+                    extraArgsSupplier: () => ({ messageInterpolation: { ids: receipt.id } }),
+                })
+
+                const [billingContext] = await find('BillingIntegrationOrganizationContext', {
+                    id: billingReceipt.context,
+                })
+
+                throwIf({
+                    when: billingContext.deletedAt,
+                    error: errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
+                    extraArgsSupplier: () => {
+                        const failedReceipts = [{ receiptId: billingReceipt.id, contextId: billingReceipt.context }]
+                        return { data: { failedReceipts } }
+                    },
+                })
+
+                const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
+                    .map(integration => integration.id)
+
+                throwIf({
+                    when: !supportedBillingIntegrations.includes(billingContext.integration),
+                    error: errors.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
+                    extraArgsSupplier: () => ({ messageInterpolation: { unsupportedBillingIntegrations:  billingContext.integration } }),
+                })
+
+                const [billingIntegration] = await find('BillingIntegration', {
+                    id: billingContext.integration,
+                })
+
+                throwIf({
+                    when: billingIntegration.deletedAt,
+                    error: errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
+                    extraArgsSupplier: () => {
+                        const failedReceipts = [{ receiptId: billingReceipt.id, integrationId: billingIntegration.id }]
+                        return { data: { failedReceipts } }
+                    },
+                })
+
+                const currencyCode = get(billingIntegration, ['currencyCode'])
+
+                // Stage 3 Generating payments
+                const formula = await getAcquiringIntegrationContextFormula(context, acquiringIntegrationContextId)
+                const feeCalculator = new FeeDistribution(formula)
+                const frozenReceipt = await freezeBillingReceipt(billingReceipt)
+                const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
+                const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(billingReceipt.toPay)
+                const paymentCommissionFields = {
+                    ...type === 'service' ? {
+                        explicitServiceCharge: String(explicitFee),
+                        explicitFee: '0',
+                    } : {
+                        explicitServiceCharge: '0',
+                        explicitFee: String(explicitFee),
+                    },
+                    implicitFee: String(implicitFee),
+                    serviceFee: String(fromReceiptAmountFee),
+                }
+                const paymentModel = await Payment.create(context, {
+                    dv: 1,
+                    sender,
+                    amount: billingReceipt.toPay,
+                    currencyCode,
+                    accountNumber: billingAccountNumber,
+                    period: billingReceipt.period,
+                    receipt: { connect: { id: billingReceipt.id } },
+                    frozenReceipt,
+                    context: { connect: { id: acquiringContext.id } },
+                    organization: { connect: { id: acquiringContext.organization } },
+                    recipientBic: billingReceipt.recipient.bic,
+                    recipientBankAccount: billingReceipt.recipient.bankAccount,
+                    ...paymentCommissionFields,
+                })
+                const payment = { ...paymentModel, serviceFee: paymentCommissionFields.serviceFee }
+
+                const totalAmount = {
+                    amountWithoutExplicitFee: Big(payment.amount),
+                    explicitFee: Big(payment.explicitFee),
+                    explicitServiceCharge: Big(payment.explicitServiceCharge),
+                    serviceFee: Big(payment.serviceFee),
+                    implicitFee: Big(payment.implicitFee),
+                }
+                const multiPayment = await MultiPayment.create(context, {
+                    dv: 1,
+                    sender,
+                    ...Object.fromEntries(Object.entries(totalAmount).map(([key, value]) => ([key, value.toFixed(2)]))),
+                    currencyCode,
+                    user: { connect: { id: context.authedItem.id } },
+                    integration: { connect: { id: acquiringIntegration.id } },
+                    payments: { connect: [ { id: payment.id } ] },
                     // TODO(DOMA-1574): add correct category
                     serviceCategory: DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
                 })
