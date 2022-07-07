@@ -43,20 +43,6 @@ const renderComment = (comment, locale) => {
 }
 
 /**
- * Loads records batch
- *
- * @param offset
- * @param limit
- * @return {Promise<void>}
- */
-const loadRecordsBatch = async ({ task, offset, limit }) => {
-    const { where, sortBy } = task
-    // This function produces one SQL query and it is quite lite for database
-    const tickets = await loadTicketsBatchForExcelExport({ where, sortBy, offset, limit })
-    return tickets
-}
-
-/**
  * Converts record obtained from database to JSON representation for file row
  *
  * @param ticket
@@ -186,8 +172,9 @@ const exportTickets = async (taskId) => {
 
     await exportRecords({
         context,
-        loadRecordsBatch: (offset, limit) => {
-            const tickets = loadRecordsBatch({ context, task, offset, limit })
+        loadRecordsBatch: async (offset, limit) => {
+            const { where, sortBy } = task
+            const tickets = await loadTicketsBatchForExcelExport({ where, sortBy, offset, limit })
             if (!idOfFirstTicketForAccessRights) {
                 idOfFirstTicketForAccessRights = get(tickets[0], 'id')
             }
