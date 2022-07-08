@@ -266,7 +266,7 @@ export const EmployeeInfoPage = () => {
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
     const employeeId = get(query, 'id', '')
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
+    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useNewObject(
         {
             where: {
                 id: String(employeeId),

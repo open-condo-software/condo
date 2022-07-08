@@ -533,8 +533,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
 
-    const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
-        where: { id: id },
+    const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useNewObject({
+        where: { id },
     }, {
         fetchPolicy: 'network-only',
     })
@@ -576,7 +576,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         user: { connect: { id: auth.user && auth.user.id } },
     })
 
-    const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketCommentsTime.useObject({
+    const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketCommentsTime.useNewObject({
         where: {
             ticket: { id: id },
         },

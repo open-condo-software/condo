@@ -41,7 +41,7 @@ const PaymentsPageContent = (): JSX.Element => {
         obj: billingContext,
         error: billingContextError,
         loading: billingContextLoading,
-    } = BillingIntegrationOrganizationContext.useObject({
+    } = BillingIntegrationOrganizationContext.useNewObject({
         where: {
             organization: {
                 id: organizationId,
@@ -55,7 +55,7 @@ const PaymentsPageContent = (): JSX.Element => {
         obj: acquiringContext,
         error: acquiringContextError,
         loading: acquiringContextLoading,
-    } = AcquiringIntegrationContext.useObject({
+    } = AcquiringIntegrationContext.useNewObject({
         where: {
             organization: {
                 id: organizationId,

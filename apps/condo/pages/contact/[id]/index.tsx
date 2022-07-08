@@ -168,7 +168,7 @@ const ContactInfoPage = () => {
         obj: contact,
         loading,
         error,
-    } = Contact.useObject({
+    } = Contact.useNewObject({
         where: {
             id: String(contactId),
             organization: {

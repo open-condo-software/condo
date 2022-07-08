@@ -111,11 +111,11 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     )
 
     const fetchParams = React.useMemo(() => ({ where: userId ? prepareFetchParams(userId) : {} }), [userId])
-    const { fetchMore } = OrganizationEmployee.useObjects(fetchParams, FETCH_OPTIONS)
+    const { refetch } = OrganizationEmployee.useNewObjects(fetchParams, FETCH_OPTIONS)
 
     const handleFinish = useCallback(async (createResult) => {
         const id = get(createResult, 'data.obj.id')
-        const data = await fetchMore(prepareFinishFetchParams({ id, userId }))
+        const data = await refetch(prepareFinishFetchParams({ id, userId }))
         const userLinks = get(data, 'data.objs', [])
 
         if (id) {
@@ -130,7 +130,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         if (isFunction(onFinish)) onFinish()
 
         return null
-    }, [userId, selectLink, setIsVisible, fetchMore, onFinish])
+    }, [userId, selectLink, setIsVisible, refetch, onFinish])
 
     const handleMutationCompleted = React.useCallback(async (result) => {
         setIsVisible(false)

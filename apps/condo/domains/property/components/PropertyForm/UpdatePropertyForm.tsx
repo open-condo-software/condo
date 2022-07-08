@@ -22,7 +22,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
     const { push } = useRouter()
     const { organization } = useOrganization()
-    const { refetch, obj: property, loading, error } = Property.useObject({ where: { id } })
+    const { refetch, obj: property, loading, error } = Property.useNewObject({ where: { id } })
     const initialValues = Property.convertToUIFormState(property)
     const action = Property.useNewUpdate({}, (property) => push(`/property/${property.id}`))
     const updateAction = (value) => action(value, property)

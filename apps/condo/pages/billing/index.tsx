@@ -21,7 +21,7 @@ const BillingPage = () => {
         obj: currentContext,
         error: contextError,
         loading: contextLoading,
-    } = BillingIntegrationOrganizationContext.useObject({
+    } = BillingIntegrationOrganizationContext.useNewObject({
         where: {
             organization: {
                 id: organizationId,

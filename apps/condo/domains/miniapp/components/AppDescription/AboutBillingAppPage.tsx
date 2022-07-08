@@ -29,7 +29,7 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
 
     const router = useRouter()
 
-    const { obj: integration, loading: integrationLoading, error: integrationError } = BillingIntegration.useObject({
+    const { obj: integration, loading: integrationLoading, error: integrationError } = BillingIntegration.useNewObject({
         where: { id },
     })
 

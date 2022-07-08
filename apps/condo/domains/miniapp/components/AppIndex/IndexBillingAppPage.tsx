@@ -30,11 +30,11 @@ export const IndexBillingAppPage: React.FC<IndexBillingAppPageProps> = ({ id }) 
 
     const router = useRouter()
 
-    const { obj: integration, loading: integrationLoading, error: integrationError } = BillingIntegration.useObject({
+    const { obj: integration, loading: integrationLoading, error: integrationError } = BillingIntegration.useNewObject({
         where: { id },
     })
 
-    const { obj: context, loading: contextLoading, error: contextError } = BillingIntegrationOrganizationContext.useObject({
+    const { obj: context, loading: contextLoading, error: contextError } = BillingIntegrationOrganizationContext.useNewObject({
         where: {
             organization: { id: organizationId },
             integration: { id },

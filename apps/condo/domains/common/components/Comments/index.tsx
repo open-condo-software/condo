@@ -4,12 +4,11 @@ import { Empty, Tabs, Typography } from 'antd'
 import styled from '@emotion/styled'
 
 import { useIntl } from '@core/next/intl'
-import { TicketComment, TicketUpdateInput, TicketCommentFile } from '@app/condo/schema'
+import { TicketComment, TicketUpdateInput, TicketCommentFile, Ticket } from '@app/condo/schema'
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
-import { ITicketUIState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 import { Loader } from '../Loader'
 
@@ -228,7 +227,7 @@ export type CommentWithFiles = TicketComment & {
 }
 
 interface ICommentsListProps {
-    ticket: ITicketUIState,
+    ticket: Ticket,
     comments: CommentWithFiles[],
     createAction?: (formValues) => Promise<TicketComment>,
     updateAction?: (attrs, obj: CommentWithFiles) => Promise<TicketComment>

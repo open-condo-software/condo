@@ -73,7 +73,7 @@ export const CreateContactForm: React.FC = () => {
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
     const selectedUnitTypeRef = useRef(selectedUnitType)
 
-    const { loading, obj: property } = Property.useObject({ where:{ id: selectedPropertyId ? selectedPropertyId : null } })
+    const { loading, obj: property } = Property.useNewObject({ where:{ id: selectedPropertyId ? selectedPropertyId : null } })
 
     useEffect(() => {
         selectedPropertyIdRef.current = selectedPropertyId
@@ -87,7 +87,6 @@ export const CreateContactForm: React.FC = () => {
         selectedUnitTypeRef.current = selectedUnitType
     }, [selectedUnitType])
 
-    // @ts-ignore
     const action = Contact.useNewCreate({
         organization: { connect: { id: organization.id } },
     }, () => {

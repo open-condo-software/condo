@@ -8,6 +8,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import dayjs from 'dayjs'
 import { FetchMoreQueryOptions } from '@apollo/client/core/watchQueryOptions'
 import { FetchMoreOptions } from '@apollo/client/core/ObservableQuery'
+import { TypedDocumentNode } from '@graphql-typed-document-node/core'
 
 type IUUIDObject = { id: string }
 type IOnCompleteType<GQLObject> = (obj: GQLObject) => void
@@ -16,18 +17,20 @@ type IUseObjectsQueryReturnType<GQLObject> = {
     meta?: { count?: number }
 }
 type IRefetchType<GQLObject, QueryVariables> = (variables?: Partial<QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>
-type IFetchMoreType<GQLObject, QueryVariables, K extends keyof QueryVariables> = (fetchMoreOptions: FetchMoreQueryOptions<QueryVariables, K, IUseObjectsQueryReturnType<GQLObject>> & FetchMoreOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>
-type IBasicUseQueryResult<GQLObject, QueryVariables, K extends keyof QueryVariables> = {
+type IFetchMoreType<GQLObject, QueryVariables> = (<K extends keyof QueryVariables>(fetchMoreOptions: FetchMoreQueryOptions<QueryVariables, K, IUseObjectsQueryReturnType<GQLObject>> & FetchMoreOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>) & (<TData2, TVariables2, K extends keyof TVariables2>(fetchMoreOptions: {
+    query?: DocumentNode | TypedDocumentNode<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>;
+} & FetchMoreQueryOptions<TVariables2, K, QueryVariables> & FetchMoreOptions<TData2, TVariables2>) => Promise<ApolloQueryResult<TData2>>)
+type IBasicUseQueryResult<GQLObject, QueryVariables> = {
     loading: boolean
     error?: string
     refetch: IRefetchType<GQLObject, QueryVariables>
-    fetchMore: IFetchMoreType<GQLObject, QueryVariables, K>
+    fetchMore: IFetchMoreType<GQLObject, QueryVariables>
 }
-type IUseObjectsReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables, keyof QueryVariables> & {
+type IUseObjectsReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables> & {
     objs: GQLObject[]
     count: number | null
 }
-type IUseObjectReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables, keyof QueryVariables> & {
+type IUseObjectReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables> & {
     obj: GQLObject | null
 }
 type IUseCreateActionType<GQLObject, GQLCreateInput> = (values: Partial<GQLCreateInput>) => Promise<GQLObject>
@@ -174,7 +177,7 @@ export function generateNewReactHooks<
         const objs: GQLObject[] = (data && data.objs) ? data.objs : []
         const count = (data && data.meta) ? data.meta.count : null
         const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
-        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables, keyof QueryVariables> = fetchMore
+        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
 
         let readableError
 

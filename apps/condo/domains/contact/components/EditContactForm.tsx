@@ -54,7 +54,7 @@ export const EditContactForm: React.FC = () => {
         loading,
         error,
         refetch,
-    } = Contact.useObject({
+    } = Contact.useNewObject({
         where: {
             id: String(contactId),
             organization: {
