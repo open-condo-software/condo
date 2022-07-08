@@ -16,6 +16,7 @@ import DatePicker from '../Pickers/DatePicker'
 import { FilterContainer, SelectFilterContainer } from '../TableFilter'
 import { GraphQlSearchInput } from '../GraphQlSearchInput'
 import DateRangePicker from '../Pickers/DateRangePicker'
+import SelectTags from '../antd/SelectTags'
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
 type FilterValueType = (path: string | Array<string>, filters: { [x: string]: QueryArgType }) => FilterValue
@@ -86,17 +87,30 @@ export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Selec
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
-                <Select
-                    showArrow
-                    style={DROPDOWN_SELECT_STYLE}
-                    value={selectedKeys}
-                    optionFilterProp={'label'}
-                    onChange={(e) => {
-                        setSelectedKeys(e)
-                        confirm({ closeDropdown: false })
-                    }}
-                    {...selectProps}
-                />
+                {selectProps.mode === "tags" ?
+                    <SelectTags
+                        showArrow
+                        style={DROPDOWN_SELECT_STYLE}
+                        value={selectedKeys}
+                        optionFilterProp={'label'}
+                        onChange={(e) => {
+                            setSelectedKeys(e)
+                            confirm({ closeDropdown: false })
+                        }}
+                        {...selectProps}
+                    /> :
+                    <Select
+                        showArrow
+                        style={DROPDOWN_SELECT_STYLE}
+                        value={selectedKeys}
+                        optionFilterProp={'label'}
+                        onChange={(e) => {
+                            setSelectedKeys(e)
+                            confirm({ closeDropdown: false })
+                        }}
+                        {...selectProps}
+                    />
+                }
             </SelectFilterContainer>
         )
     }

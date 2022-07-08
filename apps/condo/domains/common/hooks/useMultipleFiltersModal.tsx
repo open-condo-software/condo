@@ -49,6 +49,7 @@ import {
 } from '../utils/filters.utils'
 import { colors } from '../constants/style'
 import { Tooltip } from '../components/Tooltip'
+import SelectTags from '../components/antd/SelectTags'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -243,7 +244,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
 
         case ComponentType.TagsSelect: {
             return (
-                <Select
+                <SelectTags
                     mode="tags"
                     allowClear
                     style={TAGS_SELECT_STYLE}
