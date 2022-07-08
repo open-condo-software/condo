@@ -48,7 +48,7 @@ const tagRender = (props) => {
         >
             {value}
         </Tag>
-        )
+    )
 }
 
 const SelectTags = <T extends string | number | { value: any, label: any }>(props: CustomSelectProps<T>) => {
