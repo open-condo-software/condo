@@ -59,7 +59,7 @@ import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
-const REGEX_FORBIDDEN_TYPE_FILES = /.*\.(svg|pdf|txt)$/gi
+const REGEX_FORBIDDEN_TYPE_FILES = /.*\.(svg|pdf|txt)$/i
 
 interface ITicketFileListProps {
     files?: TicketFile.ITicketFileUIState[]
@@ -100,7 +100,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         return fileInList
     })
 
-    const downloadFile = async (file: UploadFile) => {
+    const downloadFile = useCallback(async (file: UploadFile) => {
         const response = await fetch(file.url)
         const blob = await response.blob()
         const blobUrl = window.URL.createObjectURL(blob)
@@ -108,9 +108,9 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         a.href = blobUrl
         a.download = file.name
         a.click()
-    }
+    }, [])
 
-    const handleFileDownload: (file: UploadFile) => void = async (file: UploadFile) => {
+    const handleFileDownload = useCallback(async (file: UploadFile) => {
         if (REGEX_FORBIDDEN_TYPE_FILES.test(file.name)) {
             try {
                 await downloadFile(file)
@@ -120,7 +120,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         } else {
             window.open(file.url, '_blank')
         }
-    }
+    }, [])
 
     return (
         <div className={'upload-control-wrapper'} css={UploadListWrapperStyles}>
