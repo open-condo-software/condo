@@ -181,9 +181,9 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
                 return addValidationError(`${OVERLAPPING_ERROR} subscription for current organization overlaps already existing by its time period`)
             }
         },
-        afterChange: ({ operation, updatedItem }) => {
+        afterChange: async ({ operation, updatedItem }) => {
             if (operation === 'create' && updatedItem.isTrial === false && updatedItem.sbbolOfferAccept){
-                pushSubscriptionActivationToSalesCRM(updatedItem.sbbolOfferAccept.payerInn, updatedItem.startAt, updatedItem.finishAt)
+                await pushSubscriptionActivationToSalesCRM(updatedItem.sbbolOfferAccept.payerInn, updatedItem.startAt, updatedItem.finishAt)
             }
         },
     },
