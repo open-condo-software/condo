@@ -190,6 +190,19 @@ export const getTicketClientNameRender = (search: FilterValue) => {
     }
 }
 
+export const getTicketUserNameRender = (search: FilterValue) => {
+    return function render (user, ticket: ITicketUIState) {
+        const contact = get(user, 'contact')
+        const name = contact ? get(contact, 'name') : get(user, 'clientName')
+        const address = get(ticket, ['property', 'address'])
+        const userNameLength = get(name, 'length', 0)
+        const maxUserNameLength = address ? address.length : userNameLength
+        const trimmedClientName = userNameLength > maxUserNameLength ? `${name.substring(0, maxUserNameLength)}…` : name
+
+        return getTableCellRenderer(search, false, null, null, null, name)(trimmedClientName)
+    }
+}
+
 export const getTicketPropertyHintAddressesRender = (search: FilterValue) => {
     return function render (intl, properties) {
         const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
