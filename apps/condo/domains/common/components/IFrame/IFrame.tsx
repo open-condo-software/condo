@@ -71,7 +71,19 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
 
     // NOTE: Changing this will trigger iframe reload
     // By default used to reload after user / organization changes
-    const iframeKey = `${get(user, 'id', null)}:${get(organization, 'id', null)}`
+    const condoUserId = get(user, 'id', null)
+    const organizationId = get(organization, 'id', null)
+    const iframeKey = `${condoUserId}:${organizationId}`
+    const pageUrlWithParams = useMemo(() => {
+        const url = new URL(pageUrl)
+        if (condoUserId) {
+            url.searchParams.set('condoUserId', condoUserId)
+        }
+        if (organizationId) {
+            url.searchParams.set('organizationId', organizationId)
+        }
+        return url.toString()
+    }, [pageUrl, condoUserId, organizationId])
 
     const handleRequirement = useCallback((message) => {
         switch (message.requirement) {
@@ -215,7 +227,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
                 </BasicEmptyListView>
             )}
             <iframe
-                src={pageUrl}
+                src={pageUrlWithParams}
                 style={styles}
                 onLoad={handleLoad}
                 key={iframeKey}
