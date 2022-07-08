@@ -4,7 +4,7 @@ module.exports = {
             displayName: 'schema',
             testEnvironment: 'node',
             testMatch: [`${__dirname}/schema/**/*.test.js`, `${__dirname}/domains/**/schema/*.test.js`],
-            setupFilesAfterEnv: [`${__dirname}/jest.setup.js`],
+            setupFilesAfterEnv: [`${__dirname}/jest.setupTest.js`],
         },
         {
             displayName: 'main',
@@ -14,6 +14,7 @@ module.exports = {
             transform: {
                 '\\.[jt]sx?$': 'babel-jest',
             },
+            setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
         },
     ],
 }
