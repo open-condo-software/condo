@@ -25,11 +25,11 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
 
     const router = useRouter()
 
-    const { obj: integration, loading: integrationLoading, error: integrationError } = AcquiringIntegration.useObject({
+    const { obj: integration, loading: integrationLoading, error: integrationError } = AcquiringIntegration.useNewObject({
         where: { id },
     })
 
-    const { obj: context, loading: contextLoading, error: contextError } = AcquiringIntegrationContext.useObject({
+    const { obj: context, loading: contextLoading, error: contextError } = AcquiringIntegrationContext.useNewObject({
         where: {
             organization: { id: organizationId },
             integration: { id },

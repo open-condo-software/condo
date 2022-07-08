@@ -53,7 +53,7 @@ interface ITicketCardProps {
 }
 
 const TICKETS_ON_CARD = 2
-const TICKET_SORT_BY = ['createdAt_DESC'] as SortTicketsBy[]
+const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
 const TICKET_QUERY_STRINGIFY_OPTIONS: IStringifyOptions = { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true }
 const TICKET_CARD_LIST_GUTTER: RowProps['gutter'] = [0, 24]
 const TICKET_CARD_GUTTER: RowProps['gutter'] = [0, 12]
@@ -141,7 +141,7 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
     const {
         loading,
         objs: tickets,
-    } = Ticket.useObjects(generateQueryVariables(contactId), {
+    } = Ticket.useNewObjects(generateQueryVariables(contactId), {
         fetchPolicy: 'cache-first',
     })
     const addresses = useMemo(() => {

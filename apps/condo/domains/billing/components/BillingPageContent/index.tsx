@@ -13,6 +13,7 @@ import {
     IBillingIntegrationOrganizationContextUIState,
 } from '@condo/domains/billing/utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'
+import { BillingIntegrationOrganizationContext } from '@app/condo/schema'
 
 const BILLING_SETTINGS_ROUTE = '/miniapps?tab=billing'
 
@@ -20,11 +21,11 @@ interface IBillingPageContentProps {
     access: boolean,
     contextLoading: boolean,
     contextError: string | ApolloError
-    context: IBillingIntegrationOrganizationContextUIState
+    context: BillingIntegrationOrganizationContext
 }
 
 export interface IContextProps {
-    context: IBillingIntegrationOrganizationContextUIState
+    context: BillingIntegrationOrganizationContext
 }
 
 const BIG_DINO_STYLE: CSSProperties = { height: 200 }

@@ -6,9 +6,10 @@ import { pick, get } from 'lodash'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 
 import { BillingIntegration as BillingIntegrationGQL } from '@condo/domains/billing/gql'
-import { BillingIntegration, BillingIntegrationUpdateInput, QueryAllBillingIntegrationsArgs } from '@app/condo/schema'
+import { BillingIntegration, BillingIntegrationCreateInput, BillingIntegrationUpdateInput, QueryAllBillingIntegrationsArgs } from '@app/condo/schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'shortDescription', 'about', 'logo', 'developer', 'partnerUrl', 'instruction', 'connectedMessage', 'appUrl', 'contextDefaultStatus', 'billingPageTitle', 'dataFormat', 'isHidden']
 const RELATIONS = []
@@ -55,6 +56,13 @@ const {
     useUpdate,
     useDelete,
 } = generateReactHooks<BillingIntegration, BillingIntegrationUpdateInput, IBillingIntegrationFormState, IBillingIntegrationUIState, QueryAllBillingIntegrationsArgs>(BillingIntegrationGQL, { convertToGQLInput, convertToUIState })
+const {
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
+} = generateNewReactHooks<BillingIntegration, BillingIntegrationCreateInput, BillingIntegrationUpdateInput, QueryAllBillingIntegrationsArgs>(BillingIntegrationGQL)
 
 export {
     useObject,
@@ -63,4 +71,9 @@ export {
     useUpdate,
     useDelete,
     convertToUIFormState,
+    useNewObject,
+    useNewObjects,
+    useNewCreate,
+    useNewUpdate,
+    useNewSoftDelete,
 }

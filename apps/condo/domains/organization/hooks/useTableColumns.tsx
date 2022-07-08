@@ -29,7 +29,7 @@ export const useTableColumns = (
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
 
     const sorterMap = createSorterMap(sort)
-    const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
+    const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useNewObjects({ where: { organization: { id: organizationId } } })
     const search = getFilteredValue<IFilters>(filters, 'search')
 
     const render = getTableCellRenderer(search)

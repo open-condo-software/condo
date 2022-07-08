@@ -6,13 +6,12 @@ import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 
-import { BuildingSection, BuildingUnit, BuildingUnitSubType } from '@app/condo/schema'
-import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
+import { BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
 import { LabeledValue } from 'antd/lib/select'
 import { TrackingEventPropertiesType } from '@condo/domains/common/components/TrackingContext'
 
 export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'onChange' | 'onSelect'> {
-    property: IPropertyUIState
+    property: Property
     placeholder?: string
     allowClear?: boolean
     loading: boolean

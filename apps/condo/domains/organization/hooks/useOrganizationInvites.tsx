@@ -24,7 +24,7 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const { user } = useAuth()
     const { selectLink } = useOrganization()
-    const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
+    const { objs: userInvites, refetch, loading } = OrganizationEmployee.useNewObjects(
         { where: user ? { user: { id: user.id }, isAccepted: false, isRejected: false, isBlocked: false } : {} },
     )
     const { addNotification } = useLayoutContext()

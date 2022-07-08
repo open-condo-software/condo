@@ -80,7 +80,7 @@ export const OrganizationSelect: React.FC = () => {
     const selectRef = useRef<HTMLSelectElement>(null)
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
 
-    const { objs: userOrganizations, loading: organizationLinksLoading } = OrganizationEmployee.useObjects(
+    const { objs: userOrganizations, loading: organizationLinksLoading } = OrganizationEmployee.useNewObjects(
         { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} },
         { fetchPolicy: 'cache-first' }
     )

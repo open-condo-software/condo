@@ -43,7 +43,7 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
     const subscriberFirstLoginPopupConfirmedInfo = cookieSubscriberFirstLoginPopupConfirmedInfo ?
         JSON.parse(cookieSubscriberFirstLoginPopupConfirmedInfo) : []
 
-    const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
+    const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useNewObjects({
         where: {
             organization: { id: organization && organization.id },
             type: ServiceSubscriptionTypeType.Sbbol,
