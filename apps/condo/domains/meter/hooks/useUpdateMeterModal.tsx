@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import pick from 'lodash/pick'
 import { useIntl } from '@core/next/intl'
 
+import { Meter as MeterType } from '@app/condo/schema'
 import {
     DeleteButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
@@ -11,7 +12,6 @@ import { CustomButtonProps } from '@condo/domains/common/components/Button'
 
 import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter } from '../utils/clientSchema'
-import { IMeterUIState } from '../utils/clientSchema/Meter'
 
 const INITIAL_VALUES_KEYS = [
     'accountNumber', 'number', 'resource', 'place', 'numberOfTariffs', 'installationDate',
@@ -29,7 +29,7 @@ export const useUpdateMeterModal = (refetch) => {
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteMessage' })
     const DeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.DeleteMeterAndReadings' })
 
-    const [selectedMeter, setSelectedMeter] = useState<IMeterUIState>()
+    const [selectedMeter, setSelectedMeter] = useState<MeterType>()
     const meterNumber = get(selectedMeter, 'number')
 
     const updateMeterAction = Meter.useNewUpdate({}, () => {
