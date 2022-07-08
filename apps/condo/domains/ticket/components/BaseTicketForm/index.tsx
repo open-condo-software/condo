@@ -357,6 +357,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         values.property = selectPropertyIdRef.current
         values.unitName = selectedUnitNameRef.current
         values.unitType = selectedUnitTypeRef.current
+        values.categoryClassifier = undefined
+        values.placeClassifier = undefined
+        values.problemClassifier = undefined
         return values
     }, [])
 
