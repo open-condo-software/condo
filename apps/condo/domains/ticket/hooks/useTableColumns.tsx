@@ -23,10 +23,11 @@ import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '../
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { IFilters } from '../utils/helpers'
 import {
-    getClassifierRender, getStatusRender,
-    getTicketClientNameRender,
+    getClassifierRender,
+    getStatusRender,
     getTicketDetailsRender,
     getTicketNumberRender,
+    getTicketUserNameRender,
     getUnitRender,
 } from '../utils/clientSchema/Renders'
 
@@ -215,12 +216,11 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
                 title: ClientNameMessage,
                 sortOrder: get(sorterMap, 'clientName'),
                 filteredValue: getFilteredValue<IFilters>(filters, 'clientName'),
-                dataIndex: 'clientName',
                 key: 'clientName',
                 sorter: true,
                 width: columnWidths.clientName,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
-                render: getTicketClientNameRender(search),
+                render: getTicketUserNameRender(search),
                 filterIcon: getFilterIcon,
                 ellipsis: true,
             },
