@@ -110,9 +110,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     }
 
     const handleFileDownload: (file: UploadFile) => void = async (file: UploadFile) => {
-        const forbiddenFileTypes = ['html', 'svg', 'txt']
-        const fileType = file.name.split('.').reverse()[0]
-        if (forbiddenFileTypes.includes(fileType)) {
+        if (/.*\.(svg|pdf|txt)$/gi.test(file.name)) {
             try {
                 await downloadFile(file)
             } catch (e) {
