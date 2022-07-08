@@ -59,6 +59,7 @@ import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
+const REGEX_FORBIDDEN_TYPE_FILES = /.*\.(svg|pdf|txt)$/gi
 
 interface ITicketFileListProps {
     files?: TicketFile.ITicketFileUIState[]
@@ -110,7 +111,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     }
 
     const handleFileDownload: (file: UploadFile) => void = async (file: UploadFile) => {
-        if (/.*\.(svg|pdf|txt)$/gi.test(file.name)) {
+        if (REGEX_FORBIDDEN_TYPE_FILES.test(file.name)) {
             try {
                 await downloadFile(file)
             } catch (e) {
