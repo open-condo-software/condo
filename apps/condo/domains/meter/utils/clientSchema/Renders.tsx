@@ -2,7 +2,6 @@ import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import get from 'lodash/get'
 
-import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }

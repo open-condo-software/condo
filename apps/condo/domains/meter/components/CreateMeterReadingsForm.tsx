@@ -6,7 +6,7 @@ import { Gutter } from 'antd/es/grid/row'
 import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
-import { BuildingUnitSubType, SortMeterReadingsBy, SortMetersBy } from '@app/condo/schema'
+import { BuildingUnitSubType, SortMeterReadingsBy, SortMetersBy, Meter as MeterType, MeterReading as MeterReadingType } from '@app/condo/schema'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
@@ -24,8 +24,6 @@ import {
     CALL_METER_READING_SOURCE_ID,
 } from '../constants/constants'
 import { useCreateMeterModal } from '../hooks/useCreateMeterModal'
-import { IMeterUIState } from '../utils/clientSchema/Meter'
-import { IMeterReadingUIState } from '../utils/clientSchema/MeterReading'
 import { useMeterTableColumns } from '../hooks/useMeterTableColumns'
 import { useUpdateMeterModal } from '../hooks/useUpdateMeterModal'
 import { CreateMeterReadingsActionBar } from './CreateMeterReadingsActionBar'
@@ -37,13 +35,13 @@ export const LAYOUT = {
 }
 
 type MetersTableRecord = {
-    meter: IMeterUIState
+    meter: MeterType
     lastMeterReading: string
     meterReadingSource: string
     tariffNumber: string
 }
 
-function getTableData (meters: IMeterUIState[], meterReadings: IMeterReadingUIState[]): MetersTableRecord[] {
+function getTableData (meters: MeterType[], meterReadings: MeterReadingType[]): MetersTableRecord[] {
     const dataSource: MetersTableRecord[] = []
     const lastMeterReadings = uniqWith(meterReadings,
         (meterReading1, meterReading2) =>
