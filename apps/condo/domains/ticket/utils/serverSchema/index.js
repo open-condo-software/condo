@@ -73,20 +73,18 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
     const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id])))
     const ticketsLoader = new GqlWithKnexLoadList({
         listKey: 'Ticket',
-        fields: 'id number unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPaid isWarranty details createdAt updatedAt deadline reviewValue reviewComment statusReopenedCounter propertyAddress',
+        fields: 'id number unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPaid isWarranty details createdAt classifierRule updatedAt deadline reviewValue reviewComment statusReopenedCounter propertyAddress ',
         singleRelations: [
             ['User', 'createdBy', 'name'],
             ['User', 'operator', 'name'],
             ['User', 'executor', 'name'],
             ['User', 'assignee', 'name'],
             ['Contact', 'contact', 'name'],
-            ['TicketPlaceClassifier', 'placeClassifier', 'name'],
-            ['TicketCategoryClassifier', 'categoryClassifier', 'name'],
-            ['TicketProblemClassifier', 'problemClassifier', 'name'],
             ['Organization', 'organization', 'name'],
             ['Property', 'property', 'deletedAt'],
             ['TicketStatus', 'status', 'type'],
             ['TicketSource', 'source', 'name'],
+            ['TicketClassifierRule', 'classifierRule', 'id'],
         ],
         multipleRelations: [
             [
@@ -148,6 +146,23 @@ const loadTicketCommentsForExcelExport = async ({ ticketIds = [], sortBy = ['cre
     return await ticketCommentsLoader.load()
 }
 
+const loadClassifiersForExcelExport = async ({ rulesIds = [] }) => {
+    const ticketClassifiersLoader = new GqlWithKnexLoadList({
+        listKey: 'TicketClassifierRule',
+        fields: 'id category place problem',
+        singleRelations: [
+            ['TicketCategoryClassifier', 'category', 'name'],
+            ['TicketProblemClassifier', 'problem', 'name'],
+            ['TicketPlaceClassifier', 'place', 'name'],
+        ],
+        where: {
+            id_in: rulesIds,
+        },
+    })
+
+    return await ticketClassifiersLoader.load()
+}
+
 module.exports = {
     Ticket,
     TicketStatus,
@@ -162,6 +177,7 @@ module.exports = {
     TicketSource,
     loadTicketsForExcelExport,
     loadTicketCommentsForExcelExport,
+    loadClassifiersForExcelExport,
     TicketFilterTemplate,
     predictTicketClassification,
     TicketCommentFile,
