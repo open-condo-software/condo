@@ -412,7 +412,7 @@ export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, ma
         AND.push({ property: { id_in: filter.addressList.map(({ id }) => id) } })
     }
     if (filter.classifierList.length) {
-        AND.push({ categoryClassifier: { id_in: filter.classifierList.map(({ id }) => id) } })
+        AND.push({ classifierRule: { category: { id_in: filter.classifierList.map(({ id }) => id) } } })
     }
     if (filter.executorList.length) {
         AND.push({ executor: { id_in: filter.executorList.map(({ id }) => id) } })
