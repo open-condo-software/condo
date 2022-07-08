@@ -87,7 +87,7 @@ export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Selec
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
-                {selectProps.mode === "tags" ?
+                {selectProps.mode === 'tags' ?
                     <SelectTags
                         showArrow
                         style={DROPDOWN_SELECT_STYLE}

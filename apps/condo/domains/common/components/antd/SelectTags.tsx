@@ -40,20 +40,20 @@ const tagRender = (props) => {
     }
 
     return  (
-            <Tag
-                closable
-                onClick={changeTagValue}
-                css={tagCss}
-                {...restProps}
-            >
-                {value}
-            </Tag>
+        <Tag
+            closable
+            onClick={changeTagValue}
+            css={tagCss}
+            {...restProps}
+        >
+            {value}
+        </Tag>
         )
 }
 
 const SelectTags = <T extends string | number | { value: any, label: any }>(props: CustomSelectProps<T>) => {
     const { eventName: propEventName, eventProperties = {}, onChange, value, ...restProps } = props
-    const [selectInputValue, setSelectInputValue] = useState("")
+    const [selectInputValue, setSelectInputValue] = useState('')
     const { logEvent, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Select)
@@ -72,7 +72,7 @@ const SelectTags = <T extends string | number | { value: any, label: any }>(prop
         // fire prop onChange callback if it was passed to component props
         if (isFunction(onChange)) {
             onChange(value, option)
-            setSelectInputValue("")
+            setSelectInputValue('')
         }
     }
 
