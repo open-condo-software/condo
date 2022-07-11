@@ -81,6 +81,11 @@ const DROPDOWN_SELECT_STYLE: CSSProperties = { display: 'flex', flexDirection: '
 
 export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Select>, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        const handleChangeSelect = (event) => {
+            setSelectedKeys(event)
+            confirm({ closeDropdown: false })
+        }
+        const extendedSelectProps = { showArrow: true, style: DROPDOWN_SELECT_STYLE, value: selectedKeys, optionFilterProp: 'label', onChange: handleChangeSelect, ...selectProps }
         return (
             <SelectFilterContainer
                 clearFilters={clearFilters}
@@ -89,26 +94,10 @@ export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Selec
             >
                 {selectProps.mode === 'tags' ?
                     <SelectTags
-                        showArrow
-                        style={DROPDOWN_SELECT_STYLE}
-                        value={selectedKeys}
-                        optionFilterProp={'label'}
-                        onChange={(e) => {
-                            setSelectedKeys(e)
-                            confirm({ closeDropdown: false })
-                        }}
-                        {...selectProps}
+                        {...extendedSelectProps}
                     /> :
                     <Select
-                        showArrow
-                        style={DROPDOWN_SELECT_STYLE}
-                        value={selectedKeys}
-                        optionFilterProp={'label'}
-                        onChange={(e) => {
-                            setSelectedKeys(e)
-                            confirm({ closeDropdown: false })
-                        }}
-                        {...selectProps}
+                        {...extendedSelectProps}
                     />
                 }
             </SelectFilterContainer>
