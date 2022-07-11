@@ -61,7 +61,7 @@ export const UpdateEmployeeForm = () => {
 
     const { obj: employee, loading: employeeLoading, error: employeeError, refetch } = OrganizationEmployee.useNewObject({ where: { id: String(get(query, 'id', '')) } })
     const { objs: employeeRoles, loading: employeeRolesLoading, error: employeeRolesError } = OrganizationEmployeeRole.useNewObjects({ where: { organization: { id:  get(employee, ['organization', 'id']) } } })
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
+    const updateEmployeeAction = OrganizationEmployee.useNewUpdate({}, () => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
         })
@@ -97,7 +97,7 @@ export const UpdateEmployeeForm = () => {
         return <Loader />
     }
     const formAction = (formValues) => {
-        return updateEmployeeAction(formValues, employee)
+        return updateEmployeeAction(OrganizationEmployee.formValuesProcessor(formValues), employee)
     }
 
     const initialValues = {

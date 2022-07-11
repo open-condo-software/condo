@@ -274,7 +274,7 @@ export const EmployeeInfoPage = () => {
         }
     )
 
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
+    const updateEmployeeAction = OrganizationEmployee.useNewUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useNewSoftDelete(() => Router.push('/employee/'))
 
     const isEmployeeEditable = canManageEmployee(link, employee)

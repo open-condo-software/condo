@@ -1,14 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Contact } from '../../utils/clientSchema'
 import { ContactFields, ContactsEditor, IContactEditorProps } from './index'
-import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
-import { BuildingUnitSubType, Contact as ContactType } from '@app/condo/schema'
+import { BuildingUnitSubType, Contact as ContactType, OrganizationEmployeeRole } from '@app/condo/schema'
 
 interface IContactsEditorHookArgs {
     // Organization scope for contacts autocomplete and new contact, that can be created
     organization: string,
-    role?: IOrganizationEmployeeRoleUIState,
+    role?: OrganizationEmployeeRole,
     allowLandLine?: boolean,
 }
 
