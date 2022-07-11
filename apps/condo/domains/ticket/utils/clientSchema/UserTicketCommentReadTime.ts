@@ -10,7 +10,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
 import { UserTicketCommentReadTime as UserTicketCommentReadTimeGQL } from '@condo/domains/ticket/gql'
-import { IUserUIState } from '@condo/domains/user/utils/clientSchema/User'
+import { User } from '@app/condo/schema'
 
 import { ITicketUIState } from './Ticket'
 
@@ -19,7 +19,7 @@ const RELATIONS = ['user', 'ticket']
 
 export interface IUserTicketCommentReadTimeUIState extends UserTicketCommentReadTime {
     id: string
-    user?: IUserUIState
+    user?: User
     ticket?: ITicketUIState
     readResidentCommentAt?: string
     readCommentAt?: string
