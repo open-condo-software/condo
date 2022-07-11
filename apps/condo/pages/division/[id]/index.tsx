@@ -7,6 +7,7 @@ import { get } from 'lodash'
 import { Row, Col, Typography } from 'antd'
 import { EditFilled } from '@ant-design/icons'
 import { green } from '@ant-design/colors'
+import { Division as DivisionType } from '@app/condo/schema'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -15,7 +16,7 @@ import ActionBar from '@condo/domains/common/components/ActionBar'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { useObject, useSoftDelete } from '@condo/domains/division/utils/clientSchema/Division'
+import { Division } from '@condo/domains/division/utils/clientSchema'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -27,8 +28,8 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 const EMPLOYEE_TABLE_PAGE_SIZE = 10
 
 type DivisionPageContentProps = {
-    division: ReturnType<typeof useObject>['obj']
-    loading: ReturnType<typeof useObject>['loading']
+    division: DivisionType
+    loading: boolean
     columns: any
     role: IOrganizationEmployeeRoleUIState
 }
@@ -54,7 +55,7 @@ export const DivisionPageContent = ({ division, loading, columns, role }: Divisi
     const handleCompleteSoftDelete = () => {
         router.push('/property/')
     }
-    const softDeleteAction = useSoftDelete({}, handleCompleteSoftDelete)
+    const softDeleteAction = Division.useNewSoftDelete(handleCompleteSoftDelete)
 
     // Transform executors array to make `name` attribute required. This fixes following error:
     // TS2322: Type 'OrganizationEmployee[]' is not assignable to type 'readonly { id: any; name: any; }[]'.
@@ -147,7 +148,7 @@ export const DivisionPageContent = ({ division, loading, columns, role }: Divisi
                             title={ConfirmDeleteTitle}
                             message={ConfirmDeleteMessage}
                             okButtonLabel={DeleteDivisionLabel}
-                            action={() => softDeleteAction({}, division)}
+                            action={() => softDeleteAction(division)}
                         />
                     </ActionBar>
                 ) : null
@@ -167,7 +168,7 @@ function DivisionPage () {
     const router = useRouter()
     const { query: { id } } = router
 
-    const { loading, obj: division, error } = useObject({
+    const { loading, obj: division, error } = Division.useNewObject({
         where: {
             id: typeof id === 'string' ? id : null,
         },

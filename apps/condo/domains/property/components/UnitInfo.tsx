@@ -8,8 +8,7 @@ import get from 'lodash/get'
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
-import { BuildingSection, BuildingUnitSubType } from '@app/condo/schema'
-import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
+import { BuildingSection, BuildingUnitSubType, Property } from '@app/condo/schema'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 interface IGetSectionAndFloorByUnit {
@@ -45,7 +44,7 @@ const getSectionAndFloorByUnit: IGetSectionAndFloorByUnit = (unitName, sections,
 
 interface IUnitInfo {
     ({ property, loading, setSelectedUnitName, form, setSelectedUnitType }: {
-        property: IPropertyUIState,
+        property: Property,
         form: FormInstance
         loading: boolean,
         setSelectedUnitName: React.Dispatch<React.SetStateAction<string>>,

@@ -6,8 +6,7 @@ import { ColumnType, FilterValue } from 'antd/es/table/interface'
 
 import { map } from 'lodash'
 import { Typography } from 'antd'
-import { Division } from '../utils/clientSchema'
-import { OrganizationEmployee } from '@app/condo/schema'
+import { OrganizationEmployee, Division as DivisionType } from '@app/condo/schema'
 import { green } from '@ant-design/colors'
 
 import Link from 'next/link'
@@ -48,9 +47,9 @@ export const useTableColumns = () => {
     )
     return useMemo(() => {
         type ColumnTypes = [
-            ColumnType<Division.IDivisionUIState['executors'][number]>,
-            ColumnType<Division.IDivisionUIState['executors'][number]['phone']>,
-            ColumnType<Division.IDivisionUIState['executors'][number]['specializations']>,
+            ColumnType<DivisionType['executors'][number]>,
+            ColumnType<DivisionType['executors'][number]['phone']>,
+            ColumnType<DivisionType['executors'][number]['specializations']>,
         ]
         const columns: ColumnTypes = [
             {

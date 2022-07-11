@@ -13,8 +13,8 @@ import {
 } from './BuildingPanelCommon'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MapView, MapViewMode } from './MapConstructor'
-import { BuildingMap, BuildingUnitSubType, BuildingUnitType } from '@app/condo/schema'
-import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
+import { BuildingMap, BuildingUnitSubType } from '@app/condo/schema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import { AddressTopTextContainer } from './BuildingPanelEdit'
@@ -69,7 +69,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
     const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
 
     const { query: { id } } = useRouter()
-    const { obj: property } = useObject({ where: { id: id as string } })
+    const { obj: property } = Property.useNewObject({ where: { id: id as string } })
 
     const [isFullscreen, setFullscreen] = useState(false)
 

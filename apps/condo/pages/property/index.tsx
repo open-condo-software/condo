@@ -20,8 +20,7 @@ import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/pro
 import { useTableFilters as usePropertyTableFilters } from '@condo/domains/property/hooks/useTableFilters'
 
 import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
-import { Division } from '@condo/domains/division/utils/clientSchema'
-import { DivisionWhereInput, OrganizationEmployeeRole, PropertyWhereInput, Property as PropertyType } from '@app/condo/schema'
+import { DivisionWhereInput, OrganizationEmployeeRole, PropertyWhereInput, Property as PropertyType, Division as DivisionType } from '@app/condo/schema'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns as useDivisionsTableColumns } from '@condo/domains/division/hooks/useTableColumns'
 import { ColumnsType } from 'antd/lib/table'
@@ -89,7 +88,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
         router.push(`/property?tab=${initialTab.current}`)
     }, [])
 
-    const [properties, setShownProperties] = useState<(PropertyType | Division.IDivisionUIState)[]>([])
+    const [properties, setShownProperties] = useState<(PropertyType | DivisionType)[]>([])
 
     return (
         <>

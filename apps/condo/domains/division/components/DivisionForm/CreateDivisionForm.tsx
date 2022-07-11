@@ -1,4 +1,4 @@
-import { Space, Form, Row, Col } from 'antd'
+import { Form } from 'antd'
 import React from 'react'
 import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
@@ -17,18 +17,19 @@ export const CreateDivisionForm: React.FC = () => {
     const { organization } = useOrganization()
 
     const attrs = {
-        organization: get(organization, 'id'),
+        organization: { connect: { id: get(organization, 'id') } },
     }
 
     const handleComplete = () => {
         router.push('/property?tab=divisions')
     }
 
-    const action = Division.useCreate(attrs, handleComplete)
+    const action = Division.useNewCreate(attrs, handleComplete)
+    const createAction = (values) => (action(Division.formValuesProcessor(values)))
 
     return (
         <BaseDivisionForm
-            action={action}
+            action={createAction}
             organization={organization}
         >
             {({ handleSave, isLoading }) => {
