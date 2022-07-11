@@ -4,6 +4,7 @@
 
 const { GQLCustomSchema } = require('@core/keystone/schema')
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
+const { getById } = require('@core/keystone/schema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
@@ -61,11 +62,15 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             access: access.canRegisterBillingReceipts,
             schema: 'registerBillingReceipts(data: { context: BillingIntegrationOrganizationContextWhereUniqueInput!, receipts: [RegisterBillingReceiptInput]! }): RegisterBillingReceiptsOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { context: billingContext, receipts } = args
+                const { context: billingContextInput, receipts } = args
 
                 // Step 0:
                 // Validate context
-
+                const { billingContextId } = billingContextInput
+                const billingContext = await getById('BillingIntegrationOrganizationContext', billingContextId)
+                if (!billingContextId || !billingContext) {
+                    throw new Error('No context!')
+                }
 
                 // Step 1:
                 // Validate data
