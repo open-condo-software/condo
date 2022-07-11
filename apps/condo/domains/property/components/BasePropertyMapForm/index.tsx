@@ -4,15 +4,15 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { useIntl } from '@core/next/intl'
 import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { IPropertyFormState, IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
-import { BuildingMap } from '@app/condo/schema'
+import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
+import { BuildingMap, Property } from '@app/condo/schema'
 import { BuildingPanelEdit } from '../panels/Builder/BuildingPanelEdit'
 
 interface IPropertyMapFormProps {
     id: string
     organization: { id: string }
     type: string
-    property: IPropertyUIState
+    property: Property
     initialValues?: IPropertyFormState
     action?: (...args) => void
     children: IFormWithActionChildren

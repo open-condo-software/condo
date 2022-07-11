@@ -1,5 +1,5 @@
 import React from 'react'
-import { IDivisionFormState, IDivisionUIState } from '@condo/domains/division/utils/clientSchema/Division'
+import { IDivisionFormState } from '@condo/domains/division/utils/clientSchema/Division'
 import { Col, Form, Row } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useIntl } from '@core/next/intl'
@@ -13,7 +13,7 @@ import {
     searchOrganizationProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
 import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
-import { Organization } from '@app/condo/schema'
+import { Division, Organization } from '@app/condo/schema'
 
 const LAYOUT = {
     layout: 'horizontal',
@@ -35,8 +35,8 @@ const INPUT_LAYOUT_PROPS = {
 interface IBaseDivisionFormProps {
     organization: Organization
     initialValues?: IDivisionFormState
-    action?: (values: IDivisionFormState) => Promise<IDivisionUIState>,
-    afterActionCompleted?: (division: IDivisionUIState) => void
+    action?: (values: IDivisionFormState) => Promise<Division>,
+    afterActionCompleted?: (division: Division) => void
     children: IFormWithActionChildren
 }
 

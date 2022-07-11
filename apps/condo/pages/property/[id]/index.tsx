@@ -9,7 +9,7 @@ import isNull from 'lodash/isNull'
 import { jsx } from '@emotion/react'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { useObject, useSoftDelete } from '@condo/domains/property/utils/clientSchema/Property'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 import { DeleteFilled } from '@ant-design/icons'
 import { colors } from '@condo/domains/common/constants/style'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -88,7 +88,7 @@ export const PropertyPageContent = ({ property, role }) => {
     const UnknownValueTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
 
     const { push } = useRouter()
-    const softDeleteAction = useSoftDelete({}, () => push('/property/'))
+    const softDeleteAction = Property.useNewSoftDelete( () => push('/property/'))
     const yearOfConstructionCardLabel = property.yearOfConstruction
         ? dayjs(property.yearOfConstruction).format('YYYY')
         : UnknownValueTitle
@@ -166,7 +166,7 @@ export const PropertyPageContent = ({ property, role }) => {
                                 title={ConfirmDeleteTitle}
                                 message={ConfirmDeleteMessage}
                                 okButtonLabel={DeletePropertyLabel}
-                                action={() => softDeleteAction({}, property)}
+                                action={() => softDeleteAction(property)}
                                 buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
                                 buttonContent={<span>{DeletePropertyLabel}</span>}
                             />
@@ -182,7 +182,6 @@ interface IPropertyIdPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
-const PROPERTY_PAGE_DESCRIPTOR = { id: 'menu.AllProperties' }
 
 const PropertyIdPage: IPropertyIdPage = () => {
     const intl = useIntl()
@@ -190,7 +189,7 @@ const PropertyIdPage: IPropertyIdPage = () => {
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const { query: { id } } = useRouter()
-    const { loading, obj: property, error } = useObject({ where: { id: id as string } })
+    const { loading, obj: property, error } = Property.useNewObject({ where: { id: id as string } })
     const { link } = useOrganization()
 
     if (error || loading) {

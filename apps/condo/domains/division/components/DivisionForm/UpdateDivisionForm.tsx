@@ -23,14 +23,14 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
     const { organization } = useOrganization()
     const { refetch, obj: division, loading, error } = Division.useNewObject({ where: { id } })
 
-    const initialValues = Division.convertToUIFormState(division)
+    const initialValues = Division.convertToFormState(division)
 
     const handleCompleteUpdate = (division) => {
         router.push(`/division/${division.id}`)
     }
 
-    const action = Division.useUpdate({}, handleCompleteUpdate)
-    const updateAction = (value) => action(value, division)
+    const action = Division.useNewUpdate({}, handleCompleteUpdate)
+    const updateAction = (value) => action(Division.formValuesProcessor(value), division)
 
     useEffect(() => {
         refetch()

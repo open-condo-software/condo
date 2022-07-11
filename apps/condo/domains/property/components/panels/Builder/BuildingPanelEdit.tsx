@@ -1,12 +1,11 @@
 /** @jsx jsx */
 import { CloseOutlined, DeleteFilled, DownOutlined } from '@ant-design/icons'
-import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType } from '@app/condo/schema'
+import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, Property as PropertyType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { IPropertyUIState } from '@condo/domains/property/utils/clientSchema/Property'
 import { useIntl } from '@core/next/intl'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -131,7 +130,7 @@ interface IBuildingPanelEditProps {
     map: BuildingMap
     updateMap: (map: BuildingMap) => void
     handleSave(): void
-    property?: IPropertyUIState
+    property?: PropertyType
     mapValidationError?: string
 }
 

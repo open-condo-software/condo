@@ -73,8 +73,8 @@ export const OnBoardingProvider: React.FC = (props) => {
             { fetchPolicy: 'network-only' }
         )
 
-    const updateOnBoarding = OnBoardingHooks.useUpdate({}, () => refetchOnBoarding())
-    const updateStep = OnBoardingStepHooks.useUpdate({})
+    const updateOnBoarding = OnBoardingHooks.useNewUpdate({}, () => refetchOnBoarding())
+    const updateStep = OnBoardingStepHooks.useNewUpdate({})
 
     const onBoardingStepsConfig = {
         'create.Organization': {

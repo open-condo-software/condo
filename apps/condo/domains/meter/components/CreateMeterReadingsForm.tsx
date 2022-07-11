@@ -11,7 +11,7 @@ import { BuildingUnitSubType, SortMeterReadingsBy, SortMetersBy, Meter as MeterT
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
@@ -212,7 +212,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         role,
     })
 
-    const { obj: property, loading: propertyLoading } = useObject({
+    const { obj: property, loading: propertyLoading } = Property.useNewObject({
         where: { id: selectedPropertyId ? selectedPropertyId : null },
     })
 

@@ -4,7 +4,7 @@ import { ColumnType, FilterValue } from 'antd/es/table/interface'
 import { useRouter } from 'next/router'
 
 import { useIntl } from '@core/next/intl'
-import { DivisionWhereInput } from '@app/condo/schema'
+import { DivisionWhereInput, Division as DivisionType } from '@app/condo/schema'
 
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
@@ -16,7 +16,6 @@ import { TextHighlighter } from '@condo/domains/common/components/TextHighlighte
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 
-import { Division } from '../utils/clientSchema'
 import { getAddressRender } from '../utils/clientSchema/Renders'
 
 export interface ITableColumn {
@@ -52,9 +51,9 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
     return useMemo(() => {
         type ColumnTypes = [
             ColumnType<string>,
-            ColumnType<Division.IDivisionUIState['properties']>,
-            ColumnType<Division.IDivisionUIState['responsible']>,
-            ColumnType<Division.IDivisionUIState['executors']>,
+            ColumnType<DivisionType['properties']>,
+            ColumnType<DivisionType['responsible']>,
+            ColumnType<DivisionType['executors']>,
         ]
 
         const render = (text, isArray = false) => {

@@ -23,7 +23,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const { push } = useRouter()
     const { organization } = useOrganization()
     const { refetch, obj: property, loading, error } = Property.useNewObject({ where: { id } })
-    const initialValues = Property.convertToUIFormState(property)
+    const initialValues = Property.convertToFormState(property)
     const action = Property.useNewUpdate({}, (property) => push(`/property/${property.id}`))
     const updateAction = (value) => action(value, property)
 
