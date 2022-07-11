@@ -541,7 +541,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 throwIf({
                     when: acquiringContext.deletedAt,
-                    error: errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED
+                    error: errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
                 })
 
                 const [acquiringIntegration] = await AcquiringIntegration.getAll(context, {
