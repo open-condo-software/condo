@@ -1,4 +1,4 @@
-import { ITicketClassifierRuleUIState, ITicketClassifierRuleWhereInput } from './TicketClassifierRule'
+import { ITicketClassifierRuleWhereInput } from './TicketClassifierRule'
 import {
     TicketCategoryClassifier as TicketCategoryClassifierGQL,
     TicketClassifierRule as TicketClassifierRuleGQL,
@@ -7,7 +7,7 @@ import {
 } from '@condo/domains/ticket/gql'
 import { ApolloClient } from '@core/next/apollo'
 import { filter, isEmpty, sortBy } from 'lodash'
-import { QueryAllTicketCategoryClassifiersArgs } from '@app/condo/schema'
+import { QueryAllTicketCategoryClassifiersArgs, TicketClassifierRule } from '@app/condo/schema'
 
 const MAX_SEARCH_COUNT = 20
 
@@ -23,8 +23,8 @@ export enum TicketClassifierTypes {
 }
 export interface IClassifiersSearch {
     init: () => Promise<void>
-    rulesToOptions: (rules: ITicketClassifierRuleUIState[], type: string) => Options[]
-    findRules: (query: ITicketClassifierRuleWhereInput) => Promise<ITicketClassifierRuleUIState[]>
+    rulesToOptions: (rules: TicketClassifierRule[], type: string) => Options[]
+    findRules: (query: ITicketClassifierRuleWhereInput) => Promise<TicketClassifierRule[]>
     search: (input: string, type: string, variables: QueryAllTicketCategoryClassifiersArgs) => Promise<Options[]>
 }
 
@@ -35,7 +35,7 @@ interface ILoadClassifierRulesVariables {
     sortBy?: string
 }
 
-async function loadClassifierRules (client: ApolloClient, variables: ILoadClassifierRulesVariables): Promise<ITicketClassifierRuleUIState[]> {
+async function loadClassifierRules (client: ApolloClient, variables: ILoadClassifierRulesVariables): Promise<TicketClassifierRule[]> {
     const data = await client.query({
         query: TicketClassifierRuleGQL.GET_ALL_OBJS_QUERY,
         variables,
@@ -67,7 +67,7 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         this.problem = this.rulesToOptions(allRules, 'problem')
     }
 
-    public rulesToOptions (data: ITicketClassifierRuleUIState[], field: string): Options[] {
+    public rulesToOptions (data: TicketClassifierRule[], field: string): Options[] {
         const fromRules = Object.fromEntries(data.map(link => {
             if (link[field]) {
                 return [link[field].id, link[field]]
@@ -82,11 +82,11 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         }
     }
 
-    public async findRules (query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
-        return filter<ITicketClassifierRuleUIState>(this.rules, query)
+    public async findRules (query: ITicketClassifierRuleWhereInput): Promise<TicketClassifierRule[]> {
+        return filter<TicketClassifierRule>(this.rules, query)
     }
 
-    public async findRulesByIds (query: ITicketClassifierRuleWhereInput, type: string, selectedIds: string[]): Promise<ITicketClassifierRuleUIState[]> {
+    public async findRulesByIds (query: ITicketClassifierRuleWhereInput, type: string, selectedIds: string[]): Promise<TicketClassifierRule[]> {
         const filtered = []
         for (const key in query)
             filtered.push(...this.rules.filter(rule => query[key].ids.includes(rule[key].id)))
@@ -172,7 +172,7 @@ export class ClassifiersQueryRemote implements IClassifiersSearch {
         return
     }
 
-    public rulesToOptions (data: ITicketClassifierRuleUIState[], field: string): Options[] {
+    public rulesToOptions (data: TicketClassifierRule[], field: string): Options[] {
         const fromRules = Object.fromEntries(data.map(link => {
             if (link[field]) {
                 return [link[field].id, link[field]]
@@ -187,7 +187,7 @@ export class ClassifiersQueryRemote implements IClassifiersSearch {
         }
     }
 
-    public async findRules (query: ITicketClassifierRuleWhereInput): Promise<ITicketClassifierRuleUIState[]> {
+    public async findRules (query: ITicketClassifierRuleWhereInput): Promise<TicketClassifierRule[]> {
         return await loadClassifierRules(this.client, {
             where: query,
             first: 100,

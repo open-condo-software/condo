@@ -14,7 +14,7 @@ import dayjs from 'dayjs'
 import { BaseType } from 'antd/lib/typography/Base'
 import { FormattedMessage } from 'react-intl'
 
-import { User, SortTicketChangesBy, SortTicketCommentsBy, SortTicketCommentFilesBy } from '@app/condo/schema'
+import { User, SortTicketChangesBy, SortTicketCommentsBy, SortTicketCommentFilesBy, TicketFile as TicketFileType } from '@app/condo/schema'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
@@ -62,7 +62,7 @@ const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 const REGEX_FORBIDDEN_TYPE_FILES = /.*\.(svg|html|txt)$/i
 
 interface ITicketFileListProps {
-    files?: TicketFile.ITicketFileUIState[]
+    files?: TicketFileType[]
 }
 
 const UploadListWrapperStyles = css`

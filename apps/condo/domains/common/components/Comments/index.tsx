@@ -7,7 +7,6 @@ import { useIntl } from '@core/next/intl'
 import { TicketComment, TicketUpdateInput, TicketCommentFile, Ticket } from '@app/condo/schema'
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
-import { ITicketCommentUIState } from '@condo/domains/ticket/utils/clientSchema/TicketComment'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 import { Loader } from '../Loader'
@@ -71,8 +70,8 @@ const EmptyContainer = styled.div`
 `
 
 type ActionsForComment = {
-    updateAction?: (values: Partial<TicketUpdateInput>, obj: ITicketCommentUIState) => Promise<TicketComment>,
-    deleteAction?: (obj: ITicketCommentUIState) => Promise<TicketComment>,
+    updateAction?: (values: Partial<TicketUpdateInput>, obj: TicketComment) => Promise<TicketComment>,
+    deleteAction?: (obj: TicketComment) => Promise<TicketComment>,
 }
 
 const { TabPane } = Tabs
