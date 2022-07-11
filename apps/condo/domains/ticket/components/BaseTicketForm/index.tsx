@@ -1,14 +1,18 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import Link from 'next/link'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Card, Col, Form, FormItemProps, Row, Typography } from 'antd'
 import { get, isEmpty } from 'lodash'
 import { ArgsProps } from 'antd/lib/notification'
 import { useRouter } from 'next/router'
-import { BuildingUnitType, PropertyWhereInput } from '@app/condo/schema'
 
+import {
+    BuildingUnitType,
+    PropertyWhereInput,
+    Organization,
+    OrganizationEmployeeRole,
+    TicketFile as TicketFileType,
+} from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -18,13 +22,11 @@ import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/compon
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
-import { ITicketFileUIState, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
-import { IOrganizationUIState } from '@condo/domains/organization/utils/clientSchema/Organization'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
@@ -136,7 +138,6 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                 <Col span={24}>
                                     <TicketFormItem name={'details'} rules={validations.details}>
                                         <InputWithCounter
-                                            InputComponent={Input.TextArea}
                                             onBlur={handleInputBlur}
                                             placeholder={DescriptionPlaceholder}
                                             disabled={disableUserInteraction}
@@ -213,11 +214,11 @@ const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
 
 export interface ITicketFormProps {
-    organization?: IOrganizationUIState
-    role?: IOrganizationEmployeeRoleUIState
+    organization?: Organization
+    role?: OrganizationEmployeeRole
     initialValues?: ITicketFormState
     action?: (...args) => void,
-    files?: ITicketFileUIState[],
+    files?: TicketFileType[],
     afterActionCompleted?: (ticket: ITicketFormState) => void,
     OnCompletedMsg?: OnCompletedMsgType<ITicketUIState>,
     autoAssign?: boolean,

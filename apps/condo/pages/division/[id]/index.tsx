@@ -7,7 +7,7 @@ import { get } from 'lodash'
 import { Row, Col, Typography } from 'antd'
 import { EditFilled } from '@ant-design/icons'
 import { green } from '@ant-design/colors'
-import { Division as DivisionType } from '@app/condo/schema'
+import { Division as DivisionType, OrganizationEmployeeRole } from '@app/condo/schema'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -21,7 +21,6 @@ import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/D
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns } from '@condo/domains/division/hooks/useTechniciansTableColumns'
-import { IOrganizationEmployeeRoleUIState } from '@condo/domains/organization/utils/clientSchema/OrganizationEmployeeRole'
 import { useOrganization } from '@core/next/organization'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
@@ -31,7 +30,7 @@ type DivisionPageContentProps = {
     division: DivisionType
     loading: boolean
     columns: any
-    role: IOrganizationEmployeeRoleUIState
+    role: OrganizationEmployeeRole
 }
 
 export const DivisionPageContent = ({ division, loading, columns, role }: DivisionPageContentProps) => {
