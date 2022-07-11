@@ -5,6 +5,7 @@ const { get, isEmpty, isFunction, uniq, groupBy } = require('lodash')
 const conf = require('@core/config')
 const { getSchemaCtx } = require('@core/keystone/schema')
 
+const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { getStartDates } = require('@condo/domains/common/utils/date')
@@ -29,7 +30,7 @@ const logger = pino({
     enabled: falsey(process.env.DISABLE_LOGGING),
 })
 
-const makeMessageKey = (period, accountId, categoryId, residentId) => `${period}.${accountId}.${categoryId}.${residentId}`
+const makeMessageKey = (period, accountId, categoryId, residentId) => `${period}:${accountId}:${categoryId}:${residentId}`
 
 /**
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
@@ -74,12 +75,12 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
         await sendMessage(context, messageData)
     } catch (e) {
         // TODO(DOMA-3343): handle error type
-        logger.info({ message: 'sendMessage attempt:', error: e, messageData })
+        logger.info({ message: 'sendMessage attempt:', error: safeFormatError(e), messageData })
 
-        return Promise.resolve(false)
+        return 0
     }
 
-    return Promise.resolve(true)
+    return 1
 }
 
 /**
@@ -90,13 +91,10 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
  */
 const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange ) => {
     const { keystone: context } = await getSchemaCtx('Resident')
-
-    logger.info({ message: 'Processing receipts where', receiptsWhere })
-
     const receiptsCount = await BillingReceipt.count(context, receiptsWhere)
     let skip = 0, successCnt = 0
 
-    logger.info({ message: 'Available Billing receipts:', receiptsCount })
+    logger.info({ message: 'Available Billing receipts:', receiptsCount, receiptsWhere })
 
     // Exit if no receipts found to proceed
     if (!receiptsCount) return
@@ -136,7 +134,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
                 const success = await prepareAndSendNotification(context, receipt, resident)
 
-                successCnt += Number(success)
+                successCnt += success
 
                 // Store receipt.createdAt as lastDt in order to continue from this point on next execution
             }

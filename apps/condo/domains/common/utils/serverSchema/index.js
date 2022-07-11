@@ -100,7 +100,7 @@ const loadListByChunks = async ({
     limit = 100000,
 }) => {
     if (chunkSize < 1 || limit < 1) throw new Error('Both chunkSize and limit should be > 0')
-    if (chunkSize > 100) chunkSize = 100
+    if (chunkSize > 100) throw new Error('chunkSize is too large, max 100 allowed')
     let skip = 0
     let maxiterationsCount = Math.ceil(limit / chunkSize)
     let newchunk = []

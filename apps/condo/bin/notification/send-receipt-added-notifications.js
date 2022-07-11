@@ -28,11 +28,12 @@ async function connectKeystone () {
 }
 
 async function main () {
-    await connectKeystone()
-
+    const keystone = await connectKeystone()
     const resendFromDt = process.argv[2]
 
     await sendBillingReceiptsAddedNotifications(resendFromDt)
+
+    keystone.disconnect()
 }
 
 main()
