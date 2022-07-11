@@ -12,7 +12,7 @@ import { useRouter } from 'next/router'
 import { useIntl } from '@core/next/intl'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
-import { BillingReceiptWhereInput, SortBillingReceiptsBy } from '@app/condo/schema'
+import { BillingReceiptWhereInput, SortBillingReceiptsBy, BillingReceipt as BillingReceiptType } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelector'
@@ -22,7 +22,6 @@ import Select from '@condo/domains/common/components/antd/Select'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { ServicesModal } from '../ServicesModal'
-import { IBillingReceiptUIState } from '@condo/domains/billing/utils/clientSchema/BillingReceipt'
 
 const addressFilter = getStringContainsFilter(['property', 'address'])
 const unitNameFilter = getStringContainsFilter(['account', 'unitName'])
@@ -78,8 +77,8 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const mainTableColumns = useReceiptTableColumns(hasToPayDetails, currencyCode)
 
     const [modalIsVisible, setModalIsVisible] = useState(false)
-    const [detailedReceipt, setDetailedReceipt] = useState<IBillingReceiptUIState>(null)
-    const showServiceModal = (receipt: IBillingReceiptUIState) => {
+    const [detailedReceipt, setDetailedReceipt] = useState<BillingReceiptType>(null)
+    const showServiceModal = (receipt: BillingReceiptType) => {
         setModalIsVisible(true)
         setDetailedReceipt(receipt || null)
         return
@@ -88,7 +87,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         setModalIsVisible(false)
     }
 
-    const onRow = useCallback((record: IBillingReceiptUIState) => {
+    const onRow = useCallback((record: BillingReceiptType) => {
         return {
             onClick: () => {
                 if (hasServices) {
