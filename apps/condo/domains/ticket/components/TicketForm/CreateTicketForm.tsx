@@ -80,10 +80,10 @@ export const CreateTicketForm: React.FC = () => {
     const client = useApolloClient()
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
 
-    const action = Ticket.useCreate(
+    const action = Ticket.useNewCreate(
         {
-            status: OPEN_STATUS,
-            source: DEFAULT_TICKET_SOURCE_CALL_ID,
+            status: { connect: { id: OPEN_STATUS } },
+            source: { connect: { id: DEFAULT_TICKET_SOURCE_CALL_ID } },
         },
         (ticket) => {
             addTicketToQueryCacheForTicketCardList(ticket)
@@ -95,8 +95,11 @@ export const CreateTicketForm: React.FC = () => {
         if (deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
-        return action({ ...variables, deadline, organization })
-    }, [organization])
+        return action({
+            ...Ticket.formValuesProcessor({ ...variables, deadline }),
+            organization: { connect: { id: organization.id } },
+        })
+    }, [organization, action])
 
     const initialValues = useMemo(() => ({
         assignee: auth.user.id,

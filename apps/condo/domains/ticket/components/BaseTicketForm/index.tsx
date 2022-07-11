@@ -2,22 +2,23 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import Link from 'next/link'
-import { get, isEmpty } from 'lodash'
 import { ArgsProps } from 'antd/lib/notification'
+import { get, isEmpty, isFunction } from 'lodash'
 import { useRouter } from 'next/router'
 
 import {
-    BuildingUnitType,
+    Ticket,
+    TicketFile as TicketFileType,
+    BuildingUnitSubType,
     PropertyWhereInput,
     Organization,
     OrganizationEmployeeRole,
-    TicketFile as TicketFileType,
 } from '@app/condo/schema'
 import { useIntl } from '@core/next/intl'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { ITicketFormState, ITicketUIState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
+import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
@@ -217,10 +218,10 @@ export interface ITicketFormProps {
     organization?: Organization
     role?: OrganizationEmployeeRole
     initialValues?: ITicketFormState
-    action?: (...args) => void,
+    action?: (...args) => Promise<Ticket>,
     files?: TicketFileType[],
-    afterActionCompleted?: (ticket: ITicketFormState) => void,
-    OnCompletedMsg?: OnCompletedMsgType<ITicketUIState>,
+    afterActionCompleted?: (ticket: Ticket) => void,
+    OnCompletedMsg?: OnCompletedMsgType<Ticket>,
     autoAssign?: boolean,
 }
 
@@ -274,9 +275,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const property = useMemo(() => organizationProperties.find(property => property.id === selectedPropertyId), [organizationProperties, selectedPropertyId])
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
-    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitType>(get(initialValues, 'unitType', BuildingUnitType.Flat))
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialValues, 'unitType', BuildingUnitSubType.Flat))
     const selectedUnitNameRef = useRef(selectedUnitName)
-    const selectedUnitTypeRef = useRef<BuildingUnitType>(selectedUnitType)
+    const selectedUnitTypeRef = useRef<BuildingUnitSubType>(selectedUnitType)
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -503,7 +504,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 form={form}
                                                                 UploadComponent={UploadComponent}
                                                                 validations={validations}
-                                                                organizationId={get(organization, 'id')}
                                                                 initialValues={initialValues}
                                                                 disableUserInteraction={disableUserInteraction}
                                                             />
@@ -539,7 +539,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                 </Col>
                             </Row>
                         </Col>
-                        {props.children({ handleSave, isLoading, form })}
+                        {isFunction(props.children) && (
+                            props.children({ handleSave, isLoading, form })
+                        )}
                     </>
                 )}
             </FormWithAction>
