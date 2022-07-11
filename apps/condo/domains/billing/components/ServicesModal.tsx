@@ -1,8 +1,8 @@
 import React, { useContext, useMemo, useState } from 'react'
 import { Modal, Typography, Space, Table, ConfigProvider } from 'antd'
-import { IBillingReceiptUIState } from '../utils/clientSchema/BillingReceipt'
 import { useIntl } from '@core/next/intl'
 import get from 'lodash/get'
+import { BillingReceipt } from '@app/condo/schema'
 import { useServicesTableColumns } from '@condo/domains/billing/hooks/useServicesTableColumns'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
@@ -14,7 +14,7 @@ import styled from '@emotion/styled'
 import { colors } from '@condo/domains/common/constants/style'
 
 interface IServicesModalProps {
-    receipt: IBillingReceiptUIState
+    receipt: BillingReceipt
     currencyCode: string
     isDetailed: boolean
     visible: boolean
@@ -22,7 +22,7 @@ interface IServicesModalProps {
     onCancel: () => void
 }
 
-const splitServices = (receipt: IBillingReceiptUIState) => {
+const splitServices = (receipt: BillingReceipt) => {
     const services = get(receipt, 'services', [])
     const significantServices: Array<TableRecord> = []
     const insignificantServices: Array<TableRecord> = []

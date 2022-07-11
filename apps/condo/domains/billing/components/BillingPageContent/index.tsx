@@ -9,9 +9,6 @@ import {
 } from '@condo/domains/miniapp/constants'
 import { ApolloError } from '@apollo/client'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
-import {
-    IBillingIntegrationOrganizationContextUIState,
-} from '@condo/domains/billing/utils/clientSchema/BillingIntegrationOrganizationContext'
 import { MainContent } from './MainContent'
 import { BillingIntegrationOrganizationContext } from '@app/condo/schema'
 

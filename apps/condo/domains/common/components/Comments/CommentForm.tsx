@@ -15,7 +15,7 @@ import { ClipIcon } from '@condo/domains/common/components/icons/ClipIcon'
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
-import { TComment } from './index'
+import { CommentWithFiles } from './index'
 
 const Holder = styled.div`
   .wrapper {
@@ -67,8 +67,8 @@ interface ICommentFormProps {
     action: (formValues, syncModifiedFiles) => Promise<any>
     fieldName?: string
     initialValue?: string
-    editableComment: TComment
-    setEditableComment: React.Dispatch<React.SetStateAction<TComment>>
+    editableComment: CommentWithFiles
+    setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
     sending: boolean
     FileModel: Module,
     relationField: string
@@ -174,7 +174,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             action={actionWithSyncComments}
             resetOnComplete={true}
         >
-            {({ handleSave, isLoading, form: formInstance }) => {
+            {({ form: formInstance }) => {
                 if (!form) {
                     setForm(formInstance)
                 }
