@@ -922,7 +922,7 @@ describe('RegisterMultiPaymentService', () => {
                             variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
                             code: 'BAD_USER_INPUT',
                             type: 'ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED',
-                            message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext'
+                            message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
                         },
                     }])
                 })
