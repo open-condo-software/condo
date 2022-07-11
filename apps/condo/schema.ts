@@ -33702,6 +33702,7 @@ export type RegisterMultiPaymentOutput = {
   webViewUrl: Scalars['String'];
   feeCalculationUrl: Scalars['String'];
   directPaymentUrl: Scalars['String'];
+  getCardTokensUrl: Scalars['String'];
 };
 
 export type RegisterMultiPaymentReceiptInfoInput = {

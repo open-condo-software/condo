@@ -40,6 +40,7 @@ const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
     DIRECT_PAYMENT_PATH,
+    GET_CARD_TOKENS_PATH,
 } = require('@condo/domains/acquiring/constants/links')
 const { updateTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
 
@@ -61,6 +62,7 @@ describe('RegisterMultiPaymentService', () => {
                 expect(result).toHaveProperty('webViewUrl', `${hostUrl}${WEB_VIEW_PATH.replace('[id]', result.multiPaymentId)}`)
                 expect(result).toHaveProperty('feeCalculationUrl', `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', result.multiPaymentId)}`)
                 expect(result).toHaveProperty('directPaymentUrl', `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', result.multiPaymentId)}`)
+                expect(result).toHaveProperty('getCardTokensUrl', `${hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', batches[0].resident.user.id)}`)
             })
         })
         test('Anonymous user', async () => {

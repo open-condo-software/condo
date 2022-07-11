@@ -26,7 +26,7 @@ const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
 
 const REGISTER_MULTI_PAYMENT_MUTATION = gql`
     mutation registerMultiPayment ($data: RegisterMultiPaymentInput!) {
-        result: registerMultiPayment(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl }
+        result: registerMultiPayment(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl getCardTokensUrl }
     }
 `
 const PAYMENTS_FILTER_FIELDS = '{ advancedAt accountNumber address type }'
