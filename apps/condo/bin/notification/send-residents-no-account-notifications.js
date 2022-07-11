@@ -30,13 +30,14 @@ async function connectKeystone () {
 }
 
 async function main () {
-    await connectKeystone()
-
+    const keystone = await connectKeystone()
     const period = process.argv[2]
     const billingContextId = process.argv[3]
     const resendFromDt = process.argv[4]
 
     await sendResidentsNoAccountNotificationsForPeriod(period, billingContextId, resendFromDt)
+
+    keystone.disconnect()
 }
 
 main()

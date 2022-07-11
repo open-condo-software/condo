@@ -1,12 +1,14 @@
 const pino = require('pino')
 const falsey = require('falsey')
 const { get, isEmpty, uniq, isNull } = require('lodash')
+const dayjs = require('dayjs')
 
 const conf = require('@core/config')
 const { getSchemaCtx } = require('@core/keystone/schema')
 
+const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
-const { getStartDates } = require('@condo/domains/common/utils/date')
+const { getStartDates, DATE_FORMAT } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { RedisVar } = require('@condo/domains/common/utils/redis-var')
 
@@ -27,7 +29,7 @@ const logger = pino({
     enabled: falsey(process.env.DISABLE_LOGGING),
 })
 
-const makeMessageKey = (period, propertyId, residentId) => `${period}.${propertyId}.${residentId}`
+const makeMessageKey = (period, propertyId, residentId) => `${period}:${propertyId}:${residentId}`
 
 /**
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
@@ -67,12 +69,12 @@ const prepareAndSendNotification = async (context, resident, period) => {
         await sendMessage(context, messageData)
     } catch (e) {
         // TODO(DOMA-3343): handle error type
-        logger.info({ message: 'sendMessage attempt:', error: e, messageData })
+        logger.info({ message: 'sendMessage attempt:', error: safeFormatError(e), messageData })
 
-        return Promise.resolve(false)
+        return 0
     }
 
-    return Promise.resolve(true)
+    return 1
 }
 
 /**
@@ -142,7 +144,7 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
 
                 const success = await prepareAndSendNotification(context, resident, receiptsWhere.period_in[0])
 
-                successCnt += Number(success)
+                successCnt += success
                 attempts += 1
             }
         }
@@ -161,7 +163,8 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
 const sendResidentsNoAccountNotificationsForPeriod = async (period, billingContextId, resendFromDt) => {
     const { keystone: context } = await getSchemaCtx('Resident')
 
-    const { today, thisMonthStart } = getStartDates()
+    const { thisMonthStart } = getStartDates()
+    const today = dayjs().format(DATE_FORMAT)
     const requestPeriod = period || thisMonthStart
     const contextWhere = { status: CONTEXT_FINISHED_STATUS, deletedAt: null }
     const billingContexts = billingContextId
@@ -205,7 +208,8 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
  * @returns {Promise<void>}
  */
 const sendResidentsNoAccountNotifications = async () => {
-    const { currentDay, thisMonthStart, prevMonthStart } = getStartDates()
+    const { thisMonthStart, prevMonthStart } = getStartDates()
+    const currentDay = Number(dayjs().format('DD'))
     const periods = currentDay < 20 ? [prevMonthStart, thisMonthStart] : [thisMonthStart]
 
     for (const period in periods) await sendResidentsNoAccountNotificationsForPeriod(period)

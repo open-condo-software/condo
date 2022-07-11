@@ -15,7 +15,8 @@ const getMonthStart = (dateRaw, shouldFormat = false) => {
 }
 
 /**
- * Returns dates for first day of current and next months
+ * Returns dates for first day of previous, current and next months formatted to DATE_FORMAT
+ * Usable for periods of billing receipts, etc.
  * @returns {{thisMonthStart, nextMonthStart}}
  */
 const getStartDates = (dateRaw) => {
@@ -25,12 +26,11 @@ const getStartDates = (dateRaw) => {
         prevMonthStart: date.subtract('1', 'month').format(DATE_FORMAT),
         thisMonthStart: date.format(DATE_FORMAT),
         nextMonthStart: date.add('1', 'month').format(DATE_FORMAT),
-        today: dayjs().format(DATE_FORMAT),
-        currentDay: Number(dayjs().format('DD')),
     }
 }
 
 module.exports = {
     getMonthStart,
     getStartDates,
+    DATE_FORMAT,
 }
