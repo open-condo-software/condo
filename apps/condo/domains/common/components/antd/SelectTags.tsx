@@ -7,14 +7,15 @@ import isFunction from 'lodash/isFunction'
 import isObject from 'lodash/isObject'
 import { jsx, css } from '@emotion/react'
 import { CustomSelectProps } from './Select'
+import { colors } from '@condo/domains/common/constants/style'
 
 const tagCss = css`
     height: 32px;
     line-height: 32px;
     margin-top: 6px;
     margin-bottom: 6px;
-    background: #f5f5f5;
-    border: 1px solid #f0f0f0;
+    background: ${colors.lightGrey[3]};
+    border: 1px solid ${colors.ultraLightGrey};
     border-radius: 8px;
     font-size: 16px;
     padding-inline-start: 8px;
@@ -76,16 +77,20 @@ const SelectTags = <T extends string | number | { value: any, label: any }>(prop
         }
     }
 
+    const tagRenderingCallback = (props) => {
+        return tagRender({ ...props, setSelectInputValue, tags: value, onChangeSelect: onChange })
+    }
+
+    const handleChangeSelectInput = (value) => {
+        setSelectInputValue(value)
+    }
+
     return (
         <DefaultSelect <T>
             {...restProps}
             onChange={onChangeCallback}
-            tagRender={(props) => {
-                return tagRender({ ...props, setSelectInputValue, tags: value, onChangeSelect: onChange })
-            }}
-            onSearch={(value) => {
-                setSelectInputValue(value)
-            }}
+            tagRender={tagRenderingCallback}
+            onSearch={handleChangeSelectInput}
             searchValue={selectInputValue}
             value={value}
         />
