@@ -59,7 +59,7 @@ import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
-const REGEX_FORBIDDEN_TYPE_FILES = /.*\.(svg|http|txt)$/i
+const REGEX_FORBIDDEN_TYPE_FILES = /.*\.(svg|html|txt)$/i
 
 interface ITicketFileListProps {
     files?: TicketFile.ITicketFileUIState[]
