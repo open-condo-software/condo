@@ -72,8 +72,8 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const { organization, link } = useOrganization()
 
     // no redirect after mutation as we need to wait for ticket files to save
-    const action = Ticket.useUpdate({})
-    const updateAction = (value) => action(value, obj)
+    const action = Ticket.useNewUpdate({})
+    const updateAction = async (value) => action(Ticket.formValuesProcessor(value), obj)
 
     useEffect(() => {
         refetch()
@@ -99,7 +99,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
         <BaseTicketForm
             autoAssign={autoAssign}
             action={updateAction}
-            initialValues={Ticket.convertToUIFormState(obj)}
+            initialValues={Ticket.convertToFormState(obj)}
             organization={organization}
             role={link.role}
             files={files}

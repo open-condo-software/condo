@@ -1,6 +1,6 @@
 import get from 'lodash/get'
-import React, { useState, useEffect, useReducer, useMemo, useRef, useCallback } from 'react'
-import { Typography, Upload, UploadProps } from 'antd'
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { Upload, UploadProps } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { UploadRequestOption } from 'rc-upload/lib/interface'
@@ -14,16 +14,16 @@ import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 type DBFile = {
     id: string
-    file: File
+    file?: File
 }
 type UploadListFile = UploadFile & {
     id: string
 }
 
 export type Module = {
-    useCreate: (attrs, onComplete) => (attrs) => Promise<DBFile>
-    useUpdate: (attrs, onComplete) => (update, attrs) => Promise<DBFile>
-    useSoftDelete: (attrs, onComplete) => (state, attrs) => Promise<unknown>
+    useNewCreate: (attrs, onComplete) => (attrs) => Promise<DBFile>
+    useNewUpdate: (attrs, onComplete) => (update, attrs) => Promise<DBFile>
+    useNewSoftDelete: (attrs, onComplete) => (state, attrs) => Promise<unknown>
 }
 
 const reducer = (state, action) => {
@@ -68,8 +68,8 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
     if (isEmpty(files)) {
         return []
     }
-    const uploadFiles = files.map(({ id, file }) => {
-        const fileInList = {
+    return files.map(({ id, file }) => {
+        return {
             uid: file.id,
             id,
             name: file.originalFilename,
@@ -77,9 +77,7 @@ const convertFilesToUploadFormat = (files: DBFile[]): UploadListFile[] => {
             url: file.publicUrl,
             type: file.mimetype,
         }
-        return fileInList
     })
-    return uploadFiles
 }
 
 interface IUploadComponentProps {
@@ -117,8 +115,8 @@ export const useMultipleFileUploadHook = ({
         modifiedFilesRef.current = modifiedFiles
     }, [modifiedFiles])
 
-    const updateAction = Model.useUpdate({}, () => Promise.resolve())
-    const deleteAction = Model.useSoftDelete({}, () => Promise.resolve())
+    const updateAction = Model.useNewUpdate({}, () => Promise.resolve())
+    const deleteAction = Model.useNewSoftDelete({}, () => Promise.resolve())
 
     useEffect(() => {
         setFilesCount(initialFileList.length)
@@ -195,7 +193,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         setListFiles(convertedFiles)
     }, [fileList])
 
-    const createAction = Model.useCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file))
+    const createAction = Model.useNewCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file))
 
     useEffect(() => {
         if (listFiles.length === 0) {

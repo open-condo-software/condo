@@ -19,7 +19,7 @@ import {
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { CLOSED_STATUS_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 
 import {
     AnalyticsDataType,
@@ -28,7 +28,6 @@ import {
     ViewModeTypes,
 } from '../components/TicketChart'
 import { MAX_CHART_LEGEND_ELEMENTS, MAX_CHART_NAME_LENGTH } from '../constants/restrictions'
-import { ITicketUIState } from './clientSchema/Ticket'
 import { isEmpty } from 'lodash'
 
 dayjs.extend(duration)
@@ -579,7 +578,7 @@ export const getChartOptions: IGetChartOptions = ({
     return { option, opts }
 }
 
-function getDeadlineStopPoint (ticket: ITicketUIState) {
+function getDeadlineStopPoint (ticket: Ticket) {
     const ticketStatusType = get(ticket, ['status', 'type'])
     const ticketStatusUpdatedAt = get(ticket, ['statusUpdatedAt'])
     let deadlineStopPoint = dayjs().startOf('day')
@@ -602,7 +601,7 @@ export enum TicketDeadlineType {
  * If today is the deadline day or the deadline has passed, returns OVERDUE.
  * Otherwise returns LESS_THAN_DAY
  */
-export function getDeadlineType (ticket: ITicketUIState): TicketDeadlineType {
+export function getDeadlineType (ticket: Ticket): TicketDeadlineType {
     const deadline = dayjs(get(ticket, 'deadline'))
     const deadlineStopPoint = getDeadlineStopPoint(ticket)
 
@@ -616,7 +615,7 @@ export function getDeadlineType (ticket: ITicketUIState): TicketDeadlineType {
     return TicketDeadlineType.MORE_THAN_DAY
 }
 
-export function getHumanizeDeadlineDateDifference (ticket: ITicketUIState) {
+export function getHumanizeDeadlineDateDifference (ticket: Ticket) {
     const deadline = dayjs(get(ticket, 'deadline'))
     const deadlineStopPoint = getDeadlineStopPoint(ticket)
 

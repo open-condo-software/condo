@@ -6,6 +6,7 @@ import { isEmpty } from 'lodash'
 import React, { CSSProperties } from 'react'
 import get from 'lodash/get'
 
+import { Ticket } from '@app/condo/schema'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
@@ -18,7 +19,6 @@ import {
     hasUnreadResidentComments,
     TicketDeadlineType,
 } from '../helpers'
-import { ITicketUIState } from './Ticket'
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = { position: 'absolute', left: '-50px', top: '35%' }
 const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
@@ -29,7 +29,7 @@ export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadT
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
     const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
 
-    return function render (number: string, ticket: ITicketUIState) {
+    return function render (number: string, ticket: Ticket) {
         const deadline = dayjs(get(ticket, 'deadline'))
         let extraHighlighterProps
         let extraTitle = number
@@ -113,7 +113,7 @@ export const getClassifierRender = (intl, search: FilterValue) => {
 }
 
 export const getTicketDetailsRender = (search: FilterValue) => {
-    return function render (details: string, ticket: ITicketUIState) {
+    return function render (details: string, ticket: Ticket) {
         const address = get(ticket, ['property', 'address'])
         const maxDetailsLength = address ? address.length : details.length
         const trimmedDetails = details.length > maxDetailsLength ? `${details.substring(0, maxDetailsLength)}…` : details
@@ -180,7 +180,7 @@ export const getStatusRender = (intl, search: FilterValue) => {
 
 // This function is needed to shorten the ClientName so that the field in which it is located is not unnecessarily stretched
 export const getTicketClientNameRender = (search: FilterValue) => {
-    return function render (clientName: string, ticket: ITicketUIState) {
+    return function render (clientName: string, ticket: Ticket) {
         const address = get(ticket, ['property', 'address'])
         const clientNameLength = get(clientName, 'length', 0)
         const maxClientNameLength = address ? address.length : clientNameLength
