@@ -14,7 +14,7 @@ const { RedisVar } = require('@condo/domains/common/utils/redis-var')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
-const { BillingIntegrationOrganizationContext, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingIntegrationOrganizationContext, BillingProperty, BillingReceipt, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 
 const { BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -77,6 +77,8 @@ const prepareAndSendNotification = async (context, resident, period) => {
     return 1
 }
 
+const makeAddress = (address, unitType, unitName) => `${address}:${unitType}:${unitName}`
+
 /**
  * Detects all properties that have new billing receipts,
  * then detects all residents within that properties that haven't added account numbers yet,
@@ -87,9 +89,8 @@ const prepareAndSendNotification = async (context, resident, period) => {
  */
 const sendResidentsNoAccountNotificationsForContext = async (billingContext, receiptsWhere) => {
     const { keystone: context } = await getSchemaCtx('Resident')
-    const billingContextId = receiptsWhere.context.id
 
-    const billingPropertiesWhere = { context: { id: billingContextId }, deletedAt: null }
+    const billingPropertiesWhere = { context: { id: billingContext.id }, deletedAt: null }
     const billingProperties = await loadListByChunks({ context, list: BillingProperty, where: billingPropertiesWhere })
 
     if (isEmpty(billingProperties)) return
@@ -102,12 +103,34 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
 
         if (receiptsCount < 1) continue
 
-        const propertyWhere = { organization: { id: billingContext.organization.id, deletedAt: null }, address_i: billingProperty.address, deletedAt: null }
-        const property = await Property.getOne(context, propertyWhere)
+        const accountsWhere = { property: { id: billingProperty.id, deletedAt: null }, deletedAt: null }
+        const accounts = await loadListByChunks({ context, list: BillingAccount, where: accountsWhere })
+        const accountIds = uniq(accounts.map(accounts => get(accounts, 'id')))
+        const accountsByAddresses = accounts.reduce(
+            (result, account) => {
+                const fullAddress = makeAddress(get(account, 'property.address'), account.unitType, account.name)
 
-        if (isEmpty(property)) continue
+                result[fullAddress] = account
 
-        const residentsWhere = { organization: { id: billingContext.organization.id, deletedAt: null }, property: { id: property.id }, deletedAt: null }
+                return result
+            }, {}
+        )
+
+        const serviceConsumersWhere = {
+            billingIntegrationContext: { id: billingContext.id, deletedAt: null },
+            organization: { id: billingContext.organization.id, deletedAt: null },
+            billingAccount: { id_in: accountIds },
+            deletedAt: null,
+        }
+        const serviceConsumers = await loadListByChunks({ context, list: ServiceConsumer, where: serviceConsumersWhere })
+        const scResidentIds = uniq(serviceConsumers.map(sc => get(sc, 'resident.id')).filter(Boolean))
+
+        const residentsWhere = {
+            organization: { id: billingContext.organization.id, deletedAt: null },
+            property: { id: billingProperty.property.id, deletedAt: null },
+            id_not_in: scResidentIds,
+            deletedAt: null,
+        }
         const residentsCount = await Resident.count(context, residentsWhere )
 
         if (residentsCount < 1) continue
@@ -118,29 +141,13 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
 
         while (skip < residentsCount) {
             const residents = await Resident.getAll(context, residentsWhere, { sortBy: ['createdAt_ASC'], first: 100, skip })
-            const residentIds = uniq(residents.map(receipt => get(receipt, 'id')))
 
             skip += residents.length
 
-            const serviceConsumersWhere = {
-                billingIntegrationContext: { id: billingContextId },
-                organization: { id: billingContext.organization.id, deletedAt: null },
-                resident: { id_in: residentIds },
-                deletedAt: null,
-            }
-            const serviceConsumers = await ServiceConsumer.getAll(context, serviceConsumersWhere)
-            const residentsWithAccountIdsObj = serviceConsumers.reduce(
-                (result, sc) => {
-                    if (!isNull(sc.billingAccount)) result[sc.resident.id] = true
-
-                    return result
-                },
-                {}
-            )
-
             for (const resident of residents) {
-                // Here we want to send notifications only to residents, that have no accounts added for corresponding property
-                if (residentsWithAccountIdsObj[resident.id]) continue
+                const fullAddress = makeAddress(get(resident, 'residentProperty.address'), resident.unitType, resident.name)
+                // Here we want to send notifications only to residents, that have accounts but no service consumers added for corresponding property
+                if (!accountsByAddresses[fullAddress]) continue
 
                 const success = await prepareAndSendNotification(context, resident, receiptsWhere.period_in[0])
 

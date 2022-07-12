@@ -65,7 +65,7 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
 
                 const [ property ] = await find('Property', {
                     organization: { id: organizationId },
-                    address: item.address,
+                    address_i: item.address,
                 })
 
                 return property
