@@ -1,15 +1,13 @@
-const IORedis = require('ioredis')
 const { isString, get } = require('lodash')
 
-const conf = require('@core/config')
+const { getRedisClient } = require('@core/keystone/redis')
 
-const REDIS_URL = conf['REDIS_URL']
 
 class RedisVar {
     constructor (varName) {
         if (!varName || !isString(varName)) throw new Error('RedisVars varName value should be non-empty string')
 
-        this.db = new IORedis(REDIS_URL)
+        this.db = getRedisClient('redis-var')
         this.varName = varName
     }
 
