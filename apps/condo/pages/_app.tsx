@@ -1,6 +1,6 @@
 import '@condo/domains/common/components/wdyr'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
@@ -31,8 +31,13 @@ import { FocusContextProvider } from '@condo/domains/common/components/Focus/Foc
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
-import { SubscriptionProvider, useServiceSubscriptionContext } from '@condo/domains/subscription/components/SubscriptionContext'
-import { useEndTrialSubscriptionReminderPopup } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import {
+    SubscriptionProvider,
+    useServiceSubscriptionContext,
+} from '@condo/domains/subscription/components/SubscriptionContext'
+import {
+    useEndTrialSubscriptionReminderPopup,
+} from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { BarTicketIcon } from '@condo/domains/common/components/icons/BarTicketIcon'
@@ -46,6 +51,9 @@ import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniA
 import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
 import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
+import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
+import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -157,6 +165,12 @@ const MyApp = ({ Component, pageProps }) => {
         isEndTrialSubscriptionReminderPopupVisible,
     } = useEndTrialSubscriptionReminderPopup()
 
+    const { MiniAppTask: MiniAppTaskUIInterface } = useMiniappTaskUIInterface()
+
+    const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING })
+
+    const initialTaskRecords = useMemo(() => [...miniAppTasks], [miniAppTasks])
+
     return (
         <>
             <Head>
@@ -172,18 +186,23 @@ const MyApp = ({ Component, pageProps }) => {
                         <TrackingProvider>
                             <OnBoardingProvider>
                                 <SubscriptionProvider>
-                                    <LayoutContextProvider>
-                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                            <RequiredAccess>
-                                                <Component {...pageProps} />
-                                                {
-                                                    isEndTrialSubscriptionReminderPopupVisible && (
-                                                        <EndTrialSubscriptionReminderPopup/>
-                                                    )
-                                                }
-                                            </RequiredAccess>
-                                        </LayoutComponent>
-                                    </LayoutContextProvider>
+                                    <TasksContextProvider
+                                        initialTaskRecords={initialTaskRecords}
+                                        uiInterfaces={{ MiniAppTask: MiniAppTaskUIInterface }}
+                                    >
+                                        <LayoutContextProvider>
+                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                <RequiredAccess>
+                                                    <Component {...pageProps} />
+                                                    {
+                                                        isEndTrialSubscriptionReminderPopupVisible && (
+                                                            <EndTrialSubscriptionReminderPopup/>
+                                                        )
+                                                    }
+                                                </RequiredAccess>
+                                            </LayoutComponent>
+                                        </LayoutContextProvider>
+                                    </TasksContextProvider>
                                 </SubscriptionProvider>
                             </OnBoardingProvider>
                         </TrackingProvider>
