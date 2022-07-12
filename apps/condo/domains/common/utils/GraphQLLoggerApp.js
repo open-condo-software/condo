@@ -1,5 +1,3 @@
-const express = require('express')
-const gql = require('graphql-tag')
 const { get, set } = require('lodash')
 const cuid = require('cuid')
 const ensureError = require('ensure-error')
@@ -29,6 +27,28 @@ function normalizeVariables (object) {
     return data
 }
 
+function getRequestLoggingContext (requestContext) {
+    const reqId = get(requestContext, 'context.req.id')
+    const authedItemId = get(requestContext, 'context.authedItem.id')
+    const sessionId = get(requestContext, 'context.req.sessionID')
+    const userId = get(requestContext, 'context.req.user.id')
+    let user
+    if (userId) {
+        user = {
+            id: userId,
+            type: get(requestContext, 'context.req.user.type'),
+            isAdmin: get(requestContext, 'context.req.user.isAdmin'),
+            isSupport: get(requestContext, 'context.req.user.isSupport'),
+        }
+    }
+
+    const operationId = get(requestContext, 'operationId')
+    const operationName = get(requestContext, 'operationName')
+    const queryHash = get(requestContext, 'queryHash')
+
+    return { reqId, authedItemId, sessionId, user, operationId, operationName, queryHash }
+}
+
 /**
  * @type {import('apollo-server-plugin-base').ApolloServerPlugin}
  */
@@ -47,19 +67,18 @@ class GraphQLLoggerPlugin {
              * @returns {Promise<import('apollo-server-types').GraphQLResponse | null>}
              */
             async responseForOperation (requestContext) {
-                const reqId = get(requestContext, 'context.req.id')
                 const operationId = get(requestContext, 'operationId') || cuid()
-                const operationName = get(requestContext, 'operationName')
+                // NOTE(pahaz): log correlation id for cases where not reqId
+                requestContext.operationId = operationId
+
+                const logData = getRequestLoggingContext(requestContext)
                 const graphQLOperations = get(requestContext, 'document.definitions', []).map(
                     def => `${def.operation} ${def.name ? `${def.name.value} ` : ''}{ .. }`,
                 )
                 const query = normalizeQuery(get(requestContext, 'request.query'))
-                const variables = normalizeVariables(get(requestContext, 'request.variables'))
-                const queryHash = get(requestContext, 'queryHash')
+                const variables = JSON.stringify(normalizeVariables(get(requestContext, 'request.variables')))
 
-                // NOTE(pahaz): log correlation id for cases where not reqId
-                requestContext.operationId = operationId
-                graphqlLogger.info({ reqId, operationId, operationName, graphQLOperations, graphql: { query, variables, queryHash } })
+                graphqlLogger.info({ graphQLOperations, gql: { query, variables }, ...logData })
             },
 
             /**
@@ -67,20 +86,18 @@ class GraphQLLoggerPlugin {
              * @returns {Promise<void>}
              */
             async didEncounterErrors (requestContext) {
-                const reqId = get(requestContext, 'context.req.id')
-                const operationId = get(requestContext, 'operationId')
+                const logData = getRequestLoggingContext(requestContext)
                 const errors = get(requestContext, 'errors', [])
 
                 try {
                     for (const error of errors) {
-                        const uid = get(error, 'uid') || get(error, 'originalError.uid') || cuid()
-                        error.uid = uid
-                        graphqlLogger.info({ reqId, operationId, apolloFormatError: safeFormatError(error) })
+                        error.uid = get(error, 'uid') || get(error, 'originalError.uid') || cuid()
+                        graphqlLogger.info({ apolloFormatError: safeFormatError(error), ...logData })
                     }
                 } catch (formatErrorError) {
                     // NOTE(pahaz): Something went wrong with formatting above, so we log the errors
-                    graphqlLogger.error({ reqId, operationId, formatErrorError: serializeError(ensureError(formatErrorError)) })
-                    graphqlLogger.error({ reqId, operationId, errors: errors.map(error => serializeError(ensureError(error))) })
+                    graphqlLogger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData })
+                    graphqlLogger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData })
                 }
             },
         }
