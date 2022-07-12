@@ -1,6 +1,11 @@
 import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import { useLazyQuery } from '@apollo/client'
-import { OrganizationEmployeeRole, PropertyWhereInput, Property as PropertyType } from '@app/condo/schema'
+import {
+    OrganizationEmployeeRole,
+    PropertyWhereInput,
+    Property as PropertyType,
+    SortPropertiesBy,
+} from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
@@ -22,14 +27,13 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { useImporterFunctions } from '../hooks/useImporterFunctions'
-import { jsx } from '@emotion/react'
 import isEmpty from 'lodash/isEmpty'
 
 type BuildingTableProps = {
     role: OrganizationEmployeeRole
     searchPropertiesQuery: PropertyWhereInput
     tableColumns: ColumnsType
-    sortBy: any[]
+    sortBy: SortPropertiesBy[]
     onSearch?: (properties: PropertyType[]) => void
 }
 

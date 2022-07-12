@@ -20,7 +20,14 @@ import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/pro
 import { useTableFilters as usePropertyTableFilters } from '@condo/domains/property/hooks/useTableFilters'
 
 import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
-import { DivisionWhereInput, OrganizationEmployeeRole, PropertyWhereInput, Property as PropertyType, Division as DivisionType } from '@app/condo/schema'
+import {
+    DivisionWhereInput,
+    OrganizationEmployeeRole,
+    PropertyWhereInput,
+    Property as PropertyType,
+    Division as DivisionType,
+    SortPropertiesBy,
+} from '@app/condo/schema'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns as useDivisionsTableColumns } from '@condo/domains/division/hooks/useTableColumns'
 import { ColumnsType } from 'antd/lib/table'
@@ -49,7 +56,7 @@ type PropertiesContentProps = {
     role: OrganizationEmployeeRole
     searchPropertiesQuery: PropertyWhereInput
     propertiesTableColumns: ColumnsType
-    sortPropertiesBy: string[]
+    sortPropertiesBy: SortPropertiesBy[]
 
     divisionTableColumns: ColumnsType
     searchDivisionsQuery: DivisionWhereInput
@@ -207,7 +214,7 @@ export default function PropertiesPage (props: PropertiesPageProps) {
         <PropertiesContent
             searchPropertiesQuery={searchPropertiesQuery}
             propertiesTableColumns={propertiesTableColumns}
-            sortPropertiesBy={sortersToSortPropertiesBy(sorters)}
+            sortPropertiesBy={sortersToSortPropertiesBy(sorters) as SortPropertiesBy[]}
 
             searchDivisionsQuery={searchDivisionsQuery}
             divisionTableColumns={divisionTableColumns}

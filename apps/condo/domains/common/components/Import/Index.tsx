@@ -33,7 +33,7 @@ interface IColumnsInfoBoxProps {
 interface IImportWrapperProps {
     objectsName: string
     accessCheck: boolean
-    onFinish: (variables: any) => void
+    onFinish: (variables: unknown) => void
     columns: Columns
     maxTableLength?: number
     rowNormalizer: RowNormalizer
