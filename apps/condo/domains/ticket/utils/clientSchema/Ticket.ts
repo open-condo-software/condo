@@ -3,7 +3,7 @@
  */
 
 import { get } from 'lodash'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { Ticket, TicketCreateInput, TicketUpdateInput, QueryAllTicketsArgs } from '@app/condo/schema'
@@ -88,7 +88,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<Ticket, TicketCreateInput, TicketUpdateInput, QueryAllTicketsArgs>(TicketGQL)
+} = generateReactHooks<Ticket, TicketCreateInput, TicketUpdateInput, QueryAllTicketsArgs>(TicketGQL)
 
 export {
     useObject,

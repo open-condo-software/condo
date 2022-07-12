@@ -7,7 +7,7 @@ import {
     MultiPaymentUpdateInput,
     QueryAllMultiPaymentsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { MultiPayment as MultiPaymentGQL } from '@condo/domains/acquiring/gql'
 
 const {
@@ -16,7 +16,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<MultiPayment, MultiPaymentCreateInput, MultiPaymentUpdateInput, QueryAllMultiPaymentsArgs>(MultiPaymentGQL)
+} = generateReactHooks<MultiPayment, MultiPaymentCreateInput, MultiPaymentUpdateInput, QueryAllMultiPaymentsArgs>(MultiPaymentGQL)
 
 export {
     useObject,

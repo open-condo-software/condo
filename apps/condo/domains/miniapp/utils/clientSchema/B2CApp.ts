@@ -8,7 +8,7 @@ import {
     B2CAppUpdateInput,
     QueryAllB2CAppsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { B2CApp as B2CAppGQL } from '@condo/domains/miniapp/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<B2CApp, B2CAppCreateInput, B2CAppUpdateInput, QueryAllB2CAppsArgs>(B2CAppGQL)
+} = generateReactHooks<B2CApp, B2CAppCreateInput, B2CAppUpdateInput, QueryAllB2CAppsArgs>(B2CAppGQL)
 
 export {
     useObject,

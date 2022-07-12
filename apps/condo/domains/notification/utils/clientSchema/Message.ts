@@ -8,7 +8,7 @@ import {
     MessageUpdateInput,
     QueryAllMessagesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { Message as MessageGQL } from '@condo/domains/notification/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<Message, MessageCreateInput, MessageUpdateInput, QueryAllMessagesArgs>(MessageGQL)
+} = generateReactHooks<Message, MessageCreateInput, MessageUpdateInput, QueryAllMessagesArgs>(MessageGQL)
 
 export {
     useObject,

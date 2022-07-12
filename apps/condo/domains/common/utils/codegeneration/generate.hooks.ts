@@ -57,7 +57,7 @@ type IGQLType = {
     GET_ALL_OBJS_WITH_COUNT_QUERY: DocumentNode
 }
 
-export function generateNewReactHooks<
+export function generateReactHooks<
     GQLObject,
     GQLCreateInput,
     GQLUpdateInput,

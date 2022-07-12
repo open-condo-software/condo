@@ -8,7 +8,7 @@ import {
     AcquiringIntegrationAccessRightUpdateInput,
     QueryAllAcquiringIntegrationAccessRightsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { AcquiringIntegrationAccessRight as AcquiringIntegrationAccessRightGQL } from '@condo/domains/acquiring/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<AcquiringIntegrationAccessRight, AcquiringIntegrationAccessRightCreateInput, AcquiringIntegrationAccessRightUpdateInput, QueryAllAcquiringIntegrationAccessRightsArgs>(AcquiringIntegrationAccessRightGQL)
+} = generateReactHooks<AcquiringIntegrationAccessRight, AcquiringIntegrationAccessRightCreateInput, AcquiringIntegrationAccessRightUpdateInput, QueryAllAcquiringIntegrationAccessRightsArgs>(AcquiringIntegrationAccessRightGQL)
 
 export {
     useObject,

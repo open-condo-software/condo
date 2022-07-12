@@ -8,7 +8,7 @@ import {
     TicketStatusUpdateInput,
     QueryAllTicketStatusesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { TicketStatus as TicketStatusGQL } from '@condo/domains/ticket/gql'
 
 export interface ITicketStatusFormSelectState {
@@ -33,7 +33,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<TicketStatus, TicketStatusCreateInput, TicketStatusUpdateInput, QueryAllTicketStatusesArgs>(TicketStatusGQL)
+} = generateReactHooks<TicketStatus, TicketStatusCreateInput, TicketStatusUpdateInput, QueryAllTicketStatusesArgs>(TicketStatusGQL)
 
 export {
     useObject,

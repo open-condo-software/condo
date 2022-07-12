@@ -8,7 +8,7 @@ import {
     B2BAppAccessRightUpdateInput,
     QueryAllB2BAppAccessRightsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { B2BAppAccessRight as B2BAppAccessRightGQL } from '@condo/domains/miniapp/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<B2BAppAccessRight, B2BAppAccessRightCreateInput, B2BAppAccessRightUpdateInput, QueryAllB2BAppAccessRightsArgs>(B2BAppAccessRightGQL)
+} = generateReactHooks<B2BAppAccessRight, B2BAppAccessRightCreateInput, B2BAppAccessRightUpdateInput, QueryAllB2BAppAccessRightsArgs>(B2BAppAccessRightGQL)
 
 export {
     useObject,

@@ -8,7 +8,7 @@ import {
     TicketCommentFileUpdateInput,
     QueryAllTicketCommentFilesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { TicketCommentFile as TicketCommentFileGQL } from '@condo/domains/ticket/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<TicketCommentFile, TicketCommentFileCreateInput, TicketCommentFileUpdateInput, QueryAllTicketCommentFilesArgs>(TicketCommentFileGQL)
+} = generateReactHooks<TicketCommentFile, TicketCommentFileCreateInput, TicketCommentFileUpdateInput, QueryAllTicketCommentFilesArgs>(TicketCommentFileGQL)
 
 export {
     useObject,
