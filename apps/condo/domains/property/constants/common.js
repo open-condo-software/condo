@@ -5,6 +5,14 @@ const COMMERCIAL_UNIT_TYPE = 'commercial'
 const WAREHOUSE_UNIT_TYPE = 'warehouse'
 const VALID_HOUSE_TYPES = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение', 'здание']
 
+const PARKING_SECTION_TYPE = 'parking'
+const SECTION_SECTION_TYPE = 'section'
+
+const SECTION_TYPES = [
+    PARKING_SECTION_TYPE,
+    SECTION_SECTION_TYPE,
+]
+
 const UNIT_TYPES = [
     PARKING_UNIT_TYPE,
     FLAT_UNIT_TYPE,
@@ -14,6 +22,9 @@ const UNIT_TYPES = [
 ]
 
 module.exports = {
+    PARKING_SECTION_TYPE,
+    SECTION_SECTION_TYPE,
+    SECTION_TYPES,
     PARKING_UNIT_TYPE,
     FLAT_UNIT_TYPE,
     APARTMENT_UNIT_TYPE,

@@ -39408,6 +39408,10 @@ export enum SortTicketChangesBy {
   SectionNameFromDesc = 'sectionNameFrom_DESC',
   SectionNameToAsc = 'sectionNameTo_ASC',
   SectionNameToDesc = 'sectionNameTo_DESC',
+  SectionTypeFromAsc = 'sectionTypeFrom_ASC',
+  SectionTypeFromDesc = 'sectionTypeFrom_DESC',
+  SectionTypeToAsc = 'sectionTypeTo_ASC',
+  SectionTypeToDesc = 'sectionTypeTo_DESC',
   FloorNameFromAsc = 'floorNameFrom_ASC',
   FloorNameFromDesc = 'floorNameFrom_DESC',
   FloorNameToAsc = 'floorNameTo_ASC',
@@ -39851,6 +39855,8 @@ export enum SortTicketHistoryRecordsBy {
   PropertyAddressDesc = 'propertyAddress_DESC',
   SectionNameAsc = 'sectionName_ASC',
   SectionNameDesc = 'sectionName_DESC',
+  SectionTypeAsc = 'sectionType_ASC',
+  SectionTypeDesc = 'sectionType_DESC',
   FloorNameAsc = 'floorName_ASC',
   FloorNameDesc = 'floorName_DESC',
   UnitNameAsc = 'unitName_ASC',
@@ -40214,6 +40220,8 @@ export enum SortTicketsBy {
   PropertyAddressDesc = 'propertyAddress_DESC',
   SectionNameAsc = 'sectionName_ASC',
   SectionNameDesc = 'sectionName_DESC',
+  SectionTypeAsc = 'sectionType_ASC',
+  SectionTypeDesc = 'sectionType_DESC',
   FloorNameAsc = 'floorName_ASC',
   FloorNameDesc = 'floorName_DESC',
   UnitNameAsc = 'unitName_ASC',
@@ -40551,6 +40559,8 @@ export type Ticket = {
   propertyAddressMeta?: Maybe<AddressMetaField>;
   /**  Section name/number of an apartment building (property). You need to take from Property.map  */
   sectionName?: Maybe<Scalars['String']>;
+  /**  Type of section, such as parking or section  */
+  sectionType?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
   floorName?: Maybe<Scalars['String']>;
   /**  Flat number / door number of an apartment building (property). You need to take from Property.map  */
@@ -41046,6 +41056,10 @@ export type TicketChange = {
   sectionNameFrom?: Maybe<Scalars['String']>;
   /**  Section name/number of an apartment building (property). You need to take from Property.map  */
   sectionNameTo?: Maybe<Scalars['String']>;
+  /**  Type of section, such as parking or section  */
+  sectionTypeFrom?: Maybe<Scalars['String']>;
+  /**  Type of section, such as parking or section  */
+  sectionTypeTo?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
   floorNameFrom?: Maybe<Scalars['String']>;
   /**  Floor of an apartment building (property). You need to take from Property.map  */
@@ -41224,6 +41238,8 @@ export type TicketChangeCreateInput = {
   propertyAddressMetaTo?: Maybe<Scalars['JSON']>;
   sectionNameFrom?: Maybe<Scalars['String']>;
   sectionNameTo?: Maybe<Scalars['String']>;
+  sectionTypeFrom?: Maybe<Scalars['String']>;
+  sectionTypeTo?: Maybe<Scalars['String']>;
   floorNameFrom?: Maybe<Scalars['String']>;
   floorNameTo?: Maybe<Scalars['String']>;
   unitNameFrom?: Maybe<Scalars['String']>;
@@ -41345,6 +41361,8 @@ export type TicketChangeUpdateInput = {
   propertyAddressMetaTo?: Maybe<Scalars['JSON']>;
   sectionNameFrom?: Maybe<Scalars['String']>;
   sectionNameTo?: Maybe<Scalars['String']>;
+  sectionTypeFrom?: Maybe<Scalars['String']>;
+  sectionTypeTo?: Maybe<Scalars['String']>;
   floorNameFrom?: Maybe<Scalars['String']>;
   floorNameTo?: Maybe<Scalars['String']>;
   unitNameFrom?: Maybe<Scalars['String']>;
@@ -41821,6 +41839,14 @@ export type TicketChangeWhereInput = {
   sectionNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   sectionNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sectionNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionTypeFrom?: Maybe<Scalars['String']>;
+  sectionTypeFrom_not?: Maybe<Scalars['String']>;
+  sectionTypeFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionTypeFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionTypeTo?: Maybe<Scalars['String']>;
+  sectionTypeTo_not?: Maybe<Scalars['String']>;
+  sectionTypeTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionTypeTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   floorNameFrom?: Maybe<Scalars['String']>;
   floorNameFrom_not?: Maybe<Scalars['String']>;
   floorNameFrom_contains?: Maybe<Scalars['String']>;
@@ -43978,6 +44004,7 @@ export type TicketCreateInput = {
   propertyAddress?: Maybe<Scalars['String']>;
   propertyAddressMeta?: Maybe<Scalars['JSON']>;
   sectionName?: Maybe<Scalars['String']>;
+  sectionType?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -44753,6 +44780,7 @@ export type TicketHistoryRecord = {
   propertyAddress?: Maybe<Scalars['String']>;
   propertyAddressMeta?: Maybe<Scalars['JSON']>;
   sectionName?: Maybe<Scalars['String']>;
+  sectionType?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -44807,6 +44835,7 @@ export type TicketHistoryRecordCreateInput = {
   propertyAddress?: Maybe<Scalars['String']>;
   propertyAddressMeta?: Maybe<Scalars['JSON']>;
   sectionName?: Maybe<Scalars['String']>;
+  sectionType?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -44866,6 +44895,7 @@ export type TicketHistoryRecordUpdateInput = {
   propertyAddress?: Maybe<Scalars['String']>;
   propertyAddressMeta?: Maybe<Scalars['JSON']>;
   sectionName?: Maybe<Scalars['String']>;
+  sectionType?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -45164,6 +45194,24 @@ export type TicketHistoryRecordWhereInput = {
   sectionName_not_ends_with_i?: Maybe<Scalars['String']>;
   sectionName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sectionName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionType?: Maybe<Scalars['String']>;
+  sectionType_not?: Maybe<Scalars['String']>;
+  sectionType_contains?: Maybe<Scalars['String']>;
+  sectionType_not_contains?: Maybe<Scalars['String']>;
+  sectionType_starts_with?: Maybe<Scalars['String']>;
+  sectionType_not_starts_with?: Maybe<Scalars['String']>;
+  sectionType_ends_with?: Maybe<Scalars['String']>;
+  sectionType_not_ends_with?: Maybe<Scalars['String']>;
+  sectionType_i?: Maybe<Scalars['String']>;
+  sectionType_not_i?: Maybe<Scalars['String']>;
+  sectionType_contains_i?: Maybe<Scalars['String']>;
+  sectionType_not_contains_i?: Maybe<Scalars['String']>;
+  sectionType_starts_with_i?: Maybe<Scalars['String']>;
+  sectionType_not_starts_with_i?: Maybe<Scalars['String']>;
+  sectionType_ends_with_i?: Maybe<Scalars['String']>;
+  sectionType_not_ends_with_i?: Maybe<Scalars['String']>;
+  sectionType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   floorName?: Maybe<Scalars['String']>;
   floorName_not?: Maybe<Scalars['String']>;
   floorName_contains?: Maybe<Scalars['String']>;
@@ -47569,6 +47617,7 @@ export type TicketUpdateInput = {
   propertyAddress?: Maybe<Scalars['String']>;
   propertyAddressMeta?: Maybe<Scalars['JSON']>;
   sectionName?: Maybe<Scalars['String']>;
+  sectionType?: Maybe<Scalars['String']>;
   floorName?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -47828,6 +47877,10 @@ export type TicketWhereInput = {
   sectionName_not_ends_with_i?: Maybe<Scalars['String']>;
   sectionName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sectionName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionType?: Maybe<Scalars['String']>;
+  sectionType_not?: Maybe<Scalars['String']>;
+  sectionType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sectionType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   floorName?: Maybe<Scalars['String']>;
   floorName_not?: Maybe<Scalars['String']>;
   floorName_contains?: Maybe<Scalars['String']>;

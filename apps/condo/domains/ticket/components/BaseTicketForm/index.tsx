@@ -11,6 +11,7 @@ import {
     TicketFile as TicketFileType,
     BuildingUnitSubType,
     PropertyWhereInput,
+    BuildingUnitType,
     Organization,
     OrganizationEmployeeRole,
 } from '@app/condo/schema'
@@ -275,9 +276,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const property = useMemo(() => organizationProperties.find(property => property.id === selectedPropertyId), [organizationProperties, selectedPropertyId])
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
-    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialValues, 'unitType', BuildingUnitSubType.Flat))
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitType>(get(initialValues, 'unitType', BuildingUnitSubType.Flat))
+    const [selectedSectionType, setSelectedSectionType] = useState(get(initialValues, 'sectionType'))
     const selectedUnitNameRef = useRef(selectedUnitName)
-    const selectedUnitTypeRef = useRef<BuildingUnitSubType>(selectedUnitType)
+    const selectedUnitTypeRef = useRef<BuildingUnitType>(selectedUnitType)
+    const selectedSectionTypeRef = useRef(selectedSectionType)
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -291,6 +294,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     useEffect(() => {
         selectedUnitTypeRef.current = selectedUnitType
     }, [selectedUnitType])
+
+    useEffect(() => {
+        selectedSectionTypeRef.current = selectedSectionType
+    }, [selectedSectionType])
 
     const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
         Model: TicketFile,
@@ -359,6 +366,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         values.property = selectPropertyIdRef.current
         values.unitName = selectedUnitNameRef.current
         values.unitType = selectedUnitTypeRef.current
+        values.sectionType = selectedSectionTypeRef.current
+
         return values
     }, [])
 
@@ -451,6 +460,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 loading={organizationPropertiesLoading}
                                                                 setSelectedUnitName={setSelectedUnitName}
                                                                 setSelectedUnitType={setSelectedUnitType}
+                                                                selectedUnitName={selectedUnitName}
+                                                                setSelectedSectionType={setSelectedSectionType}
+                                                                selectedSectionType={selectedSectionType}
+                                                                mode={'all'}
+                                                                initialValues={initialValues}
                                                                 form={form}
                                                             />
                                                         )}
