@@ -100,7 +100,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         Model: FileModel,
         relationField: relationField,
         initialFileList: editableCommentFiles,
-        initialCreateValues: { organization: organization.id, ticket: ticket.id },
+        initialCreateValues: { organization: { connect: { id: organization.id } }, ticket: { connect: { id: ticket.id } } },
         dependenciesForRerenderUploadComponent: [editableComment],
     })
 
