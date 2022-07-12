@@ -118,7 +118,7 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         const serviceConsumersWhere = {
             billingIntegrationContext: { id: billingContext.id, deletedAt: null },
             organization: { id: billingContext.organization.id, deletedAt: null },
-            billingAccount: { accountNumber_in: accountNumbers },
+            accountNumber_in: accountNumbers,
             deletedAt: null,
         }
         const serviceConsumers = await loadListByChunks({ context, list: ServiceConsumer, where: serviceConsumersWhere })
