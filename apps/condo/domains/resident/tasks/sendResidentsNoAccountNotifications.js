@@ -104,7 +104,7 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
 
         const accountsWhere = { property: { id: billingProperty.id, deletedAt: null }, deletedAt: null }
         const accounts = await loadListByChunks({ context, list: BillingAccount, where: accountsWhere })
-        const accountIds = uniq(accounts.map(accounts => get(accounts, 'id')))
+        const accountNumbers = uniq(accounts.map(accounts => get(accounts, 'number')))
         const accountsByAddresses = accounts.reduce(
             (result, account) => {
                 const fullAddress = makeAddress(get(account, 'property.address'), account.unitType, account.name)
@@ -118,7 +118,7 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         const serviceConsumersWhere = {
             billingIntegrationContext: { id: billingContext.id, deletedAt: null },
             organization: { id: billingContext.organization.id, deletedAt: null },
-            billingAccount: { id_in: accountIds },
+            billingAccount: { accountNumber_in: accountNumbers },
             deletedAt: null,
         }
         const serviceConsumers = await loadListByChunks({ context, list: ServiceConsumer, where: serviceConsumersWhere })
