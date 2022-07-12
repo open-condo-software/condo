@@ -24104,7 +24104,7 @@ export type OidcClient = {
   name?: Maybe<Scalars['String']>;
   /**  The additional client data  */
   meta?: Maybe<Scalars['JSON']>;
-  /**  The timestamp of the token expiration  */
+  /**  The timestamp of the client expiration  */
   expiresAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
