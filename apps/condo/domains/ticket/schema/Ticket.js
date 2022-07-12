@@ -49,6 +49,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { sendTicketNotifications } = require('../utils/handlers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES } = require('../constants')
+const { UNIT_TYPES, FLAT_UNIT_TYPE, SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -299,10 +300,17 @@ const Ticket = new GQLListSchema('Ticket', {
                 delete: false,
             },
         },
-
         sectionName: {
             schemaDoc: 'Section name/number of an apartment building (property). You need to take from Property.map',
             type: Text,
+        },
+        sectionType: {
+            schemaDoc: 'Type of section, such as parking or section',
+            type: Select,
+            options: SECTION_TYPES,
+            dataType: 'string',
+            isRequired: false,
+            defaultValue: SECTION_SECTION_TYPE,
         },
         floorName: {
             schemaDoc: 'Floor of an apartment building (property). You need to take from Property.map',

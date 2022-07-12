@@ -1,4 +1,5 @@
-import React from 'react'
+import { reverse } from 'lodash'
+import React, { useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
@@ -9,6 +10,7 @@ import isEmpty from 'lodash/isEmpty'
 import { BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
 import { LabeledValue } from 'antd/lib/select'
 import { TrackingEventPropertiesType } from '@condo/domains/common/components/TrackingContext'
+import { getFloorsBySection } from '../../property/components/UnitInfo'
 
 export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'onChange' | 'onSelect'> {
     property: Property
@@ -17,19 +19,34 @@ export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'on
     loading: boolean
     eventName?: string
     eventProperties?: TrackingEventPropertiesType
+    mode?: 'unit' | 'all'
+    selectedFloorName?: string
+    selectedSectionName?: string
+    selectedSections?
 }
 interface IGetOptionGroupBySectionType {
-    ({ sections, unitType, groupLabel }: {
-        sections: BuildingSection[], unitType: BuildingUnitSubType, groupLabel: string
-    }): React.ReactNode
+    units
+    unitType: BuildingUnitSubType,
+    groupLabel: string
 }
 
 export type UnitNameInputOption = LabeledValue & { 'data-unitType': BuildingUnitSubType, 'data-unitName': string }
 const BASE_UNIT_NAME_INPUT_OPTION_STYLE: React.CSSProperties = { paddingLeft: '12px' }
 
+const getUnitsBySectionAndFloor = (selectedSectionName, selectedFloorName, sections: BuildingSection[]) => {
+    if (!isEmpty(selectedSectionName) && !isEmpty(selectedFloorName)) {
+        const floors = getFloorsBySection(selectedSectionName, sections)
+        const selectedFloor = floors.find(floor => floor.name === selectedFloorName)
 
-const getOptionGroupBySectionType: IGetOptionGroupBySectionType = (props) => {
-    const { sections, unitType, groupLabel } = props
+        return get(selectedFloor, 'units', [])
+    } else if (!isEmpty(selectedSectionName)) {
+        const floors = getFloorsBySection(selectedSectionName, sections)
+
+        return floors.flatMap(floor => floor.units)
+    }
+}
+
+const getAllSectionsUnits = (sections) => {
     if (!sections) return null
 
     const unflattenUnits = sections.map((section) => {
@@ -38,9 +55,13 @@ const getOptionGroupBySectionType: IGetOptionGroupBySectionType = (props) => {
         return floors.map((floor) => floor.units).reverse()
     })
 
-    const flattenUnits: Array<BuildingUnit> = flattenDeep(unflattenUnits)
+    return flattenDeep(unflattenUnits)
+}
 
-    const filteredUnits = flattenUnits.filter((unit) => {
+const getOptionGroupBySectionType: React.FC<IGetOptionGroupBySectionType> = (props) => {
+    const { units, unitType, groupLabel } = props
+
+    const filteredUnits = units.filter((unit) => {
         if (unitType === BuildingUnitSubType.Flat) {
             return unit.unitType === null || unit.unitType === BuildingUnitSubType.Flat
         }
@@ -79,10 +100,20 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const WarehouseGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.warehouse' })
     const CommercialGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.commercial' })
     const ApartmentGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.apartment' })
-    const { placeholder, property, loading, ...restInputProps } = props
+    const {
+        placeholder, property, loading, mode, selectedFloorName, selectedSectionName, selectedSections, ...restInputProps
+    } = props
 
     const sections = get(property, 'map.sections', [])
     const parking = get(property, 'map.parking', [])
+
+    const getUnits = useCallback((sections) => {
+        if (mode === 'unit' || isEmpty(selectedSectionName)) {
+            return getAllSectionsUnits(sections)
+        } else if (mode === 'all') {
+            return getUnitsBySectionAndFloor(selectedSectionName, selectedFloorName, selectedSections)
+        }
+    }, [mode, selectedFloorName, selectedSectionName, selectedSections])
 
     return (
         <Select
@@ -95,19 +126,19 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             {...restInputProps}
         >
             {getOptionGroupBySectionType({
-                sections, unitType: BuildingUnitSubType.Flat, groupLabel: FlatGroupLabel,
+                units: getUnits(sections), unitType: BuildingUnitSubType.Flat, groupLabel: FlatGroupLabel,
             })}
             {getOptionGroupBySectionType({
-                sections, unitType: BuildingUnitSubType.Apartment, groupLabel: ApartmentGroupLabel,
+                units: getUnits(sections), unitType: BuildingUnitSubType.Apartment, groupLabel: ApartmentGroupLabel,
             })}
             {getOptionGroupBySectionType({
-                sections: parking, unitType: BuildingUnitSubType.Parking, groupLabel: ParkingGroupLabel,
+                units: getUnits(parking), unitType: BuildingUnitSubType.Parking, groupLabel: ParkingGroupLabel,
             })}
             {getOptionGroupBySectionType({
-                sections, unitType: BuildingUnitSubType.Warehouse, groupLabel: WarehouseGroupLabel,
+                units: getUnits(sections), unitType: BuildingUnitSubType.Warehouse, groupLabel: WarehouseGroupLabel,
             })}
             {getOptionGroupBySectionType({
-                sections, unitType: BuildingUnitSubType.Commercial, groupLabel: CommercialGroupLabel,
+                units: getUnits(sections), unitType: BuildingUnitSubType.Commercial, groupLabel: CommercialGroupLabel,
             })}
         </Select>
     )
