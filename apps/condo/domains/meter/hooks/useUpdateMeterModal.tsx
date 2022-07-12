@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Typography } from 'antd'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
 import { useIntl } from '@core/next/intl'
@@ -51,7 +52,7 @@ export const useUpdateMeterModal = (refetch) => {
     }, [selectedMeter, updateMeterAction])
     const handleCancelModal = useCallback(() => setSelectedMeter(null), [setSelectedMeter])
 
-    const handleDeleteButtonClick = useCallback(() => updateMeterAction({ deletedAt: new Date().toDateString() }, selectedMeter),
+    const handleDeleteButtonClick = useCallback(() => updateMeterAction({ deletedAt: dayjs().toISOString() }, selectedMeter),
         [selectedMeter, updateMeterAction])
 
     const modalFooter = useMemo(() => [
