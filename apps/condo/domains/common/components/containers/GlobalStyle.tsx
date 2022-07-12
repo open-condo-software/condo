@@ -261,6 +261,12 @@ export default function GlobalStyle () {
               ${page}
               ${carouselCss}
               ${cardCSS}
+              
+              .ant-notification-notice.tasks {
+                .ant-notification-notice-close {
+                  display: none;
+                }        
+              }
             `}
         />
     )

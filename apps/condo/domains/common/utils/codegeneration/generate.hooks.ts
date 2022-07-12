@@ -48,7 +48,7 @@ interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput, QueryV
     useObjects: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectsReturnType<GQLObject, QueryVariables>
     useObject: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
-    => IUseObjectReturnType<GQLObject, QueryVariables> 
+    => IUseObjectReturnType<GQLObject, QueryVariables>
 }
 
 type IGQLType = {
