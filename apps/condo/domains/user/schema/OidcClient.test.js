@@ -144,6 +144,39 @@ describe('OidcClient', () => {
             })
         })
 
+        describe('soft delete', () => {
+            test('admin can', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [objCreated] = await createTestOidcClient(admin)
+
+                expect(objCreated.deletedAt).toBeNull()
+
+                const [softDeleted, attrs] = await OidcClient.softDelete(admin, objCreated.id)
+
+                expect(softDeleted.deletedAt).toBeDefined()
+            })
+
+            test('user can\'t', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [objCreated] = await createTestOidcClient(admin)
+
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await OidcClient.delete(client, objCreated.id)
+                })
+            })
+
+            test('anonymous can\'t', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [objCreated] = await createTestOidcClient(admin)
+
+                const client = await makeClient()
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await OidcClient.delete(client, objCreated.id)
+                })
+            })
+        })
+
         describe('read', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
