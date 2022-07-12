@@ -142,13 +142,13 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
     const initialContent = useMemo(() => get(initialValues, 'content'), [initialValues])
 
     const { objs: organizationTicketPropertyHintProperties, loading: organizationTicketPropertyHintPropertiesLoading } =
-        TicketPropertyHintProperty.useObjects({
+        TicketPropertyHintProperty.useNewObjects({
             where: {
                 organization: { id: organizationId },
             },
         })
-    const createTicketPropertyHintPropertyAction = TicketPropertyHintProperty.useCreate({}, () => Promise.resolve())
-    const softDeleteTicketPropertyHintPropertyAction = TicketPropertyHintProperty.useSoftDelete({}, () => Promise.resolve())
+    const createTicketPropertyHintPropertyAction = TicketPropertyHintProperty.useNewCreate({})
+    const softDeleteTicketPropertyHintPropertyAction = TicketPropertyHintProperty.useNewSoftDelete()
 
     const initialProperties = useMemo(() => {
         const initialTicketPropertyHintId = get(initialValues, 'id')
@@ -182,17 +182,25 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         const initialTicketPropertyHintId = get(initialValues, 'id')
 
         if (!initialTicketPropertyHintId) {
-            const ticketPropertyHint = await action({ ...otherValues, organization: organizationId })
+            const ticketPropertyHint = await action({ ...otherValues, organization: { connect: { id: organizationId } } })
 
             for (const propertyId of properties) {
-                await createTicketPropertyHintPropertyAction({ organization: organizationId, ticketPropertyHint: ticketPropertyHint.id, property: propertyId })
+                await createTicketPropertyHintPropertyAction({
+                    organization: { connect: { id: organizationId } },
+                    ticketPropertyHint: { connect: { id: ticketPropertyHint.id } },
+                    property: { connect: { id: propertyId } },
+                })
             }
         } else {
             const ticketPropertyHint = await action({ ...otherValues })
 
             for (const propertyId of properties) {
                 if (!initialPropertyIds.includes(propertyId)) {
-                    await createTicketPropertyHintPropertyAction({ organization: organizationId, ticketPropertyHint: ticketPropertyHint.id, property: propertyId })
+                    await createTicketPropertyHintPropertyAction({
+                        organization: { connect: { id: organizationId } },
+                        ticketPropertyHint: { connect: { id: ticketPropertyHint.id } },
+                        property: { connect: { id: propertyId } },
+                    })
                 }
             }
 
@@ -204,7 +212,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                 ticketPropertyHintProperty.ticketPropertyHint.id === initialTicketPropertyHintId
                         )
 
-                    await softDeleteTicketPropertyHintPropertyAction({}, ticketPropertyHintProperty)
+                    await softDeleteTicketPropertyHintPropertyAction(ticketPropertyHintProperty)
                 }
             }
         }

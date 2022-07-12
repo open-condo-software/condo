@@ -88,7 +88,7 @@ interface IUploadComponentProps {
 interface IMultipleFileUploadHookArgs {
     Model: Module
     relationField: string
-    initialFileList: DBFile[]
+    initialFileList?: DBFile[]
     initialCreateValues?: Record<string, unknown>,
     dependenciesForRerenderUploadComponent?: Array<unknown>
 }
