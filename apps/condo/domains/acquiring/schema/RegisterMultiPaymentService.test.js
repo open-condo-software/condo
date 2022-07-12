@@ -71,7 +71,7 @@ describe('RegisterMultiPaymentService', () => {
                     acquiringContext,
                     acquiringIntegration,
                     client,
-                    resident
+                    resident,
                 } = await makePayer()
                 const hostUrl = acquiringIntegration.hostUrl
                 const receipt = { id: billingReceipts[0].id }
