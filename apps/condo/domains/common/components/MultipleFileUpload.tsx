@@ -125,7 +125,7 @@ export const useMultipleFileUploadHook = ({
     const syncModifiedFiles = useCallback(async (id: string) => {
         const { added, deleted } = modifiedFilesRef.current
         for (const file of added) {
-            await updateAction({ [relationField]: id }, file)
+            await updateAction({ [relationField]: { connect: { id } } }, file)
         }
         for (const file of deleted) {
             await deleteAction({}, { id: file.id })
