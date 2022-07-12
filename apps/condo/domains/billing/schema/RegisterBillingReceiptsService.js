@@ -24,44 +24,93 @@ const errors = {
     },
 }
 
+
+const syncBillingProperties = async (context, properties, billingContextId) => {
+    const existingProperties = await find('BillingProperty', {
+        address_in: [properties.map(p => p.address)],
+        context: { id: billingContextId },
+    })
+    const propertiesIndex = Object.fromEntries(
+        existingProperties.map(({ id, globalId }) => ([globalId, id])))
+    const propertiesToAdd = properties.filter(
+        (({ globalId }) => !Reflect.has(propertiesIndex, globalId)))
+    const newProperties = []
+    for (const p of propertiesToAdd) {
+        const [newProperty] = await BillingProperty.create(context, p)
+        newProperties.push(newProperty)
+    }
+
+    return { ...newProperties, ...propertiesIndex }
+}
+
+
+const syncBillingAccounts = async (context, accounts, billingContextId) => {
+    // const existingAccounts = await this.loadByChunks({
+    //     modelGql: BillingAccountIdGql,
+    //     where: {
+    //         importId_in: accounts.map(({ importId }) => importId),
+    //         context: { id: contextId },
+    //     },
+    // })
+    // await onProgress(existingAccounts.length)
+    // const accountsIndex = Object.fromEntries(
+    //     existingAccounts.map(({ id, importId }) => ([importId, id])))
+    // const accountsToAdd = accounts.filter(
+    //     ({ importId }) => !Reflect.has(accountsIndex, importId))
+    // if (!accountsToAdd.length) {
+    //     return accountsIndex
+    // }
+    // const billingAccounts = await this.createModels({
+    //     modelGql: BillingAccountIdGql,
+    //     createInputs: accountsToAdd,
+    //     isBatch: false,
+    //     onProgress,
+    // })
+    // return {
+    //     ...accountsIndex, ...Object.fromEntries(
+    //         billingAccounts.map(({ id, importId }) => ([importId, id])))
+    // }
+}
+
+
 const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingReceiptsService', {
     types: [
         {
             access: true,
             type: 'input RegisterBillingReceiptInput ' +
                 '{ ' +
-                    'importId: string!' +
+                    'importId: String! ' +
 
-                    'address: string!, ' +
+                    'address: String! ' +
 
-                    'accountNumber: string!, ' +
-                    'unitName: string!, ' +
-                    'unitType: string!, ' +
-                    'fullName: string, ' +
+                    'accountNumber: String! ' +
+                    'unitName: String! ' +
+                    'unitType: String! ' +
+                    'fullName: String ' +
 
-                    'toPay: string!, ' +
-                    'toPayDetails: ToPayDetails, ' +
-                    'services: Services, ' +
-                    'period: string! ' +
+                    'toPay: String! ' +
+                    'toPayDetails: BillingReceiptServiceToPayDetailsFieldInput ' +
+                    'services: BillingReceiptServiceFieldInput ' +
+                    'period: String! ' +
 
                     'category: BillingCategoryWhereUniqueInput! ' +
 
-                    'tin: string! ' +
-                    'iec: string! ' +
-                    'bic: string! ' +
-                    'bankAccount: string!' +
+                    'tin: String! ' +
+                    'iec: String! ' +
+                    'bic: String! ' +
+                    'bankAccount: String! ' +
                 '}',
         },
         {
             access: true,
-            type: 'type RegisterBillingReceiptsOutput { data: [BillingReceipt] }',
+            type: 'input RegisterBillingReceiptsInput { dv: Int!, sender: SenderFieldInput!, context: BillingIntegrationOrganizationContextWhereUniqueInput, receipts: [RegisterBillingReceiptInput!]! }',
         },
     ],
     
     mutations: [
         {
             access: access.canRegisterBillingReceipts,
-            schema: 'registerBillingReceipts(data: { context: BillingIntegrationOrganizationContextWhereUniqueInput!, receipts: [RegisterBillingReceiptInput]! }): RegisterBillingReceiptsOutput',
+            schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { context: billingContextInput, receipts } = args
 
@@ -107,31 +156,13 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 2:
                 // Sync billing properties
-                const existingProperties = await find('BillingProperty', {
-                    address_in: [properties.map(p => p.address)],
-                    context: { id: billingContext.id },
-                })
-                const propertiesIndex = Object.fromEntries(existingProperties.map(({ id, globalId }) => ([ globalId, id ])))
-                const propertiesToAdd = properties.filter((({ globalId }) => !Reflect.has(propertiesIndex, globalId)))
-                const newProperties = []
-                for (const p of propertiesToAdd) {
-                    const [newProperty] = await BillingProperty.create(context, p)
-                    newProperties.push(newProperty)
-                }
+                const syncedProperties = await syncBillingProperties(context, properties, billingContextId)
+
+                console.debug(syncedProperties)
 
                 // Step 3:
                 // Sync Billing Accounts
-                const existingAccounts = await find('BillingAccount', {
-                    number_in: [accounts.map(a => a.accountNumber)],
-                    context: { id: billingContext.id },
-                })
-                const accountsIndex = Object.fromEntries(existingAccounts.map(({ id, importId }) => ([ importId, id ])))
-                const accountsToAdd = accounts.filter(({ importId }) => !Reflect.has(accountsIndex, importId))
-                const newAccounts = []
-                for (const a of accountsToAdd) {
-                    const [newAccount] = await BillingAccount.create(context, a)
-                    newAccounts.push(newAccount)
-                }
+                // const syncedAccounts = await syncBillingAccounts(context, accounts, billingContextId)
 
                 // Step 4:
                 // Sync billing receipts

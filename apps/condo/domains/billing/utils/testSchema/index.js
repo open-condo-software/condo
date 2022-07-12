@@ -5,6 +5,8 @@
  */
 const faker = require('faker')
 const get = require('lodash/get')
+const { throwIfError } = require(
+    '@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
@@ -665,6 +667,21 @@ async function makeClientWithIntegrationAccess () {
     return client
 }
 
+async function registerBillingReceiptsByTestClient(client, args) {
+    if (!client) throw new Error('no client')
+    if (!args) throw new Error('no data')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...args,
+    }
+    const { data, errors } = await client.mutate(REGISTER_BILLING_RECEIPTS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 /**
  * Simplifies creating series of instances
  */
@@ -848,7 +865,7 @@ module.exports = {
     BillingCategory, createTestBillingCategory, updateTestBillingCategory,
     makeResidentClientWithOwnReceipt,
     makeServiceUserForIntegration,
-registerBillingReceiptsByTestClient
+    registerBillingReceiptsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
