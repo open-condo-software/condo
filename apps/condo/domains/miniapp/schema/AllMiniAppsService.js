@@ -78,6 +78,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
 
                 const B2BApps = await find('B2BApp', {
                     isHidden: false,
+                    isGlobal: false,
                     deletedAt: null,
                 })
                 const B2BAppContexts = await find('B2BAppContext', {

@@ -10,8 +10,10 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
+    expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR, GLOBAL_APP_NO_APP_URL_ERROR } = require('@condo/domains/miniapp/constants')
 
 const faker = require('faker')
 
@@ -145,6 +147,56 @@ describe('B2BApp', () => {
                     await B2BApp.delete(anonymous, app.id)
                 })
             })
+        })
+    })
+    describe('Validations', () => {
+        test('Each non-global app must have appUrl or instruction and connectedMessage', async () => {
+            const admin = await makeLoggedInAdminClient()
+            await expectToThrowValidationFailureError(async () => {
+                await createTestB2BApp(admin, {
+                    isGlobal: false,
+                    appUrl: null,
+                    connectedMessage: null,
+                    instruction: faker.datatype.string(),
+                })
+            }, LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestB2BApp(admin, {
+                    isGlobal: false,
+                    appUrl: null,
+                    connectedMessage: faker.company.catchPhrase(),
+                    instruction: null,
+                })
+            }, LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR)
+            const [validApp] = await createTestB2BApp(admin, {
+                isGlobal: false,
+                appUrl: faker.internet.url(),
+                connectedMessage: null,
+                instruction: faker.datatype.string(),
+            })
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestB2BApp(admin, validApp.id, {
+                    appUrl: null,
+                })
+            }, LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR)
+        })
+        test('Each global app must have appUrl', async () => {
+            const admin = await makeLoggedInAdminClient()
+            await expectToThrowValidationFailureError(async () => {
+                await createTestB2BApp(admin, {
+                    isGlobal: true,
+                    appUrl: null,
+                })
+            }, GLOBAL_APP_NO_APP_URL_ERROR)
+            const [validApp] = await createTestB2BApp(admin, {
+                isGlobal: true,
+                appUrl: faker.internet.url(),
+            })
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestB2BApp(admin, validApp.id, {
+                    appUrl: null,
+                })
+            }, GLOBAL_APP_NO_APP_URL_ERROR)
         })
     })
 })
