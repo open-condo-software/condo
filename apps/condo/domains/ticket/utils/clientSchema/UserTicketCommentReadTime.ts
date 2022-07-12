@@ -8,21 +8,21 @@ import {
     UserTicketCommentReadTimeUpdateInput,
     QueryAllUserTicketCommentReadTimesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { UserTicketCommentReadTime as UserTicketCommentReadTimeGQL } from '@condo/domains/ticket/gql'
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<UserTicketCommentReadTime, UserTicketCommentReadTimeCreateInput, UserTicketCommentReadTimeUpdateInput, QueryAllUserTicketCommentReadTimesArgs>(UserTicketCommentReadTimeGQL)
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 }

@@ -53,7 +53,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const contactCreateAction = Contact.useNewCreate({})
+    const contactCreateAction = Contact.useCreate({})
 
     const columns: Columns = [
         { name: 'Address', type: 'string', required: true, label: AddressTitle },

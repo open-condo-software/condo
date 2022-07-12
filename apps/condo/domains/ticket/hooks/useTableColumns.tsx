@@ -76,7 +76,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const search = getFilteredValue(filters, 'search')
     const { breakpoints } = useLayoutContext()
 
-    const { loading, objs: ticketStatuses } = TicketStatus.useNewObjects({})
+    const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
@@ -105,7 +105,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const { user } = useAuth()
 
     const ticketIds = useMemo(() => map(tickets, 'id'), [tickets])
-    const { objs: userTicketsCommentReadTime } = UserTicketCommentReadTime.useNewObjects({
+    const { objs: userTicketsCommentReadTime } = UserTicketCommentReadTime.useObjects({
         where: {
             user: { id: user.id },
             ticket: {
@@ -113,7 +113,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             },
         },
     })
-    const { objs: ticketsCommentsTime } = TicketCommentsTime.useNewObjects({
+    const { objs: ticketsCommentsTime } = TicketCommentsTime.useObjects({
         where: {
             ticket: {
                 id_in: ticketIds,

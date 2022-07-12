@@ -49,7 +49,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
         if (isFunction(onUpdate)) onUpdate()
         setUpdating(false)
     }, [onUpdate, setUpdating])
-    const update = Ticket.useNewUpdate({}, handleUpdate)
+    const update = Ticket.useUpdate({}, handleUpdate)
 
     const updateTicketStatus = useCallback((variables) => runMutation({
         action:() => update(variables, ticket),

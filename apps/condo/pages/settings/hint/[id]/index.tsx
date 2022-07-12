@@ -46,13 +46,13 @@ const TicketPropertyHintIdPage = () => {
     const canManageTicketPropertyHints = useMemo(() => get(link, ['role', 'canManageTicketPropertyHints']), [link])
 
     const hintId = get(router, ['query', 'id'], null)
-    const { loading, obj: ticketPropertyHint } = TicketPropertyHint.useNewObject({
+    const { loading, obj: ticketPropertyHint } = TicketPropertyHint.useObject({
         where: { id: hintId },
     })
 
-    const handleDeleteAction = TicketPropertyHint.useNewSoftDelete(() => router.push('/settings?tab=hint'))
+    const handleDeleteAction = TicketPropertyHint.useSoftDelete(() => router.push('/settings?tab=hint'))
 
-    const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useNewObjects({
+    const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({
         where: {
             ticketPropertyHint: { id: hintId },
         },

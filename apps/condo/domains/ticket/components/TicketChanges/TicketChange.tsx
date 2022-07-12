@@ -84,7 +84,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const AutoClosedMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoCloseTicket' })
     const AndMessage = intl.formatMessage(( { id: 'And' }))
 
-    const { objs: ticketStatuses } = TicketStatus.useNewObjects({})
+    const { objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const fields = [
         ['canReadByResident', CanReadByResidentMessage, { change: 'pages.condo.ticket.TicketChanges.canReadByResident.change' }],

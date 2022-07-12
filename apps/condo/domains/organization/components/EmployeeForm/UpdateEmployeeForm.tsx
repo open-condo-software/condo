@@ -59,9 +59,9 @@ export const UpdateEmployeeForm = () => {
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { isSmall } = useLayoutContext()
 
-    const { obj: employee, loading: employeeLoading, error: employeeError, refetch } = OrganizationEmployee.useNewObject({ where: { id: String(get(query, 'id', '')) } })
-    const { objs: employeeRoles, loading: employeeRolesLoading, error: employeeRolesError } = OrganizationEmployeeRole.useNewObjects({ where: { organization: { id:  get(employee, ['organization', 'id']) } } })
-    const updateEmployeeAction = OrganizationEmployee.useNewUpdate({}, () => {
+    const { obj: employee, loading: employeeLoading, error: employeeError, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
+    const { objs: employeeRoles, loading: employeeRolesLoading, error: employeeRolesError } = OrganizationEmployeeRole.useObjects({ where: { organization: { id:  get(employee, ['organization', 'id']) } } })
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
         refetch().then(() => {
             push(`/employee/${get(query, 'id')}/`)
         })

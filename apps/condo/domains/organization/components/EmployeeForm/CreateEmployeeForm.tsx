@@ -68,12 +68,12 @@ export const CreateEmployeeForm: React.FC = () => {
     const router = useRouter()
     const { isSmall } = useLayoutContext()
 
-    const { objs: employee } = OrganizationEmployee.useNewObjects(
+    const { objs: employee } = OrganizationEmployee.useObjects(
         { where: { organization: { id: organization.id } } },
         { fetchPolicy: 'network-only' },
     )
 
-    const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useNewObjects(
+    const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useObjects(
         { where: { organization: { id: get(organization, 'id') } } }
     )
 

@@ -30,7 +30,7 @@ export const useServiceSubscriptionContext = () => useContext(SubscriptionContex
 
 const useServiceSubscriptionLoader = (): ISubscriptionContext => {
     const { organization } = useOrganization()
-    const { objs } = ServiceSubscriptionUtil.useNewObjects({
+    const { objs } = ServiceSubscriptionUtil.useObjects({
         where: {
             organization: { id: get(organization, 'id') },
         },

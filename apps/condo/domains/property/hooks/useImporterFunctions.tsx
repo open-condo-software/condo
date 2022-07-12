@@ -53,7 +53,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const createPropertyAction = Property.useNewCreate({
+    const createPropertyAction = Property.useCreate({
         organization: { connect: { id: userOrganizationId } },
     })
 

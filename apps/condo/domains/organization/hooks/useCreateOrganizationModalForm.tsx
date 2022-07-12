@@ -111,7 +111,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     )
 
     const fetchParams = React.useMemo(() => ({ where: userId ? prepareFetchParams(userId) : {} }), [userId])
-    const { refetch } = OrganizationEmployee.useNewObjects(fetchParams, FETCH_OPTIONS)
+    const { refetch } = OrganizationEmployee.useObjects(fetchParams, FETCH_OPTIONS)
 
     const handleFinish = useCallback(async (createResult) => {
         const id = get(createResult, 'data.obj.id')

@@ -62,19 +62,19 @@ export const OnBoardingProvider: React.FC = (props) => {
     const { setIsVisible: showOnBoardingCompleteModal, OnBoardingCompleteModal, isVisible: isOnBoardingCompleteVisible } = useOnBoardingCompleteModal()
 
     const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoardingHooks
-        .useNewObject(
+        .useObject(
             { where: { user: { id: get(user, 'id') } } },
             { fetchPolicy: 'network-only' },
         )
 
     const { objs: onBoardingSteps = [], refetch: refetchSteps, loading: stepsLoading } = OnBoardingStepHooks
-        .useNewObjects(
+        .useObjects(
             { where: { onBoarding: { id: get(onBoarding, 'id') } } },
             { fetchPolicy: 'network-only' }
         )
 
-    const updateOnBoarding = OnBoardingHooks.useNewUpdate({}, () => refetchOnBoarding())
-    const updateStep = OnBoardingStepHooks.useNewUpdate({})
+    const updateOnBoarding = OnBoardingHooks.useUpdate({}, () => refetchOnBoarding())
+    const updateStep = OnBoardingStepHooks.useUpdate({})
 
     const onBoardingStepsConfig = {
         'create.Organization': {

@@ -97,10 +97,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
     const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
 
-    const { objs: statuses } = TicketStatus.useNewObjects({})
+    const { objs: statuses } = TicketStatus.useObjects({})
     const statusOptions = convertToOptions<TicketStatusType>(statuses, 'name', 'id')
 
-    const { objs: sources } = TicketSource.useNewObjects({})
+    const { objs: sources } = TicketSource.useObjects({})
     const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
 
     const attributeOptions = useMemo(() => [
@@ -124,7 +124,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
         { label: IsResidentContactMessage, value: 'false' },
         { label: IsNotResidentContactMessage, value: 'true' },
     ], [IsNotResidentContactMessage, IsResidentContactMessage])
-    const { objs: categoryClassifiers } = TicketCategoryClassifier.useNewObjects({})
+    const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = convertToOptions<TicketCategoryClassifierType>(categoryClassifiers, 'name', 'id')
 
     const userOrganization = useOrganization()

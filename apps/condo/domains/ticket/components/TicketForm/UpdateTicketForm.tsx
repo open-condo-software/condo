@@ -67,12 +67,12 @@ interface IUpdateTicketForm {
 
 export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const { replace } = useRouter()
-    const { obj, loading, refetch, error } = Ticket.useNewObject({ where: { id } })
-    const { objs: files, refetch: refetchFiles } = TicketFile.useNewObjects({ where: { ticket: { id } } })
+    const { obj, loading, refetch, error } = Ticket.useObject({ where: { id } })
+    const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     const { organization, link } = useOrganization()
 
     // no redirect after mutation as we need to wait for ticket files to save
-    const action = Ticket.useNewUpdate({})
+    const action = Ticket.useUpdate({})
     const updateAction = async (value) => action(Ticket.formValuesProcessor(value), obj)
 
     useEffect(() => {

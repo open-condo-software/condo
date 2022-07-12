@@ -25,11 +25,11 @@ export const AboutB2BAppPage: React.FC<AboutB2BAppPageProps> = ({ id }) => {
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
 
-    const { obj: app, error: appError, loading: appLoading } = B2BApp.useNewObject({
+    const { obj: app, error: appError, loading: appLoading } = B2BApp.useObject({
         where: { id },
     })
     const appId = get(app, 'id', null)
-    const { obj: context, error: contextError, loading: contextLoading } = B2BAppContext.useNewObject({
+    const { obj: context, error: contextError, loading: contextLoading } = B2BAppContext.useObject({
         where: {
             app: { id: appId },
             organization: { id: organizationId },
@@ -38,7 +38,7 @@ export const AboutB2BAppPage: React.FC<AboutB2BAppPageProps> = ({ id }) => {
 
     const redirectUrl = `/miniapps/${id}?type=${B2B_APP_TYPE}`
 
-    const initialAction = B2BAppContext.useNewCreate({}, () => {
+    const initialAction = B2BAppContext.useCreate({}, () => {
         router.push(redirectUrl)
     })
 

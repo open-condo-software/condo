@@ -93,7 +93,7 @@ export const PropertyMetersForm = ({
 
     const { isSmall } = useLayoutContext()
 
-    const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useNewObjects({
+    const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useObjects({
         where: {
             property: { id: selectedPropertyId },
             unitName: selectedUnitName,
@@ -103,7 +103,7 @@ export const PropertyMetersForm = ({
     })
 
     const meterIds = meters.map(meter => meter.id)
-    const { objs: meterReadings, refetch: refetchMeterReadings, loading: meterReadingsLoading } = MeterReading.useNewObjects({
+    const { objs: meterReadings, refetch: refetchMeterReadings, loading: meterReadingsLoading } = MeterReading.useObjects({
         where: {
             meter: { id_in: meterIds },
         },
@@ -212,7 +212,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         role,
     })
 
-    const { obj: property, loading: propertyLoading } = Property.useNewObject({
+    const { obj: property, loading: propertyLoading } = Property.useObject({
         where: { id: selectedPropertyId ? selectedPropertyId : null },
     })
 
@@ -223,7 +223,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
 
     const router = useRouter()
 
-    const createMeterReadingAction = MeterReading.useNewCreate({
+    const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
     }, async () => {
         await router.push('/meter')

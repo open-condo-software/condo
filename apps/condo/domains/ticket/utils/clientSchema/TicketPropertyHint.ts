@@ -8,23 +8,23 @@ import {
     TicketPropertyHintUpdateInput,
     QueryAllTicketPropertyHintsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { TicketPropertyHint as TicketPropertyHintGQL } from '@condo/domains/ticket/gql'
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<TicketPropertyHint, TicketPropertyHintCreateInput, TicketPropertyHintUpdateInput, QueryAllTicketPropertyHintsArgs>(TicketPropertyHintGQL)
 
 
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 }

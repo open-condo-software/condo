@@ -8,21 +8,21 @@ import {
     MeterReadingSourceUpdateInput,
     QueryAllMeterReadingSourcesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { MeterReadingSource as MeterReadingSourceGQL } from '@condo/domains/meter/gql'
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<MeterReadingSource, MeterReadingSourceCreateInput, MeterReadingSourceUpdateInput, QueryAllMeterReadingSourcesArgs>(MeterReadingSourceGQL)
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 }

@@ -8,21 +8,21 @@ import {
     BillingIntegrationOrganizationContextUpdateInput,
     QueryAllBillingIntegrationOrganizationContextsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { BillingIntegrationOrganizationContext as BillingIntegrationOrganizationContextGQL } from '@condo/domains/billing/gql'
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<BillingIntegrationOrganizationContext, BillingIntegrationOrganizationContextCreateInput, BillingIntegrationOrganizationContextUpdateInput, QueryAllBillingIntegrationOrganizationContextsArgs>(BillingIntegrationOrganizationContextGQL)
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 }

@@ -381,7 +381,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleSaveRef = useRef(null)
     const [form, setForm] = useState<FormInstance>()
 
-    const { objs: filtersTemplates, loading, refetch } = filtersSchemaGql.useNewObjects({
+    const { objs: filtersTemplates, loading, refetch } = filtersSchemaGql.useObjects({
         sortBy: 'createdAt_ASC',
         where: {
             employee: { id: link.id },
@@ -393,11 +393,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         setSelectedFiltersTemplate(get(filtersTemplates, '0', null))
     }, [loading])
 
-    const createFiltersTemplateAction = filtersSchemaGql.useNewCreate({
+    const createFiltersTemplateAction = filtersSchemaGql.useCreate({
         employee: { connect: { id: link.id } },
     }, refetch)
 
-    const updateFiltersTemplateAction = filtersSchemaGql.useNewUpdate({
+    const updateFiltersTemplateAction = filtersSchemaGql.useUpdate({
         employee: { connect: { id: link.id } },
     }, refetch)
 

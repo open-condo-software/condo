@@ -26,8 +26,8 @@ const PropertyHintPage = () => {
     const router = useRouter()
     const propertyId = get(router, ['query', 'id'], null)
 
-    const { loading: propertyLoading, obj: property, error } = Property.useNewObject({ where: { id: propertyId } })
-    const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useNewObject({
+    const { loading: propertyLoading, obj: property, error } = Property.useObject({ where: { id: propertyId } })
+    const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useObject({
         where: {
             property: { id: propertyId },
             deletedAt: null,
@@ -35,7 +35,7 @@ const PropertyHintPage = () => {
     })
     const ticketPropertyHintId = useMemo(() => get(ticketPropertyHintProperty, ['ticketPropertyHint', 'id'], null), [ticketPropertyHintProperty])
 
-    const { obj: ticketPropertyHint, loading: ticketPropertyHintLoading } = TicketPropertyHint.useNewObject({
+    const { obj: ticketPropertyHint, loading: ticketPropertyHintLoading } = TicketPropertyHint.useObject({
         where: {
             id: ticketPropertyHintId,
         },

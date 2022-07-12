@@ -21,7 +21,7 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     const router = useRouter()
 
     const { obj: onBoardingHookObj, loading: isOnBoardingLoading } = OnBoardingHooks
-        .useNewObject(
+        .useObject(
             { where: { user: { id: get(user, 'id') } } },
             { fetchPolicy: 'network-only' },
         )

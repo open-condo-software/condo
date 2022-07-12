@@ -286,7 +286,7 @@ const TicketsPage: ITicketIndexPage = () => {
         loading: isTicketsFetching,
         count: total,
         objs: tickets,
-    } = Ticket.useNewObjects({
+    } = Ticket.useObjects({
         sortBy,
         where: searchTicketsQuery,
         first: DEFAULT_PAGE_SIZE,

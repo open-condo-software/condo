@@ -40,7 +40,7 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
         shouldCreateContactRef.current = shouldCreateContact
     }, [shouldCreateContact])
 
-    const createContactAction = Contact.useNewCreate({})
+    const createContactAction = Contact.useCreate({})
 
     const handleChangeContact = (values, isNew) => {
         setContactFields(values)

@@ -63,7 +63,7 @@ export const ContactsPageContent = ({
         loading,
         count: total,
         objs: contacts,
-    } = Contact.useNewObjects({
+    } = Contact.useObjects({
         sortBy,
         where: searchContactsQuery,
         // skip: (offsetFromQuery * CONTACT_PAGE_SIZE) - CONTACT_PAGE_SIZE,
