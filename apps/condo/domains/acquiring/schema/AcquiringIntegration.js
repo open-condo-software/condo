@@ -103,7 +103,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError, existingItem }) => {
+        validateInput: ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
                 return addValidationError(NO_INSTRUCTION_OR_MESSAGE_ERROR)

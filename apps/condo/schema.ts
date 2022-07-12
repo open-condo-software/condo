@@ -1818,6 +1818,8 @@ export type B2BApp = {
   appUrl?: Maybe<Scalars['String']>;
   /**  Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
+  /**  Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It's also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section  */
+  isGlobal?: Maybe<Scalars['Boolean']>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
   /**  Category of app. Can be one of the following: ["OTHER"] By default set to "OTHER"  */
@@ -2520,6 +2522,7 @@ export type B2BAppCreateInput = {
   connectedMessage?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  isGlobal?: Maybe<Scalars['Boolean']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
@@ -2556,6 +2559,7 @@ export type B2BAppHistoryRecord = {
   connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  isGlobal?: Maybe<Scalars['Boolean']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
@@ -2583,6 +2587,7 @@ export type B2BAppHistoryRecordCreateInput = {
   connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  isGlobal?: Maybe<Scalars['Boolean']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
@@ -2615,6 +2620,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   connectedMessage?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  isGlobal?: Maybe<Scalars['Boolean']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
@@ -2741,6 +2747,8 @@ export type B2BAppHistoryRecordWhereInput = {
   appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  isGlobal?: Maybe<Scalars['Boolean']>;
+  isGlobal_not?: Maybe<Scalars['Boolean']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_contains?: Maybe<Scalars['String']>;
@@ -2892,6 +2900,7 @@ export type B2BAppUpdateInput = {
   connectedMessage?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  isGlobal?: Maybe<Scalars['Boolean']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
@@ -3046,6 +3055,8 @@ export type B2BAppWhereInput = {
   appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  isGlobal?: Maybe<Scalars['Boolean']>;
+  isGlobal_not?: Maybe<Scalars['Boolean']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -36471,6 +36482,8 @@ export enum SortB2BAppHistoryRecordsBy {
   AppUrlDesc = 'appUrl_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
+  IsGlobalAsc = 'isGlobal_ASC',
+  IsGlobalDesc = 'isGlobal_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CategoryAsc = 'category_ASC',
@@ -36510,6 +36523,8 @@ export enum SortB2BAppsBy {
   AppUrlDesc = 'appUrl_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
+  IsGlobalAsc = 'isGlobal_ASC',
+  IsGlobalDesc = 'isGlobal_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CategoryAsc = 'category_ASC',

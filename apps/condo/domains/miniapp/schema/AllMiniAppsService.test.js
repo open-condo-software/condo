@@ -11,6 +11,7 @@ const { createTestBillingIntegration, createTestBillingIntegrationOrganizationCo
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE, B2B_APP_TYPE } = require('@condo/domains/miniapp/constants')
 const dayjs = require('dayjs')
+const faker = require('faker')
 
 describe('AllMiniAppsService', () => {
     describe('Execute', () => {
@@ -236,7 +237,21 @@ describe('AllMiniAppsService', () => {
                 expect(data).toBeDefined()
                 expect(data).not.toEqual(expect.arrayContaining([{
                     id: hiddenIntegration.id,
-                    type: BILLING_APP_TYPE,
+                    type: B2B_APP_TYPE,
+                }]))
+            })
+            test('Doesn\'t shows if app is global', async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [globalIntegration] = await updateTestB2BApp(admin, app.id, {
+                    appUrl: faker.internet.url(),
+                    isGlobal: true,
+                    isHidden: false,
+                })
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).not.toEqual(expect.arrayContaining([{
+                    id: globalIntegration.id,
+                    type: B2B_APP_TYPE,
                 }]))
             })
         })

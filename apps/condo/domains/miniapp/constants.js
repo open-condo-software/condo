@@ -38,6 +38,9 @@ const INCORRECT_ADDRESS_ERROR = '[address] Incorrect address was provided. Make 
 const INCORRECT_HOUSE_TYPE_ERROR = '[address] Address with specified house type is not currently supported'
 const B2C_APP_COLOR_SCHEMA_TYPE_NAME = 'AppColorSchemaField'
 const B2C_APP_COLOR_SCHEMA_INPUT_NAME = 'AppColorSchemaFieldInput'
+const LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR = '[app:noInstructionOrMessage] If the app is not global, then it must have either the appUrl field or the instruction and connectedMessage fields'
+const GLOBAL_APP_NO_APP_URL_ERROR = '[app:noAppUrl] If the app is global, it must have appUrl field'
+
 
 
 module.exports = {
@@ -53,6 +56,8 @@ module.exports = {
     CONTEXT_STATUSES,
     NON_SERVICE_USER_ERROR,
     NO_INSTRUCTION_OR_MESSAGE_ERROR,
+    LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR,
+    GLOBAL_APP_NO_APP_URL_ERROR,
     NO_CONTEXT_STATUS_ERROR,
     NON_ZIP_FILE_ERROR,
     RESTRICT_BUILD_SELECT_ERROR,
