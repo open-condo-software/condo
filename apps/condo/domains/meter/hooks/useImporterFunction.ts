@@ -306,7 +306,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             const newMeter = await meterCreateAction({
                 organization: { connect: { id: String(userOrganizationId) } },
                 property: { connect: { id: String(addons.propertyId) } },
-                resource: addons.meterResourceId,
+                resource: { connect: { id: addons.meterResourceId } },
                 unitName: String(unitName),
                 unitType: String(addons.unitType),
                 accountNumber: String(accountNumber),
