@@ -8,7 +8,7 @@ import {
     BillingIntegrationLogUpdateInput,
     QueryAllBillingIntegrationLogsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { BillingIntegrationLog as BillingIntegrationLogGQL } from '@condo/domains/billing/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<BillingIntegrationLog, BillingIntegrationLogCreateInput, BillingIntegrationLogUpdateInput, QueryAllBillingIntegrationLogsArgs>(BillingIntegrationLogGQL)
+} = generateReactHooks<BillingIntegrationLog, BillingIntegrationLogCreateInput, BillingIntegrationLogUpdateInput, QueryAllBillingIntegrationLogsArgs>(BillingIntegrationLogGQL)
 
 export {
     useObject,

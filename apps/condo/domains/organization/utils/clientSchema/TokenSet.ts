@@ -8,7 +8,7 @@ import {
     TokenSetUpdateInput,
     QueryAllTokenSetsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { TokenSet as TokenSetGQL } from '@condo/domains/organization/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<TokenSet, TokenSetCreateInput, TokenSetUpdateInput, QueryAllTokenSetsArgs>(TokenSetGQL)
+} = generateReactHooks<TokenSet, TokenSetCreateInput, TokenSetUpdateInput, QueryAllTokenSetsArgs>(TokenSetGQL)
 
 export {
     useObject,

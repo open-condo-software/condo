@@ -8,7 +8,7 @@ import {
     ForgotPasswordActionUpdateInput,
     QueryAllForgotPasswordActionsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { ForgotPasswordAction as ForgotPasswordActionGQL } from '@condo/domains/user/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<ForgotPasswordAction, ForgotPasswordActionCreateInput, ForgotPasswordActionUpdateInput, QueryAllForgotPasswordActionsArgs>(ForgotPasswordActionGQL)
+} = generateReactHooks<ForgotPasswordAction, ForgotPasswordActionCreateInput, ForgotPasswordActionUpdateInput, QueryAllForgotPasswordActionsArgs>(ForgotPasswordActionGQL)
 
 export {
     useObject,

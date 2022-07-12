@@ -11,7 +11,7 @@ import {
     QueryAllPropertiesArgs,
     BuildingMap,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { Property as PropertyGQL } from '@condo/domains/property/gql'
 
 export interface IPropertyFormState {
@@ -48,7 +48,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<Property, PropertyCreateInput, PropertyUpdateInput, QueryAllPropertiesArgs>(PropertyGQL)
+} = generateReactHooks<Property, PropertyCreateInput, PropertyUpdateInput, QueryAllPropertiesArgs>(PropertyGQL)
 
 export {
     useObject,

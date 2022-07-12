@@ -8,7 +8,7 @@ import {
     ServiceSubscriptionUpdateInput,
     QueryAllServiceSubscriptionsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { ServiceSubscription as ServiceSubscriptionGQL } from '@condo/domains/subscription/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<ServiceSubscription, ServiceSubscriptionCreateInput, ServiceSubscriptionUpdateInput, QueryAllServiceSubscriptionsArgs>(ServiceSubscriptionGQL)
+} = generateReactHooks<ServiceSubscription, ServiceSubscriptionCreateInput, ServiceSubscriptionUpdateInput, QueryAllServiceSubscriptionsArgs>(ServiceSubscriptionGQL)
 
 export {
     useObject,

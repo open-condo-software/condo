@@ -8,7 +8,7 @@ import {
     MeterReadingFilterTemplateUpdateInput,
     QueryAllMeterReadingFilterTemplatesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { MeterReadingFilterTemplate as MeterReadingFilterTemplateGQL } from '@condo/domains/meter/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<MeterReadingFilterTemplate, MeterReadingFilterTemplateCreateInput, MeterReadingFilterTemplateUpdateInput, QueryAllMeterReadingFilterTemplatesArgs>(MeterReadingFilterTemplateGQL)
+} = generateReactHooks<MeterReadingFilterTemplate, MeterReadingFilterTemplateCreateInput, MeterReadingFilterTemplateUpdateInput, QueryAllMeterReadingFilterTemplatesArgs>(MeterReadingFilterTemplateGQL)
 
 export {
     useObject,

@@ -8,7 +8,7 @@ import {
     OnBoardingUpdateInput,
     QueryAllOnBoardingsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { OnBoarding as OnBoardingGQL } from '@condo/domains/onboarding/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<OnBoarding, OnBoardingCreateInput, OnBoardingUpdateInput, QueryAllOnBoardingsArgs>(OnBoardingGQL)
+} = generateReactHooks<OnBoarding, OnBoardingCreateInput, OnBoardingUpdateInput, QueryAllOnBoardingsArgs>(OnBoardingGQL)
 
 export {
     useObject,

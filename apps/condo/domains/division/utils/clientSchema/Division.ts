@@ -9,7 +9,7 @@ import {
     DivisionUpdateInput,
     QueryAllDivisionsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { Division as DivisionGQL } from '@condo/domains/division/gql'
 
 export interface IDivisionFormState {
@@ -65,7 +65,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<Division, DivisionCreateInput, DivisionUpdateInput, QueryAllDivisionsArgs>(DivisionGQL)
+} = generateReactHooks<Division, DivisionCreateInput, DivisionUpdateInput, QueryAllDivisionsArgs>(DivisionGQL)
 
 export {
     useObject,

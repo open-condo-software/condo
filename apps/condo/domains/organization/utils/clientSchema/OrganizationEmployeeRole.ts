@@ -7,7 +7,7 @@ import {
     OrganizationEmployeeRoleUpdateInput,
     QueryAllOrganizationEmployeeRolesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { OrganizationEmployeeRole as OrganizationEmployeeRoleGQL } from '@condo/domains/organization/gql'
 
 export interface IOrganizationEmployeeRoleSelectState {
@@ -30,7 +30,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<OrganizationEmployeeRole, OrganizationEmployeeRoleCreateInput, OrganizationEmployeeRoleUpdateInput, QueryAllOrganizationEmployeeRolesArgs>(OrganizationEmployeeRoleGQL)
+} = generateReactHooks<OrganizationEmployeeRole, OrganizationEmployeeRoleCreateInput, OrganizationEmployeeRoleUpdateInput, QueryAllOrganizationEmployeeRolesArgs>(OrganizationEmployeeRoleGQL)
 
 export {
     useObject,

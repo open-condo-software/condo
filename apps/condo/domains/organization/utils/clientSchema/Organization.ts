@@ -8,7 +8,7 @@ import {
     OrganizationUpdateInput,
     QueryAllOrganizationsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { Organization as OrganizationGQL } from '@condo/domains/organization/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<Organization, OrganizationCreateInput, OrganizationUpdateInput, QueryAllOrganizationsArgs>(OrganizationGQL)
+} = generateReactHooks<Organization, OrganizationCreateInput, OrganizationUpdateInput, QueryAllOrganizationsArgs>(OrganizationGQL)
 
 export {
     useObject,

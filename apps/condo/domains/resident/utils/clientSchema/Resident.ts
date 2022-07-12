@@ -8,7 +8,7 @@ import {
     ResidentUpdateInput,
     QueryAllResidentsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { Resident as ResidentGQL } from '@condo/domains/resident/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<Resident, ResidentCreateInput, ResidentUpdateInput, QueryAllResidentsArgs>(ResidentGQL)
+} = generateReactHooks<Resident, ResidentCreateInput, ResidentUpdateInput, QueryAllResidentsArgs>(ResidentGQL)
 
 export {
     useObject,

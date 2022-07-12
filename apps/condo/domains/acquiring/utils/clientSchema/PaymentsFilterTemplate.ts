@@ -8,7 +8,7 @@ import {
     PaymentsFilterTemplateUpdateInput,
     QueryAllPaymentsFilterTemplatesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { PaymentsFilterTemplate as PaymentsFilterTemplateGQL } from '@condo/domains/acquiring/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<PaymentsFilterTemplate, PaymentsFilterTemplateCreateInput, PaymentsFilterTemplateUpdateInput, QueryAllPaymentsFilterTemplatesArgs>(PaymentsFilterTemplateGQL)
+} = generateReactHooks<PaymentsFilterTemplate, PaymentsFilterTemplateCreateInput, PaymentsFilterTemplateUpdateInput, QueryAllPaymentsFilterTemplatesArgs>(PaymentsFilterTemplateGQL)
 
 export {
     useObject,

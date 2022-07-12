@@ -8,7 +8,7 @@ import {
     DeviceUpdateInput,
     QueryAllDevicesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { Device as DeviceGQL } from '@condo/domains/notification/gql'
 
 const {
@@ -17,7 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateNewReactHooks<Device, DeviceCreateInput, DeviceUpdateInput, QueryAllDevicesArgs>(DeviceGQL)
+} = generateReactHooks<Device, DeviceCreateInput, DeviceUpdateInput, QueryAllDevicesArgs>(DeviceGQL)
 
 export {
     useObject,
