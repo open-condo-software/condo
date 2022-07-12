@@ -58,7 +58,7 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
     const { user } = useAuth()
     const userId = get(user, 'id', null)
 
-    const { loading, error, objs: divisions, refetch } = Division.useNewObjects({
+    const { loading, error, objs: divisions, refetch } = Division.useObjects({
         where: {
             organization: { id: organizationId },
             properties_some: {
@@ -69,7 +69,7 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
         fetchPolicy: 'network-only',
     })
 
-    const { obj: employee } = OrganizationEmployee.useNewObject({
+    const { obj: employee } = OrganizationEmployee.useObject({
         where: {
             organization: { id: organizationId },
             user: { id: userId },

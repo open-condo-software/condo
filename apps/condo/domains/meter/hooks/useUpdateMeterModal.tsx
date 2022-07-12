@@ -32,7 +32,7 @@ export const useUpdateMeterModal = (refetch) => {
     const [selectedMeter, setSelectedMeter] = useState<MeterType>()
     const meterNumber = get(selectedMeter, 'number')
 
-    const updateMeterAction = Meter.useNewUpdate({}, () => {
+    const updateMeterAction = Meter.useUpdate({}, () => {
         setSelectedMeter(null)
         refetch()
     })

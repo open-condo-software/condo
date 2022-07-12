@@ -59,7 +59,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { loading, error, refetch, objs: properties, count: total } = Property.useNewObjects({
+    const { loading, error, refetch, objs: properties, count: total } = Property.useObjects({
         sortBy,
         where: { ...searchPropertiesQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,

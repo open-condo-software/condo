@@ -88,7 +88,7 @@ export const PropertyPageContent = ({ property, role }) => {
     const UnknownValueTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
 
     const { push } = useRouter()
-    const softDeleteAction = Property.useNewSoftDelete( () => push('/property/'))
+    const softDeleteAction = Property.useSoftDelete( () => push('/property/'))
     const yearOfConstructionCardLabel = property.yearOfConstruction
         ? dayjs(property.yearOfConstruction).format('YYYY')
         : UnknownValueTitle
@@ -189,7 +189,7 @@ const PropertyIdPage: IPropertyIdPage = () => {
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const { query: { id } } = useRouter()
-    const { loading, obj: property, error } = Property.useNewObject({ where: { id: id as string } })
+    const { loading, obj: property, error } = Property.useObject({ where: { id: id as string } })
     const { link } = useOrganization()
 
     if (error || loading) {

@@ -165,7 +165,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
         count,
         objs,
         error,
-    } = Payment.useNewObjects({
+    } = Payment.useObjects({
         where: searchPaymentsQuery,
         sortBy: sortBy as SortPaymentsBy[],
         first: DEFAULT_PAGE_SIZE,

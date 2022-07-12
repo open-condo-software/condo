@@ -141,7 +141,7 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
     const {
         loading,
         objs: tickets,
-    } = Ticket.useNewObjects(generateQueryVariables(contactId), {
+    } = Ticket.useObjects(generateQueryVariables(contactId), {
         fetchPolicy: 'cache-first',
     })
     const addresses = useMemo(() => {

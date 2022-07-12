@@ -266,7 +266,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         propertyWhereQuery['id_in'] = [selectedPropertyId]
     }
 
-    const { loading: organizationPropertiesLoading, objs: organizationProperties, refetch } = Property.useNewObjects({
+    const { loading: organizationPropertiesLoading, objs: organizationProperties, refetch } = Property.useObjects({
         where: propertyWhereQuery,
         first: 1,
         skip: 0,

@@ -266,7 +266,7 @@ export const EmployeeInfoPage = () => {
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
     const employeeId = get(query, 'id', '')
-    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useNewObject(
+    const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
         {
             where: {
                 id: String(employeeId),
@@ -274,8 +274,8 @@ export const EmployeeInfoPage = () => {
         }
     )
 
-    const updateEmployeeAction = OrganizationEmployee.useNewUpdate({}, () => refetch())
-    const softDeleteAction = OrganizationEmployee.useNewSoftDelete(() => Router.push('/employee/'))
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
+    const softDeleteAction = OrganizationEmployee.useSoftDelete(() => Router.push('/employee/'))
 
     const isEmployeeEditable = canManageEmployee(link, employee)
     const isEmployeeReinvitable = canReinviteEmployee(link, employee)

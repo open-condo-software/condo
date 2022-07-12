@@ -102,13 +102,13 @@ const PdfView = () => {
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
 
-    const { loading: ticketIsLoading, obj: ticket, error } = Ticket.useNewObject({ where: { id:id } })
+    const { loading: ticketIsLoading, obj: ticket, error } = Ticket.useObject({ where: { id:id } })
 
     const ticketOrganizationId = get(ticket, ['organization', 'id'], null)
     const ticketExecutorUserId = get(ticket, ['executor', 'id'], null)
     const ticketAssigneeUserId = get(ticket, ['assignee', 'id'], null)
 
-    const { loading: executorIsLoading, obj: executor } = OrganizationEmployee.useNewObject({
+    const { loading: executorIsLoading, obj: executor } = OrganizationEmployee.useObject({
         where: {
             organization: {
                 id: ticketOrganizationId,
@@ -119,7 +119,7 @@ const PdfView = () => {
         },
     })
 
-    const { loading: assigneeIsLoading, obj: assignee } = OrganizationEmployee.useNewObject({
+    const { loading: assigneeIsLoading, obj: assignee } = OrganizationEmployee.useObject({
         where: {
             organization: {
                 id: ticketOrganizationId,

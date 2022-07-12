@@ -8,21 +8,21 @@ import {
     ContactUpdateInput,
     QueryAllContactsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { Contact as ContactGQL } from '@condo/domains/contact/gql'
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<Contact, ContactCreateInput, ContactUpdateInput, QueryAllContactsArgs>(ContactGQL)
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 }

@@ -14,8 +14,8 @@ export const UpdateTicketPropertyHintForm = ({ id }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const { obj: ticketPropertyHint, loading } = TicketPropertyHint.useNewObject({ where: { id } })
-    const action = TicketPropertyHint.useNewUpdate({})
+    const { obj: ticketPropertyHint, loading } = TicketPropertyHint.useObject({ where: { id } })
+    const action = TicketPropertyHint.useUpdate({})
     const updateAction = (value) => {
         if (value.organization) {
             value.organization = { connect: { id: value.organization } }

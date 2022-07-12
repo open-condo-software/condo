@@ -38,14 +38,14 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
     const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.ticketPropertyHint' })
     const ExtraTitleMessage = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
 
-    const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useNewObject({
+    const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useObject({
         where: {
             property: { id: propertyId },
         },
     })
     const ticketPropertyHintId = useMemo(() => get(ticketPropertyHintProperty, ['ticketPropertyHint', 'id'], null), [ticketPropertyHintProperty])
 
-    const { obj: ticketPropertyHint } = TicketPropertyHint.useNewObject({
+    const { obj: ticketPropertyHint } = TicketPropertyHint.useObject({
         where: {
             id: ticketPropertyHintId,
         },

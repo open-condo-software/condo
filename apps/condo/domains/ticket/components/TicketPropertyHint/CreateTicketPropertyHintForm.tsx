@@ -16,7 +16,7 @@ export const CreateTicketPropertyHintForm = () => {
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
     const { organization } = useOrganization()
-    const action = TicketPropertyHint.useNewCreate({ organization: { connect: { id: organization.id } } })
+    const action = TicketPropertyHint.useCreate({ organization: { connect: { id: organization.id } } })
 
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
 

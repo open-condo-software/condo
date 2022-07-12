@@ -54,7 +54,7 @@ export const DivisionPageContent = ({ division, loading, columns, role }: Divisi
     const handleCompleteSoftDelete = () => {
         router.push('/property/')
     }
-    const softDeleteAction = Division.useNewSoftDelete(handleCompleteSoftDelete)
+    const softDeleteAction = Division.useSoftDelete(handleCompleteSoftDelete)
 
     // Transform executors array to make `name` attribute required. This fixes following error:
     // TS2322: Type 'OrganizationEmployee[]' is not assignable to type 'readonly { id: any; name: any; }[]'.
@@ -167,7 +167,7 @@ function DivisionPage () {
     const router = useRouter()
     const { query: { id } } = router
 
-    const { loading, obj: division, error } = Division.useNewObject({
+    const { loading, obj: division, error } = Division.useObject({
         where: {
             id: typeof id === 'string' ? id : null,
         },

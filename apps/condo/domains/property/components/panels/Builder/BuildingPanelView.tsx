@@ -69,7 +69,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
     const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
 
     const { query: { id } } = useRouter()
-    const { obj: property } = Property.useNewObject({ where: { id: id as string } })
+    const { obj: property } = Property.useObject({ where: { id: id as string } })
 
     const [isFullscreen, setFullscreen] = useState(false)
 

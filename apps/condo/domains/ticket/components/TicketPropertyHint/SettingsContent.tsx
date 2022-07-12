@@ -67,7 +67,7 @@ export const SettingsContent = () => {
         deletedAt: null,
     }), [filters, filtersTicketPropertyHintPropertyToWhere, userOrganizationId])
 
-    const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useNewObjects({
+    const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({
         where: searchTicketPropertyHintPropertiesQuery,
     })
 
@@ -99,7 +99,7 @@ export const SettingsContent = () => {
         loading: isTicketPropertyHintsFetching,
         count: total,
         objs: ticketPropertyHints,
-    } = TicketPropertyHint.useNewObjects({
+    } = TicketPropertyHint.useObjects({
         sortBy,
         where: searchTicketPropertyHintsQuery,
         first: DEFAULT_PAGE_SIZE,

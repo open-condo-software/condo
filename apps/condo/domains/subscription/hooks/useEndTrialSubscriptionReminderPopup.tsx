@@ -47,7 +47,7 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
     const endTrialSubscriptionReminderPopupConfirmedInfo = cookieEndTrialSubscriptionReminderPopupConfirmedInfo ?
         JSON.parse(cookieEndTrialSubscriptionReminderPopupConfirmedInfo) : []
 
-    const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useNewObjects({
+    const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
         where: {
             organization: { id: organizationId },
             type: ServiceSubscriptionTypeType.Sbbol,

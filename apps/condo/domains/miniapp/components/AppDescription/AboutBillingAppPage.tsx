@@ -29,21 +29,21 @@ export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) 
 
     const router = useRouter()
 
-    const { obj: integration, loading: integrationLoading, error: integrationError } = BillingIntegration.useNewObject({
+    const { obj: integration, loading: integrationLoading, error: integrationError } = BillingIntegration.useObject({
         where: { id },
     })
 
-    const { objs: billingContexts, loading: billingContextsLoading, error: billingContextsError } = BillingIntegrationOrganizationContext.useNewObjects({
+    const { objs: billingContexts, loading: billingContextsLoading, error: billingContextsError } = BillingIntegrationOrganizationContext.useObjects({
         where: { organization: { id: organizationId } },
     })
 
-    const { objs: acquiringContexts, loading: acquiringContextsLoading, error: acquiringContextsError } = AcquiringIntegrationContext.useNewObjects({
+    const { objs: acquiringContexts, loading: acquiringContextsLoading, error: acquiringContextsError } = AcquiringIntegrationContext.useObjects({
         where: { organization: { id: organizationId } },
     })
 
     const redirectUrl = `/miniapps/${id}?type=${BILLING_APP_TYPE}`
 
-    const initialAction = BillingIntegrationOrganizationContext.useNewCreate({
+    const initialAction = BillingIntegrationOrganizationContext.useCreate({
         settings: { dv: 1 },
         state: { dv: 1 },
     }, () => {

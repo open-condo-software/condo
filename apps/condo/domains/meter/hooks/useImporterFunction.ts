@@ -112,9 +112,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const meterCreateAction = Meter.useNewCreate({})
+    const meterCreateAction = Meter.useCreate({})
 
-    const meterReadingCreateAction = MeterReading.useNewCreate({})
+    const meterReadingCreateAction = MeterReading.useCreate({})
 
     const columns: Columns = useMemo(() => ([
         { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },

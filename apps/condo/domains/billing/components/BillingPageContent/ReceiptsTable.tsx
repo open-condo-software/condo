@@ -60,7 +60,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         count: total,
         objs: receipts,
         error,
-    } = BillingReceipt.useNewObjects({
+    } = BillingReceipt.useObjects({
         where: { ...filtersToWhere(filters), context: { id: context.id } },
         sortBy: sortersToSortBy(sorters) as SortBillingReceiptsBy[],
         first: DEFAULT_PAGE_SIZE,

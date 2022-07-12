@@ -26,11 +26,11 @@ export const IndexB2BAppPage: React.FC<IndexB2BAppPageProps> = ({ id }) => {
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
 
-    const { obj: app, loading: appLoading, error: appError } = B2BApp.useNewObject({
+    const { obj: app, loading: appLoading, error: appError } = B2BApp.useObject({
         where: { id },
     })
 
-    const { obj: context, loading: contextLoading, error: contextError } = B2BAppContext.useNewObject({
+    const { obj: context, loading: contextLoading, error: contextError } = B2BAppContext.useObject({
         where: {
             organization: { id: organizationId },
             app: { id },

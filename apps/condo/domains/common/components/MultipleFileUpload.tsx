@@ -21,9 +21,9 @@ type UploadListFile = UploadFile & {
 }
 
 export type Module = {
-    useNewCreate: (attrs, onComplete) => (attrs) => Promise<DBFile>
-    useNewUpdate: (attrs, onComplete) => (update, attrs) => Promise<DBFile>
-    useNewSoftDelete: (attrs, onComplete) => (state, attrs) => Promise<unknown>
+    useCreate: (attrs, onComplete) => (attrs) => Promise<DBFile>
+    useUpdate: (attrs, onComplete) => (update, attrs) => Promise<DBFile>
+    useSoftDelete: (attrs, onComplete) => (state, attrs) => Promise<unknown>
 }
 
 const reducer = (state, action) => {
@@ -115,8 +115,8 @@ export const useMultipleFileUploadHook = ({
         modifiedFilesRef.current = modifiedFiles
     }, [modifiedFiles])
 
-    const updateAction = Model.useNewUpdate({}, () => Promise.resolve())
-    const deleteAction = Model.useNewSoftDelete({}, () => Promise.resolve())
+    const updateAction = Model.useUpdate({}, () => Promise.resolve())
+    const deleteAction = Model.useSoftDelete({}, () => Promise.resolve())
 
     useEffect(() => {
         setFilesCount(initialFileList.length)
@@ -193,7 +193,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         setListFiles(convertedFiles)
     }, [fileList])
 
-    const createAction = Model.useNewCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file))
+    const createAction = Model.useCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file))
 
     useEffect(() => {
         if (listFiles.length === 0) {

@@ -42,7 +42,7 @@ export const UserProfileForm = () => {
     const ChangePasswordLabel = intl.formatMessage({ id: 'profile.ChangePassword' })
 
     const { user } = useAuth()
-    const updateUserAction = User.useNewUpdate({}, () => router.push('/user/'))
+    const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
     const formAction = (formValues) => updateUserAction(formValues, user)
     const { isSmall } = useLayoutContext()
 

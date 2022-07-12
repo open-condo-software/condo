@@ -11,7 +11,7 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
     const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
 
     const [isCreateMeterModalVisible, setIsCreateMeterModalVisible] = useState<boolean>(false)
-    const createMeterAction = Meter.useNewCreate({}, refetch)
+    const createMeterAction = Meter.useCreate({}, refetch)
 
     const handleMeterCreate = useCallback(values => {
         const numberOfTariffs = values.numberOfTariffs || 1

@@ -80,7 +80,7 @@ export const CreateTicketForm: React.FC = () => {
     const client = useApolloClient()
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
 
-    const action = Ticket.useNewCreate(
+    const action = Ticket.useCreate(
         {
             status: { connect: { id: OPEN_STATUS } },
             source: { connect: { id: DEFAULT_TICKET_SOURCE_CALL_ID } },

@@ -8,21 +8,21 @@ import {
     OnBoardingStepUpdateInput,
     QueryAllOnBoardingStepsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { OnBoardingStep as OnBoardingStepGQL } from '@condo/domains/onboarding/gql'
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<OnBoardingStep, OnBoardingStepCreateInput, OnBoardingStepUpdateInput, QueryAllOnBoardingStepsArgs>(OnBoardingStepGQL)
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 }

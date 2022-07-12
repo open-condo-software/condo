@@ -8,21 +8,21 @@ import {
     ConfirmPhoneActionUpdateInput,
     QueryAllConfirmPhoneActionsArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { ConfirmPhoneAction as ConfirmPhoneActionGQL } from '@condo/domains/user/gql'
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<ConfirmPhoneAction, ConfirmPhoneActionCreateInput, ConfirmPhoneActionUpdateInput, QueryAllConfirmPhoneActionsArgs>(ConfirmPhoneActionGQL)
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 }

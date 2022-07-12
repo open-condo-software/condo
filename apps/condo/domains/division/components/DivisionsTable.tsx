@@ -52,7 +52,7 @@ export default function DivisionTable (props: BuildingTableProps) {
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { loading, error, objs: divisions, count: total } = Division.useNewObjects({
+    const { loading, error, objs: divisions, count: total } = Division.useObjects({
         sortBy: sortBy as SortDivisionsBy[],
         where: { ...searchDivisionsQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,

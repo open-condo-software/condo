@@ -24,8 +24,8 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
     const { push } = useRouter()
     const { organization } = useOrganization()
 
-    const { refetch, obj: property, loading, error } = Property.useNewObject({ where: { id } })
-    const action = Property.useNewUpdate({}, () => push(`/property/${id}`))
+    const { refetch, obj: property, loading, error } = Property.useObject({ where: { id } })
+    const action = Property.useUpdate({}, () => push(`/property/${id}`))
     const createAction = (value) => action(value, property)
 
     const initialValues = Property.convertToFormState(property)

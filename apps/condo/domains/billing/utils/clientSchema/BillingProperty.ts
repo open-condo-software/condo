@@ -8,22 +8,22 @@ import {
     BillingPropertyUpdateInput,
     QueryAllBillingPropertiesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { BillingProperty as BillingPropertyGQL } from '@condo/domains/billing/gql'
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<BillingProperty, BillingPropertyCreateInput, BillingPropertyUpdateInput, QueryAllBillingPropertiesArgs>(BillingPropertyGQL)
 
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 }

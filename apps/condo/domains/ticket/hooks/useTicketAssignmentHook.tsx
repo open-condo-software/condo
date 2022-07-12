@@ -13,7 +13,7 @@ const useTicketAssignmentHook = ({
 
     const [propertyId, setPropertyId] = useState()
 
-    const { loading: loadingDivisions, error: errorLoadingDivisions, objs: divisions } = Division.useNewObjects({
+    const { loading: loadingDivisions, error: errorLoadingDivisions, objs: divisions } = Division.useObjects({
         where: {
             organization: { id: organizationId },
             // properties_some: {

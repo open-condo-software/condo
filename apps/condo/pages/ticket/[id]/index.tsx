@@ -222,7 +222,7 @@ const TicketContent = ({ ticket }) => {
         [REVIEW_VALUES.GOOD]: `${getReviewMessageByValue(REVIEW_VALUES.GOOD, intl)} 😊`,
     }), [intl])
 
-    const { objs: files } = TicketFile.useNewObjects({
+    const { objs: files } = TicketFile.useObjects({
         where: { ticket: { id: ticket ? ticket.id : null } },
     }, {
         fetchPolicy: 'network-only',
@@ -232,7 +232,7 @@ const TicketContent = ({ ticket }) => {
     const ticketExecutorUserId = get(ticket, ['executor', 'id'], null)
     const ticketAssigneeUserId = get(ticket, ['assignee', 'id'], null)
 
-    const { obj: executor } = OrganizationEmployee.useNewObject({
+    const { obj: executor } = OrganizationEmployee.useObject({
         where: {
             organization: {
                 id: ticketOrganizationId,
@@ -243,7 +243,7 @@ const TicketContent = ({ ticket }) => {
         },
     })
 
-    const { obj: assignee } = OrganizationEmployee.useNewObject({
+    const { obj: assignee } = OrganizationEmployee.useObject({
         where: {
             organization: {
                 id: ticketOrganizationId,
@@ -533,27 +533,27 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     // NOTE: cast `string | string[]` to `string`
     const { query: { id } } = router as { query: { [key: string]: string } }
 
-    const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useNewObject({
+    const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
         where: { id },
     }, {
         fetchPolicy: 'network-only',
     })
     // TODO(antonal): get rid of separate GraphQL query for TicketChanges
-    const ticketChangesResult = TicketChange.useNewObjects({
+    const ticketChangesResult = TicketChange.useObjects({
         where: { ticket: { id } },
         sortBy: [SortTicketChangesBy.CreatedAtDesc],
     }, {
         fetchPolicy: 'network-only',
     })
 
-    const { objs: comments, refetch: refetchComments } = TicketComment.useNewObjects({
+    const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
         where: { ticket: { id } },
         sortBy: [SortTicketCommentsBy.CreatedAtDesc],
     })
 
     const commentsIds = useMemo(() => map(comments, 'id'), [comments])
 
-    const { objs: ticketCommentFiles, refetch: refetchCommentFiles } = TicketCommentFile.useNewObjects({
+    const { objs: ticketCommentFiles, refetch: refetchCommentFiles } = TicketCommentFile.useObjects({
         where: { ticketComment: { id_in: commentsIds } },
         sortBy: [SortTicketCommentFilesBy.CreatedAtDesc],
     })
@@ -565,35 +565,35 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         }
     }), [comments, ticketCommentFiles])
 
-    const updateComment = TicketComment.useNewUpdate({}, () => {
+    const updateComment = TicketComment.useUpdate({}, () => {
         refetchComments()
         refetchCommentFiles()
     })
-    const deleteComment = TicketComment.useNewSoftDelete(() => refetchComments())
+    const deleteComment = TicketComment.useSoftDelete(() => refetchComments())
 
-    const createCommentAction = TicketComment.useNewCreate({
+    const createCommentAction = TicketComment.useCreate({
         ticket: { connect: { id: id } },
         user: { connect: { id: auth.user && auth.user.id } },
     })
 
-    const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketCommentsTime.useNewObject({
+    const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketCommentsTime.useObject({
         where: {
             ticket: { id: id },
         },
     })
     const {
         obj: userTicketCommentReadTime, refetch: refetchUserTicketCommentReadTime, loading: loadingUserTicketCommentReadTime,
-    } = UserTicketCommentReadTime.useNewObject({
+    } = UserTicketCommentReadTime.useObject({
         where: {
             user: { id: user.id },
             ticket: { id },
         },
     })
-    const createUserTicketCommentReadTime = UserTicketCommentReadTime.useNewCreate({
+    const createUserTicketCommentReadTime = UserTicketCommentReadTime.useCreate({
         user: { connect: {  id: user.id } },
         ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
-    const updateUserTicketCommentReadTime = UserTicketCommentReadTime.useNewUpdate({
+    const updateUserTicketCommentReadTime = UserTicketCommentReadTime.useUpdate({
         user: { connect: {  id: user.id } },
         ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())

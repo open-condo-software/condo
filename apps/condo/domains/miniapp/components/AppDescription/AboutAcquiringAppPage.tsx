@@ -25,11 +25,11 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
 
     const router = useRouter()
 
-    const { obj: integration, loading: integrationLoading, error: integrationError } = AcquiringIntegration.useNewObject({
+    const { obj: integration, loading: integrationLoading, error: integrationError } = AcquiringIntegration.useObject({
         where: { id },
     })
 
-    const { obj: context, loading: contextLoading, error: contextError } = AcquiringIntegrationContext.useNewObject({
+    const { obj: context, loading: contextLoading, error: contextError } = AcquiringIntegrationContext.useObject({
         where: {
             organization: { id: organizationId },
             integration: { id },
@@ -38,7 +38,7 @@ export const AboutAcquiringAppPage: React.FC<AboutAcquiringAppPageProps> = ({ id
 
     const redirectUrl = `/miniapps/${id}?type=${ACQUIRING_APP_TYPE}`
 
-    const initialAction = AcquiringIntegrationContext.useNewCreate({
+    const initialAction = AcquiringIntegrationContext.useCreate({
         settings: { dv: 1 },
         state: { dv: 1 },
     }, () => {

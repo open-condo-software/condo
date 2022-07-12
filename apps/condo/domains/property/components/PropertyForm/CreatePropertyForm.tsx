@@ -20,7 +20,7 @@ export const CreatePropertyForm: React.FC = () => {
     const CreatePropertyMessage = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const router = useRouter()
     const { organization } = useOrganization()
-    const action = Property.useNewCreate({
+    const action = Property.useCreate({
         organization: { connect: { id: organization.id } },
         type: DEFAULT_PROPERTY_TYPE,
     }, (property) => { router.push(`/property/${property.id}`) })

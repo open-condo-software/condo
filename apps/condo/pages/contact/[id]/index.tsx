@@ -168,7 +168,7 @@ const ContactInfoPage = () => {
         obj: contact,
         loading,
         error,
-    } = Contact.useNewObject({
+    } = Contact.useObject({
         where: {
             id: String(contactId),
             organization: {
@@ -177,7 +177,7 @@ const ContactInfoPage = () => {
         },
     })
 
-    const handleDeleteAction = Contact.useNewSoftDelete(() => push('/contact/'))
+    const handleDeleteAction = Contact.useSoftDelete(() => push('/contact/'))
 
     if (error || loading) {
         return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>

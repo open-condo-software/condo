@@ -66,10 +66,10 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const { objs: sources } = MeterReadingSource.useNewObjects({})
+    const { objs: sources } = MeterReadingSource.useObjects({})
     const sourcesOptions = convertToOptions<MeterReadingSourceType>(sources, 'name', 'id')
 
-    const { objs: resources, loading: resourcesLoading } = MeterResource.useNewObjects({})
+    const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
     const resourcesOptions = convertToOptions<MeterResourceType>(resources, 'name', 'id')
 
     return useMemo(() => {

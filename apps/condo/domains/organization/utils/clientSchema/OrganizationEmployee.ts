@@ -10,7 +10,7 @@ import {
     OrganizationEmployeeUpdateInput,
     QueryAllOrganizationEmployeesArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { OrganizationEmployee as OrganizationEmployeeGQL } from '@condo/domains/organization/gql'
 
 function convertGQLItemToFormSelectState (item: OrganizationEmployee): { value: string, label: string } | undefined {
@@ -40,19 +40,19 @@ function formValuesProcessor (formValues): OrganizationEmployeeCreateInput | Org
 }
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<OrganizationEmployee, OrganizationEmployeeCreateInput, OrganizationEmployeeUpdateInput, QueryAllOrganizationEmployeesArgs>(OrganizationEmployeeGQL)
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
     convertGQLItemToFormSelectState,
     formValuesProcessor,
 }

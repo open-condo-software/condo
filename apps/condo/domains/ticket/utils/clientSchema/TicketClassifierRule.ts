@@ -9,23 +9,23 @@ import {
     QueryAllTicketClassifierRulesArgs,
     TicketClassifierRuleWhereInput,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { TicketClassifierRule as TicketClassifierRuleGQL } from '@condo/domains/ticket/gql'
 
 export type ITicketClassifierRuleWhereInput = Pick<TicketClassifierRuleWhereInput, 'organization' | 'organization_is_null' | 'id' | 'place' | 'category' | 'problem'>
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<TicketClassifierRule, TicketClassifierRuleCreateInput, TicketClassifierRuleUpdateInput, QueryAllTicketClassifierRulesArgs>(TicketClassifierRuleGQL)
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 }

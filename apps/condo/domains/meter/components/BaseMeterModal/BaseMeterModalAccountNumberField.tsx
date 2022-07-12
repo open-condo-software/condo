@@ -77,7 +77,7 @@ const AccountNumberSelect = ({ accountNumbers, rules }) => {
 }
 
 const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName, rules }) => {
-    const { objs: meters } = Meter.useNewObjects({
+    const { objs: meters } = Meter.useObjects({
         where: {
             property: { id: propertyId },
             unitName,

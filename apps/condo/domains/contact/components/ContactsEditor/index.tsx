@@ -134,7 +134,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         loading: contactsLoading,
         error,
         refetch: refetchContacts,
-    } = Contact.useNewObjects({
+    } = Contact.useObjects({
         where: initialContactsQuery,
         first: 100,
     })
@@ -142,7 +142,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const {
         objs: fetchedEmployees,
         refetch: refetchEmployees,
-    } = OrganizationEmployee.useNewObjects({
+    } = OrganizationEmployee.useObjects({
         where: initialEmployeesQuery,
         first: 100,
     })

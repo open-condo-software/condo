@@ -8,21 +8,21 @@ import {
     TicketCategoryClassifierUpdateInput,
     QueryAllTicketCategoryClassifiersArgs,
 } from '@app/condo/schema'
-import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/new.generate.hooks'
+import { generateNewReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { TicketCategoryClassifier as TicketCategoryClassifierGQL } from '@condo/domains/ticket/gql'
 
 const {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 } = generateNewReactHooks<TicketCategoryClassifier, TicketCategoryClassifierCreateInput, TicketCategoryClassifierUpdateInput, QueryAllTicketCategoryClassifiersArgs>(TicketCategoryClassifierGQL)
 
 export {
-    useNewObject,
-    useNewObjects,
-    useNewCreate,
-    useNewUpdate,
-    useNewSoftDelete,
+    useObject,
+    useObjects,
+    useCreate,
+    useUpdate,
+    useSoftDelete,
 }
