@@ -66,7 +66,7 @@ export const ContactsPageContent = ({
     } = Contact.useObjects({
         sortBy,
         where: searchContactsQuery,
-        // skip: (offsetFromQuery * CONTACT_PAGE_SIZE) - CONTACT_PAGE_SIZE,
+        skip: (offsetFromQuery * CONTACT_PAGE_SIZE) - CONTACT_PAGE_SIZE,
         first: CONTACT_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
