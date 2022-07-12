@@ -19,7 +19,6 @@ const { BillingIntegrationOrganizationContext, BillingProperty, BillingReceipt, 
 const { BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
-const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_RESIDENTS_NO_ACCOUNT_NOTIFICATION_CREATED_AT'
