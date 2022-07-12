@@ -63,3 +63,7 @@ jobs:
       - name: test app/miniapp
         run: |
           yarn workspace @app/miniapp build
+
+      - name: test app/property_importer
+        run: |
+          yarn workspace @app/property_importer build
