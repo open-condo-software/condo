@@ -46,14 +46,13 @@ const TicketPropertyHintIdPage = () => {
     const canManageTicketPropertyHints = useMemo(() => get(link, ['role', 'canManageTicketPropertyHints']), [link])
 
     const hintId = get(router, ['query', 'id'], null)
-    const { loading, obj: ticketPropertyHint } = TicketPropertyHint.useObject({
+    const { loading, obj: ticketPropertyHint } = TicketPropertyHint.useNewObject({
         where: { id: hintId },
     })
 
-    const handleDeleteAction = TicketPropertyHint.useSoftDelete({},
-        () => router.push('/settings?tab=hint'))
+    const handleDeleteAction = TicketPropertyHint.useNewSoftDelete(() => router.push('/settings?tab=hint'))
 
-    const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({
+    const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useNewObjects({
         where: {
             ticketPropertyHint: { id: hintId },
         },
@@ -75,7 +74,7 @@ const TicketPropertyHintIdPage = () => {
     )), [properties])
 
     const handleDeleteButtonClick = useCallback(async () => {
-        await handleDeleteAction({}, ticketPropertyHint)
+        await handleDeleteAction(ticketPropertyHint)
     }, [handleDeleteAction, ticketPropertyHint])
 
     const ticketPropertyHintContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])

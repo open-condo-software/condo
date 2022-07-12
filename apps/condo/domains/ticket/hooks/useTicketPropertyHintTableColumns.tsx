@@ -10,13 +10,13 @@ import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
 import { getTicketPropertyHintAddressesRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
-import { ITicketPropertyHintUIState } from '@condo/domains/ticket//utils/clientSchema/TicketPropertyHint'
-import { TicketPropertyHintProperty } from '@condo/domains/ticket//utils/clientSchema'
+import { TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketPropertyHint } from '@app/condo/schema'
 import { useTicketPropertyHintContent } from './useTicketPropertyHintContent'
 
 const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
 
-export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketPropertyHints: ITicketPropertyHintUIState[]) {
+export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketPropertyHints: TicketPropertyHint[]) {
     const intl = useIntl()
     const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
@@ -29,7 +29,7 @@ export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<Filter
     const render = useMemo(() => getTableCellRenderer(search), [search])
 
     const ticketPropertyHintIds = useMemo(() => map(ticketPropertyHints, 'id'), [ticketPropertyHints])
-    const { objs: ticketPropertyHintsProperties } = TicketPropertyHintProperty.useObjects({
+    const { objs: ticketPropertyHintsProperties } = TicketPropertyHintProperty.useNewObjects({
         where: {
             ticketPropertyHint: {
                 id_in: ticketPropertyHintIds,

@@ -14,9 +14,14 @@ export const UpdateTicketPropertyHintForm = ({ id }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const { obj: ticketPropertyHint, loading } = TicketPropertyHint.useObject({ where: { id } })
-    const action = TicketPropertyHint.useUpdate({}, () => Promise.resolve())
-    const updateAction = (value) => action(value, ticketPropertyHint)
+    const { obj: ticketPropertyHint, loading } = TicketPropertyHint.useNewObject({ where: { id } })
+    const action = TicketPropertyHint.useNewUpdate({})
+    const updateAction = (value) => {
+        if (value.organization) {
+            value.organization = { connect: { id: value.organization } }
+        }
+        action(value, ticketPropertyHint)
+    }
     const organizationId = useMemo(() => get(ticketPropertyHint, ['organization', 'id']), [ticketPropertyHint])
 
     if (loading) {
@@ -29,7 +34,10 @@ export const UpdateTicketPropertyHintForm = ({ id }) => {
         <BaseTicketPropertyHintForm
             action={updateAction}
             organizationId={organizationId}
-            initialValues={TicketPropertyHint.convertToUIFormState(ticketPropertyHint)}
+            initialValues={{
+                ...ticketPropertyHint,
+                organization: get(TicketPropertyHint, ['organization', 'id']),
+            }}
             mode={'update'}
         >
             {({ handleSave, isLoading }) => (

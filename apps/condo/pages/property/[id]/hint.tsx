@@ -11,7 +11,7 @@ import { Col, Row, Typography } from 'antd'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { useObject } from '@condo/domains/property/utils/clientSchema/Property'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { useTicketPropertyHintContent } from '@condo/domains/ticket/hooks/useTicketPropertyHintContent'
 
@@ -26,8 +26,8 @@ const PropertyHintPage = () => {
     const router = useRouter()
     const propertyId = get(router, ['query', 'id'], null)
 
-    const { loading: propertyLoading, obj: property, error } = useObject({ where: { id: propertyId } })
-    const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useObject({
+    const { loading: propertyLoading, obj: property, error } = Property.useNewObject({ where: { id: propertyId } })
+    const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useNewObject({
         where: {
             property: { id: propertyId },
             deletedAt: null,
@@ -35,7 +35,7 @@ const PropertyHintPage = () => {
     })
     const ticketPropertyHintId = useMemo(() => get(ticketPropertyHintProperty, ['ticketPropertyHint', 'id'], null), [ticketPropertyHintProperty])
 
-    const { obj: ticketPropertyHint, loading: ticketPropertyHintLoading } = TicketPropertyHint.useObject({
+    const { obj: ticketPropertyHint, loading: ticketPropertyHintLoading } = TicketPropertyHint.useNewObject({
         where: {
             id: ticketPropertyHintId,
         },
