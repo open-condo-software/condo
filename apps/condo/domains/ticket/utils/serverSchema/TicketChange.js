@@ -68,20 +68,18 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
         const item = await getById('User', itemId)
         return get(item, 'name')
     },
-    'placeClassifier': async (itemId) => {
+    'classifierRule': async (itemId) => {
         if (!itemId) return null
-        const item = await getById('TicketPlaceClassifier', itemId)
-        return get(item, 'name')
-    },
-    'categoryClassifier': async (itemId) => {
-        if (!itemId) return null
-        const item = await getById('TicketCategoryClassifier', itemId)
-        return get(item, 'name')
-    },
-    'problemClassifier': async (itemId) => {
-        if (!itemId) return null
-        const item = await getById('TicketProblemClassifier', itemId)
-        return get(item, 'name')
+        const classifierRuleGetById = await getById('TicketClassifierRule', itemId)
+        const placeClassifier = await getById('TicketPlaceClassifier', classifierRuleGetById.place)
+        const categoryClassifier = await getById('TicketCategoryClassifier', classifierRuleGetById.category)
+        let problemClassifier = null
+        if (get(classifierRuleGetById, 'problem')) {
+            problemClassifier = await getById('TicketProblemClassifier', classifierRuleGetById.problem)
+        }
+        const classifiersMergedString = 
+        `${placeClassifier.name} → ${categoryClassifier.name}${problemClassifier ? ` →${problemClassifier.name}` : ''}`
+        return classifiersMergedString
     },
     'source': async (itemId) => {
         if (!itemId) return null
