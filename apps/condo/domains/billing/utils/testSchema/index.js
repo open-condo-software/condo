@@ -678,6 +678,7 @@ async function registerBillingReceiptsByTestClient(client, args) {
         ...args,
     }
     const { data, errors } = await client.mutate(REGISTER_BILLING_RECEIPTS_MUTATION, { data: attrs })
+
     throwIfError(data, errors)
     return [data.result, attrs]
 }

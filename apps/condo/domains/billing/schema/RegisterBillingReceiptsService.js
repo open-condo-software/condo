@@ -25,53 +25,53 @@ const errors = {
 }
 
 
-const syncBillingProperties = async (context, properties, billingContextId) => {
+const syncBillingProperties = async (context, properties, { billingContextId }) => {
     const existingProperties = await find('BillingProperty', {
-        address_in: [properties.map(p => p.address)],
+        address_in: [Object.values(properties).map(p => p.address)],
         context: { id: billingContextId },
     })
-    const propertiesIndex = Object.fromEntries(
-        existingProperties.map(({ id, globalId }) => ([globalId, id])))
-    const propertiesToAdd = properties.filter(
+    const propertiesIndex = Object.fromEntries(existingProperties.map(({ id, globalId }) => ([globalId, id])))
+
+    const propertiesToAdd = Object.values(properties).filter(
         (({ globalId }) => !Reflect.has(propertiesIndex, globalId)))
+
     const newProperties = []
     for (const p of propertiesToAdd) {
-        const [newProperty] = await BillingProperty.create(context, p)
+        const newProperty = await BillingProperty.create(context, p)
         newProperties.push(newProperty)
     }
 
-    return { ...newProperties, ...propertiesIndex }
+    return { ...newProperties, ...Object.fromEntries(newProperties.map(({ id, globalId }) => ([globalId, id]))) }
 }
 
+const syncBillingAccounts = async (context, accounts, { properties, billingContextId }) => {
+    // Todo @toplenboren (DOMA-3445) Add billing account key! Add property to the key!
+    const existingAccountQuery = accounts.map(a => ({
+        number: a.number,
+        unitName: a.unitName,
+        unitType: a.unitType,
+        context: { id: billingContextId },
+    }))
+    const existingAccounts = await find('BillingAccount', {
+        OR: existingAccountQuery,
+    })
+    const accountsIndex = Object.fromEntries(existingAccounts.map(({ id, globalId }) => ([globalId, id])))
 
-const syncBillingAccounts = async (context, accounts, billingContextId) => {
-    // const existingAccounts = await this.loadByChunks({
-    //     modelGql: BillingAccountIdGql,
-    //     where: {
-    //         importId_in: accounts.map(({ importId }) => importId),
-    //         context: { id: contextId },
-    //     },
-    // })
-    // await onProgress(existingAccounts.length)
-    // const accountsIndex = Object.fromEntries(
-    //     existingAccounts.map(({ id, importId }) => ([importId, id])))
-    // const accountsToAdd = accounts.filter(
-    //     ({ importId }) => !Reflect.has(accountsIndex, importId))
-    // if (!accountsToAdd.length) {
-    //     return accountsIndex
-    // }
-    // const billingAccounts = await this.createModels({
-    //     modelGql: BillingAccountIdGql,
-    //     createInputs: accountsToAdd,
-    //     isBatch: false,
-    //     onProgress,
-    // })
-    // return {
-    //     ...accountsIndex, ...Object.fromEntries(
-    //         billingAccounts.map(({ id, importId }) => ([importId, id])))
-    // }
+    const accountsToAdd = Object.values(properties).filter(
+        (({ globalId }) => !Reflect.has(accountsIndex, globalId)))
+
+    const newAccounts = []
+    for (const a of accountsToAdd) {
+        const newAccount = await BillingAccount.create(context, a)
+        newAccounts.push(newAccount)
+    }
+
+    return { ...newAccounts, ...Object.fromEntries(newAccounts.map(({ id, globalId }) => ([globalId, id]))) }
 }
 
+const syncBillingReceipts = async (context, receipts, { accounts, properties, billingContextId } ) => {
+    console.debug('NOT YET IMPLEMENTED!')
+}
 
 const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingReceiptsService', {
     types: [
@@ -84,8 +84,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'address: String! ' +
 
                     'accountNumber: String! ' +
-                    'unitName: String! ' +
-                    'unitType: String! ' +
+                    'unitName: String! ' + // Should delete this!
+                    'unitType: String! ' + // Should delete this!
                     'fullName: String ' +
 
                     'toPay: String! ' +
@@ -96,9 +96,12 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'category: BillingCategoryWhereUniqueInput! ' +
 
                     'tin: String! ' +
-                    'iec: String! ' +
+                    'iec: String! ' + // Should delete this!
                     'bic: String! ' +
                     'bankAccount: String! ' +
+
+                    'raw: JSON ' +
+                    'meta: JSON ' +
                 '}',
         },
         {
@@ -110,9 +113,9 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
     mutations: [
         {
             access: access.canRegisterBillingReceipts,
-            schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
+            schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]!',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { context: billingContextInput, receipts } = args
+                const { data: { context: billingContextInput, receipts, dv, sender } } = args
 
                 // Step 0:
                 // Validate context
@@ -122,6 +125,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     throw new Error('No context!')
                 }
 
+                // Step 1:
+                // Get properties and accounts from input
                 const { properties, accounts } = receipts.reduce((index, receipt) => {
                     const { address, accountNumber, unitName, unitType } = receipt
 
@@ -130,6 +135,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                     if (!index.properties[propertyGlobalId]) {
                         index.properties[propertyGlobalId] = {
+                            dv: dv,
+                            sender: sender,
                             globalId: propertyGlobalId,
                             address: address,
                             raw: { dv: 1 },
@@ -140,6 +147,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     }
                     if (!index.accounts[accountGlobalId]) {
                         index.accounts[accountGlobalId] = {
+                            dv: dv,
+                            sender: sender,
                             context: { connect: { id: billingContext.id } },
                             number: accountNumber,
                             importId: accountGlobalId,
@@ -156,22 +165,19 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 2:
                 // Sync billing properties
-                const syncedProperties = await syncBillingProperties(context, properties, billingContextId)
-
-                console.debug(syncedProperties)
+                const syncedProperties = await syncBillingProperties(context, properties, { properties, billingContextId })
 
                 // Step 3:
                 // Sync Billing Accounts
-                // const syncedAccounts = await syncBillingAccounts(context, accounts, billingContextId)
+                const syncedAccounts = await syncBillingAccounts(context, accounts, { accounts, properties: syncedProperties, billingContextId })
 
                 // Step 4:
                 // Sync billing receipts
+                const syncedReceipts = await syncBillingReceipts(context, receipts, { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
 
                 // TODO: throw errors in a following way
                 // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
-                return {
-                    id: null,
-                }
+                return []
             },
         },
     ],
