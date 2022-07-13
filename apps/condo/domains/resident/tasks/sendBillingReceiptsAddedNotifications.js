@@ -4,12 +4,12 @@ const { get, isEmpty, isFunction, uniq, groupBy } = require('lodash')
 
 const conf = require('@core/config')
 const { getSchemaCtx } = require('@core/keystone/schema')
+const { getRedisClient } = require('@core/keystone/redis')
 
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { getStartDates } = require('@condo/domains/common/utils/date')
-const { RedisVar } = require('@condo/domains/common/utils/redis-var')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
@@ -149,8 +149,8 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
 const sendBillingReceiptsAddedNotifications = async (resendFromDt = null) => {
     const { prevMonthStart, thisMonthStart } = getStartDates()
-    const lastDtHandler = new RedisVar(REDIS_LAST_DATE_KEY)
-    const handleLastDtChange = async (createdAt) => { await lastDtHandler.set(createdAt) }
+    const redisClient = getRedisClient()
+    const handleLastDtChange = async (createdAt) => { await redisClient.set(REDIS_LAST_DATE_KEY, createdAt) }
 
     /**
      * This represents min value for billingReceipt createdAt to start processing from
@@ -158,7 +158,7 @@ const sendBillingReceiptsAddedNotifications = async (resendFromDt = null) => {
      * 2. Use createdAt value from last success script execution stored in Redis, else
      * 3. Use thisMonthStart
      */
-    const lastDt = resendFromDt ? resendFromDt.replace(' ', 'T') : await lastDtHandler.get() || thisMonthStart
+    const lastDt = resendFromDt ? resendFromDt.replace(' ', 'T') : await redisClient.get(REDIS_LAST_DATE_KEY) || thisMonthStart
     const receiptsWhere = {
         period_in: [prevMonthStart, thisMonthStart],
         createdAt_gt: lastDt,
