@@ -1,8 +1,6 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import Link from 'next/link'
-import { ArgsProps } from 'antd/lib/notification'
 import { get, isEmpty, isFunction } from 'lodash'
 import { useRouter } from 'next/router'
 
@@ -11,7 +9,6 @@ import {
     TicketFile as TicketFileType,
     BuildingUnitSubType,
     PropertyWhereInput,
-    BuildingUnitType,
     Organization,
     OrganizationEmployeeRole,
 } from '@app/condo/schema'
@@ -276,10 +273,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const property = useMemo(() => organizationProperties.find(property => property.id === selectedPropertyId), [organizationProperties, selectedPropertyId])
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
-    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitType>(get(initialValues, 'unitType', BuildingUnitSubType.Flat))
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialValues, 'unitType', BuildingUnitSubType.Flat))
     const [selectedSectionType, setSelectedSectionType] = useState(get(initialValues, 'sectionType'))
     const selectedUnitNameRef = useRef(selectedUnitName)
-    const selectedUnitTypeRef = useRef<BuildingUnitType>(selectedUnitType)
+    const selectedUnitTypeRef = useRef<BuildingUnitSubType>(selectedUnitType)
     const selectedSectionTypeRef = useRef(selectedSectionType)
 
     useEffect(() => {
