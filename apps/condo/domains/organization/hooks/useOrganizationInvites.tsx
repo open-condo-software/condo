@@ -2,6 +2,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { notification } from 'antd'
 import { useOrganization } from '@core/next/organization'
 import React from 'react'
+import { get } from 'lodash'
 import { FormattedMessage } from 'react-intl'
 import { useAuth } from '@core/next/auth'
 import { useIntl } from '@core/next/intl'
@@ -22,10 +23,11 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
     const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
-    const { user } = useAuth()
+    const { user, isAuthenticated } = useAuth()
+    const userId = get(user, 'id', null)
     const { selectLink } = useOrganization()
     const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
-        { where: user ? { user: { id: user.id }, isAccepted: false, isRejected: false, isBlocked: false } : {} },
+        { where: { user: { id: userId }, isAccepted: false, isRejected: false, isBlocked: false } },
     )
     const { addNotification } = useLayoutContext()
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
@@ -50,7 +52,7 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
         }
         await refetch()
     }
-    if (userInvites) {
+    if (isAuthenticated && userInvites) {
         userInvites.forEach(invite => {
             addNotification({
                 actions: [
