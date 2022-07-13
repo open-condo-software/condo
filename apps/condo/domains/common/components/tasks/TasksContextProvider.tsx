@@ -3,7 +3,7 @@ import { notification } from 'antd'
 import filter from 'lodash/filter'
 import identity from 'lodash/identity'
 import findIndex from 'lodash/findIndex'
-import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext } from './index'
+import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext, TaskRecordProgress } from './index'
 import { displayTasksProgress } from './TaskProgress'
 
 // Map of task schema name to its UI interface implementation
@@ -30,11 +30,10 @@ const buildTrackableTasksFrom = (records: TaskRecord[], uiInterfaces: TaskUIInte
             console.error('Error: No UI implementation for task record', record)
             return null
         }
-        const trackableTask = {
+        return {
             record,
             ...uiInterface,
         }
-        return trackableTask
     })
     return filter(trackableTasks, identity)
 }
@@ -49,7 +48,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTas
     // will not be reinitialized
     const initialTasks = buildTrackableTasksFrom(initialTaskRecords, uiInterfaces)
     const [tasks, setTasks] = useState<ITaskTrackableItem[]>(initialTasks)
-    const [latestUpdatedTask, setLatestUpdatedTask] = useState()
+    const [latestUpdatedTask, setLatestUpdatedTask] = useState<TaskRecordProgress>()
 
     /**
      * To make notifications work with all context providers of our MyApp component,
@@ -71,7 +70,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTas
         }
     }, [tasks.length, initialTasks.length, latestUpdatedTask])
 
-    function findExistingTaskBy (id) {
+    function findExistingTaskById (id: string): [ITaskTrackableItem | null, number] {
         const index = findIndex(tasks, { record: { id } })
         if (index === -1) {
             return [null, -1]
@@ -82,7 +81,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTas
     const tasksContextInterface: ITasksContext = {
         addTask: (newTask) => {
             // TODO(antonal): validate newTask object shape
-            const [existingTask] = findExistingTaskBy(newTask.record.id)
+            const [existingTask] = findExistingTaskById(newTask.record.id)
             if (existingTask) {
                 console.error('Task record has already been added for tracking', newTask.record)
             } else {
@@ -90,30 +89,27 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTas
             }
         },
         updateTask: (record) => {
-            const [existingTask, index] = findExistingTaskBy(record.id)
+            const [existingTask, index] = findExistingTaskById(record.id)
             if (!existingTask) {
                 console.error('Task record not found to update', record)
                 return
             }
             setTasks(prevTasks => {
                 const updatedTask = {
-                    // @ts-ignore
                     ...prevTasks[index],
                     record,
                 }
                 setLatestUpdatedTask(updatedTask.record.progress)
-                const res = [
-                    // @ts-ignore
+
+                return [
                     ...prevTasks.slice(0, index),
                     updatedTask,
-                    // @ts-ignore
                     ...prevTasks.slice(index + 1),
                 ]
-                return res
             })
         },
         deleteTask: (record) => {
-            const [existingTask] = findExistingTaskBy(record.id)
+            const [existingTask] = findExistingTaskById(record.id)
             if (!existingTask) {
                 console.error('Task record not found', record)
                 return
