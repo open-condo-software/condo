@@ -191,7 +191,7 @@ export const getTicketClientNameRender = (search: FilterValue) => {
 }
 
 export const getTicketUserNameRender = (search: FilterValue) => {
-    return function render (user, ticket: ITicketUIState) {
+    return function render (user, ticket: Ticket) {
         const contact = get(user, 'contact')
         const name = contact ? get(contact, 'name') : get(user, 'clientName')
         const address = get(ticket, ['property', 'address'])
