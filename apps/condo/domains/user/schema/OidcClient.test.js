@@ -162,7 +162,7 @@ describe('OidcClient', () => {
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await OidcClient.delete(client, objCreated.id)
+                    await OidcClient.softDelete(client, objCreated.id)
                 })
             })
 
