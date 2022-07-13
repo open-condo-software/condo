@@ -61,6 +61,7 @@ abstract class TrackerInstance {
      */
     logEvent ({ eventName, eventProperties, userProperties, denyDuplicates = false }: ITrackerLogEventType): boolean {
         const isNeedToSendEvent = this.isNeedToSendEvent({ eventName, eventProperties, denyDuplicates })
+
         if (isNeedToSendEvent) {
             this.logInstanceEvent({ eventName, eventProperties, userProperties, denyDuplicates })
         }
@@ -105,15 +106,11 @@ abstract class TrackerInstance {
 
             if (route.length === 1) {
                 hasDomainLevelPermission = Object.keys(this.allowedDomains).some(pageRoute => route[0].includes(pageRoute))
-            } else if (route.length === 2) {
+            } else {
                 const currentDomainConfig = get(this.allowedDomains, route[0], []) as Array<string>
-                const pageConfigName = uuidValidate(route[1]) ? 'id' : route[1]
+                const pageConfigName = uuidValidate(route[route.length - 1]) ? 'id' : route[route.length - 1].split('?')[0]
 
                 hasDomainLevelPermission = currentDomainConfig.indexOf(pageConfigName) !== -1
-            } else if (route.length === 3) {
-                const currentDomainConfig = get(this.allowedDomains, route[0], []) as Array<string>
-
-                hasDomainLevelPermission = currentDomainConfig.some(pageRoute => route[2].includes(pageRoute))
             }
         }
 
