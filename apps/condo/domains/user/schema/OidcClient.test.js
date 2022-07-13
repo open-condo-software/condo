@@ -171,8 +171,8 @@ describe('OidcClient', () => {
                 const [objCreated] = await createTestOidcClient(admin)
 
                 const client = await makeClient()
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await OidcClient.delete(client, objCreated.id)
+                await expectToThrowAuthenticationErrorToObj(async () => {
+                    await OidcClient.softDelete(client, objCreated.id)
                 })
             })
         })
