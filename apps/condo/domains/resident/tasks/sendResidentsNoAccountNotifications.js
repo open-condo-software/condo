@@ -5,12 +5,12 @@ const dayjs = require('dayjs')
 
 const conf = require('@core/config')
 const { getSchemaCtx } = require('@core/keystone/schema')
+const { getRedisClient } = require('@core/keystone/redis')
 
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { getStartDates, DATE_FORMAT } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-const { RedisVar } = require('@condo/domains/common/utils/redis-var')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
@@ -168,6 +168,7 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
  */
 const sendResidentsNoAccountNotificationsForPeriod = async (period, billingContextId, resendFromDt) => {
     const { keystone: context } = await getSchemaCtx('Resident')
+    const redisClient = getRedisClient()
 
     const { thisMonthStart } = getStartDates()
     const today = dayjs().format(DATE_FORMAT)
@@ -184,8 +185,8 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
     logger.info({ message: 'Billing context to proceed:', count: billingContexts.length, requestPeriod })
 
     for (const billingContext of billingContexts) {
-        const lastDtHandler = new RedisVar(`${REDIS_LAST_DATE_KEY}-${period}-${billingContext.id}`)
-        const handleLastDtChange = async (createdAt) => { await lastDtHandler.set(createdAt) }
+        const redisVarName = `${REDIS_LAST_DATE_KEY}-${period}-${billingContext.id}`
+        const handleLastDtChange = async (createdAt) => { await redisClient.set(redisVarName, createdAt) }
 
         /**
          * This represents min value for billingReceipt createdAt to start processing from
@@ -193,7 +194,7 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
          * 2. Use createdAt value from last success script execution stored in Redis, else
          * 3. Use thisMonthStart
          */
-        const lastDt = resendFromDt ? resendFromDt.replace(' ', 'T') : await lastDtHandler.get() || thisMonthStart
+        const lastDt = resendFromDt ? resendFromDt.replace(' ', 'T') : await redisClient.get(redisVarName) || thisMonthStart
 
         const receiptsWhere = {
             period_in: [requestPeriod],
