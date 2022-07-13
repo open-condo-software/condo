@@ -107,7 +107,7 @@ const useTracking: IUseTracking = () => {
     }
 
     const getEventName = (eventType: TrackingEventType) => {
-        const [domainName, isDetail, suffix] = compact(route.split('/'))
+        const [domainName, isDetail, suffix, customPage] = compact(route.split('/'))
         if (!domainName) {
             return ''
         }
@@ -120,21 +120,29 @@ const useTracking: IUseTracking = () => {
                 domainSuffix = 'Detail'
                 break
             case 'create':
-                domainSuffix = 'Create'
+            case 'update':
+            case 'hint':
+                domainSuffix = isDetail.charAt(0).toUpperCase() + isDetail.slice(1)
                 break
+
         }
 
-        if (suffix) {
-            switch (suffix) {
+        const postfixToken = customPage ? customPage : suffix
+
+        if (postfixToken) {
+            switch (postfixToken) {
                 case 'update':
                     domainPostfix = 'Update'
                     break
                 case 'pdf':
                     domainPostfix = 'Pdf'
                     break
+                case '[id]':
+                    domainSuffix = 'Detail'
+                    break
                 default:
                     // convert string from domain-related-page to DomainRelatedPage
-                    domainPostfix = suffix.replace(/(-\w|^\w)/g, (_, g) => g.slice(-1).toUpperCase())
+                    domainPostfix = postfixToken.replace(/(-\w|^\w)/g, (_, g) => g.slice(-1).toUpperCase())
                     break
             }
         }
