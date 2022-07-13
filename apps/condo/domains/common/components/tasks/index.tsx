@@ -1,5 +1,4 @@
 import React from 'react'
-import { IHookResult } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 // Should be used in case when there is no technical way to tell exactly the progress of the task
 export const TASK_PROGRESS_UNKNOWN = 'TASK_PROGRESS_UNKNOWN'
@@ -46,9 +45,6 @@ export type TaskProgressTranslations = {
 export type CalculateProgressFunc = (taskRecord: unknown) => TaskRecordProgress
 
 export type OnCompleteFunc = (taskRecord: unknown) => void
-
-// We have to deal with different client schemas for tasks tracking, therefore we don't know specifics at compile time
-export type IClientSchema = IHookResult<unknown, unknown, unknown>
 
 export enum TASK_STORAGE {
     CONDO_API = 'CONDO_API',
