@@ -7,6 +7,7 @@ import pick from 'lodash/pick'
 import compact from 'lodash/compact'
 import isUndefined from 'lodash/isUndefined'
 import isFunction from 'lodash/isFunction'
+import upperFirst from 'lodash/upperFirst'
 import { TRACKING_USER_FIELDS } from '@condo/domains/user/constants'
 import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
 import AmplitudeInstance from './trackers/AmplitudeInstance'
@@ -55,6 +56,10 @@ export enum TrackingEventType {
     ImportComplete = 'ImportComplete',
 }
 
+interface IGetEventName {
+    (eventType: TrackingEventType): string
+}
+
 interface IUseTracking {
     (): {
         eventProperties: ITrackingContext['eventProperties']
@@ -62,7 +67,7 @@ interface IUseTracking {
         logEvent: (logEventProps: ITrackerLogEventType) => void
         logEventTo: (logEventToProps: ILogEventTo) => void
         getTrackingWrappedCallback: (eventName: string, eventProperties?: TrackingCommonEventProperties, func?: any) => any
-        getEventName: (eventType: TrackingEventType) => string
+        getEventName: IGetEventName
     }
 }
 
@@ -106,23 +111,23 @@ const useTracking: IUseTracking = () => {
         return fn as T
     }
 
-    const getEventName = (eventType: TrackingEventType) => {
-        const [domainName, isDetail, suffix, customPage] = compact(route.split('/'))
+    const getEventName: IGetEventName = (eventType) => {
+        const [domainName, detailPageName, suffix, customPage] = compact(route.split('/'))
         if (!domainName) {
             return ''
         }
-        const domain = domainName.charAt(0).toUpperCase() + domainName.slice(1)
+        const domain = upperFirst(domainName)
         let domainSuffix = 'Index'
         let domainPostfix = ''
 
-        switch (isDetail) {
+        switch (detailPageName) {
             case '[id]':
                 domainSuffix = 'Detail'
                 break
             case 'create':
             case 'update':
             case 'hint':
-                domainSuffix = isDetail.charAt(0).toUpperCase() + isDetail.slice(1)
+                domainSuffix = upperFirst(detailPageName)
                 break
 
         }
