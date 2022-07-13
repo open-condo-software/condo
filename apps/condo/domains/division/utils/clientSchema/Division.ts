@@ -40,7 +40,7 @@ function formValuesProcessor (formValues: IDivisionFormState): DivisionCreateInp
     if (formValues['organization']) {
         input['organization'] = { connect: { id: formValues['organization'] } }
     }
-    if (formValues['properties']) {
+    if (formValues['properties'] && Array.isArray(formValues['properties'])) {
         input['properties'] = {
             disconnectAll: true,
             connect: formValues['properties'].map(id => ({ id })),
@@ -49,7 +49,7 @@ function formValuesProcessor (formValues: IDivisionFormState): DivisionCreateInp
     if (formValues['responsible']) {
         input['responsible'] = { connect: { id: formValues['responsible'] } }
     }
-    if (formValues['executors']) {
+    if (formValues['executors'] && Array.isArray(formValues['executors'])) {
         input['executors'] = {
             disconnectAll: true,
             connect: formValues['executors'].map(id => ({ id })),
