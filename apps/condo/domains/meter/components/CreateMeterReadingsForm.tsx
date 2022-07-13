@@ -245,7 +245,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
             createMeterReadingAction({
                 ...clientInfo,
                 organization: { connect: { id: organization.id } },
-                contact: { connect: { id: get(createdContact, 'id') || values.contact } },
+                contact: { connect: { id: get(createdContact, 'id', values.contact) } },
                 meter: { connect: { id: meterId } },
                 date: new Date(),
                 value1,
