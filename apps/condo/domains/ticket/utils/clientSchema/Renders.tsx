@@ -197,9 +197,9 @@ export const getTicketUserNameRender = (search: FilterValue) => {
         const address = get(ticket, ['property', 'address'])
         const userNameLength = get(name, 'length', 0)
         const maxUserNameLength = address ? address.length : userNameLength
-        const trimmedClientName = userNameLength > maxUserNameLength ? `${name.substring(0, maxUserNameLength)}…` : name
+        const trimmedUserName = userNameLength > maxUserNameLength ? `${name.substring(0, maxUserNameLength)}…` : name
 
-        return getTableCellRenderer(search, false, null, null, null, name)(trimmedClientName)
+        return getTableCellRenderer(search, false, null, null, null, name)(trimmedUserName)
     }
 }
 
