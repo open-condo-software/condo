@@ -29,6 +29,7 @@ import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoard
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { FocusContextProvider } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
+import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
 import { SubscriptionProvider, useServiceSubscriptionContext } from '@condo/domains/subscription/components/SubscriptionContext'
@@ -168,6 +169,7 @@ const MyApp = ({ Component, pageProps }) => {
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
                 <CacheProvider value={cache}>
                     <GlobalStyle/>
+                    <GlobalAppsContainer/>
                     <FocusContextProvider>
                         <TrackingProvider>
                             <OnBoardingProvider>

@@ -196,7 +196,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     if (!organization && isOrganizationRequired) Wrapper = OrganizationRequired
 
     useEffect(() => {
-        window.addEventListener('message', handleMessage, false)
+        window.addEventListener('message', handleMessage)
 
         return () => {
             window.removeEventListener('message', handleMessage)
