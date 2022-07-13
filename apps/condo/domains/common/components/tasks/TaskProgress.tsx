@@ -9,7 +9,6 @@ import { Progress, Typography, List, Row, Col } from 'antd'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { colors } from '@condo/domains/common/constants/style'
 import {
-    IClientSchema,
     OnCompleteFunc,
     TaskRecord,
     ITaskTrackableItem,
