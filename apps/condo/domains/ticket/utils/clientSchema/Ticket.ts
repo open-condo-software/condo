@@ -12,9 +12,9 @@ import { Ticket, TicketUpdateInput, Organization, QueryAllTicketsArgs } from '@a
 import dayjs from 'dayjs'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
-const FIELDS = ['id', 'reviewValue', 'reviewComment', 'canReadByResident', 'deadline', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitType', 'unitName', 'sectionName', 'floorName', 'operator', 'assignee', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule', 'details', 'related', 'isEmergency', 'isWarranty', 'isPaid', 'meta', 'source', 'property', 'executor', 'propertyAddress', 'propertyAddressMeta']
-const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'placeClassifier', 'categoryClassifier', 'problemClassifier', 'classifierRule']
-const DISCONNECT_ON_NULL = ['problemClassifier', 'executor', 'contact']
+const FIELDS = ['id', 'reviewValue', 'reviewComment', 'canReadByResident', 'deadline', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'organization', 'statusReopenedCounter', 'statusReason', 'statusUpdatedAt', 'status', 'number', 'client', 'clientName', 'clientEmail', 'clientPhone', 'contact', 'unitType', 'unitName', 'sectionName', 'floorName', 'operator', 'assignee', 'classifierRule', 'details', 'related', 'isEmergency', 'isWarranty', 'isPaid', 'meta', 'source', 'property', 'executor', 'propertyAddress', 'propertyAddressMeta']
+const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'classifierRule']
+const DISCONNECT_ON_NULL = ['executor', 'contact']
 export interface ITicketUIState extends Ticket {
     id: string
     organization: Organization
@@ -30,9 +30,6 @@ export interface ITicketFormState {
     organization?: string
     status?: string
     source?: string
-    placeClassifier?: string
-    categoryClassifier?: string
-    problemClassifier?: string
     classifierRule?: string
     canReadByResident?: boolean
     lastResidentCommentAt?: string

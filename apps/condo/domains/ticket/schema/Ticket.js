@@ -165,32 +165,6 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         // TODO(zuch): make it required
-        placeClassifier: {
-            schemaDoc: 'Describe where incident took place',
-            type: Relationship,
-            ref: 'TicketPlaceClassifier',
-            isRequired: false,
-            knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
-        },
-        // TODO(zuch): make it required
-        categoryClassifier: {
-            schemaDoc: 'Describe type of work needed',
-            type: Relationship,
-            ref: 'TicketCategoryClassifier',
-            isRequired: false,
-            knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
-        },
-        problemClassifier: {
-            schemaDoc: 'Details of incident',
-            type: Relationship,
-            ref: 'TicketProblemClassifier',
-            isRequired: false,
-            knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
-        },
-        // TODO(zuch): make it required
         classifierRule: {
             schemaDoc: 'Valid combination of 3 classifiers',
             type: Relationship,
@@ -424,14 +398,14 @@ const Ticket = new GQLListSchema('Ticket', {
              * 👉 When a new "single" or "many" relation field will be added to Ticket,
              * new resolver should be implemented in `ticketChangeDisplayNameResolversForSingleRelations` and `relatedManyToManyResolvers`
              */
-            const { property, unitName, placeClassifier, categoryClassifier, problemClassifier } = Ticket.schema.fields
+            const { property, unitName, classifierRule } = Ticket.schema.fields
 
             await storeChangesIfUpdated(
                 buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
                 createTicketChange,
                 ticketChangeDisplayNameResolversForSingleRelations,
                 relatedManyToManyResolvers,
-                [{ property, unitName }, { placeClassifier, categoryClassifier, problemClassifier }]
+                [{ property, unitName }, { classifierRule }]
             )(...args)
 
             const [requestData] = args
