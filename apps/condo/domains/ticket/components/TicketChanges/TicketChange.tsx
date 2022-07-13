@@ -99,7 +99,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['assigneeDisplayName', AssigneeMessage],
         ['executorDisplayName', ExecutorMessage, { add: 'pages.condo.ticket.TicketChanges.executor.add', remove: 'pages.condo.ticket.TicketChanges.executor.remove' }],
         ['classifierDisplayName', ClassifierMessage],
-        ['placeClassifierDisplayName', ClassifierMessage],
+        ['classifierRuleDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
         ['statusReopenedCounter', '', { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' }],
         ['reviewValue', '', { add: 'pages.condo.ticket.TicketChanges.reviewValue.add', change: 'pages.condo.ticket.TicketChanges.reviewValue.add' }],
@@ -165,23 +165,18 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
                 return unitNameToDisplay ? `${value}, ${ShortFlatNumber} ${unitNameToDisplay}` : value
             },
-            placeClassifierDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
+            classifierRuleDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
                 let placeClassifierToDisplay
-                let categoryClassifierToDisplay
-                let problemClassifierToDisplay
-
+                console.log(ticketChange['classifierRuleDisplayNameFrom'])
+                
                 if (type === TicketChangeFieldMessageType.From) {
-                    placeClassifierToDisplay = ticketChange['placeClassifierDisplayNameFrom']
-                    categoryClassifierToDisplay = ticketChange['categoryClassifierDisplayNameFrom']
-                    problemClassifierToDisplay = ticketChange['problemClassifierDisplayNameFrom']
+                    placeClassifierToDisplay = ticketChange['classifierRuleDisplayNameFrom']
                 }
                 else if (type === TicketChangeFieldMessageType.To) {
-                    placeClassifierToDisplay = ticketChange['placeClassifierDisplayNameTo']
-                    categoryClassifierToDisplay = ticketChange['categoryClassifierDisplayNameTo']
-                    problemClassifierToDisplay = ticketChange['problemClassifierDisplayNameTo']
+                    placeClassifierToDisplay = ticketChange['classifierRuleDisplayNameTo']
                 }
 
-                return `${placeClassifierToDisplay} → ${categoryClassifierToDisplay}${problemClassifierToDisplay ? ` → ${problemClassifierToDisplay}` : ''}`
+                return placeClassifierToDisplay
             },
             reviewValue: (field, value) => {
                 const textTypeByReview: { [key: string]: BaseType } = {
