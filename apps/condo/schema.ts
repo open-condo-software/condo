@@ -19885,6 +19885,7 @@ export type Mutation = {
    */
   createOnBoardingByType?: Maybe<OnBoarding>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
+  registerMultiPaymentFromReceipt?: Maybe<RegisterMultiPaymentOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -24072,6 +24073,11 @@ export type MutationCreateOnBoardingByTypeArgs = {
 
 export type MutationRegisterMultiPaymentArgs = {
   data: RegisterMultiPaymentInput;
+};
+
+
+export type MutationRegisterMultiPaymentFromReceiptArgs = {
+  data: RegisterMultiPaymentFromReceiptInput;
 };
 
 
@@ -33814,6 +33820,13 @@ export type RecipientFieldInput = {
   iec: Scalars['String'];
   bic: Scalars['String'];
   bankAccount: Scalars['String'];
+};
+
+export type RegisterMultiPaymentFromReceiptInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  receipt: RegisterMultiPaymentReceiptInfoInput;
+  acquiringIntegrationContextId: Scalars['String'];
 };
 
 export type RegisterMultiPaymentInput = {

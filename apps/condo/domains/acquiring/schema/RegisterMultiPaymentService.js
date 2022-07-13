@@ -16,10 +16,10 @@ const {
 const { JSON_STRUCTURE_FIELDS_CONSTRAINTS } = require('@condo/domains/common/utils/validation.utils')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { find } = require('@core/keystone/schema')
-const { Payment, MultiPayment, AcquiringIntegration, AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
+const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
-const { get, isNil } = require('lodash')
+const { get, isNil, isFunction, isPlainObject } = require('lodash')
 const Big = require('big.js')
 const validate = require('validate.js')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
@@ -194,7 +194,8 @@ const errors = {
 
 const throwMutationSpecificErrorIf = (errorCondition, baseError, mutation, context, extraArgsSupplier) => {
     if (errorCondition) {
-        const extraArgs = isNil(extraArgsSupplier) ? {} : extraArgsSupplier()
+        const suppliedArgs = isFunction(extraArgsSupplier) ? extraArgsSupplier() : {}
+        const extraArgs = isPlainObject(suppliedArgs) ? suppliedArgs : {}
         const error = { ...baseError, mutation, ...extraArgs }
         throw new GQLError(error, context)
     }
