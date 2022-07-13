@@ -2,12 +2,21 @@ const { get, set } = require('lodash')
 const cuid = require('cuid')
 const ensureError = require('ensure-error')
 const { serializeError } = require('serialize-error')
-
-const { graphqlLogger } = require('@keystonejs/keystone/lib/Keystone/logger')
+const falsey = require('falsey')
+const pino = require('pino')
+const serializers = require('pino-std-serializers')
 
 const { safeFormatError } = require('./apolloErrorFormatter')
 
 const HIDE_GRAPHQL_VARIABLES_KEYS = ['secret', 'password', 'data.password', 'data.secret']
+const REQ_LOG_KEY = 'req'
+const graphqlLogger = pino({
+    name: 'graphql',
+    enabled: falsey(process.env.DISABLE_LOGGING),
+    serializers: {
+        [REQ_LOG_KEY]: serializers.req,
+    },
+})
 
 function normalizeQuery (string) {
     if (!string) return ''
@@ -32,6 +41,9 @@ function getRequestLoggingContext (requestContext) {
     const authedItemId = get(requestContext, 'context.authedItem.id')
     const sessionId = get(requestContext, 'context.req.sessionID')
     const userId = get(requestContext, 'context.req.user.id')
+    const url = get(requestContext, 'context.req.originalUrl')
+    const ip = get(requestContext, 'context.req.ip')
+    const req = get(requestContext, 'context.req')
     let user
     if (userId) {
         user = {
@@ -46,7 +58,7 @@ function getRequestLoggingContext (requestContext) {
     const operationName = get(requestContext, 'operationName')
     const queryHash = get(requestContext, 'queryHash')
 
-    return { reqId, authedItemId, sessionId, user, operationId, operationName, queryHash }
+    return { reqId, authedItemId, sessionId, user, operationId, operationName, queryHash, url, ip, [REQ_LOG_KEY]: req }
 }
 
 /**
