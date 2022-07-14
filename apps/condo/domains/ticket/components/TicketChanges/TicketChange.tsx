@@ -1,6 +1,6 @@
 import React  from 'react'
 import { Row, Col, Typography, Tooltip } from 'antd'
-import { get, has, isNil } from 'lodash'
+import { get, has, isEmpty, isNil } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -15,6 +15,7 @@ import dayjs from 'dayjs'
 import { getReviewMessageByValue } from '../../utils/clientSchema/Ticket'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { BaseType } from 'antd/lib/typography/Base'
+import { PARKING_SECTION_TYPE } from '../../../property/constants/common'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -76,7 +77,10 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsWarrantyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
 
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    // const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const ParkingMessage = intl.formatMessage({ id: 'field.sectionType.Parking' }).toLowerCase()
+    const SectionMessage = intl.formatMessage({ id: 'field.sectionType.Section' }).toLowerCase()
+    const FloorMessage = intl.formatMessage({ id: 'field.floorName' }).toLowerCase()
 
     const FilledReviewCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.filled' })
     const BadReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.badReview' })
@@ -153,17 +157,47 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 ) : value
             ),
             propertyDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
-                let unitNameToDisplay
                 const unitNameFrom = ticketChange['unitNameFrom']
                 const unitNameTo = ticketChange['unitNameTo']
-                if (type === TicketChangeFieldMessageType.From && unitNameFrom) {
-                    unitNameToDisplay = unitNameFrom
-                }
-                else if (type === TicketChangeFieldMessageType.To && unitNameTo) {
-                    unitNameToDisplay = unitNameTo
+                const sectionNameFrom = ticketChange['sectionNameFrom']
+                const sectionNameTo = ticketChange['sectionNameTo']
+                const floorNameFrom = ticketChange['floorNameFrom']
+                const floorNameTo = ticketChange['floorNameTo']
+                const sectionTypeFrom = ticketChange['sectionTypeFrom']
+                const sectionTypeTo = ticketChange['sectionTypeTo']
+                const unitTypeFrom = ticketChange['unitTypeFrom']
+                const unitTypeTo = ticketChange['unitTypeTo']
+
+                let addressChangePostfix = ''
+                if (type === TicketChangeFieldMessageType.From) {
+                    if (!isEmpty(sectionNameFrom)) {
+                        const sectionTypeFromMessage = sectionTypeFrom === PARKING_SECTION_TYPE ? ParkingMessage : SectionMessage
+                        addressChangePostfix += `, ${sectionTypeFromMessage} ${sectionNameFrom}`
+
+                        if (!isEmpty(floorNameFrom)) {
+                            addressChangePostfix += `, ${FloorMessage} ${floorNameFrom}`
+
+                            if (!isEmpty(unitNameFrom)) {
+                                addressChangePostfix += `, ${intl.formatMessage({ id: `field.UnitType.prefix.${unitTypeFrom}` }).toLowerCase()}. ${unitNameFrom}`
+                            }
+                        }
+                    }
+                }  else if (type === TicketChangeFieldMessageType.To) {
+                    if (!isEmpty(sectionNameTo)) {
+                        const sectionTypeToMessage = sectionTypeTo === PARKING_SECTION_TYPE ? ParkingMessage : SectionMessage
+                        addressChangePostfix += `, ${sectionTypeToMessage} ${sectionNameTo}`
+
+                        if (!isEmpty(floorNameTo)) {
+                            addressChangePostfix += `, ${FloorMessage} ${floorNameTo}`
+
+                            if (!isEmpty(unitNameTo)) {
+                                addressChangePostfix += `, ${intl.formatMessage({ id: `field.UnitType.prefix.${unitTypeTo}` }).toLowerCase()}. ${unitNameTo}`
+                            }
+                        }
+                    }
                 }
 
-                return unitNameToDisplay ? `${value}, ${ShortFlatNumber} ${unitNameToDisplay}` : value
+                return !isEmpty(addressChangePostfix) ? `${value}${addressChangePostfix}` : value
             },
             placeClassifierDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
                 let placeClassifierToDisplay

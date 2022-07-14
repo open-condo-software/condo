@@ -119,13 +119,13 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
             return form.setFieldsValue({ sectionName, sectionType, floorName, unitType, unitName })
         }
 
-        form.setFieldsValue({ sectionName: null, sectionType: null, floorName: null, unitType })
+        form.setFieldsValue({ sectionName: null, sectionType: null, floorName: null, unitType: null })
     }, [property])
 
     const handleUnitNameInputChange = useCallback((_, option: UnitNameInputOption) => {
         if (!option) {
             setSelectedUnitName(null)
-            if (setSelectedUnitType) setSelectedUnitType(BuildingUnitSubType.Flat)
+            if (setSelectedUnitType) setSelectedUnitType(null)
             updateSectionAndFloor(form, null)
 
             setSelectedFloorName(null)
@@ -146,20 +146,33 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     const disableFloorInputCondition = mode === 'unit' || isEmpty(selectedSectionName) || selectedUnitName
     const disableSectionInputCondition = mode === 'unit' || selectedUnitName
 
-    const handleChangeSectionNameInput = useCallback((_, option) => {
-        const sectionName = get(option, 'data-sectionName')
-        const sectionType = get(option, 'data-sectionType')
+    const handleChangeSectionNameInput = useCallback((section, option) => {
+        if (!isEmpty(section)) {
+            const sectionName = get(option, 'data-sectionName')
+            const sectionType = get(option, 'data-sectionType')
 
-        setSelectedSectionName(sectionName)
-        if (setSelectedSectionType) setSelectedSectionType(sectionType)
+            setSelectedSectionName(sectionName)
+            if (setSelectedSectionType) setSelectedSectionType(sectionType)
+            setSelectedFloorName(null)
 
-        setSelectedFloorName(null)
-        form.setFieldsValue({ sectionName, sectionType, floorName: null })
+            form.setFieldsValue({ sectionName, sectionType, floorName: null })
+        } else {
+            setSelectedFloorName(null)
+            setSelectedSectionName(null)
+            if (setSelectedSectionType) setSelectedSectionType(null)
+
+            form.setFieldsValue({ sectionName: null, sectionType: null, floorName: null })
+        }
     }, [form, setSelectedSectionType])
 
-    const handleChangeFloorNameInput = useCallback((value) => {
-        setSelectedFloorName(value)
-    }, [])
+    const handleChangeFloorNameInput = useCallback((floor) => {
+        if (!isEmpty(floor)) {
+            setSelectedFloorName(floor)
+        } else {
+            setSelectedFloorName(null)
+            form.setFieldsValue({ floorName: null })
+        }
+    }, [form])
 
     return (
         <Col span={colSpan}>
