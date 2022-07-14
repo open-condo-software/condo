@@ -54,6 +54,7 @@ describe('extractOrigin', () => {
     expect(extractOrigin('http://www.blog.classroom.me.uk/index.php')).toEqual('http://www.blog.classroom.me.uk')
     expect(extractOrigin('http://www.youtube.com/watch?v=dQw4w9WgXcQ')).toEqual('http://www.youtube.com')
     expect(extractOrigin('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toEqual('https://www.youtube.com')
-    expect(extractOrigin('ftps://ftp.websitename.com/dir/file.txt')).toEqual('ftps://ftp.websitename.com')
     expect(extractOrigin('http://localhost:3002/import')).toEqual('http://localhost:3002')
+    expect(extractOrigin('https://mysite.com?param=1')).toEqual('https://mysite.com')
+    expect(extractOrigin('asdhjjaks')).toEqual(null)
 })
