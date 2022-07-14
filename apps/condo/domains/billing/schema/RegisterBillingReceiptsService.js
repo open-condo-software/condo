@@ -123,11 +123,20 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
         item.property = { connect: { id: _.get(item, ['property', 'id']) } }
         item.account = { connect: { id: _.get(item, ['account', 'id']) } }
 
-        const newReceipt = await BillingReceipt.create(context, item)
+        item.recipient = {
+            tin: item.tin,
+            iec: item.iec,
+            bankAccount: item.bankAccount,
+            bic: item.bic,
+        }
+
+        const cleanItem = _.omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
+
+        const newReceipt = await BillingReceipt.create(context, cleanItem)
         newReceipts.push(newReceipt)
     }
 
-    return [ ...newReceipts, ...existingReceipts ]
+    return { createdReceipts: newReceipts,  notChangedReceipts: existingReceipts }
 }
 
 const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingReceiptsService', {
@@ -270,11 +279,11 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 4:
                 // Sync billing receipts
-                const syncedReceipts = await syncBillingReceipts(context, receipts, { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
+                const { createdReceipts, notChangedReceipts } = await syncBillingReceipts(context, receipts, { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
 
                 // TODO: throw errors in a following way
                 // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
-                return []
+                return createdReceipts
             },
         },
     ],
