@@ -34,6 +34,16 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                     isRejected: true,
                 }))
             })
+
+            test('No access to accept and reject by another user', async () => {
+                const client1 = await makeClientWithRegisteredOrganization()
+                const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => await acceptOrRejectOrganizationInviteById(client1, invite))
+                await expectToThrowAccessDeniedErrorToObj(async () => await acceptOrRejectOrganizationInviteById(client1, invite, { isRejected: true }))
+            })
         })
 
         describe('Anonymous', () => {
