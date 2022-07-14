@@ -77,7 +77,7 @@ export const TicketsPageContent = ({
     const router = useRouter()
     const { filters } = parseQuery(router.query)
 
-    const reduceNonEmpty = (cnt, filter) => cnt + Number(filters[filter] && filters[filter].length > 0)
+    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
     const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
 
