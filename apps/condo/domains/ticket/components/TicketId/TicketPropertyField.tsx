@@ -11,6 +11,7 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
+import { PARKING_SECTION_TYPE } from '../../../property/constants/common'
 
 const HINT_CARD_STYLE = { maxHeight: '5em ' }
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 16]
@@ -19,12 +20,32 @@ type TicketPropertyFieldProps = {
     ticket: Ticket
 }
 
+export const getTicketSectionAndFloorMessage = (ticket: Ticket, ticketUnitMessage: string, intl) => {
+    const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const ParkingMessage = intl.formatMessage({ id: 'field.sectionType.Parking' })
+    const SectionMessage = intl.formatMessage({ id: 'field.sectionType.Section' })
+
+    const sectionName = get(ticket, 'sectionName')
+    const sectionType = get(ticket, 'sectionType')
+    const floorName = get(ticket, 'floorName')
+    const sectionTypeFromMessage = sectionType === PARKING_SECTION_TYPE ? ParkingMessage : SectionMessage
+    const sectionAndFloorMessage = `${sectionTypeFromMessage.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName}`
+
+    if (!isEmpty(ticketUnitMessage) && !isEmpty(sectionName) && !isEmpty(floorName)) {
+        return `(${sectionAndFloorMessage})`
+    } else if (isEmpty(ticketUnitMessage) && !isEmpty(sectionName)) {
+        if (isEmpty(floorName)) {
+            return `${sectionTypeFromMessage.toLowerCase()} ${ticket.sectionName}`
+        } else {
+            return sectionAndFloorMessage
+        }
+    }
+}
+
 export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket }) => {
     const intl = useIntl()
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
-    const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` })
 
     const propertyWasDeleted = !ticket.property
@@ -33,21 +54,7 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
     const { streetPart, renderPostfix } = getAddressDetails({ address, addressMeta })
 
     const ticketUnitMessage = ticket.unitName ? `${UnitTypePrefix.toLowerCase()} ${ticket.unitName} ` : ''
-    const ticketSectionAndFloorMessage = useMemo(() => {
-        const sectionName = get(ticket, 'sectionName')
-        const floorName = get(ticket, 'floorName')
-        const sectionAndFloorMessage = `${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName}`
-
-        if (!isEmpty(ticketUnitMessage) && !isEmpty(sectionName) && !isEmpty(floorName)) {
-            return `(${sectionAndFloorMessage})`
-        } else if (isEmpty(ticketUnitMessage) && !isEmpty(sectionName)) {
-            if (isEmpty(floorName)) {
-                return `${SectionName.toLowerCase()} ${ticket.sectionName}`
-            } else {
-                return sectionAndFloorMessage
-            }
-        }
-    }, [FloorName, SectionName, ticket, ticketUnitMessage])
+    const ticketSectionAndFloorMessage = getTicketSectionAndFloorMessage(ticket, ticketUnitMessage, intl)
 
     const TicketUnitMessage = useCallback(() => (
         <Typography.Paragraph style={{ margin: 0 }}>
@@ -87,7 +94,7 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
         </>
     ), [TicketUnitMessage, renderPostfix, streetPart, ticket])
 
-    const propertyId = get(ticket, ['property', 'id'], null)
+    const propertyId = useMemo(() => get(ticket, ['property', 'id'], null), [ticket])
 
     return (
         <PageFieldRow title={AddressMessage} highlight>
