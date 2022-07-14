@@ -3,6 +3,8 @@ import { notification } from 'antd'
 import filter from 'lodash/filter'
 import identity from 'lodash/identity'
 import findIndex from 'lodash/findIndex'
+import isEmpty from 'lodash/isEmpty'
+import get from 'lodash/get'
 import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext, TaskRecordProgress } from './index'
 import { displayTasksProgress } from './TaskProgress'
 
@@ -20,11 +22,12 @@ type ITasksContextProviderProps = {
  */
 const buildTrackableTasksFrom = (records: TaskRecord[], uiInterfaces: TaskUIInterfacesMap): ITaskTrackableItem[] => {
     const trackableTasks = records.map(record => {
-        if (!record.__typename) {
+        const typeName = get(record, '__typename')
+        if (!typeName) {
             console.error('Error: Result of GraphQL query for task should contain "__typename" property', record)
             return null
         }
-        const uiInterface = uiInterfaces[record.__typename]
+        const uiInterface = uiInterfaces[typeName]
         if (!uiInterface) {
             // Exception is not thrown here to not disturb user in favour of monitoring errors ourselves
             console.error('Error: No UI implementation for task record', record)
@@ -60,7 +63,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTas
     const [notificationApi, contextHolder] = notification.useNotification()
 
     useEffect(() => {
-        if (tasks.length > 0) {
+        if (!isEmpty(tasks)) {
             displayTasksProgress({
                 notificationApi,
                 tasks,

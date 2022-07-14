@@ -6,6 +6,7 @@ import { MinusOutlined } from '@ant-design/icons'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { Progress, Typography, List, Row, Col } from 'antd'
+import isFunction from 'lodash/isFunction'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { colors } from '@condo/domains/common/constants/style'
 import {
@@ -30,6 +31,10 @@ const InfiniteSpinningStyle = css`
     animation: rotate 1.6s linear infinite;
   }
 `
+const PROGRESS_STROKE_COLOR = {
+    '0%': '#4CD174',
+    '100%': '#6DB8F2',
+}
 
 type ICircularProgressProps = {
     progress: TaskRecordProgress,
@@ -46,10 +51,7 @@ export const CircularProgress = ({ progress }: ICircularProgressProps) => (
         type="circle"
         width={22}
         strokeWidth={14}
-        strokeColor={{
-            '0%': '#4CD174',
-            '100%': '#6DB8F2',
-        }}
+        strokeColor={PROGRESS_STROKE_COLOR}
         strokeLinecap="square"
         showInfo={false}
         percent={progress === TASK_PROGRESS_UNKNOWN ? 99 : progress}
@@ -150,7 +152,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
         }
         if (record.status === TASK_COMPLETED_STATUS) {
             stopPolling()
-            if (onComplete && !handledCompletedStatesOfTasksIds.includes(record.id)) {
+            if (isFunction(onComplete) && !handledCompletedStatesOfTasksIds.includes(record.id)) {
                 handledCompletedStatesOfTasksIds.push(record.id)
                 onComplete(record)
             }
@@ -205,8 +207,6 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
         setCollapsed(!collapsed)
     }, [collapsed])
 
-    const listStyle = useMemo(() => ({ display: collapsed ? 'none' : 'block' }), [collapsed])
-
     return (
         <div>
             <VisibilityControlButton
@@ -232,7 +232,7 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
                         </Typography.Paragraph>
                     )}
                     <List
-                        style={listStyle}
+                        style={{ display: collapsed ? 'none' : 'block' }}
                         dataSource={tasks}
                         renderItem={({ record, storage, translations, calculateProgress, onComplete }) => (
                             <TaskProgressTracker

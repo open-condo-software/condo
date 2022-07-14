@@ -170,6 +170,7 @@ const MyApp = ({ Component, pageProps }) => {
     const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING })
 
     const initialTaskRecords = useMemo(() => [...miniAppTasks], [miniAppTasks])
+    const uiInterfaces = useMemo(() => ({ MiniAppTask: MiniAppTaskUIInterface }), [MiniAppTaskUIInterface])
 
     return (
         <>
@@ -188,7 +189,7 @@ const MyApp = ({ Component, pageProps }) => {
                                 <SubscriptionProvider>
                                     <TasksContextProvider
                                         initialTaskRecords={initialTaskRecords}
-                                        uiInterfaces={{ MiniAppTask: MiniAppTaskUIInterface }}
+                                        uiInterfaces={uiInterfaces}
                                     >
                                         <LayoutContextProvider>
                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
