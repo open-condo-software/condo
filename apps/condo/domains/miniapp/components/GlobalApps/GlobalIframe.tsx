@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect } from 'react'
 import { notification } from 'antd'
 import isFunction from 'lodash/isFunction'
+import isObject from 'lodash/isObject'
+import get from 'lodash/get'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import {
     NOTIFICATION_MESSAGE_TYPE,
@@ -19,14 +21,15 @@ const GlobalIframe = React.forwardRef<HTMLIFrameElement, IGlobalIframeProps>((pr
 
     // TODO(DOMA-3435, @savelevMatthew) Refactor message structure after moving to lib
     const handleNotification = useCallback((message) => {
-        if (notification.hasOwnProperty(message.notificationType) && isFunction(notification[message.notificationType])) {
-            notification[message.notificationType]({ message: message.message })
+        const notificationFunction = get(notification, message.notificationType)
+        if (isFunction(notificationFunction)) {
+            notificationFunction({ message: message.message })
         }
     }, [])
 
     const handleMessage = useCallback((event: MessageEvent) => {
         if (event.origin !== pageOrigin) return
-        if (!event.data || typeof event.data !== 'object') return
+        if (!event.data || !isObject(event.data)) return
         const parsedMessage = parseMessage(event.data)
         if (!parsedMessage) return
         const { type, message } = parsedMessage

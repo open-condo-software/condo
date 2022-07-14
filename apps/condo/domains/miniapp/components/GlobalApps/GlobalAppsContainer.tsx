@@ -31,7 +31,7 @@ export const GlobalAppsContainer: React.FC = () => {
     const handleMutationResult = useCallback((payload) => {
         for (const iframe of iframeRefs.current) {
             const origin = extractOrigin(iframe.src)
-            const targetWindow = get(iframe, ['contentWindow'], null)
+            const targetWindow = get(iframe, 'contentWindow', null)
             if (origin && targetWindow) {
                 sendMessage({
                     type: MUTATION_RESULT_MESSAGE_NAME,
