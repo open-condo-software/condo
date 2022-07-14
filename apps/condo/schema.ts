@@ -11039,6 +11039,8 @@ export type Contact = {
   phone?: Maybe<Scalars['String']>;
   /**  Name or full name of this person  */
   name?: Maybe<Scalars['String']>;
+  /**  The contact's role  */
+  role?: Maybe<ContactRole>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11061,6 +11063,7 @@ export type ContactCreateInput = {
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  role?: Maybe<ContactRoleRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11090,6 +11093,7 @@ export type ContactHistoryRecord = {
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  role?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11113,6 +11117,7 @@ export type ContactHistoryRecordCreateInput = {
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  role?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11141,6 +11146,7 @@ export type ContactHistoryRecordUpdateInput = {
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  role?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11266,6 +11272,10 @@ export type ContactHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  role?: Maybe<Scalars['String']>;
+  role_not?: Maybe<Scalars['String']>;
+  role_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  role_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -11352,6 +11362,351 @@ export type ContactRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+/**  Role for contact  */
+export type ContactRole = {
+  __typename?: 'ContactRole';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the ContactRole List config, or
+   *  2. As an alias to the field set on 'labelField' in the ContactRole List config, or
+   *  3. As an alias to a 'name' field on the ContactRole List (if one exists), or
+   *  4. As an alias to the 'id' field on the ContactRole List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  The organization that created this role. Null means role for all organizations.  */
+  organization?: Maybe<Organization>;
+  /**  The role's name  */
+  name?: Maybe<Scalars['String']>;
+  nameNonLocalized?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type ContactRoleCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type ContactRoleHistoryRecord = {
+  __typename?: 'ContactRoleHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the ContactRoleHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the ContactRoleHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the ContactRoleHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the ContactRoleHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<ContactRoleHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type ContactRoleHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<ContactRoleHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum ContactRoleHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type ContactRoleHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<ContactRoleHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type ContactRoleHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<ContactRoleHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<ContactRoleHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<ContactRoleHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<ContactRoleHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<ContactRoleHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<ContactRoleHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type ContactRoleHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type ContactRoleHistoryRecordsCreateInput = {
+  data?: Maybe<ContactRoleHistoryRecordCreateInput>;
+};
+
+export type ContactRoleHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<ContactRoleHistoryRecordUpdateInput>;
+};
+
+export type ContactRoleRelateToOneInput = {
+  create?: Maybe<ContactRoleCreateInput>;
+  connect?: Maybe<ContactRoleWhereUniqueInput>;
+  disconnect?: Maybe<ContactRoleWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type ContactRoleUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type ContactRoleWhereInput = {
+  AND?: Maybe<Array<Maybe<ContactRoleWhereInput>>>;
+  OR?: Maybe<Array<Maybe<ContactRoleWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type ContactRoleWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type ContactRolesCreateInput = {
+  data?: Maybe<ContactRoleCreateInput>;
+};
+
+export type ContactRolesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<ContactRoleUpdateInput>;
+};
+
 export type ContactUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
@@ -11362,6 +11717,7 @@ export type ContactUpdateInput = {
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  role?: Maybe<ContactRoleRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11466,6 +11822,8 @@ export type ContactWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  role?: Maybe<ContactRoleWhereInput>;
+  role_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -17811,6 +18169,30 @@ export type Mutation = {
   deleteContact?: Maybe<Contact>;
   /**  Delete multiple Contact items by ID.  */
   deleteContacts?: Maybe<Array<Maybe<Contact>>>;
+  /**  Create a single ContactRoleHistoryRecord item.  */
+  createContactRoleHistoryRecord?: Maybe<ContactRoleHistoryRecord>;
+  /**  Create multiple ContactRoleHistoryRecord items.  */
+  createContactRoleHistoryRecords?: Maybe<Array<Maybe<ContactRoleHistoryRecord>>>;
+  /**  Update a single ContactRoleHistoryRecord item by ID.  */
+  updateContactRoleHistoryRecord?: Maybe<ContactRoleHistoryRecord>;
+  /**  Update multiple ContactRoleHistoryRecord items by ID.  */
+  updateContactRoleHistoryRecords?: Maybe<Array<Maybe<ContactRoleHistoryRecord>>>;
+  /**  Delete a single ContactRoleHistoryRecord item by ID.  */
+  deleteContactRoleHistoryRecord?: Maybe<ContactRoleHistoryRecord>;
+  /**  Delete multiple ContactRoleHistoryRecord items by ID.  */
+  deleteContactRoleHistoryRecords?: Maybe<Array<Maybe<ContactRoleHistoryRecord>>>;
+  /**  Create a single ContactRole item.  */
+  createContactRole?: Maybe<ContactRole>;
+  /**  Create multiple ContactRole items.  */
+  createContactRoles?: Maybe<Array<Maybe<ContactRole>>>;
+  /**  Update a single ContactRole item by ID.  */
+  updateContactRole?: Maybe<ContactRole>;
+  /**  Update multiple ContactRole items by ID.  */
+  updateContactRoles?: Maybe<Array<Maybe<ContactRole>>>;
+  /**  Delete a single ContactRole item by ID.  */
+  deleteContactRole?: Maybe<ContactRole>;
+  /**  Delete multiple ContactRole items by ID.  */
+  deleteContactRoles?: Maybe<Array<Maybe<ContactRole>>>;
   /**  Create a single ResidentHistoryRecord item.  */
   createResidentHistoryRecord?: Maybe<ResidentHistoryRecord>;
   /**  Create multiple ResidentHistoryRecord items.  */
@@ -22370,6 +22752,68 @@ export type MutationDeleteContactArgs = {
 
 
 export type MutationDeleteContactsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateContactRoleHistoryRecordArgs = {
+  data?: Maybe<ContactRoleHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateContactRoleHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<ContactRoleHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateContactRoleHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<ContactRoleHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateContactRoleHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<ContactRoleHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteContactRoleHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteContactRoleHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateContactRoleArgs = {
+  data?: Maybe<ContactRoleCreateInput>;
+};
+
+
+export type MutationCreateContactRolesArgs = {
+  data?: Maybe<Array<Maybe<ContactRolesCreateInput>>>;
+};
+
+
+export type MutationUpdateContactRoleArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<ContactRoleUpdateInput>;
+};
+
+
+export type MutationUpdateContactRolesArgs = {
+  data?: Maybe<Array<Maybe<ContactRolesUpdateInput>>>;
+};
+
+
+export type MutationDeleteContactRoleArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteContactRolesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -29949,6 +30393,22 @@ export type Query = {
   _allContactsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the Contact list.  */
   _ContactsMeta?: Maybe<_ListMeta>;
+  /**  Search for all ContactRoleHistoryRecord items which match the where clause.  */
+  allContactRoleHistoryRecords?: Maybe<Array<Maybe<ContactRoleHistoryRecord>>>;
+  /**  Search for the ContactRoleHistoryRecord item with the matching ID.  */
+  ContactRoleHistoryRecord?: Maybe<ContactRoleHistoryRecord>;
+  /**  Perform a meta-query on all ContactRoleHistoryRecord items which match the where clause.  */
+  _allContactRoleHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the ContactRoleHistoryRecord list.  */
+  _ContactRoleHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all ContactRole items which match the where clause.  */
+  allContactRoles?: Maybe<Array<Maybe<ContactRole>>>;
+  /**  Search for the ContactRole item with the matching ID.  */
+  ContactRole?: Maybe<ContactRole>;
+  /**  Perform a meta-query on all ContactRole items which match the where clause.  */
+  _allContactRolesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the ContactRole list.  */
+  _ContactRolesMeta?: Maybe<_ListMeta>;
   /**  Search for all ResidentHistoryRecord items which match the where clause.  */
   allResidentHistoryRecords?: Maybe<Array<Maybe<ResidentHistoryRecord>>>;
   /**  Search for the ResidentHistoryRecord item with the matching ID.  */
@@ -32451,6 +32911,56 @@ export type Query_AllContactsMetaArgs = {
   where?: Maybe<ContactWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortContactsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllContactRoleHistoryRecordsArgs = {
+  where?: Maybe<ContactRoleHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortContactRoleHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryContactRoleHistoryRecordArgs = {
+  where: ContactRoleHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllContactRoleHistoryRecordsMetaArgs = {
+  where?: Maybe<ContactRoleHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortContactRoleHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllContactRolesArgs = {
+  where?: Maybe<ContactRoleWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortContactRolesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryContactRoleArgs = {
+  where: ContactRoleWhereUniqueInput;
+};
+
+
+export type Query_AllContactRolesMetaArgs = {
+  where?: Maybe<ContactRoleWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortContactRolesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -37643,6 +38153,50 @@ export enum SortContactHistoryRecordsBy {
   HistoryActionDesc = 'history_action_DESC'
 }
 
+export enum SortContactRoleHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortContactRolesBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortContactsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
@@ -37660,6 +38214,8 @@ export enum SortContactsBy {
   PhoneDesc = 'phone_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  RoleAsc = 'role_ASC',
+  RoleDesc = 'role_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
