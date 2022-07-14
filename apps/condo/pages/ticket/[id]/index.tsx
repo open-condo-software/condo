@@ -1,41 +1,32 @@
 /** @jsx jsx */
 import { EditFilled, FilePdfFilled } from '@ant-design/icons'
-import { css, jsx } from '@emotion/react'
-import { Affix,  Breadcrumb, Col, Row, Space, Typography, notification } from 'antd'
-import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
-import { Gutter } from 'antd/es/grid/row'
-import UploadList from 'antd/lib/upload/UploadList/index'
-import { compact, get, isEmpty, map } from 'lodash'
-import Head from 'next/head'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
-import dayjs from 'dayjs'
-import { BaseType } from 'antd/lib/typography/Base'
-import { FormattedMessage } from 'react-intl'
 
-import { User, SortTicketChangesBy, SortTicketCommentsBy, SortTicketCommentFilesBy, TicketFile as TicketFileType } from '@app/condo/schema'
-import { useAuth } from '@core/next/auth'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
-
-import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
+import {
+    SortTicketChangesBy,
+    SortTicketCommentFilesBy,
+    SortTicketCommentsBy,
+    TicketFile as TicketFileType,
+    User,
+} from '@app/condo/schema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { Comments } from '@condo/domains/common/components/Comments'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { fontSizes } from '@condo/domains/common/constants/style'
+import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { formatPhone, getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
+import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
-import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
+import { CLOSED_STATUS_TYPE, REVIEW_VALUES } from '@condo/domains/ticket/constants'
+
+import { TICKET_TYPE_TAG_COLORS, TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
 import {
     Ticket,
     TicketChange,
@@ -45,457 +36,65 @@ import {
     TicketFile,
     UserTicketCommentReadTime,
 } from '@condo/domains/ticket/utils/clientSchema'
+import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import {
-    getDeadlineType, getHumanizeDeadlineDateDifference,
+    getDeadlineType,
+    getHumanizeDeadlineDateDifference,
     getTicketCreateMessage,
     getTicketTitleMessage,
     TicketDeadlineType,
 } from '@condo/domains/ticket/utils/helpers'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { RESIDENT } from '@condo/domains/user/constants/common'
-import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
-import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
-import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
+import { useAuth } from '@core/next/auth'
+import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+import { css, jsx } from '@emotion/react'
+import { Affix, Breadcrumb, Col, notification, Row, Space, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import { BaseType } from 'antd/lib/typography/Base'
+import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
+import UploadList from 'antd/lib/upload/UploadList/index'
+import dayjs from 'dayjs'
+import { compact, get, isEmpty, map } from 'lodash'
+import Head from 'next/head'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
+import { FormattedMessage } from 'react-intl'
+import { TicketAssigneeField } from '../../../domains/ticket/components/TicketId/TicketAssigneeField'
+import { TicketClassifierField } from '../../../domains/ticket/components/TicketId/TicketClassifierField'
+import { TicketClientField } from '../../../domains/ticket/components/TicketId/TicketClientField'
+import { TicketDeadlineField } from '../../../domains/ticket/components/TicketId/TicketDeadlineField'
+import { TicketDetailsField } from '../../../domains/ticket/components/TicketId/TicketDetailsField'
+import { TicketExecutorField } from '../../../domains/ticket/components/TicketId/TicketExecutorField'
+import { TicketFileList } from '../../../domains/ticket/components/TicketId/TicketFileList'
+import { TicketFileListField } from '../../../domains/ticket/components/TicketId/TicketFileListField'
+import { TicketPropertyField } from '../../../domains/ticket/components/TicketId/TicketPropertyField'
+import { TicketReviewField } from '../../../domains/ticket/components/TicketId/TicketReviewField'
+import { TicketUserInfoField } from '../../../domains/ticket/components/TicketId/TicketUserInfoField'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
-const REGEX_FORBIDDEN_TYPE_FILES = /.*\.(svg|html|txt)$/i
-
-interface ITicketFileListProps {
-    files?: TicketFileType[]
-}
-
-const UploadListWrapperStyles = css`
-  .ant-upload-list-text-container:first-child .ant-upload-list-item {
-    margin-top: 0;
-  }
-  
-  & .ant-upload-span a.ant-upload-list-item-name {
-    color: ${colors.black};
-    text-decoration: underline;
-    text-decoration-color: ${colors.lightGrey[5]};
-  }
-  
-  .ant-upload-span .ant-upload-text-icon {
-    font-size: ${fontSizes.content};
-    
-    & .anticon-paper-clip.anticon {
-      font-size: ${fontSizes.content};
-      color: ${colors.green[5]};
-    }
-  }
-`
-
-export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
-    const intl = useIntl()
-    const DownloadFileErrorMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketFileList.downloadFileError' })
-
-    const uploadFiles = files.map(({ file }) => {
-        const fileInList = {
-            uid: file.id,
-            name: file.originalFilename,
-            status: 'done' as UploadFileStatus,
-            url: file.publicUrl,
-        }
-        return fileInList
-    })
-
-    const downloadFile = useCallback(async (file: UploadFile) => {
-        const response = await fetch(file.url)
-        const blob = await response.blob()
-        const blobUrl = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = blobUrl
-        a.download = file.name
-        a.click()
-    }, [])
-
-
-    // TODO a problem with CORS on prod
-    const handleFileDownload = useCallback(async (file: UploadFile) => {
-        if (REGEX_FORBIDDEN_TYPE_FILES.test(file.name)) {
-            try {
-                await downloadFile(file)
-            } catch (e) {
-                notification.error({ message: DownloadFileErrorMessage })
-            }
-        } else {
-            window.open(file.url, '_blank')
-        }
-    }, [])
-
-    return (
-        <div className={'upload-control-wrapper'} css={UploadListWrapperStyles}>
-            <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} />
-        </div>
-    )
-}
-
-interface ITicketUserInfoFieldProps {
-    user?: Partial<User>
-}
-
-export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
-    const id = get(props, ['user', 'id'])
-    const name = get(props, ['user', 'name'])
-    const phone = get(props, ['user', 'phone'])
-    const email = get(props, ['user', 'email'])
-
-    const items = []
-
-    if (name) {
-        items.push(
-            <UserNameField user={{ name, id }}>
-                {({ name, postfix }) => (
-                    <>
-                        {name}
-                        {postfix && (
-                            <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
-                        )}
-                    </>
-                )}
-            </UserNameField>
-        )
-    }
-
-    if (phone) {
-        items.push(formatPhone(phone))
-    }
-
-    if (email) {
-        items.push(email)
-    }
-
-    return (
-        <>
-            {items.map((item, i) => (
-                <div key={i}>
-                    {item}
-                    {i !== items.length - 1 && (
-                        <br/>
-                    )}
-                </div>
-            ))}
-        </>
-    )
-}
-
-const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
-const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
-const HINT_CARD_STYLE = { maxHeight: '5em ' }
-const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 16]
 
 const TicketContent = ({ ticket }) => {
-    const intl = useIntl()
-    const TicketInfoMessage = intl.formatMessage({ id: 'Problem' })
-    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const ResidentClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.ResidentClient' })
-    const NotResidentClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.NotResidentClient' })
-    const FilesFieldLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Files' })
-    const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
-    const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
-    const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
-    const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
-    const Deadline = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
-    const ToCompleteMessage = intl.formatMessage({ id: 'ticket.deadline.ToComplete' }).toLowerCase()
-    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' }).toLowerCase()
-    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' }).toLowerCase()
-    const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` })
-    const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
-    const ReviewWithoutCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.withoutComment' })
-    const NoReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.noReview' })
-    const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
-
-    const propertyWasDeleted = !(ticket.property)
-    const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
-    const ticketUnit = ticket.unitName ? `${UnitTypePrefix.toLowerCase()} ${ticket.unitName}` : ''
-    const ticketSectionAndFloor = ticket.sectionName && ticket.floorName
-        ? `(${SectionName.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName})`
-        : ''
-
-    const ticketReviewValue = ticket.reviewValue
-    const ticketReviewComment = ticket.reviewComment
-    const reviewValueToText = useMemo(() => ({
-        [REVIEW_VALUES.BAD]: `${getReviewMessageByValue(REVIEW_VALUES.BAD, intl)} 😔`,
-        [REVIEW_VALUES.GOOD]: `${getReviewMessageByValue(REVIEW_VALUES.GOOD, intl)} 😊`,
-    }), [intl])
-
-    const { objs: files } = TicketFile.useObjects({
-        where: { ticket: { id: ticket ? ticket.id : null } },
-    }, {
-        fetchPolicy: 'network-only',
-    })
-
-    const ticketOrganizationId = get(ticket, ['organization', 'id'], null)
-    const ticketExecutorUserId = get(ticket, ['executor', 'id'], null)
-    const ticketAssigneeUserId = get(ticket, ['assignee', 'id'], null)
-
-    const { obj: executor } = OrganizationEmployee.useObject({
-        where: {
-            organization: {
-                id: ticketOrganizationId,
-            },
-            user: {
-                id: ticketExecutorUserId,
-            },
-        },
-    })
-
-    const { obj: assignee } = OrganizationEmployee.useObject({
-        where: {
-            organization: {
-                id: ticketOrganizationId,
-            },
-            user: {
-                id: ticketAssigneeUserId,
-            },
-        },
-    })
-
-    const getTicketDeadlineMessage = useCallback(() => {
-        if (!ticketDeadline) return
-
-        const deadlineType = getDeadlineType(ticket)
-        const { dayDiff, overdueDiff } = getHumanizeDeadlineDateDifference(ticket)
-
-        switch (deadlineType) {
-            case TicketDeadlineType.MORE_THAN_DAY: {
-                return (
-                    <Typography.Text type={'warning'} strong>
-                        ({ToCompleteMessage.replace('{days}', dayDiff)})
-                    </Typography.Text>
-                )
-            }
-            case TicketDeadlineType.LESS_THAN_DAY: {
-                return (
-                    <Typography.Text type={'warning'} strong>
-                        ({LessThenDayMessage})
-                    </Typography.Text>
-                )
-            }
-            case TicketDeadlineType.OVERDUE: {
-                return (
-                    <Typography.Text type={'danger'} strong>
-                        ({OverdueMessage.replace('{days}', overdueDiff)})
-                    </Typography.Text>
-                )
-            }
-        }
-
-    }, [LessThenDayMessage, OverdueMessage, ToCompleteMessage, ticket, ticketDeadline])
-
-    const ticketClassifierNames = useMemo(() => compact([
-        get(ticket, ['placeClassifier', 'name']),
-        get(ticket, ['categoryClassifier', 'name']),
-        get(ticket, ['problemClassifier', 'name']),
-    ]), [ticket])
-
-    const overdueMessage = useMemo(() => getTicketDeadlineMessage(),
-        [getTicketDeadlineMessage])
-
-    const getClassifierTextType = useCallback(
-        (index: number): BaseType => index !== ticketClassifierNames.length - 1 ? null : 'secondary',
-        [ticketClassifierNames.length])
-
-    const address = get(ticket, ['property', 'address'], ticket.propertyAddress)
-    const addressMeta = get(ticket, ['property', 'addressMeta'], ticket.propertyAddressMeta)
-    const { streetPart, renderPostfix } = getAddressDetails({ address, addressMeta })
-
-    const TicketUnitMessage = useCallback(() => (
-        <Typography.Paragraph style={{ margin: 0 }}>
-            <Typography.Text strong>{ticketUnit}&nbsp;</Typography.Text>
-            <Typography.Text>{ticketSectionAndFloor}</Typography.Text>
-        </Typography.Paragraph>
-    ), [ticketSectionAndFloor, ticketUnit])
-
-    const DeletedPropertyAddressMessage = useCallback(() => (
-        <>
-            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
-                {renderPostfix}
-            </Typography.Paragraph>
-            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
-                {streetPart}
-            </Typography.Paragraph>
-            {
-                ticketUnit && (
-                    <Typography.Text type={'secondary'}>
-                        <TicketUnitMessage />
-                    </Typography.Text>
-
-                )
-            }
-            <Typography.Text type={'secondary'}>
-                ({ DeletedMessage })
-            </Typography.Text>
-        </>
-    ), [DeletedMessage, TicketUnitMessage, renderPostfix, streetPart, ticketUnit])
-
-    const PropertyAddressMessage = useCallback(() => (
-        <>
-            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
-                {renderPostfix}
-            </Typography.Paragraph>
-            <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
-                <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                    {streetPart}
-                </Typography.Link>
-            </Link>
-            {ticketUnit && <TicketUnitMessage />}
-        </>
-    ), [TicketUnitMessage, renderPostfix, streetPart, ticket, ticketUnit])
-
-    const contactId = get(ticket, ['contact', 'id'])
-    const ClientMessage = useMemo(() => contactId ? ResidentClientMessage : NotResidentClientMessage,
-        [NotResidentClientMessage, ResidentClientMessage, contactId])
-
-    const propertyId = get(ticket, ['property', 'id'], null)
-
     return (
         <Col span={24}>
             <Row gutter={[0, 40]}>
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
-                        {
-                            ticket.status.type === CLOSED_STATUS_TYPE ? (
-                                <PageFieldRow title={ReviewValueMessage}>
-                                    <Typography.Text>
-                                        {
-                                            ticketReviewValue ? (
-                                                <>
-                                                    {reviewValueToText[ticketReviewValue]}&nbsp;
-                                                    <Typography.Text type={'secondary'}>
-                                                        ({ticketReviewComment ? ticketReviewComment.replace(';', ', ') : ReviewWithoutCommentMessage})
-                                                    </Typography.Text>
-                                                </>
-                                            ) : (
-                                                <Typography.Text type={'secondary'}>
-                                                    {NoReviewMessage}
-                                                </Typography.Text>
-                                            )
-                                        }
-                                    </Typography.Text>
-                                </PageFieldRow>
-                            ) : null
-                        }
-                        {
-                            ticketDeadline ? (
-                                <PageFieldRow title={Deadline}>
-                                    <Typography.Text strong> {dayjs(ticketDeadline).format('DD MMMM YYYY')} </Typography.Text>
-                                    {overdueMessage}
-                                </PageFieldRow>
-                            ) : null
-                        }
-                        <PageFieldRow title={AddressMessage} highlight>
-                            <Row gutter={SMALL_VERTICAL_GUTTER}>
-                                <Col span={24}>
-                                    {
-                                        propertyWasDeleted ? (
-                                            <DeletedPropertyAddressMessage />
-                                        ) : <PropertyAddressMessage />
-                                    }
-                                </Col>
-                                <Col span={24}>
-                                    <TicketPropertyHintCard
-                                        propertyId={propertyId}
-                                        hintContentStyle={HINT_CARD_STYLE}
-                                    />
-                                </Col>
-                            </Row>
-                        </PageFieldRow>
-                        <PageFieldRow title={ClientMessage} highlight>
-                            {
-                                contactId
-                                    ? <Link href={`/contact/${contactId}`}>
-                                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                                            <TicketUserInfoField
-                                                user={{
-                                                    name: get(ticket, ['contact', 'name']),
-                                                    phone: get(ticket, ['contact', 'phone']),
-                                                }}
-                                            />
-                                        </Typography.Link>
-                                    </Link>
-                                    : <Typography.Text>
-                                        <TicketUserInfoField
-                                            user={{
-                                                name: get(ticket, 'clientName'),
-                                                phone: get(ticket, 'clientPhone'),
-                                            }}
-                                        />
-                                    </Typography.Text>
-                            }
-                        </PageFieldRow>
-                        <PageFieldRow title={TicketInfoMessage}>
-                            {ticket.details}
-                        </PageFieldRow>
-                        {!isEmpty(files) && (
-                            <PageFieldRow title={FilesFieldLabel}>
-                                <TicketFileList files={files} />
-                            </PageFieldRow>
-                        )}
+                        <TicketReviewField ticket={ticket} />
+                        <TicketDeadlineField ticket={ticket} />
+                        <TicketPropertyField ticket={ticket} />
+                        <TicketClientField ticket={ticket} />
+                        <TicketDetailsField ticket={ticket} />
+                        <TicketFileListField ticket={ticket} />
                     </Row>
                 </Col>
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
-                        <PageFieldRow title={ClassifierMessage}>
-                            <Breadcrumb separator="»">
-                                {
-                                    ticketClassifierNames.map((name, index) => {
-                                        return (
-                                            <Breadcrumb.Item key={name}>
-                                                <Typography.Text
-                                                    style={CLASSIFIER_VALUE_STYLE}
-                                                    strong
-                                                    type={getClassifierTextType(index)}
-                                                >
-                                                    {name}
-                                                </Typography.Text>
-                                            </Breadcrumb.Item>
-                                        )
-                                    })
-                                }
-                            </Breadcrumb>
-                        </PageFieldRow>
-                        <PageFieldRow title={ExecutorMessage}>
-                            {
-                                executor
-                                    ? <Link href={`/employee/${get(executor, 'id')}`}>
-                                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                                            <Typography.Text strong>
-                                                <TicketUserInfoField user={{
-                                                    name: get(executor, 'name'),
-                                                    phone: get(executor, 'phone'),
-                                                    email: get(executor, 'email'),
-                                                }}/>
-                                            </Typography.Text>
-                                        </Typography.Link>
-                                    </Link>
-                                    : <Typography.Text type='secondary'>
-                                        {EmployeeIsNullOrWasDeletedMessage}
-                                    </Typography.Text>
-                            }
-                        </PageFieldRow>
-                        <PageFieldRow title={AssigneeMessage}>
-                            {
-                                assignee
-                                    ? <Link href={`/employee/${get(assignee, 'id')}`}>
-                                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                                            <Typography.Text strong>
-                                                <TicketUserInfoField user={{
-                                                    name: get(assignee, 'name'),
-                                                    phone: get(assignee, 'phone'),
-                                                    email: get(assignee, 'email'),
-                                                }}/>
-                                            </Typography.Text>
-                                        </Typography.Link>
-                                    </Link>
-                                    : <Typography.Text type='secondary'>
-                                        {EmployeeIsNullOrWasDeletedMessage}
-                                    </Typography.Text>
-                            }
-                        </PageFieldRow>
+                        <TicketClassifierField ticket={ticket} />
+                        <TicketExecutorField ticket={ticket} />
+                        <TicketAssigneeField ticket={ticket} />
                     </Row>
                 </Col>
             </Row>
