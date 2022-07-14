@@ -3,12 +3,10 @@
  */
 
 const faker = require('faker')
-const { createTestBillingReceipt } = require(
-    '@condo/domains/billing/utils/testSchema')
 
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingAccount, createTestBillingIntegrationOrganizationContext, createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
-const { BillingAccount, BillingProperty, BillingReceipts } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingAccount, BillingProperty, BillingReceipt, createTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeLoggedInClient, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
@@ -106,7 +104,7 @@ describe('RegisterBillingReceiptsService', () => {
             const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
             const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
             const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
-            const billingReceipts = await BillingReceipts.getAll(admin, { context: { id: billingContext.id } })
+            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
 
             expect(billingProperties).toHaveLength(2)
             expect(billingAccounts).toHaveLength(3)
