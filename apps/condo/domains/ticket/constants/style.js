@@ -1,4 +1,5 @@
 const { CANCELED, COMPLETED, DEFERRED, NEW_OR_REOPEND, PROCESSING, CLOSED } = require('./statusTypes')
+const { colors } = require('../../common/constants/style')
 
 const STATUS_SELECT_COLORS = {
     [NEW_OR_REOPEND]: {
@@ -44,7 +45,10 @@ const TICKET_TYPE_TAG_COLORS = {
     returned: 'volcano',
 }
 
+const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
+
 module.exports = {
     TICKET_TYPE_TAG_COLORS,
     STATUS_SELECT_COLORS,
+    TICKET_CARD_LINK_STYLE,
 }
