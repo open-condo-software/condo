@@ -48,7 +48,7 @@ const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
 const filterFloor = getFilter('floorName', 'array', 'string', 'in')
-const filterUnit = getFilter('unitName', 'array', 'string', 'in')
+const filterUnit = getStringContainsFilter('unitName')
 const filterUnitType = getFilter('unitType', 'array', 'string', 'in')
 const filterPlaceClassifier = getFilter(['placeClassifier', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifier = getFilter(['categoryClassifier', 'id'], 'array', 'string', 'in')
@@ -313,7 +313,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 component: {
                     type: ComponentType.Input,
                     props: {
-                        tokenSeparators: [' '],
                         placeholder: EnterUnitNameLabel,
                     },
                     modalFilterComponentWrapper: {
