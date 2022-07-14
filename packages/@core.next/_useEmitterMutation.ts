@@ -20,7 +20,7 @@ const MutationEmitter = {
     emit: (event, payload) => eventEmitter.emit(event, payload),
 }
 
-export function useEmitterMutation<TData = any, TVariables = OperationVariables> (mutation: DocumentNode | TypedDocumentNode<TData, TVariables>, options?: MutationHookOptions<TData, TVariables>): MutationTuple<TData, TVariables> {
+export function _useEmitterMutation<TData = any, TVariables = OperationVariables> (mutation: DocumentNode | TypedDocumentNode<TData, TVariables>, options?: MutationHookOptions<TData, TVariables>): MutationTuple<TData, TVariables> {
     const [originalAction, result] = useMutation<TData, TVariables>(mutation, options)
 
     async function action (options?: MutationFunctionOptions<TData, TVariables>): Promise<FetchResult<TData>> {
