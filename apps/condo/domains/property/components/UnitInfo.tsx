@@ -5,13 +5,13 @@ import { useIntl } from '@core/next/intl'
 import { Col, FormInstance, Row } from 'antd'
 import get from 'lodash/get'
 
+import { BuildingFloor, BuildingSection, Property, BuildingUnitSubType } from '@app/condo/schema'
+
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
-
-import { BuildingFloor, BuildingSection, BuildingUnit, Property, BuildingUnitSubType } from '@app/condo/schema'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { FloorNameInput } from '../../user/components/FloorNameInput'
-import { SectionNameInput } from '../../user/components/SectionNameInput'
+import { FloorNameInput } from '@condo/domains/user/components/FloorNameInput'
+import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } from '@condo/domains/property/constants/common'
 
 interface IGetSectionAndFloorByUnit {
@@ -55,6 +55,16 @@ export function getFloorsBySection (selectedSectionName, sections: BuildingSecti
     return []
 }
 
+export enum UnitInfoMode {
+    Unit = 'unit',
+    All = 'all',
+}
+
+type InitialUnitInfoType = {
+    sectionName?: string
+    floorName?: string
+}
+
 interface IUnitInfo {
     property: Property
     form: FormInstance
@@ -62,9 +72,8 @@ interface IUnitInfo {
     setSelectedUnitName: React.Dispatch<React.SetStateAction<string>>
     setSelectedUnitType?: React.Dispatch<React.SetStateAction<BuildingUnitSubType>>
     selectedUnitName?: string
-
-    mode?: 'unit' | 'all'
-    initialValues?
+    mode?: UnitInfoMode
+    initialValues?: InitialUnitInfoType
     selectedSectionType?: string
     setSelectedSectionType?: React.Dispatch<React.SetStateAction<string>>
 }
@@ -84,7 +93,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         form,
         setSelectedUnitType,
         selectedUnitName,
-        mode = 'unit',
+        mode = UnitInfoMode.Unit,
         selectedSectionType,
         setSelectedSectionType,
     } = props
@@ -98,11 +107,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     const parking = useMemo(() => get(property, ['map', 'parking'], []), [property])
     const selectedSections = useMemo(() => {
         if (selectedSectionName) {
-            if (selectedSectionType === SECTION_SECTION_TYPE) {
-                return sections
-            } else {
-                return parking
-            }
+            return selectedSectionType === SECTION_SECTION_TYPE ? sections : parking
         }
     }, [parking, sections, selectedSectionName, selectedSectionType])
     const floors = useMemo(() =>
@@ -143,8 +148,8 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     const colSpan = isSmall ? 24 : 20
     const inputColSpan = isSmall ? 8 : 5
 
-    const disableFloorInputCondition = mode === 'unit' || isEmpty(selectedSectionName) || selectedUnitName
-    const disableSectionInputCondition = mode === 'unit' || selectedUnitName
+    const disableFloorInputCondition = mode === UnitInfoMode.Unit || isEmpty(selectedSectionName) || selectedUnitName
+    const disableSectionInputCondition = mode === UnitInfoMode.Unit || selectedUnitName
 
     const handleChangeSectionNameInput = useCallback((section, option) => {
         if (!isEmpty(section)) {

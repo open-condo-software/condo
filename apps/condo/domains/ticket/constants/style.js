@@ -1,5 +1,6 @@
+const { colors } = require('@condo/domains/common/constants/style')
+
 const { CANCELED, COMPLETED, DEFERRED, NEW_OR_REOPEND, PROCESSING, CLOSED } = require('./statusTypes')
-const { colors } = require('../../common/constants/style')
 
 const STATUS_SELECT_COLORS = {
     [NEW_OR_REOPEND]: {

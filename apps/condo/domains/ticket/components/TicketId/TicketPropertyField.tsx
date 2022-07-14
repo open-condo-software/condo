@@ -11,7 +11,6 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
-import { PARKING_SECTION_TYPE } from '../../../property/constants/common'
 
 const HINT_CARD_STYLE = { maxHeight: '5em ' }
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 16]
