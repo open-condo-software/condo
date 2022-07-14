@@ -88,14 +88,14 @@ const syncBillingAccounts = async (context, accounts, { properties, billingConte
         property: _.find(properties, p => p.id === _.get(item, ['property', 'id'])),
     }))
 
-    return [ ...newAccountsWithData, ...existingAccounts ]
+    return [ ...newAccountsWithData, ...existingAccountsWithData ]
 }
 
 const syncBillingReceipts = async (context, receipts, { accounts, properties, billingContextId } ) => {
     const receiptsWithData = Object.values(receipts).map(receipt => ({
         ..._.omit(receipt, ['propertyKey', 'accountKey']),
         property: _.find(properties, p => receipt.propertyKey === getBillingPropertyKey(p)),
-        account: _.find(accounts, a => receipt.id === getBillingAccountKey(a)),
+        account: _.find(accounts, a => receipt.accountKey === getBillingAccountKey(a)),
     }))
 
     const existingReceiptsQuery = {
