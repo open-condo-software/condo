@@ -6,13 +6,17 @@ import {
     InMemoryCache,
     useApolloClient,
     useLazyQuery,
-    useMutation,
     useQuery,
     useSubscription,
 } from '@apollo/client'
 import fetch from 'isomorphic-unfetch'
 import getConfig from 'next/config'
 import { createUploadLink } from 'apollo-upload-client'
+import {
+    useEmitterMutation as useMutation,
+    MutationEmitter,
+    MUTATION_RESULT_EVENT,
+} from './useEmitterMutation'
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
@@ -229,5 +233,11 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
 
 export {
     withApollo,
-    useApolloClient, useMutation, useQuery, useSubscription, useLazyQuery,
+    useApolloClient,
+    useQuery,
+    useSubscription,
+    useLazyQuery,
+    useMutation,
+    MutationEmitter,
+    MUTATION_RESULT_EVENT,
 }
