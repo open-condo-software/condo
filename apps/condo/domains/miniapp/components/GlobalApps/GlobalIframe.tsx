@@ -14,7 +14,7 @@ type IGlobalIframeProps = {
     hidden?: boolean
 }
 
-const GlobalIframe = React.forwardRef<HTMLIFrameElement, IGlobalIframeProps>((props, ref) => {
+const GlobalIframeForwardRef = React.forwardRef<HTMLIFrameElement, IGlobalIframeProps>((props, ref) => {
     const { pageUrl, hidden } = props
     const shouldHideIframe = hidden === undefined ? true : hidden
     const pageOrigin = extractOrigin(pageUrl)
@@ -61,6 +61,7 @@ const GlobalIframe = React.forwardRef<HTMLIFrameElement, IGlobalIframeProps>((pr
     )
 })
 
-GlobalIframe.displayName = 'GlobalIFrame'
+GlobalIframeForwardRef.displayName = 'GlobalIframe'
+const GlobalIframe = React.memo(GlobalIframeForwardRef)
 
 export default GlobalIframe

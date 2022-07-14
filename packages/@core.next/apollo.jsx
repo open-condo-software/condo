@@ -13,10 +13,10 @@ import fetch from 'isomorphic-unfetch'
 import getConfig from 'next/config'
 import { createUploadLink } from 'apollo-upload-client'
 import {
-    useEmitterMutation as useMutation,
+    _useEmitterMutation,
     MutationEmitter,
     MUTATION_RESULT_EVENT,
-} from './useEmitterMutation'
+} from './_useEmitterMutation'
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
@@ -229,6 +229,10 @@ const withApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
     }
 
     return WithApollo
+}
+
+function useMutation (mutation, options) {
+    return _useEmitterMutation(mutation, options)
 }
 
 export {
