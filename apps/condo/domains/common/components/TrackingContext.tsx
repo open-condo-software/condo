@@ -127,6 +127,7 @@ const useTracking: IUseTracking = () => {
             case 'create':
             case 'update':
             case 'hint':
+            case 'detail':
                 domainSuffix = upperFirst(detailPageName)
                 break
 
