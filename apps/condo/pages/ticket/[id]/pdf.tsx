@@ -20,6 +20,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { compact } from 'lodash'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { getTicketSectionAndFloorMessage } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
 interface ITicketDescriptionFieldProps {
     title?: string
@@ -92,9 +93,6 @@ const PdfView = () => {
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const SectionName = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
-    const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
 
     const containerRef = useRef(null)
 
@@ -152,9 +150,13 @@ const PdfView = () => {
     }
 
     const TicketCreationDate = getTicketCreateMessage(intl, ticket)
-    const ticketAddress = get(ticket, ['property', 'address'], ticket.propertyAddress)
-        + (ticket.sectionName && ticket.floorName ? `, ${SectionName} ${ticket.sectionName}, ${FloorName} ${ticket.floorName}` : '')
-        + (ticket.unitName ? `, ${ShortFlatNumber} ${ticket.unitName}` : '')
+
+    const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` })
+    const ticketUnitMessage = ticket.unitName ? `${UnitTypePrefix.toLowerCase()} ${ticket.unitName} ` : ''
+    const ticketSectionAndFloorMessage = getTicketSectionAndFloorMessage(ticket, ticketUnitMessage, intl)
+
+    const ticketAddress = `${get(ticket, ['property', 'address'], ticket.propertyAddress)} ${ticketUnitMessage} ${ticketSectionAndFloorMessage}`
+
     const isEmergency = get(ticket, 'isEmergency')
     const isWarranty = get(ticket, 'isWarranty')
     const isPaid = get(ticket, 'isPaid')

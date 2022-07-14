@@ -1,60 +1,7 @@
 /** @jsx jsx */
 import { EditFilled, FilePdfFilled } from '@ant-design/icons'
-
-import {
-    SortTicketChangesBy,
-    SortTicketCommentFilesBy,
-    SortTicketCommentsBy,
-    TicketFile as TicketFileType,
-    User,
-} from '@app/condo/schema'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
-import { Comments } from '@condo/domains/common/components/Comments'
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { colors, fontSizes } from '@condo/domains/common/constants/style'
-import { formatPhone, getAddressDetails } from '@condo/domains/common/utils/helpers'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
-import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
-import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
-import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
-import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
-import { CLOSED_STATUS_TYPE, REVIEW_VALUES } from '@condo/domains/ticket/constants'
-
-import { TICKET_TYPE_TAG_COLORS, TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
-import {
-    Ticket,
-    TicketChange,
-    TicketComment,
-    TicketCommentFile,
-    TicketCommentsTime,
-    TicketFile,
-    UserTicketCommentReadTime,
-} from '@condo/domains/ticket/utils/clientSchema'
-import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
-import {
-    getDeadlineType,
-    getHumanizeDeadlineDateDifference,
-    getTicketCreateMessage,
-    getTicketTitleMessage,
-    TicketDeadlineType,
-} from '@condo/domains/ticket/utils/helpers'
-import { UserNameField } from '@condo/domains/user/components/UserNameField'
-import { RESIDENT } from '@condo/domains/user/constants/common'
-import { useAuth } from '@core/next/auth'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
-import { css, jsx } from '@emotion/react'
-import { Affix, Breadcrumb, Col, notification, Row, Space, Typography } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
-import { BaseType } from 'antd/lib/typography/Base'
-import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
-import UploadList from 'antd/lib/upload/UploadList/index'
+import { jsx } from '@emotion/react'
+import { Affix, Col, Row, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { compact, get, isEmpty, map } from 'lodash'
 import Head from 'next/head'
@@ -62,17 +9,52 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import { FormattedMessage } from 'react-intl'
-import { TicketAssigneeField } from '../../../domains/ticket/components/TicketId/TicketAssigneeField'
-import { TicketClassifierField } from '../../../domains/ticket/components/TicketId/TicketClassifierField'
-import { TicketClientField } from '../../../domains/ticket/components/TicketId/TicketClientField'
-import { TicketDeadlineField } from '../../../domains/ticket/components/TicketId/TicketDeadlineField'
-import { TicketDetailsField } from '../../../domains/ticket/components/TicketId/TicketDetailsField'
-import { TicketExecutorField } from '../../../domains/ticket/components/TicketId/TicketExecutorField'
-import { TicketFileList } from '../../../domains/ticket/components/TicketId/TicketFileList'
-import { TicketFileListField } from '../../../domains/ticket/components/TicketId/TicketFileListField'
-import { TicketPropertyField } from '../../../domains/ticket/components/TicketId/TicketPropertyField'
-import { TicketReviewField } from '../../../domains/ticket/components/TicketId/TicketReviewField'
-import { TicketUserInfoField } from '../../../domains/ticket/components/TicketId/TicketUserInfoField'
+
+import {
+    SortTicketChangesBy,
+    SortTicketCommentFilesBy,
+    SortTicketCommentsBy,
+} from '@app/condo/schema'
+import { useAuth } from '@core/next/auth'
+import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Button } from '@condo/domains/common/components/Button'
+import { Comments } from '@condo/domains/common/components/Comments'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
+import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
+import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
+import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
+import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
+import {
+    Ticket,
+    TicketChange,
+    TicketComment,
+    TicketCommentFile,
+    TicketCommentsTime,
+    UserTicketCommentReadTime,
+} from '@condo/domains/ticket/utils/clientSchema'
+import {
+    getTicketCreateMessage,
+    getTicketTitleMessage,
+} from '@condo/domains/ticket/utils/helpers'
+import { UserNameField } from '@condo/domains/user/components/UserNameField'
+import { RESIDENT } from '@condo/domains/user/constants/common'
+import { TicketAssigneeField } from '@condo/domains/ticket/components/TicketId/TicketAssigneeField'
+import { TicketClassifierField } from '@condo/domains/ticket/components/TicketId/TicketClassifierField'
+import { TicketClientField } from '@condo/domains/ticket/components/TicketId/TicketClientField'
+import { TicketDeadlineField } from '@condo/domains/ticket/components/TicketId/TicketDeadlineField'
+import { TicketDetailsField } from '@condo/domains/ticket/components/TicketId/TicketDetailsField'
+import { TicketExecutorField } from '@condo/domains/ticket/components/TicketId/TicketExecutorField'
+import { TicketFileListField } from '@condo/domains/ticket/components/TicketId/TicketFileListField'
+import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
+import { TicketReviewField } from '@condo/domains/ticket/components/TicketId/TicketReviewField'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
