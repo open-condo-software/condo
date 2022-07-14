@@ -99,6 +99,13 @@ const Contact = new GQLListSchema('Contact', {
             },
         },
 
+        role: {
+            schemaDoc: 'The contact\'s role',
+            type: Relationship,
+            ref: 'ContactRole',
+            isRequired: false,
+        },
+
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError }) => {

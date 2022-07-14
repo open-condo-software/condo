@@ -13,6 +13,9 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const CONTACT_FIELDS = `{ organization { id name } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } name phone unitName unitType email ${COMMON_FIELDS} }`
 const Contact = generateGqlQueries('Contact', CONTACT_FIELDS)
 
+const CONTACT_ROLE_FIELDS = `{ name organization { id name } ${COMMON_FIELDS} }`
+const ContactRole = generateGqlQueries('ContactRole', CONTACT_ROLE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_CONTACTS_TO_EXCEL =  gql`
@@ -24,5 +27,6 @@ const EXPORT_CONTACTS_TO_EXCEL =  gql`
 module.exports = {
     Contact,
     EXPORT_CONTACTS_TO_EXCEL,
+    ContactRole,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
