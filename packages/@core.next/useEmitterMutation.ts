@@ -26,7 +26,8 @@ export function useEmitterMutation<TData = any, TVariables = OperationVariables>
     async function action (options?: MutationFunctionOptions<TData, TVariables>): Promise<FetchResult<TData>> {
         const result = await originalAction(options)
         const { data } = result
-        if (data && mutation && mutation.kind && mutation.kind === 'Document') {
+        const mutationKind = get(mutation, 'kind')
+        if (data && mutationKind === 'Document') {
             const operation = 'mutation'
             const name = get(mutation, ['definitions', '0', 'name', 'value'], null)
             MutationEmitter.emit(MUTATION_RESULT_EVENT, {
