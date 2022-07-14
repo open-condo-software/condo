@@ -178,7 +178,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
     mutations: [
         {
             access: access.canRegisterBillingReceipts,
-            schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]!',
+            schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
 
