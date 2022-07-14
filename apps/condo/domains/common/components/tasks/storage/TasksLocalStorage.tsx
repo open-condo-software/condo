@@ -1,5 +1,6 @@
 import find from 'lodash/find'
 import findIndex from 'lodash/findIndex'
+import isFunction from 'lodash/isFunction'
 import { ITasksStorage, OnCompleteFunc } from '../index'
 
 const LOCAL_STORAGE_TASKS_KEY = 'tasks'
@@ -56,7 +57,10 @@ export class TasksLocalStorage implements ITasksStorage {
             }
             const updatedRecords = [ ...existingRecords, newRecord ]
             this.store(updatedRecords)
-            onComplete(newRecord)
+
+            if (isFunction(onComplete)) {
+                onComplete(newRecord)
+            }
         }
     }
 
@@ -81,7 +85,10 @@ export class TasksLocalStorage implements ITasksStorage {
                 ...existingRecords.slice(recordIndexToUpdate + 1),
             ]
             this.store(updatedRecords)
-            onComplete(updatedRecord)
+
+            if (isFunction(onComplete)) {
+                onComplete(updatedRecord)
+            }
         }
     }
 
@@ -97,7 +104,10 @@ export class TasksLocalStorage implements ITasksStorage {
             }
 
             this.store(existingRecords.filter((record) => record.id !== id))
-            onComplete(id)
+
+            if (isFunction(onComplete)) {
+                onComplete(id)
+            }
         }
     }
 
