@@ -17,11 +17,7 @@ async function canAcceptOrRejectOrganizationInvite ({ authentication: { item: us
     }
     if (id && data) {
         const employee = await getById('OrganizationEmployee', id)
-        if (!employee || employee.deletedAt) return false
-        const user = await getById('User', employee.user)
-        if (!user) return false
-
-        // TODO(pahaz): check is user email/phone is verified
+        if (!employee || employee.deletedAt || !employee.user) return false
         return employee.user === user.id
     }
 }
