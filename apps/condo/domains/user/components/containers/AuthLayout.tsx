@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { Global } from '@emotion/react'
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import { useIntl } from '@condo/next/intl'
+import { useRouter } from 'next/router'
 import getConfig from 'next/config'
 import { PosterLayout } from './PosterLayout'
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
 
@@ -22,6 +24,15 @@ interface IAuthLayoutProps {
 const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
     const intl = useIntl()
     const { children, ...otherProps } = props
+
+    const { asPath } = useRouter()
+
+    const { getEventName, logEvent } = useTracking()
+
+    useEffect(() => {
+        const eventName = getEventName(TrackingEventType.Visit)
+        logEvent({ eventName, denyDuplicates: true })
+    }, [asPath])
 
     return (
         <GoogleReCaptchaProvider
