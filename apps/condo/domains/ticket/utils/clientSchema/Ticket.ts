@@ -70,6 +70,8 @@ function formValuesProcessor (formValues: ITicketFormState): TicketMutationType 
         }
     }
 
+    console.log('result', result)
+
     return result
 }
 

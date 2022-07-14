@@ -311,6 +311,8 @@ const Ticket = new GQLListSchema('Ticket', {
             dataType: 'string',
             isRequired: false,
             defaultValue: SECTION_SECTION_TYPE,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true },
         },
         floorName: {
             schemaDoc: 'Floor of an apartment building (property). You need to take from Property.map',
