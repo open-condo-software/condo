@@ -132,6 +132,17 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         }
         const residentsCount = await Resident.count(context, residentsWhere )
 
+        logger.info({
+            message: 'Found data for property:',
+            receiptsCount,
+            address: billingProperty.address,
+            propertyId: billingProperty.id,
+            accounts: accounts.length,
+            serviceConsumers: serviceConsumers.length,
+            residentsWithSC: scResidentIds.length,
+            residentsCount,
+        })
+
         if (residentsCount < 1) continue
 
         let skip = 0
