@@ -100,7 +100,9 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
 
     const existingReceiptsQuery = {
         OR: receiptsWithData.map(item => ({
-            category: { id: _.get(item, ['category', 'id']) },
+            // TODO @toplenboren (DOMA-3445) refactor this! Also add PAYMENT INFO!
+            period: item.period,
+            category: { id: _.get(item, ['category', 'connect', 'id']) },
             property: { id: _.get(item, ['property', 'id']) },
             account: { id: _.get(item, ['account', 'id']) },
         })),
@@ -156,7 +158,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'bankAccount: String! ' +
 
                     'raw: JSON ' +
-                    'meta: JSON ' +
                 '}',
         },
         {
@@ -198,7 +199,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         iec,
                         bic,
                         bankAccount,
-                        meta,
                         raw,
                     } = receiptInput
 
@@ -247,11 +247,14 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             period: period,
                             importId: importId,
                             category: { connect: { id: category.id } },
-                            raw: { ...{ dv: 1 }, ...raw },
-                            meta: { ...{ dv: 1 }, ...meta },
                             toPay: toPay,
                             services: services,
                             toPayDetails: toPayDetails,
+                            tin,
+                            iec,
+                            bic,
+                            bankAccount,
+                            raw: { ...{ dv: 1 }, ...raw },
                         }
                     }
                     return index
