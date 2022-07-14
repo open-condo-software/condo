@@ -117,6 +117,8 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         }
                     })
 
+                    const sectionTypeMessage = ticket.sectionType && i18n(`field.sectionType.${ticket.sectionType}`, { locale })
+
                     return {
                         number: ticket.number,
                         source: ticket.source || EMPTY_VALUE,
@@ -124,7 +126,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         property: isNull(ticket.property) ? ticket.propertyAddress : `${ticket.propertyAddress} - ${i18n('pages.condo.ticket.field.PropertyWasDeleted', { locale })}`,
                         unitName: ticket.unitName,
                         unitType: ticket.unitType ? i18n(`pages.condo.ticket.field.unitType.${ticket.unitType}`, { locale }) : '',
-                        entranceName: ticket.sectionName,
+                        entranceName: ticket.sectionName && `${sectionTypeMessage} ${ticket.sectionName}`,
                         floorName: ticket.floorName,
                         clientName: ticket.clientName,
                         contact: ticket.contact ? i18n('excelExport.tickets.ticketFromResident', { locale }) : i18n('excelExport.tickets.ticketFromNonResident', { locale }),

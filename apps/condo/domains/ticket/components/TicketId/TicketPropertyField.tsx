@@ -22,20 +22,18 @@ type TicketPropertyFieldProps = {
 
 export const getTicketSectionAndFloorMessage = (ticket: Ticket, ticketUnitMessage: string, intl) => {
     const FloorName = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
-    const ParkingMessage = intl.formatMessage({ id: 'field.sectionType.Parking' })
-    const SectionMessage = intl.formatMessage({ id: 'field.sectionType.Section' })
 
     const sectionName = get(ticket, 'sectionName')
     const sectionType = get(ticket, 'sectionType')
     const floorName = get(ticket, 'floorName')
-    const sectionTypeFromMessage = sectionType === PARKING_SECTION_TYPE ? ParkingMessage : SectionMessage
-    const sectionAndFloorMessage = `${sectionTypeFromMessage.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName}`
+    const sectionTypeMessage = intl.formatMessage({ id: `field.sectionType.${sectionType}` })
+    const sectionAndFloorMessage = `${sectionTypeMessage.toLowerCase()} ${ticket.sectionName}, ${FloorName.toLowerCase()} ${ticket.floorName}`
 
     if (!isEmpty(ticketUnitMessage) && !isEmpty(sectionName) && !isEmpty(floorName)) {
         return `(${sectionAndFloorMessage})`
     } else if (isEmpty(ticketUnitMessage) && !isEmpty(sectionName)) {
         if (isEmpty(floorName)) {
-            return `${sectionTypeFromMessage.toLowerCase()} ${ticket.sectionName}`
+            return `${sectionTypeMessage.toLowerCase()} ${ticket.sectionName}`
         } else {
             return sectionAndFloorMessage
         }
