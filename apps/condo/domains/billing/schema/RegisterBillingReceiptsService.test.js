@@ -5,21 +5,141 @@
 const faker = require('faker')
 
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestBillingIntegration, createTestBillingAccount, createTestBillingIntegrationOrganizationContext, createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
-const { BillingAccount, BillingProperty, BillingReceipt, createTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { makeLoggedInClient, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
 
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
 
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
- 
+
+const {
+    makeServiceUserForIntegration,
+    makeOrganizationIntegrationManager,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    makeResidentClientWithOwnReceipt,
+    createReceiptsReader,
+    createTestRecipient,
+    createTestBillingProperty,
+    createTestBillingAccount,
+    updateTestBillingAccount,
+    createTestBillingIntegration,
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingRecipient,
+    BillingReceipt,
+    BillingAccount,
+    BillingProperty,
+    createTestBillingReceipt,
+    createTestBillingReceipts,
+    updateTestBillingReceipt,
+    updateTestBillingReceipts,
+    updateTestBillingIntegrationAccessRight,
+} = require('@condo/domains/billing/utils/testSchema')
+
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
+    makeLoggedInClient,
+} = require('@condo/domains/user/utils/testSchema')
+
+const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+
 describe('RegisterBillingReceiptsService', () => {
+    let admin
+    let support
+    let anonymous
+    let user
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
+        anonymous = await makeClient()
+        user = await makeLoggedInClient()
+    })
+
     describe('Execute', () => {
         test('Admin can execute mutation', async () => {
-            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [],
+            }
+
+            const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+
+            expect(data).toHaveLength(0)
+        })
+
+        test('Billing service account can execute mutation', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+            const integrationUser = await makeServiceUserForIntegration(integration)
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [],
+            }
+
+            const [ data ] = await registerBillingReceiptsByTestClient(integrationUser, payload)
+
+            expect(data).toHaveLength(0)
+        })
+
+        test('Billing service account without Access Right cant execute mutation', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+            const integrationUser = await makeServiceUserForIntegration(integration)
+            await updateTestBillingIntegrationAccessRight(admin, integrationUser.accessRight.id, { deletedAt: 'true' })
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [],
+            }
+
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerBillingReceiptsByTestClient(integrationUser, payload)
+            })
+        })
+
+        test('Organization employee can not execute mutation', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+            const { managerUserClient } = await makeOrganizationIntegrationManager(billingContext)
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerBillingReceiptsByTestClient(managerUserClient, { context: { id: '1234' }, receipts: [] })
+            })
+        })
+
+        test('Support can not execute mutation', async () => {
+            const client = await makeClientWithSupportUser()
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerBillingReceiptsByTestClient(client, { context: { id: '1234' }, receipts: [] })
+            })
+        })
+
+        test('User can not execute mutation', async () => {
+            const client = await makeLoggedInClient()
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerBillingReceiptsByTestClient(client, { context: { id: '1234' }, receipts: [] })
+            })
+        })
+
+        test('Anonymous can not execute mutation', async () => {
+            const client = await makeClient()
+            await expectToThrowAuthenticationError(async () => {
+                await registerBillingReceiptsByTestClient(client, { context: { id: '1234' }, receipts: [] })
+            }, 'result')
+        })
+    })
+
+    describe('Business Logic', () => {
+        test('Simple case works', async () => {
             const EXISTING_TEST_ADDRESS = 'TEST'
             const EXISTING_TEST_UNIT_NAME = '0'
             const EXISTING_TEST_ACCOUNT_NUMBER = '0'
@@ -110,27 +230,6 @@ describe('RegisterBillingReceiptsService', () => {
             expect(billingAccounts).toHaveLength(3)
             expect(billingReceipts).toHaveLength(3)
             expect(data).toHaveLength(3)
-        })
-
-        test('Support can not execute mutation', async () => {
-            const client = await makeClientWithSupportUser()
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await registerBillingReceiptsByTestClient(client, { context: { id: '1234' }, receipts: [] })
-            })
-        })
-
-        test('User can not execute mutation', async () => {
-            const client = await makeLoggedInClient()
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await registerBillingReceiptsByTestClient(client, { context: { id: '1234' }, receipts: [] })
-            })
-        })
-
-        test('Anonymous can not execute mutation', async () => {
-            const client = await makeClient()
-            await expectToThrowAuthenticationError(async () => {
-                await registerBillingReceiptsByTestClient(client, { context: { id: '1234' }, receipts: [] })
-            }, 'result')
         })
     })
 })

@@ -714,7 +714,8 @@ async function makeContextWithOrganizationAndIntegrationAsAdmin() {
 async function makeServiceUserForIntegration(integration) {
     const admin = await makeLoggedInAdminClient()
     const client = await makeClientWithServiceUser()
-    await createTestBillingIntegrationAccessRight(admin, integration, client.user)
+    const [accessRight] = await createTestBillingIntegrationAccessRight(admin, integration, client.user)
+    client.accessRight = accessRight
 
     return client
 }
