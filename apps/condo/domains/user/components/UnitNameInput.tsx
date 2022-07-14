@@ -1,16 +1,16 @@
-import { reverse } from 'lodash'
-import React, { useCallback } from 'react'
-import { useIntl } from '@core/next/intl'
-import Input from '@condo/domains/common/components/antd/Input'
-import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
+import { LabeledValue } from 'antd/lib/select'
 import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import React, { useCallback } from 'react'
 
 import { BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
-import { LabeledValue } from 'antd/lib/select'
+import { useIntl } from '@core/next/intl'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import { TrackingEventPropertiesType } from '@condo/domains/common/components/TrackingContext'
-import { getFloorsBySection } from '../../property/components/UnitInfo'
+import { getFloorsBySection, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 
 export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'onChange' | 'onSelect'> {
     property: Property
@@ -19,13 +19,13 @@ export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'on
     loading: boolean
     eventName?: string
     eventProperties?: TrackingEventPropertiesType
-    mode?: 'unit' | 'all'
+    mode?: UnitInfoMode
     selectedFloorName?: string
     selectedSectionName?: string
-    selectedSections?
+    selectedSections?: BuildingSection[]
 }
 interface IGetOptionGroupBySectionType {
-    units
+    units: BuildingUnit[]
     unitType: BuildingUnitSubType,
     groupLabel: string
 }
@@ -108,9 +108,9 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const parking = get(property, 'map.parking', [])
 
     const getUnits = useCallback((sections) => {
-        if (mode === 'unit' || isEmpty(selectedSectionName)) {
+        if (mode === UnitInfoMode.Unit || isEmpty(selectedSectionName)) {
             return getAllSectionsUnits(sections)
-        } else if (mode === 'all') {
+        } else if (mode === UnitInfoMode.All) {
             return getUnitsBySectionAndFloor(selectedSectionName, selectedFloorName, selectedSections)
         }
     }, [mode, selectedFloorName, selectedSectionName, selectedSections])

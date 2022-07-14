@@ -15,7 +15,6 @@ import dayjs from 'dayjs'
 import { getReviewMessageByValue } from '../../utils/clientSchema/Ticket'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { BaseType } from 'antd/lib/typography/Base'
-import { PARKING_SECTION_TYPE } from '../../../property/constants/common'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -60,6 +59,25 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
     )
 }
 
+const getAddressChangePostfix = (sectionName, sectionType, floorName, unitName, unitType, intl) => {
+    const FloorMessage = intl.formatMessage({ id: 'field.floorName' }).toLowerCase()
+
+    let addressChangePostfix
+    if (!isEmpty(sectionName)) {
+        addressChangePostfix += `, ${intl.formatMessage({ id: `field.sectionType.${sectionType}` }).toLowerCase()} ${sectionName}`
+
+        if (!isEmpty(floorName)) {
+            addressChangePostfix += `, ${FloorMessage} ${floorName}`
+
+            if (!isEmpty(unitName)) {
+                addressChangePostfix += `, ${intl.formatMessage({ id: `field.UnitType.prefix.${unitType}` }).toLowerCase()}. ${unitName}`
+            }
+        }
+    }
+
+    return addressChangePostfix
+}
+
 const useChangedFieldMessagesOf = (ticketChange) => {
     const intl = useIntl()
     const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone' })
@@ -76,8 +94,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsWarrantyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
-
-    const FloorMessage = intl.formatMessage({ id: 'field.floorName' }).toLowerCase()
 
     const FilledReviewCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.filled' })
     const BadReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.badReview' })
@@ -167,29 +183,9 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
                 let addressChangePostfix = ''
                 if (type === TicketChangeFieldMessageType.From) {
-                    if (!isEmpty(sectionNameFrom)) {
-                        addressChangePostfix += `, ${intl.formatMessage({ id: `field.sectionType.${sectionTypeFrom}` }).toLowerCase()} ${sectionNameFrom}`
-
-                        if (!isEmpty(floorNameFrom)) {
-                            addressChangePostfix += `, ${FloorMessage} ${floorNameFrom}`
-
-                            if (!isEmpty(unitNameFrom)) {
-                                addressChangePostfix += `, ${intl.formatMessage({ id: `field.UnitType.prefix.${unitTypeFrom}` }).toLowerCase()}. ${unitNameFrom}`
-                            }
-                        }
-                    }
+                    addressChangePostfix = getAddressChangePostfix(sectionNameFrom, sectionTypeFrom, floorNameFrom, unitNameFrom, unitTypeFrom, intl)
                 }  else if (type === TicketChangeFieldMessageType.To) {
-                    if (!isEmpty(sectionNameTo)) {
-                        addressChangePostfix += `, ${intl.formatMessage({ id: `field.sectionType.${sectionNameTo}` }).toLowerCase()} ${sectionNameTo}`
-
-                        if (!isEmpty(floorNameTo)) {
-                            addressChangePostfix += `, ${FloorMessage} ${floorNameTo}`
-
-                            if (!isEmpty(unitNameTo)) {
-                                addressChangePostfix += `, ${intl.formatMessage({ id: `field.UnitType.prefix.${unitTypeTo}` }).toLowerCase()}. ${unitNameTo}`
-                            }
-                        }
-                    }
+                    addressChangePostfix = getAddressChangePostfix(sectionNameTo, sectionTypeTo, floorNameTo, unitNameTo, unitTypeTo, intl)
                 }
 
                 return !isEmpty(addressChangePostfix) ? `${value}${addressChangePostfix}` : value

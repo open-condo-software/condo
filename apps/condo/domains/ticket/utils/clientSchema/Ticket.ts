@@ -32,6 +32,9 @@ export interface ITicketFormState {
     clientPhone?: string
     clientName?: string
     deadline?: Dayjs
+    sectionName?: string
+    floorName?: string
+    unitName?: string
 }
 
 type TicketMutationType = TicketUpdateInput | TicketCreateInput

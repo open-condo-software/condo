@@ -41,6 +41,7 @@ export const SectionNameInput = (props) => {
     const intl = useIntl()
     const SectionGroupLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const ParkingGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.parking' })
+
     const { placeholder, property, loading, ...restInputProps } = props
 
     const sections = get(property, 'map.sections', [])

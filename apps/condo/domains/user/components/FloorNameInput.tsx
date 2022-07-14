@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import Select from '@condo/domains/common/components/antd/Select'
 
 export const FloorNameInput = ({ floors, ...restSelectProps }) => {
-    const options = [...floors].reverse().map(
+    const options = useMemo(() => ([...floors].reverse().map(
         (floor) => (
             <Select.Option
                 key={floor.name}
@@ -13,7 +13,7 @@ export const FloorNameInput = ({ floors, ...restSelectProps }) => {
                 {floor.name}
             </Select.Option>
         )
-    )
+    )), [floors])
 
     return (
         <Select

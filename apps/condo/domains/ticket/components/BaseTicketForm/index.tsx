@@ -1,44 +1,43 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+    BuildingUnitSubType,
+    Organization,
+    OrganizationEmployeeRole,
+    PropertyWhereInput,
+    Ticket,
+    TicketFile as TicketFileType,
+} from '@app/condo/schema'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import { Button } from '@condo/domains/common/components/Button'
+import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
+import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
+import Prompt from '@condo/domains/common/components/Prompt'
+import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
+import { colors } from '@condo/domains/common/constants/style'
+import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
+import { normalizeText } from '@condo/domains/common/utils/text'
+import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
+import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
+import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
+import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
+import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
+import { RESIDENT } from '@condo/domains/user/constants/common'
+import { useIntl } from '@core/next/intl'
 import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get, isEmpty, isFunction } from 'lodash'
 import { useRouter } from 'next/router'
-
-import {
-    Ticket,
-    TicketFile as TicketFileType,
-    BuildingUnitSubType,
-    PropertyWhereInput,
-    Organization,
-    OrganizationEmployeeRole,
-} from '@app/condo/schema'
-import { useIntl } from '@core/next/intl'
-
-import Input from '@condo/domains/common/components/antd/Input'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
-import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
-import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
-import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
-import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
-import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
-import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
-import { normalizeText } from '@condo/domains/common/utils/text'
-import Prompt from '@condo/domains/common/components/Prompt'
-import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
-import { Property } from '@condo/domains/property/utils/clientSchema'
-import { Button } from '@condo/domains/common/components/Button'
-import { colors } from '@condo/domains/common/constants/style'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { RESIDENT } from '@condo/domains/user/constants/common'
-import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
-import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
-import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { TicketAssignments } from './TicketAssignments'
 
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
-import { TicketAssignments } from './TicketAssignments'
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
@@ -273,7 +272,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const property = useMemo(() => organizationProperties.find(property => property.id === selectedPropertyId), [organizationProperties, selectedPropertyId])
 
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
-    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialValues, 'unitType', BuildingUnitSubType.Flat))
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialValues, 'unitType'))
     const [selectedSectionType, setSelectedSectionType] = useState(get(initialValues, 'sectionType'))
     const selectedUnitNameRef = useRef(selectedUnitName)
     const selectedUnitTypeRef = useRef<BuildingUnitSubType>(selectedUnitType)
@@ -460,7 +459,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 selectedUnitName={selectedUnitName}
                                                                 setSelectedSectionType={setSelectedSectionType}
                                                                 selectedSectionType={selectedSectionType}
-                                                                mode={'all'}
+                                                                mode={UnitInfoMode.All}
                                                                 initialValues={initialValues}
                                                                 form={form}
                                                             />
