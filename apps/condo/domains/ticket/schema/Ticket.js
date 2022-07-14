@@ -434,14 +434,17 @@ const Ticket = new GQLListSchema('Ticket', {
              * 👉 When a new "single" or "many" relation field will be added to Ticket,
              * new resolver should be implemented in `ticketChangeDisplayNameResolversForSingleRelations` and `relatedManyToManyResolvers`
              */
-            const { property, unitName, placeClassifier, categoryClassifier, problemClassifier } = Ticket.schema.fields
+            const { property, unitName, sectionName, sectionType, unitType, floorName, placeClassifier, categoryClassifier, problemClassifier } = Ticket.schema.fields
 
             await storeChangesIfUpdated(
                 buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
                 createTicketChange,
                 ticketChangeDisplayNameResolversForSingleRelations,
                 relatedManyToManyResolvers,
-                [{ property, unitName }, { placeClassifier, categoryClassifier, problemClassifier }]
+                [
+                    { property, unitName, sectionName, sectionType, unitType, floorName },
+                    { placeClassifier, categoryClassifier, problemClassifier },
+                ]
             )(...args)
 
             const [requestData] = args
