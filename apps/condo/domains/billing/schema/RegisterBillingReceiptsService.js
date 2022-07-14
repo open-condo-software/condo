@@ -4,7 +4,7 @@
 
 const _ = require('lodash')
 
-const { BillingAccount, BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
 const { find, getById, GQLCustomSchema } = require('@core/keystone/schema')
@@ -28,6 +28,7 @@ const errors = {
 
 const getBillingPropertyKey = ({ address }) => address
 const getBillingAccountKey = ({ unitName, unitType, number, property }) => [unitName, unitType, number, getBillingPropertyKey(property)].join('_')
+const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, account, recipient: { tin, bankAccount, iec, bic } }) => [categoryId, period, getBillingPropertyKey(property), getBillingAccountKey(account), tin, bankAccount, iec, bic].join('_')
 
 const syncBillingProperties = async (context, properties, { billingContextId }) => {
     const propertiesQuery = { address_in: Object.values(properties).map(p => p.address) }
@@ -82,11 +83,49 @@ const syncBillingAccounts = async (context, accounts, { properties, billingConte
         newAccounts.push(newAccount)
     }
 
-    return [ ...newAccounts, ...existingAccounts ]
+    const newAccountsWithData = newAccounts.map(item => ({
+        ...item,
+        property: _.find(properties, p => p.id === _.get(item, ['property', 'id'])),
+    }))
+
+    return [ ...newAccountsWithData, ...existingAccounts ]
 }
 
 const syncBillingReceipts = async (context, receipts, { accounts, properties, billingContextId } ) => {
-    console.debug('NOT YET IMPLEMENTED!')
+    const receiptsWithData = Object.values(receipts).map(receipt => ({
+        ..._.omit(receipt, ['propertyKey', 'accountKey']),
+        property: _.find(properties, p => receipt.propertyKey === getBillingPropertyKey(p)),
+        account: _.find(accounts, a => receipt.id === getBillingAccountKey(a)),
+    }))
+
+    const existingReceiptsQuery = {
+        OR: receiptsWithData.map(item => ({
+            category: { id: _.get(item, ['category', 'id']) },
+            property: { id: _.get(item, ['property', 'id']) },
+            account: { id: _.get(item, ['account', 'id']) },
+        })),
+    }
+    const existingReceipts = await find('BillingReceipt', {
+        ...existingReceiptsQuery,
+        context: { id: billingContextId },
+    })
+    const existingReceiptsWithData = existingReceipts.map(account => ({ ...account, ...{ property: _.find(properties, p => p.id === account.property ) } } ))
+    const accountsIndex = Object.fromEntries(existingReceiptsWithData.map((account) => ([getBillingAccountKey(account), account.id])))
+
+    const receiptsToAdd = receiptsWithData.filter((({ globalId }) => !Reflect.has(accountsIndex, globalId)))
+
+    const newReceipts = []
+    for (const item of receiptsToAdd) {
+
+        // TODO @toplenboren (DOMA-3445) refactor this!
+        item.property = { connect: { id: _.get(item, ['property', 'id']) } }
+        item.account = { connect: { id: _.get(item, ['account', 'id']) } }
+
+        const newReceipt = await BillingReceipt.create(context, item)
+        newReceipts.push(newReceipt)
+    }
+
+    return [ ...newReceipts, ...existingReceipts ]
 }
 
 const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingReceiptsService', {
@@ -131,7 +170,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             access: access.canRegisterBillingReceipts,
             schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]!',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { context: billingContextInput, receipts, dv, sender } } = args
+                const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
 
                 // Step 0:
                 // Validate context
@@ -142,12 +181,34 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 }
 
                 // Step 1:
-                // Get properties and accounts from input
-                const { properties, accounts } = receipts.reduce((index, receipt) => {
-                    const { address, accountNumber, unitName, unitType } = receipt
+                // Parse properties, accounts and receipts from input
+                const { properties, accounts, receipts } = receiptsInput.reduce((index, receiptInput) => {
+                    const {
+                        importId,
+                        address,
+                        accountNumber,
+                        unitName,
+                        unitType,
+                        category,
+                        period,
+                        services,
+                        toPay,
+                        toPayDetails,
+                        tin,
+                        iec,
+                        bic,
+                        bankAccount,
+                        meta,
+                        raw,
+                    } = receiptInput
 
-                    const propertyKey = getBillingPropertyKey( { address } )
-                    const accountKey = getBillingAccountKey( { unitName, unitType, number: accountNumber, property: { address: address } } )
+                    const propertyFromInput = { address }
+                    const accountFromInput = { unitName, unitType, number: accountNumber, property: propertyFromInput }
+                    const receiptFromInput = { category, period, property: propertyFromInput, account: accountFromInput, services, recipient: { tin, iec, bic, bankAccount } }
+
+                    const propertyKey = getBillingPropertyKey( propertyFromInput )
+                    const accountKey = getBillingAccountKey( accountFromInput )
+                    const receiptKey = getBillingReceiptKey(receiptFromInput)
 
                     if (!index.properties[propertyKey]) {
                         index.properties[propertyKey] = {
@@ -176,8 +237,25 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             meta: { dv: 1 },
                         }
                     }
+                    if (!index.receipts[receiptKey]) {
+                        index.receipts[receiptKey] = {
+                            dv: dv,
+                            sender: sender,
+                            context: { connect: { id: billingContext.id } },
+                            accountKey,
+                            propertyKey,
+                            period: period,
+                            importId: importId,
+                            category: { connect: { id: category.id } },
+                            raw: { ...{ dv: 1 }, ...raw },
+                            meta: { ...{ dv: 1 }, ...meta },
+                            toPay: toPay,
+                            services: services,
+                            toPayDetails: toPayDetails,
+                        }
+                    }
                     return index
-                }, { properties: {}, accounts: {} })
+                }, { properties: {}, accounts: {}, receipts: {} })
 
                 // Step 2:
                 // Sync billing properties
