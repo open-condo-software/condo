@@ -80,25 +80,50 @@ export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadT
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
+
+const getUnitPostfix = (sectionNameMessage, floorNameMessage) => {
+    if (!isEmpty(sectionNameMessage) && !isEmpty(floorNameMessage)) {
+        return `\n${sectionNameMessage},\n${floorNameMessage}`
+    } else if (!isEmpty(sectionNameMessage)) {
+        return `\n${sectionNameMessage}`
+    }
+}
+
+const getUnitMessage = (unit, unitNamePrefix, postfix) => {
+    if (!isEmpty(unit)) {
+        if (!isEmpty(unitNamePrefix)) {
+            return `${unitNamePrefix} ${unit}`
+        } else {
+            return unit
+        }
+    } else if (!isEmpty(postfix)) {
+        return '\n'
+    }
+}
+
 export const getUnitRender = (intl, search: FilterValue) => {
     const ShortSectionNameMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
     const ShortFloorNameMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
 
-    return function render (text, record) {
-        const sectionName = get(record, 'sectionName')
-        const floorName = get(record, 'floorName')
-        const unitType = get(record, 'unitType', 'flat')
+    return function render (unit, ticket) {
+        const sectionName = get(ticket, 'sectionName')
+        const floorName = get(ticket, 'floorName')
+        const unitType = get(ticket, 'unitType', 'flat')
+
         let unitNamePrefix = null
         let extraTitle = null
-        const postfix = sectionName && floorName &&
-            `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
-        if (text) {
+        const sectionNameMessage = sectionName ? `${ShortSectionNameMessage} ${ticket.sectionName}` : ''
+        const floorNameMessage = floorName ? `${ShortFloorNameMessage} ${ticket.floorName}` : ''
+
+        const postfix = getUnitPostfix(sectionNameMessage, floorNameMessage)
+
+        if (unit) {
             extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
             if (unitType !== 'flat') {
                 unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
             }
         }
-        const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
+        const unitName = getUnitMessage(unit, unitNamePrefix, postfix)
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS, extraTitle)(unitName)
     }
 }
