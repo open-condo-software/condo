@@ -106,7 +106,7 @@ abstract class TrackerInstance {
 
             if (route.length === 1) {
                 hasDomainLevelPermission = Object.keys(this.allowedDomains).some(pageRoute => route[0].includes(pageRoute))
-            } else {
+            } else if (route.length > 1) {
                 const currentDomainConfig = get(this.allowedDomains, route[0], []) as Array<string>
                 const pageConfigName = uuidValidate(route[route.length - 1]) ? 'id' : route[route.length - 1].split('?')[0]
 

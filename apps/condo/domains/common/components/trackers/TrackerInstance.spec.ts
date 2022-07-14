@@ -128,6 +128,23 @@ describe('TrackerInstance', () => {
                 expect(trackerInstance.logEvent(trackerProps)).toBeTruthy()
             })
 
+            it('when event was sent from page with search params', () => {
+                const eventName = faker.datatype.string()
+                const trackerInstance = new MockTracker(TRACKER_INSTANCE_NAME, TRACKING_CONFIG)
+                trackerInstance.init()
+
+                const trackerProps: ITrackerLogEventType = {
+                    eventName,
+                    eventProperties: {
+                        page: {
+                            path: `/${TRACKER_DOMAIN}/?arg=0&filter=[]`,
+                        },
+                    },
+                }
+
+                expect(trackerInstance.logEvent(trackerProps)).toBeTruthy()
+            })
+
         })
     })
 })
