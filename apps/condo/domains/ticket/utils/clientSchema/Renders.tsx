@@ -101,6 +101,28 @@ const getUnitMessage = (unit, unitNamePrefix, postfix) => {
     }
 }
 
+const getUnitExtraTitle = (unit, unitType, sectionName, sectionType, floorName, intl): string => {
+    const SectionTypeMessage = intl.formatMessage({ id: `field.sectionType.${sectionType}` })
+    const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+    const FloorMessage = intl.formatMessage({ id: 'field.floorName' })
+
+    const sectionNameTitle = sectionName ? `${SectionTypeMessage} ${sectionName}` : ''
+    const floorNameTitle = floorName ? `${FloorMessage} ${floorName}` : ''
+
+    let result = ''
+    if (!isEmpty(unit)) {
+        result += `${UnitTypeMessage} ${unit}\n`
+    }
+    if (!isEmpty(sectionName)) {
+        result += `${sectionNameTitle}`
+        if (!isEmpty(floorNameTitle)) {
+            result += `\n${floorNameTitle}`
+        }
+    }
+
+    return result
+}
+
 export const getUnitRender = (intl, search: FilterValue) => {
     const ShortSectionNameMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
     const ShortFloorNameMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
@@ -111,19 +133,20 @@ export const getUnitRender = (intl, search: FilterValue) => {
         const unitType = get(ticket, 'unitType', 'flat')
 
         let unitNamePrefix = null
-        let extraTitle = null
         const sectionNameMessage = sectionName ? `${ShortSectionNameMessage} ${ticket.sectionName}` : ''
+        const sectionType = ticket.sectionType
         const floorNameMessage = floorName ? `${ShortFloorNameMessage} ${ticket.floorName}` : ''
 
-        const postfix = getUnitPostfix(sectionNameMessage, floorNameMessage)
-
         if (unit) {
-            extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
             if (unitType !== 'flat') {
                 unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
             }
         }
+
+        const postfix = getUnitPostfix(sectionNameMessage, floorNameMessage)
+        const extraTitle = getUnitExtraTitle(unit, unitType, sectionName, sectionType, floorName, intl)
         const unitName = getUnitMessage(unit, unitNamePrefix, postfix)
+
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS, extraTitle)(unitName)
     }
 }

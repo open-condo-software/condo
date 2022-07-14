@@ -77,9 +77,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsWarrantyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
 
-    // const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const ParkingMessage = intl.formatMessage({ id: 'field.sectionType.Parking' }).toLowerCase()
-    const SectionMessage = intl.formatMessage({ id: 'field.sectionType.Section' }).toLowerCase()
     const FloorMessage = intl.formatMessage({ id: 'field.floorName' }).toLowerCase()
 
     const FilledReviewCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.filled' })
@@ -171,8 +168,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 let addressChangePostfix = ''
                 if (type === TicketChangeFieldMessageType.From) {
                     if (!isEmpty(sectionNameFrom)) {
-                        const sectionTypeFromMessage = sectionTypeFrom === PARKING_SECTION_TYPE ? ParkingMessage : SectionMessage
-                        addressChangePostfix += `, ${sectionTypeFromMessage} ${sectionNameFrom}`
+                        addressChangePostfix += `, ${intl.formatMessage({ id: `field.sectionType.${sectionTypeFrom}` }).toLowerCase()} ${sectionNameFrom}`
 
                         if (!isEmpty(floorNameFrom)) {
                             addressChangePostfix += `, ${FloorMessage} ${floorNameFrom}`
@@ -184,8 +180,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     }
                 }  else if (type === TicketChangeFieldMessageType.To) {
                     if (!isEmpty(sectionNameTo)) {
-                        const sectionTypeToMessage = sectionTypeTo === PARKING_SECTION_TYPE ? ParkingMessage : SectionMessage
-                        addressChangePostfix += `, ${sectionTypeToMessage} ${sectionNameTo}`
+                        addressChangePostfix += `, ${intl.formatMessage({ id: `field.sectionType.${sectionNameTo}` }).toLowerCase()} ${sectionNameTo}`
 
                         if (!isEmpty(floorNameTo)) {
                             addressChangePostfix += `, ${FloorMessage} ${floorNameTo}`

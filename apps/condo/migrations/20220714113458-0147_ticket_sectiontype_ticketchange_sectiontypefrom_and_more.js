@@ -20,6 +20,16 @@ ALTER TABLE "TicketChange" ADD COLUMN "sectionTypeTo" text NULL;
 -- Add field sectionType to tickethistoryrecord
 --
 ALTER TABLE "TicketHistoryRecord" ADD COLUMN "sectionType" text NULL;
+
+
+UPDATE "Ticket"
+SET "sectionType" = 'section'
+WHERE "unitType" != 'parking' AND "unitType" IS NOT NULL;
+
+UPDATE "Ticket"
+SET "sectionType" = 'parking'
+WHERE "unitType" = 'parking';
+
 COMMIT;
 
     `)
