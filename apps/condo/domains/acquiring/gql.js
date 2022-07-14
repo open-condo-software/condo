@@ -40,6 +40,9 @@ const REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION = gql`
     }
 `
 
+const RECIPIENT_FIELDS = `{ organization { id } tin iec bic bankAccount bankName offsettingAccount territoryCode name isApproved meta ${COMMON_FIELDS} }`
+const Recipient = generateGqlQueries('Recipient', RECIPIENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -58,5 +61,7 @@ module.exports = {
     EXPORT_PAYMENTS_TO_EXCEL,
     PaymentsFilterTemplate,
     REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
+    Recipient,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }
+
