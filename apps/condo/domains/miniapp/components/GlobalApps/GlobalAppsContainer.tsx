@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react'
+import React, { useRef, useEffect, useState, useCallback, useContext } from 'react'
 import { notification } from 'antd'
 import { useHotkeys } from 'react-hotkeys-hook'
 import get from 'lodash/get'
@@ -12,11 +12,14 @@ import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import {
     IFRAME_MODAL_ACTION_MESSAGE_TYPE,
     NOTIFICATION_MESSAGE_TYPE,
+    TASK_MESSAGE_TYPE,
     parseMessage,
     sendMessage,
 } from '@condo/domains/common/utils/iframe.utils'
 import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 import GlobalIframe from './GlobalIframe'
+import { TasksContext } from '@condo/domains/common/components/tasks/'
+import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import IFrameModal from '../IFrameModal'
 
 type ModalInfo = {
@@ -45,6 +48,11 @@ export const GlobalAppsContainer: React.FC = () => {
     const iframeRefs = useRef<Array<HTMLIFrameElement>>([])
     const [modals, setModals] = useState<{ [id: string]: ModalInfo }>({})
     const [isDebug, setIsDebug] = useState(false)
+
+    const { addTask, updateTask } = useContext(TasksContext)
+    const { MiniAppTask: miniAppTaskUIInterface } = useMiniappTaskUIInterface()
+
+
     useHotkeys('d+e+b+u+g', () => setIsDebug(!isDebug), {}, [isDebug])
 
     useEffect(() => {
@@ -63,6 +71,35 @@ export const GlobalAppsContainer: React.FC = () => {
             }
         }
     }, [])
+
+    const handleTask = useCallback((message) => {
+        const { id, title, description, progress, status, operation } = message
+        const taskRecord = {
+            id,
+            title,
+            progress,
+            description,
+            status,
+            __typename: 'MiniAppTask',
+        }
+
+        if (operation === 'create') {
+            const createMiniAppTask = miniAppTaskUIInterface.storage.useCreateTask({}, () => {
+                addTask({
+                    ...miniAppTaskUIInterface,
+                    record: taskRecord,
+                })
+            })
+
+            createMiniAppTask(taskRecord)
+        } else if (operation === 'update') {
+            const updateMiniAppTask = miniAppTaskUIInterface.storage.useUpdateTask({}, () => {
+                updateTask(taskRecord)
+            })
+
+            updateMiniAppTask(taskRecord)
+        }
+    }, [miniAppTaskUIInterface, addTask, updateTask])
 
     // TODO(DOMA-3435, @savelevMatthew) Refactor message structure after moving to lib
     const handleNotification = useCallback((message) => {
@@ -125,6 +162,8 @@ export const GlobalAppsContainer: React.FC = () => {
         const { type, message } = parsedMessage
         if (type === 'system') {
             switch (message.type) {
+                case TASK_MESSAGE_TYPE:
+                    return handleTask(message)
                 case NOTIFICATION_MESSAGE_TYPE:
                     return handleNotification(message)
                 case IFRAME_MODAL_ACTION_MESSAGE_TYPE:

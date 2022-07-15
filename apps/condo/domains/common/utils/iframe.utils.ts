@@ -1,9 +1,11 @@
 import get from 'lodash/get'
+import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 
 const Ajv = require('ajv')
 const ajv = new Ajv()
 
 // CONST DECLARATION BLOCK (for checking by external observer)
+export const TASK_MESSAGE_TYPE = 'task'
 export const NOTIFICATION_MESSAGE_TYPE = 'notification'
 export const REQUIREMENT_MESSAGE_TYPE = 'requirement'
 export const LOADED_STATUS_MESSAGE_TYPE = 'loading'
@@ -13,11 +15,21 @@ export const COMMAND_MESSAGE_TYPE = 'command'
 export const REDIRECT_MESSAGE_TYPE = 'redirect'
 export const IFRAME_MODAL_ACTION_MESSAGE_TYPE = 'modal'
 
+export type TaskOperationType = 'create' | 'update'
 export type NotificationType = 'info' | 'warning' | 'error' | 'success'
 export type RequirementType = 'auth' | 'organization'
 export type LoadingStatuses = 'done'
 
 // TYPES DECLARATION BLOCK
+type TaskMessageType = {
+    type: 'task',
+    id: string,
+    title: string,
+    description: string,
+    progress: number,
+    status: TASK_STATUS
+    operation: TaskOperationType
+}
 export type NotificationMessageType = {
     type: 'notification',
     notificationType: NotificationType,
@@ -72,6 +84,7 @@ export type CloseModalMessageType = {
 
 type SystemMessageType =
     RequirementMessageType
+    | TaskMessageType
     | NotificationMessageType
     | LoadedStatusMessageType
     | ErrorMessageType
@@ -97,6 +110,7 @@ type parseMessageType = (data: any) => ParsedMessageReturnType
 
 // CONFIGURATION BLOCK
 const AvailableMessageTypes = [
+    TASK_MESSAGE_TYPE,
     NOTIFICATION_MESSAGE_TYPE,
     REQUIREMENT_MESSAGE_TYPE,
     LOADED_STATUS_MESSAGE_TYPE,
@@ -108,6 +122,7 @@ const AvailableMessageTypes = [
 ]
 
 const MessagesRequiredProperties = {
+    [TASK_MESSAGE_TYPE]: ['id', 'title', 'description', 'progress', 'status', 'operation'],
     [NOTIFICATION_MESSAGE_TYPE]: ['notificationType', 'message'],
     [REQUIREMENT_MESSAGE_TYPE]: ['requirement'],
     [LOADED_STATUS_MESSAGE_TYPE]: ['status'],
@@ -131,10 +146,15 @@ const SystemMessageSchema = {
     type: 'object',
     properties: {
         type: { enum: AvailableMessageTypes },
+        title: { type: 'string' },
+        description: { type: 'string' },
+        progress: { type: 'number' },
+        status: { type: 'string' },
+        operation: { type: 'string' },
         notificationType: { enum: ['info', 'warning', 'error', 'success'] },
         message: { type: 'string' },
         requirement: { enum: ['auth', 'organization'] },
-        status: { const: 'done' },
+        // status: { const: 'done' },
         requestMessage: { type: 'object' },
         height: { type: 'number' },
         id: { type: 'string' },
@@ -190,6 +210,19 @@ export const parseMessage: parseMessageType = (data) => {
     if (systemMessageDetector(data)) {
         if (!systemMessageValidator(data)) return null
         switch (data.type) {
+            case TASK_MESSAGE_TYPE:
+                return {
+                    type: 'system',
+                    message: {
+                        type: TASK_MESSAGE_TYPE,
+                        id: data.id,
+                        title: data.title,
+                        description: data.description,
+                        progress: data.progress,
+                        status: data.status,
+                        operation: data.operation,
+                    },
+                }
             case NOTIFICATION_MESSAGE_TYPE:
                 return {
                     type: 'system',
@@ -285,6 +318,13 @@ export const sendMessage = (message: Record<string, unknown>, receiver: Window, 
     if (receiver) {
         receiver.postMessage(message, receiverOrigin)
     }
+}
+
+export const sendTaskProgress = (taskProgressPayload: Omit<TaskMessageType, 'type'>, receiver: Window, receiverOrigin: string): void => {
+    sendMessage({
+        type: TASK_MESSAGE_TYPE,
+        ...taskProgressPayload,
+    }, receiver, receiverOrigin)
 }
 
 export const sendNotification = (message: string, messageType: NotificationType, receiver: Window, receiverOrigin: string): void => {
