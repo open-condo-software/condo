@@ -17,7 +17,7 @@ const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
 const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
 const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
-const { BillingRecipient } = require('../utils/serverSchema')
+const { Recipient } = require('@condo/domains/acquiring/utils/serverSchema')
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
@@ -100,7 +100,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         receiver: {
             schemaDoc: 'Relation to the BillingRecipient. Going to override recipient field, has the same meaning',
             type: Relationship,
-            ref: 'BillingRecipient',
+            ref: 'Recipient',
             isRequired: true,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
@@ -153,28 +153,34 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             const contextId = get(newItem, 'context')
             const recipient = get(newItem, 'recipient')
 
+            const integrationContext = await getById('BillingIntegrationOrganizationContext', contextId)
+            const organizationId = get(integrationContext, 'organization')
+
             let receiverId
-            const sameRecipient = await BillingRecipient.getOne(context, {
-                context: { id: contextId },
+            const sameRecipient = await Recipient.getOne(context, {
+                organization: { id: organizationId },
                 tin: get(recipient, 'tin'),
                 iec: get(recipient, 'iec'),
                 bic: get(recipient, 'bic'),
                 bankAccount: get(recipient, 'bankAccount'),
                 deletedAt: null, // TODO(zuch): DOMA-2395 Move deletedAt filter to getOne
             })
-            const { bankName = '', territoryCode = '', offsettingAccount = '' } = recipient
+
             if (sameRecipient) {
                 receiverId = sameRecipient.id
             } else {
-                const createdRecipient = await BillingRecipient.create(context, {
+                const { bankName = '', territoryCode = '', offsettingAccount = '' } = recipient
+
+                const createdRecipient = await Recipient.create(context, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: fingerprint },
-                    context: { connect: { id: contextId } },
+                    organization: { connect: { id: organizationId } },
                     name: get(recipient, 'name', null),
                     tin: get(recipient, 'tin'),
                     iec: get(recipient, 'iec'),
                     bic: get(recipient, 'bic'),
                     bankAccount: get(recipient, 'bankAccount'),
+                    importRemoteSystem: 'test',
                     bankName, territoryCode, offsettingAccount,
                 })
                 receiverId = createdRecipient.id
