@@ -18,7 +18,7 @@ export type RequirementType = 'auth' | 'organization'
 export type LoadingStatuses = 'done'
 
 // TYPES DECLARATION BLOCK
-type NotificationMessageType = {
+export type NotificationMessageType = {
     type: 'notification',
     notificationType: NotificationType,
     message: string,
@@ -57,14 +57,14 @@ type RedirectMessageType = {
     url: string,
 }
 
-type ShowModalMessageType = {
+export type ShowModalMessageType = {
     type: 'modal'
     action: 'open'
     url: string
     closable: boolean
 }
 
-type CloseModalMessageType = {
+export type CloseModalMessageType = {
     type: 'modal'
     action: 'close'
     modalId: string
