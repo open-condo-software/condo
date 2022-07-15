@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { CSSProperties, useCallback, useEffect } from 'react'
 import { notification } from 'antd'
 import isFunction from 'lodash/isFunction'
 import isObject from 'lodash/isObject'
@@ -13,6 +13,8 @@ type IGlobalIframeProps = {
     pageUrl: string
     hidden?: boolean
 }
+
+const IFRAME_STYLES: CSSProperties = { width: '100%' }
 
 const GlobalIframeForwardRef = React.forwardRef<HTMLIFrameElement, IGlobalIframeProps>((props, ref) => {
     const { pageUrl, hidden } = props
@@ -39,7 +41,6 @@ const GlobalIframeForwardRef = React.forwardRef<HTMLIFrameElement, IGlobalIframe
                     return handleNotification(message)
             }
         }
-        
     }, [pageOrigin, handleNotification])
 
     useEffect(() => {
@@ -52,6 +53,7 @@ const GlobalIframeForwardRef = React.forwardRef<HTMLIFrameElement, IGlobalIframe
 
     return (
         <iframe
+            style={IFRAME_STYLES}
             ref={ref}
             src={pageUrl}
             hidden={shouldHideIframe}

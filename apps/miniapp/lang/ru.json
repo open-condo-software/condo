@@ -4,5 +4,9 @@
   "menu.Users": "Пользователи",
   "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна",
   "UserData": "Данные пользователя",
-  "OrganizationData": "Данные организации"
+  "OrganizationData": "Данные организации",
+  "SendNotification.info": "Отправить сообщение",
+  "SendNotification.warning": "Отправить предупреждение",
+  "SendNotification.error": "Отправить ошибку",
+  "RequestModal": "Открыть модальное окно"
 }

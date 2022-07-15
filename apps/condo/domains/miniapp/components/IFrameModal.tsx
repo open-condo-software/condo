@@ -25,7 +25,7 @@ const IFrameModal: React.FC<IIFrameModalProps> = React.memo((props) => {
         <Modal
             // NOTE: Using unmount
             // as modal-destroy mechanism
-            visible
+            // visible
             centered
             footer={null}
             bodyStyle={MODAL_BODY_STYLES}
