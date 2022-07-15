@@ -13,10 +13,15 @@ import { SettingsContent as TicketPropertyHintSettings } from '@condo/domains/ti
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
 import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
+import {
+    SETTINGS_TAB_SUBSCRIPTION,
+    SETTINGS_TAB_PROPERTY_HINT,
+    SETTINGS_TAB_CONTACT_ROLES,
+} from '@condo/domains/common/constants/settingsTabs'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = ['hint']
+const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT]
 
 const SettingsPage = () => {
     const intl = useIntl()
@@ -27,23 +32,25 @@ const SettingsPage = () => {
     const hasSubscriptionFeature = hasFeature('subscription')
     const tabKeysToDisplay = useMemo(() => {
         const result = ALWAYS_AVAILABLE_TABS
-        if (hasSubscriptionFeature) result.push('subscription')
+        if (hasSubscriptionFeature) result.push(SETTINGS_TAB_SUBSCRIPTION)
         return result
     }, [hasSubscriptionFeature])
 
-    const settingsTabs: SettingsTabPaneDescriptor[] = useMemo(() => [
-        hasSubscriptionFeature && ({
-            key: 'subscription',
-            title: SubscriptionTitle,
-            content: <SubscriptionPane />,
-        }),
-        {
-            key: 'hint',
-            title: HintTitle,
-            content: <TicketPropertyHintSettings />,
-        },
-    ].filter(Boolean),
-    [HintTitle, SubscriptionTitle, hasSubscriptionFeature])
+    const settingsTabs: SettingsTabPaneDescriptor[] = useMemo(
+        () => [
+            hasSubscriptionFeature && ({
+                key: SETTINGS_TAB_SUBSCRIPTION,
+                title: SubscriptionTitle,
+                content: <SubscriptionPane/>,
+            }),
+            {
+                key: SETTINGS_TAB_PROPERTY_HINT,
+                title: HintTitle,
+                content: <TicketPropertyHintSettings/>,
+            },
+        ].filter(Boolean),
+        [HintTitle, SubscriptionTitle, hasSubscriptionFeature],
+    )
 
     const titleContent = useMemo(() => <Typography.Title style={TITLE_STYLES}>{PageTitle}</Typography.Title>, [PageTitle])
 
@@ -58,7 +65,7 @@ const SettingsPage = () => {
                 <OrganizationRequired>
                     <PageHeader title={titleContent}/>
                     <TablePageContent>
-                        <SettingsPageContent settingsTabs={settingsTabs} availableTabs={tabKeysToDisplay} />
+                        <SettingsPageContent settingsTabs={settingsTabs} availableTabs={tabKeysToDisplay}/>
                     </TablePageContent>
                 </OrganizationRequired>
             </PageWrapper>
