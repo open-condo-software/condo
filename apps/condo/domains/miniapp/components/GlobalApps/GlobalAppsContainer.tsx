@@ -7,7 +7,7 @@ import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { sendMessage } from '@condo/domains/common/utils/iframe.utils'
 import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 import GlobalIframe from './GlobalIframe'
-import { IFrameModal } from '../IFrameModal'
+import IFrameModal from '../IFrameModal'
 
 const MUTATION_RESULT_MESSAGE_NAME = 'CondoWebUserEventResult'
 
@@ -63,6 +63,7 @@ export const GlobalAppsContainer: React.FC = () => {
                 pageUrl={'https://jsonformatter.org'}
                 id={'1'}
                 onClose={() => null}
+                closable={true}
             />
         </>
     )

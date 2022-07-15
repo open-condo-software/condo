@@ -6,14 +6,15 @@ import { CrossIcon }  from '@condo/domains/common/components/icons/CrossIcon'
 type IIFrameModalProps = {
     id: string
     pageUrl: string
+    closable: boolean
     onClose: (id: string) => void
 }
 
 const MODAL_BODY_STYLES: CSSProperties = { padding: 40 }
 const MODAL_STYLES: CSSProperties = { marginTop: 40 }
 
-export const IFrameModal: React.FC<IIFrameModalProps> = (props) => {
-    const { pageUrl, id } = props
+const IFrameModal: React.FC<IIFrameModalProps> = React.memo((props) => {
+    const { pageUrl, id, closable } = props
     const pageUrlWithParams = useMemo(() => {
         const url = new URL(pageUrl)
         url.searchParams.set('modalId', id)
@@ -24,7 +25,7 @@ export const IFrameModal: React.FC<IIFrameModalProps> = (props) => {
         <Modal
             // NOTE: Using unmount
             // as modal-destroy mechanism
-            // visible
+            visible
             centered
             footer={null}
             bodyStyle={MODAL_BODY_STYLES}
@@ -33,6 +34,7 @@ export const IFrameModal: React.FC<IIFrameModalProps> = (props) => {
                 console.log('CANCEL')
             }}
             closeIcon={<CrossIcon/>}
+            closable={false}
         >
             <IFrame
                 pageUrl={pageUrlWithParams}
@@ -40,4 +42,8 @@ export const IFrameModal: React.FC<IIFrameModalProps> = (props) => {
             />
         </Modal>
     )
-}
+})
+
+IFrameModal.displayName = 'IFrameModal'
+
+export default IFrameModal
