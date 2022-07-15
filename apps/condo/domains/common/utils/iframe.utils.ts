@@ -11,6 +11,7 @@ export const RESIZE_MESSAGE_TYPE = 'resize'
 export const ERROR_MESSAGE_TYPE = 'error'
 export const COMMAND_MESSAGE_TYPE = 'command'
 export const REDIRECT_MESSAGE_TYPE = 'redirect'
+export const IFRAME_MODAL_ACTION_MESSAGE_TYPE = 'modal'
 
 export type NotificationType = 'info' | 'warning' | 'error' | 'success'
 export type RequirementType = 'auth' | 'organization'
@@ -56,6 +57,18 @@ type RedirectMessageType = {
     url: string,
 }
 
+type ShowModalMessageType = {
+    type: 'modal'
+    action: 'open'
+    url: string
+}
+
+type CloseModalMessageType = {
+    type: 'modal'
+    action: 'close'
+    modalId: string
+}
+
 type SystemMessageType =
     RequirementMessageType
     | NotificationMessageType
@@ -64,6 +77,8 @@ type SystemMessageType =
     | ResizeMessageType
     | CommandMessageType
     | RedirectMessageType
+    | ShowModalMessageType
+    | CloseModalMessageType
 
 type SystemMessageReturnType = {
     type: 'system'
@@ -88,6 +103,7 @@ const AvailableMessageTypes = [
     RESIZE_MESSAGE_TYPE,
     COMMAND_MESSAGE_TYPE,
     REDIRECT_MESSAGE_TYPE,
+    IFRAME_MODAL_ACTION_MESSAGE_TYPE,
 ]
 
 const MessagesRequiredProperties = {
@@ -98,6 +114,7 @@ const MessagesRequiredProperties = {
     [RESIZE_MESSAGE_TYPE]: ['height'],
     [COMMAND_MESSAGE_TYPE]: ['id', 'command', 'data'],
     [REDIRECT_MESSAGE_TYPE]: ['url'],
+    [IFRAME_MODAL_ACTION_MESSAGE_TYPE]: ['action'],
 }
 
 const SystemMessageDetectorSchema = {
@@ -123,15 +140,41 @@ const SystemMessageSchema = {
         command: { type: 'string' },
         data: { type: 'object' },
         url: { type: 'string' },
+        action: { enum: ['open', 'close'] },
+        modalId: { type: 'string' },
     },
     additionalProperties: false,
     required: ['type'],
-    allOf: Object.keys(MessagesRequiredProperties).map(messageType => ({
-        anyOf: [
-            { not: { properties: { type: { const: messageType } } } },
-            { required: MessagesRequiredProperties[messageType] },
-        ],
-    })),
+    allOf: [
+        ...Object.keys(MessagesRequiredProperties).map(messageType => ({
+            anyOf: [
+                { not: { properties: { type: { const: messageType } } } },
+                { required: MessagesRequiredProperties[messageType] },
+            ],
+        })),
+        {
+            'if': {
+                properties: {
+                    type: { const: { IFRAME_MODAL_ACTION_MESSAGE_TYPE } },
+                    action: { const: 'open' },
+                },
+            },
+            then: {
+                required: ['url'],
+            },
+        },
+        {
+            'if': {
+                properties: {
+                    type: { const: { IFRAME_MODAL_ACTION_MESSAGE_TYPE } },
+                    action: { const: 'close' },
+                },
+            },
+            then: {
+                required: ['modalId'],
+            },
+        },
+    ],
 }
 
 const systemMessageDetector = ajv.compile(SystemMessageDetectorSchema)
@@ -204,6 +247,28 @@ export const parseMessage: parseMessageType = (data) => {
                     },
                 }
             }
+            case IFRAME_MODAL_ACTION_MESSAGE_TYPE: {
+                if (data.action === 'show') {
+                    return {
+                        type: 'system',
+                        message: {
+                            type: IFRAME_MODAL_ACTION_MESSAGE_TYPE,
+                            url: data.url,
+                            action: data.action,
+                        },
+                    }
+                } else if (data.action === '')
+                    return {
+                        type: 'system',
+                        message: {
+                            type: IFRAME_MODAL_ACTION_MESSAGE_TYPE,
+                            modalId: data.modalId,
+                            action: data.action,
+                        },
+                    }
+
+                return null
+            }
         }
     } else {
         return { type: 'custom', message: data }
@@ -258,5 +323,21 @@ export const sendRedirect = (url: string, receiver: Window, receiverOrigin: stri
     sendMessage({
         type: REDIRECT_MESSAGE_TYPE,
         url,
+    }, receiver, receiverOrigin)
+}
+
+export const sendOpenModal = (url: string, receiver: Window, receiverOrigin: string): void => {
+    sendMessage({
+        type: IFRAME_MODAL_ACTION_MESSAGE_TYPE,
+        action: 'open',
+        url,
+    }, receiver, receiverOrigin)
+}
+
+export const sendCloseModal = (modalId: string, receiver: Window, receiverOrigin: string): void => {
+    sendMessage({
+        type: IFRAME_MODAL_ACTION_MESSAGE_TYPE,
+        action: 'close',
+        modalId,
     }, receiver, receiverOrigin)
 }
