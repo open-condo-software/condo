@@ -25,7 +25,7 @@ const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
 const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
     margin: '24px 0 40px',
 }
-const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
+const FORM_PHONE_STYLES: React.CSSProperties = { paddingLeft: 76, borderRadius: 8, borderColor: colors.inputBorderGrey }
 const FORM_BUTTONS_GUTTER: RowProps['gutter'] = [0, 20]
 
 export const SignInForm = (): React.ReactElement => {

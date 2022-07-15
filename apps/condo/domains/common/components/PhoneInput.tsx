@@ -1,3 +1,5 @@
+/** @jsx jsx */
+import { jsx, css, Global } from '@emotion/react'
 import { ConfigProvider, InputProps } from 'antd'
 import { SizeType } from 'antd/es/config-provider/SizeContext'
 import React, {
@@ -11,10 +13,10 @@ import React, {
     forwardRef,
 } from 'react'
 import ReactPhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
 import { useOrganization } from '@core/next/organization'
 import get from 'lodash/get'
 import { colors } from '@condo/domains/common/constants/style'
+import 'react-phone-input-2/lib/bootstrap.css'
 
 interface IPhoneInputProps extends InputProps {
     block?: boolean
@@ -49,7 +51,22 @@ const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
     return computedStyles
 }
 
-const BUTTON_INPUT_PHONE_STYLE: React.CSSProperties = { margin: 5, backgroundColor: colors.backgroundWhiteSecondary, border: 0, borderRadius: 8 }
+const BUTTON_INPUT_PHONE_STYLE: React.CSSProperties = { paddingLeft: 4, margin: 4, marginLeft: 5, backgroundColor: colors.backgroundWhiteSecondary, border: 0, borderRadius: '6px 0px 0px 6px', width: 68 }
+
+const PhoneInputcss = css`
+    & .react-tel-input .special-label {
+        display: none;
+    }
+    & .react-tel-input .selected-flag .arrow {
+        margin-left: -1px;
+        top: 11px;
+        transform: scale(0.75, 0.75);
+    }
+    & .react-tel-input .selected-flag .flag {
+        transform: scale(1.5, 1.5);
+        top: 19px;
+    }
+`
 
 export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) => {
     const { value, placeholder, style, disabled, block, ...otherProps } = props
@@ -97,12 +114,14 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
         return getPhoneInputStyles(style, configSize, block)
     }, [style, configSize, block])
 
-    return (
+    return (<>
+        <Global styles={PhoneInputcss}/>
         <ReactPhoneInput
             {...otherProps}
             // @ts-ignore
             ref={inputRef}
             inputClass={'ant-input'}
+            buttonClass={'buttonDropdownStyle'}
             value={String(value)}
             country={userOrganizationCountry}
             onChange={onChange}
@@ -111,5 +130,6 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
             placeholder={placeholder}
             buttonStyle={BUTTON_INPUT_PHONE_STYLE}
         />
+    </>
     )
 })
