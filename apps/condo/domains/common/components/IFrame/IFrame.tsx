@@ -71,7 +71,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     const [isOrganizationRequired, setIsOrganizationRequired] = useState(false)
     const [isError, setIsError] = useState(false)
 
-    const [frameHeight, setFrameHeight] = useState(3000)
+    const [frameHeight, setFrameHeight] = useState(300)
 
     // NOTE: Changing this will trigger iframe reload
     // By default used to reload after user / organization changes

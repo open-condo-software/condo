@@ -14,7 +14,7 @@ const MODAL_BODY_STYLES: CSSProperties = { padding: 40 }
 const MODAL_STYLES: CSSProperties = { marginTop: 40 }
 
 const IFrameModal: React.FC<IIFrameModalProps> = React.memo((props) => {
-    const { pageUrl, id, closable } = props
+    const { pageUrl, id, closable, onClose } = props
     const pageUrlWithParams = useMemo(() => {
         const url = new URL(pageUrl)
         url.searchParams.set('modalId', id)
@@ -25,16 +25,18 @@ const IFrameModal: React.FC<IIFrameModalProps> = React.memo((props) => {
         <Modal
             // NOTE: Using unmount
             // as modal-destroy mechanism
-            // visible
+            visible
             centered
             footer={null}
             bodyStyle={MODAL_BODY_STYLES}
             style={MODAL_STYLES}
             onCancel={() => {
-                console.log('CANCEL')
+                if (closable) {
+                    onClose(id)
+                }
             }}
             closeIcon={<CrossIcon/>}
-            closable={false}
+            closable={closable}
         >
             <IFrame
                 pageUrl={pageUrlWithParams}
