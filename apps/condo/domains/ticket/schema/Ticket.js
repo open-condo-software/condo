@@ -328,6 +328,7 @@ const Ticket = new GQLListSchema('Ticket', {
             // Allow to set unitType to null
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
+            defaultValue: null,
         },
         source: {
             schemaDoc: 'Ticket source channel/system. Examples: call, email, visit, ...',
