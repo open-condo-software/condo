@@ -28,6 +28,8 @@ type ModalInfo = {
 const MUTATION_RESULT_MESSAGE_NAME = 'CondoWebUserEventResult'
 const MODAL_OPEN_RESULT_MESSAGE_NAME = 'CondoWebOpenModalResult'
 const MODAL_CLOSE_RESULT_MESSAGE_NAME = 'CondoWebCloseModalResult'
+const MODAL_CLOSE_USER_REASON = 'userAction'
+const MODAL_CLOSE_APP_REASON = 'externalCommand'
 
 export const GlobalAppsContainer: React.FC = () => {
     const { objs } = B2BApp.useObjects({
@@ -82,23 +84,7 @@ export const GlobalAppsContainer: React.FC = () => {
         }, event.origin)
     }, [])
 
-    const deleteModalFromApp = useCallback((id, event) => {
-        if (modals[id]) {
-            if (modals[id].ownerOrigin !== event.origin) {
-                // TODO(DOMA-3435, @savelevMatthew) Send failure message here after moving to lib
-            } else {
-                setModals(omit(modals, id))
-                event.source.postMessage({
-                    type: MODAL_CLOSE_RESULT_MESSAGE_NAME,
-                    data: { modalId: id, reason: 'commandMessage' },
-                }, event.origin)
-            }
-        } else {
-            // TODO(DOMA-3435, @savelevMatthew) Send failure message here after moving to lib
-        }
-    }, [modals])
-
-    const deleteModalFromUser = useCallback((id) => {
+    const deleteModal = useCallback((id, reason) => {
         if (modals[id]) {
             setModals(omit(modals, id))
             for (const iframe of iframeRefs.current) {
@@ -108,12 +94,28 @@ export const GlobalAppsContainer: React.FC = () => {
                 if (targetWindow) {
                     sendMessage({
                         type: MODAL_CLOSE_RESULT_MESSAGE_NAME,
-                        data: { modalId: id, reason: 'userAction' },
+                        data: { modalId: id, reason },
                     }, targetWindow, targetOrigin)
                 }
             }
         }
     }, [modals])
+
+    const deleteModalFromApp = useCallback((id, event) => {
+        if (modals[id]) {
+            if (modals[id].ownerOrigin !== event.origin) {
+                // TODO(DOMA-3435, @savelevMatthew) Send failure message here after moving to lib
+            } else {
+                deleteModal(id, MODAL_CLOSE_APP_REASON)
+            }
+        } else {
+            // TODO(DOMA-3435, @savelevMatthew) Send failure message here after moving to lib
+        }
+    }, [modals, deleteModal])
+
+    const deleteModalFromUser = useCallback((id) => {
+        deleteModal(id, MODAL_CLOSE_USER_REASON)
+    }, [deleteModal])
 
     const handleMessage = useCallback((event: MessageEvent) => {
         if (!appOrigins.includes(event.origin)) return

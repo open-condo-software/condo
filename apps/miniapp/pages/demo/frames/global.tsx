@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Space } from 'antd'
 import { useIntl } from '@core/next/intl'
 import { PageContent, PageWrapper } from '@miniapp/domains/common/components/BaseLayout'
@@ -9,7 +9,7 @@ import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import getConfig from 'next/config'
 const { publicRuntimeConfig: { condoUrl, serverUrl } } = getConfig()
 
-const MODAL_PAGE = `${serverUrl}/demo/local`
+const MODAL_PAGE = `${serverUrl}/demo/frames/modal`
 
 
 const GlobalFramePage: React.FC = () => {
@@ -20,20 +20,39 @@ const GlobalFramePage: React.FC = () => {
     const SendInfoMessage = intl.formatMessage({ id: 'SendNotification.info' })
     const SendWarningMessage = intl.formatMessage({ id: 'SendNotification.warning' })
     const SendErrorMessage = intl.formatMessage({ id: 'SendNotification.error' })
+    const ClearLogsMessage = intl.formatMessage({ id: 'ClearLogs' })
 
-    const [content] = useState('')
+    const [content, setContent] = useState<Array<string>>([''])
 
-    const handleModalClick = () => {
+    const handleModalClick = useCallback(() => {
         if (typeof parent !== 'undefined') {
             sendOpenModal(MODAL_PAGE, true, parent, extractOrigin(condoUrl))
         }
-    }
+    }, [])
 
-    const handleNotification = (type) => {
+    const handleNotification = useCallback((type) => {
         if (typeof parent !== 'undefined') {
             sendNotification(type, type, parent, extractOrigin(condoUrl))
         }
-    }
+    }, [])
+
+    const handleMessage = useCallback((event) => {
+        if (event.data) {
+            setContent((prev) => [...prev, JSON.stringify(event.data)])
+        }
+    }, [])
+
+    const handleClear = useCallback(() => {
+        setContent([])
+    }, [])
+
+    useEffect(() => {
+        window.addEventListener('message', handleMessage)
+
+        return () => {
+            window.removeEventListener('message', handleMessage)
+        }
+    }, [handleMessage])
 
     return (
         <>
@@ -42,7 +61,6 @@ const GlobalFramePage: React.FC = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    {content}
                     <Space direction={'horizontal'} wrap>
                         <Button
                             size={'small'}
@@ -72,7 +90,17 @@ const GlobalFramePage: React.FC = () => {
                         >
                             {OpenModalMessage}
                         </Button>
+                        <Button
+                            size={'small'}
+                            type={'sberDefaultGradient'}
+                            onClick={handleClear}
+                        >
+                            {ClearLogsMessage}
+                        </Button>
                     </Space>
+                    {content.map((row, index) => (
+                        <div key={index}>{row}</div>
+                    ))}
                 </PageContent>
             </PageWrapper>
         </>

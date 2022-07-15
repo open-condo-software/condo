@@ -8,5 +8,8 @@
   "SendNotification.info": "Send info",
   "SendNotification.warning": "Send warning",
   "SendNotification.error": "Send Error",
-  "RequestModal": "Open Modal"
+  "RequestModal": "Open Modal",
+  "ClearLogs": "Clear logs",
+  "IAmExternal": "I'm external website opened in condo interface",
+  "ExternalButton": "ExternalButton"
 }
