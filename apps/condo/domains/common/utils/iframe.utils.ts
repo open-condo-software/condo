@@ -155,9 +155,10 @@ const SystemMessageSchema = {
         {
             'if': {
                 properties: {
-                    type: { const: { IFRAME_MODAL_ACTION_MESSAGE_TYPE } },
+                    type: { const: IFRAME_MODAL_ACTION_MESSAGE_TYPE },
                     action: { const: 'open' },
                 },
+                required: ['type', 'action'],
             },
             then: {
                 required: ['url'],
@@ -166,9 +167,10 @@ const SystemMessageSchema = {
         {
             'if': {
                 properties: {
-                    type: { const: { IFRAME_MODAL_ACTION_MESSAGE_TYPE } },
+                    type: { const: IFRAME_MODAL_ACTION_MESSAGE_TYPE },
                     action: { const: 'close' },
                 },
+                required: ['type', 'action'],
             },
             then: {
                 required: ['modalId'],
@@ -248,7 +250,7 @@ export const parseMessage: parseMessageType = (data) => {
                 }
             }
             case IFRAME_MODAL_ACTION_MESSAGE_TYPE: {
-                if (data.action === 'show') {
+                if (data.action === 'open') {
                     return {
                         type: 'system',
                         message: {
@@ -257,7 +259,7 @@ export const parseMessage: parseMessageType = (data) => {
                             action: data.action,
                         },
                     }
-                } else if (data.action === '')
+                } else if (data.action === 'close')
                     return {
                         type: 'system',
                         message: {

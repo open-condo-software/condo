@@ -1,6 +1,7 @@
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useMemo } from 'react'
 import { Modal } from 'antd'
 import { IFrame } from '@condo/domains/common/components/IFrame'
+import { CrossIcon }  from '@condo/domains/common/components/icons/CrossIcon'
 
 type IIFrameModalProps = {
     id: string
@@ -12,7 +13,13 @@ const MODAL_BODY_STYLES: CSSProperties = { padding: 40 }
 const MODAL_STYLES: CSSProperties = { marginTop: 40 }
 
 export const IFrameModal: React.FC<IIFrameModalProps> = (props) => {
-    const { pageUrl } = props
+    const { pageUrl, id } = props
+    const pageUrlWithParams = useMemo(() => {
+        const url = new URL(pageUrl)
+        url.searchParams.set('modalId', id)
+        return url.toString()
+    }, [pageUrl, id])
+
     return (
         <Modal
             // NOTE: Using unmount
@@ -25,9 +32,10 @@ export const IFrameModal: React.FC<IIFrameModalProps> = (props) => {
             onCancel={() => {
                 console.log('CANCEL')
             }}
+            closeIcon={<CrossIcon/>}
         >
             <IFrame
-                pageUrl={pageUrl}
+                pageUrl={pageUrlWithParams}
                 options={{ withPreFetch: false }}
             />
         </Modal>
