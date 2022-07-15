@@ -65,7 +65,7 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
                         onClick={toggleCollapsed}
                         css={sideNavButtonCss}
                         size={'small'}
-                        icon={isCollapsed ? <ArrowIconLeft/> : <ArrowIconRight/> }
+                        icon={isCollapsed ? <ArrowIconRight/> : <ArrowIconLeft/> }
                     />
                 </LayoutTriggerWrapper>
                 <ActionsContainer minified={isCollapsed}>
