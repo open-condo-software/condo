@@ -35,6 +35,7 @@ interface IFrameProps {
 
 type optionsType = {
     withLoader?: boolean,
+    withPreFetch?: boolean
 }
 
 const getIframeStyles: (boolean) => CSSProperties = (isLoading) => ({
@@ -51,6 +52,9 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     const LoadingErrorMessage = intl.formatMessage({ id: 'miniapp.loadingError.message' })
 
     const { pageUrl, options, handlers } = props
+    const shouldHaveLoader = get(options, 'withLoader', true)
+    const shouldPrefetch = get(options, 'withPreFetch', true)
+
     const iFrameRef = useRef()
     const messageHandlers = useMemo(() => {
         return handlers ? handlers : []
@@ -67,7 +71,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     const [isOrganizationRequired, setIsOrganizationRequired] = useState(false)
     const [isError, setIsError] = useState(false)
 
-    const [frameHeight, setFrameHeight] = useState(300)
+    const [frameHeight, setFrameHeight] = useState(3000)
 
     // NOTE: Changing this will trigger iframe reload
     // By default used to reload after user / organization changes
@@ -135,8 +139,10 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
             }
         }
 
-        preFetch()
-    }, [isOnClient, pageUrl])
+        if (shouldPrefetch) {
+            preFetch()
+        }
+    }, [isOnClient, pageUrl, shouldPrefetch])
 
     const handleCommand = useCallback((message) => {
         const iFrameReceiver = get(iFrameRef, 'current.contentWindow', null)
@@ -206,8 +212,6 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     useEffect(() => {
         setIsLoading(true)
     }, [iframeKey])
-
-    const shouldHaveLoader = get(options, 'withLoader', true)
     const styles = useMemo(() => getIframeStyles(isLoading), [isLoading])
     return (
         <Wrapper>
