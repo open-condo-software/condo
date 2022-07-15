@@ -184,7 +184,6 @@ const MyApp = ({ Component, pageProps }) => {
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
                 <CacheProvider value={cache}>
                     <GlobalStyle/>
-                    <GlobalAppsContainer/>
                     <FocusContextProvider>
                         <TrackingProvider>
                             <OnBoardingProvider>
@@ -193,6 +192,7 @@ const MyApp = ({ Component, pageProps }) => {
                                         initialTaskRecords={initialTaskRecords}
                                         uiInterfaces={uiInterfaces}
                                     >
+                                        <GlobalAppsContainer/>
                                         <LayoutContextProvider>
                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                 <RequiredAccess>

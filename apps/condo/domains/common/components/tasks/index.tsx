@@ -62,7 +62,7 @@ export enum TASK_STORAGE {
 type StopPollingFunction = () => void
 
 type UseCreateTaskFunction = (attrs: unknown, onComplete: OnCompleteFunc) => (attrs: unknown) => void
-type UseUpdateTaskFunction = (attrs: unknown, onComplete: OnCompleteFunc) => (attrs: unknown, obj: Record<string, unknown>) => void
+type UseUpdateTaskFunction = (attrs: unknown, onComplete: OnCompleteFunc) => (attrs: unknown) => void
 type UseDeleteTaskFunction = (attrs: unknown, onComplete: OnCompleteFunc) => (attrs: unknown) => void
 
 type TasksWhereCondition = {
