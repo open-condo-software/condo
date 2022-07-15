@@ -61,6 +61,7 @@ type ShowModalMessageType = {
     type: 'modal'
     action: 'open'
     url: string
+    closable: boolean
 }
 
 type CloseModalMessageType = {
@@ -142,6 +143,7 @@ const SystemMessageSchema = {
         url: { type: 'string' },
         action: { enum: ['open', 'close'] },
         modalId: { type: 'string' },
+        closable: { type: 'boolean' },
     },
     additionalProperties: false,
     required: ['type'],
@@ -257,6 +259,7 @@ export const parseMessage: parseMessageType = (data) => {
                             type: IFRAME_MODAL_ACTION_MESSAGE_TYPE,
                             url: data.url,
                             action: data.action,
+                            closable: get(data, 'closable', true),
                         },
                     }
                 } else if (data.action === 'close')
@@ -328,10 +331,11 @@ export const sendRedirect = (url: string, receiver: Window, receiverOrigin: stri
     }, receiver, receiverOrigin)
 }
 
-export const sendOpenModal = (url: string, receiver: Window, receiverOrigin: string): void => {
+export const sendOpenModal = (url: string, closable = true, receiver: Window, receiverOrigin: string): void => {
     sendMessage({
         type: IFRAME_MODAL_ACTION_MESSAGE_TYPE,
         action: 'open',
+        closable,
         url,
     }, receiver, receiverOrigin)
 }

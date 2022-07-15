@@ -24,13 +24,23 @@ describe('parseMessage', () => {
             ['Size message', { type: RESIZE_MESSAGE_TYPE, height: 500 }],
             ['Redirect message', { type: REDIRECT_MESSAGE_TYPE, url: '/path' }],
             ['Open modal message', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'open', url: 'https://github.com' }],
-            ['Open modal message', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'close', modalId: '123' }],
+            ['Close modal message', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'close', modalId: '123' }],
         ]
         test.each(validCases)('%p', (message, payload) => {
             const result = parseMessage(payload)
             expect(result).toBeDefined()
             expect(result).toHaveProperty('type', 'system')
             expect(result).toHaveProperty('message', expect.objectContaining(payload))
+        })
+    })
+    describe('Should fulfil defaults for optional parameters',  () => {
+        test('Open modal: closable', () => {
+            expect(parseMessage({ type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'open', url: 'https://github.com' }))
+                .toHaveProperty(['message', 'closable'], true)
+            expect(parseMessage({ type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'open', url: 'https://github.com', closable: true }))
+                .toHaveProperty(['message', 'closable'], true)
+            expect(parseMessage({ type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'open', url: 'https://github.com', closable: false }))
+                .toHaveProperty(['message', 'closable'], false)
         })
     })
     describe('Should not parse invalid system messages', () => {
