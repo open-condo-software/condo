@@ -8,5 +8,8 @@
   "SendNotification.info": "Отправить сообщение",
   "SendNotification.warning": "Отправить предупреждение",
   "SendNotification.error": "Отправить ошибку",
-  "RequestModal": "Открыть модальное окно"
+  "RequestModal": "Открыть модальное окно",
+  "ClearLogs": "Очистить логи",
+  "IAmExternal": "Я - внешняя страница, открытая в интерфейсе платформы по приказу генерала Гавса (глобального миниаппа)",
+  "ExternalButton": "Внешняя кнопка"
 }
