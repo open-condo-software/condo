@@ -11,7 +11,6 @@ async function canReadRecipients ({ authentication: { item: user } }) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    //Проверить логику что человек из организации
     return false
 }
 
@@ -19,15 +18,6 @@ async function canManageRecipients ({ authentication: { item: user }, originalIn
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
-
-
-    //Нужна логика для добавления ресипиентов через RECEIPT
-    if (operation === 'create') {
-        return false
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManageRecipients update logic!
-        return false
-    }
 
     return false
 }
