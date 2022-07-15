@@ -1,23 +1,23 @@
-import React, { CSSProperties, useMemo } from 'react'
-import Head from 'next/head'
-import { Typography } from 'antd'
-
-import { useIntl } from '@core/next/intl'
-
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
-import { SettingsContent as TicketPropertyHintSettings } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
 import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
 import {
-    SETTINGS_TAB_SUBSCRIPTION,
-    SETTINGS_TAB_PROPERTY_HINT,
     SETTINGS_TAB_CONTACT_ROLES,
+    SETTINGS_TAB_PROPERTY_HINT,
+    SETTINGS_TAB_SUBSCRIPTION,
 } from '@condo/domains/common/constants/settingsTabs'
+import { ContactRolesSettingsContent } from '@condo/domains/contact/components/ContactRolesSettingsContent'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
+import {
+    SettingsContent as TicketPropertyHintSettings,
+} from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
+import { useIntl } from '@core/next/intl'
+import { Typography } from 'antd'
+import Head from 'next/head'
+import React, { CSSProperties, useMemo } from 'react'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
@@ -58,7 +58,9 @@ const SettingsPage = () => {
         [HintTitle, SubscriptionTitle, hasSubscriptionFeature],
     )
 
-    const titleContent = useMemo(() => <Typography.Title style={TITLE_STYLES}>{PageTitle}</Typography.Title>, [PageTitle])
+    const titleContent = useMemo(() => (
+        <Typography.Title style={TITLE_STYLES}>{PageTitle}</Typography.Title>
+    ), [PageTitle])
 
     return (
         <>
