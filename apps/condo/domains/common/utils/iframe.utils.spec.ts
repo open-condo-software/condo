@@ -6,6 +6,7 @@ import {
     ERROR_MESSAGE_TYPE,
     RESIZE_MESSAGE_TYPE,
     REDIRECT_MESSAGE_TYPE,
+    IFRAME_MODAL_ACTION_MESSAGE_TYPE,
 } from './iframe.utils'
 
 describe('parseMessage', () => {
@@ -22,6 +23,8 @@ describe('parseMessage', () => {
             ['Error message', { type: ERROR_MESSAGE_TYPE, message: 'Validation failure error', requestMessage: { type: 'IMPORTANT', requirement: 'auth' } }],
             ['Size message', { type: RESIZE_MESSAGE_TYPE, height: 500 }],
             ['Redirect message', { type: REDIRECT_MESSAGE_TYPE, url: '/path' }],
+            ['Open modal message', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'open', url: 'https://github.com' }],
+            ['Open modal message', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'close', modalId: '123' }],
         ]
         test.each(validCases)('%p', (message, payload) => {
             const result = parseMessage(payload)
@@ -40,6 +43,8 @@ describe('parseMessage', () => {
             ['No loading status', { type: LOADED_STATUS_MESSAGE_TYPE }],
             ['Height is not number', { type: RESIZE_MESSAGE_TYPE, height: '1230123' }],
             ['No height', { type: RESIZE_MESSAGE_TYPE }],
+            ['Open modal message without url', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'open' }],
+            ['Close modal message without modalId', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'close' }],
         ]
         test.each(invalidCases)('%p', (message, payload) => {
             const result = parseMessage(payload)
