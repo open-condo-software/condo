@@ -191,6 +191,7 @@
   "RolesAndAccess": "Roles and accesses",
   "Hint": "Ticket Hint",
   "Subscription": "Subscription",
+  "ContactRoles": "Residents roles",
   "Yes": "Yes",
   "OneBillingWarning": "Attention! It's impossible to integrate with more than one billing",
   "OneAcquiringWarning": "Attention! It's impossible to integrate with more than one acquiring",
