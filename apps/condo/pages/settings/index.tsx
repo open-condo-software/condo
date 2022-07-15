@@ -21,13 +21,14 @@ import {
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT]
+const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_CONTACT_ROLES]
 
 const SettingsPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'menu.Settings' })
     const HintTitle = intl.formatMessage({ id: 'Hint' })
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
+    const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
     const tabKeysToDisplay = useMemo(() => {
@@ -47,6 +48,11 @@ const SettingsPage = () => {
                 key: SETTINGS_TAB_PROPERTY_HINT,
                 title: HintTitle,
                 content: <TicketPropertyHintSettings/>,
+            },
+            {
+                key: SETTINGS_TAB_CONTACT_ROLES,
+                title: RolesTitle,
+                content: <ContactRolesSettingsContent/>,
             },
         ].filter(Boolean),
         [HintTitle, SubscriptionTitle, hasSubscriptionFeature],
