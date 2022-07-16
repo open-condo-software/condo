@@ -24,11 +24,11 @@ export type LoadingStatuses = 'done'
 type TaskMessageType = {
     type: 'task',
     id: string,
-    title: string,
-    description: string,
-    progress: number,
-    status: TASK_STATUS
-    operation: TaskOperationType
+    taskTitle: string,
+    taskDescription: string,
+    taskProgress: number,
+    taskStatus: TASK_STATUS
+    taskOperation: TaskOperationType
 }
 export type NotificationMessageType = {
     type: 'notification',
@@ -122,7 +122,7 @@ const AvailableMessageTypes = [
 ]
 
 const MessagesRequiredProperties = {
-    [TASK_MESSAGE_TYPE]: ['id', 'title', 'description', 'progress', 'status', 'operation'],
+    [TASK_MESSAGE_TYPE]: ['id', 'taskTitle', 'taskDescription', 'taskProgress', 'taskStatus', 'taskOperation'],
     [NOTIFICATION_MESSAGE_TYPE]: ['notificationType', 'message'],
     [REQUIREMENT_MESSAGE_TYPE]: ['requirement'],
     [LOADED_STATUS_MESSAGE_TYPE]: ['status'],
@@ -146,15 +146,15 @@ const SystemMessageSchema = {
     type: 'object',
     properties: {
         type: { enum: AvailableMessageTypes },
-        title: { type: 'string' },
-        description: { type: 'string' },
-        progress: { type: 'number' },
-        status: { type: 'string' },
-        operation: { type: 'string' },
+        taskTitle: { type: 'string' },
+        taskDescription: { type: 'string' },
+        taskProgress: { type: 'number' },
+        taskStatus: { enum: ['processing', 'completed', 'error'] },
+        taskOperation: { enum: ['create', 'update'] },
         notificationType: { enum: ['info', 'warning', 'error', 'success'] },
         message: { type: 'string' },
         requirement: { enum: ['auth', 'organization'] },
-        // status: { const: 'done' },
+        status: { const: 'done' },
         requestMessage: { type: 'object' },
         height: { type: 'number' },
         id: { type: 'string' },
@@ -216,11 +216,11 @@ export const parseMessage: parseMessageType = (data) => {
                     message: {
                         type: TASK_MESSAGE_TYPE,
                         id: data.id,
-                        title: data.title,
-                        description: data.description,
-                        progress: data.progress,
-                        status: data.status,
-                        operation: data.operation,
+                        taskTitle: data.taskTitle,
+                        taskDescription: data.taskDescription,
+                        taskProgress: data.taskProgress,
+                        taskStatus: data.taskStatus,
+                        taskOperation: data.taskOperation,
                     },
                 }
             case NOTIFICATION_MESSAGE_TYPE:
