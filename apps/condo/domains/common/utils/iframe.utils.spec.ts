@@ -1,5 +1,7 @@
+import faker from 'faker'
 import {
     parseMessage,
+    TASK_MESSAGE_TYPE,
     NOTIFICATION_MESSAGE_TYPE,
     REQUIREMENT_MESSAGE_TYPE,
     LOADED_STATUS_MESSAGE_TYPE,
@@ -25,6 +27,7 @@ describe('parseMessage', () => {
             ['Redirect message', { type: REDIRECT_MESSAGE_TYPE, url: '/path' }],
             ['Open modal message', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'open', url: 'https://github.com' }],
             ['Close modal message', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'close', modalId: '123' }],
+            ['Show task progress', { type: TASK_MESSAGE_TYPE, id: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'create' }],
         ]
         test.each(validCases)('%p', (message, payload) => {
             const result = parseMessage(payload)
@@ -55,6 +58,9 @@ describe('parseMessage', () => {
             ['No height', { type: RESIZE_MESSAGE_TYPE }],
             ['Open modal message without url', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'open' }],
             ['Close modal message without modalId', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'close' }],
+            ['Invalid task status type', { type: TASK_MESSAGE_TYPE, id: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'delete' }],
+            ['Invalid task status', { type: TASK_MESSAGE_TYPE, id: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'pending', taskOperation: 'create' }],
+            ['No task id', { type: TASK_MESSAGE_TYPE, taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'create' }],
         ]
         test.each(invalidCases)('%p', (message, payload) => {
             const result = parseMessage(payload)

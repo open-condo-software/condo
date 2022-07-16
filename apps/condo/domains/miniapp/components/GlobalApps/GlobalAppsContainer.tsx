@@ -73,7 +73,15 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [])
 
     const handleTask = useCallback((message) => {
-        const { id, title, description, progress, status, operation } = message
+        const {
+            id,
+            taskTitle: title,
+            taskDescription: description,
+            taskProgress: progress,
+            taskStatus: status,
+            taskOperation: operation,
+        } = message
+
         const taskRecord = {
             id,
             title,
