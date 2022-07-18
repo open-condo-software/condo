@@ -35,19 +35,17 @@ async function calculateReopenedCounter (context, existingItem, resolvedData) {
     }
 }
 
-async function getOrCreateContact (context, resolvedData) {
-    const user = get(context, ['req', 'user'])
-    const organizationId = get(resolvedData, 'organization', null)
-    const propertyId = get(resolvedData, 'property', null)
-    const unitName = get(resolvedData, 'unitName', null)
-    const unitType = get(resolvedData, 'unitType', null)
-
-    const residentName = user.name
-    const residentPhone = user.phone
-    const residentEmail = user.email
+async function getOrCreateContactByClientData (context, resolvedData, existingItem) {
+    const organizationId = get(resolvedData, 'organization', null) || get(existingItem, 'organization', null)
+    const propertyId = get(resolvedData, 'property', null) || get(existingItem, 'property', null)
+    const unitName = get(resolvedData, 'unitName', null) || get(existingItem, 'unitName', null)
+    const unitType = get(resolvedData, 'unitType', null) || get(existingItem, 'unitType', null)
+    const clientPhone = get(resolvedData, 'clientPhone') || get(existingItem, 'clientPhone', null)
+    const clientName = get(resolvedData, 'clientName') || get(existingItem, 'clientName', null)
+    const clientEmail = get(resolvedData, 'clientEmail') || get(existingItem, 'clientEmail', null)
 
     const [contact] = await Contact.getAll(context, {
-        phone: residentPhone,
+        phone: clientPhone,
         organization: { id: organizationId },
         property: { id: propertyId },
         unitName,
@@ -66,9 +64,9 @@ async function getOrCreateContact (context, resolvedData) {
         property: { connect: { id: propertyId } },
         unitName,
         unitType,
-        email: residentEmail,
-        phone: residentPhone,
-        name: residentName,
+        phone: clientPhone,
+        name: clientName,
+        email: clientEmail,
     })
 }
 
@@ -94,6 +92,7 @@ function setClientNamePhoneEmailFieldsByDataFromUser (user, resolvedData) {
 
 function overrideTicketFieldsForResidentUserType (context, resolvedData) {
     resolvedData.canReadByResident = true
+    resolvedData.isResidentTicket = true
     // set default unitType and sectionType values to tickets, created from older versions of the resident's mobile app where no unitType and sectionType is passed
     resolvedData.unitType = resolvedData.unitType || FLAT_UNIT_TYPE
     const sectionTypeByUnitType = resolvedData.unitType === PARKING_UNIT_TYPE ? PARKING_SECTION_TYPE : SECTION_SECTION_TYPE
@@ -163,7 +162,7 @@ async function softDeleteTicketHintPropertiesByProperty (context, updatedItem) {
 module.exports = {
     calculateReopenedCounter,
     calculateTicketOrder,
-    getOrCreateContact,
+    getOrCreateContactByClientData,
     setSectionAndFloorFieldsByDataFromPropertyMap,
     setClientNamePhoneEmailFieldsByDataFromUser,
     overrideTicketFieldsForResidentUserType,

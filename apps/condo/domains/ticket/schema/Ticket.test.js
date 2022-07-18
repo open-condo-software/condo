@@ -1382,6 +1382,227 @@ describe('Ticket', () => {
                 })
             })
         })
+
+        describe('contact', function () {
+            describe('isResident ticket is true', function () {
+                it('should be created and connected if no contact matches with clientPhone, unitName and unitType', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const unitName = faker.random.alphaNumeric(8)
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        isResidentTicket: true,
+                        clientName: name,
+                        clientPhone: phone,
+                        unitName,
+                    })
+
+                    expect(ticket.contact.id).toMatch(UUID_RE)
+                    expect(ticket.contact.name).toEqual(name)
+                    expect(ticket.contact.phone).toEqual(phone)
+                    expect(ticket.contact.unitName).toEqual(unitName)
+                    expect(ticket.contact.unitType).toEqual(FLAT_UNIT_TYPE)
+                })
+
+                it('should be connected if contact with same clientPhone, unitName and unitType is exist', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const unitName = faker.random.alphaNumeric(8)
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [contact] = await createTestContact(admin, organization, property, {
+                        phone,
+                        name,
+                        unitName,
+                    })
+
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        isResidentTicket: true,
+                        clientName: name,
+                        clientPhone: phone,
+                        unitName,
+                    })
+
+                    expect(ticket.contact.id).toEqual(contact.id)
+                    expect(ticket.contact.name).toEqual(name)
+                    expect(ticket.contact.phone).toEqual(phone)
+                    expect(ticket.contact.unitName).toEqual(unitName)
+                    expect(ticket.contact.unitType).toEqual(FLAT_UNIT_TYPE)
+                })
+
+                it('should be created and connected new contact if clientPhone, unitName or unitType are different than connected contact\'s', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const { userAttrs: { phone: phone1, name: name1 } } = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const { userAttrs: { phone: phone2, name: name2 } } = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const unitName = faker.random.alphaNumeric(8)
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [contact1] = await createTestContact(admin, organization, property, {
+                        phone: phone1,
+                        name: name1,
+                        unitName,
+                    })
+
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        isResidentTicket: true,
+                        clientName: name1,
+                        clientPhone: phone1,
+                        unitName,
+                    })
+
+                    expect(ticket.contact.id).toEqual(contact1.id)
+                    expect(ticket.contact.name).toEqual(name1)
+                    expect(ticket.contact.phone).toEqual(phone1)
+                    expect(ticket.contact.unitName).toEqual(unitName)
+                    expect(ticket.contact.unitType).toEqual(FLAT_UNIT_TYPE)
+
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        clientName: name2,
+                        clientPhone: phone2,
+                        unitName,
+                    })
+
+                    expect(updatedTicket.contact.id).not.toEqual(contact1.id)
+                    expect(updatedTicket.contact.name).toEqual(name2)
+                    expect(updatedTicket.contact.phone).toEqual(phone2)
+                    expect(updatedTicket.contact.unitName).toEqual(unitName)
+                    expect(updatedTicket.contact.unitType).toEqual(FLAT_UNIT_TYPE)
+                })
+
+                it('should be connected if resident user create ticket', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const residentClient = await makeClientWithResidentUser()
+                    const { name, phone } = residentClient.userAttrs
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const unitName = faker.random.alphaNumeric(5)
+
+                    await createTestResident(admin, residentClient.user, organization, property, {
+                        unitName,
+                    })
+
+                    const [createdTicket] = await createTestTicket(residentClient, organization, property, {
+                        unitName,
+                    })
+
+                    const ticket = await Ticket.getOne(admin, { id: createdTicket.id })
+
+                    expect(ticket.contact.id).toMatch(UUID_RE)
+                    expect(ticket.contact.name).toEqual(name)
+                    expect(ticket.contact.phone).toEqual(phone)
+                    expect(ticket.contact.unitName).toEqual(unitName)
+                    expect(ticket.contact.unitType).toEqual(FLAT_UNIT_TYPE)
+                })
+
+                it('should be disconnected if isResidentTicket changed to false', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const unitName = faker.random.alphaNumeric(8)
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        isResidentTicket: true,
+                        clientName: name,
+                        clientPhone: phone,
+                        unitName,
+                    })
+
+                    expect(ticket.contact.id).toMatch(UUID_RE)
+                    expect(ticket.contact.name).toEqual(name)
+                    expect(ticket.contact.phone).toEqual(phone)
+                    expect(ticket.contact.unitName).toEqual(unitName)
+                    expect(ticket.contact.unitType).toEqual(FLAT_UNIT_TYPE)
+
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        isResidentTicket: false,
+                    })
+
+                    expect(updatedTicket.contact).toBeNull()
+                })
+            })
+
+            describe('isResidentTicket is false', () => {
+                it('should not be created if no contact matches witch clientPhone, unitName and unitType', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const unitName = faker.random.alphaNumeric(8)
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        isResidentTicket: false,
+                        clientName: name,
+                        clientPhone: phone,
+                        unitName,
+                    })
+
+                    expect(ticket.contact).toBeNull()
+                })
+
+                it('should not be connected if contact with same clientPhone, unitName and unitType is exist', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const unitName = faker.random.alphaNumeric(8)
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    await createTestContact(admin, organization, property, {
+                        phone,
+                        name,
+                        unitName,
+                    })
+
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        isResidentTicket: false,
+                        clientName: name,
+                        clientPhone: phone,
+                        unitName,
+                    })
+
+                    expect(ticket.contact).toBeNull()
+                })
+
+                it('should be connected if isResidentTicket changed to true', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const unitName = faker.random.alphaNumeric(8)
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [contact] = await createTestContact(admin, organization, property, {
+                        phone,
+                        name,
+                        unitName,
+                    })
+
+                    const [ticket] = await createTestTicket(admin, organization, property, {
+                        isResidentTicket: false,
+                        clientName: name,
+                        clientPhone: phone,
+                        unitName,
+                    })
+
+                    expect(ticket.contact).toBeNull()
+
+                    const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                        isResidentTicket: true,
+                    })
+
+                    expect(updatedTicket.contact.id).toEqual(contact.id)
+                    expect(updatedTicket.contact.name).toEqual(name)
+                    expect(updatedTicket.contact.phone).toEqual(phone)
+                    expect(updatedTicket.contact.unitName).toEqual(unitName)
+                    expect(updatedTicket.contact.unitType).toEqual(FLAT_UNIT_TYPE)
+                })
+            })
+
+        })
     })
 
     describe('notifications', () => {

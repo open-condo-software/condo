@@ -73,6 +73,7 @@ async function createTestTicket (client, organization, property, extraAttrs = {}
         property: { connect: { id: property.id } },
         status: { connect: { id: TICKET_OPEN_STATUS_ID } },
         source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
+        isResidentTicket: false,
         ...extraAttrs,
     }
     const obj = await Ticket.create(client, attrs)
