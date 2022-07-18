@@ -198,6 +198,8 @@ const Meter = new GQLListSchema('Meter', {
                     for (const reading of meterReadings) {
                         await MeterReading.update(context, reading.id, {
                             deletedAt: deletedMeterAt,
+                            dv: updatedItem.dv,
+                            sender: updatedItem.sender,
                         })
                     }
                 }
